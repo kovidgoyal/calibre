@@ -364,6 +364,8 @@ public:
   QTime  previousPosTimestamp;
   int    pixelDistanceMoved;
   int    pixelsToMovePerSlide;
+  QFont subtitleFont;
+
   void setImages(FlowImages *images);
   void dataChanged();
   
@@ -422,6 +424,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
   step = 0;
   target = 0;
   fade = 256;
+  subtitleFont = QFont();
 
   triggerTimer.setSingleShot(true);
   triggerTimer.setInterval(0);
@@ -674,12 +677,17 @@ void PictureFlowPrivate::render_text(QPainter *painter, int index) {
     caption = slideImages->caption(index);
     subtitle = slideImages->subtitle(index);
     buffer_width = buffer.width(); buffer_height = buffer.height();
+    subtitleFont.setPixelSize(fontSize);
 
     brect = painter->boundingRect(QRect(0, 0, buffer_width, fontSize), TEXT_FLAGS, caption);
+    painter->save();
+    painter->setFont(subtitleFont);
     brect2 = painter->boundingRect(QRect(0, 0, buffer_width, fontSize), TEXT_FLAGS, subtitle);
+    painter->restore();
 
     // So that if there is no subtitle, the caption is not flush with the bottom
     if (brect2.height() < fontSize) brect2.setHeight(fontSize);
+    brect2.setHeight(brect2.height()+5); // A bit of buffer
 
     // So that the text does not occupy more than the lower half of the buffer
     if (brect.height() > ((int)(buffer.height()/3.0)) - fontSize*2)
@@ -691,7 +699,11 @@ void PictureFlowPrivate::render_text(QPainter *painter, int index) {
     painter->drawText(brect, TEXT_FLAGS, caption);
     
     brect2.moveTop(buffer_height - brect2.height());
+
+    painter->save();
+    painter->setFont(subtitleFont);
     painter->drawText(brect2, TEXT_FLAGS, slideImages->subtitle(index));
+    painter->restore();
 }
 
 // Render the slides. Updates only the offscreen buffer.
@@ -1167,6 +1179,17 @@ void PictureFlow::setSlideSize(QSize size)
 {
   d->setSlideSize(size);
 }
+
+void PictureFlow::setSubtitleFont(QFont font)
+{
+  d->subtitleFont = font;
+}
+
+QFont PictureFlow::subtitleFont() const
+{
+  return d->subtitleFont;
+}
+
 
 QImage PictureFlow::slide(int index) const
 {

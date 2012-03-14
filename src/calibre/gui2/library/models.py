@@ -588,8 +588,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def rating_type(r, idx=-1):
             r = self.db.data[r][idx]
-            r = r/2 if r else 0
-            return QVariant(r)
+            r = r/2.0 if r else 0
+            return QVariant(int(r))
 
         def datetime_type(r, idx=-1):
             val = self.db.data[r][idx]

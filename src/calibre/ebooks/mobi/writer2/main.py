@@ -18,9 +18,10 @@ from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
-from calibre.ebooks.mobi.utils import (rescale_image, encint,
+from calibre.ebooks.mobi.utils import (rescale_image, encint, mobify_image,
         encode_trailing_data, align_block, detect_periodical)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
+from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 
 EXTH_CODES = {
     'creator': 100,
@@ -45,9 +46,6 @@ EXTH_CODES = {
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
-
-MAX_THUMB_SIZE = 16 * 1024
-MAX_THUMB_DIMEN = (180, 240)
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -181,7 +179,11 @@ class MobiWriter(object):
         for item in self.oeb.manifest.values():
             if item.media_type not in OEB_RASTER_IMAGES: continue
             try:
-                data = rescale_image(item.data)
+                data = item.data
+                if self.opts.mobi_keep_original_images:
+                    data = mobify_image(data)
+                else:
+                    data = rescale_image(data)
             except:
                 oeb.logger.warn('Bad image file %r' % item.href)
                 continue
@@ -489,7 +491,8 @@ class MobiWriter(object):
             items = oeb.metadata[term]
             if term == 'creator':
                 if self.prefer_author_sort:
-                    creators = [normalize(unicode(c.file_as or c)) for c in items]
+                    creators = [normalize(unicode(c.file_as or c)) for c in
+                            items][:1]
                 else:
                     creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]

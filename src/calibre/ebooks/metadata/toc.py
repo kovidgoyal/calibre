@@ -46,7 +46,7 @@ class TOC(list):
         self.toc_thumbnail = toc_thumbnail
 
     def __str__(self):
-        lines = ['TOC: %s#%s'%(self.href, self.fragment)]
+        lines = ['TOC: %s#%s %s'%(self.href, self.fragment, self.text)]
         for child in self:
             c = str(child).splitlines()
             for l in c:

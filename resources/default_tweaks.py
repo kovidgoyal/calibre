@@ -496,8 +496,13 @@ gui_view_history_size = 15
 # prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
 tweak_book_prefer = 'epub'
 
-#: Compile General Program Mode templates to Python
+#: Change the font size of book details in the interface
+# Change the font size at which book details are rendered in the side panel and
+# comments are rendered in the metadata edit dialog. Set it to a positive or
+# negative number to increase or decrease the font size.
+change_book_details_font_size_by = 0
 
+#: Compile General Program Mode templates to Python
 # Compiled general program mode templates are significantly faster than
 # interpreted templates. Setting this tweak to True causes calibre to compile
 # (in most cases) general program mode templates. Setting it to False causes

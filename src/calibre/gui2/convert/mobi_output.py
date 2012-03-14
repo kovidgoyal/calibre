@@ -21,7 +21,8 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
-                ['prefer_author_sort', 'rescale_images', 'toc_title',
+                ['prefer_author_sort', 'toc_title',
+                    'mobi_keep_original_images',
                     'mobi_ignore_margins', 'mobi_toc_at_start',
                 'dont_compress', 'no_inline_toc', 'share_not_sync',
                 'personal_doc']#, 'mobi_navpoints_only_deepest']

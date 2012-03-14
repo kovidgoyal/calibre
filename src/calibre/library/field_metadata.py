@@ -173,7 +173,7 @@ class FieldMetadata(dict):
                            'datatype':'rating',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Ratings'),
+                           'name':_('Rating'),
                            'search_terms':['rating'],
                            'is_custom':False,
                            'is_category':True,

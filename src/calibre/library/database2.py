@@ -235,6 +235,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
         defs['column_color_rules'] = []
+        defs['grouped_search_make_user_categories'] = []
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \

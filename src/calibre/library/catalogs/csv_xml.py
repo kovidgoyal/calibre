@@ -93,6 +93,8 @@ class CSV_XML(CatalogPlugin):
             for entry in data:
                 entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
+        fm = {x:db.field_metadata.get(x, {}) for x in fields}
+
         if self.fmt == 'csv':
             outfile = codecs.open(path_to_output, 'w', 'utf8')
 
@@ -131,6 +133,8 @@ class CSV_XML(CatalogPlugin):
                     elif field == 'comments':
                         item = item.replace(u'\r\n',u' ')
                         item = item.replace(u'\n',u' ')
+                    elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
+                        item = u'%.2g'%(item/2.0)
 
                     # Convert HTML to markdown text
                     if type(item) is unicode:
@@ -168,6 +172,9 @@ class CSV_XML(CatalogPlugin):
                         if not val:
                             continue
                         if not isinstance(val, (str, unicode)):
+                            if (fm.get(field, {}).get('datatype', None) ==
+                                    'rating' and val):
+                                val = u'%.2g'%(val/2.0)
                             val = unicode(val)
                         item = getattr(E, field)(val)
                         record.append(item)

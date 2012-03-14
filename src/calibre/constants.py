@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 41)
+numeric_version = (0, 8, 42)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -199,7 +199,5 @@ def get_windows_temp_path():
     buf = ctypes.create_unicode_buffer(u'\0'*n)
     ctypes.windll.kernel32.GetTempPathW(n, buf)
     ans = buf.value
-    if ans[-1] == u'\\':
-        ans = ans[:-1]
     return ans if ans else None
 

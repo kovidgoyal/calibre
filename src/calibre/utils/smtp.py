@@ -10,7 +10,6 @@ This module implements a simple commandline SMTP client that supports:
 '''
 
 import sys, traceback, os
-from email import encoders
 from calibre import isbytestring
 
 def create_mail(from_, to, subject, text=None, attachment_data=None,
@@ -19,6 +18,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     from email.mime.multipart import MIMEMultipart
     from email.utils import formatdate
+    from email import encoders
 
     outer = MIMEMultipart()
     outer['Subject'] = subject

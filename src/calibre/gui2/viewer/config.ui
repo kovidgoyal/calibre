@@ -170,7 +170,7 @@
          <item row="8" column="0" colspan="2">
           <widget class="QCheckBox" name="opt_remember_window_size">
            <property name="text">
-            <string>Remember last used &amp;window size</string>
+            <string>Remember last used &amp;window size and layout</string>
            </property>
           </widget>
          </item>
