@@ -379,6 +379,7 @@ class iPadOutput(OutputProfile):
             /* Feed summary formatting */
             .article_summary {
                 display:inline-block;
+                padding-bottom:0.5em;
                 }
             .feed {
                 font-family:sans-serif;
