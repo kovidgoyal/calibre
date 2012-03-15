@@ -31,26 +31,26 @@ class EXTHHeader(object): # {{{
 
         while left > 0:
             left -= 1
-            id, size = struct.unpack('>LL', raw[pos:pos + 8])
+            idx, size = struct.unpack('>LL', raw[pos:pos + 8])
             content = raw[pos + 8:pos + size]
             pos += size
-            if id >= 100 and id < 200:
-                self.process_metadata(id, content, codec)
-            elif id == 203:
+            if idx >= 100 and idx < 200:
+                self.process_metadata(idx, content, codec)
+            elif idx == 203:
                 self.has_fake_cover = bool(struct.unpack('>L', content)[0])
-            elif id == 201:
+            elif idx == 201:
                 co, = struct.unpack('>L', content)
                 if co < NULL_INDEX:
                     self.cover_offset = co
-            elif id == 202:
+            elif idx == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
-            elif id == 501:
+            elif idx == 501:
                 # cdetype
                 pass
-            elif id == 502:
+            elif idx == 502:
                 # last update time
                 pass
-            elif id == 503: # Long title
+            elif idx == 503: # Long title
                 # Amazon seems to regard this as the definitive book title
                 # rather than the title from the PDB header. In fact when
                 # sending MOBI files through Amazon's email service if the
@@ -61,45 +61,45 @@ class EXTHHeader(object): # {{{
                 except:
                     pass
             #else:
-            #    print 'unknown record', id, repr(content)
+            #    print 'unknown record', idx, repr(content)
         if title:
             self.mi.title = replace_entities(title)
 
-    def process_metadata(self, id, content, codec):
-        if id == 100:
-            if self.mi.authors == [_('Unknown')]:
+    def process_metadata(self, idx, content, codec):
+        if idx == 100:
+            if self.mi.is_null('authors'):
                 self.mi.authors = []
             au = content.decode(codec, 'ignore').strip()
             self.mi.authors.append(au)
             if re.match(r'\S+?\s*,\s+\S+', au.strip()):
                 self.mi.author_sort = au.strip()
-        elif id == 101:
+        elif idx == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
-        elif id == 103:
+        elif idx == 103:
             self.mi.comments  = content.decode(codec, 'ignore')
-        elif id == 104:
+        elif idx == 104:
             self.mi.isbn      = content.decode(codec, 'ignore').strip().replace('-', '')
-        elif id == 105:
+        elif idx == 105:
             if not self.mi.tags:
                 self.mi.tags = []
             self.mi.tags.extend([x.strip() for x in content.decode(codec,
                 'ignore').split(';')])
             self.mi.tags = list(set(self.mi.tags))
-        elif id == 106:
+        elif idx == 106:
             try:
                 self.mi.pubdate = parse_date(content, as_utc=False)
             except:
                 pass
-        elif id == 108:
+        elif idx == 108:
             self.mi.book_producer = content.decode(codec, 'ignore').strip()
-        elif id == 113:
+        elif idx == 113:
             pass # ASIN or UUID
-        elif id == 116:
+        elif idx == 116:
             self.start_offset, = struct.unpack(b'>L', content)
-        elif id == 121:
+        elif idx == 121:
             self.kf8_header, = struct.unpack(b'>L', content)
         #else:
-        #    print 'unhandled metadata record', id, repr(content)
+        #    print 'unhandled metadata record', idx, repr(content)
 # }}}
 
 class BookHeader(object):
