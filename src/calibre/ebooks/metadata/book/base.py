@@ -9,16 +9,18 @@ import copy, traceback
 
 from calibre import prints
 from calibre.constants import DEBUG
-from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
-from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
-from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
-from calibre.ebooks.metadata.book import TOP_LEVEL_IDENTIFIERS
-from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
-from calibre.ebooks.metadata.book import ATTR_NORMAL_FIELDS
+from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
+        SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
+        TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
+
+# Special sets used to optimize the performance of getting and setting
+# attributes on Metadata objects
+SIMPLE_GET = frozenset(STANDARD_METADATA_FIELDS - TOP_LEVEL_IDENTIFIERS)
+SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
@@ -137,7 +139,7 @@ class Metadata(object):
 
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
-        if field in ATTR_NORMAL_FIELDS:
+        if field in SIMPLE_GET:
             return _data.get(field, None)
         if field in TOP_LEVEL_IDENTIFIERS:
             return _data.get('identifiers').get(field, None)
@@ -174,7 +176,7 @@ class Metadata(object):
 
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
-        if field in ATTR_NORMAL_FIELDS:
+        if field in SIMPLE_SET:
             if val is None:
                 val = copy.copy(NULL_VALUES.get(field, None))
             _data[field] = val

@@ -131,8 +131,3 @@ SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            frozenset(['device_collections', 'formats',
                                'cover_data'])
                            # these are rebuilt when needed
-
-# A special set used to optimize the performance of Metadata.__setattr__
-ATTR_NORMAL_FIELDS =    frozenset(STANDARD_METADATA_FIELDS -
-                                     TOP_LEVEL_IDENTIFIERS -
-                                     set('identifiers'))

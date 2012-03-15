@@ -911,7 +911,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Note that the list of formats is not verified.
         '''
         idx = idx if index_is_id else self.id(idx)
-        row = self.data._data[idx]
+        try:
+            row = self.data._data[idx]
+        except:
+            row = None
+
+        if row is None:
+            raise ValueError('No book with id: %d'%idx)
+
         fm = self.FIELD_MAP
         mi = Metadata(None, template_cache=self.formatter_template_cache)
 
@@ -949,14 +956,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
-        id = idx
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
             good_formats = None
         else:
             formats = sorted(formats.split(','))
-            mi.format_metadata = FormatMetadata(self, id, formats)
+            mi.format_metadata = FormatMetadata(self, idx, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
         tags = row[fm['tags']]
@@ -969,9 +975,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             mi.series_index = row[fm['series_index']]
         mi.rating = row[fm['rating']]
-        mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
-        mi.application_id = id
-        mi.id = id
+        mi.set_identifiers(self.get_identifiers(idx, index_is_id=True))
+        mi.application_id = idx
+        mi.id = idx
 
         mi.set_all_user_metadata(self.field_metadata.custom_field_metadata())
         for key, meta in self.field_metadata.custom_iteritems():
@@ -999,12 +1005,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         if get_cover:
             if cover_as_data:
-                cdata = self.cover(id, index_is_id=True)
+                cdata = self.cover(idx, index_is_id=True)
                 if cdata:
                     mi.cover_data = ('jpeg', cdata)
             else:
-                mi.cover = self.cover(id, index_is_id=True, as_path=True)
-        mi.has_cover = _('Yes') if self.has_cover(id) else ''
+                mi.cover = self.cover(idx, index_is_id=True, as_path=True)
+        mi.has_cover = _('Yes') if self.has_cover(idx) else ''
         return mi
 
     def has_book(self, mi):
