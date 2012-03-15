@@ -106,28 +106,29 @@ class MobiReader(object):
         self.name = self.name.decode(self.book_header.codec, 'replace')
         self.kf8_type = None
         is_kf8 = self.book_header.mobi_version == 8
+        k8i = getattr(self.book_header.exth, 'kf8_header', None)
+
         if is_kf8:
             self.kf8_type = 'standalone'
-        else: # Check for joint mobi 6 and kf 8 file
-            KF8_BOUNDARY = b'BOUNDARY'
-            for i, x in enumerate(self.sections[:-1]):
-                sec = x[0]
-                if (len(sec) == len(KF8_BOUNDARY) and sec ==
-                        KF8_BOUNDARY):
-                    try:
-                        self.book_header = BookHeader(self.sections[i+1][0],
-                                self.ident, user_encoding, self.log)
-                        # The following are only correct in the Mobi 6
-                        # header not the Mobi 8 header
-                        for x in ('first_image_index',):
-                            setattr(self.book_header, x, getattr(bh, x))
-                        if hasattr(self.book_header, 'huff_offset'):
-                            self.book_header.huff_offset += i + 1
-                        self.kf8_type = 'joint'
-                        self.kf8_boundary = i
-                    except:
-                        self.book_header = bh
-                    break
+        elif k8i is not None: # Check for joint mobi 6 and kf 8 file
+            try:
+                raw = self.sections[k8i-1][0]
+            except:
+                raw = None
+            if raw == b'BOUNDARY':
+                try:
+                    self.book_header = BookHeader(self.sections[k8i][0],
+                            self.ident, user_encoding, self.log)
+                    # The following are only correct in the Mobi 6
+                    # header not the Mobi 8 header
+                    for x in ('first_image_index',):
+                        setattr(self.book_header, x, getattr(bh, x))
+                    if hasattr(self.book_header, 'huff_offset'):
+                        self.book_header.huff_offset += k8i
+                    self.kf8_type = 'joint'
+                    self.kf8_boundary = k8i-1
+                except:
+                    self.book_header = bh
 
     def check_for_drm(self):
         if self.book_header.encryption_type != 0:

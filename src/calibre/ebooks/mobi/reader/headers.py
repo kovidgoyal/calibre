@@ -27,6 +27,7 @@ class EXTHHeader(object): # {{{
         self.has_fake_cover = True
         self.start_offset = None
         left = self.num_items
+        self.kf8_header = None
 
         while left > 0:
             left -= 1
@@ -95,6 +96,8 @@ class EXTHHeader(object): # {{{
             pass # ASIN or UUID
         elif id == 116:
             self.start_offset, = struct.unpack(b'>L', content)
+        elif id == 121:
+            self.kf8_header, = struct.unpack(b'>L', content)
         #else:
         #    print 'unhandled metadata record', id, repr(content)
 # }}}
