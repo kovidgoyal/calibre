@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-12 08:12+0000\n"
-"PO-Revision-Date: 2012-03-10 20:02+0000\n"
+"PO-Revision-Date: 2012-03-14 11:26+0000\n"
 "Last-Translator: Anthony Harrington <untaintableangel@hotmail.co.uk>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-03-13 05:05+0000\n"
+"X-Launchpad-Export-Date: 2012-03-15 04:45+0000\n"
 "X-Generator: Launchpad (build 14933)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -13518,6 +13518,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:143
 msgid "Ignore files with the following extensions when automatically adding "
 msgstr ""
+"Ignore files with the following extensions when automatically adding "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
 msgid "Folder to auto-add files from"
@@ -22379,7 +22380,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:498
 msgid "Change the font size of book details in the interface"
-msgstr ""
+msgstr "Change the font size of book details in the interface"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:499
 msgid ""
@@ -22388,3 +22389,8 @@ msgid ""
 "comments are rendered in the metadata edit dialog. Set it to a positive or\n"
 "negative number to increase or decrease the font size."
 msgstr ""
+"Change the font size at which book details are rendered in the side panel "
+"and\n"
+"comments are rendered in the metadata edit dialogue. Set it to a positive "
+"or\n"
+"negative number to increase or decrease the font size."
