@@ -1119,12 +1119,28 @@ class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
         from calibre.library import current_library_name
         return current_library_name()
 
+class BuiltinFinishFormatting(BuiltinFormatterFunction):
+    name = 'finish_formatting'
+    arg_count = 4
+    category = 'Formatting values'
+    __doc__ = doc = _('finish_formatting(val, fmt, prefix, suffix) -- apply the '
+                      'format, prefix, and suffix to a value in the same way as '
+                      'done in a template like {series_index:05.2f| - |- }. For '
+                      'example, the following program produces the same output '
+                      'as the above template: '
+                      'program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")')
+
+    def evaluate(self, formatter, kwargs, mi, locals_, val, fmt, prefix, suffix):
+        if not val:
+            return val
+        return prefix + formatter._do_format(val, fmt) + suffix
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinCurrentLibraryName(),
-    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
-    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
+    BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),

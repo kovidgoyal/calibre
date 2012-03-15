@@ -254,6 +254,14 @@ class _CompileParser(_Parser):
             args = list()
             if self.compile_text:
                 self.compile_text += '\targs[%d] = list()\n'%(level+1, )
+            if id == 'field':
+                val = self.expr(level+1)
+                val = self.parent.get_value(val, [], self.parent_kwargs)
+                if self.compile_text:
+                    self.compile_text += "\targs[%d].append(formatter.get_value(args[%d][0], [], kwargs))\n"%(level, level+1)
+                if self.token() != ')':
+                    self.error(_('missing closing parenthesis'))
+                return val
             while not self.token_op_is_a_rparen():
                 if id == 'assign' and len(args) == 0:
                     # Must handle the lvalue semantics of the assign function.
