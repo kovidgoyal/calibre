@@ -124,12 +124,18 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     to JPEG. Ensure the resultant image has a byte size less than
     maxsizeb.
 
-    If dimen is not None, generate a thumbnail of width=dimen, height=dimen
+    If dimen is not None, generate a thumbnail of
+    width=dimen, height=dimen or width, height = dimen (depending on the type
+    of dimen)
 
     Returns the image as a bytestring
     '''
     if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen,
+        if hasattr(dimen, '__len__'):
+            width, height = dimen
+        else:
+            width = height = dimen
+        data = thumbnail(data, width=width, height=height,
                 compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
