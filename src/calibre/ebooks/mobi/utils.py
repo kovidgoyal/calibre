@@ -477,8 +477,9 @@ def read_font_record(data, extent=1040): # {{{
                 return ans
 
     ans['font_data'] = font_data
-    ans['ext'] = ('ttf' if font_data[:4] in {b'\0\1\0\0', b'true', b'ttcf'}
-                    else 'dat')
+    sig = font_data[:4]
+    ans['ext'] = ('ttf' if sig in {b'\0\1\0\0', b'true', b'ttcf'}
+                    else 'otf' if sig == b'OTTO' else 'dat')
 
     return ans
 # }}}

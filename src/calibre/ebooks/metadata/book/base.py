@@ -556,6 +556,7 @@ class Metadata(object):
                                 # Happens if x is not a text, is_multiple field
                                 # on self
                                 lstags = []
+                                self_tags = []
                             ot, st = map(frozenset, (lotags, lstags))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
