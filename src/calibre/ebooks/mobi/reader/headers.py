@@ -91,7 +91,7 @@ class EXTHHeader(object): # {{{
             except:
                 pass
         elif id == 108:
-            pass # Producer
+            self.mi.book_producer = content.decode(codec, 'ignore').strip()
         elif id == 113:
             pass # ASIN or UUID
         elif id == 116:

@@ -151,6 +151,10 @@ class EXTHRecord(object):
                 117 : 'adult',
                 118 : 'retailprice',
                 119 : 'retailpricecurrency',
+                121 : 'KF8 header section index',
+                125 : 'KF8 resources (images/fonts) count',
+                129 : 'KF8 cover URI',
+                131 : 'KF8 unknown count',
                 201 : 'coveroffset',
                 202 : 'thumboffset',
                 203 : 'hasfakecover',
@@ -169,9 +173,10 @@ class EXTHRecord(object):
                 503 : 'updatedtitle',
         }.get(self.type, repr(self.type))
 
-        if self.name in ('coveroffset', 'thumboffset', 'hasfakecover',
+        if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',
                 'Creator Major Version', 'Creator Minor Version',
-                'Creator Build Number', 'Creator Software', 'startreading'):
+                'Creator Build Number', 'Creator Software', 'startreading'} or
+                self.type in {121, 125, 131}):
             self.data, = struct.unpack(b'>I', self.data)
 
     def __str__(self):
