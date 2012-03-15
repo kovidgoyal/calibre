@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback
 
 from calibre import human_readable
+from calibre.constants import DEBUG
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -1156,11 +1157,14 @@ def compile_user_function(name, doc, arg_count, eval_func):
                                    for line in eval_func.splitlines()])
     prog = '''
 from calibre.utils.formatter_functions import FormatterUserFunction
+from calibre.utils.formatter_functions import formatter_functions
 class UserFunction(FormatterUserFunction):
 ''' + func
-    locals = {}
-    exec prog in locals
-    cls = locals['UserFunction'](name, doc, arg_count, eval_func)
+    locals_ = {}
+    if DEBUG:
+        print prog
+    exec prog in locals_
+    cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 
 def load_user_template_functions(funcs):
