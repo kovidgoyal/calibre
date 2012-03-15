@@ -36,7 +36,9 @@ class RescaleImages(object):
                     ext = 'JPEG'
 
                 raw = item.data
-                if not raw: continue
+                if hasattr(raw, 'xpath') or not raw:
+                    # Probably an svg image
+                    continue
                 try:
                     img = Image()
                     img.load(raw)

@@ -81,7 +81,7 @@ class ANDROID(USBMS):
                 0x4e11 : [0x0100, 0x226, 0x227],
                 0x4e12 : [0x0100, 0x226, 0x227],
                 0x4e21 : [0x0100, 0x226, 0x227, 0x231],
-                0x4e22 : [0x0100, 0x226, 0x227],
+                0x4e22 : [0x0100, 0x226, 0x227, 0x231],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
                 0xdddd : [0x216],
@@ -194,7 +194,8 @@ class ANDROID(USBMS):
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
-            'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC']
+            'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
+            'FILE-CD_GADGET']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

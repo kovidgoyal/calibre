@@ -14,8 +14,9 @@ from lxml import html
 
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
-        get_trailing_data, decode_tbs)
+        get_trailing_data, decode_tbs, read_font_record)
 from calibre.utils.magick.draw import identify_data
 
 def format_bytes(byts):
@@ -151,6 +152,10 @@ class EXTHRecord(object):
                 117 : 'adult',
                 118 : 'retailprice',
                 119 : 'retailpricecurrency',
+                121 : 'KF8 header section index',
+                125 : 'KF8 resources (images/fonts) count',
+                129 : 'KF8 cover URI',
+                131 : 'KF8 unknown count',
                 201 : 'coveroffset',
                 202 : 'thumboffset',
                 203 : 'hasfakecover',
@@ -169,9 +174,10 @@ class EXTHRecord(object):
                 503 : 'updatedtitle',
         }.get(self.type, repr(self.type))
 
-        if self.name in ('coveroffset', 'thumboffset', 'hasfakecover',
+        if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',
                 'Creator Major Version', 'Creator Minor Version',
-                'Creator Build Number', 'Creator Software', 'startreading'):
+                'Creator Build Number', 'Creator Software', 'startreading'} or
+                self.type in {121, 125, 131}):
             self.data, = struct.unpack(b'>I', self.data)
 
     def __str__(self):
@@ -338,9 +344,9 @@ class MOBIHeader(object): # {{{
         ans.append('File version: %d'%self.file_version)
         ans.append('Reserved: %r'%self.reserved)
         ans.append('Secondary index record: %d (null val: %d)'%(
-            self.secondary_index_record, 0xffffffff))
+            self.secondary_index_record, NULL_INDEX))
         ans.append('Reserved2: %r'%self.reserved2)
-        ans.append('First non-book record (null value: %d): %d'%(0xffffffff,
+        ans.append('First non-book record (null value: %d): %d'%(NULL_INDEX,
             self.first_non_book_record))
         ans.append('Full name offset: %d'%self.fullname_offset)
         ans.append('Full name length: %d bytes'%self.fullname_length)
@@ -379,7 +385,7 @@ class MOBIHeader(object): # {{{
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
                     self.has_indexing_bytes, self.has_uncrossable_breaks ))
-            ans.append('Primary index record (null value: %d): %d'%(0xffffffff,
+            ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
                 self.primary_index_record))
 
         ans = '\n'.join(ans)
@@ -1149,6 +1155,25 @@ class BinaryRecord(object): # {{{
 
 # }}}
 
+class FontRecord(object): # {{{
+
+    def __init__(self, idx, record):
+        self.raw = record.raw
+        name = '%06d'%idx
+        self.font = read_font_record(self.raw)
+        if self.font['err']:
+            raise ValueError('Failed to read font record: %s Headers: %s'%(
+                self.font['err'], self.font['headers']))
+        self.payload = (self.font['font_data'] if self.font['font_data'] else
+                self.font['raw_data'])
+        self.name = '%s.%s'%(name, self.font['ext'])
+
+    def dump(self, folder):
+        with open(os.path.join(folder, self.name), 'wb') as f:
+            f.write(self.payload)
+
+# }}}
+
 class TBSIndexing(object): # {{{
 
     def __init__(self, text_records, indices, doc_type):
@@ -1382,7 +1407,7 @@ class MOBIFile(object): # {{{
         self.index_header = self.index_record = None
         self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
-        if pir != 0xffffffff:
+        if pir != NULL_INDEX:
             self.index_header = IndexHeader(self.records[pir])
             self.cncx = CNCX(self.records[
                 pir+2:pir+2+self.index_header.num_of_cncx_blocks],
@@ -1393,7 +1418,7 @@ class MOBIFile(object): # {{{
                 pir+2+self.index_header.num_of_cncx_blocks))
         self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
-        if sir != 0xffffffff:
+        if sir != NULL_INDEX:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])
             self.indexing_record_nums.add(sir)
             self.secondary_index_record = SecondaryIndexRecord(
@@ -1404,12 +1429,13 @@ class MOBIFile(object): # {{{
         ntr = self.mobi_header.number_of_text_records
         fntbr = self.mobi_header.first_non_book_record
         fii = self.mobi_header.first_image_index
-        if fntbr == 0xffffffff:
+        if fntbr == NULL_INDEX:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
             self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
+        self.font_records = []
         image_index = 0
         for i in xrange(fntbr, len(self.records)):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
@@ -1419,13 +1445,15 @@ class MOBIFile(object): # {{{
             fmt = None
             if i >= fii and r.raw[:4] not in {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE'}:
+                    b'AUDI', b'VIDE', b'FONT'}:
                 try:
                     width, height, fmt = identify_data(r.raw)
                 except:
                     pass
             if fmt is not None:
                 self.image_records.append(ImageRecord(image_index, r, fmt))
+            elif r.raw[:4] == b'FONT':
+                self.font_records.append(FontRecord(i, r))
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 
@@ -1465,10 +1493,11 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
             of.write(rec.raw)
             alltext += rec.raw
         of.seek(0)
-    root = html.fromstring(alltext.decode('utf-8'))
-    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
-        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
-            include_meta_content_type=True))
+    if f.mobi_header.file_version < 8:
+        root = html.fromstring(alltext.decode('utf-8'))
+        with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
+            of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
+                include_meta_content_type=True))
 
 
     if f.index_header is not None:
@@ -1490,7 +1519,7 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
         f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),
-            ('binary', 'binary_records')]:
+            ('binary', 'binary_records'), ('font', 'font_records')]:
         tdir = os.path.join(ddir, tdir)
         os.mkdir(tdir)
         for rec in getattr(f, attr):

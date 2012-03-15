@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback
 
 from calibre import human_readable
+from calibre.constants import DEBUG
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -1118,12 +1119,28 @@ class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
         from calibre.library import current_library_name
         return current_library_name()
 
+class BuiltinFinishFormatting(BuiltinFormatterFunction):
+    name = 'finish_formatting'
+    arg_count = 4
+    category = 'Formatting values'
+    __doc__ = doc = _('finish_formatting(val, fmt, prefix, suffix) -- apply the '
+                      'format, prefix, and suffix to a value in the same way as '
+                      'done in a template like {series_index:05.2f| - |- }. For '
+                      'example, the following program produces the same output '
+                      'as the above template: '
+                      'program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")')
+
+    def evaluate(self, formatter, kwargs, mi, locals_, val, fmt, prefix, suffix):
+        if not val:
+            return val
+        return prefix + formatter._do_format(val, fmt) + suffix
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinCurrentLibraryName(),
-    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
-    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
+    BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
@@ -1156,11 +1173,14 @@ def compile_user_function(name, doc, arg_count, eval_func):
                                    for line in eval_func.splitlines()])
     prog = '''
 from calibre.utils.formatter_functions import FormatterUserFunction
+from calibre.utils.formatter_functions import formatter_functions
 class UserFunction(FormatterUserFunction):
 ''' + func
-    locals = {}
-    exec prog in locals
-    cls = locals['UserFunction'](name, doc, arg_count, eval_func)
+    locals_ = {}
+    if DEBUG:
+        print prog
+    exec prog in locals_
+    cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 
 def load_user_template_functions(funcs):

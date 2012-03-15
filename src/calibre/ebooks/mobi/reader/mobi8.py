@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, re, os, zlib, imghdr
+import struct, re, os, imghdr
 from collections import namedtuple
 from itertools import repeat
 
@@ -16,6 +16,7 @@ from calibre.ebooks.mobi.reader.index import read_index
 from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
+from calibre.ebooks.mobi.utils import read_font_record
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -339,23 +340,16 @@ class Mobi8Reader(object):
                     b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
                 pass # Ignore these records
             elif typ == b'FONT':
-                # fonts only exist in K8 ebooks
-                # Format:
-                # bytes  0 -  3:  'FONT'
-                # bytes  4 -  7:  ?? Expanded size in bytes ??
-                # bytes  8 - 11:  ?? number of files ??
-                # bytes 12 - 15:  ?? offset to start of compressed data ?? (typically 0x00000018 = 24)
-                # bytes 16 - 23:  ?? typically all 0x00 ??  Are these compression flags from zlib?
-                # The compressed data begins with 2 bytes of header and has 4 bytes of checksum at the end
-                data = data[26:-4]
-                uncompressed_data = zlib.decompress(data, -15)
-                hdr = uncompressed_data[0:4]
-                ext = 'dat'
-                if hdr == b'\0\1\0\0' or hdr == b'true' or hdr == b'ttcf':
-                    ext = 'ttf'
-                href = "fonts/%05d.%s" % (fname_idx, ext)
+                font = read_font_record(data)
+                href = "fonts/%05d.%s" % (fname_idx, font['ext'])
+                if font['err']:
+                    self.log.warn('Reading font record %d failed: %s'%(
+                        fname_idx, font['err']))
+                    if font['headers']:
+                        self.log.debug('Font record headers: %s'%font['headers'])
                 with open(href.replace('/', os.sep), 'wb') as f:
-                    f.write(uncompressed_data)
+                    f.write(font['font_data'] if font['font_data'] else
+                            font['raw_data'])
             else:
                 imgtype = imghdr.what(None, data)
                 if imgtype is None:
@@ -379,7 +373,11 @@ class Mobi8Reader(object):
 
         opf = OPFCreator(os.getcwdu(), mi)
         opf.guide = guide
-        opf.create_manifest_from_files_in([os.getcwdu()])
+
+        def exclude(path):
+            return os.path.basename(path) == 'debug-raw.html'
+
+        opf.create_manifest_from_files_in([os.getcwdu()], exclude=exclude)
         opf.create_spine(spine)
         opf.set_toc(toc)
 

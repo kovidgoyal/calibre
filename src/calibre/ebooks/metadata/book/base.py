@@ -9,15 +9,18 @@ import copy, traceback
 
 from calibre import prints
 from calibre.constants import DEBUG
-from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
-from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
-from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
-from calibre.ebooks.metadata.book import TOP_LEVEL_IDENTIFIERS
-from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
+from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
+        SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
+        TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
+
+# Special sets used to optimize the performance of getting and setting
+# attributes on Metadata objects
+SIMPLE_GET = frozenset(STANDARD_METADATA_FIELDS - TOP_LEVEL_IDENTIFIERS)
+SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
@@ -136,6 +139,8 @@ class Metadata(object):
 
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
+        if field in SIMPLE_GET:
+            return _data.get(field, None)
         if field in TOP_LEVEL_IDENTIFIERS:
             return _data.get('identifiers').get(field, None)
         if field == 'language':
@@ -143,8 +148,6 @@ class Metadata(object):
                 return _data.get('languages', [])[0]
             except:
                 return NULL_VALUES['language']
-        if field in STANDARD_METADATA_FIELDS:
-            return _data.get(field, None)
         try:
             return object.__getattribute__(self, field)
         except AttributeError:
@@ -173,7 +176,11 @@ class Metadata(object):
 
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
-        if field in TOP_LEVEL_IDENTIFIERS:
+        if field in SIMPLE_SET:
+            if val is None:
+                val = copy.copy(NULL_VALUES.get(field, None))
+            _data[field] = val
+        elif field in TOP_LEVEL_IDENTIFIERS:
             field, val = self._clean_identifier(field, val)
             identifiers = _data['identifiers']
             identifiers.pop(field, None)
@@ -188,10 +195,6 @@ class Metadata(object):
             if val and val.lower() != 'und':
                 langs = [val]
             _data['languages'] = langs
-        elif field in STANDARD_METADATA_FIELDS:
-            if val is None:
-                val = copy.copy(NULL_VALUES.get(field, None))
-            _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
             _data['user_metadata'][field]['#value#'] = val
             _data['user_metadata'][field]['#extra#'] = extra
@@ -404,9 +407,19 @@ class Metadata(object):
         '''
         if metadata is None:
             traceback.print_stack()
-        else:
-            for key in metadata:
-                self.set_user_metadata(key, metadata[key])
+            return
+
+        um = {}
+        for key, meta in metadata.iteritems():
+            m = meta.copy()
+            if '#value#' not in m:
+                if m['datatype'] == 'text' and m['is_multiple']:
+                    m['#value#'] = []
+                else:
+                    m['#value#'] = None
+            um[key] = m
+        _data = object.__getattribute__(self, '_data')
+        _data['user_metadata'].update(um)
 
     def set_user_metadata(self, field, metadata):
         '''
@@ -420,9 +433,11 @@ class Metadata(object):
             if metadata is None:
                 traceback.print_stack()
                 return
-            m = {}
-            for k in metadata:
-                m[k] = copy.copy(metadata[k])
+            m = dict(metadata)
+            # Copying the elements should not be necessary. The objects referenced
+            # in the dict should not change. Of course, they can be replaced.
+            # for k,v in metadata.iteritems():
+            #     m[k] = copy.copy(v)
             if '#value#' not in m:
                 if m['datatype'] == 'text' and m['is_multiple']:
                     m['#value#'] = []
@@ -543,6 +558,7 @@ class Metadata(object):
                                 # Happens if x is not a text, is_multiple field
                                 # on self
                                 lstags = []
+                                self_tags = []
                             ot, st = map(frozenset, (lotags, lstags))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)

@@ -9,15 +9,20 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO
+import os, cStringIO, imghdr
 from struct import pack, unpack
 from cStringIO import StringIO
 
 from calibre.ebooks import normalize
-from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
+from calibre.ebooks.mobi import MobiError, MAX_THUMB_DIMEN
+from calibre.ebooks.mobi.utils import rescale_image
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.date import now as nowf
+
+def is_image(ss):
+    if ss is None:
+        return False
+    return imghdr.what(None, ss[:200]) is not None
 
 class StreamSlicer(object):
 
@@ -161,11 +166,10 @@ class MetadataUpdater(object):
             if id == 106:
                 self.timestamp = content
             elif id == 201:
-                rindex, = self.cover_rindex, = unpack('>i', content)
-                if rindex > 0 :
-                    self.cover_record = self.record(rindex + image_base)
+                rindex, = self.cover_rindex, = unpack('>I', content)
+                self.cover_record = self.record(rindex + image_base)
             elif id == 202:
-                rindex, = self.thumbnail_rindex, = unpack('>i', content)
+                rindex, = self.thumbnail_rindex, = unpack('>I', content)
                 if rindex > 0 :
                     self.thumbnail_record = self.record(rindex + image_base)
 
@@ -416,17 +420,17 @@ class MetadataUpdater(object):
             except:
                 pass
             else:
-                if self.cover_record is not None:
+                if is_image(self.cover_record):
                     size = len(self.cover_record)
                     cover = rescale_image(data, size)
                     if len(cover) <= size:
-                        cover += '\0' * (size - len(cover))
+                        cover += b'\0' * (size - len(cover))
                         self.cover_record[:] = cover
-                if self.thumbnail_record is not None:
+                if is_image(self.thumbnail_record):
                     size = len(self.thumbnail_record)
                     thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
                     if len(thumbnail) <= size:
-                        thumbnail += '\0' * (size - len(thumbnail))
+                        thumbnail += b'\0' * (size - len(thumbnail))
                         self.thumbnail_record[:] = thumbnail
                 return
 

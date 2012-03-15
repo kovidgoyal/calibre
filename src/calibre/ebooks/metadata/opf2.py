@@ -1148,7 +1148,8 @@ class OPFCreator(Metadata):
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
-    def create_manifest_from_files_in(self, files_and_dirs):
+    def create_manifest_from_files_in(self, files_and_dirs,
+            exclude=lambda x:False):
         entries = []
 
         def dodir(dir):
@@ -1156,7 +1157,7 @@ class OPFCreator(Metadata):
                 root, files = spec[0], spec[-1]
                 for name in files:
                     path = os.path.join(root, name)
-                    if os.path.isfile(path):
+                    if os.path.isfile(path) and not exclude(path):
                         entries.append((path, None))
 
         for i in files_and_dirs:

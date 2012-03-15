@@ -6,3 +6,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 class MobiError(Exception):
     pass
+
+MAX_THUMB_SIZE = 16 * 1024
+MAX_THUMB_DIMEN = (180, 240)
+
+
