@@ -14,6 +14,7 @@ from lxml import html
 
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
         get_trailing_data, decode_tbs, read_font_record)
 from calibre.utils.magick.draw import identify_data
@@ -343,9 +344,9 @@ class MOBIHeader(object): # {{{
         ans.append('File version: %d'%self.file_version)
         ans.append('Reserved: %r'%self.reserved)
         ans.append('Secondary index record: %d (null val: %d)'%(
-            self.secondary_index_record, 0xffffffff))
+            self.secondary_index_record, NULL_INDEX))
         ans.append('Reserved2: %r'%self.reserved2)
-        ans.append('First non-book record (null value: %d): %d'%(0xffffffff,
+        ans.append('First non-book record (null value: %d): %d'%(NULL_INDEX,
             self.first_non_book_record))
         ans.append('Full name offset: %d'%self.fullname_offset)
         ans.append('Full name length: %d bytes'%self.fullname_length)
@@ -384,7 +385,7 @@ class MOBIHeader(object): # {{{
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
                     self.has_indexing_bytes, self.has_uncrossable_breaks ))
-            ans.append('Primary index record (null value: %d): %d'%(0xffffffff,
+            ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
                 self.primary_index_record))
 
         ans = '\n'.join(ans)
@@ -1406,7 +1407,7 @@ class MOBIFile(object): # {{{
         self.index_header = self.index_record = None
         self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
-        if pir != 0xffffffff:
+        if pir != NULL_INDEX:
             self.index_header = IndexHeader(self.records[pir])
             self.cncx = CNCX(self.records[
                 pir+2:pir+2+self.index_header.num_of_cncx_blocks],
@@ -1417,7 +1418,7 @@ class MOBIFile(object): # {{{
                 pir+2+self.index_header.num_of_cncx_blocks))
         self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
-        if sir != 0xffffffff:
+        if sir != NULL_INDEX:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])
             self.indexing_record_nums.add(sir)
             self.secondary_index_record = SecondaryIndexRecord(
@@ -1428,7 +1429,7 @@ class MOBIFile(object): # {{{
         ntr = self.mobi_header.number_of_text_records
         fntbr = self.mobi_header.first_non_book_record
         fii = self.mobi_header.first_image_index
-        if fntbr == 0xffffffff:
+        if fntbr == NULL_INDEX:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
             self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
