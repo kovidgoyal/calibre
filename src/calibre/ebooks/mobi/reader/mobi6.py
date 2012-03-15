@@ -105,10 +105,9 @@ class MobiReader(object):
             user_encoding, self.log, try_extra_data_fix=try_extra_data_fix)
         self.name = self.name.decode(self.book_header.codec, 'replace')
         self.kf8_type = None
-        is_kf8 = self.book_header.mobi_version == 8
         k8i = getattr(self.book_header.exth, 'kf8_header', None)
 
-        if is_kf8:
+        if self.book_header.mobi_version == 8:
             self.kf8_type = 'standalone'
         elif k8i is not None: # Check for joint mobi 6 and kf 8 file
             try:
