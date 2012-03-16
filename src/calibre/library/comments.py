@@ -136,6 +136,7 @@ def sanitize_comments_html(html):
     text = html2text(html)
     md = markdown.Markdown(safe_mode=True)
     cleansed = re.sub('\n+', '', md.convert(text))
+    cleansed = cleansed.replace(markdown.HTML_REMOVED_TEXT, '')
     return cleansed
 
 def test():

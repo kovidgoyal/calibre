@@ -9,18 +9,14 @@ __docformat__ = 'restructuredtext en'
 '''
 Fetch metadata using Overdrive Content Reserve
 '''
-import re, random, mechanize, copy, json
+import re, random, copy, json
 from threading import RLock
 from Queue import Queue, Empty
 
-from lxml import html
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.chardet import xml_to_unicode
-from calibre.library.comments import sanitize_comments_html
-from calibre.utils.soupparser import fromstring
 
 ovrdrv_data_cache = {}
 cache_lock = RLock()
@@ -80,6 +76,7 @@ class OverDrive(Source):
 
     def download_cover(self, log, result_queue, abort, # {{{
             title=None, authors=None, identifiers={}, timeout=30):
+        import mechanize
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')
@@ -170,6 +167,7 @@ class OverDrive(Source):
         this page attempts to set a cookie that Mechanize doesn't like
         copy the cookiejar to a separate instance and make a one-off request with the temp cookiejar
         '''
+        import mechanize
         goodcookies = br._ua_handlers['_cookies'].cookiejar
         clean_cj = mechanize.CookieJar()
         cookies_to_copy = []
@@ -187,6 +185,7 @@ class OverDrive(Source):
         br.set_cookiejar(clean_cj)
 
     def overdrive_search(self, br, log, q, title, author):
+        import mechanize
         # re-initialize the cookiejar to so that it's clean
         clean_cj = mechanize.CookieJar()
         br.set_cookiejar(clean_cj)
@@ -303,6 +302,7 @@ class OverDrive(Source):
             return ''
 
     def overdrive_get_record(self, br, log, q, ovrdrv_id):
+        import mechanize
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
         results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'
 
@@ -393,6 +393,11 @@ class OverDrive(Source):
 
 
     def get_book_detail(self, br, metadata_url, mi, ovrdrv_id, log):
+        from lxml import html
+        from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.utils.soupparser import fromstring
+        from calibre.library.comments import sanitize_comments_html
+
         try:
             raw = br.open_novisit(metadata_url).read()
         except Exception, e:

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, subprocess, time
+import os, cPickle, re, shutil, marshal, zipfile, glob, time, subprocess, sys
 from zlib import compress
 
 from setup import Command, basenames, __appname__
@@ -35,6 +35,8 @@ class Coffee(Command): # {{{
                 help='Display the generated javascript')
 
     def run(self, opts):
+        cc = self.j(self.SRC, 'calibre', 'utils', 'serve_coffee.py')
+        self.compiler = [sys.executable, cc, 'compile']
         self.do_coffee_compile(opts)
         if opts.watch:
             try:
@@ -62,15 +64,19 @@ class Coffee(Command): # {{{
                     print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
                         timestamp else '', os.path.basename(x)))
                     try:
-                        subprocess.check_call(['coffee', '-c', '-o', dest, x])
-                    except:
+                        cs = subprocess.check_output(self.compiler +
+                                [x]).decode('utf-8')
+                    except Exception as e:
                         print ('\n\tCompilation of %s failed'%os.path.basename(x))
+                        print (e)
                         if ignore_errors:
                             with open(js, 'wb') as f:
                                 f.write('# Compilation from coffeescript failed')
                         else:
                             raise SystemExit(1)
                     else:
+                        with open(js, 'wb') as f:
+                            f.write(cs.encode('utf-8'))
                         if opts.show_js:
                             self.show_js(js)
                             print ('#'*80)

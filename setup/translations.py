@@ -151,7 +151,7 @@ class Translations(POT): # {{{
                     self.info('\tCopying ISO 639 translations')
                     subprocess.check_call(['msgfmt', '-o', dest, iso639])
             elif locale not in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc',
-                    'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml'):
+                    'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku'):
                 self.warn('No ISO 639 translations for locale:', locale)
 
         self.write_stats()
@@ -233,7 +233,7 @@ class GetTranslations(Translations): # {{{
 
         if self.modified_translations:
             subprocess.check_call(['bzr', 'commit', '-m',
-                'IGN:Updated translations', self.PATH])
+                'IGN:Updated translations'])
         else:
             print('No updated translations available')
 

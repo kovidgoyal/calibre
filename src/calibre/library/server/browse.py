@@ -497,7 +497,8 @@ class BrowseServer(object):
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category,
+                        xml(u'/browse/category_group/%s/%s'%(
+                            hexlify(category.encode('utf-8')),
                             hexlify(s.encode('utf-8'))), True),
                         self.opts.url_prefix)
                     for s, c in category_groups.items()]
@@ -531,6 +532,13 @@ class BrowseServer(object):
             sort = None
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
+        try:
+            category = unhexlify(category)
+            if isbytestring(category):
+                category = category.decode('utf-8')
+        except:
+            raise cherrypy.HTTPError(404, 'invalid category')
+
         categories = self.categories_cache()
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')
@@ -669,10 +677,15 @@ class BrowseServer(object):
         args = {'id':id_, 'mi':mi,
                 }
         ccache = self.categories_cache() if add_category_links else {}
+        ftitle = fauthors = ''
         for key in mi.all_field_keys():
             val = mi.format_field(key)[1]
             if not val:
                 val = ''
+            if key == 'title':
+                ftitle = xml(val, True)
+            elif key == 'authors':
+                fauthors = xml(val, True)
             if add_category_links:
                 added_key = False
                 fm = mi.metadata_for_field(key)
@@ -710,8 +723,8 @@ class BrowseServer(object):
                     args[key] = xml(val, True)
             else:
                 args[key] = xml(val, True)
-        fname = quote(ascii_filename(args['title']) + ' - ' +
-                ascii_filename(args['authors']))
+        fname = quote(ascii_filename(ftitle) + ' - ' +
+                ascii_filename(fauthors))
         return args, fmt, fmts, fname
 
     @Endpoint(mimetype='application/json; charset=utf-8')

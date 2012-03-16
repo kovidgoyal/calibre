@@ -437,6 +437,16 @@ class BasicNewsRecipe(Recipe):
         # Uh-oh recipe using something exotic, call get_browser
         return self.get_browser()
 
+    @property
+    def cloned_browser(self):
+        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+            # We are using the default get_browser, which means no need to
+            # clone
+            br = BasicNewsRecipe.get_browser(self)
+        else:
+            br = self.clone_browser(self.browser)
+        return br
+
     def get_article_url(self, article):
         '''
         Override in a subclass to customize extraction of the :term:`URL` that points
@@ -534,7 +544,12 @@ class BasicNewsRecipe(Recipe):
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
-            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+            # We may be called in a thread (in the skip_ad_pages method), so
+            # clone the browser to be safe. We cannot use self.cloned_browser
+            # as it may or may not actually clone the browser, depending on if
+            # the recipe implements get_browser() or not
+            br = self.clone_browser(self.browser)
+            open_func = getattr(br, 'open_novisit', br.open)
             with closing(open_func(url_or_raw)) as f:
                 _raw = f.read()
             if not _raw:
@@ -1383,7 +1398,7 @@ class BasicNewsRecipe(Recipe):
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-            _(u'Article downloaded: %s')%repr(article.title))
+            _(u'Article downloaded: %s')%force_unicode(article.title))
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
 
@@ -1394,7 +1409,7 @@ class BasicNewsRecipe(Recipe):
         self.log.debug(traceback)
         self.log.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-                _('Article download failed: %s')%repr(request.article.title))
+                _('Article download failed: %s')%force_unicode(request.article.title))
         self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):

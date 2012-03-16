@@ -16,8 +16,8 @@ __all__ = [
         'sdist',
         'manual', 'tag_release',
         'pypi_register', 'pypi_upload', 'upload_to_server',
-        'upload_user_manual', 'upload_to_mobileread', 'upload_demo',
-        'upload_to_sourceforge', 'upload_to_google_code', 'reupload',
+        'upload_installers',
+        'upload_user_manual', 'upload_demo', 'reupload',
         'linux32', 'linux64', 'linux', 'linux_freeze',
         'osx32_freeze', 'osx', 'rsync', 'push',
         'win32_freeze', 'win32', 'win',
@@ -65,14 +65,12 @@ stage4 = Stage4()
 stage5 = Stage5()
 publish = Publish()
 
-from setup.upload import UploadUserManual, UploadInstallers, UploadDemo, \
-        UploadToServer, UploadToSourceForge, UploadToGoogleCode, ReUpload
+from setup.upload import (UploadUserManual, UploadDemo, UploadInstallers,
+        UploadToServer, ReUpload)
 upload_user_manual = UploadUserManual()
-upload_to_mobileread = UploadInstallers()
 upload_demo = UploadDemo()
 upload_to_server = UploadToServer()
-upload_to_sourceforge = UploadToSourceForge()
-upload_to_google_code = UploadToGoogleCode()
+upload_installers = UploadInstallers()
 reupload = ReUpload()
 
 from setup.installer import Rsync, Push

@@ -25,7 +25,7 @@ clean:
 
 html:
 	mkdir -p .build/html .build/doctrees
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) .build/html
+	$(SPHINXBUILD) -b html -t online $(ALLSPHINXOPTS) .build/html
 	@echo
 	@echo "Build finished. The HTML pages are in .build/html."
 

@@ -11,7 +11,7 @@ SHORTCUTS = {
         'Next Page' : (['PgDown', 'Space'],
             _('Scroll to the next page')),
 
-        'Previous Page' : (['PgUp', 'Backspace'],
+        'Previous Page' : (['PgUp', 'Backspace', 'Shift+Space'],
             _('Scroll to the previous page')),
 
         'Next Section' : (['Ctrl+PgDown', 'Ctrl+Down'],

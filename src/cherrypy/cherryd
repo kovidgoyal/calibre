@@ -5,17 +5,23 @@ import sys
 
 import cherrypy
 from cherrypy.process import plugins, servers
-
+from cherrypy import Application
 
 def start(configfiles=None, daemonize=False, environment=None,
-          fastcgi=False, scgi=False, pidfile=None, imports=None):
+          fastcgi=False, scgi=False, pidfile=None, imports=None,
+          cgi=False):
     """Subscribe all engine plugins and start the engine."""
     sys.path = [''] + sys.path
     for i in imports or []:
-        exec "import %s" % i
+        exec("import %s" % i)
     
     for c in configfiles or []:
         cherrypy.config.update(c)
+        # If there's only one app mounted, merge config into it.
+        if len(cherrypy.tree.apps) == 1:
+            for app in cherrypy.tree.apps.values():
+                if isinstance(app, Application):
+                    app.merge(c)
     
     engine = cherrypy.engine
     
@@ -36,28 +42,27 @@ def start(configfiles=None, daemonize=False, environment=None,
     if hasattr(engine, "console_control_handler"):
         engine.console_control_handler.subscribe()
     
-    if fastcgi and scgi:
-        # fastcgi and scgi aren't allowed together.
-        cherrypy.log.error("fastcgi and scgi aren't allowed together.", 'ENGINE')
+    if (fastcgi and (scgi or cgi)) or (scgi and cgi):
+        cherrypy.log.error("You may only specify one of the cgi, fastcgi, and "
+                           "scgi options.", 'ENGINE')
         sys.exit(1)
-    elif fastcgi or scgi:
-        # Turn off autoreload when using fastcgi or scgi.
+    elif fastcgi or scgi or cgi:
+        # Turn off autoreload when using *cgi.
         cherrypy.config.update({'engine.autoreload_on': False})
         # Turn off the default HTTP server (which is subscribed by default).
         cherrypy.server.unsubscribe()
         
-        sock_file = cherrypy.config.get('server.socket_file', None)
-        if sock_file:
-            bindAddress = sock_file
-        else:
-            flup_port = cherrypy.config.get('server.socket_port', 4000)
-            flup_bindaddr = cherrypy.config.get('server.socket_host', '0.0.0.0')
-            bindAddress = (flup_bindaddr, flup_port)
+        addr = cherrypy.server.bind_addr
         if fastcgi:
-            f = servers.FlupFCGIServer(application=cherrypy.tree, bindAddress=bindAddress)
+            f = servers.FlupFCGIServer(application=cherrypy.tree,
+                                       bindAddress=addr)
+        elif scgi:
+            f = servers.FlupSCGIServer(application=cherrypy.tree,
+                                       bindAddress=addr)
         else:
-            f = servers.FlupSCGIServer(application=cherrypy.tree, bindAddress=bindAddress)
-        s = servers.ServerAdapter(engine, httpserver=f, bind_addr=bindAddress)
+            f = servers.FlupCGIServer(application=cherrypy.tree,
+                                      bindAddress=addr)
+        s = servers.ServerAdapter(engine, httpserver=f, bind_addr=addr)
         s.subscribe()
     
     # Always start the engine; this will start all other services
@@ -84,13 +89,21 @@ if __name__ == '__main__':
                  help="start a fastcgi server instead of the default HTTP server")
     p.add_option('-s', action="store_true", dest='scgi',
                  help="start a scgi server instead of the default HTTP server")
+    p.add_option('-x', action="store_true", dest='cgi',
+                 help="start a cgi server instead of the default HTTP server")
     p.add_option('-i', '--import', action="append", dest='imports',
                  help="specify modules to import")
     p.add_option('-p', '--pidfile', dest='pidfile', default=None,
                  help="store the process id in the given file")
+    p.add_option('-P', '--Path', action="append", dest='Path',
+                 help="add the given paths to sys.path")
     options, args = p.parse_args()
     
+    if options.Path:
+        for p in options.Path:
+            sys.path.insert(0, p)
+    
     start(options.config, options.daemonize,
-          options.environment, options.fastcgi, options.scgi, options.pidfile,
-          options.imports)
+          options.environment, options.fastcgi, options.scgi,
+          options.pidfile, options.imports, options.cgi)
 

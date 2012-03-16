@@ -8,6 +8,7 @@ import StringIO, sys
 from struct import pack
 
 from calibre.ebooks.metadata import MetaInformation
+from calibre import force_unicode
 
 class StreamSlicer(object):
 
@@ -245,7 +246,9 @@ class MetadataUpdater(object):
     def get_metadata(self):
         ''' Return MetaInformation with title, author'''
         self.get_original_metadata()
-        return MetaInformation(self.metadata['Title'], [self.metadata['Authors']])
+        title = force_unicode(self.metadata['Title'], 'utf-8')
+        authors = force_unicode(self.metadata['Authors'], 'utf-8').split(';')
+        return MetaInformation(title, authors)
 
     def get_original_metadata(self):
         offset = self.base + self.topaz_headers['metadata']['blocks'][0]['offset']

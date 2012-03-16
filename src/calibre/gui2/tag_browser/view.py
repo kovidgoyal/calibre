@@ -63,7 +63,7 @@ class TagsView(QTreeView): # {{{
     del_item_from_user_cat  = pyqtSignal(object, object, object)
     add_item_to_user_cat    = pyqtSignal(object, object, object)
     add_subcategory         = pyqtSignal(object)
-    tag_list_edit           = pyqtSignal(object, object)
+    tags_list_edit          = pyqtSignal(object, object)
     saved_search_edit       = pyqtSignal(object)
     rebuild_saved_searches  = pyqtSignal()
     author_sort_edit        = pyqtSignal(object, object, object, object)
@@ -71,6 +71,7 @@ class TagsView(QTreeView): # {{{
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
+    tag_item_delete         = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -234,8 +235,11 @@ class TagsView(QTreeView): # {{{
             if action == 'edit_item':
                 self.edit(index)
                 return
+            if action == 'delete_item':
+                self.tag_item_delete.emit(key, index.id, index.original_name)
+                return
             if action == 'open_editor':
-                self.tag_list_edit.emit(category, key)
+                self.tags_list_edit.emit(category, key)
                 return
             if action == 'manage_categories':
                 self.edit_user_category.emit(category)
@@ -246,7 +250,7 @@ class TagsView(QTreeView): # {{{
             if action == 'add_to_category':
                 tag = index.tag
                 if len(index.children) > 0:
-                    for c in index.children:
+                    for c in index.all_children():
                         self.add_item_to_user_cat.emit(category, c.tag.original_name,
                                                c.tag.category)
                 self.add_item_to_user_cat.emit(category, tag.original_name,
@@ -345,6 +349,12 @@ class TagsView(QTreeView): # {{{
                                                     _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item',
                                     index=index))
+                        if key in ('tags', 'series', 'publisher') or \
+                                self._model.db.field_metadata.is_custom_field(key):
+                            self.context_menu.addAction(self.delete_icon,
+                                                    _('Delete %s')%display_name(tag),
+                                partial(self.context_menu_handler, action='delete_item',
+                                    key=key, index=tag))
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
@@ -373,7 +383,7 @@ class TagsView(QTreeView): # {{{
                                     add_node_tree(tree_dict[k], tm, p)
                                 p.pop()
                         add_node_tree(nt, m, [])
-                    elif key == 'search':
+                    elif key == 'search' and tag.is_searchable:
                         self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item',
@@ -381,7 +391,7 @@ class TagsView(QTreeView): # {{{
                         self.context_menu.addAction(self.delete_icon,
                                 _('Delete search %s')%display_name(tag),
                                 partial(self.context_menu_handler,
-                                        action='delete_search', key=tag.name))
+                                        action='delete_search', key=tag.original_name))
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
                                 _('Remove %(item)s from category %(cat)s')%
@@ -389,17 +399,18 @@ class TagsView(QTreeView): # {{{
                                 partial(self.context_menu_handler,
                                         action='delete_item_from_user_category',
                                         key = key, index = tag_item))
-                    # Add the search for value items. All leaf nodes are searchable
-                    self.context_menu.addAction(self.search_icon,
-                            _('Search for %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='search',
-                                    search_state=TAG_SEARCH_STATES['mark_plus'],
-                                    index=index))
-                    self.context_menu.addAction(self.search_icon,
-                            _('Search for everything but %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='search',
-                                    search_state=TAG_SEARCH_STATES['mark_minus'],
-                                    index=index))
+                    if tag.is_searchable:
+                        # Add the search for value items. All leaf nodes are searchable
+                        self.context_menu.addAction(self.search_icon,
+                                _('Search for %s')%display_name(tag),
+                                partial(self.context_menu_handler, action='search',
+                                        search_state=TAG_SEARCH_STATES['mark_plus'],
+                                        index=index))
+                        self.context_menu.addAction(self.search_icon,
+                                _('Search for everything but %s')%display_name(tag),
+                                partial(self.context_menu_handler, action='search',
+                                        search_state=TAG_SEARCH_STATES['mark_minus'],
+                                        index=index))
                     self.context_menu.addSeparator()
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:

@@ -169,7 +169,10 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
         self.formats_manager = FormatsManager(self, self.copy_fmt)
-        self.basic_metadata_widgets.append(self.formats_manager)
+        # We want formats changes to be committed before title/author, as
+        # otherwise we could have data loss if the title/author changed and the
+        # user was trying to add an extra file from the old books directory.
+        self.basic_metadata_widgets.insert(0, self.formats_manager)
         self.formats_manager.metadata_from_format_button.clicked.connect(
                 self.metadata_from_format)
         self.formats_manager.cover_from_format_button.clicked.connect(
@@ -376,6 +379,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('series') and mi.series.strip():
             self.series.current_val = mi.series
             if mi.series_index is not None:
+                self.series_index.reset_original()
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
             langs = [canonicalize_lang(x) for x in mi.languages]

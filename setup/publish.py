@@ -45,7 +45,7 @@ class Stage3(Command):
 class Stage4(Command):
 
     description = 'Stage 4 of the publish process'
-    sub_commands = ['upload_to_sourceforge', 'upload_to_google_code']
+    sub_commands = ['upload_installers']
 
 class Stage5(Command):
 

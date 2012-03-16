@@ -82,6 +82,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(QLineEdit(self))
                         l = QLabel(label_text)
                         l.setToolTip(tt)
+                        self.opt_extra_customization[i].setToolTip(tt)
                         l.setBuddy(self.opt_extra_customization[i])
                         l.setWordWrap(True)
                         self.opt_extra_customization[i].setText(settings.extra_customization[i])
@@ -97,6 +98,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 l.setWordWrap(True)
                 if settings.extra_customization:
                     self.opt_extra_customization.setText(settings.extra_customization)
+                self.opt_extra_customization.setCursorPosition(0)
                 self.extra_layout.addWidget(l, 0, 0)
                 self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
         self.opt_save_template.setText(settings.save_template)

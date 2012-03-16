@@ -343,7 +343,7 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ò'),
                   (re.compile(u'`\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ù'),
                   (re.compile(u'`\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ù'),
-                  
+
                   # ` with letter before
                   (re.compile(u'a\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'à'),
                   (re.compile(u'A\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'À'),
@@ -405,7 +405,7 @@ class HTMLPreProcessor(object):
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
-                  
+
                   # ˇ
                   (re.compile(u'ˇ\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'č'),
                   (re.compile(u'ˇ\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Č'),
@@ -425,11 +425,11 @@ class HTMLPreProcessor(object):
                   (re.compile(u'ˇ\s*(<br.*?>)*\s*T', re.UNICODE), lambda match: u'Ť'),
                   (re.compile(u'ˇ\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ž'),
                   (re.compile(u'ˇ\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ž'),
-                  
+
                   # °
                   (re.compile(u'°\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ů'),
                   (re.compile(u'°\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ů'),
-                  
+
                   # If pdf printed from a browser then the header/footer has a reliable pattern
                   (re.compile(r'((?<=</a>)\s*file:/{2,4}[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 

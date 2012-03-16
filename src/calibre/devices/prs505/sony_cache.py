@@ -7,8 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, time
 from base64 import b64decode
-from uuid import uuid4
-from lxml import etree
 from datetime import date
 
 from calibre import prints, guess_type, isbytestring
@@ -78,6 +76,7 @@ def strftime(epoch, zone=time.localtime):
     return ' '.join(src)
 
 def uuid():
+    from uuid import uuid4
     return str(uuid4()).replace('-', '', 1).upper()
 
 # }}}
@@ -85,6 +84,8 @@ def uuid():
 class XMLCache(object):
 
     def __init__(self, paths, ext_paths, prefixes, use_author_sort):
+        from lxml import etree
+
         if DEBUG:
             debug_print('Building XMLCache...', paths)
         self.paths = paths
@@ -714,6 +715,8 @@ class XMLCache(object):
 
 
     def write(self):
+        from lxml import etree
+
         for i, path in self.paths.items():
             self.move_playlists_to_bottom()
             self.cleanup_whitespace(i)

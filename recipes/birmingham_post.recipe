@@ -1,0 +1,44 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class AdvancedUserRecipe1306097511(BasicNewsRecipe):
+    title          = u'Birmingham post'
+    description = 'News for Birmingham UK'
+    timefmt = ''
+    __author__ = 'Dave Asbury'
+    cover_url = 'http://1.bp.blogspot.com/_GwWyq5eGw9M/S9BHPHxW55I/AAAAAAAAB6Q/iGCWl0egGzg/s320/Birmingham+post+Lite+front.JPG'
+    oldest_article = 1
+    max_articles_per_feed = 20
+    remove_empty_feeds = True
+    remove_javascript     = True
+    auto_cleanup = True
+    language = 'en_GB'
+
+
+    masthead_url        = 'http://www.pressgazette.co.uk/Pictures/web/t/c/g/birmingham_post.jpg'
+
+
+    keep_only_tags = [
+    #dict(name='h1',attrs={'id' : 'article-headline'}),
+                    #dict(attrs={'class':['article-meta-author','article-meta-date','article main','art-o art-align-center otm-1 ']}),
+    #dict(name='p')
+    #dict(attrs={'id' : 'three-col'})
+        ]
+    remove_tags    = [
+             # dict(name='div',attrs={'class' : 'span-33 last header-links'})
+
+                               ]
+    feeds          = [
+        #(u'News',u'http://www.birminghampost.net/news/rss.xml'),
+        (u'Local News', u'http://www.birminghampost.net/news/west-midlands-news/rss.xml'),
+        (u'UK News', u'http://www.birminghampost.net/news/uk-news/rss.xml'),
+        (u'Sports',u'http://www.birminghampost.net/midlands-birmingham-sport/rss.xml'),
+        (u'Bloggs & Comments',u'http://www.birminghampost.net/comment/rss.xml')
+
+         ]
+    extra_css  = '''
+                    body {font: sans-serif medium;}'
+    h1 {text-align : center; font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;}
+                h2 {text-align : center;color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; }
+                    span{ font-size:9.5px; font-weight:bold;font-style:italic}
+                    p { text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
+
+     '''

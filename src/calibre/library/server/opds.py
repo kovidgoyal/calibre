@@ -55,6 +55,7 @@ E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
 FEED    = E.feed
 TITLE   = E.title
 ID      = E.id
+ICON    = E.icon
 
 def UPDATED(dt, *args, **kwargs):
     return E.updated(dt.strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
@@ -239,6 +240,7 @@ class Feed(object): # {{{
                     TITLE(title),
                     AUTHOR(__appname__, uri='http://calibre-ebook.com'),
                     ID(id_),
+                    ICON('/favicon.png'),
                     UPDATED(updated),
                     SEARCH_LINK(self.base_href),
                     START_LINK(href=self.base_href)

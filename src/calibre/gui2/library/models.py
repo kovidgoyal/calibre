@@ -22,6 +22,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import (_match, CONTAINS_MATCH, EQUALS_MATCH,
     REGEXP_MATCH, MetadataBackup, force_to_bool)
+from calibre.library.save_to_disk import find_plugboard
 from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
@@ -429,7 +430,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def get_preferred_formats_from_ids(self, ids, formats,
                               set_metadata=False, specific_format=None,
-                              exclude_auto=False, mode='r+b'):
+                              exclude_auto=False, mode='r+b',
+                              use_plugboard=None, plugboard_formats=None):
         from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
         ans = []
         need_auto = []
@@ -453,9 +455,21 @@ class BooksModel(QAbstractTableModel): # {{{
                 pt.seek(0)
                 if set_metadata:
                     try:
-                        _set_metadata(pt, self.db.get_metadata(
-                            id, get_cover=True, index_is_id=True,
-                            cover_as_data=True), format)
+                        mi = self.db.get_metadata(id, get_cover=True,
+                                                  index_is_id=True,
+                                                  cover_as_data=True)
+                        newmi = None
+                        if use_plugboard and format.lower() in plugboard_formats:
+                            plugboards = self.db.prefs.get('plugboards', {})
+                            cpb = find_plugboard(use_plugboard, format.lower(),
+                                                 plugboards)
+                            if cpb:
+                                newmi = mi.deepcopy_metadata()
+                                newmi.template_to_attribute(mi, cpb)
+                        if newmi is not None:
+                            _set_metadata(pt, newmi, format)
+                        else:
+                            _set_metadata(pt, mi, format)
                     except:
                         traceback.print_exc()
                 pt.close()
@@ -1059,19 +1073,40 @@ class DeviceBooksModel(BooksModel): # {{{
         self.book_in_library = None
 
     def mark_for_deletion(self, job, rows, rows_are_ids=False):
+        db_indices = rows if rows_are_ids else self.indices(rows)
+        db_items = [self.db[i] for i in db_indices if -1 < i < len(self.db)]
+        self.marked_for_deletion[job] = db_items
         if rows_are_ids:
-            self.marked_for_deletion[job] = rows
             self.reset()
         else:
-            self.marked_for_deletion[job] = self.indices(rows)
             for row in rows:
                 indices = self.row_indices(row)
                 self.dataChanged.emit(indices[0], indices[-1])
 
+    def find_item_in_db(self, item):
+        idx = None
+        try:
+            idx = self.db.index(item)
+        except:
+            path = getattr(item, 'path', None)
+            if path:
+                for i, x in enumerate(self.db):
+                    if getattr(x, 'path', None) == path:
+                        idx = i
+                        break
+        return idx
+
     def deletion_done(self, job, succeeded=True):
-        if not self.marked_for_deletion.has_key(job):
-            return
-        rows = self.marked_for_deletion.pop(job)
+        db_items = self.marked_for_deletion.pop(job, [])
+        rows = []
+        for item in db_items:
+            idx = self.find_item_in_db(item)
+            if idx is not None:
+                try:
+                    rows.append(self.map.index(idx))
+                except ValueError:
+                    pass
+
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
@@ -1082,11 +1117,18 @@ class DeviceBooksModel(BooksModel): # {{{
         self.resort(False)
         self.research(True)
 
-    def indices_to_be_deleted(self):
-        ans = []
-        for v in self.marked_for_deletion.values():
-            ans.extend(v)
-        return ans
+    def is_row_marked_for_deletion(self, row):
+        try:
+            item = self.db[self.map[row]]
+        except IndexError:
+            return False
+
+        path = getattr(item, 'path', None)
+        for items in self.marked_for_deletion.itervalues():
+            for x in items:
+                if x is item or (path and path == getattr(x, 'path', None)):
+                    return True
+        return False
 
     def clear_ondevice(self, db_ids, to_what=None):
         for data in self.db:
@@ -1098,8 +1140,8 @@ class DeviceBooksModel(BooksModel): # {{{
             self.reset()
 
     def flags(self, index):
-        if self.map[index.row()] in self.indices_to_be_deleted():
-            return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
+        if self.is_row_marked_for_deletion(index.row()):
+            return Qt.NoItemFlags
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():
             cname = self.column_map[index.column()]
@@ -1333,7 +1375,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif DEBUG and cname == 'inlibrary':
                 return QVariant(self.db[self.map[row]].in_library)
         elif role == Qt.ToolTipRole and index.isValid():
-            if self.map[row] in self.indices_to_be_deleted():
+            if self.is_row_marked_for_deletion(row):
                 return QVariant(_('Marked for deletion'))
             if cname in ['title', 'authors'] or (cname == 'collections' and \
                     self.db.supports_collections()):

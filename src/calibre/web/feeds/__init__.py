@@ -7,9 +7,6 @@ Contains the logic for parsing feeds.
 '''
 import time, traceback, copy, re
 
-from lxml import html
-
-from calibre.web.feeds.feedparser import parse
 from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime
 from calibre.utils.date import dt_factory, utcnow, local_tz
@@ -18,6 +15,7 @@ from calibre.utils.cleantext import clean_ascii_chars
 class Article(object):
 
     def __init__(self, id, title, url, author, summary, published, content):
+        from lxml import html
         self.downloaded = False
         self.id = id
         self._title = title.strip() if title else title
@@ -320,6 +318,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   max_articles_per_feed=100,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
+    from calibre.web.feeds.feedparser import parse
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
     raw_xml = re.sub(r'(&amp;#\d+)([^0-9;])', r'\1;\2', raw_xml)

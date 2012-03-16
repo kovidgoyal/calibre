@@ -325,6 +325,7 @@ class MobiMLizer(object):
                 elem.text = None
                 elem.set('id', id_)
                 elem.tail = tail
+                elem.tag = XHTML('a')
             else:
                 return
         tag = barename(elem.tag)
@@ -567,7 +568,11 @@ class MobiMLizer(object):
         if isblock:
             para = bstate.para
             if para is not None and para.text == u'\xa0' and len(para) < 1:
-                para.getparent().replace(para, etree.Element(XHTML('br')))
+                if style.height > 2:
+                    para.getparent().replace(para, etree.Element(XHTML('br')))
+                else:
+                    # This is too small to be rendered effectively, drop it
+                    para.getparent().remove(para)
             bstate.para = None
             bstate.istate = None
             vmargin = asfloat(style['margin-bottom'])

@@ -21,7 +21,7 @@ class PluginWidget(QWidget, Ui_Form):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        from calibre.library.catalog import FIELDS
+        from calibre.library.catalogs import FIELDS
         self.all_fields = []
         for x in FIELDS:
             if x != 'all':

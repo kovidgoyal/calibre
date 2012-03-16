@@ -38,6 +38,8 @@ class ANDROID(USBMS):
                        0xca4  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca9  : [0x100, 0x0227, 0x0226, 0x222],
                        0xcac  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xccf  : [0x100, 0x0227, 0x0226, 0x222],
+                       0x2910 : [0x222],
             },
 
             # Eken
@@ -48,7 +50,10 @@ class ANDROID(USBMS):
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
-                       0x70c6 : [0x226]
+                       0x70c6 : [0x226],
+                       0x4316 : [0x216],
+                       0x42d6 : [0x216],
+                       0x42d7 : [0x216],
                      },
             # Freescale
             0x15a2 : {
@@ -65,14 +70,17 @@ class ANDROID(USBMS):
                 0xd12e : [0x0100],
                 0xe14f : [0x0226],
                 0x614f : [0x0226, 0x100],
+                0x6156 : [0x0226, 0x100],
                 },
 
             # Google
             0x18d1 : {
                 0x0001 : [0x0223, 0x9999],
+                0x0003 : [0x0230],
                 0x4e11 : [0x0100, 0x226, 0x227],
                 0x4e12 : [0x0100, 0x226, 0x227],
-                0x4e21 : [0x0100, 0x226, 0x227],
+                0x4e21 : [0x0100, 0x226, 0x227, 0x231],
+                0x4e22 : [0x0100, 0x226, 0x227],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
             },
@@ -87,13 +95,16 @@ class ANDROID(USBMS):
                        0x6877 : [0x0400],
                        0x689e : [0x0400],
                        0xdeed : [0x0222],
+                       0x1234 : [0x0400],
                      },
 
             # Viewsonic/Vizio
             0x0489 : {
+                    0xc000 : [0x0226],
                     0xc001 : [0x0226],
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],
+                    0xe115 : [0x0216], # PocketBook A10
             },
 
             # Acer
@@ -135,7 +146,7 @@ class ANDROID(USBMS):
             0x5e3 : { 0x726 : [0x222] },
 
             # ZTE
-            0x19d2 : { 0x1353 : [0x226] },
+            0x19d2 : { 0x1353 : [0x226], 0x1351 : [0x227] },
 
             # Advent
             0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam
@@ -158,7 +169,8 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
-            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO']
+            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
+            'POCKET', 'ONDA_MID']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -170,13 +182,16 @@ class ANDROID(USBMS):
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
-            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107']
+            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
+            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
+            'XT910', 'BOOK_A10', 'USB_2.0_DRIVER']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
-            'A1-07___C0541A4F']
+            'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
+            'USB_2.0_DRIVER']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -214,6 +229,20 @@ class ANDROID(USBMS):
                 drives['carda'] = drives['main']
                 drives['main']  = letter_a
         return drives
+
+    @classmethod
+    def configure_for_kindle_app(cls):
+        proxy = cls._configProxy()
+        proxy['format_map'] = ['mobi', 'azw', 'azw1', 'azw4', 'pdf']
+        proxy['use_subdirs'] = False
+        proxy['extra_customization'] = ','.join(['kindle']+cls.EBOOK_DIR_MAIN)
+
+    @classmethod
+    def configure_for_generic_epub_app(cls):
+        proxy = cls._configProxy()
+        del proxy['format_map']
+        del proxy['use_subdirs']
+        del proxy['extra_customization']
 
 class S60(USBMS):
 
