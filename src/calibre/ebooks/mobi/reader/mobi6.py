@@ -151,6 +151,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('</</', '</')
         self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
                 self.processed_html)
+        self.processed_html = self.processed_html.replace(u'\ufeff', '')
         # Remove tags of the form <xyz: ...> as they can cause issues further
         # along the pipeline
         self.processed_html = re.sub(r'</{0,1}[a-zA-Z]+:\s+[^>]*>', '',
