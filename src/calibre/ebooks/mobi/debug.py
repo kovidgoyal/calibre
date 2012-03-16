@@ -652,8 +652,25 @@ class Tag(object): # {{{
 
     INTERPRET_MAP = {
             'subchapter': {
-                    21  : ('Parent chapter index', 'parent_index')
+                    21  : ('Parent chapter index', 'parent_index'),
+                    5   : ('Unknown (koffs)', 'koffs'),
             },
+
+            'section' : {
+                6 : ('File Index', 'pos_fid'),
+            },
+
+            'section_with_subsections' : {
+                6 : ('File Index', 'pos_fid'),
+                22 : ('First subsection index', 'first_child_index'),
+                23 : ('Last subsection index', 'last_child_index'),
+
+            },
+            'subsection' : {
+                6 : ('File Index', 'pos_fid'),
+                21  : ('Parent section index', 'parent_index'),
+            },
+
 
             'article'   : {
                     5  : ('Class offset in cncx', 'class_offset'),
@@ -707,12 +724,16 @@ class Tag(object): # {{{
             try:
                 self.desc, self.attr = td[tag_type]
             except:
-                print ('Unknown tag value: %d'%tag_type)
+                print ('Unknown tag value: %d in entry type: %s'%(tag_type,
+                    entry_type))
                 self.desc = '??Unknown (tag value: %d type: %s)'%(
                         tag_type, entry_type)
                 self.attr = 'unknown'
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
+
+        if self.attr == 'pos_fid':
+            print (1111111, vals)
 
     def __str__(self):
         if self.cncx_value is not None:
@@ -738,6 +759,9 @@ class IndexEntry(object): # {{{
             0x0f : 'chapter',
             0x6f : 'chapter_with_subchapters',
             0x1f : 'subchapter',
+            0x8f : 'section',
+            0xef : 'section_with_subsections',
+            0x9f : 'subsection',
             # Present in periodicals
             0xdf : 'periodical',
             0xff : 'section',
