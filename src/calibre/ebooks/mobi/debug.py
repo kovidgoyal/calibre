@@ -14,6 +14,7 @@ from lxml import html
 
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
         get_trailing_data, decode_tbs, read_font_record)
 from calibre.utils.magick.draw import identify_data
@@ -151,6 +152,10 @@ class EXTHRecord(object):
                 117 : 'adult',
                 118 : 'retailprice',
                 119 : 'retailpricecurrency',
+                121 : 'KF8 header section index',
+                125 : 'KF8 resources (images/fonts) count',
+                129 : 'KF8 cover URI',
+                131 : 'KF8 unknown count',
                 201 : 'coveroffset',
                 202 : 'thumboffset',
                 203 : 'hasfakecover',
@@ -169,9 +174,10 @@ class EXTHRecord(object):
                 503 : 'updatedtitle',
         }.get(self.type, repr(self.type))
 
-        if self.name in ('coveroffset', 'thumboffset', 'hasfakecover',
+        if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',
                 'Creator Major Version', 'Creator Minor Version',
-                'Creator Build Number', 'Creator Software', 'startreading'):
+                'Creator Build Number', 'Creator Software', 'startreading'} or
+                self.type in {121, 125, 131}):
             self.data, = struct.unpack(b'>I', self.data)
 
     def __str__(self):
@@ -338,9 +344,9 @@ class MOBIHeader(object): # {{{
         ans.append('File version: %d'%self.file_version)
         ans.append('Reserved: %r'%self.reserved)
         ans.append('Secondary index record: %d (null val: %d)'%(
-            self.secondary_index_record, 0xffffffff))
+            self.secondary_index_record, NULL_INDEX))
         ans.append('Reserved2: %r'%self.reserved2)
-        ans.append('First non-book record (null value: %d): %d'%(0xffffffff,
+        ans.append('First non-book record (null value: %d): %d'%(NULL_INDEX,
             self.first_non_book_record))
         ans.append('Full name offset: %d'%self.fullname_offset)
         ans.append('Full name length: %d bytes'%self.fullname_length)
@@ -379,7 +385,7 @@ class MOBIHeader(object): # {{{
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
                     self.has_indexing_bytes, self.has_uncrossable_breaks ))
-            ans.append('Primary index record (null value: %d): %d'%(0xffffffff,
+            ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
                 self.primary_index_record))
 
         ans = '\n'.join(ans)
@@ -399,7 +405,7 @@ class MOBIHeader(object): # {{{
 
 class TagX(object): # {{{
 
-    def __init__(self, raw, control_byte_count):
+    def __init__(self, raw):
         self.tag = ord(raw[0])
         self.num_values = ord(raw[1])
         self.bitmask = ord(raw[2])
@@ -459,8 +465,7 @@ class SecondaryIndexHeader(object): # {{{
         num_tagx_entries = len(tag_table) // 4
         self.tagx_entries = []
         for i in range(num_tagx_entries):
-            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4],
-                self.tagx_control_byte_count))
+            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4]))
         if self.tagx_entries and not self.tagx_entries[-1].is_eof:
             raise ValueError('TAGX last entry is not EOF')
 
@@ -563,8 +568,7 @@ class IndexHeader(object): # {{{
         num_tagx_entries = len(tag_table) // 4
         self.tagx_entries = []
         for i in range(num_tagx_entries):
-            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4],
-                self.tagx_control_byte_count))
+            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4]))
         if self.tagx_entries and not self.tagx_entries[-1].is_eof:
             raise ValueError('TAGX last entry is not EOF')
 
@@ -634,56 +638,28 @@ class Tag(object): # {{{
     TAG_MAP = {
             1: ('offset', 'Offset in HTML'),
             2: ('size', 'Size in HTML'),
-            3: ('label_offset', 'Offset to label in CNCX'),
+            3: ('label_offset', 'Label offset in CNCX'),
             4: ('depth', 'Depth of this entry in TOC'),
+            5: ('class_offset', 'Class offset in CNCX'),
+            6: ('pos_fid', 'File Index'),
 
             11: ('secondary', '[unknown, unknown, '
                 'tag type from TAGX in primary index header]'),
 
-            # The remaining tag types have to be interpreted subject to the type
-            # of index entry they are present in
+            21: ('parent_index', 'Parent'),
+            22: ('first_child_index', 'First child'),
+            23: ('last_child_index', 'Last child'),
+
+            69 : ('image_index', 'Offset from first image record to the'
+                                ' image record associated with this entry'
+                                ' (masthead for periodical or thumbnail for'
+                                ' article entry).'),
+            70 : ('desc_offset', 'Description offset in cncx'),
+            71 : ('author_offset', 'Author offset in cncx'),
+            72 : ('image_caption_offset', 'Image caption offset in cncx'),
+            73 : ('image_attr_offset', 'Image attribution offset in cncx'),
+
     }
-
-    INTERPRET_MAP = {
-            'subchapter': {
-                    21  : ('Parent chapter index', 'parent_index')
-            },
-
-            'article'   : {
-                    5  : ('Class offset in cncx', 'class_offset'),
-                    21 : ('Parent section index', 'parent_index'),
-                    69 : ('Offset from first image record num to the'
-                        ' image record associated with this article',
-                        'image_index'),
-                    70 : ('Description offset in cncx', 'desc_offset'),
-                    71 : ('Author offset in cncx', 'author_offset'),
-                    72 : ('Image caption offset in cncx',
-                        'image_caption_offset'),
-                    73 : ('Image attribution offset in cncx',
-                        'image_attr_offset'),
-            },
-
-            'chapter_with_subchapters' : {
-                    22 : ('First subchapter index', 'first_child_index'),
-                    23 : ('Last subchapter index', 'last_child_index'),
-            },
-
-            'periodical' : {
-                    5  : ('Class offset in cncx', 'class_offset'),
-                    22 : ('First section index', 'first_child_index'),
-                    23 : ('Last section index', 'last_child_index'),
-                    69 : ('Offset from first image record num to masthead'
-                        ' record', 'image_index'),
-            },
-
-            'section' : {
-                    5  : ('Class offset in cncx', 'class_offset'),
-                    21 : ('Periodical index', 'parent_index'),
-                    22 : ('First article index', 'first_child_index'),
-                    23 : ('Last article index', 'last_child_index'),
-            },
-    }
-
 
     def __init__(self, tagx, vals, entry_type, cncx):
         self.value = vals if len(vals) > 1 else vals[0] if vals else None
@@ -694,17 +670,12 @@ class Tag(object): # {{{
         if tag_type in self.TAG_MAP:
             self.attr, self.desc = self.TAG_MAP[tag_type]
         else:
-            try:
-                td = self.INTERPRET_MAP[entry_type]
-            except:
-                raise ValueError('Unknown entry type: %s'%entry_type)
-            try:
-                self.desc, self.attr = td[tag_type]
-            except:
-                print ('Unknown tag value: %d'%tag_type)
-                self.desc = '??Unknown (tag value: %d type: %s)'%(
-                        tag_type, entry_type)
-                self.attr = 'unknown'
+            print ('Unknown tag value: %d in entry type: %s'%(tag_type,
+                entry_type))
+            self.desc = '??Unknown (tag value: %d type: %s)'%(
+                    tag_type, entry_type)
+            self.attr = 'unknown'
+
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
 
@@ -719,39 +690,20 @@ class IndexEntry(object): # {{{
 
     '''
     The index is made up of entries, each of which is represented by an
-    instance of this class. Index entries typically point to offsets int eh
+    instance of this class. Index entries typically point to offsets in the
     HTML, specify HTML sizes and point to text strings in the CNCX that are
     used in the navigation UI.
     '''
-
-    TYPES = {
-            # Present in secondary index record
-            0x01 : 'null',
-            0x02 : 'publication_meta',
-            # Present in book type files
-            0x0f : 'chapter',
-            0x6f : 'chapter_with_subchapters',
-            0x1f : 'subchapter',
-            # Present in periodicals
-            0xdf : 'periodical',
-            0xff : 'section',
-            0x3f : 'article',
-    }
 
     def __init__(self, ident, entry_type, raw, cncx, tagx_entries,
             control_byte_count):
         self.index = ident
         self.raw = raw
         self.tags = []
-        self.entry_type_raw = entry_type
+        self.entry_type = entry_type
         self.byte_size = len(raw)
 
         orig_raw = raw
-
-        try:
-            self.entry_type = self.TYPES[entry_type]
-        except KeyError:
-            raise ValueError('Unknown Index Entry type: %s'%bin(entry_type))
 
         if control_byte_count not in (1, 2):
             raise ValueError('Unknown control byte count: %d'%
@@ -770,7 +722,7 @@ class IndexEntry(object): # {{{
         for tag in expected_tags:
             vals = []
 
-            if tag.tag > 64:
+            if tag.tag > 0b1000000: # 0b1000000 = 64
                 has_tag = flags & 0b1
                 flags = flags >> 1
                 if not has_tag: continue
@@ -837,10 +789,17 @@ class IndexEntry(object): # {{{
                 return tag.value
         return -1
 
+    @property
+    def pos_fid(self):
+        for tag in self.tags:
+            if tag.attr == 'pos_fid':
+                return tag.value
+        return [0, 0]
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, flags=%s, '
                 'length=%d, byte_size=%d)'%(
-            self.index, self.entry_type, bin(self.flags)[2:],
+            self.index, bin(self.entry_type), bin(self.flags)[2:],
             len(self.tags), self.byte_size)]
         for tag in self.tags:
             if tag.value is not None:
@@ -1401,7 +1360,7 @@ class MOBIFile(object): # {{{
         self.index_header = self.index_record = None
         self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
-        if pir != 0xffffffff:
+        if pir != NULL_INDEX:
             self.index_header = IndexHeader(self.records[pir])
             self.cncx = CNCX(self.records[
                 pir+2:pir+2+self.index_header.num_of_cncx_blocks],
@@ -1412,7 +1371,7 @@ class MOBIFile(object): # {{{
                 pir+2+self.index_header.num_of_cncx_blocks))
         self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
-        if sir != 0xffffffff:
+        if sir != NULL_INDEX:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])
             self.indexing_record_nums.add(sir)
             self.secondary_index_record = SecondaryIndexRecord(
@@ -1423,7 +1382,7 @@ class MOBIFile(object): # {{{
         ntr = self.mobi_header.number_of_text_records
         fntbr = self.mobi_header.first_non_book_record
         fii = self.mobi_header.first_image_index
-        if fntbr == 0xffffffff:
+        if fntbr == NULL_INDEX:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
             self.mobi_header.extra_data_flags, decompress) for r in xrange(1,

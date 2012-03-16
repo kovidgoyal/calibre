@@ -352,8 +352,11 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         title = etree.SubElement(head, XHTML('title'))
         title.text = _('Unknown')
     elif not xpath(data, '/h:html/h:head/h:title'):
-        log.warn('File %s missing <title/> element' % filename)
         title = etree.SubElement(head, XHTML('title'))
+        title.text = _('Unknown')
+    # Ensure <title> is not empty
+    title = xpath(data, '/h:html/h:head/h:title')[0]
+    if not title.text or not title.text.strip():
         title.text = _('Unknown')
     # Remove any encoding-specifying <meta/> elements
     for meta in META_XP(data):
