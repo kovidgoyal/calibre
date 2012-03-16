@@ -105,9 +105,11 @@ def get_tag_map(control_byte_count, tags, data, start, end):
         if value != 0:
             if value == mask:
                 if count_set_bits(mask) > 1:
-                    # If all bits of masked value are set and the mask has more than one bit, a variable width value
-                    # will follow after the control bytes which defines the length of bytes (NOT the value count!)
-                    # which will contain the corresponding variable width values.
+                    # If all bits of masked value are set and the mask has more
+                    # than one bit, a variable width value will follow after
+                    # the control bytes which defines the length of bytes (NOT
+                    # the value count!) which will contain the corresponding
+                    # variable width values.
                     value, consumed = decint(data[data_start:])
                     data_start += consumed
                     ptags.append((tag, None, value, values_per_entry))

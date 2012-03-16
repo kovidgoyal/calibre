@@ -19,6 +19,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.43
+  date: 2012-03-16
+
+  new features:
+    - title: "Template language: Speedup evaluation of general program mode templates by pre-compiling them to python. If you experience errors with this optimization, you can turn it off via Preferences->Tweaks. Also other miscellaneous optimizations in evaluating templates with composite columns."
+
+    - title: "MOBI Output: Add an option to not convert all images to JPEG when creating MOBI files. For maximum compatibility of the produced MOBI files, do not use this option."
+      tickets: [954025]
+
+    - title: "Add iPad3 Output Profile"
+ 
+  bug fixes:
+    - title: "KF8 Input: Add support for KF8 files with obfuscated embedded fonts"
+      tickets: [953260] 
+
+    - title: "Make the stars in the book list a little larger on windows >= vista"
+
+    - title: "Revised periodical Section layout, for touchscreen devices resolving iBooks problem with tables spanning multiple pages"
+
+    - title: "Read dc:contributor metadata from MOBI files"
+
+    - title: "MOBI Output: Fix a regression that caused the generated thumbnail embedded in calibre produced MOBI files to be a large, low quality image instead of a small, high quality image. You would have been affected by this bug only if you directly used the output from calibre, without exporting it via send to device or save to disk."
+      tickets: [954254]
+
+    - title: "KF8 Input: Recognize OpenType embedded fonts as well."
+      tickets: [954728]
+
+    - title: "Fix regression in 0.8.41 that caused file:/// URLs to stop working in the news download system on windows."
+      tickets: [955581]
+
+    - title: "When setting metadata in MOBI files fix cover not being updated if the mobi file has its first image record as the cover"
+
+    - title: "Fix column coloring rules based on the size column not working"
+      tickets: [953737] 
+
+  improved recipes:
+    - Microwaves and RF
+    - idg.se
+
+  new recipes:
+    - title: SatMagazine 
+      author: kiavash
+
 - version: 0.8.42
   date: 2012-03-12
 
