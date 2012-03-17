@@ -210,11 +210,11 @@ class _CompileParser(_Parser):
                 return val
             if not self.token_op_is_a_semicolon():
                 return val
-            if self.compile_text:
-                self.compile_text += "\targs[%d] = list()\n"%(level,)
             self.consume()
             if self.token_is_eof():
                 return val
+            if self.compile_text:
+                self.compile_text += "\targs[%d] = list()\n"%(level,)
 
     def expr(self, level):
         if self.compile_text:
