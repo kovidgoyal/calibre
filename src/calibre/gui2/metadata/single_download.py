@@ -27,11 +27,13 @@ from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import (identify,
         urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import error_dialog, NONE
+from calibre.gui2 import error_dialog, NONE, rating_font
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
+from calibre.utils.config import tweaks
+
 # }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
@@ -254,6 +256,7 @@ class ResultsView(QTableView): # {{{
         return ret
 
     def show_details(self, index):
+        f = rating_font()
         book = self.model().data(index, Qt.UserRole)
         parts = [
             '<center>',
@@ -265,7 +268,8 @@ class ResultsView(QTableView): # {{{
             if series[1]:
                 parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
-            parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
+            style = 'style=\'font-family:"%s"\''%f
+            parts.append('<div %s>%s</div>'%(style, '\u2605'*int(book.rating)))
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
@@ -324,7 +328,7 @@ class Comments(QWebView): # {{{
             return ans
 
         fi = QFontInfo(QApplication.font(self.parent()))
-        f = fi.pixelSize()+1
+        f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
         fam = unicode(fi.family()).strip().replace('"', '')
         if not fam:
             fam = 'sans-serif'

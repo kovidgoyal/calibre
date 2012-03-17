@@ -29,6 +29,6 @@ class PDBInput(InputFormatPlugin):
         log.debug('Detected ebook format as: %s with identity: %s' % (IDENTITY_TO_NAME[header.ident], header.ident))
 
         reader = Reader(header, stream, log, options)
-        opf = reader.extract_content(os.getcwd())
+        opf = reader.extract_content(os.getcwdu())
 
         return opf

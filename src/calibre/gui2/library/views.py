@@ -200,10 +200,10 @@ class BooksView(QTableView): # {{{
                 ac = a if self._model.sorted_on[1] else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
-            if col not in ('ondevice', 'rating', 'inlibrary') and \
+            if col not in ('ondevice', 'inlibrary') and \
                     (not self.model().is_custom_column(col) or \
                     self.model().custom_columns[col]['datatype'] not in ('bool',
-                        'rating')):
+                        )):
                 m = self.column_header_context_menu.addMenu(
                         _('Change text alignment for %s') % name)
                 al = self._model.alignment_map.get(col, 'left')

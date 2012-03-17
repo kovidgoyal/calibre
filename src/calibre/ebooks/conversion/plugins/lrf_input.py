@@ -28,7 +28,7 @@ class LRFInput(InputFormatPlugin):
         d.parse()
         xml = d.to_xml(write_files=True)
         if options.verbose > 2:
-            open('lrs.xml', 'wb').write(xml.encode('utf-8'))
+            open(u'lrs.xml', 'wb').write(xml.encode('utf-8'))
         parser = etree.XMLParser(no_network=True, huge_tree=True)
         try:
             doc = etree.fromstring(xml, parser=parser)
@@ -84,4 +84,4 @@ class LRFInput(InputFormatPlugin):
         with open('content.opf', 'wb') as f:
             f.write(result)
         styles.write()
-        return os.path.abspath('content.opf')
+        return os.path.abspath(u'content.opf')

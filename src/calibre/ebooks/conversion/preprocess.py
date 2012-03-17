@@ -289,10 +289,17 @@ class CSSPreProcessor(object):
         data = self.MS_PAT.sub(self.ms_sub, data)
         if not add_namespace:
             return data
+
+        # Remove comments as the following namespace logic will break if there
+        # are commented lines before the first @import or @charset rule. Since
+        # the conversion will remove all stylesheets anyway, we don't lose
+        # anything
+        data = re.sub(ur'/\*.*?\*/', u'', data, flags=re.DOTALL)
+
         ans, namespaced = [], False
         for line in data.splitlines():
             ll = line.lstrip()
-            if not (namespaced or ll.startswith('@import') or
+            if not (namespaced or ll.startswith('@import') or not ll or
                         ll.startswith('@charset')):
                 ans.append(XHTML_CSS_NAMESPACE.strip())
                 namespaced = True

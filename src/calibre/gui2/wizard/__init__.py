@@ -16,7 +16,8 @@ from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
-from calibre.constants import filesystem_encoding, iswindows
+from calibre.constants import (filesystem_encoding, iswindows, plugins,
+        isportable)
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
 from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
@@ -29,6 +30,9 @@ from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.customize.ui import device_plugins
+
+if iswindows:
+    winutil = plugins['winutil'][0]
 
 # Devices {{{
 
@@ -238,11 +242,18 @@ class PocketBook900(PocketBook):
 
 class iPhone(Device):
 
-    name = 'iPad or iPhone/iTouch + Stanza'
+    name = 'iPhone/iTouch'
     output_format = 'EPUB'
     manufacturer = 'Apple'
     id = 'iphone'
     supports_color = True
+    output_profile = 'ipad'
+
+class iPad(iPhone):
+
+    name = 'iPad'
+    id = 'ipad'
+    output_profile = 'ipad3'
 
 class Android(Device):
 
@@ -302,13 +313,13 @@ class HanlinV5(HanlinV3):
 class BeBook(HanlinV3):
 
     name = 'BeBook'
-    manufacturer = 'Endless Ideas'
+    manufacturer = 'BeBook'
     id = 'bebook'
 
 class BeBookMini(HanlinV5):
 
     name = 'BeBook Mini'
-    manufacturer = 'Endless Ideas'
+    manufacturer = 'BeBook'
     id = 'bebook_mini'
 
 class EZReader(HanlinV3):
@@ -420,9 +431,9 @@ class KindlePage(QWizardPage, KindleUI):
     def commit(self):
         x = unicode(self.to_address.text()).strip()
         parts = x.split('@')
-        if len(parts) < 2 or not parts[0]: return
 
-        if self.send_email_widget.set_email_settings(True):
+        if (self.send_email_widget.set_email_settings(True) and len(parts) >= 2
+                and parts[0]):
             conf = smtp_prefs()
             accounts = conf.parse().accounts
             if not accounts: accounts = {}
@@ -751,20 +762,25 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.default_library_name = None
         if not lp:
             fname = _('Calibre Library')
-            if isinstance(fname, unicode):
-                try:
-                    fname = fname.encode(filesystem_encoding)
-                except:
-                    fname = 'Calibre Library'
-            lp = os.path.expanduser('~'+os.sep+fname)
+            base = os.path.expanduser(u'~')
+            if iswindows:
+                x = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
+                if x and os.access(x, os.W_OK):
+                    base = x
+
+            lp = os.path.join(base, fname)
             self.default_library_name = lp
             if not os.path.exists(lp):
                 try:
                     os.makedirs(lp)
                 except:
                     traceback.print_exc()
-                    lp = os.path.expanduser('~')
+                    lp = os.path.expanduser(u'~')
         self.location.setText(lp)
+        # Hide the library location settings if we are a portable install
+        for x in ('location', 'button_change', 'libloc_label1',
+                'libloc_label2'):
+            getattr(self, x).setVisible(not isportable)
 
     def isComplete(self):
         try:
@@ -779,12 +795,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         oldloc = prefs['library_path']
         newloc = unicode(self.location.text())
         try:
-            newloce = newloc.encode(filesystem_encoding)
-            if self.default_library_name is not None and \
-                os.path.exists(self.default_library_name) and \
-                not os.listdir(self.default_library_name) and \
-                newloce != self.default_library_name:
-                    os.rmdir(self.default_library_name)
+            dln = self.default_library_name
+            if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc
+                    != dln):
+                os.rmdir(dln)
         except:
             pass
         if not os.path.exists(newloc):

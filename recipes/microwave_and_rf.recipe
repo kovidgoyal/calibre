@@ -15,7 +15,7 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.magick import Image
 
-class Microwave_and_RF(BasicNewsRecipe):
+class Microwaves_and_RF(BasicNewsRecipe):
 
     Convert_Grayscale = False # Convert images to gray scale or not
 
@@ -25,9 +25,9 @@ class Microwave_and_RF(BasicNewsRecipe):
     # Add sections that want to be included from the magazine
     include_sections = []
 
-    title            = u'Microwave and RF'
-    __author__       = 'kiavash'
-    description      = u'Microwave and RF Montly Magazine'
+    title            = u'Microwaves and RF'
+    __author__       = u'kiavash'
+    description      = u'Microwaves and RF Montly Magazine'
     publisher        = 'Penton Media, Inc.'
     publication_type = 'magazine'
     site             = 'http://mwrf.com'
@@ -96,8 +96,15 @@ class Microwave_and_RF(BasicNewsRecipe):
 
     def parse_index(self):
 
-        # Fetches the main page of Microwave and RF
+        # Fetches the main page of Microwaves and RF
         soup = self.index_to_soup(self.site)
+
+        # First page has the ad, Let's find the redirect address.
+        url = soup.find('span', attrs={'class':'commonCopy'}).find('a').get('href')
+        if url.startswith('/'):
+            url = self.site + url
+
+        soup = self.index_to_soup(url)
 
         # Searches the site for Issue ID link then returns the href address
         # pointing to the latest issue

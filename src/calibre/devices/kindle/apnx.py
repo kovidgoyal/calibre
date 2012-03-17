@@ -10,7 +10,7 @@ Generates and writes an APNX page mapping file.
 
 import struct
 
-from calibre.ebooks.mobi.reader import MobiReader
+from calibre.ebooks.mobi.reader.mobi6 import MobiReader
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.logging import default_log
 

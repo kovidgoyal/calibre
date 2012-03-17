@@ -1066,7 +1066,7 @@ class ZipFile:
             member = self.getinfo(member)
 
         if path is None:
-            path = os.getcwd()
+            path = os.getcwdu()
 
         return self._extract_member(member, path, pwd)
 
@@ -1097,18 +1097,26 @@ class ZipFile:
             and len(os.path.splitdrive(targetpath)[1]) > 1):
             targetpath = targetpath[:-1]
 
-        # don't include leading "/" from file name if present
-        if member.filename[0] == '/':
-            targetpath = os.path.join(targetpath, member.filename[1:])
-        else:
-            targetpath = os.path.join(targetpath, member.filename)
+        base_target = targetpath # Added by Kovid
 
-        targetpath = os.path.normpath(targetpath)
+        # don't include leading "/" from file name if present
+        fname = member.filename
+        if fname.startswith('/'):
+            fname = fname[1:]
+
+        targetpath = os.path.normpath(os.path.join(base_target, fname))
 
         # Create all upper directories if necessary.
         upperdirs = os.path.dirname(targetpath)
         if upperdirs and not os.path.exists(upperdirs):
-            os.makedirs(upperdirs)
+            try:
+                os.makedirs(upperdirs)
+            except: # Added by Kovid
+                targetpath = os.path.join(base_target,
+                        sanitize_file_name2(fname))
+                upperdirs = os.path.dirname(targetpath)
+                if upperdirs and not os.path.exists(upperdirs):
+                    os.makedirs(upperdirs)
 
         if member.filename[-1] == '/':
             if not os.path.isdir(targetpath):
@@ -1298,7 +1306,7 @@ class ZipFile:
         '''
         if prefix:
             self.writestr(prefix+'/', '', 0755)
-        cwd = os.path.abspath(os.getcwd())
+        cwd = os.path.abspath(os.getcwdu())
         try:
             os.chdir(path)
             fp = (prefix + ('/' if prefix else '')).replace('//', '/')

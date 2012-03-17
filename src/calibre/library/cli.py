@@ -443,7 +443,7 @@ def do_show_metadata(db, id, as_opf):
         raise ValueError('Id #%d is not present in database.'%id)
     mi = db.get_metadata(id, index_is_id=True)
     if as_opf:
-        mi = OPFCreator(os.getcwd(), mi)
+        mi = OPFCreator(os.getcwdu(), mi)
         mi.render(sys.stdout)
     else:
         prints(unicode(mi))

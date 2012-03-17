@@ -35,9 +35,9 @@ class PDFInput(InputFormatPlugin):
         if pdfreflow_err:
             raise RuntimeError('Failed to load pdfreflow: ' + pdfreflow_err)
         pdfreflow.reflow(stream.read(), 1, -1)
-        xml = clean_ascii_chars(open('index.xml', 'rb').read())
+        xml = clean_ascii_chars(open(u'index.xml', 'rb').read())
         PDFDocument(xml, self.opts, self.log)
-        return os.path.join(os.getcwd(), 'metadata.opf')
+        return os.path.join(os.getcwdu(), u'metadata.opf')
 
 
     def convert(self, stream, options, file_ext, log,
@@ -50,25 +50,25 @@ class PDFInput(InputFormatPlugin):
         self.opts, self.log = options, log
         if options.new_pdf_engine:
             return self.convert_new(stream, accelerators)
-        pdftohtml(os.getcwd(), stream.name, options.no_images)
+        pdftohtml(os.getcwdu(), stream.name, options.no_images)
 
         from calibre.ebooks.metadata.meta import get_metadata
         log.debug('Retrieving document metadata...')
         mi = get_metadata(stream, 'pdf')
-        opf = OPFCreator(os.getcwd(), mi)
+        opf = OPFCreator(os.getcwdu(), mi)
 
-        manifest = [('index.html', None)]
+        manifest = [(u'index.html', None)]
 
-        images = os.listdir(os.getcwd())
+        images = os.listdir(os.getcwdu())
         images.remove('index.html')
         for i in images:
             manifest.append((i, None))
         log.debug('Generating manifest...')
         opf.create_manifest(manifest)
 
-        opf.create_spine(['index.html'])
+        opf.create_spine([u'index.html'])
         log.debug('Rendering manifest...')
-        with open('metadata.opf', 'wb') as opffile:
+        with open(u'metadata.opf', 'wb') as opffile:
             opf.render(opffile)
 
-        return os.path.join(os.getcwd(), 'metadata.opf')
+        return os.path.join(os.getcwdu(), u'metadata.opf')
