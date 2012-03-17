@@ -179,7 +179,7 @@ class MOBIOutput(OutputFormatPlugin):
         writer(oeb, output_path)
 
         if opts.extract_to is not None:
-            from calibre.ebooks.mobi.debug import inspect_mobi
+            from calibre.ebooks.mobi.debug.main import inspect_mobi
             ddir = opts.extract_to
             inspect_mobi(output_path, ddir=ddir)
 
