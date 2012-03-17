@@ -388,6 +388,7 @@ class FieldMetadata(dict):
     def __init__(self):
         self._field_metadata = copy.deepcopy(self._field_metadata_prototype)
         self._tb_cats = OrderedDict()
+        self._tb_custom_fields = {}
         self._search_term_map = {}
         self.custom_label_to_key_map = {}
         for k,v in self._field_metadata:
@@ -477,10 +478,8 @@ class FieldMetadata(dict):
             yield (key, self._tb_cats[key])
 
     def custom_iteritems(self):
-        for key in self._tb_cats:
-            fm = self._tb_cats[key]
-            if fm['is_custom']:
-                yield (key, self._tb_cats[key])
+        for key, meta in self._tb_custom_fields.iteritems():
+            yield (key, meta)
 
     def items(self):
         return list(self.iteritems())
@@ -516,6 +515,8 @@ class FieldMetadata(dict):
         return l
 
     def custom_field_metadata(self, include_composites=True):
+        if include_composites:
+            return self._tb_custom_fields
         l = {}
         for k in self.custom_field_keys(include_composites):
             l[k] = self._tb_cats[k]
@@ -537,6 +538,7 @@ class FieldMetadata(dict):
                              'is_custom':True,     'is_category':is_category,
                              'link_column':'value','category_sort':'value',
                              'is_csp' : is_csp,     'is_editable': is_editable,}
+        self._tb_custom_fields[key] = self._tb_cats[key]
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
         if datatype == 'series':

@@ -151,7 +151,8 @@ class Translations(POT): # {{{
                     self.info('\tCopying ISO 639 translations')
                     subprocess.check_call(['msgfmt', '-o', dest, iso639])
             elif locale not in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc',
-                    'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku'):
+                    'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku',
+                    'fr_CA'):
                 self.warn('No ISO 639 translations for locale:', locale)
 
         self.write_stats()

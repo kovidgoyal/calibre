@@ -9,10 +9,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import strftime
 
 class SueddeutcheZeitung(BasicNewsRecipe):
-    title                  = 'Süddeutsche Zeitung'
+    title                  = u'Süddeutsche Zeitung'
     __author__             = 'Darko Miletic'
     description            = 'News from Germany. Access to paid content.'
-    publisher              = 'Süddeutsche Zeitung'
+    publisher              = u'Süddeutsche Zeitung'
     category               = 'news, politics, Germany'
     no_stylesheets         = True
     oldest_article         = 2

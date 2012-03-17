@@ -689,7 +689,6 @@ class DocumentView(QWebView): # {{{
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
         if has_svg:
-            prints('Rendering as XHTML...')
             self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         else:
             self.setHtml(html, self.loading_url)

@@ -190,11 +190,21 @@ class EPUBOutput(OutputFormatPlugin):
             if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
                 uuid = unicode(x).split(':')[-1]
                 break
+        encrypted_fonts = getattr(input_plugin, 'encrypted_fonts', [])
+
         if uuid is None:
             self.log.warn('No UUID identifier found')
             from uuid import uuid4
             uuid = str(uuid4())
             oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
+
+        if encrypted_fonts and not uuid.startswith('urn:uuid:'):
+            # Apparently ADE requires this value to start with urn:uuid:
+            # for some absurd reason, or it will throw a hissy fit and refuse
+            # to use the obfuscated fonts.
+            for x in identifiers:
+                if unicode(x) == uuid:
+                    x.content = 'urn:uuid:'+uuid
 
         with TemporaryDirectory(u'_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
@@ -210,7 +220,6 @@ class EPUBOutput(OutputFormatPlugin):
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)\
                     if x.endswith('.ncx')][0])
-            encrypted_fonts = getattr(input_plugin, 'encrypted_fonts', [])
             encryption = None
             if encrypted_fonts:
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)

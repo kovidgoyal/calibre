@@ -14,7 +14,7 @@ from PIL import Image
 from cStringIO import StringIO
 
 from calibre import browser, relpath, unicode_path
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
@@ -213,6 +213,8 @@ class RecursiveFetcher(object):
             is_local = 5
         if is_local > 0:
             url = url[is_local:]
+            if iswindows and url.startswith('/'):
+                url = url[1:]
             with open(url, 'rb') as f:
                 data = response(f.read())
                 data.newurl = 'file:'+url # This is what mechanize does for

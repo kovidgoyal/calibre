@@ -18,9 +18,6 @@ class MOBIOutput(OutputFormatPlugin):
     file_type = 'mobi'
 
     options = set([
-        OptionRecommendation(name='rescale_images', recommended_value=False,
-            help=_('Modify images to meet Palm device size limitations.')
-        ),
         OptionRecommendation(name='prefer_author_sort',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('When present, use author sort field as author.')
@@ -59,7 +56,16 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('Enable sharing of book content via Facebook etc. '
                 ' on the Kindle. WARNING: Using this feature means that '
                 ' the book will not auto sync its last read position '
-                ' on multiple devices. Complain to Amazon.'))
+                ' on multiple devices. Complain to Amazon.')
+        ),
+        OptionRecommendation(name='mobi_keep_original_images',
+            recommended_value=False,
+            help=_('By default calibre converts all images to JPEG format '
+                'in the output MOBI file. This is for maximum compatibility '
+                'as some older MOBI viewers have problems with other image '
+                'formats. This option tells calibre not to do this. '
+                'Useful if your document contains lots of GIF/PNG images that '
+                'become very large when converted to JPEG.')),
     ])
 
     def check_for_periodical(self):
@@ -167,12 +173,7 @@ class MOBIOutput(OutputFormatPlugin):
         mobimlizer(oeb, opts)
         self.check_for_periodical()
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
-        from calibre.utils.config import tweaks
-        if tweaks.get('new_mobi_writer', True):
-            from calibre.ebooks.mobi.writer2.main import MobiWriter
-            MobiWriter
-        else:
-            from calibre.ebooks.mobi.writer import MobiWriter
+        from calibre.ebooks.mobi.writer2.main import MobiWriter
         writer = MobiWriter(opts,
                         write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)

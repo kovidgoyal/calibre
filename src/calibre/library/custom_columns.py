@@ -227,6 +227,25 @@ class CustomColumns(object):
         return self.conn.get('''SELECT extra FROM %s
                                 WHERE book=?'''%lt, (idx,), all=False)
 
+    def get_custom_and_extra(self, idx, label=None, num=None, index_is_id=False):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        idx = idx if index_is_id else self.id(idx)
+        row = self.data._data[idx]
+        ans = row[self.FIELD_MAP[data['num']]]
+        if data['is_multiple'] and data['datatype'] == 'text':
+            ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
+            if data['display'].get('sort_alpha', False):
+                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+        if data['datatype'] != 'series':
+            return (ans, None)
+        ign,lt = self.custom_table_names(data['num'])
+        extra = self.conn.get('''SELECT extra FROM %s
+                                 WHERE book=?'''%lt, (idx,), all=False)
+        return (ans, extra)
+
     # convenience methods for tag editing
     def get_custom_items_with_ids(self, label=None, num=None):
         if label is not None:

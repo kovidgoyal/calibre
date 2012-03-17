@@ -5,11 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import sys
+
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
         QAbstractTextDocumentLayout, QFont, QFontInfo)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
+from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.date import now, format_date, qt_to_dt
@@ -27,7 +30,10 @@ class RatingDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle
-        self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize())
+        delta = 0
+        if iswindows and sys.getwindowsversion().major >= 6:
+            delta = 2
+        self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize()+delta)
 
     def createEditor(self, parent, option, index):
         sb = QStyledItemDelegate.createEditor(self, parent, option, index)

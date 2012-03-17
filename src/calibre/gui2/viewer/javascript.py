@@ -36,6 +36,15 @@ class JavaScriptLoader(object):
 
     def __init__(self, dynamic_coffeescript=False):
         self._dynamic_coffeescript = dynamic_coffeescript
+        if self._dynamic_coffeescript:
+            try:
+                from calibre.utils.serve_coffee import compile_coffeescript
+                compile_coffeescript
+            except:
+                self._dynamic_coffeescript = False
+                print ('WARNING: Failed to load serve_coffee, not compiling '
+                        'coffeescript dynamically.')
+
         self._cache = {}
         self._hp_cache = {}
 
