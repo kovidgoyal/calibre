@@ -230,11 +230,10 @@ class Mobi8Reader(object):
 
     def get_id_tag_by_pos_fid(self, posfid, offset):
         # first convert kindle:pos:fid and offset info to position in file
-        row = int(posfid, 32)
-        off = int(offset, 32)
-        [insertpos, idtext, filenum, seqnm, startpos, length] = self.elems[row]
-        pos = insertpos + off
-        fname = self.get_file_info(pos).filename
+        insertpos, idtext, filenum, seqnm, startpos, length = self.elems[posfid]
+        pos = insertpos + offset
+        fi = self.get_file_info(pos)
+        fname = fi.filename
         # an existing "id=" must exist in original xhtml otherwise it would not
         # have worked for linking.  Amazon seems to have added its own
         # additional "aid=" inside tags whose contents seem to represent some
@@ -318,7 +317,6 @@ class Mobi8Reader(object):
         for entry in index_entries:
             pos = entry['pos']
             fi = self.get_file_info(pos)
-            #print (11111111, fi, entry['pos_fid'])
             if fi.filename is None:
                 raise ValueError('Index entry has invalid pos: %d'%pos)
             idtag = self.get_id_tag(pos).decode(self.header.codec)
