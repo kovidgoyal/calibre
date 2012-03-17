@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-16 04:12+0000\n"
-"PO-Revision-Date: 2012-03-12 12:38+0000\n"
+"PO-Revision-Date: 2012-03-16 05:20+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-16 05:04+0000\n"
+"X-Launchpad-Export-Date: 2012-03-17 04:51+0000\n"
 "X-Generator: Launchpad (build 14951)\n"
 "Language: uk\n"
 
@@ -810,6 +810,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"Призначено для iPad 3 та подібних пристроїв з роздільною здатністю 1536⨯2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -2803,6 +2804,13 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Типово, calibre перетворює всі зображення у формат JPEG під час виведення "
+"даних у форматі MOBI. Причиною цього є вимога максимальної сумісності, "
+"оскільки у застарілих програмах для перегляду MOBI виникають проблеми з "
+"показом зображень у інших форматах. За допомогою цього пункту ви можете "
+"наказати calibre не виконувати перетворення. Корисно, якщо у вашому "
+"документі багато зображень GIF/PNG, отже він стає занадто великим після "
+"перетворення зображень у формат JPEG."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:114
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -8137,6 +8145,8 @@ msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
 msgstr ""
+"Не перетворювати всі зображення у &формат JPEG (може призвести до того, що "
+"зображення не можна буде переглянути у застарілих програмах)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -17503,7 +17513,7 @@ msgstr "Моноширинний"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
-msgstr ""
+msgstr "Пам’ятати &останній збережений розмір і компонування вікна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -21079,6 +21089,11 @@ msgid ""
 "same output as the above template: program: "
 "finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 msgstr ""
+"finish_formatting(значення, формат, префікс, суфікс) — застосувати формат, "
+"префікс і суфікс до значення у спосіб, у який це виконується шаблоном, "
+"зокрема {series_index:05.2f| - |- }. Наприклад, наведена нижче програма "
+"виводить ті самі дані, що і вказаний вище програма-шаблон: "
+"finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -22836,7 +22851,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:504
 msgid "Compile General Program Mode templates to Python"
-msgstr ""
+msgstr "Зібрати шаблони загального режиму програми у Python"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:505
 msgid ""
@@ -22849,12 +22864,13 @@ msgid ""
 "Default:    compile_gpm_templates = True\n"
 "No compile: compile_gpm_templates = False"
 msgstr ""
-
-#~ msgid "Modify images to meet Palm device size limitations."
-#~ msgstr "Змінити зображення відповідно до обмежень пристрою Palm."
-
-#~ msgid "Remember last used &window size"
-#~ msgstr "Пам’ятати останні ви&користані розміри вікон"
-
-#~ msgid "Rescale images for &Palm devices"
-#~ msgstr "Змінити &масштаб зображень для пристроїв Palm"
+"Зібрані шаблони загального режиму програми є значно швидшими\n"
+"за вбудовані шаблони. Встановлення для цього коригування\n"
+"значення True призводити до того, що calibre збирає (здебільшого)\n"
+"шаблони загального режиму програми. Встановлення значення\n"
+"False призводити до того, що у calibre використовується поведінка\n"
+"попередніх версій — проста обробка шаблонів. Встановіть для\n"
+"коригування значення False, якщо деякі з зібраних шаблонів\n"
+"працюють неправильно.\n"
+"Типове значення:    compile_gpm_templates = True\n"
+"Режим без збирання: compile_gpm_templates = False"

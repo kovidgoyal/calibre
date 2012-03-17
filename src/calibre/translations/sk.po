@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-03-16 05:02+0000\n"
+"X-Launchpad-Export-Date: 2012-03-17 04:49+0000\n"
 "X-Generator: Launchpad (build 14951)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22097,13 +22097,3 @@ msgid ""
 "Default:    compile_gpm_templates = True\n"
 "No compile: compile_gpm_templates = False"
 msgstr ""
-
-#~ msgid "Modify images to meet Palm device size limitations."
-#~ msgstr ""
-#~ "Upraviť obrázky aby vyhovovali veľkostným obmedzeniam Palm zaraidení."
-
-#~ msgid "Remember last used &window size"
-#~ msgstr "Pamätať si poslednú veľkosť &okna"
-
-#~ msgid "Rescale images for &Palm devices"
-#~ msgstr "Zmeniť veľkosť obrázkov pre zariadenia &Palm"
