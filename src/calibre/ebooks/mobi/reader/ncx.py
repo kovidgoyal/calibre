@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.mobi.utils import to_base
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
 
@@ -23,7 +22,30 @@ tag_fieldname_map = {
         6:  ['pos_fid',0],
         21: ['parent',0],
         22: ['child1',0],
-        23: ['childn',0]
+        23: ['childn',0],
+        69: ['image_index',0],
+        70 : ['desc_offset', 0], # 'Description offset in cncx'
+        71 : ['author_offset', 0], # 'Author offset in cncx'
+        72 : ['image_caption_offset', 0], # 'Image caption offset in cncx',
+        73 : ['image_attr_offset', 0], # 'Image attribution offset in cncx',
+
+}
+
+default_entry = {
+                    'pos':  -1,
+                    'len':  0,
+                    'noffs': -1,
+                    'text' : "Unknown Text",
+                    'hlvl' : -1,
+                    'kind' : "Unknown Class",
+                    'pos_fid' : None,
+                    'parent' : -1,
+                    'child1' : -1,
+                    'childn' : -1,
+                    'description': None,
+                    'author': None,
+                    'image_caption': None,
+                    'image_attribution': None,
 }
 
 def read_ncx(sections, index, codec):
@@ -34,32 +56,25 @@ def read_ncx(sections, index, codec):
 
         for num, x in enumerate(table.iteritems()):
             text, tag_map = x
-            entry = {
-                    'name': text,
-                    'pos':  -1,
-                    'len':  0,
-                    'noffs': -1,
-                    'text' : "Unknown Text",
-                    'hlvl' : -1,
-                    'kind' : "Unknown Kind",
-                    'pos_fid' : None,
-                    'parent' : -1,
-                    'child1' : -1,
-                    'childn' : -1,
-                    'num'  : num
-            }
+            entry = default_entry.copy()
+            entry['name'] = text
+            entry['num'] = num
 
-            for tag in tag_fieldname_map.keys():
+            for tag in tag_fieldname_map.iterkeys():
                 fieldname, i = tag_fieldname_map[tag]
                 if tag in tag_map:
                     fieldvalue = tag_map[tag][i]
                     if tag == 6:
-                        fieldvalue = to_base(fieldvalue, base=32)
+                        # Appears to be an idx into the KF8 elems table with an
+                        # offset
+                        fieldvalue = tuple(tag_map[tag])
                     entry[fieldname] = fieldvalue
-                    if tag == 3:
-                        entry['text'] = cncx.get(fieldvalue, 'Unknown Text')
-                    if tag == 5:
-                        entry['kind'] = cncx.get(fieldvalue, 'Unknown Kind')
+                    for which, name in {3:'text', 5:'kind', 70:'description',
+                            71:'author', 72:'image_caption',
+                            73:'image_attribution'}.iteritems():
+                        if tag == which:
+                            entry[name] = cncx.get(fieldvalue,
+                                    default_entry[name])
             index_entries.append(entry)
 
     return index_entries

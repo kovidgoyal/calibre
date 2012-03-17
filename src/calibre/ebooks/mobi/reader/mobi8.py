@@ -317,6 +317,7 @@ class Mobi8Reader(object):
         for entry in index_entries:
             pos = entry['pos']
             fi = self.get_file_info(pos)
+            #print (11111111, fi, entry['pos_fid'])
             if fi.filename is None:
                 raise ValueError('Index entry has invalid pos: %d'%pos)
             idtag = self.get_id_tag(pos).decode(self.header.codec)
