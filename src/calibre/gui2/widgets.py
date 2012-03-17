@@ -366,7 +366,7 @@ class FontFamilyModel(QAbstractListModel): # {{{
         self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
-        self.font = QFont('verdana' if iswindows else 'sansserif')
+        self.font = QFont('Verdana' if iswindows else 'sansserif')
 
     def rowCount(self, *args):
         return len(self.families)
