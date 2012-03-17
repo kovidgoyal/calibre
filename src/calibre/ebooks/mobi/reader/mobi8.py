@@ -33,6 +33,7 @@ class Mobi8Reader(object):
     def __init__(self, mobi6_reader, log):
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
+        self.encrypted_fonts = []
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
@@ -351,6 +352,8 @@ class Mobi8Reader(object):
                 with open(href.replace('/', os.sep), 'wb') as f:
                     f.write(font['font_data'] if font['font_data'] else
                             font['raw_data'])
+                if font['encrypted']:
+                    self.encrypted_fonts.append(href)
             else:
                 imgtype = imghdr.what(None, data)
                 if imgtype is None:

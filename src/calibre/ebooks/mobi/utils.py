@@ -437,7 +437,7 @@ def read_font_record(data, extent=1040): # {{{
     # The zlib compressed data begins with 2 bytes of header and
     # has 4 bytes of checksum at the end
     ans = {'raw_data':data, 'font_data':None, 'err':None, 'ext':'failed',
-            'headers':None}
+            'headers':None, 'encrypted':False}
 
     try:
         usize, flags, dstart, xor_len, xor_start = struct.unpack_from(
@@ -460,6 +460,7 @@ def read_font_record(data, extent=1040): # {{{
             buf[n] ^= key[n%xor_len] # XOR of buf and key
 
         font_data = bytes(buf)
+        ans['encrypted'] = True
 
     if flags & 0b1:
         # ZLIB compressed data
