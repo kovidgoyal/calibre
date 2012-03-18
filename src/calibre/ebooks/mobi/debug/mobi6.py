@@ -16,9 +16,10 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import (parse_index_record,
         parse_tagx_section)
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
-        get_trailing_data, decode_tbs, read_font_record)
+        decode_tbs, read_font_record)
 from calibre.utils.magick.draw import identify_data
 from calibre.ebooks.mobi.debug import format_bytes
+from calibre.ebooks.mobi.debug.headers import TextRecord
 
 
 class TagX(object): # {{{
@@ -472,39 +473,6 @@ class CNCX(object): # {{{
 
 # }}}
 
-class TextRecord(object): # {{{
-
-    def __init__(self, idx, record, extra_data_flags, decompress):
-        self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
-        raw_trailing_bytes = record.raw[len(self.raw):]
-        self.raw = decompress(self.raw)
-
-        if 0 in self.trailing_data:
-            self.trailing_data['multibyte_overlap'] = self.trailing_data.pop(0)
-        if 1 in self.trailing_data:
-            self.trailing_data['indexing'] = self.trailing_data.pop(1)
-        if 2 in self.trailing_data:
-            self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
-        self.trailing_data['raw_bytes'] = raw_trailing_bytes
-
-        for typ, val in self.trailing_data.iteritems():
-            if isinstance(typ, int):
-                print ('Record %d has unknown trailing data of type: %d : %r'%
-                        (idx, typ, val))
-
-        self.idx = idx
-
-    def dump(self, folder):
-        name = '%06d'%self.idx
-        with open(os.path.join(folder, name+'.txt'), 'wb') as f:
-            f.write(self.raw)
-        with open(os.path.join(folder, name+'.trailing_data'), 'wb') as f:
-            for k, v in self.trailing_data.iteritems():
-                raw = '%s : %r\n\n'%(k, v)
-                f.write(raw.encode('utf-8'))
-
-# }}}
-
 class ImageRecord(object): # {{{
 
     def __init__(self, idx, record, fmt):
@@ -781,7 +749,7 @@ class MOBIFile(object): # {{{
         if fntbr == NULL_INDEX:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
-            self.mobi_header.extra_data_flags, mf.decompress) for r in xrange(1,
+            self.mobi_header.extra_data_flags, mf.decompress6) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         self.font_records = []
@@ -833,12 +801,11 @@ def inspect_mobi(mobi_file, ddir):
             of.write(rec.raw)
             alltext += rec.raw
         of.seek(0)
-    if f.mobi_header.file_version < 8:
-        root = html.fromstring(alltext.decode('utf-8'))
-        with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
-            of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
-                include_meta_content_type=True))
 
+    root = html.fromstring(alltext.decode('utf-8'))
+    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
+        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
+            include_meta_content_type=True))
 
     if f.index_header is not None:
         f.index_record.alltext = alltext
@@ -866,7 +833,6 @@ def inspect_mobi(mobi_file, ddir):
             rec.dump(tdir)
 
 
-    print ('Debug data saved to:', ddir)
 
 # }}}
 

@@ -7,12 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, datetime
+import struct, datetime, os
 
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.debug import format_bytes
+from calibre.ebooks.mobi.utils import get_trailing_data
 
 # PalmDB {{{
 class PalmDOCAttributes(object):
@@ -188,10 +189,13 @@ class EXTHHeader(object):
             pos = self.read_record(pos)
         self.records.sort(key=lambda x:x.type)
         self.rmap = {x.type:x for x in self.records}
-        self.get = self.rmap.get
 
     def __getitem__(self, type_):
-        return self.rmap.__getitem__(type_)
+        return self.rmap.__getitem__(type_).data
+
+    def get(self, type_, default=None):
+        ans = self.rmap.get(type_, default)
+        return getattr(ans, 'data', default)
 
     def read_record(self, pos):
         type_, length = struct.unpack(b'>II', self.raw[pos:pos+8])
@@ -201,7 +205,7 @@ class EXTHHeader(object):
 
     @property
     def kf8_header_index(self):
-        return self.rmap.get(121, None)
+        return self.get(121, None)
 
     def __str__(self):
         ans = ['*'*20 + ' EXTH Header '+ '*'*20]
@@ -263,9 +267,10 @@ class MOBIHeader(object): # {{{
             }.get(self.encoding_raw, repr(self.encoding_raw))
         self.uid = self.raw[32:36]
         self.file_version, = struct.unpack(b'>I', self.raw[36:40])
-        self.reserved = self.raw[40:48]
+        self.meta_orth_indx, self.meta_infl_indx = struct.unpack(
+                b'>II', self.raw[40:48])
         self.secondary_index_record, = struct.unpack(b'>I', self.raw[48:52])
-        self.reserved2 = self.raw[52:80]
+        self.reserved = self.raw[52:80]
         self.first_non_book_record, = struct.unpack(b'>I', self.raw[80:84])
         self.fullname_offset, = struct.unpack(b'>I', self.raw[84:88])
         self.fullname_length, = struct.unpack(b'>I', self.raw[88:92])
@@ -299,9 +304,8 @@ class MOBIHeader(object): # {{{
         self.extra_data_flags = 0
         if self.has_extra_data_flags:
             self.unknown4 = self.raw[180:192]
-            self.first_content_record, self.last_content_record = \
-                    struct.unpack(b'>HH', self.raw[192:196])
-            self.unknown5, = struct.unpack(b'>I', self.raw[196:200])
+            self.fdst_idx, self.fdst_count = struct.unpack_from(b'>II',
+                    self.raw, 192)
             (self.fcis_number, self.fcis_count, self.flis_number,
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
@@ -320,10 +324,9 @@ class MOBIHeader(object): # {{{
                     self.raw[244:248])
 
         if self.file_version >= 8:
-            (self.unknown8, self.skel_idx, self.sect_idx, self.oth_idx,
-                    self.fdst_idx, self.fdst_count) = struct.unpack_from(
-                        b'>LLLLLL', self.raw, 248)
-            self.unknown9 = self.raw[272:self.length]
+            (self.sect_idx, self.skel_idx, self.datp_idx, self.oth_idx
+                    ) = struct.unpack_from(b'>4L', self.raw, 248)
+            self.unknown9 = self.raw[264:self.length]
 
         if self.has_exth:
             self.exth_offset = 16 + self.length
@@ -334,7 +337,7 @@ class MOBIHeader(object): # {{{
             self.bytes_after_exth = self.raw[self.end_of_exth:self.fullname_offset]
 
     def __str__(self):
-        ans = ['*'*20 + ' MOBI Header '+ '*'*20]
+        ans = ['*'*20 + ' MOBI %d Header '%self.file_version+ '*'*20]
         a = ans.append
         i = lambda d, x : a('%s (null value: %d): %d'%(d, NULL_INDEX, x))
         ans.append('Compression: %s'%self.compression)
@@ -349,10 +352,11 @@ class MOBIHeader(object): # {{{
         ans.append('Encoding: %s'%self.encoding)
         ans.append('UID: %r'%self.uid)
         ans.append('File version: %d'%self.file_version)
-        ans.append('Reserved: %r'%self.reserved)
+        ans.append('Meta Orth Index: %d'%self.meta_orth_indx)
+        ans.append('Meta Infl Index: %d'%self.meta_infl_indx)
         ans.append('Secondary index record: %d (null val: %d)'%(
             self.secondary_index_record, NULL_INDEX))
-        ans.append('Reserved2: %r'%self.reserved2)
+        ans.append('Reserved: %r'%self.reserved)
         ans.append('First non-book record (null value: %d): %d'%(NULL_INDEX,
             self.first_non_book_record))
         ans.append('Full name offset: %d'%self.fullname_offset)
@@ -377,9 +381,8 @@ class MOBIHeader(object): # {{{
             ans.append('DRM Flags: %r'%self.drm_flags)
         if self.has_extra_data_flags:
             ans.append('Unknown4: %r'%self.unknown4)
-            ans.append('First content record: %d'% self.first_content_record)
-            ans.append('Last content record: %d'% self.last_content_record)
-            ans.append('Unknown5: %d'% self.unknown5)
+            ans.append('FDST Index: %d'% self.fdst_idx)
+            ans.append('FDST Count: %d'% self.fdst_count)
             ans.append('FCIS number: %d'% self.fcis_number)
             ans.append('FCIS count: %d'% self.fcis_count)
             ans.append('FLIS number: %d'% self.flis_number)
@@ -398,6 +401,7 @@ class MOBIHeader(object): # {{{
             ans.append('Unknown8: %r'%self.unknown8)
             i('SKEL Index', self.skel_idx)
             i('Sections Index', self.sect_idx)
+            i('Unknown8', self.unknown8)
             i('Other Index', self.oth_idx)
             i('FDST record', self.fdst_idx)
             a('FDST Count: %d'%self.fdst_count)
@@ -447,28 +451,74 @@ class MOBIFile(object):
         self.mobi_header = MOBIHeader(self.records[0])
         self.huffman_record_nums = []
 
-        if 'huff' in self.mobi_header.compression.lower():
-            self.huffman_record_nums = list(xrange(self.mobi_header.huffman_record_offset,
-                        self.mobi_header.huffman_record_offset +
-                        self.mobi_header.huffman_record_count))
-            huffrecs = [self.records[r].raw for r in self.huffman_record_nums]
-            from calibre.ebooks.mobi.huffcdic import HuffReader
-            huffs = HuffReader(huffrecs)
-            decompress = huffs.unpack
-        elif 'palmdoc' in self.mobi_header.compression.lower():
-            from calibre.ebooks.compression.palmdoc import decompress_doc
-            decompress = decompress_doc
-        else:
-            decompress = lambda x: x
-
-        self.decompress = decompress
-
         self.kf8_type = None
-        mh = self.mobi_header
+        mh = mh8 = self.mobi_header
         if mh.file_version >= 8:
             self.kf8_type = 'standalone'
         elif mh.has_exth and mh.exth.kf8_header_index is not None:
             self.kf8_type = 'joint'
+            kf8i = mh.exth.kf8_header_index
+            mh8 = MOBIHeader(self.records[kf8i])
+        self.mobi8_header = mh8
 
+        if 'huff' in self.mobi_header.compression.lower():
+            from calibre.ebooks.mobi.huffcdic import HuffReader
+
+            def huffit(off, cnt):
+                huffman_record_nums = list(xrange(off, off+cnt))
+                huffrecs = [self.records[r].raw for r in huffman_record_nums]
+                huffs = HuffReader(huffrecs)
+                return huffman_record_nums, huffs.unpack
+
+            if self.kf8_type == 'joint':
+                recs6, d6 = huffit(mh.huffman_record_offset,
+                        mh.huffman_record_count)
+                recs8, d8 = huffit(mh8.huffman_record_offset + kf8i,
+                        mh8.huffman_record_count)
+                self.huffman_record_nums = recs6 + recs8
+            else:
+                self.huffman_record_nums, d6 = huffit(mh.huffman_record_offset,
+                        mh.huffman_record_count)
+                d8 = d6
+        elif 'palmdoc' in self.mobi_header.compression.lower():
+            from calibre.ebooks.compression.palmdoc import decompress_doc
+            d8 = d6 = decompress_doc
+        else:
+            d8 = d6 = lambda x: x
+
+        self.decompress6, self.decompress8 = d6, d8
+
+class TextRecord(object): # {{{
+
+    def __init__(self, idx, record, extra_data_flags, decompress):
+        self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
+        raw_trailing_bytes = record.raw[len(self.raw):]
+        self.raw = decompress(self.raw)
+
+        if 0 in self.trailing_data:
+            self.trailing_data['multibyte_overlap'] = self.trailing_data.pop(0)
+        if 1 in self.trailing_data:
+            self.trailing_data['indexing'] = self.trailing_data.pop(1)
+        if 2 in self.trailing_data:
+            self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
+        self.trailing_data['raw_bytes'] = raw_trailing_bytes
+
+        for typ, val in self.trailing_data.iteritems():
+            if isinstance(typ, int):
+                print ('Record %d has unknown trailing data of type: %d : %r'%
+                        (idx, typ, val))
+
+        self.idx = idx
+
+    def dump(self, folder):
+        name = '%06d'%self.idx
+        with open(os.path.join(folder, name+'.txt'), 'wb') as f:
+            f.write(self.raw)
+        with open(os.path.join(folder, name+'.trailing_data'), 'wb') as f:
+            for k, v in self.trailing_data.iteritems():
+                raw = '%s : %r\n\n'%(k, v)
+                f.write(raw.encode('utf-8'))
+
+# }}}
 
 

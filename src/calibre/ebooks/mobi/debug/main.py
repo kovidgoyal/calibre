@@ -11,6 +11,7 @@ import sys, os, shutil
 
 from calibre.ebooks.mobi.debug.headers import MOBIFile
 from calibre.ebooks.mobi.debug.mobi6 import inspect_mobi as inspect_mobi6
+from calibre.ebooks.mobi.debug.mobi8 import inspect_mobi as inspect_mobi8
 
 def inspect_mobi(path_or_stream, ddir=None): # {{{
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
@@ -27,7 +28,15 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
         inspect_mobi6(f, ddir)
     elif f.kf8_type == 'joint':
         p6 = os.path.join(ddir, 'mobi6')
+        os.mkdir(p6)
         inspect_mobi6(f, p6)
+        p8 = os.path.join(ddir, 'mobi8')
+        os.mkdir(p8)
+        inspect_mobi8(f, p8)
+    else:
+        inspect_mobi8(f, ddir)
+
+    print ('Debug data saved to:', ddir)
 
 # }}}
 
