@@ -625,7 +625,8 @@ from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK701, POCKETBOOK360P, PI2)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
-from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
+from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
+        JETBOOK_COLOR)
 from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
         KINDLE_FIRE)
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
@@ -664,9 +665,7 @@ plugins += [
     ILIAD,
     IREXDR1000,
     IREXDR800,
-    JETBOOK,
-    JETBOOK_MINI,
-    MIBUK,
+    JETBOOK, JETBOOK_MINI, MIBUK, JETBOOK_COLOR,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
     PI2,
