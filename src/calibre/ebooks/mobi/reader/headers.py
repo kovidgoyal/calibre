@@ -186,7 +186,7 @@ class BookHeader(object):
             if len(raw) >= 0xF8:
                 self.ncxidx, = struct.unpack_from(b'>L', raw, 0xF4)
 
-            if self.mobi_version >= 8:
+            if self.mobi_version == 8 and len(raw) >= (0xF8 + 16):
                 self.dividx, self.skelidx, self.datpidx, self.othidx = \
                         struct.unpack_from(b'>4L', raw, 0xF8)
 
