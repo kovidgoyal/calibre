@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-16 04:12+0000\n"
-"PO-Revision-Date: 2011-11-22 17:57+0000\n"
-"Last-Translator: Sérgio Marques <Unknown>\n"
+"PO-Revision-Date: 2012-03-17 21:48+0000\n"
+"Last-Translator: Filipe <fax@cin.ufpe.br>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-03-17 04:48+0000\n"
+"X-Launchpad-Export-Date: 2012-03-18 04:36+0000\n"
 "X-Generator: Launchpad (build 14951)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -393,6 +393,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Envia livros por email ou pela web e também conecta ao iTunes ou pastas em "
+"seu computador como se fossem dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -444,7 +446,7 @@ msgstr "Procurar livros em diversos vendedores"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Obter novos plugins calibre ou atualizar os existentes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Look and Feel"
@@ -632,6 +634,7 @@ msgstr "Descarregar metadados"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
+"Controle como o calibre transfere os metadados de um livro da internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -656,7 +659,7 @@ msgstr "Teclado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1130
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Customizar os atalhos de teclado usados por calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1135
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -806,6 +809,7 @@ msgstr "Funciona com o iPad e aparelhos similares com resolução de 768x1024."
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"Destinado ao iPad 3 e outros aparelhos similares com resolução de 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -853,7 +857,7 @@ msgstr "Este perfil é destinado ao Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Este perfil é destinado ao Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:732
 msgid "This profile is intended for the B&N Nook Color."
@@ -867,6 +871,7 @@ msgstr "Este perfil destina-se ao Sanda Bambook."
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
 msgstr ""
+"Este perfil é destinado aos dispositivos da série PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -946,6 +951,7 @@ msgstr "Desactivar o extra mencionado"
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Caminho à biblioteca longo demais. Deve conter menos de %d caractéres."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:670
@@ -960,7 +966,7 @@ msgstr "Sim"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1141
 msgid "Main"
-msgstr ""
+msgstr "Principal"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
@@ -996,7 +1002,7 @@ msgstr "Estabelecer ligação a telefones S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:274
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Comunicar-se com tablets WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -1012,11 +1018,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Desabilitar driver da Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:81
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Habilitar driver da Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Use Series as Category in iTunes/iBooks"
@@ -1025,6 +1031,7 @@ msgstr "Usar Série como Categoria no iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Permitir o uso do nome da série como gênero do iTunes e categoria do iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Cache covers from iTunes/iBooks"
@@ -1032,7 +1039,7 @@ msgstr "Capas em 'cache' do iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Habilitar armazenar e mostrar capas do iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:125
 #, python-format
@@ -1040,6 +1047,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Copiar arquivos à pasta de mídia %s do iTunes\" está ativo nas "
+"Preferências|Avançadas do iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:127
 msgid ""
@@ -1076,6 +1085,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Modo de conexão direta não suportado. Veja "
+"http://www.mobileread.com/forums/showthread.php?t=118559 para instruções "
+"sobre 'Conectar ao iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:375
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
@@ -1271,7 +1283,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Comunicar com o Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1373,7 +1385,7 @@ msgstr "Comunicar com o leitor The Book."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor Libre Air."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:72
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1389,7 +1401,7 @@ msgstr "Comunicar com o leitor Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Comunicar com o leitor Cybook Odyssey eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1445,12 +1457,12 @@ msgstr "Comunica com o leitor Kindle."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:185
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Última página lida: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:191
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Última página lida: Localização %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:210
 #, python-format
