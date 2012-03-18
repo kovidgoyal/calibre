@@ -219,8 +219,9 @@ class EXTHHeader(object):
 
 class MOBIHeader(object): # {{{
 
-    def __init__(self, record0):
+    def __init__(self, record0, offset):
         self.raw = record0.raw
+        self.header_offset = offset
 
         self.compression_raw = self.raw[:2]
         self.compression = {1: 'No compression', 2: 'PalmDoc compression',
@@ -327,6 +328,19 @@ class MOBIHeader(object): # {{{
             (self.sect_idx, self.skel_idx, self.datp_idx, self.oth_idx
                     ) = struct.unpack_from(b'>4L', self.raw, 248)
             self.unknown9 = self.raw[264:self.length]
+            if self.meta_orth_indx != self.sect_idx:
+                raise ValueError('KF8 header has different Meta orth and '
+                        'section indices')
+
+        # The following are all relative to the position of the header record
+        # make them absolute for ease of debugging
+        for x in ('sect_idx', 'skel_idx', 'datp_idx', 'oth_idx',
+                'meta_orth_indx', 'huffman_record_offset',
+                'first_non_book_record', 'datp_record_offset', 'fcis_number',
+                'flis_number', 'primary_index_record', 'fdst_idx',
+                'first_image_index'):
+            if hasattr(self, x):
+                setattr(self, x, self.header_offset+getattr(self, x))
 
         if self.has_exth:
             self.exth_offset = 16 + self.length
@@ -352,8 +366,8 @@ class MOBIHeader(object): # {{{
         ans.append('Encoding: %s'%self.encoding)
         ans.append('UID: %r'%self.uid)
         ans.append('File version: %d'%self.file_version)
-        ans.append('Meta Orth Index: %d'%self.meta_orth_indx)
-        ans.append('Meta Infl Index: %d'%self.meta_infl_indx)
+        i('Meta Orth Index (Sections index in KF8)', self.meta_orth_indx)
+        i('Meta Infl Index', self.meta_infl_indx)
         ans.append('Secondary index record: %d (null val: %d)'%(
             self.secondary_index_record, NULL_INDEX))
         ans.append('Reserved: %r'%self.reserved)
@@ -398,13 +412,10 @@ class MOBIHeader(object): # {{{
             ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
                 self.primary_index_record))
         if self.file_version >= 8:
-            ans.append('Unknown8: %r'%self.unknown8)
-            i('SKEL Index', self.skel_idx)
             i('Sections Index', self.sect_idx)
-            i('Unknown8', self.unknown8)
+            i('SKEL Index', self.skel_idx)
+            i('DATP Index', self.datp_idx)
             i('Other Index', self.oth_idx)
-            i('FDST record', self.fdst_idx)
-            a('FDST Count: %d'%self.fdst_count)
             if self.unknown9:
                 a('Unknown9: %r'%self.unknown9)
 
@@ -448,7 +459,7 @@ class MOBIFile(object):
         for i in range(self.palmdb.number_of_records):
             self.records.append(Record(section(i), self.record_headers[i]))
 
-        self.mobi_header = MOBIHeader(self.records[0])
+        self.mobi_header = MOBIHeader(self.records[0], 0)
         self.huffman_record_nums = []
 
         self.kf8_type = None
@@ -458,7 +469,7 @@ class MOBIFile(object):
         elif mh.has_exth and mh.exth.kf8_header_index is not None:
             self.kf8_type = 'joint'
             kf8i = mh.exth.kf8_header_index
-            mh8 = MOBIHeader(self.records[kf8i])
+            mh8 = MOBIHeader(self.records[kf8i], kf8i)
         self.mobi8_header = mh8
 
         if 'huff' in self.mobi_header.compression.lower():
@@ -473,7 +484,7 @@ class MOBIFile(object):
             if self.kf8_type == 'joint':
                 recs6, d6 = huffit(mh.huffman_record_offset,
                         mh.huffman_record_count)
-                recs8, d8 = huffit(mh8.huffman_record_offset + kf8i,
+                recs8, d8 = huffit(mh8.huffman_record_offset,
                         mh8.huffman_record_count)
                 self.huffman_record_nums = recs6 + recs8
             else:

@@ -118,12 +118,17 @@ class MobiReader(object):
                 try:
                     self.book_header = BookHeader(self.sections[k8i][0],
                             self.ident, user_encoding, self.log)
-                    # The following are only correct in the Mobi 6
-                    # header not the Mobi 8 header
+
+                    # Only the first_image_index from the MOBI 6 header is
+                    # useful
                     for x in ('first_image_index',):
                         setattr(self.book_header, x, getattr(bh, x))
+
+                    # We need to do this because the MOBI 6 text extract code
+                    # does not know anything about the kf8 offset
                     if hasattr(self.book_header, 'huff_offset'):
                         self.book_header.huff_offset += k8i
+
                     self.kf8_type = 'joint'
                     self.kf8_boundary = k8i-1
                 except:
