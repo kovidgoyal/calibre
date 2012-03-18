@@ -107,7 +107,10 @@ class MobiReader(object):
         self.kf8_type = None
         k8i = getattr(self.book_header.exth, 'kf8_header', None)
 
-        if self.book_header.mobi_version == 8:
+        # Ancient PRC files from Baen can have random values for
+        # mobi_version, so be conservative
+        if (self.book_header.mobi_version == 8 and hasattr(self.book_header,
+            'skelidx')):
             self.kf8_type = 'standalone'
         elif k8i is not None: # Check for joint mobi 6 and kf 8 file
             try:
