@@ -8,14 +8,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-03-15 20:20+0000\n"
+"PO-Revision-Date: 2012-03-19 21:40+0000\n"
 "Last-Translator: Radan Putnik <srastral@gmail.com>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-03-16 05:08+0000\n"
-"X-Generator: Launchpad (build 14951)\n"
+"X-Launchpad-Export-Date: 2012-03-20 04:55+0000\n"
+"X-Generator: Launchpad (build 14969)\n"
 "Language: sr\n"
 
 #. name for aaa
@@ -1096,7 +1096,7 @@ msgstr "Андоа"
 
 #. name for anc
 msgid "Ngas"
-msgstr ""
+msgstr "Нгас"
 
 #. name for and
 msgid "Ansus"
@@ -1124,7 +1124,7 @@ msgstr "Анди"
 
 #. name for anj
 msgid "Anor"
-msgstr ""
+msgstr "Анор"
 
 #. name for ank
 msgid "Goemai"
@@ -1136,7 +1136,7 @@ msgstr "Ану"
 
 #. name for anm
 msgid "Anal"
-msgstr ""
+msgstr "Анал"
 
 #. name for ann
 msgid "Obolo"
@@ -1168,7 +1168,7 @@ msgstr "Антакариња"
 
 #. name for anu
 msgid "Anuak"
-msgstr ""
+msgstr "Ануак"
 
 #. name for anv
 msgid "Denya"
@@ -1196,11 +1196,11 @@ msgstr "Анголар"
 
 #. name for aob
 msgid "Abom"
-msgstr ""
+msgstr "Анјин"
 
 #. name for aoc
 msgid "Pemon"
-msgstr ""
+msgstr "Пемон"
 
 #. name for aod
 msgid "Andarum"
@@ -1212,7 +1212,7 @@ msgstr "Ангал Енен"
 
 #. name for aof
 msgid "Bragat"
-msgstr ""
+msgstr "Брагат"
 
 #. name for aog
 msgid "Angoram"
@@ -1288,11 +1288,11 @@ msgstr ""
 
 #. name for apg
 msgid "Ampanang"
-msgstr ""
+msgstr "Ампанан"
 
 #. name for aph
 msgid "Athpariya"
-msgstr ""
+msgstr "Атпарија"
 
 #. name for api
 msgid "Apiaká"
@@ -1360,7 +1360,7 @@ msgstr "Апутаи"
 
 #. name for apy
 msgid "Apalaí"
-msgstr ""
+msgstr "Апалаи"
 
 #. name for apz
 msgid "Safeyoka"
@@ -1368,7 +1368,7 @@ msgstr ""
 
 #. name for aqc
 msgid "Archi"
-msgstr ""
+msgstr "Арчи"
 
 #. name for aqd
 msgid "Dogon; Ampari"
@@ -1376,7 +1376,7 @@ msgstr ""
 
 #. name for aqg
 msgid "Arigidi"
-msgstr ""
+msgstr "Аригиди"
 
 #. name for aqm
 msgid "Atohwaim"
@@ -1576,7 +1576,7 @@ msgstr ""
 
 #. name for asv
 msgid "Asoa"
-msgstr ""
+msgstr "Асоа"
 
 #. name for asw
 msgid "Australian Aborigines Sign Language"
@@ -1596,7 +1596,7 @@ msgstr "Ас"
 
 #. name for ata
 msgid "Pele-Ata"
-msgstr ""
+msgstr "Пеле-Ата"
 
 #. name for atb
 msgid "Zaiwa"

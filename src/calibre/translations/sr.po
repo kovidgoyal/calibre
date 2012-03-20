@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-16 04:12+0000\n"
-"PO-Revision-Date: 2012-03-18 16:53+0000\n"
-"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
+"PO-Revision-Date: 2012-03-19 21:32+0000\n"
+"Last-Translator: Radan Putnik <srastral@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-19 04:39+0000\n"
+"X-Launchpad-Export-Date: 2012-03-20 04:54+0000\n"
 "X-Generator: Launchpad (build 14969)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1841,7 +1841,7 @@ msgstr "Ажурирајте неке корице у случају аутом�
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Користи СОНИ Ауторски ФОРМАТ(Само Први Аутор)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
@@ -2010,6 +2010,12 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Грешка у приступу документима на СД картици Вашег уређаја.Ово се може "
+"догодити из разних разлога.СД картица је можда покварена,можда је превелика "
+"за Ваш уређај,можда је заштићена од копирања и сл.Покушајте са другачијом СД "
+"картицом,или поново форматирајте СД картицу користећи ФАТ32 "
+"систем.Такође,уверите се да немате превише докумената у главном директорију "
+"СД картице.Основна грешка: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -5871,7 +5877,7 @@ msgstr "Није могуће сачувати на диску"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:93
 msgid "Choose destination directory"
-msgstr "Promeni ciljni direktorijum"
+msgstr "Изабери одредишни директоријум"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:101
 msgid ""
@@ -5879,31 +5885,31 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
-"Pokušavate da snimite fajlove u calibre biblioteku. Ovo može oštetiti vašu "
-"biblioteku. Snimanje na disk je namenjeno izvoženju fajlova iz calibre "
-"biblioteke na neko dugo mesto."
+"Покушавате да сачувате датотеке у calibre библиотеци. Ово може оштетити вашу "
+"библиотеку. Чување на диску је намењено извожењу датотека из calibre "
+"библиотеке на неко дуго место."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:132
 msgid "Error while saving"
-msgstr "Greška pri snimanju"
+msgstr "Грешка при чувању"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:133
 msgid "There was an error while saving."
-msgstr "Došlo je do greške pri snimanju."
+msgstr "Дошло је до грешке при чувању."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:141
 msgid "Could not save some books"
-msgstr "Nisam uspeo da snimim neke knjige"
+msgstr "Нисам успео да сачувам неке књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:142
 msgid "Click the show details button to see which ones."
-msgstr "Kliknite na dugme za više detalja da vidite koje."
+msgstr "Кликните на дугме за више детаља да их видите."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:784
 msgid "Show book details"
-msgstr "Prikaži detalje o knjizi"
+msgstr "Прикажи детаље о књизи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
@@ -5911,15 +5917,15 @@ msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed info available"
-msgstr "Ne postoje detaljne informacije"
+msgstr "Не постоје детаљне информације."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:27
 msgid "No detailed information is available for books on the device."
-msgstr "Ne postoje detaljne informacije za knjige na uređaju."
+msgstr "Не постоје детаљне информације за књиге на уређају."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
@@ -5935,7 +5941,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
-msgstr "Slične knjige..."
+msgstr "Сличне књиге..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+A"
@@ -5943,11 +5949,11 @@ msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books by same author"
-msgstr "Knjige od istog autora"
+msgstr "Књиге од истог аутора."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Books in this series"
-msgstr "Knjige iz iste serije"
+msgstr "Књиге из исте серије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Alt+Shift+S"
@@ -5959,7 +5965,7 @@ msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Books by this publisher"
-msgstr "Knjige od istog izdavača"
+msgstr "Књиге од истог издавача."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:29
 msgid "Alt+T"
@@ -5967,19 +5973,19 @@ msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:29
 msgid "Books with the same tags"
-msgstr "Knjige sa istim etiketama"
+msgstr "Књиге са истим етикетама."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr "Пронаћи књиге"
+msgstr "Преузми књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
-msgstr "Тражити е-књиге"
+msgstr "Тражи е-књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
@@ -6002,13 +6008,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Продавнице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:286
 msgid "Choose stores"
-msgstr ""
+msgstr "Изабери продавнице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
@@ -6077,11 +6083,11 @@ msgstr "V"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "View"
-msgstr "Prikaži"
+msgstr "Приказ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:48
 msgid "View specific format"
-msgstr "Prikaži određeni format"
+msgstr "Прикажи одређени формат."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
@@ -6095,12 +6101,12 @@ msgstr "Обриши недавно погледану листу"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:217
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:224
 msgid "Cannot view"
-msgstr "Nemoguće pregledati"
+msgstr "Немогуће прегледати."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:164
 msgid "Format unavailable"
-msgstr "Format nije na raspolaganju"
+msgstr "Формат није на располагању."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:151
 msgid "Selected books have no formats"
@@ -6109,7 +6115,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:128
 msgid "Choose the format to view"
-msgstr "Izaberite format za prikaz"
+msgstr "Изаберите формат за приказ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:165
 #, python-format
@@ -6117,12 +6123,12 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
-"Neke od izabranih knjiga nisu na raspolaganju u formatu %s. Morate ih prvo "
-"konvertovati."
+"Неке од изабраних књига нису на располагању у формату %s. Морате их прво "
+"претворити."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:172
 msgid "Multiple Books Selected"
-msgstr "Izabrano je više knjiga"
+msgstr "Изабрано је више књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:173
 #, python-format
@@ -6132,14 +6138,14 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
-"Pokušavate da otvorite %d knjiga. Otvaranje previše knjiga odjednom može da "
-"bude sporo i ima negativan uticaj na brzinu odziva vašeg računara. Jednom "
-"započet, ovaj proces se ne može prekinuti pre završetka. Da li želite da "
-"nastavite?"
+"Покушавате да отворите %d књига. Отварање превише књига одједном може да "
+"буде споро и има негативан утицај на брзину одзива вашег рачунара. Једном "
+"започет, овај процес се не може прекинути пре завршетка. Да ли желите да "
+"наставите?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:182
 msgid "Cannot open folder"
-msgstr "Ne mogu da otvorim direktorijum"
+msgstr "Не могу да отворим фасциклу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:218
 msgid "This book no longer exists in your library"
@@ -6148,41 +6154,41 @@ msgstr "Ова књига не постоји више у вашој библи�
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:225
 #, python-format
 msgid "%s has no available formats."
-msgstr "%s nema raspoloživih formata."
+msgstr "%s нема расположивих формата."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:69
 msgid "Searching in"
-msgstr "Tražim u"
+msgstr "Тражим у"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:244
 msgid "Adding..."
-msgstr "Dodajem..."
+msgstr "Додајем..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:258
 msgid "Searching in all sub-directories..."
-msgstr "Tražim u svim pod-direktorijumima..."
+msgstr "Тражим у свим под-директоријумима..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:269
 msgid "Path error"
-msgstr "Greška u putanji"
+msgstr "Грешка у путањи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:270
 msgid "The specified directory could not be processed."
-msgstr "Nisam mogao da obradim navedeni direktorijum"
+msgstr "Нисам могао да обрадим наведени директоријум."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:931
 msgid "No books"
-msgstr "Nema knjiga"
+msgstr "Нема књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
 msgid "No books found"
-msgstr "Nije nađena nijedna knjiga"
+msgstr "Није нађена ниједна књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:288
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:809
 msgid "No permission"
-msgstr "Nema dozvole"
+msgstr "Нема дозволе."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:289
 msgid ""
@@ -6192,20 +6198,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:357
 msgid "Added"
-msgstr "Dodato"
+msgstr "Додато"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:370
 msgid "Adding failed"
-msgstr "Dodavanje nije uspelo"
+msgstr "Додавање није успело."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:371
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
-"Proces dodavanja knjiga se zaglavio. Probajte da ponovo pokrenete calibre i "
-"dodajete knjige u manjim grupama sve dok ne pronađete knjigu koja pravi "
-"problem."
+"Процес додавања књига се заглавио. Пробајте да поново покренете calibre и "
+"додајете књиге у мањим групама све док не пронађете књигу која прави проблем."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:214
@@ -6216,7 +6221,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:216
 msgid "Duplicates found!"
-msgstr "Pronađeni su duplikati!"
+msgstr "Пронађени су дупликати!."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:388
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:217
@@ -6224,15 +6229,15 @@ msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
 msgstr ""
-"Knjige sa istim naslovom već postoje u bazi podataka. Da ih ipak dodam?"
+"Књиге са истим насловом већ постоје у бази података. Да их ипак додам?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:391
 msgid "Adding duplicates..."
-msgstr "Dodajem duplikate..."
+msgstr "Додајем дупликате..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:460
 msgid "Saving..."
-msgstr "Snimam..."
+msgstr "Чувам..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:467
 msgid "Collecting data, please wait..."
@@ -6240,36 +6245,36 @@ msgstr "Прикупљање података,молимо сачекајте...
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:539
 msgid "Saved"
-msgstr "Snimljeno"
+msgstr "Сачувано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:56
 msgid "Searching for sub-folders"
-msgstr "Tražim pod-direktorijume"
+msgstr "Тражим под-фасциклу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:61
 msgid "Searching for books"
-msgstr "Tražim knjige"
+msgstr "Тражим књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:73
 msgid "Looking for duplicates based on file hash"
-msgstr "Tražim duplikate po \"otisku\" fajla"
+msgstr "Тражим дупликате по \"отиску\" датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
 msgid "Choose root folder"
-msgstr "Izaberite osnovni direktorijum"
+msgstr "Изабери главну фасциклу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:135
 msgid "Invalid root folder"
-msgstr "Neispravan osnovni direktorijum"
+msgstr "Није исправна главна фасцикла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:136
 msgid "is not a valid root folder"
-msgstr "nije ispravan osnovni direktorijum"
+msgstr "није исправна главна фасцикла."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr "Dodaj knjige u calibre"
+msgstr "Додај књиге у calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -6278,23 +6283,23 @@ msgstr "Dodaj knjige u calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid "WizardPage"
-msgstr "StranaČarobnjaka"
+msgstr "Страница чаробњака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
-msgstr "Tražim knjige u osnovnom direktorijumu"
+msgstr "Тражим књиге у главној фасцикли"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:28
 msgid "This may take a few minutes"
-msgstr "Ovo može potrajati i nekoliko minuta"
+msgstr "Ово може да потраје неколико минута."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:63
 msgid "Choose the location to add books from"
-msgstr "Izaberite lokaciju sa koje će biti dodate knjige"
+msgstr "Изаберите локацију са које ће бити додате књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
-msgstr "Izaberite direktorijum na vašem disku"
+msgstr "Изаберите фасциклу на вашем диску"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
 msgid ""
@@ -6307,26 +6312,26 @@ msgid ""
 "<p>Make sure that the folder you chose for your calibre library <b>is "
 "not</b> under the root folder you choose.</p>"
 msgstr ""
-"<p>calibre može automatski da pretraži vaš računar u potrazi za knjigama. "
-"pronađene knjige će biti <b>kopirane</b> u calibre biblioteku. Ovaj "
-"čarobnjak će vam pomoći da podesite ovu pretragu i uvoz u vašu postojeću "
-"kolekciju.</p>\n"
-"<p>Izaberite osnovni direktorijum. Knjige će biti tražene samo u ovom "
-"direktorijumu i njegovim pod-direktorijumima.</p>\n"
-"<p>Vodite računa da vaša calibre biblioteka <b>ne bude</b> u ovom "
-"direktorijumu, ili njegovim pod-direktorijumima.</p>"
+"<p>calibre може аутоматски да претражи ваш рачунар у потрази за књигама. "
+"пронађене књиге ће бити <b>копиране</b> у calibre библиотеку. Овај чаробњак "
+"ће вам помоћи да подесите ову претрагу и увоз у вашу постојећу "
+"колекцију.</p>\n"
+"<p>Изаберите основну фасциклу. Књиге ће бити тражене само у овој фасцикли и "
+"њеним под-фасциклама.</p>\n"
+"<p>Водите рачуна да ваша calibre библиотека <b>не буде</b> у овом "
+"директоријуму, или његовим под-директоријумима.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
-msgstr "Osnovni di&rektorijum:"
+msgstr "&Главна фасцикла:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:69
 msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
 msgstr ""
-"Ovaj direktorijum i njegovi pod-direktorijumi će biti pretraženi, a "
-"pronađene knjige uvezene u calibre biblioteku"
+"Овај директоријум и његови под-директоријуми ће бити претражени, а пронађене "
+"књиге увезене у calibre библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:57
@@ -6388,21 +6393,21 @@ msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:72
 msgid "Handle multiple files per book"
-msgstr "Rukuj sa knjigama koje imaju više fajlova"
+msgstr "Рукуј са књигама које имају више датотека"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:73
 msgid ""
 "&One book per folder, assumes every ebook file in a folder is the same book "
 "in a different format"
 msgstr ""
-"Jedna knjiga p&o direktorijumu. Podrazumeva da je svaka knjiga u "
-"direktorijumu ista knjiga u različitom formatu."
+"Једна књига п&о фасцикли. Подразумева да је свака књига у фасцикли иста "
+"књига у различитом формату."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:74
 msgid ""
 "&Multiple books per folder, assumes every ebook file is a different book"
 msgstr ""
-"Više knjiga po direktoriju&mu. Podrazumeva da je svaki fajl različita knjiga."
+"Више књига по фасцик&и. Подразумева да је свака датотека различита књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:233
 #, python-format
@@ -6413,11 +6418,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:31
 msgid "Donate"
-msgstr "Донација"
+msgstr "Даруј"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:143
 msgid "Click to open"
-msgstr "Kliknite da biste otvorili"
+msgstr "Кликни да бисте отворили"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:158
 msgid "Ids"
@@ -20746,6 +20751,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:480
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Сачувај оригинални документ шри превођењу из истог формата у исти формат"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid ""
@@ -20757,7 +20763,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:487
 msgid "Number of recently viewed books to show"
-msgstr ""
+msgstr "Број скоро погледаних књига за показати"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:488
 msgid ""
