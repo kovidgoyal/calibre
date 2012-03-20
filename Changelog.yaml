@@ -19,6 +19,189 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.43
+  date: 2012-03-16
+
+  new features:
+    - title: "Template language: Speedup evaluation of general program mode templates by pre-compiling them to python. If you experience errors with this optimization, you can turn it off via Preferences->Tweaks. Also other miscellaneous optimizations in evaluating templates with composite columns."
+
+    - title: "MOBI Output: Add an option to not convert all images to JPEG when creating MOBI files. For maximum compatibility of the produced MOBI files, do not use this option."
+      tickets: [954025]
+
+    - title: "Add iPad3 Output Profile"
+ 
+  bug fixes:
+    - title: "KF8 Input: Add support for KF8 files with obfuscated embedded fonts"
+      tickets: [953260] 
+
+    - title: "Make the stars in the book list a little larger on windows >= vista"
+
+    - title: "Revised periodical Section layout, for touchscreen devices resolving iBooks problem with tables spanning multiple pages"
+
+    - title: "Read dc:contributor metadata from MOBI files"
+
+    - title: "MOBI Output: Fix a regression that caused the generated thumbnail embedded in calibre produced MOBI files to be a large, low quality image instead of a small, high quality image. You would have been affected by this bug only if you directly used the output from calibre, without exporting it via send to device or save to disk."
+      tickets: [954254]
+
+    - title: "KF8 Input: Recognize OpenType embedded fonts as well."
+      tickets: [954728]
+
+    - title: "Fix regression in 0.8.41 that caused file:/// URLs to stop working in the news download system on windows."
+      tickets: [955581]
+
+    - title: "When setting metadata in MOBI files fix cover not being updated if the mobi file has its first image record as the cover"
+
+    - title: "Fix column coloring rules based on the size column not working"
+      tickets: [953737] 
+
+  improved recipes:
+    - Microwaves and RF
+    - idg.se
+
+  new recipes:
+    - title: SatMagazine 
+      author: kiavash
+
+- version: 0.8.42
+  date: 2012-03-12
+
+  new features:
+    - title: "Support for reading Amazon's new KF8 format"
+      type: major
+      description: "calibre can now both view and convert MOBI files that contain Amazon's new KF8 (Kindle Fire) format"
+
+    - title: "Add a tweak to Preferences->Tweaks to control the font size used in the book details panel"
+      tickets: [948357] 
+
+    - title: "Allow specifying a list of file types to exclude when automatically adding files from a folder"
+      tickets: [943025]
+
+    - title: "Show ratings in the book details panel as stars. Also allow the user to change the alignment of the ratings column in the main books list. No longer display the stars in blue, instead their color can be customized via the column coloring rules, like any other column"
+
+    - title: "When setting metadata in EPUB ensure that the <meta name=cover> tag has its name attribute first. Needed for the Nook."
+
+    - title: "Drivers for Novo 7, LG G2x and Zenithink T-280"
+      tickets: [941671, 940625, 940527]
+
+    - title: "Update linux binaries to Qt 4.8.0"
+    
+  bug fixes:
+    - title: "Fix some rar files causing crashes on OS X (updated libunrar.dylib in the OS X build)"
+      tickets: [951185]
+
+    - title: "MOBI Output: Ignore the Table of Contents pointed to by the guide, if it contains no links"
+
+    - title: "ODT Input: Ignore margin declaration in ODT styles if more specific margin-* declarations are present"
+      tickets: [941134]
+
+    - title: "Conversion pipeline: Fix @import rules in CSS stylesheets that have comments on their first few lines being ignored."
+
+    - title: "EPUB Input: When extracting the contents of epub files on windows, do not error out if one or more of the components in the epub file have filepaths containing characters that are invalid for the windows filesystem, instead, just replace those characters, since those entries are likely to be errors in the zip container anyway."
+      tickets: [950081]
+
+    - title: "Textile output: Fix issue with blockquotes and sentences getting removed."
+
+    - title: "MOBI Output: When using the prefer author sort conversion option, handle multiple authors better."
+      tickets: [947146]
+
+    - title: "Fix regression in 0.8.41 that broke direct connection to iDevices in windows"
+      tickets: [944534]
+
+    - title: "Fix the download bulk metadata completed popup causing a crash if the Esc key is pressed."
+      tickets: [943056]
+
+    - title: "Fix rating values doubled in CSV/XML catalogs"
+      tickets: [942790]
+
+    - title: "EPUB Input: Remove non markup documents from the spine automatically, instead of erroring out"
+
+    - title: "When formatting ratings in templates, etc., do not have an unnecessary .0"
+
+    - title: "Calibre portable: Do not allow calibre portable to run if it is placed in a location whose path is too long. Also hide the library location setup in the welcome wizard when running the portable build."
+
+    - title: "Fix regression in 0.8.41 that broke calibre if the TMP or TEMP environment variable is set to the root of a drive."
+      tickets: [952284]
+
+    - title: "Fix display of ratings type custom fields in the content server"
+      tickets: [940600]
+
+
+  improved recipes:
+    - La Jornada
+    - Chicago Tribune
+    - Mediapart 
+    - rue89
+
+  new recipes:
+    - title: Racjonalista 
+      author: Racjonlista
+
+    - title: JAPAA 
+      author: adoucette
+
+
+- version: 0.8.41
+  date: 2012-02-24
+
+  new features:
+    - title: "Driver for Sony Experia Play 4G"
+      tickets: [938831]
+
+    - title: "News download system: Allow use of __future__ in recipes, and do not change line numbers of code in the recipe when compiling it"
+
+    - title: "Use the My Documents folder as the default location for the Calibre Library folder on first start in windows"
+      tickets: [934840] 
+
+    - title: "Add a tweak to Preferences->Tweaks to control the order in which categories appear in the Tag Browser"
+
+    - title: "Tag Browser: Add an entry to the right click menu to quickly delete tags"
+      tickets: [934509] 
+
+    - title: "Amazon metadata download: Try to scrape series information from the amazon details page. Note that currently very few books have series info available. Often the page for hardcover will have series, but the Kindle edition will not. In such cases calibre may or may not find the series, depending on which page it ends up using."
+
+    - title: "Content server: Add favicon to OPDS feeds."
+      tickets: [934731]
+ 
+  bug fixes:
+    - title: "RTF Input: Fix some WMF images embedded in RTF files being distorted on conversion."
+      tickets: [934167]
+
+    - title: "Fix long standing bug preventing calibre from working on east asian windows installs when the user name in windows has non-ascii characters"
+      tickets: [937389]
+
+    - title: "Get Books: Fix Baen Webscription and O'Reilly stores. Fix price detection for Google Books"
+
+    - title: "MOBI Output: When the same anchor is present more than once in the input document, use the first occurrence rather than the last one."
+      tickets: [934031]
+
+    - title: "Use the 'default cover font' tweak when generating default masthead images as well"
+      tickets: [939256] 
+
+    - title: "Fix content server does not correctly display custom field of type 'rating'"
+      tickets: [938303] 
+
+    - title: "Fix welcome wizard does not save send-from email info unless send-to field is filled"
+      tickets: [937087] 
+
+    - title: "When reading metadata from odt files, use initial-creator in preference to creator for setting the author field"
+      tickets: [934564] 
+
+    - title: "Fix conversion erroring out when the input document has very long and thin images"
+      tickets: [935234]
+
+  improved recipes:
+    - The Sun
+    - Various Polish news sources
+    - Mediapart
+
+  new recipes:
+    - title: La pausa caffe 
+      author: faber1971
+
+    - title: Various Polish news sources 
+      author: fenuks
+
+
 - version: 0.8.40
   date: 2012-02-17
 

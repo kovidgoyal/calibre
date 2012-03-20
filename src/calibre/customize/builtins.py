@@ -263,7 +263,7 @@ class MOBIMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.mobi.reader import get_metadata
+        from calibre.ebooks.metadata.mobi import get_metadata
         return get_metadata(stream)
 
 class ODTMetadataReader(MetadataReaderPlugin):
@@ -284,7 +284,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.opf2 import OPF
-        return OPF(stream, os.getcwd()).to_book_metadata()
+        return OPF(stream, os.getcwdu()).to_book_metadata()
 
 class PDBMetadataReader(MetadataReaderPlugin):
 

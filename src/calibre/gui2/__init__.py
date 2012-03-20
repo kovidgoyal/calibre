@@ -104,6 +104,7 @@ gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True
 gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
+gprefs.defaults['blocked_auto_formats'] = []
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -806,6 +807,23 @@ def is_gui_thread():
     global gui_thread
     return gui_thread is QThread.currentThread()
 
+_rating_font = None
+def rating_font():
+    global _rating_font
+    if _rating_font is None:
+        from PyQt4.Qt import QFontDatabase
+        _rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
+        fontid = QFontDatabase.addApplicationFont(
+                #P('fonts/liberation/LiberationSerif-Regular.ttf')
+                P('fonts/calibreSymbols.otf')
+                )
+        if fontid > -1:
+            try:
+                _rating_font = unicode(list(
+                    QFontDatabase.applicationFontFamilies(fontid))[0])
+            except:
+                pass
+    return _rating_font
 
 def find_forms(srcdir):
     base = os.path.join(srcdir, 'calibre', 'gui2')

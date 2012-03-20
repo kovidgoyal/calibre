@@ -352,11 +352,9 @@ class TouchscreenFeedTemplate(Template):
             d.append(BR())
             div.append(d)
 
-        toc = TABLE(CLASS('toc'),width="100%",border="0",cellpadding="3px")
         for i, article in enumerate(feed.articles):
             if not getattr(article, 'downloaded', False):
                 continue
-            tr = TR()
 
             div_td = DIV(CLASS('article_summary'),
                     A(article.title, CLASS('summary_headline','calibre_rescale_120',
@@ -367,11 +365,8 @@ class TouchscreenFeedTemplate(Template):
             if article.summary:
                 div_td.append(DIV(cutoff(article.text_summary),
                     CLASS('summary_text', 'calibre_rescale_100')))
-            tr.append(TD(div_td))
-            toc.append(tr)
+            div.append(div_td)
 
-        div.append(toc)
-        div.append(BR())
         div.append(bottom_navbar)
         self.root = HTML(head, body)
         if self.html_lang:

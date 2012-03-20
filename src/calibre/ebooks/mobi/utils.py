@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct
+import struct, string, imghdr, zlib
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
@@ -15,7 +15,13 @@ from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 
-def decode_hex_number(raw):
+def decode_string(raw, codec='utf-8'):
+    length, = struct.unpack(b'>B', raw[0])
+    raw = raw[1:1+length]
+    consumed = length+1
+    return raw.decode(codec), consumed
+
+def decode_hex_number(raw, codec='utf-8'):
     '''
     Return a variable length number encoded using hexadecimal encoding. These
     numbers have the first byte which tells the number of bytes that follow.
@@ -25,12 +31,15 @@ def decode_hex_number(raw):
     :param raw: Raw binary data as a bytestring
 
     :return: The number and the number of bytes from raw that the number
-    occupies
+    occupies.
     '''
-    length, = struct.unpack(b'>B', raw[0])
-    raw = raw[1:1+length]
-    consumed = length+1
+    raw, consumed = decode_string(raw, codec=codec)
     return int(raw, 16), consumed
+
+def encode_string(raw):
+    ans = bytearray(bytes(raw))
+    ans.insert(0, len(ans))
+    return bytes(ans)
 
 def encode_number_as_hex(num):
     '''
@@ -44,9 +53,7 @@ def encode_number_as_hex(num):
     nlen = len(num)
     if nlen % 2 != 0:
         num = b'0'+num
-    ans = bytearray(num)
-    ans.insert(0, len(num))
-    return bytes(ans)
+    return encode_string(num)
 
 def encint(value, forward=True):
     '''
@@ -124,12 +131,18 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     to JPEG. Ensure the resultant image has a byte size less than
     maxsizeb.
 
-    If dimen is not None, generate a thumbnail of width=dimen, height=dimen
+    If dimen is not None, generate a thumbnail of
+    width=dimen, height=dimen or width, height = dimen (depending on the type
+    of dimen)
 
     Returns the image as a bytestring
     '''
     if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen,
+        if hasattr(dimen, '__len__'):
+            width, height = dimen
+        else:
+            width = height = dimen
+        data = thumbnail(data, width=width, height=height,
                 compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
@@ -339,5 +352,152 @@ def detect_periodical(toc, log=None):
                 log.debug('Not a periodical: Has nodes of depth > 3')
             return False
     return True
+
+def count_set_bits(num):
+    if num < 0:
+        num = -num
+    ans = 0
+    while num > 0:
+        ans += (num & 0b1)
+        num >>= 1
+    return ans
+
+def to_base(num, base=32):
+    digits = string.digits + string.ascii_uppercase
+    sign = 1 if num >= 0 else -1
+    if num == 0: return '0'
+    num *= sign
+    ans = []
+    while num:
+        ans.append(digits[(num % base)])
+        num //= base
+    if sign < 0:
+        ans.append('-')
+    ans.reverse()
+    return ''.join(ans)
+
+def mobify_image(data):
+    'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
+    what = imghdr.what(None, data)
+
+    if what == 'png':
+        im = Image()
+        im.load(data)
+        data = im.export('gif')
+    return data
+
+def read_zlib_header(header):
+    header = bytearray(header)
+    # See sec 2.2 of RFC 1950 for the zlib stream format
+    # http://www.ietf.org/rfc/rfc1950.txt
+    if (header[0]*256 + header[1])%31 != 0:
+        return None, 'Bad zlib header, FCHECK failed'
+
+    cmf = header[0] & 0b1111
+    cinfo = header[0] >> 4
+    if cmf != 8:
+        return None, 'Unknown zlib compression method: %d'%cmf
+    if cinfo > 7:
+        return None, 'Invalid CINFO field in zlib header: %d'%cinfo
+    fdict = (header[1]&0b10000)>>5
+    if fdict != 0:
+        return None, 'FDICT based zlib compression not supported'
+    wbits = cinfo + 8
+    return wbits, None
+
+
+def read_font_record(data, extent=1040): # {{{
+    '''
+    Return the font encoded in the MOBI FONT record represented by data.
+    The return value in a dict with fields raw_data, font_data, err, ext,
+    headers.
+
+    :param extent: The number of obfuscated bytes. So far I have only
+    encountered files with 1040 obfuscated bytes. If you encounter an
+    obfuscated record for which this function fails, try different extent
+    values (easily automated).
+
+    raw_data is the raw data in the font record
+    font_data is the decoded font_data or None if an error occurred
+    err is not None if some error occurred
+    ext is the font type (ttf for TrueType, dat for unknown and failed if an
+    error occurred)
+    headers is the list of decoded headers from the font record or None if
+    decoding failed
+    '''
+    # Format:
+    # bytes  0 -  3:  'FONT'
+    # bytes  4 -  7:  Uncompressed size
+    # bytes  8 - 11:  flags
+    #                   bit 1 - zlib compression
+    #                   bit 2 - XOR obfuscated
+    # bytes 12 - 15:  offset to start of compressed data
+    # bytes 16 - 19:  length of XOR string
+    # bytes 19 - 23:  offset to start of XOR data
+    # The zlib compressed data begins with 2 bytes of header and
+    # has 4 bytes of checksum at the end
+    ans = {'raw_data':data, 'font_data':None, 'err':None, 'ext':'failed',
+            'headers':None, 'encrypted':False}
+
+    try:
+        usize, flags, dstart, xor_len, xor_start = struct.unpack_from(
+                b'>LLLLL', data, 4)
+    except:
+        ans['err'] = 'Failed to read font record header fields'
+        return ans
+    font_data = data[dstart:]
+    ans['headers'] = {'usize':usize, 'flags':bin(flags), 'xor_len':xor_len,
+            'xor_start':xor_start, 'dstart':dstart}
+
+    if flags & 0b10:
+        # De-obfuscate the data
+        key = bytearray(data[xor_start:xor_start+xor_len])
+        buf = bytearray(font_data)
+        extent = len(font_data) if extent is None else extent
+        extent = min(extent, len(font_data))
+
+        for n in xrange(extent):
+            buf[n] ^= key[n%xor_len] # XOR of buf and key
+
+        font_data = bytes(buf)
+        ans['encrypted'] = True
+
+    if flags & 0b1:
+        # ZLIB compressed data
+        wbits, err = read_zlib_header(font_data[:2])
+        if err is not None:
+            ans['err'] = err
+            return ans
+        adler32, = struct.unpack_from(b'>I', font_data, len(font_data) - 4)
+        try:
+            # remove two bytes of zlib header and 4 bytes of trailing checksum
+            # negative wbits indicates no standard gzip header
+            font_data = zlib.decompress(font_data[2:-4], -wbits, usize)
+        except Exception as e:
+            ans['err'] = 'Failed to zlib decompress font data (%s)'%e
+            return ans
+
+        if len(font_data) != usize:
+            ans['err'] = 'Uncompressed font size mismatch'
+            return ans
+
+        if False:
+            # For some reason these almost never match, probably Amazon has a
+            # buggy Adler32 implementation
+            sig = (zlib.adler32(font_data) & 0xffffffff)
+            if sig != adler32:
+                ans['err'] = ('Adler checksum did not match. Stored: %d '
+                        'Calculated: %d')%(adler32, sig)
+                return ans
+
+    ans['font_data'] = font_data
+    sig = font_data[:4]
+    ans['ext'] = ('ttf' if sig in {b'\0\1\0\0', b'true', b'ttcf'}
+                    else 'otf' if sig == b'OTTO' else 'dat')
+
+    return ans
+# }}}
+
+
 
 

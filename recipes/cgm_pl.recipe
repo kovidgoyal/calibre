@@ -5,6 +5,7 @@ class CGM(BasicNewsRecipe):
     oldest_article = 7
     __author__        = 'fenuks'
     description   = u'Codzienna Gazeta Muzyczna'
+    masthead_url='http://www.cgm.pl/img/header/logo.gif'
     cover_url      = 'http://www.krafcy.com/foto/tinymce/Image/cgm%281%29.jpg'
     category       = 'music'
     language       = 'pl'
@@ -23,21 +24,19 @@ class CGM(BasicNewsRecipe):
 
 
     def preprocess_html(self, soup):
+        gallery=soup.find('div', attrs={'class':'galleryFlash'})
+        if gallery:
+            img=gallery.div
+            gallery.img.extract()
+            if img:
+                img=img['style']
+                img='http://www.cgm.pl'+img[img.find('url(')+4:img.find(')')]
+                gallery.contents[1].name='img'
+                gallery.contents[1]['src']=img
         for item in soup.findAll(style=True):
             del item['style']
         ad=soup.findAll('a')
         for r in ad:
-            if 'http://www.hustla.pl' in r['href'] or 'http://www.ebilet.pl' in r['href']:                
+            if 'www.hustla.pl' in r['href'] or 'www.ebilet.pl' in r['href']:                
                  r.extract()
-        gallery=soup.find('div', attrs={'class':'galleryFlash'})
-        if gallery:
-            img=gallery.find('embed')
-            if img:
-                img=img['src'][35:]
-                img='http://www.cgm.pl/_vault/_gallery/_photo/'+img
-                param=gallery.findAll(name='param')
-                for i in param:
-                    i.extract()
-                gallery.contents[1].name='img'
-                gallery.contents[1]['src']=img
         return soup

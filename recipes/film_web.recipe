@@ -10,7 +10,8 @@ class Filmweb_pl(BasicNewsRecipe):
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets= True
-    extra_css      = '.hdrBig {font-size:22px;}'
+    remove_empty_feeds=True
+    extra_css      = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
     remove_tags= [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'})]
     keep_only_tags= [dict(name='h1', attrs={'class':'hdrBig'}), dict(name='div', attrs={'class':['newsInfo', 'reviewContent fontSizeCont description']})]
     feeds          = [(u'Wszystkie newsy', u'http://www.filmweb.pl/feed/news/latest'),

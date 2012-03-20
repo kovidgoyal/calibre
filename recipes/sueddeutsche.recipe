@@ -11,7 +11,7 @@ class Sueddeutsche(BasicNewsRecipe):
     title                 = u'Süddeutsche.de'                 # 2012-01-26 AGe Correct Title
     description           = 'News from Germany, Access to online content' # 2012-01-26 AGe
     __author__            = 'Oliver Niesner and Armin Geller' #Update AGe 2012-01-26
-    publisher             = 'Süddeutsche Zeitung'             # 2012-01-26 AGe add
+    publisher             = u'Süddeutsche Zeitung'             # 2012-01-26 AGe add
     category              = 'news, politics, Germany'         # 2012-01-26 AGe add
     timefmt               = ' [%a, %d %b %Y]'                 # 2012-01-26 AGe add %a
     oldest_article        = 7

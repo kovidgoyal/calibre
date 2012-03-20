@@ -14,8 +14,11 @@ from lxml import html
 
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
+from calibre.ebooks.mobi.reader.index import (parse_index_record,
+        parse_tagx_section)
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
-        get_trailing_data, decode_tbs)
+        get_trailing_data, decode_tbs, read_font_record)
 from calibre.utils.magick.draw import identify_data
 
 def format_bytes(byts):
@@ -151,6 +154,10 @@ class EXTHRecord(object):
                 117 : 'adult',
                 118 : 'retailprice',
                 119 : 'retailpricecurrency',
+                121 : 'KF8 header section index',
+                125 : 'KF8 resources (images/fonts) count',
+                129 : 'KF8 cover URI',
+                131 : 'KF8 unknown count',
                 201 : 'coveroffset',
                 202 : 'thumboffset',
                 203 : 'hasfakecover',
@@ -169,9 +176,10 @@ class EXTHRecord(object):
                 503 : 'updatedtitle',
         }.get(self.type, repr(self.type))
 
-        if self.name in ('coveroffset', 'thumboffset', 'hasfakecover',
+        if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',
                 'Creator Major Version', 'Creator Minor Version',
-                'Creator Build Number', 'Creator Software', 'startreading'):
+                'Creator Build Number', 'Creator Software', 'startreading'} or
+                self.type in {121, 125, 131}):
             self.data, = struct.unpack(b'>I', self.data)
 
     def __str__(self):
@@ -338,9 +346,9 @@ class MOBIHeader(object): # {{{
         ans.append('File version: %d'%self.file_version)
         ans.append('Reserved: %r'%self.reserved)
         ans.append('Secondary index record: %d (null val: %d)'%(
-            self.secondary_index_record, 0xffffffff))
+            self.secondary_index_record, NULL_INDEX))
         ans.append('Reserved2: %r'%self.reserved2)
-        ans.append('First non-book record (null value: %d): %d'%(0xffffffff,
+        ans.append('First non-book record (null value: %d): %d'%(NULL_INDEX,
             self.first_non_book_record))
         ans.append('Full name offset: %d'%self.fullname_offset)
         ans.append('Full name length: %d bytes'%self.fullname_length)
@@ -379,7 +387,7 @@ class MOBIHeader(object): # {{{
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
                     self.has_indexing_bytes, self.has_uncrossable_breaks ))
-            ans.append('Primary index record (null value: %d): %d'%(0xffffffff,
+            ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
                 self.primary_index_record))
 
         ans = '\n'.join(ans)
@@ -399,14 +407,10 @@ class MOBIHeader(object): # {{{
 
 class TagX(object): # {{{
 
-    def __init__(self, raw, control_byte_count):
-        self.tag = ord(raw[0])
-        self.num_values = ord(raw[1])
-        self.bitmask = ord(raw[2])
-        # End of file = 1 iff last entry
-        # When it is 1 all others are 0
-        self.eof = ord(raw[3])
-
+    def __init__(self, tag, num_values, bitmask, eof):
+        self.tag, self.num_values, self.bitmask, self.eof = (tag, num_values,
+                bitmask, eof)
+        self.num_of_values = num_values
         self.is_eof = (self.eof == 1 and self.tag == 0 and self.num_values == 0
                 and self.bitmask == 0)
 
@@ -453,14 +457,7 @@ class SecondaryIndexHeader(object): # {{{
             raise ValueError('Invalid TAGX section')
         self.tagx_header_length, = struct.unpack('>I', tagx[4:8])
         self.tagx_control_byte_count, = struct.unpack('>I', tagx[8:12])
-        tag_table = tagx[12:self.tagx_header_length]
-        if len(tag_table) % 4 != 0:
-            raise ValueError('Invalid Tag table')
-        num_tagx_entries = len(tag_table) // 4
-        self.tagx_entries = []
-        for i in range(num_tagx_entries):
-            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4],
-                self.tagx_control_byte_count))
+        self.tagx_entries = [TagX(*x) for x in parse_tagx_section(tagx)[1]]
         if self.tagx_entries and not self.tagx_entries[-1].is_eof:
             raise ValueError('TAGX last entry is not EOF')
 
@@ -528,7 +525,8 @@ class IndexHeader(object): # {{{
             raise ValueError('Invalid Primary Index Record')
 
         self.header_length, = struct.unpack('>I', raw[4:8])
-        self.unknown1 = raw[8:16]
+        self.unknown1 = raw[8:12]
+        self.header_type, = struct.unpack('>I', raw[12:16])
         self.index_type, = struct.unpack('>I', raw[16:20])
         self.index_type_desc = {0: 'normal', 2:
                 'inflection', 6: 'calibre'}.get(self.index_type, 'unknown')
@@ -557,14 +555,7 @@ class IndexHeader(object): # {{{
             raise ValueError('Invalid TAGX section')
         self.tagx_header_length, = struct.unpack('>I', tagx[4:8])
         self.tagx_control_byte_count, = struct.unpack('>I', tagx[8:12])
-        tag_table = tagx[12:self.tagx_header_length]
-        if len(tag_table) % 4 != 0:
-            raise ValueError('Invalid Tag table')
-        num_tagx_entries = len(tag_table) // 4
-        self.tagx_entries = []
-        for i in range(num_tagx_entries):
-            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4],
-                self.tagx_control_byte_count))
+        self.tagx_entries = [TagX(*x) for x in parse_tagx_section(tagx)[1]]
         if self.tagx_entries and not self.tagx_entries[-1].is_eof:
             raise ValueError('TAGX last entry is not EOF')
 
@@ -598,6 +589,7 @@ class IndexHeader(object): # {{{
 
         a('Header length: %d'%self.header_length)
         u(self.unknown1)
+        a('Header type: %d'%self.header_type)
         a('Index Type: %s (%d)'%(self.index_type_desc, self.index_type))
         a('Offset to IDXT start: %d'%self.idxt_start)
         a('Number of index records: %d'%self.index_count)
@@ -634,77 +626,40 @@ class Tag(object): # {{{
     TAG_MAP = {
             1: ('offset', 'Offset in HTML'),
             2: ('size', 'Size in HTML'),
-            3: ('label_offset', 'Offset to label in CNCX'),
+            3: ('label_offset', 'Label offset in CNCX'),
             4: ('depth', 'Depth of this entry in TOC'),
+            5: ('class_offset', 'Class offset in CNCX'),
+            6: ('pos_fid', 'File Index'),
 
             11: ('secondary', '[unknown, unknown, '
                 'tag type from TAGX in primary index header]'),
 
-            # The remaining tag types have to be interpreted subject to the type
-            # of index entry they are present in
+            21: ('parent_index', 'Parent'),
+            22: ('first_child_index', 'First child'),
+            23: ('last_child_index', 'Last child'),
+
+            69 : ('image_index', 'Offset from first image record to the'
+                                ' image record associated with this entry'
+                                ' (masthead for periodical or thumbnail for'
+                                ' article entry).'),
+            70 : ('desc_offset', 'Description offset in cncx'),
+            71 : ('author_offset', 'Author offset in cncx'),
+            72 : ('image_caption_offset', 'Image caption offset in cncx'),
+            73 : ('image_attr_offset', 'Image attribution offset in cncx'),
+
     }
 
-    INTERPRET_MAP = {
-            'subchapter': {
-                    21  : ('Parent chapter index', 'parent_index')
-            },
-
-            'article'   : {
-                    5  : ('Class offset in cncx', 'class_offset'),
-                    21 : ('Parent section index', 'parent_index'),
-                    69 : ('Offset from first image record num to the'
-                        ' image record associated with this article',
-                        'image_index'),
-                    70 : ('Description offset in cncx', 'desc_offset'),
-                    71 : ('Author offset in cncx', 'author_offset'),
-                    72 : ('Image caption offset in cncx',
-                        'image_caption_offset'),
-                    73 : ('Image attribution offset in cncx',
-                        'image_attr_offset'),
-            },
-
-            'chapter_with_subchapters' : {
-                    22 : ('First subchapter index', 'first_child_index'),
-                    23 : ('Last subchapter index', 'last_child_index'),
-            },
-
-            'periodical' : {
-                    5  : ('Class offset in cncx', 'class_offset'),
-                    22 : ('First section index', 'first_child_index'),
-                    23 : ('Last section index', 'last_child_index'),
-                    69 : ('Offset from first image record num to masthead'
-                        ' record', 'image_index'),
-            },
-
-            'section' : {
-                    5  : ('Class offset in cncx', 'class_offset'),
-                    21 : ('Periodical index', 'parent_index'),
-                    22 : ('First article index', 'first_child_index'),
-                    23 : ('Last article index', 'last_child_index'),
-            },
-    }
-
-
-    def __init__(self, tagx, vals, entry_type, cncx):
+    def __init__(self, tag_type, vals, cncx):
         self.value = vals if len(vals) > 1 else vals[0] if vals else None
-        self.entry_type = entry_type
-        tag_type = tagx.tag
 
         self.cncx_value = None
         if tag_type in self.TAG_MAP:
             self.attr, self.desc = self.TAG_MAP[tag_type]
         else:
-            try:
-                td = self.INTERPRET_MAP[entry_type]
-            except:
-                raise ValueError('Unknown entry type: %s'%entry_type)
-            try:
-                self.desc, self.attr = td[tag_type]
-            except:
-                print ('Unknown tag value: %d'%tag_type)
-                self.desc = '??Unknown (tag value: %d type: %s)'%(
-                        tag_type, entry_type)
-                self.attr = 'unknown'
+            print ('Unknown tag value: %%s'%tag_type)
+            self.desc = '??Unknown (tag value: %d)'%tag_type
+            self.attr = 'unknown'
+
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
 
@@ -719,74 +674,18 @@ class IndexEntry(object): # {{{
 
     '''
     The index is made up of entries, each of which is represented by an
-    instance of this class. Index entries typically point to offsets int eh
+    instance of this class. Index entries typically point to offsets in the
     HTML, specify HTML sizes and point to text strings in the CNCX that are
     used in the navigation UI.
     '''
 
-    TYPES = {
-            # Present in secondary index record
-            0x01 : 'null',
-            0x02 : 'publication_meta',
-            # Present in book type files
-            0x0f : 'chapter',
-            0x6f : 'chapter_with_subchapters',
-            0x1f : 'subchapter',
-            # Present in periodicals
-            0xdf : 'periodical',
-            0xff : 'section',
-            0x3f : 'article',
-    }
-
-    def __init__(self, ident, entry_type, raw, cncx, tagx_entries,
-            control_byte_count):
-        self.index = ident
-        self.raw = raw
-        self.tags = []
-        self.entry_type_raw = entry_type
-        self.byte_size = len(raw)
-
-        orig_raw = raw
-
+    def __init__(self, ident, entry, cncx):
         try:
-            self.entry_type = self.TYPES[entry_type]
-        except KeyError:
-            raise ValueError('Unknown Index Entry type: %s'%bin(entry_type))
-
-        if control_byte_count not in (1, 2):
-            raise ValueError('Unknown control byte count: %d'%
-                    control_byte_count)
-
-        self.flags = 0
-
-        if control_byte_count == 2:
-            self.flags = ord(raw[0])
-            raw = raw[1:]
-
-        expected_tags = [tag for tag in tagx_entries if tag.bitmask &
-                entry_type]
-
-        flags = self.flags
-        for tag in expected_tags:
-            vals = []
-
-            if tag.tag > 64:
-                has_tag = flags & 0b1
-                flags = flags >> 1
-                if not has_tag: continue
-            for i in range(tag.num_values):
-                if not raw:
-                    raise ValueError('Index entry does not match TAGX header')
-                val, consumed = decint(raw)
-                raw = raw[consumed:]
-                vals.append(val)
-            self.tags.append(Tag(tag, vals, self.entry_type, cncx))
-
-        self.consumed = len(orig_raw) - len(raw)
-        self.trailing_bytes = raw
-        if self.trailing_bytes.replace(b'\0', b''):
-            raise ValueError('%s has leftover bytes: %s'%(self, format_bytes(
-                self.trailing_bytes)))
+            self.index = int(ident, 16)
+        except ValueError:
+            self.index = ident
+        self.tags = [Tag(tag_type, vals, cncx) for tag_type, vals in
+                entry.iteritems()]
 
     @property
     def label(self):
@@ -837,103 +736,22 @@ class IndexEntry(object): # {{{
                 return tag.value
         return -1
 
+    @property
+    def pos_fid(self):
+        for tag in self.tags:
+            if tag.attr == 'pos_fid':
+                return tag.value
+        return [0, 0]
+
     def __str__(self):
-        ans = ['Index Entry(index=%s, entry_type=%s, flags=%s, '
-                'length=%d, byte_size=%d)'%(
-            self.index, self.entry_type, bin(self.flags)[2:],
-            len(self.tags), self.byte_size)]
+        ans = ['Index Entry(index=%s, length=%d)'%(
+            self.index, len(self.tags))]
         for tag in self.tags:
             if tag.value is not None:
                 ans.append('\t'+str(tag))
         if self.first_child_index != -1:
             ans.append('\tNumber of children: %d'%(self.last_child_index -
                 self.first_child_index + 1))
-        if self.trailing_bytes:
-            ans.append('\tTrailing bytes: %r'%self.trailing_bytes)
-        return '\n'.join(ans)
-
-# }}}
-
-class SecondaryIndexRecord(object): # {{{
-
-    def __init__(self, record, index_header, cncx):
-        self.record = record
-        raw = self.record.raw
-
-        if raw[:4] != b'INDX':
-            raise ValueError('Invalid Primary Index Record')
-
-        u = struct.unpack
-
-        self.header_length, = u('>I', raw[4:8])
-        self.unknown1 = raw[8:12]
-        self.header_type, = u('>I', raw[12:16])
-        self.unknown2 = raw[16:20]
-        self.idxt_offset, self.idxt_count = u(b'>II', raw[20:28])
-        if self.idxt_offset < 192:
-            raise ValueError('Unknown Index record structure')
-        self.unknown3 = raw[28:36]
-        self.unknown4 = raw[36:192] # Should be 156 bytes
-
-        self.index_offsets = []
-        indices = raw[self.idxt_offset:]
-        if indices[:4] != b'IDXT':
-            raise ValueError("Invalid IDXT index table")
-        indices = indices[4:]
-        for i in range(self.idxt_count):
-            off, = u(b'>H', indices[i*2:(i+1)*2])
-            self.index_offsets.append(off-192)
-        rest = indices[(i+1)*2:]
-        if rest.replace(b'\0', ''): # There can be padding null bytes
-            raise ValueError('Extra bytes after IDXT table: %r'%rest)
-
-        indxt = raw[192:self.idxt_offset]
-        self.size_of_indxt_block = len(indxt)
-
-        self.indices = []
-        for i, off in enumerate(self.index_offsets):
-            try:
-                next_off = self.index_offsets[i+1]
-            except:
-                next_off = len(indxt)
-            num = ord(indxt[off])
-            index = indxt[off+1:off+1+num]
-            consumed = 1 + num
-            entry_type = ord(indxt[off+consumed])
-            pos = off+consumed+1
-            idxe = IndexEntry(index, entry_type,
-                    indxt[pos:next_off], cncx,
-                    index_header.tagx_entries,
-                    index_header.tagx_control_byte_count)
-            self.indices.append(idxe)
-
-        rest = indxt[pos+self.indices[-1].consumed:]
-        if rest.replace(b'\0', b''): # There can be padding null bytes
-            raise ValueError('Extra bytes after IDXT table: %r'%rest)
-
-
-    def __str__(self):
-        ans = ['*'*20 + ' Secondary Index Record (%d bytes) '%len(self.record.raw)+ '*'*20]
-        a = ans.append
-        def u(w):
-            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
-                len(w), not bool(w.replace(b'\0', b'')) ))
-        a('Header length: %d'%self.header_length)
-        u(self.unknown1)
-        a('Unknown (header type? index record number? always 1?): %d'%self.header_type)
-        u(self.unknown2)
-        a('IDXT Offset (%d block size): %d'%(self.size_of_indxt_block,
-            self.idxt_offset))
-        a('IDXT Count: %d'%self.idxt_count)
-        u(self.unknown3)
-        u(self.unknown4)
-        a('Index offsets: %r'%self.index_offsets)
-        a('\nIndex Entries (%d entries):'%len(self.indices))
-        for entry in self.indices:
-            a(str(entry))
-            a('')
-
-
         return '\n'.join(ans)
 
 # }}}
@@ -945,58 +763,25 @@ class IndexRecord(object): # {{{
     in the trailing data of the text records.
     '''
 
-    def __init__(self, record, index_header, cncx):
-        self.record = record
+    def __init__(self, records, index_header, cncx):
         self.alltext = None
-        raw = self.record.raw
+        table = OrderedDict()
+        tags = [TagX(x.tag, x.num_values, x.bitmask, x.eof) for x in
+                index_header.tagx_entries]
+        for record in records:
+            raw = record.raw
 
-        if raw[:4] != b'INDX':
-            raise ValueError('Invalid Primary Index Record')
+            if raw[:4] != b'INDX':
+                raise ValueError('Invalid Primary Index Record')
 
-        u = struct.unpack
+            parse_index_record(table, record.raw,
+                    index_header.tagx_control_byte_count, tags,
+                    index_header.index_encoding, strict=True)
 
-        self.header_length, = u('>I', raw[4:8])
-        self.unknown1 = raw[8:12]
-        self.header_type, = u('>I', raw[12:16])
-        self.unknown2 = raw[16:20]
-        self.idxt_offset, self.idxt_count = u(b'>II', raw[20:28])
-        if self.idxt_offset < 192:
-            raise ValueError('Unknown Index record structure')
-        self.unknown3 = raw[28:36]
-        self.unknown4 = raw[36:192] # Should be 156 bytes
-
-        self.index_offsets = []
-        indices = raw[self.idxt_offset:]
-        if indices[:4] != b'IDXT':
-            raise ValueError("Invalid IDXT index table")
-        indices = indices[4:]
-        for i in range(self.idxt_count):
-            off, = u(b'>H', indices[i*2:(i+1)*2])
-            self.index_offsets.append(off-192)
-        rest = indices[(i+1)*2:]
-        if rest.replace(b'\0', ''): # There can be padding null bytes
-            raise ValueError('Extra bytes after IDXT table: %r'%rest)
-
-        indxt = raw[192:self.idxt_offset]
-        self.size_of_indxt_block = len(indxt)
         self.indices = []
-        for i, off in enumerate(self.index_offsets):
-            try:
-                next_off = self.index_offsets[i+1]
-            except:
-                next_off = len(indxt)
-            index, consumed = decode_hex_number(indxt[off:])
-            entry_type = ord(indxt[off+consumed])
-            pos = off+consumed+1
-            idxe = IndexEntry(index, entry_type,
-                    indxt[pos:next_off], cncx,
-                    index_header.tagx_entries,
-                    index_header.tagx_control_byte_count)
-            self.indices.append(idxe)
 
-        rest = indxt[pos+self.indices[-1].consumed:]
-        if rest.replace(b'\0', b''): # There can be padding null bytes
-            raise ValueError('Extra bytes after IDXT table: %r'%rest)
+        for ident, entry in table.iteritems():
+            self.indices.append(IndexEntry(ident, entry, cncx))
 
     def get_parent(self, index):
         if index.depth < 1:
@@ -1006,24 +791,12 @@ class IndexRecord(object): # {{{
             if p.depth != parent_depth:
                 continue
 
-
     def __str__(self):
-        ans = ['*'*20 + ' Index Record (%d bytes) '%len(self.record.raw)+ '*'*20]
+        ans = ['*'*20 + ' Index Entries (%d entries) '%len(self.indices)+ '*'*20]
         a = ans.append
         def u(w):
             a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
                 len(w), not bool(w.replace(b'\0', b'')) ))
-        a('Header length: %d'%self.header_length)
-        u(self.unknown1)
-        a('Unknown (header type? index record number? always 1?): %d'%self.header_type)
-        u(self.unknown2)
-        a('IDXT Offset (%d block size): %d'%(self.size_of_indxt_block,
-            self.idxt_offset))
-        a('IDXT Count: %d'%self.idxt_count)
-        u(self.unknown3)
-        u(self.unknown4)
-        a('Index offsets: %r'%self.index_offsets)
-        a('\nIndex Entries (%d entries):'%len(self.indices))
         for entry in self.indices:
             offset = entry.offset
             a(str(entry))
@@ -1149,6 +922,25 @@ class BinaryRecord(object): # {{{
 
 # }}}
 
+class FontRecord(object): # {{{
+
+    def __init__(self, idx, record):
+        self.raw = record.raw
+        name = '%06d'%idx
+        self.font = read_font_record(self.raw)
+        if self.font['err']:
+            raise ValueError('Failed to read font record: %s Headers: %s'%(
+                self.font['err'], self.font['headers']))
+        self.payload = (self.font['font_data'] if self.font['font_data'] else
+                self.font['raw_data'])
+        self.name = '%s.%s'%(name, self.font['ext'])
+
+    def dump(self, folder):
+        with open(os.path.join(folder, self.name), 'wb') as f:
+            f.write(self.payload)
+
+# }}}
+
 class TBSIndexing(object): # {{{
 
     def __init__(self, text_records, indices, doc_type):
@@ -1179,7 +971,7 @@ class TBSIndexing(object): # {{{
 
     def get_index(self, idx):
         for i in self.indices:
-            if i.index == idx: return i
+            if i.index in {idx, unicode(idx)}: return i
         raise IndexError('Index %d not found'%idx)
 
     def __str__(self):
@@ -1212,7 +1004,7 @@ class TBSIndexing(object): # {{{
             if entries:
                 ans.append('\t%s:'%typ)
                 for x in entries:
-                    ans.append(('\t\tIndex Entry: %d (Parent index: %d, '
+                    ans.append(('\t\tIndex Entry: %s (Parent index: %s, '
                             'Depth: %d, Offset: %d, Size: %d) [%s]')%(
                         x.index, x.parent_index, x.depth, x.offset, x.size, x.label))
         def bin4(num):
@@ -1309,18 +1101,18 @@ class TBSIndexing(object): # {{{
                         ' when reading starting section'%extra)
             si = self.get_index(si)
             ans.append('The section at the start of this record is:'
-                    ' %d'%si.index)
+                    ' %s'%si.index)
             if 0b0100 in extra:
                 num = extra[0b0100]
                 ans.append('The number of articles from the section %d'
-                        ' in this record: %d'%(si.index, num))
+                        ' in this record: %s'%(si.index, num))
             elif 0b0001 in extra:
                 eof = extra[0b0001]
                 if eof != 0:
                     raise ValueError('Unknown eof value %s when reading'
                             ' starting section. All bytes: %r'%(eof, orig))
                 ans.append('??This record has more than one article from '
-                        ' the section: %d'%si.index)
+                        ' the section: %s'%si.index)
             return si, byts
         # }}}
 
@@ -1382,34 +1174,37 @@ class MOBIFile(object): # {{{
         self.index_header = self.index_record = None
         self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
-        if pir != 0xffffffff:
+        if pir != NULL_INDEX:
             self.index_header = IndexHeader(self.records[pir])
+            numi = self.index_header.index_count
             self.cncx = CNCX(self.records[
-                pir+2:pir+2+self.index_header.num_of_cncx_blocks],
+                pir+1+numi:pir+1+numi+self.index_header.num_of_cncx_blocks],
                 self.index_header.index_encoding)
-            self.index_record = IndexRecord(self.records[pir+1],
+            self.index_record = IndexRecord(self.records[pir+1:pir+1+numi],
                     self.index_header, self.cncx)
             self.indexing_record_nums = set(xrange(pir,
-                pir+2+self.index_header.num_of_cncx_blocks))
+                pir+1+numi+self.index_header.num_of_cncx_blocks))
         self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
-        if sir != 0xffffffff:
+        if sir != NULL_INDEX:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])
+            numi = self.secondary_index_header.index_count
             self.indexing_record_nums.add(sir)
-            self.secondary_index_record = SecondaryIndexRecord(
-                    self.records[sir+1], self.secondary_index_header, self.cncx)
-            self.indexing_record_nums.add(sir+1)
+            self.secondary_index_record = IndexRecord(
+                    self.records[sir+1:sir+1+numi], self.secondary_index_header, self.cncx)
+            self.indexing_record_nums |= set(xrange(sir+1, sir+1+numi))
 
 
         ntr = self.mobi_header.number_of_text_records
         fntbr = self.mobi_header.first_non_book_record
         fii = self.mobi_header.first_image_index
-        if fntbr == 0xffffffff:
+        if fntbr == NULL_INDEX:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
             self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
+        self.font_records = []
         image_index = 0
         for i in xrange(fntbr, len(self.records)):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
@@ -1419,13 +1214,15 @@ class MOBIFile(object): # {{{
             fmt = None
             if i >= fii and r.raw[:4] not in {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE'}:
+                    b'AUDI', b'VIDE', b'FONT'}:
                 try:
                     width, height, fmt = identify_data(r.raw)
                 except:
                     pass
             if fmt is not None:
                 self.image_records.append(ImageRecord(image_index, r, fmt))
+            elif r.raw[:4] == b'FONT':
+                self.font_records.append(FontRecord(i, r))
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 
@@ -1465,10 +1262,11 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
             of.write(rec.raw)
             alltext += rec.raw
         of.seek(0)
-    root = html.fromstring(alltext.decode('utf-8'))
-    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
-        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
-            include_meta_content_type=True))
+    if f.mobi_header.file_version < 8:
+        root = html.fromstring(alltext.decode('utf-8'))
+        with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
+            of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
+                include_meta_content_type=True))
 
 
     if f.index_header is not None:
@@ -1490,7 +1288,7 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
         f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),
-            ('binary', 'binary_records')]:
+            ('binary', 'binary_records'), ('font', 'font_records')]:
         tdir = os.path.join(ddir, tdir)
         os.mkdir(tdir)
         for rec in getattr(f, attr):

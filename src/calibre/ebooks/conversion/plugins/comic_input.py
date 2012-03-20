@@ -173,7 +173,7 @@ class ComicInput(InputFormatPlugin):
         comics = []
         for i, x in enumerate(comics_):
             title, fname = x
-            cdir = 'comic_%d'%(i+1) if len(comics_) > 1 else '.'
+            cdir = u'comic_%d'%(i+1) if len(comics_) > 1 else u'.'
             cdir = os.path.abspath(cdir)
             if not os.path.exists(cdir):
                 os.makedirs(cdir)
@@ -187,7 +187,7 @@ class ComicInput(InputFormatPlugin):
 
         mi  = MetaInformation(os.path.basename(stream.name).rpartition('.')[0],
             [_('Unknown')])
-        opf = OPFCreator(os.path.abspath('.'), mi)
+        opf = OPFCreator(os.getcwdu(), mi)
         entries = []
 
         def href(x):
@@ -225,9 +225,9 @@ class ComicInput(InputFormatPlugin):
                                 _('Page')+' %d'%(i+1), play_order=po)
                         po += 1
         opf.set_toc(toc)
-        m, n = open('metadata.opf', 'wb'), open('toc.ncx', 'wb')
-        opf.render(m, n, 'toc.ncx')
-        return os.path.abspath('metadata.opf')
+        m, n = open(u'metadata.opf', 'wb'), open('toc.ncx', 'wb')
+        opf.render(m, n, u'toc.ncx')
+        return os.path.abspath(u'metadata.opf')
 
     def create_wrappers(self, pages):
         from calibre.ebooks.oeb.base import XHTML_NS
@@ -252,7 +252,7 @@ class ComicInput(InputFormatPlugin):
         dir = os.path.dirname(pages[0])
         for i, page in enumerate(pages):
             wrapper = WRAPPER%(XHTML_NS, i+1, os.path.basename(page), i+1)
-            page = os.path.join(dir, 'page_%d.xhtml'%(i+1))
+            page = os.path.join(dir, u'page_%d.xhtml'%(i+1))
             open(page, 'wb').write(wrapper)
             wrappers.append(page)
         return wrappers
