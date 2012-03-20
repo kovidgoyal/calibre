@@ -847,7 +847,7 @@ Future conversion of these books will use the default settings.</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
+              <string>Enter what you are looking for, either plain text or a regular expression, depending on the mode</string>
              </property>
             </widget>
            </item>

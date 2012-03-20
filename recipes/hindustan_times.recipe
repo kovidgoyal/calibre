@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import urllib, re
 
 class HindustanTimes(BasicNewsRecipe):
     title          = u'Hindustan Times'
@@ -25,5 +26,25 @@ class HindustanTimes(BasicNewsRecipe):
             ('Lifestyle',
             'http://feeds.hindustantimes.com/HT-Homepage-LifestyleNews'),
 ]
+
+    def get_article_url(self, article):
+        '''
+        HT uses a variant of the feedportal RSS ad display mechanism
+        '''
+        try:
+            s = article.summary
+            return urllib.unquote(
+                re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
+        except:
+            pass
+        url = BasicNewsRecipe.get_article_url(self, article)
+        res = self.browser.open_novisit(url)
+        url = res.geturl().split('/')[-2]
+        encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
+                '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://', '0S':
+                'www.'}
+        for k, v in encoding.iteritems():
+            url = url.replace(k, v)
+        return url
 
 

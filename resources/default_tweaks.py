@@ -128,6 +128,17 @@ categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:s
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
+#: Control order of categories in the tag browser
+# Change the following dict to change the order that categories are displayed in
+# the tag browser. Items are named using their lookup name, and will be sorted
+# using the number supplied. The lookup name '*' stands for all names that
+# otherwise do not appear. Two names with the same value will be sorted
+# using the default order; the one used when the dict is empty.
+# Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}
+# resulting in the order series, tags, then everything else in default order.
+tag_browser_category_order = {'*':1}
+
+
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
@@ -196,7 +207,9 @@ title_series_sorting = 'library_order'
 # set to 'strictly_alphabetic', the series will be sent without change.
 # For example, if the tweak is set to library_order, "The Lord of the Rings"
 # will become "Lord of the Rings, The". If the tweak is set to
-# strictly_alphabetic, it would remain "The Lord of the Rings".
+# strictly_alphabetic, it would remain "The Lord of the Rings". Note that the
+# formatter function raw_field will return the base value for title and
+# series regardless of the setting of this tweak.
 save_template_title_series_sorting = 'library_order'
 
 #: Set the list of words considered to be "articles" for sort strings
@@ -291,7 +304,7 @@ auto_connect_to_folder = ''
 # how the value and category are combined together to make the collection name.
 # The only two fields available are {category} and {value}. The {value} field is
 # never empty. The {category} field can be empty. The default is to put the
-# value first, then the category enclosed in parentheses, it is isn't empty:
+# value first, then the category enclosed in parentheses, it isn't empty:
 # '{value} {category:|(|)}'
 # Examples: The first three examples assume that the second tweak
 # has not been changed.
@@ -372,10 +385,11 @@ maximum_resort_levels = 5
 # the fields that are being displayed.
 sort_dates_using_visible_fields = False
 
-#: Specify which font to use when generating a default cover
+#: Specify which font to use when generating a default cover or masthead
 # Absolute path to .ttf font files to use as the fonts for the title, author
-# and footer when generating a default cover. Useful if the default font (Liberation
-# Serif) does not contain glyphs for the language of the books in your library.
+# and footer when generating a default cover or masthead image. Useful if the
+# default font (Liberation Serif) does not contain glyphs for the language of
+# the books in your library.
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
@@ -408,6 +422,17 @@ locale_for_sorting =  ''
 # metadata  one book at a time. If True, then the fields are laid out using two
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
+
+#: Order of custom column(s) in edit metadata
+# Controls the order that custom columns are listed in edit metadata single
+# and bulk. The columns listed in the tweak are displayed first and in the
+# order provided. Any columns not listed are dislayed after the listed ones,
+# in alphabetical order. Do note that this tweak does not change the size of
+# the edit widgets. Putting comments widgets in this list may result in some
+# odd widget spacing when using two-column mode.
+# Enter a comma-separated list of custom field lookup names, as in
+# metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']
+metadata_edit_custom_column_order = []
 
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
@@ -459,4 +484,31 @@ unified_title_toolbar_on_osx = False
 # conversion is poor, you can tweak the settings and run it again. By setting
 # this to False you can prevent calibre from saving the original file.
 save_original_format = True
+
+#: Number of recently viewed books to show
+# Right-clicking the View button shows a list of recently viewed books. Control
+# how many should be shown, here.
+gui_view_history_size = 15
+
+#: When using the 'Tweak Book' action, which format to prefer
+# When tweaking a book that has multiple formats, calibre picks one
+# automatically. By default EPUB is preferred to HTMLZ. If you would like to
+# prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
+tweak_book_prefer = 'epub'
+
+#: Change the font size of book details in the interface
+# Change the font size at which book details are rendered in the side panel and
+# comments are rendered in the metadata edit dialog. Set it to a positive or
+# negative number to increase or decrease the font size.
+change_book_details_font_size_by = 0
+
+#: Compile General Program Mode templates to Python
+# Compiled general program mode templates are significantly faster than
+# interpreted templates. Setting this tweak to True causes calibre to compile
+# (in most cases) general program mode templates. Setting it to False causes
+# calibre to use the old behavior -- interpreting the templates. Set the tweak
+# to False if some compiled templates produce incorrect values.
+# Default:    compile_gpm_templates = True
+# No compile: compile_gpm_templates = False
+compile_gpm_templates = True
 

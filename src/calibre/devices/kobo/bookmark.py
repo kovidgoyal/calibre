@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 import os
 from contextlib import closing
 
-import sqlite3 as sqlite
 
 class Bookmark(): # {{{
     '''
@@ -32,7 +31,7 @@ class Bookmark(): # {{{
 
     def get_bookmark_data(self):
         ''' Return the timestamp and last_read_location '''
-
+        import sqlite3 as sqlite
         user_notes = {}
         self.timestamp = os.path.getmtime(self.path)
         with closing(sqlite.connect(self.db_path)) as connection:

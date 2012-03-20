@@ -36,7 +36,9 @@ class RescaleImages(object):
                     ext = 'JPEG'
 
                 raw = item.data
-                if not raw: continue
+                if hasattr(raw, 'xpath') or not raw:
+                    # Probably an svg image
+                    continue
                 try:
                     img = Image()
                     img.load(raw)
@@ -48,6 +50,8 @@ class RescaleImages(object):
                 scaled, new_width, new_height = fit_image(width, height,
                         page_width, page_height)
                 if scaled:
+                    new_width = max(1, new_width)
+                    new_height = max(1, new_height)
                     self.log('Rescaling image from %dx%d to %dx%d'%(
                         width, height, new_width, new_height), item.href)
                     try:

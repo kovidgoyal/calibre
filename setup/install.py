@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, shlex
+import sys, os, textwrap, subprocess, shutil, tempfile, atexit, shlex, glob
 
 from setup import (Command, islinux, isbsd, basenames, modules, functions,
         __appname__, __version__)
@@ -156,9 +156,6 @@ class Develop(Command):
             self.warn('Failed to compile mount helper. Auto mounting of',
                 ' devices will not work')
 
-        if not isbsd and os.geteuid() != 0:
-            return self.warn('Must be run as root to compile mount helper. Auto '
-                    'mounting of devices will not work.')
         src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
         dest = os.path.join(self.staging_bindir, 'calibre-mount-helper')
         self.info('Installing mount helper to '+ dest)
@@ -296,13 +293,14 @@ class Sdist(Command):
         for x in open('.bzrignore').readlines():
             if not x.startswith('resources/'): continue
             p = x.strip().replace('/', os.sep)
-            d = self.j(tdir, os.path.dirname(p))
-            if not self.e(d):
-                os.makedirs(d)
-            if os.path.isdir(p):
-                shutil.copytree(p, self.j(tdir, p))
-            else:
-                shutil.copy2(p, d)
+            for p in glob.glob(p):
+                d = self.j(tdir, os.path.dirname(p))
+                if not self.e(d):
+                    os.makedirs(d)
+                if os.path.isdir(p):
+                    shutil.copytree(p, self.j(tdir, p))
+                else:
+                    shutil.copy2(p, d)
         for x in os.walk(os.path.join(self.SRC, 'calibre')):
             for f in x[-1]:
                 if not f.endswith('_ui.py'): continue

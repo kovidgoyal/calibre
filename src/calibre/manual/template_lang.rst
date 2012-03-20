@@ -57,7 +57,7 @@ For example, assume you want to use the template::
 
         {series} - {series_index} - {title}
 
-If the book has no series, the answer will be ``- - title``. Many people would rather the result be simply ``title``, without the hyphens. To do this, use the extended syntax ``{field:|prefix_text|suffix_text}``. When you use this syntax, if field has the value SERIES then the result will be ``prefix_textSERIESsuffix_text``. If field has no value, then the result will be the empty string (nothing); the prefix and suffix are ignored. The prefix and suffix can contain blanks.
+If the book has no series, the answer will be ``- - title``. Many people would rather the result be simply ``title``, without the hyphens. To do this, use the extended syntax ``{field:|prefix_text|suffix_text}``. When you use this syntax, if field has the value SERIES then the result will be ``prefix_textSERIESsuffix_text``. If field has no value, then the result will be the empty string (nothing); the prefix and suffix are ignored. The prefix and suffix can contain blanks. **Do not use subtemplates (`{ ... }`) or functions (see below) as the prefix or the suffix.**
 
 Using this syntax, we can solve the above series problem with the template::
 
@@ -65,7 +65,7 @@ Using this syntax, we can solve the above series problem with the template::
 
 The hyphens will be included only if the book has a series index, which it will have only if it has a series.
 
-Notes: you must include the : character if you want to use a prefix or a suffix. You must either use no \| characters or both of them; using one, as in ``{field:| - }``, is not allowed. It is OK not to provide any text for one side or the other, such as in ``{series:|| - }``. Using ``{title:||}`` is the same as using ``{title}``.
+Notes: you must include the : character if you want to use a prefix or a suffix. You must either use no \| characters or both of them; using one, as in ``{field:| - }``, is not allowed. It is OK not to provide any text for one side or the other, such as in ``{series:|| - }``. Using ``{title:||}`` is the same as using ``{title}``. 
 
 Second: formatting. Suppose you wanted to ensure that the series_index is always formatted as three digits with leading zeros. This would do the trick::
 
@@ -112,7 +112,7 @@ Functions are always applied before format specifications. See further down for 
 
 The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Arguments are separated by commas. Commas inside arguments must be preceeded by a backslash ( '\\' ). The last (or only) argument cannot contain a closing parenthesis ( ')' ). Functions return the value of the field used in the template, suitably modified.
 
-If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. Use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>` to avoid these differences.
+Important: If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. **Do not use subtemplates (`{ ... }`) as function arguments.** Instead, use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>`.
 
 Many functions use regular expressions. In all cases, regular expression matching is case-insensitive.
 
@@ -242,8 +242,10 @@ The following functions are available in addition to those described in single-f
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``booksize()`` -- returns the value of the |app| 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
+    * ``current_library_name() -- `` return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
     * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
+    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
     * ``field(name)`` -- returns the metadata field named by ``name``.
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
     * ``format_date(x, date_format)`` -- format_date(val, format_string) -- format the value, which must be a date field, using the format_string, returning a string. The formatting codes are::
@@ -268,7 +270,19 @@ The following functions are available in addition to those described in single-f
         AP   : use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
         iso  : the date with time and timezone. Must be the only format present.
     
-    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
+    * finish_formatting(val, fmt, prefix, suffix) -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to :ref:`general program mode <general_mode>` (see below) to take advantage of GPM template compilation. For example, the following program produces the same output as the above template::
+    
+        program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
+    
+    Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
+    
+        program: 
+            strcat(
+                re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'), 
+                finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
+                field('title')
+            )
+            
     * ``formats_modtimes(date_format)`` -- return a comma-separated list of colon_separated items representing modification times for the formats of a book. The date_format parameter specifies how the date is to be formatted. See the date_format function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_sizes()`` -- return a comma-separated list of colon_separated items representing sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string
@@ -311,7 +325,7 @@ Using general program mode
 
 For more complicated template programs, it is sometimes easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classical-looking program. You can do this in |app| by beginning the template with `program:`. In this case, no template processing is done. The special variable `$` is not set. It is up to your program to produce the correct results.
 
-One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function.
+One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is that program mode templates are compiled to Python and can run much faster than  templates in the other two modes. Speed improvement depends on the complexity of the templates; the more complicated the template the more the improvement. Compilation is turned off or on using the tweak ``compile_gpm_templates`` (Compile General Program Mode templates to Python). The main reason to turn off compilation is if a compiled template does not work, in which case please file a bug report.
 
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 

@@ -171,7 +171,7 @@ class Preferences(QMainWindow):
         self.committed = False
         self.close_after_initial = close_after_initial
 
-        self.resize(900, 720)
+        self.resize(930, 720)
         nh, nw = min_available_height()-25, available_width()-10
         if nh < 0:
             nh = 800
@@ -325,6 +325,7 @@ class Preferences(QMainWindow):
             return
         rc = self.showing_widget.restart_critical
         self.committed = True
+        do_restart = False
         if must_restart:
             self.must_restart = True
             msg = _('Some of the changes you made require a restart.'
@@ -335,12 +336,24 @@ class Preferences(QMainWindow):
                         'set any more preferences, until you restart.')
 
 
-            warning_dialog(self, _('Restart needed'), msg, show=True,
+            d = warning_dialog(self, _('Restart needed'), msg,
                     show_copy_button=False)
+            b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+            b.setIcon(QIcon(I('lt.png')))
+            d.do_restart = False
+            def rf():
+                d.do_restart = True
+            b.clicked.connect(rf)
+            d.set_details('')
+            d.exec_()
+            b.clicked.disconnect()
+            do_restart = d.do_restart
         self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
-        if self.close_after_initial or (must_restart and rc):
+        if self.close_after_initial or (must_restart and rc) or do_restart:
             self.close()
+        if do_restart:
+            self.gui.quit(restart=True)
 
 
     def cancel(self, *args):

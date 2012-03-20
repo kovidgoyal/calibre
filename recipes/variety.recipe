@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.variety.com
 '''
@@ -14,11 +14,11 @@ class Variety(BasicNewsRecipe):
     max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
-    encoding               = 'cp1252'
+    encoding               = 'utf8'
     publisher              = 'Red Business Information'
     category               = 'Entertainment Industry News, Daily Variety, Movie Reviews, TV, Awards, Oscars, Cannes, Box Office, Hollywood'
     language               = 'en'
-    masthead_url           = 'http://a330.g.akamai.net/7/330/23382/20090528190853/www.variety.com/graphics/variety/Variety_logo_green_tm.gif'
+    masthead_url           = 'http://images1.variety.com/graphics/variety/Variety_logo_green_tm.gif'
     extra_css              = ' body{font-family: Georgia,"Times New Roman",Times,Courier,serif } img{margin-bottom: 1em} '
 
     conversion_options = {
@@ -30,17 +30,10 @@ class Variety(BasicNewsRecipe):
 
     remove_tags = [dict(name=['object','link','map'])]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+    keep_only_tags = [dict(name='div', attrs={'class':'art control'})]
 
     feeds = [(u'News & Articles', u'http://feeds.feedburner.com/variety/headlines' )]
 
     def print_version(self, url):
-        rpt = url.rpartition('?')[0]
-        artid = rpt.rpartition('/')[2]
-        catidr = url.rpartition('categoryid=')[2]
-        catid = catidr.partition('&')[0]
-        return 'http://www.variety.com/index.asp?layout=print_story&articleid=' + artid + '&categoryid=' + catid
-
-
-    def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+        rpt = url.rpartition('.html')[0]
+        return rpt + '?printerfriendly=true'

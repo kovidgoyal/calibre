@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
-__author__    = 'Lorenzo Vigentini'
-__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__author__    = 'Lorenzo Vigentini and Olivier Daigle'
+__copyright__ = '2012, Lorenzo Vigentini <l.vigentini at gmail.com>, Olivier Daigle <odaigle _at nuvucameras __dot__ com>'
 __version__     = 'v1.01'
-__date__        = '14, January 2010'
+__date__        = '12, February 2012'
 __description__   = 'Canadian Paper '
 
 '''
@@ -18,7 +18,7 @@ class ledevoir(BasicNewsRecipe):
     description   = 'Canadian Paper. A subscription is optional, with it you get more content'
 
     cover_url      = 'http://www.ledevoir.com/images/ul/graphiques/logo_devoir.gif'
-    title          = u'Le Devoir'
+    title          = u'Le Devoir '
     publisher      = 'leDevoir.com'
     category       = 'News, finance, economy, politics'
 
@@ -26,10 +26,14 @@ class ledevoir(BasicNewsRecipe):
     encoding       = 'utf-8'
     timefmt        = '[%a, %d %b, %Y]'
 
-    max_articles_per_feed = 50
+    oldest_article = 1
+    max_articles_per_feed = 200
     use_embedded_content  = False
     recursion             = 10
     needs_subscription    = 'optional'
+
+    filterDuplicates = False
+    url_list = []
 
     remove_javascript     = True
     no_stylesheets        = True
@@ -38,7 +42,7 @@ class ledevoir(BasicNewsRecipe):
 
     keep_only_tags  = [
                         dict(name='div', attrs={'id':'article'}),
-                        dict(name='ul', attrs={'id':'ariane'})
+                        dict(name='div', attrs={'id':'colonne_principale'})
                     ]
 
     remove_tags     = [
@@ -51,7 +55,7 @@ class ledevoir(BasicNewsRecipe):
 
     feeds          = [
                        (u'A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
-                       (u'Edition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
+                       (u'Édition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
                        (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
                        (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
                        (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
@@ -61,7 +65,7 @@ class ledevoir(BasicNewsRecipe):
                        (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
                        (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
                        (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
-                       (u'Loisirs', 'http://www.ledevoir.com/rss/section/loisirs.xml?id=50')
+                       (u'Art de vivre', 'http://www.ledevoir.com/rss/section/art-de-vivre.xml?id=50')
                      ]
 
     extra_css = '''
@@ -85,8 +89,16 @@ class ledevoir(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
             br.open('http://www.ledevoir.com')
-            br.select_form(nr=1)
-            br['login[courriel]'] = self.username
-            br['login[password]'] = self.password
+            br.select_form(nr=0)
+            br['login_popup[courriel]'] = self.username
+            br['login_popup[password]'] = self.password
             br.submit()
         return br
+
+    def print_version(self, url):
+        if self.filterDuplicates:
+            if url in self.url_list:
+                return
+        self.url_list.append(url)
+        return url
+

@@ -1,0 +1,37 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class tanuki(BasicNewsRecipe):
+    title          = u'Tanuki'
+    oldest_article = 7
+    __author__        = 'fenuks'
+    category       = 'anime, manga'
+    language       = 'pl'
+    max_articles_per_feed = 100
+    encoding='utf-8'
+    extra_css= 'ul {list-style: none; padding: 0; margin: 0;} .kadr{float: left;} .dwazdania {float: right;}'
+    preprocess_regexps = [(re.compile(ur'<h3><a class="screen".*?</h3>', re.DOTALL), lambda match: ''), (re.compile(ur'<div><a href="/strony/((manga)|(anime))/[0-9]+?/oceny(\-redakcji){0,1}">Zobacz jak ocenili</a></div>', re.DOTALL), lambda match: '')]
+    remove_empty_feeds= True
+    no_stylesheets = True
+    keep_only_tags=[dict(attrs={'class':['animename', 'storyname', 'nextarrow','sideinfov', 'sidelinfov', 'sideinfo', 'sidelinfo']}), dict(name='table', attrs={'summary':'Technikalia'}), dict(attrs={'class':['chaptername','copycat']}), dict(id='rightcolumn'), dict(attrs={'class':['headn_tt', 'subtable']})]
+    remove_tags=[dict(name='div', attrs={'class':'screen'}), dict(id='randomtoplist'), dict(attrs={'class':'note'})]
+    feeds          = [(u'Anime', u'http://anime.tanuki.pl/rss_anime.xml'), (u'Manga', u'http://manga.tanuki.pl/rss_manga.xml'), (u'Tomiki', u'http://manga.tanuki.pl/rss_mangabooks.xml'), (u'Artyku\u0142y', u'http://czytelnia.tanuki.pl/rss_czytelnia_artykuly.xml'), (u'Opowiadania', u'http://czytelnia.tanuki.pl/rss_czytelnia.xml')]
+
+
+    def append_page(self, soup, appendtag):
+        nexturl= appendtag.find(attrs={'class':'nextarrow'})
+        if nexturl:
+            while nexturl:
+                soup2 = self.index_to_soup('http://czytelnia.tanuki.pl'+ nexturl['href'])
+                nexturl=soup2.find(attrs={'class':'nextarrow'})
+                pagetext = soup2.find(attrs={'class':['chaptername', 'copycat']})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'copycat'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':'nextarrow'}):
+                r.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

@@ -1,0 +1,103 @@
+#!/usr/bin/env  python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Rémi Vanicat <vanicat at debian.org>'
+'''
+liberation.fr
+'''
+# The cleanning is from the Liberation recipe, by Darko Miletic
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Liberation(BasicNewsRecipe):
+
+    title                 = u'Libération: Édition abonnés'
+    __author__            = 'Rémi Vanicat'
+    description           = u'Actualités'
+    category              = 'Actualités, France, Monde'
+    language              = 'fr'
+    needs_subscription    = True
+
+    use_embedded_content   = False
+    no_stylesheets         = True
+    remove_empty_feeds     = True
+
+    extra_css = '''
+                    h1, h2, h3 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    p.subtitle {font-size:xx-small; font-family:Arial,Helvetica,sans-serif;}
+                    h4, h5, h2.rubrique,  {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .ref, .date, .author, .legende {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .mna-body, entry-body  {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
+
+    keep_only_tags    = [
+                  dict(name='div', attrs={'class':'article'})
+                  ,dict(name='div', attrs={'class':'text-article m-bot-s1'})
+                  ,dict(name='div', attrs={'class':'entry'})
+                  ,dict(name='div', attrs={'class':'col_contenu'})
+    ]
+
+    remove_tags_after = [
+        dict(name='div',attrs={'class':['object-content text text-item', 'object-content', 'entry-content', 'col01', 'bloc_article_01']})
+        ,dict(name='p',attrs={'class':['chapo']})
+        ,dict(id='_twitter_facebook')
+    ]
+
+    remove_tags    = [
+                        dict(name='iframe')
+                        ,dict(name='a', attrs={'class':'lnk-comments'})
+                        ,dict(name='div', attrs={'class':'toolbox'})
+                        ,dict(name='ul', attrs={'class':'share-box'})
+                        ,dict(name='ul', attrs={'class':'tool-box'})
+                        ,dict(name='ul', attrs={'class':'rub'})
+                        ,dict(name='p',attrs={'class':['chapo']})
+                        ,dict(name='p',attrs={'class':['tag']})
+                        ,dict(name='div',attrs={'class':['blokLies']})
+                        ,dict(name='div',attrs={'class':['alire']})
+                        ,dict(id='_twitter_facebook')
+                     ]
+
+    index           = 'http://www.liberation.fr/abonnes/'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.liberation.fr/jogger/login/')
+            br.select_form(nr=0)
+            br['email']    = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    def parse_index(self):
+        soup=self.index_to_soup(self.index)
+
+        content = soup.find('div', { 'class':'block-content' })
+
+        articles = []
+        cat_articles = []
+
+        for tag in content.findAll(recursive=False):
+            if(tag['class']=='headrest headrest-basic-rounded'):
+                cat_articles = []
+                articles.append((tag.find('h5').contents[0],cat_articles))
+            else:
+                title = tag.find('h3').contents[0]
+                url = tag.find('a')['href']
+                print(url)
+                descripion = tag.find('p',{ 'class':'subtitle' }).contents[0]
+                article = {
+                    'title': title,
+                    'url': url,
+                    'descripion': descripion,
+                    'content': ''
+                    }
+                cat_articles.append(article)
+        return articles
+
+
+
+# Local Variables:
+# mode: python
+# End:

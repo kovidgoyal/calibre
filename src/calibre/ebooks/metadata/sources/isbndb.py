@@ -9,12 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 from urllib import quote
 
-from lxml import etree
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source, Option
-from calibre.ebooks.chardet import xml_to_unicode
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.icu import lower
 from calibre.ebooks.metadata.book.base import Metadata
 
@@ -122,6 +119,7 @@ class ISBNDB(Source):
             result_queue.put(result)
 
     def parse_feed(self, feed, seen, orig_title, orig_authors, identifiers):
+        from lxml import etree
 
         def tostring(x):
             if x is None:
@@ -198,6 +196,10 @@ class ISBNDB(Source):
 
     def make_query(self, q, abort, title=None, authors=None, identifiers={},
             max_pages=10, timeout=30):
+        from lxml import etree
+        from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.utils.cleantext import clean_ascii_chars
+
         page_num = 1
         parser = etree.XMLParser(recover=True, no_network=True)
         br = self.browser

@@ -37,6 +37,7 @@ def get_filters():
             (_('SNB Books'), ['snb']),
             (_('Comics'), ['cbz', 'cbr', 'cbc']),
             (_('Archives'), ['zip', 'rar']),
+            (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
     ]
 
 
@@ -69,6 +70,9 @@ class AddAction(InterfaceAction):
         self.add_menu.addSeparator()
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut=_('Shift+A'))
+        self.add_menu.addSeparator()
+        ma('add-config', _('Configure the adding of books'),
+                triggered=self.add_config)
 
         self.qaction.triggered.connect(self.add_books)
 
@@ -76,6 +80,11 @@ class AddAction(InterfaceAction):
         enabled = loc == 'library'
         for action in list(self.add_menu.actions())[1:]:
             action.setEnabled(enabled)
+
+    def add_config(self):
+        self.gui.iactions['Preferences'].do_config(
+            initial_plugin=('Import/Export', 'Adding'),
+            close_after_initial=True)
 
     def add_formats(self, *args):
         if self.gui.stack.currentIndex() != 0:
@@ -91,7 +100,7 @@ class AddAction(InterfaceAction):
                 _('Are you sure'),
             _('Are you sure you want to add the same'
                 ' files to all %d books? If the format'
-                'already exists for a book, it will be replaced.')%len(ids)):
+                ' already exists for a book, it will be replaced.')%len(ids)):
                 return
 
         books = choose_files(self.gui, 'add formats dialog dir',

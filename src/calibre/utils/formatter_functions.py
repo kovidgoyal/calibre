@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback
 
 from calibre import human_readable
+from calibre.constants import DEBUG
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -701,7 +702,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'as a comma-separated list of items, where each item is a period-'
             'separated list. Returns a new list made by first finding all the '
             'period-separated items, then for each such item extracting the '
-            'start_index` to the `end_index` components, then combining '
+            '`start_index` to the `end_index` components, then combining '
             'the results back together. The first component in a period-'
             'separated list has an index of zero. If an index is negative, '
             'then it counts from the end of the list. As a special case, an '
@@ -712,20 +713,26 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns "A, D". '
             '{#genre:subitems(0,2)} returns "A.B, D.E"')
 
+    period_pattern = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
+
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
         if not val:
             return ''
         si = int(start_index)
         ei = int(end_index)
+        has_periods = '.' in val
         items = [v.strip() for v in val.split(',')]
         rv = set()
         for item in items:
-            component = item.split('.')
+            if has_periods and '.' in item:
+                components = self.period_pattern.split(item)
+            else:
+                components = [item]
             try:
                 if ei == 0:
-                    rv.add('.'.join(component[si:]))
+                    rv.add('.'.join(components[si:]))
                 else:
-                    rv.add('.'.join(component[si:ei]))
+                    rv.add('.'.join(components[si:ei]))
             except:
                 pass
         return ', '.join(sorted(rv, key=sort_key))
@@ -847,7 +854,7 @@ class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _('first_non_empty(value, value, ...) -- '
             'returns the first value that is not empty. If all values are '
-            'empty, then the empty value is returned.'
+            'empty, then the empty value is returned. '
             'You can have as many values as you want.')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
@@ -1100,11 +1107,40 @@ class BuiltinLanguageCodes(BuiltinFormatterFunction):
                 pass
         return ', '.join(retval)
 
+class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
+    name = 'current_library_name'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('current_library_name() -- '
+            'return the last name on the path to the current calibre library. '
+            'This function can be called in template program mode using the '
+            'template "{:\'current_library_name()\'}".')
+    def evaluate(self, formatter, kwargs, mi, locals):
+        from calibre.library import current_library_name
+        return current_library_name()
+
+class BuiltinFinishFormatting(BuiltinFormatterFunction):
+    name = 'finish_formatting'
+    arg_count = 4
+    category = 'Formatting values'
+    __doc__ = doc = _('finish_formatting(val, fmt, prefix, suffix) -- apply the '
+                      'format, prefix, and suffix to a value in the same way as '
+                      'done in a template like {series_index:05.2f| - |- }. For '
+                      'example, the following program produces the same output '
+                      'as the above template: '
+                      'program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")')
+
+    def evaluate(self, formatter, kwargs, mi, locals_, val, fmt, prefix, suffix):
+        if not val:
+            return val
+        return prefix + formatter._do_format(val, fmt) + suffix
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
-    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
-    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
+    BuiltinCurrentLibraryName(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
+    BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
@@ -1137,11 +1173,14 @@ def compile_user_function(name, doc, arg_count, eval_func):
                                    for line in eval_func.splitlines()])
     prog = '''
 from calibre.utils.formatter_functions import FormatterUserFunction
+from calibre.utils.formatter_functions import formatter_functions
 class UserFunction(FormatterUserFunction):
 ''' + func
-    locals = {}
-    exec prog in locals
-    cls = locals['UserFunction'](name, doc, arg_count, eval_func)
+    locals_ = {}
+    if DEBUG:
+        print prog
+    exec prog in locals_
+    cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 
 def load_user_template_functions(funcs):

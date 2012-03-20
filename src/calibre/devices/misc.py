@@ -209,8 +209,8 @@ class ALURATEK_COLOR(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
 
-    VENDOR_NAME = 'USB_2.0'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB_FLASH_DRIVER'
+    VENDOR_NAME = ['USB_2.0', 'EZREADER']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.']
 
 class TREKSTOR(USBMS):
 
@@ -224,7 +224,7 @@ class TREKSTOR(USBMS):
     FORMATS     = ['epub', 'txt', 'pdf']
 
     VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041, 0x0042, 0x0052,
+    PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e,
             0x003e # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
             ]
     BCD         = [0x0002]

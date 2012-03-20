@@ -1,0 +1,26 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Oskar Kunicki <rakso at interia.pl>'
+'''
+Changelog:
+2011-11-27
+News from BluesRSS.info
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BluesRSS(BasicNewsRecipe):
+    title                     = 'Blues News'
+    __author__          = 'Oskar Kunicki'
+    description           ='Blues news from around the world'
+    publisher             = 'BluesRSS.info'
+    category              = 'news, blues, USA,UK'
+    oldest_article        = 5
+    max_articles_per_feed = 100
+    language              = 'en'
+    cover_url             = 'http://bluesrss.info/cover.jpg'
+    masthead_url       = 'http://bluesrss.info/cover.jpg'
+    no_stylesheets = True
+
+    remove_tags    = [dict(name='div', attrs={'class':'wp-pagenavi'})]
+
+    feeds = [(u'News', u'http://bluesrss.info/feed/')]

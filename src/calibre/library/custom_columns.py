@@ -227,6 +227,25 @@ class CustomColumns(object):
         return self.conn.get('''SELECT extra FROM %s
                                 WHERE book=?'''%lt, (idx,), all=False)
 
+    def get_custom_and_extra(self, idx, label=None, num=None, index_is_id=False):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        idx = idx if index_is_id else self.id(idx)
+        row = self.data._data[idx]
+        ans = row[self.FIELD_MAP[data['num']]]
+        if data['is_multiple'] and data['datatype'] == 'text':
+            ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
+            if data['display'].get('sort_alpha', False):
+                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+        if data['datatype'] != 'series':
+            return (ans, None)
+        ign,lt = self.custom_table_names(data['num'])
+        extra = self.conn.get('''SELECT extra FROM %s
+                                 WHERE book=?'''%lt, (idx,), all=False)
+        return (ans, extra)
+
     # convenience methods for tag editing
     def get_custom_items_with_ids(self, label=None, num=None):
         if label is not None:
@@ -276,6 +295,37 @@ class CustomColumns(object):
             self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id,))
             self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id,))
             self.conn.commit()
+
+    def is_item_used_in_multiple(self, item, label=None, num=None):
+        existing_tags = self.all_custom(label=label, num=num)
+        return item.lower() in {t.lower() for t in existing_tags}
+
+    def delete_item_from_multiple(self, item, label=None, num=None):
+        if label is not None:
+            data = self.custom_column_label_map[label]
+        if num is not None:
+            data = self.custom_column_num_map[num]
+        if data['datatype'] != 'text' or not data['is_multiple']:
+            raise ValueError('Column %r is not text/multiple'%data['label'])
+        existing_tags = list(self.all_custom(label=label, num=num))
+        lt = [t.lower() for t in existing_tags]
+        try:
+            idx = lt.index(item.lower())
+        except ValueError:
+            idx = -1
+        books_affected = []
+        if idx > -1:
+            table, lt = self.custom_table_names(data['num'])
+            id_ = self.conn.get('SELECT id FROM %s WHERE value = ?'%table,
+                                (existing_tags[idx],), all=False)
+            if id_:
+                books = self.conn.get('SELECT book FROM %s WHERE value = ?'%lt, (id_,))
+                if books:
+                    books_affected = [b[0] for b in books]
+                self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id_,))
+                self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id_,))
+                self.conn.commit()
+        return books_affected
     # end convenience methods
 
     def get_next_cc_series_num_for(self, series, label=None, num=None):

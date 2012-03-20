@@ -43,6 +43,9 @@ class Widget(QWidget):
     ICON  = I('config.png')
     HELP  = ''
     COMMIT_NAME = None
+    # If True, leading and trailing spaces are removed from line and text edit
+    # fields
+    STRIP_TEXT_FIELDS = True
 
     changed_signal = pyqtSignal()
     set_help = pyqtSignal(object)
@@ -76,7 +79,6 @@ class Widget(QWidget):
             specifics.merge_recommendations(get_option, OptionRecommendation.HIGH,
                     self._options, only_existing=True)
             defaults.update(specifics)
-
 
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
@@ -124,7 +126,6 @@ class Widget(QWidget):
             if name in getattr(recs, 'disabled_options', []):
                 gui_opt.setDisabled(True)
 
-
     def get_value(self, g):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
@@ -136,7 +137,9 @@ class Widget(QWidget):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit)):
             func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = unicode(func).strip()
+            ans = unicode(func)
+            if self.STRIP_TEXT_FIELDS:
+                ans = ans.strip()
             if not ans:
                 ans = None
             return ans

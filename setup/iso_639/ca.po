@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-11-22 16:45+0000\n"
+"PO-Revision-Date: 2011-12-14 19:48+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-26 05:10+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2011-12-15 05:18+0000\n"
+"X-Generator: Launchpad (build 14487)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -9348,7 +9348,7 @@ msgstr "Seit-Kaitetu"
 
 #. name for hil
 msgid "Hiligaynon"
-msgstr ""
+msgstr "Hiligainon"
 
 #. name for hin
 msgid "Hindi"
@@ -9356,39 +9356,39 @@ msgstr "Hindi"
 
 #. name for hio
 msgid "Tsoa"
-msgstr ""
+msgstr "Tsoa"
 
 #. name for hir
 msgid "Himarimã"
-msgstr ""
+msgstr "Himarimà"
 
 #. name for hit
 msgid "Hittite"
-msgstr ""
+msgstr "Hittita"
 
 #. name for hiw
 msgid "Hiw"
-msgstr ""
+msgstr "Hiw"
 
 #. name for hix
 msgid "Hixkaryána"
-msgstr ""
+msgstr "Hishkaryana"
 
 #. name for hji
 msgid "Haji"
-msgstr ""
+msgstr "Aji"
 
 #. name for hka
 msgid "Kahe"
-msgstr ""
+msgstr "Kahe"
 
 #. name for hke
 msgid "Hunde"
-msgstr ""
+msgstr "Hunde"
 
 #. name for hkk
 msgid "Hunjara-Kaina Ke"
-msgstr ""
+msgstr "Hunjara"
 
 #. name for hks
 msgid "Hong Kong Sign Language"
@@ -9396,27 +9396,27 @@ msgstr "Llenguatge de signes de Hong Kong"
 
 #. name for hla
 msgid "Halia"
-msgstr ""
+msgstr "Halia"
 
 #. name for hlb
 msgid "Halbi"
-msgstr ""
+msgstr "Halbi"
 
 #. name for hld
 msgid "Halang Doan"
-msgstr ""
+msgstr "Halang Doan"
 
 #. name for hle
 msgid "Hlersu"
-msgstr ""
+msgstr "Sansu"
 
 #. name for hlt
 msgid "Nga La"
-msgstr ""
+msgstr "Nga La"
 
 #. name for hlu
 msgid "Luwian; Hieroglyphic"
-msgstr ""
+msgstr "Luvi; jeroglífic"
 
 #. name for hma
 msgid "Miao; Southern Mashan"
@@ -9424,7 +9424,7 @@ msgstr "Miao; Mashan meridional"
 
 #. name for hmb
 msgid "Songhay; Humburi Senni"
-msgstr ""
+msgstr "Songhai; central"
 
 #. name for hmc
 msgid "Miao; Central Huishui"
@@ -9440,11 +9440,11 @@ msgstr "Miao; Huishui oriental"
 
 #. name for hmf
 msgid "Hmong Don"
-msgstr ""
+msgstr "Miao; Don"
 
 #. name for hmg
 msgid "Hmong; Southwestern Guiyang"
-msgstr ""
+msgstr "Miao; Guiyang sudoccidental"
 
 #. name for hmh
 msgid "Miao; Southwestern Huishui"
@@ -9456,11 +9456,11 @@ msgstr "Miao; Huishui septentrional"
 
 #. name for hmj
 msgid "Ge"
-msgstr ""
+msgstr "Ge"
 
 #. name for hmk
 msgid "Maek"
-msgstr ""
+msgstr "Maek"
 
 #. name for hml
 msgid "Miao; Luopohe"
@@ -9472,11 +9472,11 @@ msgstr "Miao; Mashan central"
 
 #. name for hmn
 msgid "Hmong"
-msgstr ""
+msgstr "Hmong (macrollengua)"
 
 #. name for hmo
 msgid "Hiri Motu"
-msgstr ""
+msgstr "Hiri Motu"
 
 #. name for hmp
 msgid "Miao; Northern Mashan"
@@ -9488,7 +9488,7 @@ msgstr "Miao; Qiandong oriental"
 
 #. name for hmr
 msgid "Hmar"
-msgstr ""
+msgstr "Hmar"
 
 #. name for hms
 msgid "Miao; Southern Qiandong"
@@ -9496,15 +9496,15 @@ msgstr "Miao; Qiandong meridional"
 
 #. name for hmt
 msgid "Hamtai"
-msgstr ""
+msgstr "Hamtai"
 
 #. name for hmu
 msgid "Hamap"
-msgstr ""
+msgstr "Hamap"
 
 #. name for hmv
 msgid "Hmong Dô"
-msgstr ""
+msgstr "Miao; Do"
 
 #. name for hmw
 msgid "Miao; Western Mashan"
@@ -9520,19 +9520,19 @@ msgstr "Miao; Shua"
 
 #. name for hna
 msgid "Mina (Cameroon)"
-msgstr ""
+msgstr "Mina (Camerun)"
 
 #. name for hnd
 msgid "Hindko; Southern"
-msgstr ""
+msgstr "Hindko; meridional"
 
 #. name for hne
 msgid "Chhattisgarhi"
-msgstr ""
+msgstr "Chattisgarbi"
 
 #. name for hnh
 msgid "//Ani"
-msgstr ""
+msgstr "Ani"
 
 #. name for hni
 msgid "Hani"
@@ -9540,7 +9540,7 @@ msgstr ""
 
 #. name for hnj
 msgid "Hmong Njua"
-msgstr ""
+msgstr "Miao; Hmong Njua"
 
 #. name for hnn
 msgid "Hanunoo"
@@ -9548,7 +9548,7 @@ msgstr ""
 
 #. name for hno
 msgid "Hindko; Northern"
-msgstr ""
+msgstr "Hindko; septentrional"
 
 #. name for hns
 msgid "Hindustani; Caribbean"
@@ -11800,7 +11800,7 @@ msgstr ""
 
 #. name for khq
 msgid "Songhay; Koyra Chiini"
-msgstr ""
+msgstr "Songhai; Koyra"
 
 #. name for khr
 msgid "Kharia"
@@ -17288,7 +17288,7 @@ msgstr ""
 
 #. name for mww
 msgid "Hmong Daw"
-msgstr ""
+msgstr "Miao; blanc"
 
 #. name for mwx
 msgid "Mediak"
@@ -28680,7 +28680,7 @@ msgstr ""
 
 #. name for xlu
 msgid "Luwian; Cuneiform"
-msgstr ""
+msgstr "Luvi; cuneïforme"
 
 #. name for xly
 msgid "Elymian"

@@ -36,7 +36,7 @@ class Resource(object): # {{{
     :method:`href`
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
         self.orig = href_or_path
         self._href = None
         self._basedir = basedir
@@ -81,7 +81,7 @@ class Resource(object): # {{{
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwd()
+                basedir = os.getcwdu()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
@@ -1019,6 +1019,11 @@ class OPF(object): # {{{
                     mt = item.get('media-type', '')
                     if 'xml' not in mt:
                         return item.get('href', None)
+            for item in self.itermanifest():
+                if item.get('href', None) == cover_id:
+                    mt = item.get('media-type', '')
+                    if mt.startswith('image/'):
+                        return item.get('href', None)
 
     @dynamic_property
     def cover(self):
@@ -1076,6 +1081,15 @@ class OPF(object): # {{{
         return elem
 
     def render(self, encoding='utf-8'):
+        for meta in self.raster_cover_path(self.metadata):
+            # Ensure that the name attribute occurs before the content
+            # attribute. Needed for Nooks.
+            a = meta.attrib
+            c = a.get('content', None)
+            if c is not None:
+                del a['content']
+                a['content'] = c
+
         self.write_user_metadata()
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith('<?xml '):
@@ -1134,7 +1148,8 @@ class OPFCreator(Metadata):
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
-    def create_manifest_from_files_in(self, files_and_dirs):
+    def create_manifest_from_files_in(self, files_and_dirs,
+            exclude=lambda x:False):
         entries = []
 
         def dodir(dir):
@@ -1142,7 +1157,7 @@ class OPFCreator(Metadata):
                 root, files = spec[0], spec[-1]
                 for name in files:
                     path = os.path.join(root, name)
-                    if os.path.isfile(path):
+                    if os.path.isfile(path) and not exclude(path):
                         entries.append((path, None))
 
         for i in files_and_dirs:
@@ -1482,7 +1497,7 @@ class OPFTest(unittest.TestCase):
 </package>
 '''
         )
-        self.opf = OPF(self.stream, os.getcwd())
+        self.opf = OPF(self.stream, os.getcwdu())
 
     def testReading(self, opf=None):
         if opf is None:
@@ -1513,11 +1528,11 @@ class OPFTest(unittest.TestCase):
         self.opf.render()
 
     def testCreator(self):
-        opf = OPFCreator(os.getcwd(), self.opf)
+        opf = OPFCreator(os.getcwdu(), self.opf)
         buf = cStringIO.StringIO()
         opf.render(buf)
         raw = buf.getvalue()
-        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
+        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwdu()))
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
@@ -1542,7 +1557,7 @@ def test_user_metadata():
         }
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)
-    opfc = OPFCreator(os.getcwd(), other=mi)
+    opfc = OPFCreator(os.getcwdu(), other=mi)
     out = StringIO()
     opfc.render(out)
     raw2 = out.getvalue()

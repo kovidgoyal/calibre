@@ -178,7 +178,11 @@ class Serializer(object):
         at the end.
         '''
         hrefs = self.oeb.manifest.hrefs
-        path, frag = urldefrag(urlnormalize(href))
+        try:
+            path, frag = urldefrag(urlnormalize(href))
+        except ValueError:
+            # Unparseable URL
+            return False
         if path and base:
             path = base.abshref(path)
         if path and path not in hrefs:
@@ -302,7 +306,9 @@ class Serializer(object):
         if id_:
             href = '#'.join((item.href, id_))
             offset = self.anchor_offset or buf.tell()
-            self.id_offsets[urlnormalize(href)] = offset
+            key = urlnormalize(href)
+            # Only set this id_offset if it wasn't previously seen
+            self.id_offsets[key] = self.id_offsets.get(key, offset)
         if self.anchor_offset is not None and \
             tag == 'a' and not elem.attrib and \
             not len(elem) and not elem.text:

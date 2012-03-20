@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class PurePC(BasicNewsRecipe):
+    title          = u'PurePC'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Artykuły, aktualności, sprzęt, forum, chłodzenie, modding, urządzenia mobilne - wszystko w jednym miejscu.'
+    category       = 'IT'
+    language       = 'pl'
+    masthead_url= 'http://www.purepc.pl/themes/new/images/purepc.jpg'
+    cover_url= 'http://www.purepc.pl/themes/new/images/purepc.jpg'
+    no_stylesheets = True
+    keep_only_tags= [dict(id='content')]
+    remove_tags_after= dict(attrs={'class':'fivestar-widget'})
+    remove_tags= [dict(id='navigator'), dict(attrs={'class':['box-tools', 'fivestar-widget', 'PageMenuList']})]
+    feeds          = [(u'Wiadomo\u015bci', u'http://www.purepc.pl/node/feed')]
+
+
+    def append_page(self, soup, appendtag):
+        nexturl= appendtag.find(attrs={'class':'pager-next'})
+        if nexturl:
+            while nexturl:
+                soup2 = self.index_to_soup('http://www.purepc.pl'+ nexturl.a['href'])
+                nexturl=soup2.find(attrs={'class':'pager-next'})
+                pagetext = soup2.find(attrs={'class':'article'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':['PageMenuList', 'pager', 'fivestar-widget']}):
+                r.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

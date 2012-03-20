@@ -437,6 +437,16 @@ class BasicNewsRecipe(Recipe):
         # Uh-oh recipe using something exotic, call get_browser
         return self.get_browser()
 
+    @property
+    def cloned_browser(self):
+        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+            # We are using the default get_browser, which means no need to
+            # clone
+            br = BasicNewsRecipe.get_browser(self)
+        else:
+            br = self.clone_browser(self.browser)
+        return br
+
     def get_article_url(self, article):
         '''
         Override in a subclass to customize extraction of the :term:`URL` that points
@@ -534,7 +544,12 @@ class BasicNewsRecipe(Recipe):
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
-            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+            # We may be called in a thread (in the skip_ad_pages method), so
+            # clone the browser to be safe. We cannot use self.cloned_browser
+            # as it may or may not actually clone the browser, depending on if
+            # the recipe implements get_browser() or not
+            br = self.clone_browser(self.browser)
+            open_func = getattr(br, 'open_novisit', br.open)
             with closing(open_func(url_or_raw)) as f:
                 _raw = f.read()
             if not _raw:
@@ -652,6 +667,25 @@ class BasicNewsRecipe(Recipe):
         access article content automatically.
         '''
         raise NotImplementedError
+
+    def add_toc_thumbnail(self, article, src):
+        '''
+        Call this from populate_article_metadata with the src attribute of an
+        <img> tag from the article that is appropriate for use as the thumbnail
+        representing the article in the Table of Contents. Whether the
+        thumbnail is actually used is device dependent (currently only used by
+        the Kindles). Note that the referenced image must be one that was
+        successfully downloaded, otherwise it will be ignored.
+        '''
+        if not src or not hasattr(article, 'toc_thumbnail'):
+            return
+
+        src = src.replace('\\', '/')
+        if re.search(r'feed_\d+/article_\d+/images/img', src, flags=re.I) is None:
+            self.log.warn('Ignoring invalid TOC thumbnail image: %r'%src)
+            return
+        article.toc_thumbnail = re.sub(r'^.*?feed', 'feed',
+                src, flags=re.IGNORECASE)
 
     def populate_article_metadata(self, article, soup, first):
         '''
@@ -1285,13 +1319,16 @@ class BasicNewsRecipe(Recipe):
                         desc = None
                     else:
                         desc = self.description_limiter(desc)
+                    tt = a.toc_thumbnail if a.toc_thumbnail else None
                     entries.append('%sindex.html'%adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
-                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
-                                    play_order=po, author=auth, description=desc)
+                    parent.add_item('%sindex.html'%adir, None,
+                            a.title if a.title else _('Untitled Article'),
+                            play_order=po, author=auth,
+                            description=desc, toc_thumbnail=tt)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -1361,7 +1398,7 @@ class BasicNewsRecipe(Recipe):
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-            _(u'Article downloaded: %s')%repr(article.title))
+            _(u'Article downloaded: %s')%force_unicode(article.title))
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
 
@@ -1372,7 +1409,7 @@ class BasicNewsRecipe(Recipe):
         self.log.debug(traceback)
         self.log.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-                _('Article download failed: %s')%repr(request.article.title))
+                _('Article download failed: %s')%force_unicode(request.article.title))
         self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):

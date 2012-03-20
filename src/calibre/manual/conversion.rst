@@ -323,7 +323,7 @@ remove all non-breaking-space entities, or may include false positive matches re
     tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
     choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
     tags can used, but |app| does not provide the ability to add the image during conversion, this must be done after the fact using 
-    the 'Tweak Epub' feature, or Sigil.
+    the 'Tweak Book' feature, or Sigil.
         
         Example image tag (place the image within an 'Images' folder inside the epub after conversion):
             <img style="width:10%" src="../Images/scenebreak.png" />

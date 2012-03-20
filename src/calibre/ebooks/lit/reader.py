@@ -7,9 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
-import struct, os
-import functools
-import re
+import struct, os, functools, re
 from urlparse import urldefrag
 from cStringIO import StringIO
 from urllib import unquote as urlunquote
@@ -165,15 +163,27 @@ class UnBinary(object):
     def __str__(self):
         return self.raw
 
-    def binary_to_text(self, bin, buf, index=0, depth=0):
-        tag_name = current_map = None
-        dynamic_tag = errors = 0
-        in_censorship = is_goingdown = False
-        state = 'text'
-        flags = 0
+    def binary_to_text(self, bin, buf):
+        stack = [(0, None, None, 0, 0, False, False, 'text', 0)]
+        self.cpos = 0
+        while stack:
+            self.binary_to_text_inner(bin, buf, stack)
+        del self.cpos
 
-        while index < len(bin):
-            c, index = read_utf8_char(bin, index)
+    def binary_to_text_inner(self, bin, buf, stack):
+        (depth, tag_name, current_map, dynamic_tag, errors,
+                in_censorship, is_goingdown, state, flags) = stack.pop()
+
+        if state == 'close tag':
+            if not tag_name:
+                raise LitError('Tag ends before it begins.')
+            buf.write(encode(u''.join(('</', tag_name, '>'))))
+            dynamic_tag = 0
+            tag_name = None
+            state = 'text'
+
+        while self.cpos < len(bin):
+            c, self.cpos = read_utf8_char(bin, self.cpos)
             oc = ord(c)
 
             if state == 'text':
@@ -223,26 +233,28 @@ class UnBinary(object):
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
-                        raise LitError('Extra closing tag')
-                    return index
+                        raise LitError('Extra closing tag %s at %d'%(tag_name,
+                            self.cpos))
+                    break
 
             elif state == 'get attr':
                 in_censorship = False
                 if oc == 0:
+                    state = 'text'
                     if not is_goingdown:
                         tag_name = None
                         dynamic_tag = 0
                         buf.write(' />')
                     else:
                         buf.write('>')
-                        index = self.binary_to_text(bin, buf, index, depth+1)
-                        is_goingdown = False
-                        if not tag_name:
-                            raise LitError('Tag ends before it begins.')
-                        buf.write(encode(u''.join(('</', tag_name, '>'))))
-                        dynamic_tag = 0
-                        tag_name = None
-                    state = 'text'
+                        frame = (depth, tag_name, current_map,
+                            dynamic_tag, errors, in_censorship, False,
+                            'close tag', flags)
+                        stack.append(frame)
+                        frame = (depth+1, None, None, 0, 0,
+                                False, False, 'text', 0)
+                        stack.append(frame)
+                        break
                 else:
                     if oc == 0x8000:
                         state = 'get attr length'
@@ -278,7 +290,7 @@ class UnBinary(object):
                 state = 'get value'
                 if oc == 0xffff:
                     continue
-                if count < 0 or count > (len(bin) - index):
+                if count < 0 or count > (len(bin) - self.cpos):
                     raise LitError('Invalid character count %d' % count)
 
             elif state == 'get value':
@@ -303,7 +315,7 @@ class UnBinary(object):
 
             elif state == 'get custom length':
                 count = oc - 1
-                if count <= 0 or count > len(bin)-index:
+                if count <= 0 or count > len(bin)-self.cpos:
                     raise LitError('Invalid character count %d' % count)
                 dynamic_tag += 1
                 state = 'get custom'
@@ -318,7 +330,7 @@ class UnBinary(object):
 
             elif state == 'get attr length':
                 count = oc - 1
-                if count <= 0 or count > (len(bin) - index):
+                if count <= 0 or count > (len(bin) - self.cpos):
                     raise LitError('Invalid character count %d' % count)
                 buf.write(' ')
                 state = 'get custom attr'
@@ -332,7 +344,7 @@ class UnBinary(object):
 
             elif state == 'get href length':
                 count = oc - 1
-                if count <= 0 or count > (len(bin) - index):
+                if count <= 0 or count > (len(bin) - self.cpos):
                     raise LitError('Invalid character count %d' % count)
                 href = ''
                 state = 'get href'
@@ -348,7 +360,6 @@ class UnBinary(object):
                     path = urlnormalize(path)
                     buf.write(encode(u'"%s"' % path))
                     state = 'get attr'
-        return index
 
 
 class DirectoryEntry(object):
@@ -896,10 +907,3 @@ class LitReader(OEBReader):
     Container = LitContainer
     DEFAULT_PROFILE = 'MSReader'
 
-
-try:
-    import psyco
-    psyco.bind(read_utf8_char)
-    psyco.bind(UnBinary.binary_to_text)
-except ImportError:
-    pass

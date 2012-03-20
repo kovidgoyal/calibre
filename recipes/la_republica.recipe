@@ -1,13 +1,12 @@
 __license__   = 'GPL v3'
 __author__    = 'Lorenzo Vigentini, based on Darko Miletic, Gabriele Marini'
 __copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>, Lorenzo Vigentini <l.vigentini at gmail.com>'
-description   = 'Italian daily newspaper - v1.01 (04, January 2010); 16.05.2010 new version; 17.10.2011 new version'
+description   = 'Italian daily newspaper - v1.01 (04, January 2010); 16.05.2010 new version; 17.10.2011 new version; 14.12.2011 new version'
 
 '''
 http://www.repubblica.it/
 '''
 
-import re
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -32,12 +31,6 @@ class LaRepubblica(BasicNewsRecipe):
                               """
                            
     remove_attributes = ['width','height','lang','xmlns:og','xmlns:fb']
-
-    preprocess_regexps = [
-        (re.compile(r'.*?<head>', re.DOTALL|re.IGNORECASE), lambda match: '<head>'),
-        (re.compile(r'<head>.*?<title>', re.DOTALL|re.IGNORECASE), lambda match: '<head><title>'),
-        (re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE), lambda match: '</title></head>')
-    ]
     
     def get_article_url(self, article):
         link = BasicNewsRecipe.get_article_url(self, article)
@@ -73,15 +66,15 @@ class LaRepubblica(BasicNewsRecipe):
     remove_tags        = [
                             dict(name=['object','link','meta','iframe','embed']),
                             dict(name='span',attrs={'class':'linkindice'}),
-                            dict(name='div', attrs={'class':'bottom-mobile'}),
-                            dict(name='div', attrs={'id':['rssdiv','blocco']}),
-                            dict(name='div', attrs={'class':'utility'}),
+                            dict(name='div', attrs={'class':['bottom-mobile','adv adv-middle-inline']}),
+                            dict(name='div', attrs={'id':['rssdiv','blocco','fb-like-head']}),
+                            dict(name='div', attrs={'class':['utility','fb-like-button','archive-button']}),
                             dict(name='div', attrs={'class':'generalbox'}),
                             dict(name='ul', attrs={'id':'hystory'})
                          ]
 
     feeds          = [
-                       (u'Rilievo', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
+                       (u'Homepage', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
                        (u'Cronaca', u'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
                        (u'Esteri', u'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
                        (u'Economia', u'http://www.repubblica.it/rss/economia/rss2.0.xml'),
@@ -110,3 +103,5 @@ class LaRepubblica(BasicNewsRecipe):
             del item['style']           
         return soup
                       
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head>'+raw[raw.find('</head>'):]

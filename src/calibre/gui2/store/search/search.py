@@ -45,6 +45,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.cache_pool = CacheUpdateThreadPool(self.cache_thread_count)
         self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
         self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
+        self.results_view.setCursor(Qt.PointingHandCursor)
 
         # Check for results and hung threads.
         self.checker = QTimer()
@@ -90,7 +91,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def setup_store_checks(self):
         first_run = self.config.get('first_run', True)
-        
+
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
         # per search basis.
@@ -117,7 +118,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.store_checks[x] = cbox
         store_list_layout.setRowStretch(store_list_layout.rowCount(), 10)
         self.store_list.setWidget(stores_check_widget)
-        
+
         self.config['first_run'] = False
 
     def build_adv_search(self):
@@ -252,7 +253,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Milliseconds
         self.hang_time = self.config.get('hang_time', 75) * 1000
 
-        self.max_results = self.config.get('max_results', 10)
+        self.max_results = self.config.get('max_results', 15)
         self.should_open_external = self.config.get('open_external', True)
 
         # Number of threads to run for each type of operation
@@ -340,7 +341,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def result_item_activated(self, index):
         result = self.results_view.model().get_result(index)
-        
+
         if result.downloads:
             self.download_book(result)
         else:
@@ -353,7 +354,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             fname = result.title[:60] + '.' + ext.lower()
             fname = ascii_filename(fname)
             self.gui.download_ebook(result.downloads[ext], filename=fname)
-    
+
     def open_store(self, result):
         self.gui.istores[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
 

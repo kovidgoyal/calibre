@@ -1,0 +1,54 @@
+__copyright__ = '2012, Micha\u0142 <webmaster@racjonalista.pl>'
+'''
+Racjonalista.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Racjonalista(BasicNewsRecipe):
+    __author__     = u'Micha\u0142 <webmaster@racjonalista.pl>'
+    publisher      = u'Fundacja Wolnej My\u015bli'
+    title          = u'Racjonalista.pl'
+    description    = u'Racjonalista.pl'
+    category       = 'newspaper'
+    language = 'pl'
+    encoding = 'iso-8859-2'
+    oldest_article = 7
+    max_articles_per_feed = 20
+    remove_javascript    = True
+    no_stylesheets       = True
+    use_embedded_content = False
+    simultaneous_downloads = 2
+    timeout = 30
+    cover_url      = 'http://www.racjonalista.pl/img/uimg/rac.gif'
+
+    feeds = [(u'Racjonalista.pl', u'http://www.racjonalista.pl/rss.php')]
+
+    match_regexps = [r'kk\.php']
+
+    def print_version(self, url):
+        return url.replace('/s,', '/t,')
+
+    extra_css = 'h2 {font: serif large} .cytat {text-align: right}'
+
+    remove_attributes = ['target', 'width', 'height']
+
+    preprocess_regexps = [
+        (re.compile(i[0], re.DOTALL), i[1]) for i in
+            [ (r'<p[^>]*>&nbsp;</p>', lambda match: ''),
+              (r'&nbsp;', lambda match: ' '),
+              (r'<meta[^>]+>', lambda match: ''),
+              (r'<link[^>]+>', lambda match: ''),
+              (r'</?center>', lambda match: ''),
+              (r'<a href="[^"]+" rel=author><b>(?P<a>[^<]+)</b></a>', lambda match: '<b>' + match.group('a') + '</b>'),
+              (r'<div align=center style="font-size:18px">(?P<t>[^<]+)</div>', lambda match: '<h2>' + match.group('t') + '</h2>'),
+              (r'<table align=center width=700 border=0 cellpadding=0 cellspacing=0><tr><td width="100%" bgcolor="#edeceb" height="100%" style="font-size:12px">', lambda match: ''),
+              (r'</td></tr><tr><td>', lambda match: ''),
+              (r'</td></tr></table></body>', lambda match: '</body>'),
+              (r'<a[^>]+><sup>(?P<p>[^<]+)</sup></a>', lambda match: '<sup>' + match.group('p') + '</sup>'),
+              (r'<a name=p[^>]+>(?P<a>[^<]+)</a>', lambda match: match.group('a')),
+              (r'<a href="[^"]+" target=_blank class=linkext>Orygin[^<]+</a>', lambda match: ''),
+              (r'<a href="[^"]+" class=powiazanie>Poka[^<]+</a>', lambda match: '')]
+    ]
+

@@ -15,6 +15,7 @@ from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
                         QMenu, QStringListModel, QCompleter, QStringList,
                         QTimer, QRect, QFontDatabase, QGraphicsView)
 
+from calibre.constants import iswindows
 from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
@@ -365,7 +366,7 @@ class FontFamilyModel(QAbstractListModel): # {{{
         self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
-        self.font = QFont('sansserif')
+        self.font = QFont('Verdana' if iswindows else 'sansserif')
 
     def rowCount(self, *args):
         return len(self.families)
@@ -660,7 +661,8 @@ class HistoryLineEdit(QComboBox): # {{{
 
     def focusOutEvent(self, e):
         QComboBox.focusOutEvent(self, e)
-        self.lost_focus.emit()
+        if not (self.hasFocus() or self.view().hasFocus()):
+            self.lost_focus.emit()
 
 # }}}
 

@@ -44,7 +44,7 @@ def zip_opf_metadata(opfpath, zf):
     from calibre.ebooks.metadata.opf2 import OPF
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', os.getcwd())
+        opfpath = getattr(f, 'name', os.getcwdu())
     else:
         f = open(opfpath, 'rb')
     opf = OPF(f, os.path.dirname(opfpath))

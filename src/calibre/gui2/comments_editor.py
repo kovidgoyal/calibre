@@ -19,6 +19,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
 from calibre.gui2 import open_url
 from calibre.utils.soupparser import fromstring
+from calibre.utils.config import tweaks
 
 class PageAction(QAction): # {{{
 
@@ -251,8 +252,12 @@ class EditorWidget(QWebView): # {{{
 
         def fset(self, val):
             self.setHtml(val)
-            f = QFontInfo(QApplication.font(self)).pixelSize()
-            style = 'font-size: %dpx;' % (f,)
+            fi = QFontInfo(QApplication.font(self))
+            f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
+            fam = unicode(fi.family()).strip().replace('"', '')
+            if not fam:
+                fam = 'sans-serif'
+            style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)
 
             # toList() is needed because PyQt on Debian is old/broken
             for body in self.page().mainFrame().documentElement().findAll('body').toList():

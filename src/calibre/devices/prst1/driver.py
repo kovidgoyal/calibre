@@ -12,8 +12,6 @@ Device driver for the SONY T1 devices
 '''
 
 import os, time, re
-import sqlite3 as sqlite
-from sqlite3 import DatabaseError
 from contextlib import closing
 from datetime import date
 
@@ -146,6 +144,8 @@ class PRST1(USBMS):
         return True
 
     def books(self, oncard=None, end_session=True):
+        import sqlite3 as sqlite
+
         dummy_bl = BookList(None, None, None)
 
         if (
@@ -239,13 +239,15 @@ class PRST1(USBMS):
 
         if booklists[0] is not None:
             self.update_device_database(booklists[0], collections, None)
-        if booklists[1] is not None:
+        if len(booklists) > 1 and booklists[1] is not None:
             self.update_device_database(booklists[1], collections, 'carda')
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRST1: finished sync_booklists')
 
     def update_device_database(self, booklist, collections_attributes, oncard):
+        import sqlite3 as sqlite
+
         debug_print('PRST1: starting update_device_database')
 
         plugboard = None
@@ -266,12 +268,16 @@ class PRST1(USBMS):
         collections = booklist.get_collections(collections_attributes)
 
         with closing(sqlite.connect(dbpath)) as connection:
-            self.update_device_books(connection, booklist, source_id, plugboard)
+            self.update_device_books(connection, booklist, source_id,
+                    plugboard, dbpath)
             self.update_device_collections(connection, booklist, collections, source_id)
 
         debug_print('PRST1: finished update_device_database')
 
-    def update_device_books(self, connection, booklist, source_id, plugboard):
+    def update_device_books(self, connection, booklist, source_id, plugboard,
+            dbpath):
+        from sqlite3 import DatabaseError
+
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
@@ -284,17 +290,27 @@ class PRST1(USBMS):
             query = 'SELECT file_path, _id FROM books'
             cursor.execute(query)
         except DatabaseError:
-            raise DeviceError('The SONY database is corrupted. '
+            import traceback
+            tb = traceback.format_exc()
+            raise DeviceError((('The SONY database is corrupted. '
                     ' Delete the file %s on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
-                    ' deleting this file may cause your reader to forget '
-                    ' any notes/highlights, etc.')
+                    ' deleting this file will cause your reader to forget '
+                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    '\n'+tb)
 
         db_books = {}
         for i, row in enumerate(cursor):
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]
+
+        # Work-around for Sony Bug (SD Card DB not using right SQLite sequence)
+        if source_id == 1:
+            sdcard_sequence_start = '4294967296'
+            query = 'UPDATE sqlite_sequence SET seq = ? WHERE seq < ?'
+            t = (sdcard_sequence_start, sdcard_sequence_start,)
+            cursor.execute(query, t)
 
         for book in booklist:
             # Run through plugboard if needed
@@ -322,12 +338,10 @@ class PRST1(USBMS):
             title = newmi.title or _('Unknown')
 
             # Get modified date
+            # If there was a detected offset, use that. Otherwise use UTC (same as Sony software)
             modified_date = os.path.getmtime(book.path) * 1000
             if self.device_offset is not None:
                 modified_date = modified_date + self.device_offset
-            else:
-                time_offset = -time.altzone if time.daylight else -time.timezone
-                modified_date = modified_date + (time_offset * 1000)
 
             if lpath not in db_books:
                 query = '''
@@ -479,6 +493,8 @@ class PRST1(USBMS):
         debug_print('PRS-T1: finished rebuild_collections')
 
     def upload_cover(self, path, filename, metadata, filepath):
+        import sqlite3 as sqlite
+
         debug_print('PRS-T1: uploading cover')
 
         if filepath.startswith(self._main_prefix):
@@ -578,17 +594,17 @@ class PRST1(USBMS):
         # Setting this to the SONY periodical schema apparently causes errors
         # with some periodicals, therefore set it to null, since the special
         # periodical navigation doesn't work anyway.
-        periodical_schema = 'null'
+        periodical_schema = None
 
         query = '''
         UPDATE books
-        SET conforms_to = %s,
+        SET conforms_to = ?,
             periodical_name = ?,
             description = ?,
             publication_date = ?
         WHERE _id = ?
-        '''%periodical_schema
-        t = (name, None, pubdate, book.bookId,)
+        '''
+        t = (periodical_schema, name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
 
         connection.commit()

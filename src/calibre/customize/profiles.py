@@ -5,7 +5,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from itertools import izip
-from xml.sax.saxutils import escape
 
 from calibre.customize import Plugin as _Plugin
 
@@ -268,6 +267,7 @@ class OutputProfile(Plugin):
 
     @classmethod
     def tags_to_string(cls, tags):
+        from xml.sax.saxutils import escape
         return escape(', '.join(tags))
 
 class iPadOutput(OutputProfile):
@@ -379,6 +379,7 @@ class iPadOutput(OutputProfile):
             /* Feed summary formatting */
             .article_summary {
                 display:inline-block;
+                padding-bottom:0.5em;
                 }
             .feed {
                 font-family:sans-serif;
@@ -430,6 +431,15 @@ class iPadOutput(OutputProfile):
 
         '''
         # }}}
+
+class iPad3Output(iPadOutput):
+
+    screen_size = comic_screen_size = (2048, 1536)
+    dpi = 264.0
+    name = 'iPad 3'
+    short_name = 'ipad3'
+    description = _('Intended for the iPad 3 and similar devices with a '
+            'resolution of 1536x2048')
 
 class TabletOutput(iPadOutput):
     name = 'Tablet'
@@ -754,7 +764,7 @@ class PocketBook900Output(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
+        iPadOutput, iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput, PocketBook900Output, GenericEink,

@@ -1,0 +1,24 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class tvn24(BasicNewsRecipe):
+    title          = u'TVN24'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Sport, Biznes, Gospodarka, Informacje, Wiadomości Zawsze aktualne wiadomości z Polski i ze świata'
+    category       = 'news'
+    language       = 'pl'
+    masthead_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
+    cover_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
+    extra_css= 'ul {list-style: none; padding: 0; margin: 0;} li {float: left;margin: 0 0.15em;}'
+    remove_empty_feeds = True
+    remove_javascript = True
+    no_stylesheets = True
+    keep_only_tags=[dict(id='tvn24_wiadomosci_detal'), dict(name='h1', attrs={'class':'standardHeader1'}), dict(attrs={'class':['date60m rd5', 'imageBackground fl rd7', 'contentFromCMS']})]
+    remove_tags_after= dict(name='div', attrs={'class':'socialBoxesBottom'})
+    remove_tags=[dict(attrs={'class':['tagi_detal', 'socialBoxesBottom', 'twitterBox', 'commentsInfo', 'textSize', 'obj_ukrytydruk obj_ramka1_r', 'related newsNews align-right', 'box', 'newsUserList', 'watchMaterial text']})]
+    feeds          = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'), (u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

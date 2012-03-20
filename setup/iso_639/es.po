@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-11-26 08:48+0000\n"
+"PO-Revision-Date: 2012-03-11 10:13+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-27 05:24+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2012-03-12 04:38+0000\n"
+"X-Generator: Launchpad (build 14933)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -1779,7 +1779,7 @@ msgstr "Awiyaana"
 
 #. name for auz
 msgid "Arabic; Uzbeki"
-msgstr "Árabe uzbeco"
+msgstr "Árabe uzbeko"
 
 #. name for ava
 msgid "Avaric"
@@ -4963,7 +4963,7 @@ msgstr "Catawba"
 
 #. name for chd
 msgid "Chontal; Highland Oaxaca"
-msgstr ""
+msgstr "Chontal oaxaqueño de las tierras altas"
 
 #. name for che
 msgid "Chechen"
@@ -4971,7 +4971,7 @@ msgstr "Checheno"
 
 #. name for chf
 msgid "Chontal; Tabasco"
-msgstr ""
+msgstr "Chontal de tabasco"
 
 #. name for chg
 msgid "Chagatai"
@@ -4983,7 +4983,7 @@ msgstr "Chinook"
 
 #. name for chj
 msgid "Chinantec; Ojitlán"
-msgstr ""
+msgstr "Chinanteco de Ojitlán"
 
 #. name for chk
 msgid "Chuukese"
@@ -5011,7 +5011,7 @@ msgstr "Chipewyan"
 
 #. name for chq
 msgid "Chinantec; Quiotepec"
-msgstr ""
+msgstr "Chinanteco de Quiotepec"
 
 #. name for chr
 msgid "Cherokee"
@@ -5043,7 +5043,7 @@ msgstr "Cheyenne"
 
 #. name for chz
 msgid "Chinantec; Ozumacín"
-msgstr ""
+msgstr "Chinanteco de Ozumacín"
 
 #. name for cia
 msgid "Cia-Cia"
@@ -5051,7 +5051,7 @@ msgstr "Cia-cia"
 
 #. name for cib
 msgid "Gbe; Ci"
-msgstr ""
+msgstr "Cigbe"
 
 #. name for cic
 msgid "Chickasaw"
@@ -5215,7 +5215,7 @@ msgstr "Arameo moderno caldeo"
 
 #. name for cle
 msgid "Chinantec; Lealao"
-msgstr ""
+msgstr "Chinanteco de Lealao"
 
 #. name for clh
 msgid "Chilisso"
@@ -5239,7 +5239,7 @@ msgstr "Clallam"
 
 #. name for clo
 msgid "Chontal; Lowland Oaxaca"
-msgstr ""
+msgstr "Chontal oaxaqueño de las tieras bajas"
 
 #. name for clu
 msgid "Caluyanun"
@@ -5251,7 +5251,7 @@ msgstr "Chulym"
 
 #. name for cly
 msgid "Chatino; Eastern Highland"
-msgstr ""
+msgstr "Chatino Lachao-Yolotepec"
 
 #. name for cma
 msgid "Maa"
@@ -5327,7 +5327,7 @@ msgstr ""
 
 #. name for cnl
 msgid "Chinantec; Lalana"
-msgstr ""
+msgstr "Chinanteco de Lalana"
 
 #. name for cno
 msgid "Con"
@@ -5339,7 +5339,7 @@ msgstr "Asmat central"
 
 #. name for cnt
 msgid "Chinantec; Tepetotutla"
-msgstr ""
+msgstr "Chinanteco de Tepetotutla"
 
 #. name for cnu
 msgid "Chenoua"
@@ -5355,7 +5355,7 @@ msgstr "Córnico medio"
 
 #. name for coa
 msgid "Malay; Cocos Islands"
-msgstr ""
+msgstr "Malayo de las Islas Cocos"
 
 #. name for cob
 msgid "Chicomuceltec"
@@ -5391,7 +5391,7 @@ msgstr "Cochimi"
 
 #. name for cok
 msgid "Cora; Santa Teresa"
-msgstr ""
+msgstr "Cora de Santa Teresa"
 
 #. name for col
 msgid "Columbia-Wenatchi"
@@ -5455,7 +5455,7 @@ msgstr "Chocho"
 
 #. name for cpa
 msgid "Chinantec; Palantla"
-msgstr ""
+msgstr "Chinanteco de Palantla"
 
 #. name for cpb
 msgid "Ashéninka; Ucayali-Yurúa"
@@ -5599,7 +5599,7 @@ msgstr "Cruzeño"
 
 #. name for csa
 msgid "Chinantec; Chiltepec"
-msgstr ""
+msgstr "Chinanteco de Chiltepec"
 
 #. name for csb
 msgid "Kashubian"
@@ -5651,7 +5651,7 @@ msgstr "Lengua de signos colombiana"
 
 #. name for cso
 msgid "Chinantec; Sochiapan"
-msgstr ""
+msgstr "Chinanteco de Sochiapan"
 
 #. name for csq
 msgid "Croatia Sign Language"
@@ -5683,7 +5683,7 @@ msgstr "Coos"
 
 #. name for cta
 msgid "Chatino; Tataltepec"
-msgstr ""
+msgstr "Chatino de Tataltepec"
 
 #. name for ctc
 msgid "Chetco"
@@ -5695,7 +5695,7 @@ msgstr ""
 
 #. name for cte
 msgid "Chinantec; Tepinapa"
-msgstr ""
+msgstr "Chinanteco de Tepinapa"
 
 #. name for ctg
 msgid "Chittagonian"
@@ -5703,7 +5703,7 @@ msgstr "Chitagoniano"
 
 #. name for ctl
 msgid "Chinantec; Tlacoatzintepec"
-msgstr ""
+msgstr "Chinanteco de Tlacoatzintepec"
 
 #. name for ctm
 msgid "Chitimacha"
@@ -5719,7 +5719,7 @@ msgstr "Emberá-catío"
 
 #. name for ctp
 msgid "Chatino; Western Highland"
-msgstr ""
+msgstr "Chatino"
 
 #. name for cts
 msgid "Bicolano; Northern Catanduanes"
@@ -5735,7 +5735,7 @@ msgstr "Chol"
 
 #. name for ctz
 msgid "Chatino; Zacatepec"
-msgstr ""
+msgstr "Chatino de Zacatepec"
 
 #. name for cua
 msgid "Cua"
@@ -5747,7 +5747,7 @@ msgstr "Cubeo"
 
 #. name for cuc
 msgid "Chinantec; Usila"
-msgstr ""
+msgstr "Chinanteco de Usila"
 
 #. name for cug
 msgid "Cung"
@@ -5819,7 +5819,7 @@ msgstr "Chug"
 
 #. name for cvn
 msgid "Chinantec; Valle Nacional"
-msgstr ""
+msgstr "Chinanteco de Valle Nacional"
 
 #. name for cwa
 msgid "Kabwa"
@@ -5847,7 +5847,7 @@ msgstr "Kuwaataay"
 
 #. name for cya
 msgid "Chatino; Nopala"
-msgstr ""
+msgstr "Chatino de Nopala"
 
 #. name for cyb
 msgid "Cayubaba"
@@ -5871,7 +5871,7 @@ msgstr "Knaanic"
 
 #. name for czn
 msgid "Chatino; Zenzontepec"
-msgstr ""
+msgstr "Chatino de Zenzontepec"
 
 #. name for czo
 msgid "Chinese; Min Zhong"
@@ -10603,7 +10603,7 @@ msgstr "Javanés"
 
 #. name for jax
 msgid "Malay; Jambi"
-msgstr ""
+msgstr "Malayo de Jambi"
 
 #. name for jay
 msgid "Yan-nhangu"
@@ -14743,7 +14743,7 @@ msgstr "Lorung meridional"
 
 #. name for lrt
 msgid "Malay; Larantuka"
-msgstr ""
+msgstr "Malayo de Larantuka"
 
 #. name for lrv
 msgid "Larevat"
@@ -15099,7 +15099,7 @@ msgstr ""
 
 #. name for max
 msgid "Malay; North Moluccan"
-msgstr ""
+msgstr "Malayo de las Molucas septentrional"
 
 #. name for maz
 msgid "Mazahua; Central"
@@ -15127,7 +15127,7 @@ msgstr ""
 
 #. name for mbf
 msgid "Malay; Baba"
-msgstr ""
+msgstr "Malayo baba"
 
 #. name for mbh
 msgid "Mangseng"
@@ -15467,7 +15467,7 @@ msgstr "Mende (Sierra Leona)"
 
 #. name for meo
 msgid "Malay; Kedah"
-msgstr ""
+msgstr "Malayo de Kedah"
 
 #. name for mep
 msgid "Miriwung"
@@ -15511,7 +15511,7 @@ msgstr ""
 
 #. name for mfa
 msgid "Malay; Pattani"
-msgstr ""
+msgstr "Malayo de Pattani"
 
 #. name for mfb
 msgid "Bangka"
@@ -15571,7 +15571,7 @@ msgstr ""
 
 #. name for mfp
 msgid "Malay; Makassar"
-msgstr ""
+msgstr "Malayo de Macasar"
 
 #. name for mfq
 msgid "Moba"
@@ -16059,7 +16059,7 @@ msgstr ""
 
 #. name for mkn
 msgid "Malay; Kupang"
-msgstr ""
+msgstr "Malayo de Kupang"
 
 #. name for mko
 msgid "Mingang Doso"
@@ -16207,7 +16207,7 @@ msgstr ""
 
 #. name for mlz
 msgid "Malaynon"
-msgstr ""
+msgstr "Malaynón"
 
 #. name for mma
 msgid "Mama"
@@ -16623,7 +16623,7 @@ msgstr ""
 
 #. name for mqg
 msgid "Malay; Kota Bangun Kutai"
-msgstr ""
+msgstr "Malayo kutai de Kota Bangun"
 
 #. name for mqh
 msgid "Mixtec; Tlazoyaltepec"
@@ -16839,7 +16839,7 @@ msgstr "Malgache masikoro"
 
 #. name for msi
 msgid "Malay; Sabah"
-msgstr ""
+msgstr "Malayo de Sabah"
 
 #. name for msj
 msgid "Ma (Democratic Republic of Congo)"
@@ -22207,7 +22207,7 @@ msgstr "Roglai septentrional"
 
 #. name for roh
 msgid "Romansh"
-msgstr ""
+msgstr "Romanche"
 
 #. name for rol
 msgid "Romblomanon"
@@ -22607,7 +22607,7 @@ msgstr ""
 
 #. name for sci
 msgid "Creole Malay; Sri Lankan"
-msgstr ""
+msgstr "Malayo criollo de Sri Lanka"
 
 #. name for sck
 msgid "Sadri"
@@ -26987,15 +26987,15 @@ msgstr ""
 
 #. name for uzb
 msgid "Uzbek"
-msgstr "Uzbeco"
+msgstr "Uzbeko"
 
 #. name for uzn
 msgid "Uzbek; Northern"
-msgstr "Uzbeco septentrional"
+msgstr "Uzbeko septentrional"
 
 #. name for uzs
 msgid "Uzbek; Southern"
-msgstr "Uzbeco meridional"
+msgstr "Uzbeko meridional"
 
 #. name for vaa
 msgid "Vaagri Booli"
@@ -27187,7 +27187,7 @@ msgstr ""
 
 #. name for vkt
 msgid "Malay; Tenggarong Kutai"
-msgstr ""
+msgstr "Malayo kutai de Tenggarong"
 
 #. name for vku
 msgid "Kurrama"
@@ -28395,7 +28395,7 @@ msgstr "Edomita"
 
 #. name for xdy
 msgid "Dayak; Malayic"
-msgstr ""
+msgstr "Dayak malayo"
 
 #. name for xeb
 msgid "Eblan"
@@ -28727,7 +28727,7 @@ msgstr "Lengua de signos malasia"
 
 #. name for xmm
 msgid "Malay; Manado"
-msgstr ""
+msgstr "Malayo de Manado"
 
 #. name for xmn
 msgid "Persian; Manichaean Middle"
@@ -30319,7 +30319,7 @@ msgstr ""
 
 #. name for zhn
 msgid "Zhuang; Nong"
-msgstr "Zhuang nong"
+msgstr "Chuang nong"
 
 #. name for zho
 msgid "Chinese"

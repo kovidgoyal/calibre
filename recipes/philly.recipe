@@ -33,3 +33,6 @@ class BasicUserRecipe1314970845(BasicNewsRecipe):
             (u'Obituaries', u'http://www.philly.com/inquirer_obituaries.rss')
     ]
 
+    def print_version(self, url):
+        return url + '?viewAll=y'
+

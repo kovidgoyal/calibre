@@ -3,7 +3,7 @@
 CherryPy users
 ==============
 
-You can profile any of your pages as follows:
+You can profile any of your pages as follows::
 
     from cherrypy.lib import profiler
     
@@ -19,25 +19,23 @@ You can profile any of your pages as follows:
     
     cherrypy.tree.mount(Root())
 
-
 You can also turn on profiling for all requests
-using the make_app function as WSGI middleware.
-
+using the ``make_app`` function as WSGI middleware.
 
 CherryPy developers
 ===================
 
 This module can be used whenever you make changes to CherryPy,
 to get a quick sanity-check on overall CP performance. Use the
-"--profile" flag when running the test suite. Then, use the serve()
+``--profile`` flag when running the test suite. Then, use the ``serve()``
 function to browse the results in a web browser. If you run this
-module from the command line, it will call serve() for you.
+module from the command line, it will call ``serve()`` for you.
 
 """
 
 
-# Make profiler output more readable by adding __init__ modules' parents.
 def new_func_strip_path(func_name):
+    """Make profiler output more readable by adding ``__init__`` modules' parents"""
     filename, line, name = func_name
     if filename.endswith("__init__.py"):
         return os.path.basename(filename[:-12]) + filename[-12:], line, name
@@ -50,21 +48,12 @@ try:
 except ImportError:
     profile = None
     pstats = None
-    import warnings
-    msg = ("Your installation of Python does not have a profile module. "
-           "If you're on Debian, you can apt-get python2.4-profiler from "
-           "non-free in a separate step. See http://www.cherrypy.org/wiki/"
-           "ProfilingOnDebian for details.")
-    warnings.warn(msg)
 
 import os, os.path
 import sys
+import warnings
 
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
-
+from cherrypy._cpcompat import BytesIO
 
 _count = 0
 
@@ -88,13 +77,15 @@ class Profiler(object):
         return result
     
     def statfiles(self):
-        """statfiles() -> list of available profiles."""
+        """:rtype: list of available profiles.
+        """
         return [f for f in os.listdir(self.path)
                 if f.startswith("cp_") and f.endswith(".prof")]
     
     def stats(self, filename, sortby='cumulative'):
-        """stats(index) -> output of print_stats() for the given profile."""
-        sio = StringIO.StringIO()
+        """:rtype stats(index): output of print_stats() for the given profile.
+        """
+        sio = BytesIO()
         if sys.version_info >= (2, 5):
             s = pstats.Stats(os.path.join(self.path, filename), stream=sio)
             s.strip_dirs()
@@ -162,13 +153,25 @@ class make_app:
     def __init__(self, nextapp, path=None, aggregate=False):
         """Make a WSGI middleware app which wraps 'nextapp' with profiling.
         
-        nextapp: the WSGI application to wrap, usually an instance of
+        nextapp
+            the WSGI application to wrap, usually an instance of
             cherrypy.Application.
-        path: where to dump the profiling output.
-        aggregate: if True, profile data for all HTTP requests will go in
+            
+        path
+            where to dump the profiling output.
+            
+        aggregate
+            if True, profile data for all HTTP requests will go in
             a single file. If False (the default), each HTTP request will
             dump its profile data into a separate file.
+        
         """
+        if profile is None or pstats is None:
+            msg = ("Your installation of Python does not have a profile module. "
+                   "If you're on Debian, try `sudo apt-get install python-profiler`. "
+                   "See http://www.cherrypy.org/wiki/ProfilingOnDebian for details.")
+            warnings.warn(msg)
+        
         self.nextapp = nextapp
         self.aggregate = aggregate
         if aggregate:
@@ -186,6 +189,12 @@ class make_app:
 
 
 def serve(path=None, port=8080):
+    if profile is None or pstats is None:
+        msg = ("Your installation of Python does not have a profile module. "
+               "If you're on Debian, try `sudo apt-get install python-profiler`. "
+               "See http://www.cherrypy.org/wiki/ProfilingOnDebian for details.")
+        warnings.warn(msg)
+    
     import cherrypy
     cherrypy.config.update({'server.socket_port': int(port),
                             'server.thread_pool': 10,
