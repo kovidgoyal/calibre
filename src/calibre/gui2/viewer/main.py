@@ -6,10 +6,10 @@ from functools import partial
 from threading import Thread
 
 from PyQt4.Qt import (QApplication, Qt, QIcon, QTimer, SIGNAL, QByteArray,
-                     QDoubleSpinBox, QLabel, QTextBrowser,
-                     QPainter, QBrush, QColor, QStandardItemModel, QPalette,
-                     QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit,
-                     QToolButton, QMenu, QInputDialog, QAction, QKeySequence)
+        QSize, QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation,
+        QPainter, QBrush, QColor, QStandardItemModel, QPalette, QStandardItem,
+        QUrl, QRegExpValidator, QRegExp, QLineEdit, QToolButton, QMenu,
+        QInputDialog, QAction, QKeySequence)
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -54,8 +54,6 @@ class TOC(QStandardItemModel):
         for t in toc:
             self.appendRow(TOCItem(t))
         self.setHorizontalHeaderItem(0, QStandardItem(_('Table of Contents')))
-
-
 
 class Worker(Thread):
 
@@ -292,6 +290,37 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
         self.action_full_screen.setCheckable(True)
+        self.full_screen_label = QLabel('''
+                <center>
+                <h1>%s</h1>
+                <h3>%s</h3>
+                <h3>%s</h3>
+                </center>
+                '''%(_('Full screen mode'),
+                    _('Right click to show controls'),
+                    _('Press Esc to quit')),
+                    self)
+        self.full_screen_label.setVisible(False)
+        self.full_screen_label.setStyleSheet('''
+        QLabel {
+            text-align: center;
+            background-color: white;
+            color: black;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 20px;
+        }
+        ''')
+        self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
+        self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
+        self.addAction(self.toggle_toolbar_action)
+        self.full_screen_label_anim = QPropertyAnimation(
+                self.full_screen_label, 'size')
+        self.esc_full_screen_action = a = QAction(self)
+        self.addAction(a)
+        a.setShortcut(Qt.Key_Escape)
+        a.setEnabled(False)
+        a.triggered.connect(self.action_full_screen.trigger)
 
         self.print_menu = QMenu()
         self.print_menu.addAction(QIcon(I('print-preview.png')), _('Print Preview'))
@@ -299,7 +328,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
         self.connect(self.action_print, SIGNAL("triggered(bool)"), partial(self.print_book, preview=False))
         self.connect(self.print_menu.actions()[0], SIGNAL("triggered(bool)"), partial(self.print_book, preview=True))
-        self.set_max_width()
         ca = self.view.copy_action
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
@@ -312,6 +340,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.open_history_menu.triggered[QAction].connect(self.open_recent)
         w = self.tool_bar.widgetForAction(self.action_open_ebook)
         w.setPopupMode(QToolButton.MenuButtonPopup)
+
+        for x in ('tool_bar', 'tool_bar2'):
+            x = getattr(self, x)
+            for action in x.actions():
+                # So that the keyboard shortcuts for these actions will
+                # continue to function even when the toolbars are hidden
+                self.addAction(action)
 
         self.restore_state()
 
@@ -339,11 +374,16 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def closeEvent(self, e):
         if self.isFullScreen():
-            self.showNormal()
+            self.action_full_screen.trigger()
             e.ignore()
             return
         self.save_state()
         return MainWindow.closeEvent(self, e)
+
+    def toggle_toolbars(self):
+        for x in ('tool_bar', 'tool_bar2'):
+            x = getattr(self, x)
+            x.setVisible(not x.isVisible())
 
     def save_state(self):
         state = bytearray(self.saveState(self.STATE_VERSION))
@@ -386,11 +426,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self._lookup = None
         self.dictionary_view.setHtml(html)
 
-    def set_max_width(self):
-        from calibre.gui2.viewer.documentview import config
-        c = config().parse()
-        self.frame.setMaximumWidth(c.max_view_width)
-
     def get_remember_current_page_opt(self):
         from calibre.gui2.viewer.documentview import config
         c = config().parse()
@@ -404,6 +439,46 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.showNormal()
         else:
             self.showFullScreen()
+
+    def showFullScreen(self):
+        self.tool_bar.setVisible(False)
+        self.tool_bar2.setVisible(False)
+        self._original_frame_margins = (
+            self.centralwidget.layout().contentsMargins(),
+            self.frame.layout().contentsMargins())
+        self.frame.layout().setContentsMargins(0, 0, 0, 0)
+        self.centralwidget.layout().setContentsMargins(0, 0, 0, 0)
+
+        super(EbookViewer, self).showFullScreen()
+        QTimer.singleShot(10, self.show_full_screen_label)
+
+    def show_full_screen_label(self):
+        f = self.full_screen_label
+        self.esc_full_screen_action.setEnabled(True)
+        f.setVisible(True)
+        height = 200
+        width = int(0.7*self.view.width())
+        f.resize(width, height)
+        f.move((self.view.width() - width)//2, (self.view.height()-height)//2)
+        a = self.full_screen_label_anim
+        a.setDuration(500)
+        a.setStartValue(QSize(width, 0))
+        a.setEndValue(QSize(width, height))
+        a.start()
+        QTimer.singleShot(2750, self.full_screen_label.hide)
+        self.view.document.switch_to_fullscreen_mode()
+
+    def showNormal(self):
+        self.esc_full_screen_action.setEnabled(False)
+        self.tool_bar.setVisible(True)
+        self.tool_bar2.setVisible(True)
+        self.full_screen_label.setVisible(False)
+        if hasattr(self, '_original_frame_margins'):
+            om = self._original_frame_margins
+            self.centralwidget.layout().setContentsMargins(om[0])
+            self.frame.layout().setContentsMargins(om[1])
+        super(EbookViewer, self).showNormal()
+        self.view.document.switch_to_window_mode()
 
     def goto(self, ref):
         if ref:
