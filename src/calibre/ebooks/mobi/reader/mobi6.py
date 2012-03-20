@@ -107,7 +107,10 @@ class MobiReader(object):
         self.kf8_type = None
         k8i = getattr(self.book_header.exth, 'kf8_header', None)
 
-        if self.book_header.mobi_version == 8:
+        # Ancient PRC files from Baen can have random values for
+        # mobi_version, so be conservative
+        if (self.book_header.mobi_version == 8 and hasattr(self.book_header,
+            'skelidx')):
             self.kf8_type = 'standalone'
         elif k8i is not None: # Check for joint mobi 6 and kf 8 file
             try:
@@ -118,12 +121,17 @@ class MobiReader(object):
                 try:
                     self.book_header = BookHeader(self.sections[k8i][0],
                             self.ident, user_encoding, self.log)
-                    # The following are only correct in the Mobi 6
-                    # header not the Mobi 8 header
+
+                    # Only the first_image_index from the MOBI 6 header is
+                    # useful
                     for x in ('first_image_index',):
                         setattr(self.book_header, x, getattr(bh, x))
+
+                    # We need to do this because the MOBI 6 text extract code
+                    # does not know anything about the kf8 offset
                     if hasattr(self.book_header, 'huff_offset'):
                         self.book_header.huff_offset += k8i
+
                     self.kf8_type = 'joint'
                     self.kf8_boundary = k8i-1
                 except:

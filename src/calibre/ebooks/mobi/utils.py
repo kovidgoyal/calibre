@@ -15,7 +15,13 @@ from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 
-def decode_hex_number(raw):
+def decode_string(raw, codec='utf-8'):
+    length, = struct.unpack(b'>B', raw[0])
+    raw = raw[1:1+length]
+    consumed = length+1
+    return raw.decode(codec), consumed
+
+def decode_hex_number(raw, codec='utf-8'):
     '''
     Return a variable length number encoded using hexadecimal encoding. These
     numbers have the first byte which tells the number of bytes that follow.
@@ -25,12 +31,15 @@ def decode_hex_number(raw):
     :param raw: Raw binary data as a bytestring
 
     :return: The number and the number of bytes from raw that the number
-    occupies
+    occupies.
     '''
-    length, = struct.unpack(b'>B', raw[0])
-    raw = raw[1:1+length]
-    consumed = length+1
+    raw, consumed = decode_string(raw, codec=codec)
     return int(raw, 16), consumed
+
+def encode_string(raw):
+    ans = bytearray(bytes(raw))
+    ans.insert(0, len(ans))
+    return bytes(ans)
 
 def encode_number_as_hex(num):
     '''
@@ -44,9 +53,7 @@ def encode_number_as_hex(num):
     nlen = len(num)
     if nlen % 2 != 0:
         num = b'0'+num
-    ans = bytearray(num)
-    ans.insert(0, len(num))
-    return bytes(ans)
+    return encode_string(num)
 
 def encint(value, forward=True):
     '''
@@ -430,7 +437,7 @@ def read_font_record(data, extent=1040): # {{{
     # The zlib compressed data begins with 2 bytes of header and
     # has 4 bytes of checksum at the end
     ans = {'raw_data':data, 'font_data':None, 'err':None, 'ext':'failed',
-            'headers':None}
+            'headers':None, 'encrypted':False}
 
     try:
         usize, flags, dstart, xor_len, xor_start = struct.unpack_from(
@@ -453,6 +460,7 @@ def read_font_record(data, extent=1040): # {{{
             buf[n] ^= key[n%xor_len] # XOR of buf and key
 
         font_data = bytes(buf)
+        ans['encrypted'] = True
 
     if flags & 0b1:
         # ZLIB compressed data

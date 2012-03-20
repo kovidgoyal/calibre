@@ -33,9 +33,11 @@ def update_internal_links(mobi8_reader):
                 for m in posfid_index_pattern.finditer(tag):
                     posfid = m.group(1)
                     offset = m.group(2)
-                    filename, idtag = mr.get_id_tag_by_pos_fid(posfid, offset)
+                    filename, idtag = mr.get_id_tag_by_pos_fid(int(posfid, 32),
+                            int(offset, 32))
                     suffix = (b'#' + idtag) if idtag else b''
-                    replacement = filename.encode(mr.header.codec) + suffix
+                    replacement = filename.split('/')[-1].encode(
+                            mr.header.codec) + suffix
                     tag = posfid_index_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = ''.join([x.decode(mr.header.codec) for x in srcpieces])

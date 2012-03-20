@@ -234,13 +234,15 @@ class RTFMLizer(object):
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
         if tag == 'img':
-            src = os.path.basename(elem.get('src'))
-            block_start = ''
-            block_end = ''
-            if 'block' not in tag_stack:
-                block_start = '{\\par\\pard\\hyphpar '
-                block_end = '}'
-            text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
+            src = elem.get('src')
+            if src:
+                src = os.path.basename(elem.get('src'))
+                block_start = ''
+                block_end = ''
+                if 'block' not in tag_stack:
+                    block_start = '{\\par\\pard\\hyphpar '
+                    block_end = '}'
+                text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
 
         single_tag = SINGLE_TAGS.get(tag, None)
         if single_tag:

@@ -8,9 +8,13 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
-from calibre.ebooks.mobi.utils import decint, count_set_bits
+from calibre.ebooks.mobi.utils import (decint, count_set_bits,
+        decode_string)
+
+TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
+PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
 
 class InvalidFile(ValueError):
     pass
@@ -37,9 +41,8 @@ def parse_indx_header(data):
             'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
     )
     num = len(words)
-    values = struct.unpack(b'>%dL' % num, data[4:4*(num+1)])
-    header = {words[i]:values[i] for i in xrange(num)}
-    return header
+    values = struct.unpack(bytes('>%dL' % num), data[4:4*(num+1)])
+    return dict(zip(words, values))
 
 class CNCX(object): # {{{
 
@@ -77,80 +80,115 @@ class CNCX(object): # {{{
         return self.records.get(offset, default)
 # }}}
 
-def parse_tag_section(data):
+def parse_tagx_section(data):
     check_signature(data, b'TAGX')
 
     tags = []
-    first_entry_offset, = struct.unpack_from(b'>L', data, 0x04)
-    control_byte_count, = struct.unpack_from(b'>L', data, 0x08)
+    first_entry_offset, = struct.unpack_from(b'>L', data, 4)
+    control_byte_count, = struct.unpack_from(b'>L', data, 8)
 
-    # Skip the first 12 bytes already read above.
     for i in xrange(12, first_entry_offset, 4):
-        pos = i
-        tags.append((ord(data[pos]), ord(data[pos+1]), ord(data[pos+2]),
-            ord(data[pos+3])))
+        vals = list(bytearray(data[i:i+4]))
+        tags.append(TagX(*vals))
     return control_byte_count, tags
 
-def get_tag_map(control_byte_count, tags, data, start, end):
+def get_tag_map(control_byte_count, tagx, data, strict=False):
     ptags = []
     ans = {}
-    control_byte_index = 0
-    data_start = start + control_byte_count
+    control_bytes = list(bytearray(data[:control_byte_count]))
+    data = data[control_byte_count:]
 
-    for tag, values_per_entry, mask, end_flag in tags:
-        if end_flag == 0x01:
-            control_byte_index += 1
+    for x in tagx:
+        if x.eof == 0x01:
+            control_bytes = control_bytes[1:]
             continue
-        value = ord(data[start + control_byte_index]) & mask
+        value = control_bytes[0] & x.bitmask
         if value != 0:
-            if value == mask:
-                if count_set_bits(mask) > 1:
+            value_count = value_bytes = None
+            if value == x.bitmask:
+                if count_set_bits(x.bitmask) > 1:
                     # If all bits of masked value are set and the mask has more
                     # than one bit, a variable width value will follow after
                     # the control bytes which defines the length of bytes (NOT
                     # the value count!) which will contain the corresponding
                     # variable width values.
-                    value, consumed = decint(data[data_start:])
-                    data_start += consumed
-                    ptags.append((tag, None, value, values_per_entry))
+                    value_bytes, consumed = decint(data)
+                    data = data[consumed:]
                 else:
-                    ptags.append((tag, 1, None, values_per_entry))
+                    value_count = 1
             else:
                 # Shift bits to get the masked value.
-                while mask & 0x01 == 0:
-                    mask = mask >> 1
-                    value = value >> 1
-                ptags.append((tag, value, None, values_per_entry))
-    for tag, value_count, value_bytes, values_per_entry in ptags:
+                mask = x.bitmask
+                while mask & 0b1 == 0:
+                    mask >>= 1
+                    value >>= 1
+                value_count = value
+            ptags.append(PTagX(x.tag, value_count, value_bytes,
+                x.num_of_values))
+
+    for x in ptags:
         values = []
-        if value_count != None:
+        if x.value_count is not None:
             # Read value_count * values_per_entry variable width values.
-            for _ in xrange(value_count*values_per_entry):
-                byts, consumed = decint(data[data_start:])
-                data_start += consumed
+            for _ in xrange(x.value_count * x.num_of_values):
+                byts, consumed = decint(data)
+                data = data[consumed:]
                 values.append(byts)
-        else:
+        else: # value_bytes is not None
             # Convert value_bytes to variable width values.
             total_consumed = 0
-            while total_consumed < value_bytes:
+            while total_consumed < x.value_bytes:
                 # Does this work for values_per_entry != 1?
-                byts, consumed = decint(data[data_start:])
-                data_start += consumed
+                byts, consumed = decint(data)
+                data = data[consumed:]
                 total_consumed += consumed
                 values.append(byts)
-            if total_consumed != value_bytes:
-                print ("Error: Should consume %s bytes, but consumed %s" %
-                        (value_bytes, total_consumed))
-        ans[tag] = values
-    # Test that all bytes have been processed if end is given.
-    if end is not None and data_start < end:
-        # The last entry might have some zero padding bytes, so complain only if non zero bytes are left.
-        rest = data[data_start:end]
-        if rest.replace(b'\0', b''):
-            print ("Warning: There are unprocessed index bytes left: %s" %
-                    format_bytes(rest))
+            if total_consumed != x.value_bytes:
+                err = ("Error: Should consume %s bytes, but consumed %s" %
+                        (x.value_bytes, total_consumed))
+                if strict:
+                    raise ValueError(err)
+                else:
+                    print(err)
+        ans[x.tag] = values
+    # Test that all bytes have been processed
+    if data.replace(b'\0', b''):
+        err = ("Warning: There are unprocessed index bytes left: %s" %
+                format_bytes(data))
+        if strict:
+            raise ValueError(err)
+        else:
+            print(err)
 
     return ans
+
+def parse_index_record(table, data, control_byte_count, tags, codec,
+        strict=False):
+    header = parse_indx_header(data)
+    idxt_pos = header['start']
+    if data[idxt_pos:idxt_pos+4] != b'IDXT':
+        print ('WARNING: Invalid INDX record')
+    entry_count = header['count']
+
+    # loop through to build up the IDXT position starts
+    idx_positions= []
+    for j in xrange(entry_count):
+        pos, = struct.unpack_from(b'>H', data, idxt_pos + 4 + (2 * j))
+        idx_positions.append(pos)
+    # The last entry ends before the IDXT tag (but there might be zero fill
+    # bytes we need to ignore!)
+    idx_positions.append(idxt_pos)
+
+    # For each entry in the IDXT build up the tag map and any associated
+    # text
+    for j in xrange(entry_count):
+        start, end = idx_positions[j:j+2]
+        rec = data[start:end]
+        ident, consumed = decode_string(rec, codec=codec)
+        rec = rec[consumed:]
+        tag_map = get_tag_map(control_byte_count, tags, rec, strict=strict)
+        table[ident] = tag_map
+
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
@@ -166,32 +204,11 @@ def read_index(sections, idx, codec):
         cncx = CNCX(cncx_records, codec)
 
     tag_section_start = indx_header['len']
-    control_byte_count, tags = parse_tag_section(data[tag_section_start:])
+    control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
     for i in xrange(idx + 1, idx + 1 + indx_count):
+        # Index record
         data = sections[i][0]
-        header = parse_indx_header(data)
-        idxt_pos = header['start']
-        entry_count = header['count']
-
-        # loop through to build up the IDXT position starts
-        idx_positions= []
-        for j in xrange(entry_count):
-            pos, = struct.unpack_from(b'>H', data, idxt_pos + 4 + (2 * j))
-            idx_positions.append(pos)
-        # The last entry ends before the IDXT tag (but there might be zero fill
-        # bytes we need to ignore!)
-        idx_positions.append(idxt_pos)
-
-        # For each entry in the IDXT build up the tag map and any associated
-        # text
-        for j in xrange(entry_count):
-            start, end = idx_positions[j:j+2]
-            text_length = ord(data[start])
-            text = data[start+1:start+1+text_length]
-            tag_map = get_tag_map(control_byte_count, tags, data,
-                    start+1+text_length, end)
-            table[text] = tag_map
-
+        parse_index_record(table, data, control_byte_count, tags, codec)
     return table, cncx
 
