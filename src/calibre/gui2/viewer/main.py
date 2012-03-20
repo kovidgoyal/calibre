@@ -5,11 +5,11 @@ import traceback, os, sys, functools, collections, re
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import QApplication, Qt, QIcon, QTimer, SIGNAL, QByteArray, \
-                     QDoubleSpinBox, QLabel, QTextBrowser, \
-                     QPainter, QBrush, QColor, QStandardItemModel, QPalette, \
-                     QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit, \
-                     QToolButton, QMenu, QInputDialog, QAction, QKeySequence
+from PyQt4.Qt import (QApplication, Qt, QIcon, QTimer, SIGNAL, QByteArray,
+                     QDoubleSpinBox, QLabel, QTextBrowser,
+                     QPainter, QBrush, QColor, QStandardItemModel, QPalette,
+                     QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit,
+                     QToolButton, QMenu, QInputDialog, QAction, QKeySequence)
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -338,6 +338,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 count += 1
 
     def closeEvent(self, e):
+        if self.isFullScreen():
+            self.showNormal()
+            e.ignore()
+            return
         self.save_state()
         return MainWindow.closeEvent(self, e)
 
