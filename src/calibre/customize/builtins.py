@@ -1538,6 +1538,7 @@ class StoreWaterstonesUKStore(StoreBase):
 
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
