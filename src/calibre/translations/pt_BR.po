@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-16 04:12+0000\n"
-"PO-Revision-Date: 2012-03-15 18:19+0000\n"
-"Last-Translator: André Drumond <Unknown>\n"
+"PO-Revision-Date: 2012-03-21 03:18+0000\n"
+"Last-Translator: Bruno Coelho Santiago <bcs.cin@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-03-17 04:53+0000\n"
-"X-Generator: Launchpad (build 14951)\n"
+"X-Launchpad-Export-Date: 2012-03-21 04:59+0000\n"
+"X-Generator: Launchpad (build 14981)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -812,7 +812,7 @@ msgstr "Destinado ao iPad e dispositivos similares com resolução de 768x1024"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Feito para o iPad 3 e aparelhos similares com resolução de 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1865,7 +1865,7 @@ msgstr "Sem nome"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Comunicação com o PRST1 e os leitores de eBook mais novos da SONY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
@@ -1892,6 +1892,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Escolha essa opção se você quiser que o autor apareça no Sony da mesma forma "
+"que aparece no T1. Isso significa que somente irá mostrar o primeiro autor "
+"para livros com vários autores. Deixe isso desmarcado se você usa Metadata "
+"Plugboards."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2044,6 +2048,11 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Falha ao acessar arquivos na memória principal do seu aparelho. Você deve "
+"entrar em contato com o fabricante para obter suporte. Algumas possíveis "
+"soluções: tente um cabo USB ou porta USB diferente no seu computador. Se o "
+"seu aparelho tem alguma opção nas configurações como \"Resetar para as "
+"configurações padrões\", tente essa opção agora. Tipo do erro: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:114
 #, python-format
@@ -2054,11 +2063,17 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Falha ao acessar arquivos no cartão SD do seu aparelho. Isso pode acontecer "
+"por várias razões. O cartão SD pode estar corrompido, pode ser mais largo "
+"que o seu aparelho, pode estar protegido contra escrita, etc. Tente um "
+"cartão SD diferente, ou formate seu cartão SD usando o sistema de arquivos "
+"FAT32. Também tenha certeza que não contém muitos arquivos na raíz do seu "
+"cartão SD. Tipo do erro: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "ID do fabricante da USB (em hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -2220,6 +2235,9 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Modifique o documento de texto e sua estrutura usando padrões comuns. "
+"Inicialmente desabilitado. Use %(en)s para habilitar. Ações individuais "
+"podem ser desabilitadas com as %(dis)s opções."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
@@ -2480,6 +2498,9 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Gênero do livro. Opções: %s\n"
+"\n"
+" Veja aqui: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:158
 msgid "for a complete list with descriptions."
@@ -2519,18 +2540,24 @@ msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Modelo utilizado para gerar o índice do arquivo html, em vez do arquivo "
+"padrão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:27
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Modelo utilizado para gerar o html do conteúdo do livro, em vez do arquivo "
+"padrão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:30
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Extraia o conteúdo do arquivo ZIP gerado no diretório especificado. ATENÇÃO: "
+"O conteúdo do diretório indicado será deletado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:63
 #, python-format
@@ -2539,7 +2566,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:69
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "Nenhum arquivo HTML top level encontrado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:72
 #, python-format
@@ -2660,12 +2687,17 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
+"Ignorar as margens do documento de entrada. Se falso, o plugin de saida MOBI "
+"tentará converter as margens especificadas no documento de entrada, do "
+"contrário elas serão ignoradas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:47
 msgid ""
 "When adding the Table of Contents to the book, add it at the start of the "
 "book instead of the end. Not recommended."
 msgstr ""
+"Quando adicionar índice ao livro, coloque-o no início do livro em vez do "
+"fim. Não Recomendado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:51
 msgid ""
@@ -2688,6 +2720,12 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Por padrão o Calibre converte todas as imagens para o formato JPEG no "
+"arquivo de saída do tipo MOBI. Isto é feito para uma maior compatibilidade, "
+"visto que leitores MOBI mais antigos tinham problemas com outros formatos de "
+"imagem. Esta opção diz para o Calibre não fazer essa conversão. Isto é "
+"vantajoso se o seu documento contém muitas imagens do tipo GIF/PNG que se "
+"tornam muito grandes quando convertidas para JPEG."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:114
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -2839,22 +2877,27 @@ msgstr ""
 msgid ""
 "Specify whether or not to insert an empty line between two paragraphs."
 msgstr ""
+"Especifique se deve ou não inserir uma linha em branco entre dois parágrafos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:37
 msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
 msgstr ""
+"Especifique se deve ou não inserir dois espaços em branco para indentar a "
+"primeira linha de cada parágrafo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:41
 msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
+"Especifique se deve ou não retirar o título do capítulo em cada capítulo. "
+"Útil para saídas com apenas imagens (ex: quadrinhos)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:45
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Redimensione todas as imagens para visualização em tela cheia. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:127
 msgid "Start Page"
@@ -2868,7 +2911,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:152
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:155
 msgid " (Preface)"
-msgstr ""
+msgstr " (Prefácio)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:22
 msgid ""
@@ -2912,6 +2955,8 @@ msgid ""
 "Normally extra space at the beginning of lines is retained. With this option "
 "they will be removed."
 msgstr ""
+"Normalmente espaços extras no início das linhas serão retirados. Com esta "
+"opção isto será removido."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:51
 msgid "Do not insert a Table of Contents into the output text."
@@ -3443,6 +3488,8 @@ msgstr ""
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
+"Procure por palavras e padrões comuns que deveriam ser itálicos e os coloque "
+"em itálico."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:560
 msgid ""
@@ -3467,6 +3514,8 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Remova parágrafos vazios do documento quando eles existem entre outros "
+"parágrafos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:582
 msgid ""
@@ -3546,7 +3595,7 @@ msgstr "Criando"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
 msgid "Failed to parse: %(name)s with error: %(err)s"
-msgstr ""
+msgstr "Falha ao analisar: %(name)s com erro: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:27
 msgid "ePub Fixer"
@@ -3677,7 +3726,7 @@ msgstr "%s é um arquivo vazio"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 #, python-format
 msgid "Failed to parse link %(tag)s %(children)s"
-msgstr ""
+msgstr "Falha ao analisar link %(tag)s %(children)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:609
 #, python-format
@@ -3687,7 +3736,7 @@ msgstr "Não foi possivel adicionar o link %s ao sumário"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:959
 #, python-format
 msgid "Unable to process image %(path)s. Error: %(err)s"
-msgstr ""
+msgstr "Não foi possível processar a imagem %(path)s. Erro: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1005
 #, python-format
@@ -3872,7 +3921,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:61
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Valor: campo desconhecido "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:165
 msgid "TEMPLATE ERROR"
@@ -4135,7 +4184,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:741
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Conexão com a Amazon expirou. Tente novamente mais tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:177
 msgid "Metadata source"
