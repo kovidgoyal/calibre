@@ -7,7 +7,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
-import re
 import urllib
 from contextlib import closing
 
@@ -23,7 +22,7 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 class DieselEbooksStore(BasicStoreConfig, StorePlugin):
-        
+
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://www.diesel-ebooks.com/'
 
@@ -47,9 +46,9 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.diesel-ebooks.com/index.php?page=seek&id[m]=&id[c]=scope%253Dinventory&id[q]=' + urllib.quote_plus(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -75,10 +74,10 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 drm = SearchResult.DRM_LOCKED
                 if 'drm free' not in formats.lower():
                     drm = SearchResult.DRM_UNLOCKED
-                    
+
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
@@ -87,5 +86,5 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = id.strip()
                 s.formats = formats
                 s.drm = drm
-                
+
                 yield s
