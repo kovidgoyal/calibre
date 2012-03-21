@@ -1557,15 +1557,6 @@ class StoreWHSmithUKStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
 
-class StoreWizardsTowerBooksStore(StoreBase):
-    name = 'Wizards Tower Books'
-    description = u'A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.'
-    actual_plugin = 'calibre.gui2.store.stores.wizards_tower_books_plugin:WizardsTowerBooksStore'
-
-    drm_free_only = True
-    headquarters = 'UK'
-    formats = ['EPUB', 'MOBI']
-
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = u'Tomasz Długosz'
@@ -1636,7 +1627,6 @@ plugins += [
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
-    StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
     XinXiiStore,
     StoreZixoStore
