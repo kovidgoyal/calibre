@@ -71,6 +71,8 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                     formats.append('WOBLINK')
                     if 'E Ink' in data.xpath('.//div[@class="prices"]/img/@title'):
                         formats.insert(0, 'EPUB')
+                if 'pdf' in formats:
+                    formats[formats.index('pdf')] = 'PDF' 
 
                 counter -= 1
 
