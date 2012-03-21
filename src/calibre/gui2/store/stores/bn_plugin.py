@@ -62,7 +62,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
 
                 title = ''.join(data.xpath('.//p[@class="title"]//span[@class="name"]/text()'))
                 author = ', '.join(data.xpath('.//ul[@class="contributors"]//li[position()>1]//a/text()'))
-                price = ''.join(data.xpath('.//table[@class="displayed-formats"]//a[@class="subtle"]/text()'))
+                price = ''.join(data.xpath('.//table[@class="displayed-formats"]//a[contains(@class, "bn-price")]/text()'))
 
                 counter -= 1
 

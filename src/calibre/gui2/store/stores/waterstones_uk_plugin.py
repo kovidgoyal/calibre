@@ -57,7 +57,7 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//div[@class="image"]/a/img/@src'))
                 title = ''.join(data.xpath('./div/div/h2/a/text()'))
                 author = ', '.join(data.xpath('.//p[@class="byAuthor"]/a/text()'))
-                price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceStandard"]/text()'))
+                price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceRed2"]/text()'))
                 drm = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "DRM")])')
                 pdf = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "PDF")])')
                 epub = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "EPUB")])')
