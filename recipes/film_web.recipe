@@ -13,7 +13,7 @@ class Filmweb_pl(BasicNewsRecipe):
     remove_empty_feeds=True
     extra_css      = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
     remove_tags= [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'})]
-    keep_only_tags= [dict(name='h1', attrs={'class':'hdrBig'}), dict(name='div', attrs={'class':['newsInfo', 'reviewContent fontSizeCont description']})]
+    keep_only_tags= [dict(name='h1', attrs={'class':['hdrBig', 'hdrEntity']}), dict(name='div', attrs={'class':['newsInfo', 'newsInfoSmall', 'reviewContent description']})]
     feeds          = [(u'Wszystkie newsy', u'http://www.filmweb.pl/feed/news/latest'),
                          (u'News / Filmy w produkcji', 'http://www.filmweb.pl/feed/news/category/filminproduction'),
                          (u'News / Festiwale, nagrody i przeglądy', u'http://www.filmweb.pl/feed/news/category/festival'),
