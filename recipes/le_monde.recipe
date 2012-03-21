@@ -3,7 +3,6 @@ __copyright__ = '2011'
 '''
 lemonde.fr
 '''
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class LeMonde(BasicNewsRecipe):
@@ -41,77 +40,8 @@ class LeMonde(BasicNewsRecipe):
 
     remove_empty_feeds = True
 
-    filterDuplicates = True
+    auto_cleanup = True
 
-    def preprocess_html(self, soup):
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
-        return self.adeify_images(soup)
-
-    preprocess_regexps = [
-        (re.compile(r'([0-9])%'), lambda m: m.group(1) + '&nbsp;%'),
-        (re.compile(r'([0-9])([0-9])([0-9]) ([0-9])([0-9])([0-9])'), lambda m: m.group(1) + m.group(2) + m.group(3) + '&nbsp;' + m.group(4) + m.group(5) + m.group(6)),
-        (re.compile(r'([0-9]) ([0-9])([0-9])([0-9])'), lambda m: m.group(1) + '&nbsp;' + m.group(2) + m.group(3) + m.group(4)),
-        (re.compile(r'<span>'), lambda match: ' <span>'),
-        (re.compile(r'\("'), lambda match: '(&laquo;&nbsp;'),
-        (re.compile(r'"\)'), lambda match: '&nbsp;&raquo;)'),
-        (re.compile(r'&ldquo;'), lambda match: '(&laquo;&nbsp;'),
-        (re.compile(r'&rdquo;'), lambda match: '&nbsp;&raquo;)'),
-        (re.compile(r'>\''), lambda match: '>&lsquo;'),
-        (re.compile(r' \''), lambda match: ' &lsquo;'),
-        (re.compile(r'\''), lambda match: '&rsquo;'),
-        (re.compile(r'"<em>'), lambda match: '<em>&laquo;&nbsp;'),
-        (re.compile(r'"<em>"</em><em>'), lambda match: '<em>&laquo;&nbsp;'),
-        (re.compile(r'"<a href='), lambda match: '&laquo;&nbsp;<a href='),
-        (re.compile(r'</em>"'), lambda match: '&nbsp;&raquo;</em>'),
-        (re.compile(r'</a>"'), lambda match: '&nbsp;&raquo;</a>'),
-        (re.compile(r'"</'), lambda match: '&nbsp;&raquo;</'),
-        (re.compile(r'>"'), lambda match: '>&laquo;&nbsp;'),
-        (re.compile(r'"<'), lambda match: '&nbsp;&raquo;<'),
-        (re.compile(r'&rsquo;"'), lambda match: '&rsquo;«&nbsp;'),
-        (re.compile(r' "'), lambda match: ' &laquo;&nbsp;'),
-        (re.compile(r'" '), lambda match: '&nbsp;&raquo; '),
-        (re.compile(r'"\.'), lambda match: '&nbsp;&raquo;.'),
-        (re.compile(r'",'), lambda match: '&nbsp;&raquo;,'),
-        (re.compile(r'"\?'), lambda match: '&nbsp;&raquo;?'),
-        (re.compile(r'":'), lambda match: '&nbsp;&raquo;:'),
-        (re.compile(r'";'), lambda match: '&nbsp;&raquo;;'),
-        (re.compile(r'"\!'), lambda match: '&nbsp;&raquo;!'),
-        (re.compile(r' :'), lambda match: '&nbsp;:'),
-        (re.compile(r' ;'), lambda match: '&nbsp;;'),
-        (re.compile(r' \?'), lambda match: '&nbsp;?'),
-        (re.compile(r' \!'), lambda match: '&nbsp;!'),
-        (re.compile(r'\s»'), lambda match: '&nbsp;»'),
-        (re.compile(r'«\s'), lambda match: '«&nbsp;'),
-        (re.compile(r' %'), lambda match: '&nbsp;%'),
-        (re.compile(r'\.jpg&nbsp;&raquo; border='), lambda match: '.jpg'),
-        (re.compile(r'\.png&nbsp;&raquo; border='), lambda match: '.png'),
-        (re.compile(r' &ndash; '), lambda match: '&nbsp;&ndash; '),
-        (re.compile(r' – '), lambda match: '&nbsp;&ndash; '),
-        (re.compile(r' - '), lambda match: '&nbsp;&ndash; '),
-        (re.compile(r' -,'), lambda match: '&nbsp;&ndash;,'),
-        (re.compile(r'&raquo;:'), lambda match: '&raquo;&nbsp;:'),
-        ]
-
-
-    keep_only_tags    = [
-                       dict(name='div', attrs={'class':['contenu']})
-                        ]
-    remove_tags = [dict(name='div', attrs={'class':['LM_atome']})]
-    remove_tags_after = [dict(id='appel_temoignage')]
-
-    def get_article_url(self, article):
-          url = article.get('guid', None)
-          if '/chat/' in url or '.blog' in url or '/video/' in url or '/sport/' in url or '/portfolio/' in url or '/visuel/' in url :
-              url = None
-          return url
-
-#    def get_article_url(self, article):
-#        link = article.get('link')
-#        if 'blog' not in link and ('chat' not in link):
-#             return link
 
     feeds          = [
                       ('A la une', 'http://www.lemonde.fr/rss/une.xml'),
@@ -136,4 +66,11 @@ class LeMonde(BasicNewsRecipe):
            cover_url = link_item.img['src']
 
         return cover_url
+
+    def get_article_url(self, article):
+        url = article.get('guid', None)
+        if '/chat/' in url or '.blog' in url or '/video/' in url or '/sport/' in url or '/portfolio/' in url or '/visuel/' in url :
+            url = None
+        return url
+
 

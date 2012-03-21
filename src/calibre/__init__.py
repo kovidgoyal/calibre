@@ -381,12 +381,15 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
         user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
     opener.addheaders = [('User-agent', user_agent)]
     proxies = get_proxies()
+    to_add = {}
     http_proxy = proxies.get('http', None)
     if http_proxy:
-        opener.set_proxies({'http':http_proxy})
+        to_add['http'] = http_proxy
     https_proxy = proxies.get('https', None)
     if https_proxy:
-        opener.set_proxies({'https':https_proxy})
+        to_add['https'] = https_proxy
+    if to_add:
+        opener.set_proxies(to_add)
 
     return opener
 
