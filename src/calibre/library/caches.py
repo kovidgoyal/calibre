@@ -953,7 +953,7 @@ class ResultCache(SearchQueryParser): # {{{
                         self.series_col, self.series_sort_col)
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(self.marked_ids_dict.get(id, None))
-            self._data[id].append(None)
+            self._data[id].append(None) # Series sort column
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -983,8 +983,8 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                item.append(None)
-                item.append(None)
+                # Temp mark and series_sort columns
+                item.extend((None, None))
 
         marked_col = self.FIELD_MAP['marked']
         for id_,val in self.marked_ids_dict.iteritems():

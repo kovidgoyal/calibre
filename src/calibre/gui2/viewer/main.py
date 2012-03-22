@@ -224,6 +224,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toc.setVisible(False)
         self.action_quit = QAction(self)
         self.addAction(self.action_quit)
+        self.view_resized_timer = QTimer(self)
+        self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
+        self.view_resized_timer.setSingleShot(True)
+        self.resize_in_progress = False
         qs = [Qt.CTRL+Qt.Key_Q]
         if isosx:
             qs += [Qt.CTRL+Qt.Key_W]
@@ -311,6 +315,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             border-radius: 20px;
         }
         ''')
+        self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.addAction(self.toggle_toolbar_action)
@@ -441,6 +446,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.showFullScreen()
 
     def showFullScreen(self):
+        self.view.document.page_position.save()
+        self.window_mode_changed = 'fullscreen'
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
         self._original_frame_margins = (
@@ -450,7 +457,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.centralwidget.layout().setContentsMargins(0, 0, 0, 0)
 
         super(EbookViewer, self).showFullScreen()
-        QTimer.singleShot(10, self.show_full_screen_label)
 
     def show_full_screen_label(self):
         f = self.full_screen_label
@@ -469,6 +475,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.document.switch_to_fullscreen_mode()
 
     def showNormal(self):
+        self.view.document.page_position.save()
+        self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
@@ -478,7 +486,16 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.centralwidget.layout().setContentsMargins(om[0])
             self.frame.layout().setContentsMargins(om[1])
         super(EbookViewer, self).showNormal()
-        self.view.document.switch_to_window_mode()
+
+    def handle_window_mode_toggle(self):
+        if self.window_mode_changed:
+            fs = self.window_mode_changed == 'fullscreen'
+            self.window_mode_changed = None
+            if fs:
+                self.show_full_screen_label()
+            else:
+                self.view.document.switch_to_window_mode()
+            self.view.document.page_position.restore()
 
     def goto(self, ref):
         if ref:
@@ -507,6 +524,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
         if item.abspath is not None:
+            if not os.path.exists(item.abspath):
+                return error_dialog(self, _('No such location'),
+                        _('The location pointed to by this item'
+                            ' does not exist.'), show=True)
             url = QUrl.fromLocalFile(item.abspath)
             if item.fragment:
                 url.setFragment(item.fragment)
@@ -674,16 +695,28 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
         self.view.load_path(path, pos=pos)
 
-    def viewport_resized(self, frac):
-        new_page = self.pos.value()
-        if self.current_page is not None:
-            try:
-                frac = float(new_page-self.current_page.start_page)/(self.current_page.pages-1)
-            except ZeroDivisionError:
-                frac = 0
-            self.view.scroll_to(frac, notify=False)
+    def viewport_resize_started(self, event):
+        if not self.resize_in_progress:
+            # First resize, so save the current page position
+            self.resize_in_progress = True
+            if not self.window_mode_changed:
+                # The special handling for window mode changed will already
+                # have saved page position, so only save it if this is not a
+                # mode change
+                self.view.document.page_position.save()
+
+        if self.resize_in_progress:
+            self.view_resized_timer.start(75)
+
+    def viewport_resize_finished(self):
+        # There hasn't been a resize event for some time
+        # restore the current page position.
+        self.resize_in_progress = False
+        if self.window_mode_changed:
+            # This resize is part of a window mode change, special case it
+            self.handle_window_mode_toggle()
         else:
-            self.set_page_number(frac)
+            self.view.document.page_position.restore()
 
     def close_progress_indicator(self):
         self.pi.stop()
