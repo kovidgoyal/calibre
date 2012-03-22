@@ -224,6 +224,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toc.setVisible(False)
         self.action_quit = QAction(self)
         self.addAction(self.action_quit)
+        self.view_resized_timer = QTimer(self)
+        self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
+        self.view_resized_timer.setSingleShot(True)
+        self.resize_in_progress = False
         qs = [Qt.CTRL+Qt.Key_Q]
         if isosx:
             qs += [Qt.CTRL+Qt.Key_W]
@@ -301,8 +305,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     _('Press Esc to quit')),
                     self)
         self.full_screen_label.setVisible(False)
-        self.window_mode_toggle_timer = QTimer(self)
-        self.window_mode_toggle_timer.timeout.connect(self.handle_window_mode_toggle)
         self.full_screen_label.setStyleSheet('''
         QLabel {
             text-align: center;
@@ -693,20 +695,28 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
         self.view.load_path(path, pos=pos)
 
-    def viewport_resized(self, frac):
+    def viewport_resize_started(self, event):
+        if not self.resize_in_progress:
+            # First resize, so save the current page position
+            self.resize_in_progress = True
+            if not self.window_mode_changed:
+                # The special handling for window mode changed will already
+                # have saved page position, so only save it if this is not a
+                # mode change
+                self.view.document.page_position.save()
+
+        if self.resize_in_progress:
+            self.view_resized_timer.start(75)
+
+    def viewport_resize_finished(self):
+        # There hasn't been a resize event for some time
+        # restore the current page position.
+        self.resize_in_progress = False
         if self.window_mode_changed:
-            # Soak up extra window resize events
-            self.window_mode_toggle_timer.start(15)
-            return
-        new_page = self.pos.value()
-        if self.current_page is not None:
-            try:
-                frac = float(new_page-self.current_page.start_page)/(self.current_page.pages-1)
-            except ZeroDivisionError:
-                frac = 0
-            self.view.scroll_to(frac, notify=False)
+            # This resize is part of a window mode change, special case it
+            self.handle_window_mode_toggle()
         else:
-            self.set_page_number(frac)
+            self.view.document.page_position.restore()
 
     def close_progress_indicator(self):
         self.pi.stop()
