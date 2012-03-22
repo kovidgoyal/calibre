@@ -161,8 +161,14 @@ class RTFMLizer(object):
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
                 src = os.path.basename(item.href)
-                data, width, height = self.image_to_hexstring(item.data)
-                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s\n}}\n\n' % (width, height, data))
+                try:
+                    data, width, height = self.image_to_hexstring(item.data)
+                except:
+                    self.log.warn('Image %s is corrupted, ignoring'%item.href)
+                    repl = '\n\n'
+                else:
+                    repl = '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s\n}}\n\n' % (width, height, data)
+                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, repl)
         return text
 
     def image_to_hexstring(self, data):
