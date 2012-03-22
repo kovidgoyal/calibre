@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-16 04:12+0000\n"
-"PO-Revision-Date: 2012-03-19 21:32+0000\n"
-"Last-Translator: Radan Putnik <srastral@gmail.com>\n"
+"PO-Revision-Date: 2012-03-21 18:14+0000\n"
+"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-20 04:54+0000\n"
-"X-Generator: Launchpad (build 14969)\n"
+"X-Launchpad-Export-Date: 2012-03-22 04:55+0000\n"
+"X-Generator: Launchpad (build 14981)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -6436,17 +6436,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1068
 msgid "Collections"
-msgstr "Kolekcije"
+msgstr "Збирке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:314
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:256
 msgid "Paste Cover"
-msgstr "Прилепити корице"
+msgstr "Налепи корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:257
 msgid "Copy Cover"
-msgstr "Копирати корицу"
+msgstr "Копирај корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:316
 msgid "Remove Cover"
@@ -6454,13 +6454,13 @@ msgstr "Уклони корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:358
 msgid "Double-click to open Book Details window"
-msgstr "Kliknite dva puta da otvorite prozor s detaljima o knjizi"
+msgstr "Кликните два пута да отворите прозор с детаљима о књизи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:295
 msgid "Path"
-msgstr "Putanja"
+msgstr "Путања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
@@ -6470,7 +6470,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
-msgstr "BibTeX opcije"
+msgstr "BibTeX могућности"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -6493,7 +6493,7 @@ msgstr "BibTeX opcije"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:14
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:13
 msgid "Options specific to"
-msgstr "Opcije koje se odnose na"
+msgstr "Могућности  које се односе на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -6511,7 +6511,7 @@ msgstr "Opcije koje se odnose na"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:14
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:13
 msgid "output"
-msgstr "izlaz"
+msgstr "излаз"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:42
@@ -6572,28 +6572,28 @@ msgstr "izlaz"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
 msgid "Form"
-msgstr "Obrazac"
+msgstr "Образац"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:25
 msgid "Bib file encoding:"
-msgstr "Kodni raspored Bib fajla:"
+msgstr "Кодни распоред Bib датотеке:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:43
 msgid "Fields to include in output:"
-msgstr "Polja koja će biti uključena u katalog:"
+msgstr "Поља која ће бити укључена у каталог:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:46
 msgid "Encoding configuration (change if you have errors) :"
-msgstr "Podešavanje kodnog rasporeda (promenite u slučaju grešaka):"
+msgstr "Подешавање кодног распореда (промените у случају грешака):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:55
 msgid "BibTeX entry type:"
-msgstr "Tip BibTeX stavke:"
+msgstr "Тип BibTeX ставке:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:62
 msgid "Create a citation tag?"
-msgstr "Kreiraj katalog citata?"
+msgstr "Направи каталог навода?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:66
 msgid "Add files path with formats?"
@@ -6601,7 +6601,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:70
 msgid "Expression to form the BibTeX citation tag:"
-msgstr "Izraz za formiranje BibTeX citata:"
+msgstr "Израз за формирање BibTeX навода:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:77
 msgid ""
@@ -6616,11 +6616,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr "CSV/XML opcije"
+msgstr "CSV/XML могућности"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
 msgid "E-book options"
-msgstr "Opcije za e-knjigu"
+msgstr "Могућности за е-књигу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
@@ -6628,19 +6628,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
-msgstr "Uključeni odeljci"
+msgstr "Укључени одељци."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "Books by &Genre"
-msgstr "Knji&ge po žanru"
+msgstr "Књи&ге по жанру."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Recently &Added"
-msgstr "Nedavno dod&ato"
+msgstr "Недавно дод&ато."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Descriptions"
-msgstr "&Opisi"
+msgstr "&Описи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Books by &Series"
@@ -6648,11 +6648,11 @@ msgstr "Knjige po &seriji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid "Books by &Title"
-msgstr "Knjige po &naslovu"
+msgstr "Књиге по &наслову."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr "Књиге по Аутору"
+msgstr "Књиге по аутору"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -6664,23 +6664,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
-msgstr "Izostavljeni žanrovi"
+msgstr "Изостављени жанрови."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:312
 msgid "Tags to &exclude"
-msgstr "&Etikete koje će biti isključene"
+msgstr "&Етикете које ће бити искључене."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
-"Knjige koje odgovaraju bilo kom od šablona neće biti uključene u novi "
-"katalog. "
+"Књиге које одговарају било ком од шаблона неће бити укључене у нови каталог. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid "Excluded books"
-msgstr "Isključene knjige"
+msgstr "Искључене књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:313
 msgid ""
@@ -6691,11 +6690,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "&Column/value"
-msgstr "&Kolona/vrednost"
+msgstr "&Колона/вредност."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:316
 msgid "Column containing additional exclusion criteria"
-msgstr "Kolona koja sadrži dodatne kriterijume za isključivanje"
+msgstr "Колона која садржи додатне критеријуме за искључивање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid "Exclusion pattern"
@@ -6707,11 +6706,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
-msgstr "Pročitane knjige"
+msgstr "Прочитане књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
-msgstr "Kolona koja sadrži status 'pročitano'"
+msgstr "Колона која садржи статус 'прочитано'."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
@@ -6719,11 +6718,11 @@ msgstr "Šablon za 'knjiga pročitana'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
-msgstr "Ostale opcije"
+msgstr "Остале могућности"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
-msgstr "Etiketa &za spisak želja"
+msgstr "Етикета &за списак жеља."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
@@ -6731,169 +6730,169 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
-msgstr "Širi&na ikone"
+msgstr "Шири&на иконе."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
-msgstr "Predlog za veličinu ikone za omot opisa"
+msgstr "Предлог за величину иконе за омот описа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
-msgstr " inča"
+msgstr " инч"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "&Description note"
-msgstr "&Opis"
+msgstr "&Опис."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid "Custom column source for note to include in Description header area"
-msgstr "Poseban izvor za belešku koja će biti uključena u zaglavlje opisa"
+msgstr "Посебан извор за белешку која ће бити укључена у заглавље описа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
-msgstr "Spoj s ko&mentarima"
+msgstr "Спој с ко&ментарима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Additional content merged with Comments during catalog generation"
 msgstr ""
-"Dodatni sadržaj koji će biti spojen s komentarima pri kreiranju kataloga"
+"Додатни садржај који ће бити спојен с коментарима при прављењу каталога."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "Merge additional content before Comments"
-msgstr "Dodaj ostali sadržaj pre komentara"
+msgstr "Додај остали садржај пре коментара."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "&Before"
-msgstr "&Pre"
+msgstr "&Пре."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content after Comments"
-msgstr "Dodaj ostali sadržaj posle komentara"
+msgstr "Додај остали садржај после коментара."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&After"
-msgstr "Posl&e"
+msgstr "Посл&е."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
-msgstr "Razdvoj komentare i ostali sadržaj vodoravnom crtom"
+msgstr "Раздвој коментаре и остали садржај водоравном цртом."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&Separator"
-msgstr "&Znak za razdvajanje"
+msgstr "&Знак за раздвајање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
-msgstr "Specifikacija tabulatora za catalog.ui"
+msgstr "Спецификација језичака за catalog.ui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:70
 msgid "Bold"
-msgstr "Masno"
+msgstr "Подебљано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:71
 msgid "Italic"
-msgstr "Kurziv"
+msgstr "Искошено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:74
 msgid "Underline"
-msgstr "Podvučeno"
+msgstr "Подвучено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:76
 msgid "Strikethrough"
-msgstr "Precrtano"
+msgstr "Прецртано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
 msgid "Superscript"
-msgstr "Eksponent"
+msgstr "Експонент"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Subscript"
-msgstr "Indeks"
+msgstr "Индекс"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
 msgid "Ordered list"
-msgstr "Uređena lista"
+msgstr "Уређени списак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:84
 msgid "Unordered list"
-msgstr "Neuređena lista"
+msgstr "Неуређени списак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
 msgid "Align left"
-msgstr "Levo poravnanje"
+msgstr "Лево поравнање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
 msgid "Align center"
-msgstr "Centrirano"
+msgstr "Поравнај по средини"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
 msgid "Align right"
-msgstr "Desno poravnanje"
+msgstr "Десно поравнање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Align justified"
-msgstr "Obostrano poravnanje"
+msgstr "Обострано поравнање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Undo"
-msgstr "Poništi"
+msgstr "Опозови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:95
 msgid "Redo"
-msgstr "Ponovi"
+msgstr "Понови."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Remove formatting"
-msgstr "Ukloni formatiranje"
+msgstr "Уклони форматирање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:174
 msgid "Copy"
-msgstr "Kopiraj"
+msgstr "Умножи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:176
 msgid "Paste"
-msgstr "Ubaci"
+msgstr "Налепи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:99
 msgid "Cut"
-msgstr "Iseci"
+msgstr "Исеци"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:101
 msgid "Increase Indentation"
-msgstr "Povećaj uvlačenje"
+msgstr "Повећај увлачење."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Decrease Indentation"
-msgstr "Smanji uvlačenje"
+msgstr "Смањи увлачење."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:105
 msgid "Select all"
-msgstr "Izaberi sve"
+msgstr "Изабери све"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:110
 msgid "Foreground color"
-msgstr "Boja teksta"
+msgstr "Боја текста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:115
 msgid "Background color"
-msgstr "Boja pozadine"
+msgstr "Боја позадине"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:119
 msgid "Style text block"
-msgstr "Deo teksta s posebnim stilom"
+msgstr "Део текста с посебним стилом."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:121
 msgid "Style the selected text block"
-msgstr "Stil za izabrani deo teksta"
+msgstr "Стил за изабрани део текста."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Normal"
-msgstr "Normalan"
+msgstr "Нормалан"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:128
@@ -6902,53 +6901,53 @@ msgstr "Normalan"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Heading"
-msgstr "Zaglavlje"
+msgstr "Заглавље"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Pre-formatted"
-msgstr "Predformatiran tekst"
+msgstr "Предформатиран текст."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:134
 msgid "Blockquote"
-msgstr "Citat"
+msgstr "Цитат."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:135
 msgid "Address"
-msgstr "Adresa"
+msgstr "Адреса"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:142
 msgid "Insert link"
-msgstr "Ubaci vezu"
+msgstr "Уметни везу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:144
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:84
 msgid "Clear"
-msgstr "Obriši"
+msgstr "Очисти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:162
 msgid "Choose foreground color"
-msgstr "Izaberite boju teksta"
+msgstr "Изабери боју текста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:168
 msgid "Choose background color"
-msgstr "Izaberite boju pozadine"
+msgstr "Изабери боју позадине"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:173
 msgid "Create link"
-msgstr "Napravi vezu"
+msgstr "Направи везу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:174
 msgid "Enter URL"
-msgstr "Unesite URL"
+msgstr "Унесите УРЛ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:528
 msgid "Normal view"
-msgstr "Običan pogled na teskt"
+msgstr "Уобичајен приказ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:529
 msgid "HTML Source"
-msgstr "HTML izvorni kod"
+msgstr "HTML изворни код."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:41
 msgid ""
@@ -6956,9 +6955,9 @@ msgid ""
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
 msgstr ""
-"Za podešavanja koja se ne mogu postaviti u ovom dijalogu koristi vrednosti "
-"sačuvane od prethodne konverzije (ako postoje), umesto korišćenja "
-"podrazumevanih vrednosti u Podešavanjima"
+"За подешавања која се не могу  поставити у овом дијалогу користи вредности "
+"сачуване од претходног претварања (ако постоје), уместо коришћења "
+"подразумеваних вредности у Подешавањима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:61
 msgid "None of the selected books have saved conversion settings."
