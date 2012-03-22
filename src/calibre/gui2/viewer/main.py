@@ -507,6 +507,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
         if item.abspath is not None:
+            if not os.path.exists(item.abspath):
+                return error_dialog(self, _('No such location'),
+                        _('The location pointed to by this item'
+                            ' does not exist.'), show=True)
             url = QUrl.fromLocalFile(item.abspath)
             if item.fragment:
                 url.setFragment(item.fragment)
