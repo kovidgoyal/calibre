@@ -74,15 +74,23 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 if 'pdf' in formats:
                     formats[formats.index('pdf')] = 'PDF' 
 
-                counter -= 1
-
                 s = SearchResult()
                 s.cover_url = 'http://woblink.com' + cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price + ' zł'
                 s.detail_item = id.strip()
-                s.drm = SearchResult.DRM_UNKNOWN if 'MOBI' in formats else SearchResult.DRM_LOCKED
-                s.formats = ', '.join(formats)
-
-                yield s
+                # MOBI should be send first,
+                if 'MOBI' in formats:
+                    s.drm = SearchResult.DRM_UNLOCKED
+                    s.formats = 'MOBI'
+                    formats.remove('MOBI')
+                    counter -= 1
+                    yield s
+                    
+                # and the remaining formats (if any) next
+                if formats:
+                    s.drm = SearchResult.DRM_LOCKED
+                    s.formats = ', '.join(formats)
+                    counter -= 1
+                    yield s
