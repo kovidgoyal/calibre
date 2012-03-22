@@ -284,9 +284,6 @@
    <property name="text">
     <string>Toggle full screen</string>
    </property>
-   <property name="toolTip">
-    <string>Toggle full screen (F11)</string>
-   </property>
   </action>
   <action name="action_print">
    <property name="icon">

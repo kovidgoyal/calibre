@@ -268,6 +268,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),
                      self.toggle_fullscreen)
         self.action_full_screen.setShortcuts([Qt.Key_F11, Qt.CTRL+Qt.SHIFT+Qt.Key_F])
+        self.action_full_screen.setToolTip(_('Toggle full screen (%s)') %
+                _(' or ').join([unicode(x.toString(x.NativeText)) for x in
+                    self.action_full_screen.shortcuts()]))
         self.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         self.connect(self.action_bookmark, SIGNAL('triggered(bool)'), self.bookmark)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
