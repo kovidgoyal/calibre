@@ -43,9 +43,9 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
         url = 'http://woblink.com/publication?query=' + urllib.quote_plus(query.encode('utf-8'))
         if max_results > 10:
             if max_results > 20:
-                url += '&limit=' + str(30)
+                url += '&limit=30'
             else:
-                url += '&limit=' + str(20)
+                url += '&limit=20'
 
         br = browser()
 
