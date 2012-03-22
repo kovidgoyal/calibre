@@ -3,7 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -41,6 +41,11 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://woblink.com/publication?query=' + urllib.quote_plus(query.encode('utf-8'))
+        if max_results > 10:
+            if max_results > 20:
+                url += '&limit=' + str(30)
+            else:
+                url += '&limit=' + str(20)
 
         br = browser()
 
@@ -58,15 +63,16 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//td[@class="w10 va-t"]/a[1]/img/@src'))
                 title = ''.join(data.xpath('.//h2[@class="title"]/a[1]/text()'))
                 author = ', '.join(data.xpath('.//p[@class="author"]/a/text()'))
-                price = ''.join(data.xpath('.//div[@class="prices"]/p[1]/span/text()'))
-                price = re.sub('PLN', ' zł', price)
+                price = ''.join(data.xpath('.//div[@class="prices"]/span[1]/span/text()'))
                 price = re.sub('\.', ',', price)
-                formats = ', '.join(data.xpath('.//p[3]/img/@src'))
-                formats = formats[8:-4].upper()
-                if formats == 'EPUB':
-                    formats = 'WOBLINK'
+                formats = [ form[8:-4].split('_')[0] for form in data.xpath('.//p[3]/img/@src')]
+                if 'epub' in formats:
+                    formats.remove('epub')
+                    formats.append('WOBLINK')
                     if 'E Ink' in data.xpath('.//div[@class="prices"]/img/@title'):
-                        formats += ', EPUB'
+                        formats.insert(0, 'EPUB')
+                if 'pdf' in formats:
+                    formats[formats.index('pdf')] = 'PDF' 
 
                 counter -= 1
 
@@ -74,9 +80,9 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = 'http://woblink.com' + cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price
+                s.price = price + ' zł'
                 s.detail_item = id.strip()
-                s.drm = SearchResult.DRM_LOCKED
-                s.formats = formats
+                s.drm = SearchResult.DRM_UNKNOWN if 'MOBI' in formats else SearchResult.DRM_LOCKED
+                s.formats = ', '.join(formats)
 
                 yield s
