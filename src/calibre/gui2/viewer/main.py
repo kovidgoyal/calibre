@@ -301,6 +301,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     _('Press Esc to quit')),
                     self)
         self.full_screen_label.setVisible(False)
+        self.window_mode_toggle_timer = QTimer(self)
+        self.window_mode_toggle_timer.timeout.connect(self.handle_window_mode_toggle)
         self.full_screen_label.setStyleSheet('''
         QLabel {
             text-align: center;
@@ -311,6 +313,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             border-radius: 20px;
         }
         ''')
+        self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.addAction(self.toggle_toolbar_action)
@@ -441,6 +444,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.showFullScreen()
 
     def showFullScreen(self):
+        self.view.document.page_position.save()
+        self.window_mode_changed = 'fullscreen'
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
         self._original_frame_margins = (
@@ -450,7 +455,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.centralwidget.layout().setContentsMargins(0, 0, 0, 0)
 
         super(EbookViewer, self).showFullScreen()
-        QTimer.singleShot(10, self.show_full_screen_label)
 
     def show_full_screen_label(self):
         f = self.full_screen_label
@@ -469,6 +473,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.document.switch_to_fullscreen_mode()
 
     def showNormal(self):
+        self.view.document.page_position.save()
+        self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
@@ -478,7 +484,16 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.centralwidget.layout().setContentsMargins(om[0])
             self.frame.layout().setContentsMargins(om[1])
         super(EbookViewer, self).showNormal()
-        self.view.document.switch_to_window_mode()
+
+    def handle_window_mode_toggle(self):
+        if self.window_mode_changed:
+            fs = self.window_mode_changed == 'fullscreen'
+            self.window_mode_changed = None
+            if fs:
+                self.show_full_screen_label()
+            else:
+                self.view.document.switch_to_window_mode()
+            self.view.document.page_position.restore()
 
     def goto(self, ref):
         if ref:
@@ -679,6 +694,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.load_path(path, pos=pos)
 
     def viewport_resized(self, frac):
+        if self.window_mode_changed:
+            # Soak up extra window resize events
+            self.window_mode_toggle_timer.start(15)
+            return
         new_page = self.pos.value()
         if self.current_page is not None:
             try:
