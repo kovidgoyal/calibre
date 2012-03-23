@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-16 04:12+0000\n"
-"PO-Revision-Date: 2012-03-21 18:14+0000\n"
+"PO-Revision-Date: 2012-03-22 16:11+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-22 04:55+0000\n"
-"X-Generator: Launchpad (build 14981)\n"
+"X-Launchpad-Export-Date: 2012-03-23 04:40+0000\n"
+"X-Generator: Launchpad (build 14996)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -6965,16 +6965,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:81
 msgid "Bulk Convert"
-msgstr "Masovna konverzija"
+msgstr "Масовно претварање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:189
 msgid "Options specific to the output format."
-msgstr "Opcije koje zavise od izlaznog formata."
+msgstr "Могућности које зависе од излазног формата."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr "Ulazni strip"
+msgstr "Улазни стрип."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:15
@@ -6982,70 +6982,70 @@ msgstr "Ulazni strip"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 msgid "input"
-msgstr "ulaz"
+msgstr "улаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:99
 msgid "&Number of Colors:"
-msgstr "&Broj boja"
+msgstr "&Број боја."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:101
 msgid "Disable &normalize"
-msgstr "Isključi &normalizaciju"
+msgstr "Искључи &нормализацију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:102
 msgid "Keep &aspect ratio"
-msgstr "Sačuvaj &proporcije"
+msgstr "Задржиј &пропорције"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:103
 msgid "Disable &Sharpening"
-msgstr "Isključi &izoštravanje"
+msgstr "Искључи &изоштравање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:109
 msgid "Disable &Trimming"
-msgstr "Isključi &opsecanje"
+msgstr "Искључи &опсецање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:108
 msgid "&Wide"
-msgstr "&Položen ekran"
+msgstr "&Положен екран."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:104
 msgid "&Landscape"
-msgstr "Sačuvaj &horizontalnu orijentaciju originala"
+msgstr "&Положено."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:106
 msgid "&Right to left"
-msgstr "&S desna na levo"
+msgstr "&С десна на лево."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:105
 msgid "Don't so&rt"
-msgstr "Ne so&rtiraj"
+msgstr "Не ра&зврставај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:107
 msgid "De&speckle"
-msgstr "&Omekšaj sliku"
+msgstr "&Омекшај слику."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:114
 msgid "&Disable comic processing"
-msgstr "&Isključi obradu stripova"
+msgstr "&Искључи обраду стрипова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:120
 msgid "&Output format:"
-msgstr "&Izlazni format:"
+msgstr "&Излазни формат:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:116
 msgid "Disable conversion of images to &black and white"
-msgstr "Nemoj da konvertuješ slike u crno-&bele"
+msgstr "Немој да пребацујеш слике у црно-&беле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:117
 msgid "Override image  &size:"
@@ -7057,16 +7057,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
-msgstr "Traženje grešaka"
+msgstr "Исправка грешака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr "Traženje grešaka u procesu konverzije."
+msgstr "Тражење грешака у процесу претварања."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:56
 msgid "Choose debug folder"
-msgstr "Izaberi direktorijum za ispravljanje grešaka"
+msgstr "Изабери фасциклу за исправљање грешака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Invalid debug directory"
@@ -7074,7 +7074,7 @@ msgstr "Neispravan direktorijum za ispravljanje grešaka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:59
 msgid "Failed to create debug directory"
-msgstr "Nisam uspeo da kreiram direktorijum za ispravljanje grešaka"
+msgstr "Нисам успео да направим директоријум за исправљање грешака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:55
 msgid ""
@@ -7083,11 +7083,11 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
-"Izaberite direktorijum u za smeštanje podataka za ispravljanje grešaka. Ako "
-"navedete direktorijum, calibre će u njega snimiti veliku količinu podataka "
-"korisnih za traženje grešaka. Ovo je korisno i za razumevanje procesa "
-"konverzije i otkrivanje dobrih vrednosti različitih parametara, na primer "
-"Sadržaja i otkrivanja Poglavlja."
+"Изаберите директоријум у за смештање података за исправљање грешака. Ако "
+"наведете директоријум, calibre ће у њега сачувати велику количину података "
+"корисних за тражење грешака. Ово је корисно и за разумевање процеса "
+"претварања и откривање добрих вредности различитих параметара, на пример "
+"Садржаја и откривања Поглавља."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:59
 msgid ""
@@ -7095,9 +7095,9 @@ msgid ""
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
 msgstr ""
-"Proces za otkrivanje grešaka kreira HTML fajl s međurezultatima različitih "
-"koraka konverzije. Ovaj HTML fajl ponekad može da posluži kao dobra startna "
-"pozicija za ručno modifikovanje parametara konverzije."
+"Процес за откривање грешака прави HTML датотеку с међурезултатима различитих "
+"корака претварања. Овај HTML датотека понекад може да послужи као добра "
+"почетна позиција за ручно уређење параметара претварања."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
@@ -7109,31 +7109,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr "EPUB izlaz"
+msgstr "EPUB излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:57
 msgid "Do not &split on page breaks"
-msgstr "Ne &prelamaj na kraju strane"
+msgstr "Не &преламај на крају стране."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:58
 msgid "No default &cover"
-msgstr "Ne koristi podrazumevanu &naslovnu stranu"
+msgstr "Не користи подразумевану &насловну страну."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:59
 msgid "No &SVG cover"
-msgstr "Bez &SVG omota"
+msgstr "Без &SVG омота."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:60
 msgid "Preserve cover &aspect ratio"
-msgstr "Sačuvaj r&azmere omota"
+msgstr "Сачувај р&азмере омота."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:61
 msgid "Split files &larger than:"
-msgstr "Podeli fajlove &veće od:"
+msgstr "Издели датотеке &веће од:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:62
 msgid " KB"
-msgstr " KB"
+msgstr " КБ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
@@ -7141,19 +7141,19 @@ msgstr "\"Izravnaj\" &fajl sistem u EPUB formatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
-msgstr "FB2 ulaz"
+msgstr "FB2 улаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:34
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr "Ne stavljaj &Sadržaj na početak knjige."
+msgstr "Не стављај &Садржај на почетак књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
-msgstr "FB2 izlaz"
+msgstr "FB2 излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:45
 msgid "Sectionize:"
-msgstr "Podeli na sekcije:"
+msgstr "Подели на секције:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
@@ -7161,7 +7161,7 @@ msgstr "Жанр"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
-msgstr "Čarobnjak za promenu veličine slova"
+msgstr "Чаробњак за промену величине слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 msgid ""
@@ -7181,17 +7181,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
-msgstr "&Izlazni dokument"
+msgstr "&Излазни документ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "&Base font size:"
-msgstr "&Osnovna veličina slova:"
+msgstr "&Основна величина слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:42
 msgid "Font size &key:"
-msgstr "&Ključ za veličinu slova:"
+msgstr "&Кључ за величину слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:115
@@ -7210,23 +7210,23 @@ msgstr " pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:112
 msgid "Use &default values"
-msgstr "Koristi &podrazumevane vrednosti"
+msgstr "Користи &подразумеване вредности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
 msgid "&Input document"
-msgstr "&Ulazni dokument"
+msgstr "&Улазни документ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:116
 msgid "&Font size: "
-msgstr "&Veličina slova: "
+msgstr "&Величина слова: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:118
 msgid " will map to size: "
-msgstr " će biti povezana s veličinom: "
+msgstr " биће повезана с величином: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:119
 msgid "0.0 pt"
-msgstr "0.0 štamparksih tačaka"
+msgstr "0.0 штампарксих тачака."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:15
 msgid ""
@@ -7312,40 +7312,39 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
-msgstr "Izgled"
+msgstr "Изглед и угођај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr "Kontrola izgleda izlaznog dokumenta"
+msgstr "Контрола изгледа излазног документа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:45
 msgid "Original"
-msgstr "Originalno"
+msgstr "Изворно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:46
 msgid "Left align"
-msgstr "Levo poravnanje"
+msgstr "Лево поравнање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:47
 msgid "Justify text"
-msgstr "Poravnanje sa obe strane"
+msgstr "Обострано поравнање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:25
 msgid "&Disable font size rescaling"
-msgstr "&Onemogući promenu veličine slova"
+msgstr "&Онемогући промену величине слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:29
 msgid "Base &font size:"
-msgstr "Osnovna &veličina slova:"
+msgstr "Основна &величина слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:56
 msgid "Wizard to help you choose an appropriate font size key"
-msgstr ""
-"Čarobnjak koji će pomoći u izboru odgovarajućeg ključa za vrstu slova"
+msgstr "Чаробњак који ће помоћи у избору одговарајућег кључа за врсту слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:66
 msgid "Minimum &line height:"
-msgstr "Minima&lna visina reda:"
+msgstr "Најм&ања висина реда:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:70
 msgid " %"
@@ -7353,15 +7352,15 @@ msgstr " %"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:76
 msgid "Line &height:"
-msgstr "Visina &reda:"
+msgstr "Висина &реда:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:85
 msgid "Input character &encoding:"
-msgstr "Ulazni &kodni raspored:"
+msgstr "Улазни &кодни распоред:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:93
 msgid "Remove &spacing between paragraphs"
-msgstr "Ukloni &razmak između pasusa"
+msgstr "Уклони &размак између пасуса."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
 msgid "&Indent size:"
@@ -7373,14 +7372,14 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
-"<p>Kada calibre uklanja razmake unutar pasusa automatski će biti postavljeno "
-"uvlačenje prvog reda da bi se pasusi mogli prepoznati. Ova opcija postavlja "
-"veličinu tog uvlačenja."
+"<p>Када calibre уклања размаке унутар пасуса аутоматски ће бити постављено "
+"увлачење првог реда да би се пасуси могли препознати. Ова могућност поставља "
+"величину тог увлачења."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:556
 msgid "No change"
-msgstr "Bez promene"
+msgstr "Без промене."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
@@ -7401,11 +7400,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid "Smarten &punctuation"
-msgstr "Ulepšaj inter&punkciju"
+msgstr "Улепшај интер&пункцију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "&Transliterate unicode characters to ASCII"
-msgstr "&Prevedi UNICODE znake u ASCII"
+msgstr "&Преведи UNICODE знаке у ASCII."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:140
 msgid "&UnSmarten punctuation"
@@ -7413,11 +7412,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "Keep &ligatures"
-msgstr "Sačuvaj &ligature"
+msgstr "Задржиј &лигатуре"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:148
 msgid "&Linearize tables"
-msgstr "&Linearizuj tabele"
+msgstr "&Линеаризуј табеле."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
@@ -7429,7 +7428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr ""
+msgstr "&Словоликови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
@@ -7439,7 +7438,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
-msgstr ""
+msgstr "&Рубови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
