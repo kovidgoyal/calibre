@@ -709,6 +709,7 @@ class DocumentView(QWebView): # {{{
         if self.manager is not None:
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
+        html = re.sub(r'<\s*title\s*/\s*>', '', html, flags=re.IGNORECASE)
         if has_svg:
             self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         else:
