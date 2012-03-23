@@ -10,32 +10,11 @@ class PC_Centre(BasicNewsRecipe):
     masthead_url= 'http://pccentre.pl/views/images/logo.gif'
     cover_url= 'http://pccentre.pl/views/images/logo.gif'
     no_stylesheets = True
-    keep_only_tags= [dict(id='content')]
-    remove_tags=[dict(attrs={'class':['ikony r', 'list_of_content', 'dot accordion']}), dict(id='comments')]
-    feeds          = [(u'Publikacje', u'http://pccentre.pl/backend.php?mode=a'), (u'Aktualno\u015bci', u'http://pccentre.pl/backend.php'), (u'Sprz\u0119t komputerowy', u'http://pccentre.pl/backend.php?mode=n&section=2'), (u'Oprogramowanie', u'http://pccentre.pl/backend.php?mode=n&section=3'), (u'Gry komputerowe i konsole', u'http://pccentre.pl/backend.php?mode=n&section=4'), (u'Internet', u'http://pccentre.pl/backend.php?mode=n&section=7'), (u'Bezpiecze\u0144stwo', u'http://pccentre.pl/backend.php?mode=n&section=5'), (u'Multimedia', u'http://pccentre.pl/backend.php?mode=n&section=6'), (u'Biznes', u'http://pccentre.pl/backend.php?mode=n&section=9')]
+    remove_empty_feeds = True
+    #keep_only_tags= [dict(id='content')]
+    #remove_tags=[dict(attrs={'class':['ikony r', 'list_of_content', 'dot accordion']}), dict(id='comments')]
+    remove_tags=[dict(attrs={'class':'logo_print'})]
+    feeds          = [(u'Aktualno\u015bci', u'http://pccentre.pl/backend.php'), (u'Publikacje', u'http://pccentre.pl/backend.php?mode=a'), (u'Sprz\u0119t komputerowy', u'http://pccentre.pl/backend.php?mode=n&section=2'), (u'Oprogramowanie', u'http://pccentre.pl/backend.php?mode=n&section=3'), (u'Gry komputerowe i konsole', u'http://pccentre.pl/backend.php?mode=n&section=4'), (u'Internet', u'http://pccentre.pl/backend.php?mode=n&section=7'), (u'Bezpiecze\u0144stwo', u'http://pccentre.pl/backend.php?mode=n&section=5'), (u'Multimedia', u'http://pccentre.pl/backend.php?mode=n&section=6'), (u'Biznes', u'http://pccentre.pl/backend.php?mode=n&section=9')]
 
-
-    def append_page(self, soup, appendtag):
-        tag=soup.find(name='div', attrs={'class':'pages'})
-        if tag:
-            nexturl=tag.findAll('a')
-            tag.extract()
-            for nextpage in nexturl[:-1]:
-               nextpage= 'http://pccentre.pl' + nextpage['href']
-               soup2 = self.index_to_soup(nextpage)
-               pagetext = soup2.find(id='content')
-               rem=pagetext.findAll(attrs={'class':['subtitle', 'content_info', 'list_of_content', 'pages', 'social2', 'pcc_acc', 'pcc_acc_na']})
-               for r in rem:
-                   r.extract()
-               rem=pagetext.findAll(id='comments')
-               for r in rem:
-                   r.extract()
-               rem=pagetext.findAll('h1')
-               for r in rem:
-                   r.extract()
-               pos = len(appendtag.contents)
-               appendtag.insert(pos, pagetext)
-
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
-        return soup
+    def print_version(self, url):
+        return url.replace('show', 'print')

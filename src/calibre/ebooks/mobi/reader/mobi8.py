@@ -33,6 +33,7 @@ class Mobi8Reader(object):
     def __init__(self, mobi6_reader, log):
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
+        self.encrypted_fonts = []
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
@@ -229,11 +230,9 @@ class Mobi8Reader(object):
 
     def get_id_tag_by_pos_fid(self, posfid, offset):
         # first convert kindle:pos:fid and offset info to position in file
-        row = int(posfid, 32)
-        off = int(offset, 32)
-        [insertpos, idtext, filenum, seqnm, startpos, length] = self.elems[row]
-        pos = insertpos + off
-        fname = self.get_file_info(pos).filename
+        insertpos, idtext, filenum, seqnm, startpos, length = self.elems[posfid]
+        pos = insertpos + offset
+        fi = self.get_file_info(pos)
         # an existing "id=" must exist in original xhtml otherwise it would not
         # have worked for linking.  Amazon seems to have added its own
         # additional "aid=" inside tags whose contents seem to represent some
@@ -242,7 +241,7 @@ class Mobi8Reader(object):
         # so find the closest "id=" before position the file by actually
         # searching in that file
         idtext = self.get_id_tag(pos)
-        return fname, idtext
+        return '%s/%s'%(fi.type, fi.filename), idtext
 
     def get_id_tag(self, pos):
         # find the correct tag by actually searching in the destination
@@ -253,12 +252,13 @@ class Mobi8Reader(object):
         textblock = self.parts[fi.num]
         id_map = []
         npos = pos - fi.start
-        # if npos inside a tag then search all text before the its end of tag
-        # marker
         pgt = textblock.find(b'>', npos)
         plt = textblock.find(b'<', npos)
-        if pgt < plt:
+        # if npos inside a tag then search all text before the its end of tag marker
+        # else not in a tag need to search the preceding tag
+        if plt == npos or pgt < plt:
             npos = pgt + 1
+        textblock = textblock[0:npos]
         # find id links only inside of tags
         #    inside any < > pair find all "id=' and return whatever is inside
         #    the quotes
@@ -315,12 +315,18 @@ class Mobi8Reader(object):
 
         # Add href and anchor info to the index entries
         for entry in index_entries:
-            pos = entry['pos']
-            fi = self.get_file_info(pos)
-            if fi.filename is None:
-                raise ValueError('Index entry has invalid pos: %d'%pos)
-            idtag = self.get_id_tag(pos).decode(self.header.codec)
-            entry['href'] = '%s/%s'%(fi.type, fi.filename)
+            pos_fid = entry['pos_fid']
+            if pos_fid is None:
+                pos = entry['pos']
+                fi = self.get_file_info(pos)
+                if fi.filename is None:
+                    raise ValueError('Index entry has invalid pos: %d'%pos)
+                idtag = self.get_id_tag(pos).decode(self.header.codec)
+                href = '%s/%s'%(fi.type, fi.filename)
+            else:
+                href, idtag = self.get_id_tag_by_pos_fid(*pos_fid)
+
+            entry['href'] = href
             entry['idtag'] = idtag
 
         # Build the TOC object
@@ -350,6 +356,8 @@ class Mobi8Reader(object):
                 with open(href.replace('/', os.sep), 'wb') as f:
                     f.write(font['font_data'] if font['font_data'] else
                             font['raw_data'])
+                if font['encrypted']:
+                    self.encrypted_fonts.append(href)
             else:
                 imgtype = imghdr.what(None, data)
                 if imgtype is None:

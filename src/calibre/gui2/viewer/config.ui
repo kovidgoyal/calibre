@@ -255,7 +255,10 @@
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QSpinBox" name="max_view_width">
+          <widget class="QSpinBox" name="max_fs_width">
+           <property name="toolTip">
+            <string>Set the maximum width that the book's text and pictures will take when in fullscreen mode. This allows you to read the book text without it becoming too wide.</string>
+           </property>
            <property name="suffix">
             <string> px</string>
            </property>
@@ -270,10 +273,10 @@
          <item row="3" column="0">
           <widget class="QLabel" name="label_7">
            <property name="text">
-            <string>Maximum &amp;view width:</string>
+            <string>Maximum text width in &amp;fullscreen:</string>
            </property>
            <property name="buddy">
-            <cstring>max_view_width</cstring>
+            <cstring>max_fs_width</cstring>
            </property>
           </widget>
          </item>
@@ -350,7 +353,7 @@
   <tabstop>serif_family</tabstop>
   <tabstop>sans_family</tabstop>
   <tabstop>mono_family</tabstop>
-  <tabstop>max_view_width</tabstop>
+  <tabstop>max_fs_width</tabstop>
   <tabstop>opt_remember_window_size</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
