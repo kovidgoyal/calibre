@@ -6,8 +6,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
-        QApplication, QCompleter
+from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
+        QApplication, QCompleter, QMetaObject)
 
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
@@ -182,14 +182,27 @@ class MultiCompleteComboBox(EnComboBox):
     def set_add_separator(self, what):
         self.lineEdit().set_add_separator(what)
 
-
+    def show_initial_value(self, what):
+        '''
+        Show an initial value. Handle the case of the initial value being blank
+        correctly (on Qt 4.8.0 having a blank value causes the first value from
+        the completer to be shown, when the event loop runs).
+        '''
+        what = unicode(what)
+        le = self.lineEdit()
+        if not what.strip():
+            QMetaObject.invokeMethod(self, 'clearEditText',
+                    Qt.QueuedConnection)
+        else:
+            self.setEditText(what)
+            le.selectAll()
 
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
     app = QApplication([])
     d = QDialog()
     d.setLayout(QVBoxLayout())
-    le = MultiCompleteLineEdit(d)
+    le = MultiCompleteComboBox(d)
     d.layout().addWidget(le)
     le.all_items = ['one', 'otwo', 'othree', 'ooone', 'ootwo', 'oothree']
     d.exec_()

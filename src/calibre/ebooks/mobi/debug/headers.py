@@ -328,7 +328,7 @@ class MOBIHeader(object): # {{{
             (self.sect_idx, self.skel_idx, self.datp_idx, self.oth_idx
                     ) = struct.unpack_from(b'>4L', self.raw, 248)
             self.unknown9 = self.raw[264:self.length]
-            if self.meta_orth_indx != self.sect_idx:
+            if self.meta_orth_indx not in {NULL_INDEX, self.sect_idx}:
                 raise ValueError('KF8 header has different Meta orth and '
                         'section indices')
 
