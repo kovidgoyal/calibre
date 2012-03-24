@@ -82,11 +82,17 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = id.strip()
                 # MOBI should be send first,
                 if 'MOBI' in formats:
-                    s.drm = SearchResult.DRM_UNLOCKED
-                    s.formats = 'MOBI'
+                    t = SearchResult()
+                    t.cover_url = s.cover_url
+                    t.title = s.title +' MOBI'
+                    t.author = s.author
+                    t.price = s.price
+                    t.detail_item = s.detail_item
+                    t.drm = SearchResult.DRM_UNLOCKED
+                    t.formats = 'MOBI'
                     formats.remove('MOBI')
                     counter -= 1
-                    yield s
+                    yield t
                     
                 # and the remaining formats (if any) next
                 if formats:
