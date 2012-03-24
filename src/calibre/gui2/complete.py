@@ -183,6 +183,11 @@ class MultiCompleteComboBox(EnComboBox):
         self.lineEdit().set_add_separator(what)
 
     def show_initial_value(self, what):
+        '''
+        Show an initial value. Handle the case of the initial value being blank
+        correctly (on Qt 4.8.0 having a blank value causes the first value from
+        the completer to be shown, when the event loop runs).
+        '''
         what = unicode(what)
         le = self.lineEdit()
         if not what.strip():
