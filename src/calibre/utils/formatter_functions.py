@@ -841,7 +841,7 @@ class BuiltinSeriesSort(BuiltinFormatterFunction):
     name = 'series_sort'
     arg_count = 0
     category = 'Get values from metadata'
-    __doc__ = doc = _('booksize() -- return the series sort value')
+    __doc__ = doc = _('series_sort() -- return the series sort value')
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.series:
