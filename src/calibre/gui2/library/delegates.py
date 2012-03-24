@@ -128,8 +128,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
             for item in sorted(complete_items, key=sort_key):
                 editor.addItem(item)
             ct = index.data(Qt.DisplayRole).toString()
-            editor.setEditText(ct)
-            editor.lineEdit().selectAll()
+            editor.show_initial_value(ct)
         else:
             editor = EnLineEdit(parent)
         return editor
@@ -170,8 +169,7 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
             for item in sorted(all_items, key=sort_key):
                 editor.addItem(item)
             ct = index.data(Qt.DisplayRole).toString()
-            editor.setEditText(ct)
-            editor.lineEdit().selectAll()
+            editor.show_initial_value(ct)
         else:
             editor = EnLineEdit(parent)
         return editor
@@ -190,8 +188,7 @@ class LanguagesDelegate(QStyledItemDelegate): # {{{
         editor = LanguagesEdit(parent=parent)
         editor.init_langs(index.model().db)
         ct = index.data(Qt.DisplayRole).toString()
-        editor.setEditText(ct)
-        editor.lineEdit().selectAll()
+        editor.show_initial_value(ct)
         return editor
 
     def setModelData(self, editor, model, index):

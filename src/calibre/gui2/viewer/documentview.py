@@ -8,7 +8,7 @@ import os, math, re, glob, sys, zipfile
 from base64 import b64encode
 from functools import partial
 
-from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer,
+from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt,
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog,
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon,
                      QFont, pyqtSignature, QAction, QByteArray, QMenu,
@@ -184,12 +184,10 @@ class Document(QWebPage): # {{{
                 self.misc_config()
                 self.after_load()
 
-    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None,
-            debug_javascript=False):
+    def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
         self.debug_javascript = debug_javascript
-        self.resize_callback = resize_callback
         self.current_language = None
         self.loaded_javascript = False
         self.js_loader = JavaScriptLoader(
@@ -259,12 +257,6 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
-        self.javascript(
-            '''
-            window.onresize = function(event) {
-                window.py_bridge.window_resized();
-            }
-            ''')
         self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
                 self.current_language, self.hyphenate_default_lang)
 
@@ -309,10 +301,6 @@ class Document(QWebPage): # {{{
     @pyqtSignature("QString")
     def debug(self, msg):
         prints(msg)
-
-    @pyqtSignature('')
-    def window_resized(self):
-        self.resize_callback()
 
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
@@ -444,7 +432,7 @@ class Document(QWebPage): # {{{
     def scroll_fraction(self):
         def fget(self):
             try:
-                return float(self.ypos)/(self.height-self.window_height)
+                return abs(float(self.ypos)/(self.height-self.window_height))
             except ZeroDivisionError:
                 return 0.
         def fset(self, val):
@@ -516,7 +504,6 @@ class DocumentView(QWebView): # {{{
         self.initial_pos = 0.0
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
-                resize_callback=self.viewport_resized,
                 debug_javascript=debug_javascript)
         self.setPage(self.document)
         self.manager = None
@@ -722,6 +709,7 @@ class DocumentView(QWebView): # {{{
         if self.manager is not None:
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
+        html = re.sub(ur'<\s*title\s*/\s*>', u'', html, flags=re.IGNORECASE)
         if has_svg:
             self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         else:
@@ -1035,13 +1023,9 @@ class DocumentView(QWebView): # {{{
         return handled
 
     def resizeEvent(self, event):
-        ret = QWebView.resizeEvent(self, event)
-        QTimer.singleShot(10, self.initialize_scrollbar)
-        return ret
-
-    def viewport_resized(self):
         if self.manager is not None:
-            self.manager.viewport_resized(self.scroll_fraction)
+            self.manager.viewport_resize_started(event)
+        return QWebView.resizeEvent(self, event)
 
     def event(self, ev):
         if ev.type() == ev.Gesture:

@@ -882,6 +882,11 @@ class FullFetch(QDialog): # {{{
         self.covers_widget.chosen.connect(self.ok_clicked)
         self.stack.addWidget(self.covers_widget)
 
+        # Workaround for Qt 4.8.0 bug that causes the frame of the window to go
+        # off the top of the screen if a max height is not set for the
+        # QWebView. Seems to only happen on windows, but keep it for all
+        # platforms just in case.
+        self.identify_widget.comments_view.setMaximumHeight(500)
         self.resize(850, 550)
 
         self.finished.connect(self.cleanup)

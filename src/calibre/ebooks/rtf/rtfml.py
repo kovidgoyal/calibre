@@ -109,6 +109,7 @@ class RTFMLizer(object):
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book,
                         self.opts, self.opts.output_profile)
+                self.currently_dumping_item = item
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
                 output += '{\\page }'
         for item in self.oeb_book.spine:
@@ -118,6 +119,7 @@ class RTFMLizer(object):
             content = self.remove_tabs(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+            self.currently_dumping_item = item
             output += self.dump_text(content.find(XHTML('body')), stylizer)
             output += '{\\page }'
         output += self.footer()
@@ -160,9 +162,15 @@ class RTFMLizer(object):
 
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
-                src = os.path.basename(item.href)
-                data, width, height = self.image_to_hexstring(item.data)
-                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s\n}}\n\n' % (width, height, data))
+                src = item.href
+                try:
+                    data, width, height = self.image_to_hexstring(item.data)
+                except:
+                    self.log.warn('Image %s is corrupted, ignoring'%item.href)
+                    repl = '\n\n'
+                else:
+                    repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)
+                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, repl)
         return text
 
     def image_to_hexstring(self, data):
@@ -205,7 +213,8 @@ class RTFMLizer(object):
         return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
-        from calibre.ebooks.oeb.base import XHTML_NS, namespace, barename
+        from calibre.ebooks.oeb.base import (XHTML_NS, namespace, barename,
+                urlnormalize)
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
@@ -236,7 +245,7 @@ class RTFMLizer(object):
         if tag == 'img':
             src = elem.get('src')
             if src:
-                src = os.path.basename(elem.get('src'))
+                src = urlnormalize(self.currently_dumping_item.abshref(src))
                 block_start = ''
                 block_end = ''
                 if 'block' not in tag_stack:
