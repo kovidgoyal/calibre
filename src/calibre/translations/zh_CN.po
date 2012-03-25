@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-03-23 07:01+0000\n"
+"POT-Creation-Date: 2012-03-24 10:42+0000\n"
 "PO-Revision-Date: 2012-03-02 03:24+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-03-24 04:53+0000\n"
+"X-Launchpad-Export-Date: 2012-03-25 05:03+0000\n"
 "X-Generator: Launchpad (build 14981)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -181,7 +181,7 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:205
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:233
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:234
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:561
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:569
@@ -5063,8 +5063,10 @@ msgid "Empty output file, probably the conversion process crashed"
 msgstr "空白输出文件，有可能是会话进程崩溃。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:214
 #, python-format
-msgid "%s by %s"
+msgid "%(title)s by %(author)s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:131
@@ -5559,7 +5561,7 @@ msgid "Move to next highlighted match"
 msgstr "跳转到下一个高亮的匹配"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 msgid "N"
 msgstr "N"
 
@@ -5576,7 +5578,7 @@ msgid "Shift+N"
 msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
 msgid "Shift+F3"
 msgstr "Shift+F3"
 
@@ -5994,12 +5996,6 @@ msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr "添加书籍进程似乎已死。请尝试重启 calibre 并分步添加书籍，直到定位出问题的书籍。"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:385
-#: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:214
-#, python-format
-msgid "%(title)s by %(author)s"
-msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:216
@@ -6562,167 +6558,167 @@ msgstr "分隔符(&S)"
 msgid "Tab template for catalog.ui"
 msgstr "catalog.ui 的 Tab 模板"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:77
 msgid "Bold"
 msgstr "粗体"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
 msgid "Italic"
 msgstr "斜体"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:74
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:81
 msgid "Underline"
 msgstr "下划线"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:83
 msgid "Strikethrough"
 msgstr "删除线"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:85
 msgid "Superscript"
 msgstr "上标"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
 msgid "Subscript"
 msgstr "下标"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
 msgid "Ordered list"
 msgstr "排序列表"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
 msgid "Unordered list"
 msgstr "未排序列表"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Align left"
 msgstr "左对齐"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Align center"
 msgstr "居中"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
 msgid "Align right"
 msgstr "右对齐"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:100
 msgid "Align justified"
 msgstr "两端对齐"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:101
 msgid "Undo"
 msgstr "撤销"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:95
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:102
 msgid "Redo"
 msgstr "重做"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Remove formatting"
 msgstr "移除格式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:174
 msgid "Copy"
 msgstr "复制"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:176
 msgid "Paste"
 msgstr "粘贴"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:106
 msgid "Cut"
 msgstr "剪切"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:108
 msgid "Increase Indentation"
 msgstr "增加缩进"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:110
 msgid "Decrease Indentation"
 msgstr "减少缩进"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:112
 msgid "Select all"
 msgstr "全选"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:120
 msgid "Foreground color"
 msgstr "前景色"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:125
 msgid "Background color"
 msgstr "背景色"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
 msgid "Style text block"
 msgstr "对文字框应用样式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Style the selected text block"
 msgstr "对选定文字框应用样式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Normal"
 msgstr "普通"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:142
 msgid "Heading"
 msgstr "抬头"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:143
 msgid "Pre-formatted"
 msgstr "预置格式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:144
 msgid "Blockquote"
 msgstr "引用框"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:145
 msgid "Address"
 msgstr "地址"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:152
 msgid "Insert link"
 msgstr "插入链接"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:154
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:84
 msgid "Clear"
 msgstr "清除"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Choose foreground color"
 msgstr "选择前景色"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:178
 msgid "Choose background color"
 msgstr "悬着后景色"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:183
 msgid "Create link"
 msgstr "创建链接"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:184
 msgid "Enter URL"
 msgstr "输入 URL"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:538
 msgid "Normal view"
 msgstr "普通视图"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:539
 msgid "HTML Source"
 msgstr "HTML 源代码"
 
@@ -8072,9 +8068,9 @@ msgstr "封面浏览器无法加载"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:103
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:225
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:274
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:278
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:271
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1413
 msgid "Undefined"
 msgstr "未定义"
@@ -8382,14 +8378,14 @@ msgstr ""
 "设备，可能无法正常工作。你确认定要这样做吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:437
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:70
 msgid "Invalid template"
 msgstr "无效模板"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:151
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:441
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:438
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:280
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:71
 #, python-format
@@ -9224,7 +9220,7 @@ msgstr "复制到剪贴板"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:237
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:869
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:970
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:975
 msgid "View log"
 msgstr "查看日志"
 
@@ -10910,7 +10906,7 @@ msgid "Open Template Editor"
 msgstr "打开模版编辑器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:427
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:424
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:48
 msgid "Edit template"
 msgstr "编辑细节"
@@ -11666,7 +11662,7 @@ msgstr "复制当前搜索结果列表项至搜索栏"
 msgid "stars"
 msgstr "星"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 msgid "Y"
 msgstr "Y"
 
@@ -12542,7 +12538,7 @@ msgstr "为书籍 %(title)s 找到了 <b>%(num)d</b> 个封面图像，请选择
 msgid "Downloading metadata..."
 msgstr "正在下载元数据……"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:954
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:959
 msgid "Downloading cover..."
 msgstr "正在下载封面..."
 
@@ -16593,18 +16589,14 @@ msgid "Toggle full screen"
 msgstr "开关全屏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:210
-msgid "Toggle full screen (F11)"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Print"
 msgstr "打印"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Find previous"
 msgstr "找到前一项"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
 msgstr "找到前一项"
 
@@ -17538,7 +17530,7 @@ msgid ""
 msgstr "通过搜索请求过滤结果。对于每个搜索请求的格式，请参见用户手册中搜索相关的文档。默认为不做过滤。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:159
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1063
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1086
 msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
@@ -17562,13 +17554,13 @@ msgstr "无效域。可用域："
 msgid "Invalid sort field. Available fields:"
 msgstr "排列域无效。可用域："
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:264
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:270
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr "下列书籍已经存在于数据库，未被田间(参见 --duplicates 选项)："
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:289
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:295
 msgid ""
 "%prog add [options] file1 file2 file3 ...\n"
 "\n"
@@ -17580,43 +17572,55 @@ msgstr ""
 "\n"
 "添加指定文件为书籍到数据库。您可以指定目录，参见目录相关选项。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:297
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:303
 msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr "假设每个目录只有一本逻辑书籍，而所有文件均是该书的不同格式电子书"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:299
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:305
 msgid "Process directories recursively"
 msgstr "递归处理目录"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:301
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:307
 msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
 msgstr "即使书籍已经存在于数据库仍然添加。通过书名进行区分。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:303
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:309
 msgid "Add an empty book (a book with no formats)"
 msgstr "添加空白书籍(无格式书籍)"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:305
-msgid "Set the title of the added empty book"
-msgstr "设定添加空白书籍的标题"
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:311
+msgid "Set the title of the added book(s)"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:307
-msgid "Set the authors of the added empty book"
-msgstr "设定添加空白书籍的作者"
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:313
+msgid "Set the authors of the added book(s)"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:309
-msgid "Set the ISBN of the added empty book"
-msgstr "设定添加空白书籍的 ISBN"
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:315
+msgid "Set the ISBN of the added book(s)"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:335
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:317
+msgid "Set the tags of the added book(s)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:319
+msgid "Set the series of the added book(s)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:321
+msgid "Set the series number of the added book(s)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"
 msgstr "您必须指定至少一个文件进行添加"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:353
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:376
 msgid ""
 "%prog remove ids\n"
 "\n"
@@ -17627,11 +17631,11 @@ msgid ""
 "included).\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:368
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:391
 msgid "You must specify at least one book to remove"
 msgstr "必须指定至少一本电子书移除"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:389
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:412
 msgid ""
 "%prog add_format [options] id ebook_file\n"
 "\n"
@@ -17643,15 +17647,15 @@ msgstr ""
 "\n"
 "将 ebook_file 中电子书添加到可用格式，用于通过 id 识别的逻辑书。您可以使用 list 命令得到 id。如果格式已经存在，将被替换。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:403
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:426
 msgid "You must specify an id and an ebook file"
 msgstr "您必须指定一个 id 和电子书文件"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:408
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:431
 msgid "ebook file must have an extension"
 msgstr "电子书文件必须有扩展名"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:418
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:441
 msgid ""
 "\n"
 "%prog remove_format [options] id fmt\n"
@@ -17668,11 +17672,11 @@ msgstr ""
 "be a file extension like LRF or TXT or EPUB. If the logical book does not "
 "have fmt available, do nothing.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:434
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:457
 msgid "You must specify an id and a format"
 msgstr "你必须指定一个 id 和格式"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:453
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:476
 msgid ""
 "\n"
 "%prog show_metadata [options] id\n"
@@ -17687,15 +17691,15 @@ msgstr ""
 "显示 calibre 中通过 id 识别书籍数据库中存储的元数据。\n"
 "id 是来自 list 命令的 id 编号。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:460
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:483
 msgid "Print metadata in OPF form (XML)"
 msgstr "以 OPF 表单(XML)打印元数据"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:469
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:492
 msgid "You must specify an id"
 msgstr "您必须指定一个 id"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:485
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:508
 msgid ""
 "\n"
 "%prog set_metadata [options] id /path/to/metadata.opf\n"
@@ -17714,11 +17718,11 @@ msgstr ""
 "存储。id 为 list 命令返回 id 数字。您可以将 --as-opf 参数用于 show_metadata\n"
 "命令，感受一下 OPF 格式。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:500
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:523
 msgid "You must specify an id and a metadata file"
 msgstr "你必须指定一个 id 和元数据文件"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:520
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:543
 msgid ""
 "%prog export [options] ids\n"
 "\n"
@@ -17734,28 +17738,28 @@ msgstr ""
 "导出操作保存所有格式书籍、封面和元数据(位于一个 opf 文\n"
 "件)。您可以通过 list 命令得到文件 id。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:528
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:551
 msgid "Export all books in database, ignoring the list of ids."
 msgstr "导出所有数据库中的书，忽略 id 列表。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:530
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:553
 msgid "Export books to the specified directory. Default is"
 msgstr "将书导出到指定目录。默认为"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:532
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:555
 msgid "Export all books into a single directory"
 msgstr "将所有书导出到单个目录"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:539
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:562
 msgid "Specifying this switch will turn this behavior off."
 msgstr "选定此项将关闭此行为。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:562
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "You must specify some ids or the %s option"
 msgstr "你必须指定一个 id 或 %s 选项"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:575
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:598
 msgid ""
 "%prog add_custom_column [options] label name datatype\n"
 "\n"
@@ -17766,24 +17770,24 @@ msgid ""
 "datatype is one of: {0}\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:584
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:607
 msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:588
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:611
 msgid ""
 "A dictionary of options to customize how the data in this column will be "
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:602
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:625
 msgid "You must specify label, name and datatype"
 msgstr "您必须指定标签、名称和数据类型"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:664
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:687
 msgid ""
 "\n"
 "    %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]\n"
@@ -17794,7 +17798,7 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:677
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:700
 msgid ""
 "Comma-separated list of database IDs to catalog.\n"
 "If declared, --search is ignored.\n"
@@ -17804,23 +17808,23 @@ msgstr ""
 "一旦声明，忽略 --search \n"
 "默认：全部"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:681
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:704
 msgid ""
 "Filter the results by the search query. For the format of the search query, "
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr "为搜索查询过滤结果。搜索查询格式请参见用户手册中搜索相关内容。默认：不过滤"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:687
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:710
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:528
 msgid "Show detailed output information. Useful for debugging"
 msgstr "显示详细输出信息。有利调试"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:700
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:723
 msgid "Error: You must specify a catalog output file"
 msgstr "错误：您必须指定一个分类输出文件"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:747
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:770
 msgid ""
 "\n"
 "    %prog set_custom [options] column id value\n"
@@ -17832,17 +17836,17 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:757
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:780
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr "如果栏存有多个值，将指定值附加到已有值之后，而非覆盖。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:768
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:791
 msgid "Error: You must specify a field name, id and value"
 msgstr "错误：您必须指定项目名称、id 和值。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:788
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:811
 msgid ""
 "\n"
 "    %prog custom_columns [options]\n"
@@ -17851,20 +17855,20 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:794
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:817
 msgid "Show details for each column."
 msgstr "每栏显示细节。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:806
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 #, python-format
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
 msgstr "您将失去栏 %r 中所有内容。是否确定(y/n)？ "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:808
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:831
 msgid "y"
 msgstr "y"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:815
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:838
 msgid ""
 "\n"
 "    %prog remove_custom_column [options] label\n"
@@ -17874,15 +17878,15 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:822
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:845
 msgid "Do not ask for confirmation"
 msgstr "无需确认"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:832
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:855
 msgid "Error: You must specify a column label"
 msgstr "错误：您必须指定栏标签"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:843
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:866
 msgid ""
 "\n"
 "    %prog saved_searches [options] list\n"
@@ -17895,40 +17899,40 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:860
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:883
 msgid "Error: You must specify an action (add|remove|list)"
 msgstr "错误：你必须指定一个动作(添加|移除|列表)"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:868
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:891
 msgid "Name:"
 msgstr "名称："
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:869
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:892
 msgid "Search string:"
 msgstr "搜索字串："
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:875
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:898
 msgid "Error: You must specify a name and a search string"
 msgstr "错误：你必须指定一个名称和一个搜索字串"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:878
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:901
 msgid "added"
 msgstr "已添加"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:883
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:906
 msgid "Error: You must specify a name"
 msgstr "错误：你必须指定一个名称"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:886
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:909
 msgid "removed"
 msgstr "移除"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:890
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:913
 #, python-format
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:898
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:921
 msgid ""
 "%prog check_library [options]\n"
 "\n"
@@ -17936,34 +17940,34 @@ msgid ""
 "{0}\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:905
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1055
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:928
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1078
 msgid "Output in CSV"
 msgstr "以 CSV 输出"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:908
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:931
 msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:912
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:935
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:916
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:939
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:946
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:969
 msgid "Unknown report check"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:980
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1003
 msgid ""
 "%prog restore_database [options]\n"
 "\n"
@@ -17978,18 +17982,18 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:994
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1017
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1007
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1030
 #, python-format
 msgid "You must provide the %s option to do a recovery"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1044
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1067
 msgid ""
 "%prog list_categories [options]\n"
 "\n"
@@ -17997,33 +18001,33 @@ msgid ""
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1052
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1075
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1057
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1080
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1060
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1083
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1066
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1089
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr "CSV 模式下字符串分隔符。默认逗号。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1104
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1127
 msgid "CATEGORY ITEMS"
 msgstr "分类项目"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1177
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1200
 #, python-format
 msgid ""
 "%%prog command [options] [arguments]\n"
@@ -19022,7 +19026,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:844
-msgid "booksize() -- return the series sort value"
+msgid "series_sort() -- return the series sort value"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:855
