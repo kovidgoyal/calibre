@@ -9,8 +9,8 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QLabel, QDialogButtonBox,  \
-            QListWidget, QAbstractItemView
+from PyQt4.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
+            QListWidget, QAbstractItemView)
 from PyQt4 import QtGui
 
 class ChoosePluginToolbarsDialog(QDialog):
