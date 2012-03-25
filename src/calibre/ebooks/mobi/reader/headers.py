@@ -11,7 +11,7 @@ import struct, re, os
 from calibre import replace_entities
 from calibre.utils.date import parse_date
 from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
 
 NULL_INDEX = 0xffffffff
@@ -80,7 +80,9 @@ class EXTHHeader(object): # {{{
         elif idx == 103:
             self.mi.comments  = content.decode(codec, 'ignore')
         elif idx == 104:
-            self.mi.isbn      = content.decode(codec, 'ignore').strip().replace('-', '')
+            raw = check_isbn(content.decode(codec, 'ignore').strip().replace('-', ''))
+            if raw:
+                self.mi.isbn = raw
         elif idx == 105:
             if not self.mi.tags:
                 self.mi.tags = []
@@ -94,6 +96,16 @@ class EXTHHeader(object): # {{{
                 pass
         elif idx == 108:
             self.mi.book_producer = content.decode(codec, 'ignore').strip()
+        elif idx == 112: # dc:source set in some EBSP amazon samples
+            try:
+                content = content.decode(codec).strip()
+                isig = 'urn:isbn:'
+                if content.lower().startswith(isig):
+                    raw = check_isbn(content[len(isig):])
+                    if raw and not self.mi.isbn:
+                        self.mi.isbn = raw
+            except:
+                pass
         elif idx == 113:
             pass # ASIN or UUID
         elif idx == 116:
