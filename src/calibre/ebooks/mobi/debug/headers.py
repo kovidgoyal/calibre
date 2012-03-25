@@ -205,7 +205,10 @@ class EXTHHeader(object):
 
     @property
     def kf8_header_index(self):
-        return self.get(121, None)
+        ans = self.get(121, None)
+        if ans == NULL_INDEX:
+            ans = None
+        return ans
 
     def __str__(self):
         ans = ['*'*20 + ' EXTH Header '+ '*'*20]
@@ -467,9 +470,15 @@ class MOBIFile(object):
         if mh.file_version >= 8:
             self.kf8_type = 'standalone'
         elif mh.has_exth and mh.exth.kf8_header_index is not None:
-            self.kf8_type = 'joint'
             kf8i = mh.exth.kf8_header_index
-            mh8 = MOBIHeader(self.records[kf8i], kf8i)
+            try:
+                rec = self.records[kf8i-1]
+            except IndexError:
+                pass
+            else:
+                if rec.raw == b'BOUNDARY':
+                    self.kf8_type = 'joint'
+                    mh8 = MOBIHeader(self.records[kf8i], kf8i)
         self.mobi8_header = mh8
 
         if 'huff' in self.mobi_header.compression.lower():

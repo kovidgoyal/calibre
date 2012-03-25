@@ -75,6 +75,8 @@ class EXTHHeader(object): # {{{
                 self.mi.author_sort = au.strip()
         elif idx == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
+            if self.mi.publisher in {'Unknown', _('Unknown')}:
+                self.mi.publisher = None
         elif idx == 103:
             self.mi.comments  = content.decode(codec, 'ignore')
         elif idx == 104:
@@ -98,6 +100,8 @@ class EXTHHeader(object): # {{{
             self.start_offset, = struct.unpack(b'>L', content)
         elif idx == 121:
             self.kf8_header, = struct.unpack(b'>L', content)
+            if self.kf8_header == NULL_INDEX:
+                self.kf8_header = None
         #else:
         #    print 'unhandled metadata record', idx, repr(content)
 # }}}
