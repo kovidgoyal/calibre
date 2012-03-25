@@ -39,6 +39,9 @@ class ChoosePluginToolbarsDialog(QDialog):
         self._locations_list.setSizePolicy(sizePolicy)
         for key, text in locations:
             self._locations_list.addItem(text)
+            if key in {'toolbar-child',}:
+                self._locations_list.item(self._locations_list.count()-1
+                        ).setSelected(True)
         self._layout.addWidget(self._locations_list)
 
         self._footer_label = QLabel(
