@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-22 16:11+0000\n"
+"PO-Revision-Date: 2012-03-25 16:49+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-25 04:57+0000\n"
-"X-Generator: Launchpad (build 14981)\n"
+"X-Launchpad-Export-Date: 2012-03-26 04:36+0000\n"
+"X-Generator: Launchpad (build 15008)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -7482,7 +7482,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
-msgstr ""
+msgstr "&Боје"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
@@ -7504,150 +7504,150 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
-msgstr "LRF izlaz"
+msgstr "LRF излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Enable &autorotation of wide images"
-msgstr "Omogući &automatsko okretanje širokih slika"
+msgstr "Омогући &аутоматско окретање широких слика."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "&Wordspace:"
-msgstr "&Razmak između reči:"
+msgstr "&Размак између речи:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Minimum para. &indent:"
-msgstr "Minimalno &uvlačenje pasusa:"
+msgstr "Минимално &увлачење пасуса:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Render &tables as images"
-msgstr "Pretvori &tabele u slike"
+msgstr "Претвори &табеле у слике."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:127
 msgid "Text size multiplier for text in rendered tables:"
-msgstr "Faktor promene veličine slova u tabelama:"
+msgstr "Фактор промене величине слова у табелама:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:128
 msgid "Add &header"
-msgstr "Dodaj &zaglavlje"
+msgstr "Додај &заглавље."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:129
 msgid "Header &separation:"
-msgstr "&Razmak između zaglavlja:"
+msgstr "&Размак између заглавља:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:131
 msgid "Header &format:"
-msgstr "&Format zaglavlja:"
+msgstr "&Формат заглавља:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:132
 msgid "&Embed fonts"
-msgstr "&Ugnezdi vrste slova"
+msgstr "&Угнезди врсте слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:133
 msgid "&Serif font family:"
-msgstr "&Serifna slova"
+msgstr "&Фамилија Serif слова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:134
 msgid "S&ans-serif font family:"
-msgstr "&Bez-serifna slova:"
+msgstr "&Фамилија Sans-serif слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:135
 msgid "&Monospaced font family:"
-msgstr "Š&tampana slova:"
+msgstr "Ш&тампана слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:200
 msgid "Metadata"
-msgstr "Metapodaci"
+msgstr "Метаподатци"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:49
 msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
-"Postavi metapodatke. Izlazni fajl će sadržati što je moguće više ovih "
-"metapodataka."
+"Постави метаподатке. Излазна датотека ће садржати што је могуће више ових "
+"метаподатака."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:916
 msgid "Choose cover for "
-msgstr "Izaberi naslovnu stranu za "
+msgstr "Изабери насловну страну за. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:924
 msgid "Cannot read"
-msgstr "Ne mogu da pročitam"
+msgstr "Не могу да прочитам."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:925
 msgid "You do not have permission to read the file: "
-msgstr "Nemate dozvolu da čitate fajl: "
+msgstr "Немате дозволу да читате датотеку: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:933
 msgid "Error reading file"
-msgstr "Greška pri čitanju fajla"
+msgstr "Грешка при читању датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:197
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:934
 msgid "<p>There was an error reading from file: <br /><b>"
-msgstr "<p>Dogodila se greška pri čitanju fajla: <br /><b>"
+msgstr "<p>Догодила се грешка при читању датотеке: <br /><b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:944
 msgid " is not a valid picture"
-msgstr " nije ispravna slika"
+msgstr " није исправна слика."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:159
 msgid "Book Cover"
-msgstr "Naslovna strana"
+msgstr "Насловна страна."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:160
 msgid "Change &cover image:"
-msgstr "Promeni sliku za &naslovnu stranu:"
+msgstr "Промени слику за &насловну страну:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:161
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Pronađi sliku za naslovnu stranu ove knjige."
+msgstr "Пронађи слику за насловну страну ове књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:163
 msgid "Use cover from &source file"
-msgstr "Koristi naslovnu stranu iz &ulaznog fajla"
+msgstr "Користи насловну страну из &улазне датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:164
 msgid "&Title: "
-msgstr "&Naslov: "
+msgstr "&Наслов: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:74
 msgid "Change the title of this book"
-msgstr "Promeni naslov ove knjige"
+msgstr "Промени наслов ове књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "&Author(s): "
-msgstr "&Autor: "
+msgstr "&Аутор: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:167
 msgid "Author So&rt:"
-msgstr "S&ortiranje po autoru:"
+msgstr "Р&азврстај по аутору:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:168
 msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
 msgstr ""
-"Promeni autore za ovu knjigu. Ako autora ima više razdvojte imena zarezima"
+"Промени ауторе за ову књигу. Ако аутора има више раздвојте имена зарезима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 msgid "&Publisher: "
-msgstr "&Izdavač: "
+msgstr "&Издавач: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 msgid "Ta&gs: "
-msgstr "&Etikete: "
+msgstr "&Етикете: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:560
@@ -7656,15 +7656,15 @@ msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
 "<br><br>They can be any words or phrases, separated by commas."
 msgstr ""
-"Kategoriju knjige određuju etikete. Ovo je posebno korisno kod "
-"pretraživanja. <br><br>One mogu biti reči ili fraze, razdvojene zarezima."
+"Категорију књиге одређују етикете. Ово је посебно корисно код претраживања. "
+"<br><br>Оне могу бити речи или фразе, раздвојене зарезима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:458
 msgid "&Series:"
-msgstr "&Serija:"
+msgstr "&Серија:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
@@ -7672,23 +7672,23 @@ msgstr "&Serija:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:569
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:457
 msgid "List of known series. You can add new series."
-msgstr "Spisak poznatih serija. Možete dodati i nove serije."
+msgstr "Списак познатих серија. Можете додати и нове серије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Book "
-msgstr "Knjiga "
+msgstr "Књига "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:17
 msgid "MOBI Output"
-msgstr "MOBI izlaz"
+msgstr "MOBI излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:75
 msgid "Kindle options"
-msgstr "Opcije za Kindle"
+msgstr "Могућности за Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:76
 msgid "Personal Doc tag:"
-msgstr "Etiketa za Privatna dokumenta:"
+msgstr "Етикета за приватна документа:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:77
 msgid ""
@@ -7702,23 +7702,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:79
 msgid "Ignore &margins"
-msgstr "Ignoriši &margine:"
+msgstr "Занемари &рубове:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
 msgid "Use author &sort for author"
-msgstr "Koristi polje za &sortiranje po autoru kao ime autora"
+msgstr "Користи поље за &разврставање по аутору као име аутора"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:81
 msgid "&Title for Table of Contents:"
-msgstr "&Naslov za Sadržaj:"
+msgstr "&Наслов за садржај:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:82
 msgid "Disable compression of the file contents"
-msgstr "Onemogući komprimovanje sadržaja fajla"
+msgstr "Онемогући сажимање садржаја датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:83
 msgid "Do not add Table of Contents to book"
-msgstr "Nemoj da dodaješ Sadržaj u knjigu"
+msgstr "Немој да додајеш садржај у књигу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:84
 msgid ""
@@ -7728,98 +7728,98 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
-msgstr "Podešavanje strane"
+msgstr "Поставке стране"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:121
 msgid "&Output profile:"
-msgstr "&Izlazni profil:"
+msgstr "&Излазни профил:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:122
 msgid "Profile description"
-msgstr "Opis profila"
+msgstr "Опис профила."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:123
 msgid "&Input profile:"
-msgstr "&Ulazni profil:"
+msgstr "&Улазни профил:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:124
 msgid "Margins"
-msgstr "Margine"
+msgstr "Рубови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:125
 msgid "&Left:"
-msgstr "&Leva:"
+msgstr "&Лево:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:127
 msgid "&Top:"
-msgstr "&Gornja:"
+msgstr "&Врх:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:129
 msgid "&Right:"
-msgstr "&Desna:"
+msgstr "&Десно:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:131
 msgid "&Bottom:"
-msgstr "D&onja:"
+msgstr "&Дно:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:37
 msgid "Treat each &line as a paragraph"
-msgstr "Tretiraj svaki &red kao pasus"
+msgstr "Третирај сваки &ред као пасус."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:38
 msgid "Assume print formatting"
-msgstr "Podrazumevaj da se formatira za štampanje"
+msgstr "Подразумевај да се форматира за штампање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:14
 msgid "PDB Output"
-msgstr "PDB izlaz"
+msgstr "PDB излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:225
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:186
 msgid "&Format:"
-msgstr "&Format:"
+msgstr "&Формат:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:95
 msgid "&Inline TOC"
-msgstr "&Ugnežđeni Sadržaj"
+msgstr "&Угнежђени садржај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:49
 msgid "Output Encoding:"
-msgstr "Izlazno kodiranje:"
+msgstr "Излазно кодирање:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
-msgstr "PDF ulaz"
+msgstr "PDF улаз"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:44
 msgid "Line &Un-Wrapping Factor:"
-msgstr "Faktor za &uklanjanje preloma reda:"
+msgstr "Фактор за &уклањање прелома реда:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:45
 msgid "No &Images"
-msgstr "Ignoriši &slike"
+msgstr "Занемари &слике"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:15
 msgid "PDF Output"
-msgstr "PDF izlaz"
+msgstr "PDF излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:55
 msgid "&Paper Size:"
-msgstr "Veličina &papira:"
+msgstr "Величина &папира:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:56
 msgid "&Orientation:"
-msgstr "&Orijentacija:"
+msgstr "&Оријентација:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:57
 msgid "Preserve &aspect ratio of cover"
-msgstr "Sačuvaj r&azmere naslovne strane"
+msgstr "Сачувај р&азмере насловне стране."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
@@ -7831,21 +7831,21 @@ msgstr "PMLZ izlaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:48
 msgid "Do not reduce image size and depth"
-msgstr "Nemoj da smanjiš broj boja i veličinu slike"
+msgstr "Немој да смањиш број боја и величину слике."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr "RB izlaz"
+msgstr "RB iзлаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:134
 msgid "No formats available"
-msgstr "Nijedan format nije na raspolaganju"
+msgstr "Ниједан формат није на располагању."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:135
 msgid "Cannot build regex using the GUI builder without a book."
 msgstr ""
-"Ne mogu da odredim regularni izraz korišćenjem samo korisničkog interfejsa "
-"bez knjige"
+"Не могу да одредим регуларни израз коришћењем само корисничког сучеља без "
+"књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:144
 msgid "Could not open file"
@@ -7857,20 +7857,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:175
 msgid "Open book"
-msgstr "Otvori knjigu"
+msgstr "Отвори књигу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
-msgstr "Konstruktor regularnih izraza"
+msgstr "Конструктор регуларних израза."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:91
 msgid "Regex:"
-msgstr "Regularni izraz:"
+msgstr "Регуларни израз:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:136
 msgid "Test"
-msgstr "Probaj"
+msgstr "Проба"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:93
 msgid "Occurrences:"
@@ -7881,7 +7881,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:78
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:95
 msgid "Goto:"
@@ -7893,7 +7893,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:114
 msgid "&Previous"
-msgstr "&Prethodna"
+msgstr "&Претходна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:73
@@ -7901,11 +7901,11 @@ msgstr "&Prethodna"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:107
 msgid "&Next"
-msgstr "&Sledeća"
+msgstr "&Следеће"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:98
 msgid "Preview"
-msgstr "Pregled"
+msgstr "Преглед"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:15
 msgid ""
@@ -7923,13 +7923,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:112
 msgid "Invalid regular expression"
-msgstr "Neispravan regularni izraz"
+msgstr "Неисправан регуларни израз"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:113
 #, python-format
 msgid "Invalid regular expression: %s"
-msgstr "Neispravan regularni izraz: %s"
+msgstr "Неисправан регуларни израз: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid "First expression"
@@ -7960,11 +7960,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
-msgstr "Konvertuj"
+msgstr "Претвори"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:200
 msgid "Options specific to the input format."
-msgstr "Opcije koje zavise od izlaznog formata."
+msgstr "Могућности које зависе од излазног формата."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
@@ -7975,35 +7975,35 @@ msgstr "Opcije koje zavise od izlaznog formata."
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_progress_dialog_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:73
 msgid "Dialog"
-msgstr "Dijalog"
+msgstr "Дијалог"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:118
 msgid "&Input format:"
-msgstr "&Ulazni format:"
+msgstr "&Улазни формат:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:119
 msgid "Use &saved conversion settings for individual books"
-msgstr "Koristi &sačuvane opcije za konverziju pojedinačnih knjiga"
+msgstr "Користи &сачуване могућности за претварање појединачних књига"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
-msgstr "SNB izlaz"
+msgstr "SNB излаз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:43
 msgid "Hide chapter name"
-msgstr "Sakrij naziv poglavlja"
+msgstr "Сакриј назив поглавља."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
-msgstr "Nemoj da uvučeš prvi red pasusa"
+msgstr "Немој да увучеш први ред пасуса."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
-msgstr "Dodaj prazan red između pasusa"
+msgstr "Додај празан ред између пасуса."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr "Optimizuj za prikaz na celom ekranu "
+msgstr "Оптимизуј за приказ на целом екрану . "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:15
 msgid ""

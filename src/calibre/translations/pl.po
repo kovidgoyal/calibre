@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-24 16:48+0000\n"
+"PO-Revision-Date: 2012-03-25 13:19+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-25 04:57+0000\n"
-"X-Generator: Launchpad (build 14981)\n"
+"X-Launchpad-Export-Date: 2012-03-26 04:36+0000\n"
+"X-Generator: Launchpad (build 15008)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18985,27 +18985,27 @@ msgstr "Dodaj pustą książkę (książkę bez żadnych formatów)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:311
 msgid "Set the title of the added book(s)"
-msgstr ""
+msgstr "Określ tytuły dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "Set the authors of the added book(s)"
-msgstr ""
+msgstr "Określ autorów dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:315
 msgid "Set the ISBN of the added book(s)"
-msgstr ""
+msgstr "Podaj ISBN dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:317
 msgid "Set the tags of the added book(s)"
-msgstr ""
+msgstr "Podaj etykiety dla dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:319
 msgid "Set the series of the added book(s)"
-msgstr ""
+msgstr "Podaj serie dla dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:321
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "Określ numer w serii dla dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"
