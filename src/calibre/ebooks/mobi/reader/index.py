@@ -65,10 +65,7 @@ def parse_indx_header(data):
 
             parsed = bytearray(ans['oentries'])
             for i in xrange(0, 2*ans['oentries'], 2):
-                if 0x20 < raw[i+1] < 0x7f:
-                    parsed[i//2] = raw[i+1]
-                else:
-                    parsed[i//2] = ord(b'?')
+                parsed[i//2] = raw[i+1] if 0x20 < raw[i+1] < 0x7f else ord(b'?')
             ans['ordt_map'] = bytes(parsed).decode('ascii')
         else:
             ans['ordt_map'] = '?'*ans['oentries']
