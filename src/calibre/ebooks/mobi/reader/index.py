@@ -61,8 +61,7 @@ def parse_indx_header(data):
             # Instead I use a half assed decoder that decodes only the ascii
             # valid values correctly.  Hopefully these ORDT sections will only
             # ever be used in SKEL and ELEM indices where the text is pure
-            # ASCII. EBCDIC-UTF and ASCII have the same. Any non ASCII valid
-            # values are mapped to the ? character
+            # ASCII. Any non ASCII valid values are mapped to the ? character.
 
             parsed = bytearray(ans['oentries'])
             for i in xrange(0, 2*ans['oentries'], 2):
