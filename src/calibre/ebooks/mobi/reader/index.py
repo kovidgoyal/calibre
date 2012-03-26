@@ -60,6 +60,8 @@ def parse_indx_header(data):
             # http://www.unicode.org/reports/tr16/) Just how stupid is Amazon?
             # Instead, we use a weird hack that seems to do the trick for all
             # the books with this type of ORDT record that I have come across.
+            # Some EBSP book samples in KF8 format from Amazon have this type
+            # of encoding.
             # Basically we try to interpret every second byte as a printable
             # ascii character. If we cannot, we map to the ? char.
 
