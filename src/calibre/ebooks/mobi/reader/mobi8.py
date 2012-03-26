@@ -285,7 +285,11 @@ class Mobi8Reader(object):
     def create_guide(self):
         guide = Guide()
         for ref_type, ref_title, fileno in self.guide:
-            elem = self.elems[fileno]
+            try:
+                elem = self.elems[fileno]
+            except IndexError:
+                # Happens for thumbnailstandard in Amazon book samples
+                continue
             fi = self.get_file_info(elem.insert_pos)
             idtext = self.get_id_tag(elem.insert_pos).decode(self.header.codec)
             linktgt = fi.filename
