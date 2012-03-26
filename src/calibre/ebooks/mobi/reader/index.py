@@ -58,10 +58,10 @@ def parse_indx_header(data):
             # This appears to be EBCDIC-UTF (65002) encoded. I can't be
             # bothered to write a decoder for this (see
             # http://www.unicode.org/reports/tr16/) Just how stupid is Amazon?
-            # Instead I use a half assed decoder that decodes only the ascii
-            # valid values correctly.  Hopefully these ORDT sections will only
-            # ever be used in SKEL and ELEM indices where the text is pure
-            # ASCII. Any non ASCII valid values are mapped to the ? character.
+            # Instead, we use a weird hack that seems to do the trick for all
+            # the books with this type of ORDT record that I have come across.
+            # Basically we try to interpret every second byte as a printable
+            # ascii character. If we cannot, we map to the ? char.
 
             parsed = bytearray(ans['oentries'])
             for i in xrange(0, 2*ans['oentries'], 2):
