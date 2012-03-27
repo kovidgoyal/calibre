@@ -354,6 +354,9 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
     def set_account_info(self, urn, un, pw):
         self.scheduler_config.set_account_info(urn, un, pw)
 
+    def clear_account_info(self, urn):
+        self.scheduler_config.clear_account_info(urn)
+
     def get_account_info(self, urn):
         return self.scheduler_config.get_account_info(urn)
 
