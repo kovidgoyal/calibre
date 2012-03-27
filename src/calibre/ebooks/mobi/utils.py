@@ -15,10 +15,12 @@ from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 
-def decode_string(raw, codec='utf-8'):
+def decode_string(raw, codec='utf-8', ordt_map=''):
     length, = struct.unpack(b'>B', raw[0])
     raw = raw[1:1+length]
     consumed = length+1
+    if ordt_map:
+        return ''.join(ordt_map[ord(x)] for x in raw), consumed
     return raw.decode(codec), consumed
 
 def decode_hex_number(raw, codec='utf-8'):

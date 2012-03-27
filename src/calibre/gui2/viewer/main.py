@@ -27,6 +27,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
+from calibre.ptempfile import reset_base_dir
 
 vprefs = JSONConfig('viewer')
 
@@ -947,6 +948,7 @@ View an ebook.
 def main(args=sys.argv):
     # Ensure viewer can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
+    reset_base_dir()
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
