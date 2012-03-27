@@ -186,20 +186,16 @@ class BookHeader(object):
             if len(raw) >= 0xF8:
                 self.ncxidx, = struct.unpack_from(b'>L', raw, 0xF4)
 
-            if self.mobi_version >= 8:
-                self.skelidx, = struct.unpack_from('>L', raw, 0xFC)
-
-                # Index into <div> sections in raw_ml
-                self.dividx, = struct.unpack_from('>L', raw, 0xF8)
-
-                # Index into Other files
-                self.othidx, = struct.unpack_from('>L', raw, 0x104)
+            # Ancient PRC files from Baen can have random values for
+            # mobi_version, so be conservative
+            if self.mobi_version == 8 and len(raw) >= (0xF8 + 16):
+                self.dividx, self.skelidx, self.datpidx, self.othidx = \
+                        struct.unpack_from(b'>4L', raw, 0xF8)
 
                 # need to use the FDST record to find out how to properly
                 # unpack the raw_ml into pieces it is simply a table of start
                 # and end locations for each flow piece
-                self.fdstidx, = struct.unpack_from('>L', raw, 0xC0)
-                self.fdstcnt, = struct.unpack_from('>L', raw, 0xC4)
+                self.fdstidx, self.fdstcnt = struct.unpack_from(b'>2L', raw, 0xC0)
                 # if cnt is 1 or less, fdst section number can be garbage
                 if self.fdstcnt <= 1:
                     self.fdstidx = NULL_INDEX

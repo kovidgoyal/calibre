@@ -19,6 +19,62 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.44
+  date: 2012-03-23
+
+  new features:
+    - title: "E-book viewer: A whole new full screen mode."
+      description: "The new mode has no toolbars to distract from the text and the ability to set the width of the column of text via Preferences in the ebook viewer. Click the Fullscreen button on the toolbar in the viewer to enter fullscreen mode (or press the F11 or Ctrl+Shit+F keys)"
+      type: major
+      tickets: [959830]
+
+    - title: "Copy to Library: If books were auto merged by the copy to library process, popup a message telling the user about it, as otherwise some people forget they have turned on auto merge and accuse calibre of losing their books."
+
+    - title: "Unix driver for Ectaco JetBook color"
+      tickets: [958442] 
+
+    - title: "Add a link to the 'Adding Books Preferences' in the drop down menu of the Add Books button for easier access and more prominence"
+      tickets: [958145] 
+
+    - title: "Smarten punctuation: Add a few more cases for detecting opening and closing quotes"
+ 
+  bug fixes:
+    - title: "Get Books: Updates to various store plugins to deal with website changes: Amazon Europe, Waterstones, Foyles, B&N, Kobo, Woblink and Empik"
+
+    - title: "Catalog generation: Do not error out when generating csv/xml catalogs if the catalog title contains filename invalid characters."
+      tickets: [960154]
+
+    - title: "RTF Output: Ignore corrupted images in the input document, instead of erroring out."
+      tickets: [959600]
+
+    - title: "E-book viewer: Try to preserve page position when the window is resized"
+
+    - title: "Fix bug that caused wrong series to be shown when clicking on the first letter of a series group in the Tag Browser"
+
+    - title: "Fix calibre not supporting different http and https proxies."
+      tickets: [960173]
+
+    - title: "MOBI Input: Fix regression caused by KF8 support that broke reading of ancient non-Amazon PRC files"
+
+    - title: "Fix EPUB to EPUB conversion of an EPUB with obfuscated fonts resulting in the fonts not being readable in Adobe Digital Editions"
+      tickets: [957527]
+
+    - title: "RTF Output: Fix bug that broke conversion to RTF when the input document contains <img> tags with no src attribute."
+
+    - title: "Fix regression in 0.8.43 that broke use of general mode templates that ended in a semi-colon."
+      tickets: [957295]
+
+  improved recipes:
+    - b92
+    - Various Polish news sources
+    - Le Monde
+    - FHM UK
+
+  new recipes:
+    - title: Ivana Milakovic and Klub knjige 
+      author: Darko Miletic
+
+
 - version: 0.8.43
   date: 2012-03-16
 

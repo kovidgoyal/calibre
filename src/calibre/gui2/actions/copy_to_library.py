@@ -13,7 +13,8 @@ from contextlib import closing
 from PyQt4.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import error_dialog, Dispatcher, warning_dialog, gprefs
+from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
+        info_dialog)
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
@@ -30,6 +31,7 @@ class Worker(Thread): # {{{
         self.progress = progress
         self.done = done
         self.delete_after = delete_after
+        self.auto_merged_ids = {}
 
     def run(self):
         try:
@@ -79,6 +81,8 @@ class Worker(Thread): # {{{
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
                 if identical_book_list: # books with same author and nearly same title exist in newdb
+                    self.auto_merged_ids[x] = _('%(title)s by %(author)s')%\
+                    dict(title=mi.title, author=mi.format_field('authors')[1])
                     automerged = True
                     seen_fmts = set()
                     for identical_book in identical_book_list:
@@ -196,6 +200,15 @@ class CopyToLibraryAction(InterfaceAction):
             self.gui.status_bar.show_message(
                     _('Copied %(num)d books to %(loc)s') %
                     dict(num=len(ids), loc=loc), 2000)
+            if self.worker.auto_merged_ids:
+                books = '\n'.join(self.worker.auto_merged_ids.itervalues())
+                info_dialog(self.gui, _('Auto merged'),
+                        _('Some books were automatically merged into existing '
+                            'records in the target library. Click Show '
+                            'details to see which ones. This behavior is '
+                            'controlled by the Auto merge option in '
+                            'Preferences->Adding books.'), det_msg=books,
+                        show=True)
             if delete_after and self.worker.processed:
                 v = self.gui.library_view
                 ci = v.currentIndex()
