@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-08 16:35+0000\n"
-"Last-Translator: Christine Emrich <Unknown>\n"
+"PO-Revision-Date: 2012-03-26 18:12+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-03-25 04:51+0000\n"
-"X-Generator: Launchpad (build 14981)\n"
+"X-Launchpad-Export-Date: 2012-03-27 04:50+0000\n"
+"X-Generator: Launchpad (build 15011)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -6037,14 +6037,14 @@ msgstr "Download der Metadaten fehlgeschlagen"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:487
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:750
 msgid "Download failed"
-msgstr "Herunterladen fehlgeschlagen"
+msgstr "Herunterladen gescheitert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:91
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
 msgstr ""
 "Das Herunterladen der Metadaten oder Umschlagbilder für eines der %d Bücher "
-"ist fehlgeschlagen."
+"ist gescheitert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:94
 msgid "Metadata download completed"
