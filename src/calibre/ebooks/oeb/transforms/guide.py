@@ -8,10 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 
 class Clean(object):
-    '''Clean up guide, leaving only a pointer to the cover'''
+    '''Clean up guide, leaving only known values '''
 
     def __call__(self, oeb, opts):
-        from calibre.ebooks.oeb.base import urldefrag
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
         if 'cover' not in self.oeb.guide:
@@ -32,10 +31,15 @@ class Clean(object):
                 ref.type = 'cover'
                 self.oeb.guide.refs['cover'] = ref
 
+        if ('start' in self.oeb.guide and 'text' not in self.oeb.guide):
+            # Prefer text to start as per the OPF 2.0 spec
+            x = self.oeb.guide['start']
+            self.oeb.guide.add('text', x.title, x.href)
+            self.oeb.guide.remove('start')
+
         for x in list(self.oeb.guide):
-            href = urldefrag(self.oeb.guide[x].href)[0]
-            if x.lower() not in ('cover', 'titlepage', 'masthead', 'toc',
-                    'title-page', 'copyright-page', 'start'):
+            if x.lower() not in {'cover', 'titlepage', 'masthead', 'toc',
+                    'title-page', 'copyright-page', 'text'}:
                 item = self.oeb.guide[x]
                 if item.title and item.title.lower() == 'start':
                     continue
