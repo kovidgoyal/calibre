@@ -168,7 +168,8 @@ class PDFWriter(QObject): # {{{
             # We have to set the engine to Native on OS X after the call to set
             # filename. Setting a filename with .pdf as the extension causes
             # Qt to set the format to use Qt's PDF engine even if native was
-            # previously set on the printer.
+            # previously set on the printer. Qt's PDF engine produces image
+            # based PDFs on OS X, so we cannot use it.
             if isosx:
                 printer.setOutputFormat(QPrinter.NativeFormat)
             self.view.page().mainFrame().evaluateJavaScript('''
