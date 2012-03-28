@@ -982,8 +982,12 @@ class DocumentView(QWebView): # {{{
             finally:
                 self.is_auto_repeat_event = False
         elif key == 'Down':
+            if self.document.at_bottom:
+                self.manager.next_document()
             self.scroll_by(y=15)
         elif key == 'Up':
+            if self.document.at_top:
+                self.manager.previous_document()
             self.scroll_by(y=-15)
         elif key == 'Left':
             self.scroll_by(x=-15)
