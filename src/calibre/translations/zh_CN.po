@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-02 03:24+0000\n"
-"Last-Translator: Li Fanxi <Unknown>\n"
+"PO-Revision-Date: 2012-03-28 02:02+0000\n"
+"Last-Translator: Yifan Zhou <yifancoding@gmail.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-03-25 05:03+0000\n"
-"X-Generator: Launchpad (build 14981)\n"
+"X-Launchpad-Export-Date: 2012-03-28 04:45+0000\n"
+"X-Generator: Launchpad (build 15027)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -1883,7 +1883,7 @@ msgstr "%s 的主内存只读。可能是由于设备的文件系统出错引起
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "无法挂载设备"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -4504,7 +4504,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:286
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:258
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "再次显示该确认"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:535
 msgid "Choose Files"
@@ -4755,7 +4755,7 @@ msgstr "未选定书籍抓取注释"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "某些错误"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
@@ -9151,7 +9151,7 @@ msgstr "活动任务"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "寻找下一个匹配"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
