@@ -242,6 +242,10 @@ class PostInstall:
             if not os.path.exists(os.path.dirname(f)):
                 os.makedirs(os.path.dirname(f))
             self.manifest.append(f)
+            complete = 'calibre-complete'
+            if getattr(sys, 'frozen_path'):
+                complete = os.path.join(getattr(sys, 'frozen_path'), complete)
+
             self.info('Installing bash completion to', f)
             with open(f, 'wb') as f:
                 f.write('# calibre Bash Shell Completion\n')
@@ -326,8 +330,8 @@ class PostInstall:
                 }
                 complete -o nospace  -F _ebook_device ebook-device
 
-                complete -o nospace -C calibre-complete ebook-convert
-                '''))
+                complete -o nospace -C %s ebook-convert
+                ''')%complete)
         except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
