@@ -243,7 +243,7 @@ class PostInstall:
                 os.makedirs(os.path.dirname(f))
             self.manifest.append(f)
             complete = 'calibre-complete'
-            if getattr(sys, 'frozen_path'):
+            if getattr(sys, 'frozen_path', None):
                 complete = os.path.join(getattr(sys, 'frozen_path'), complete)
 
             self.info('Installing bash completion to', f)
