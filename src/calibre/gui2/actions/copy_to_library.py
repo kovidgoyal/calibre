@@ -81,8 +81,8 @@ class Worker(Thread): # {{{
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
                 if identical_book_list: # books with same author and nearly same title exist in newdb
-                    self.auto_merged_ids[x] = _('%s by %s')%(mi.title,
-                            mi.format_field('authors')[1])
+                    self.auto_merged_ids[x] = _('%(title)s by %(author)s')%\
+                    dict(title=mi.title, author=mi.format_field('authors')[1])
                     automerged = True
                     seen_fmts = set()
                     for identical_book in identical_book_list:
