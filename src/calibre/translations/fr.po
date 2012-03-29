@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-19 11:27+0000\n"
-"Last-Translator: Vincent Lhote <Unknown>\n"
+"PO-Revision-Date: 2012-03-28 07:38+0000\n"
+"Last-Translator: c3d <deserters@yahoo.fr>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-03-25 04:50+0000\n"
-"X-Generator: Launchpad (build 14981)\n"
+"X-Launchpad-Export-Date: 2012-03-29 04:33+0000\n"
+"X-Generator: Launchpad (build 15032)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -836,6 +836,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"Destiné à l'Ipad 3 et appareils similaires avec une résolution de 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1490,7 +1491,7 @@ msgstr "Communiquer avec le lecteur JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Communique avec le JetBook Color reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -2864,6 +2865,12 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Par défaut calibre convertit toutes les images au format JPEG dans le "
+"fichier de sortie MOBI. C'est pour une compatibilité maximale car certains "
+"anciennes vionneuses MOBI ont des problèmes avec d'autres formats d'image. "
+"Cette option indique à calibre de ne pas le faire. Elle est utile si votre "
+"document contient beaucoup d'images GIF / PNG qui deviennent alors très "
+"grandes lors de la conversion au format JPEG"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:114
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -5270,7 +5277,7 @@ msgstr "maj+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Configure the adding of books"
-msgstr ""
+msgstr "Configure l'ajout de livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -5808,7 +5815,7 @@ msgstr "%(num)d livres copiés vers %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:205
 msgid "Auto merged"
-msgstr ""
+msgstr "Auto fusionné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:206
 msgid ""
@@ -5816,6 +5823,10 @@ msgid ""
 "library. Click Show details to see which ones. This behavior is controlled "
 "by the Auto merge option in Preferences->Adding books."
 msgstr ""
+"Certains livres ont été automatiquement fusionnés dans des enregistrements "
+"existants de la bibliothèque cible. Cliquez sur Afficher les détails pour "
+"voir lesquels. Cette action est contrôlée par l'option de fusion automatique "
+"dans Préférences-> Ajout de livres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:225
 msgid ""
@@ -8326,6 +8337,8 @@ msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
 msgstr ""
+"Ne convertit pas toutes les images au format JPEG (peut occasionner des "
+"problèmes d'affichage sur d'anciennes visionneuses)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -13982,6 +13995,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:143
 msgid "Ignore files with the following extensions when automatically adding "
 msgstr ""
+"Ignore les fichiers avec les extensions suivantes lors d'un ajout "
+"automatique "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
 msgid "Folder to auto-add files from"
@@ -15097,6 +15112,11 @@ msgid ""
 "Manage Authors. You can use the values {author} and\n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p> Entrez un modèle qui sera utilisé pour créer un lien pour\n"
+"un auteur dans la boîte de dialogue d'information des livres. Il sera\n"
+"utilisé lorsqu'aucun lien n'a été fourni pour l'auteur en utilisant\n"
+"Gérer les Auteurs. Vous pouvez utiliser les valeurs {auteur} et\n"
+"{Trier par auteur}, et toutes les fonctions du modèle."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:245
 msgid "Use &Roman numerals for series"
@@ -17752,6 +17772,8 @@ msgstr "Monospace"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
 msgstr ""
+"Se souvient de la taille et de la mise en page de la dernière fenêtre "
+"utilisée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -17798,10 +17820,13 @@ msgid ""
 "fullscreen mode. This allows you to read the book text without it becoming "
 "too wide."
 msgstr ""
+"Fixer la largeur maximale que le texte et les photos du livre aura en mode "
+"plein écran. Cela vous permet de lire le texte sans qu'il ne devienne trop "
+"large."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Maximum text width in &fullscreen:"
-msgstr ""
+msgstr "Largeur maximale du texte en plein écran:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid "Font &magnification step size:"
@@ -18053,23 +18078,23 @@ msgstr "Rechercher du texte dans le livre"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:271
 #, python-format
 msgid "Toggle full screen (%s)"
-msgstr ""
+msgstr "Basculer en plein écran (% s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:306
 msgid "Full screen mode"
-msgstr ""
+msgstr "Mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:307
 msgid "Right click to show controls"
-msgstr ""
+msgstr "Faites un clic droit pour afficher les contrôles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:308
 msgid "Press Esc to quit"
-msgstr ""
+msgstr "Appuyez sur Echap pour quitter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:322
 msgid "Show/hide controls"
-msgstr ""
+msgstr "Afficher / masquer les contrôles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:334
 msgid "Print Preview"

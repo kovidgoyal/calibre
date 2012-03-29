@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-27 20:29+0000\n"
+"PO-Revision-Date: 2012-03-28 18:57+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-28 04:44+0000\n"
-"X-Generator: Launchpad (build 15027)\n"
+"X-Launchpad-Export-Date: 2012-03-29 04:33+0000\n"
+"X-Generator: Launchpad (build 15032)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -9736,7 +9736,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:585
 msgid "&Published:"
-msgstr ""
+msgstr "&Објављено:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid "Clear published date"
@@ -9745,11 +9745,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1170
 msgid "&Languages:"
-msgstr ""
+msgstr "&Језици:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 msgid "Remove &format:"
-msgstr "Ukloni &format:"
+msgstr "Уклони &формат:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 msgid ""
@@ -9769,10 +9769,10 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
-"Naslov mora biti sa svim velikim početnim slovima. Ako je izabrana i ova, i "
-"opcija\n"
-"da se izmene mesta autoru i naslovu, veličina slova će biti promenjena posle "
-"izmene."
+"Наслов мора бити са свим великим почетним словима. Ако је изабрана и ова "
+"могућност\n"
+"да се измене места аутору и наслову, величина слова ће бити промењена после "
+"измене."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "Change title to title &case"
@@ -9794,40 +9794,40 @@ msgid ""
 "\n"
 "Future conversion of these books will use the default settings."
 msgstr ""
-"Ukloni sačuvana podešavanja za konverziju izabranih knjiga.\n"
+"Уклони сачувана подешавања за претварање изабраних књига.\n"
 "\n"
-"Naredne konverzije ovih knjiga će koristiti podrazumevane vrednosti."
+"Наредно претварање ових књига ће користити подразумеване вредности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid "Remove &stored conversion settings for the selected books"
-msgstr "Ukloni &sačuvana podešavanja za konverziju izabranih knjiga"
+msgstr "Уклони &сачувана подешавања за претварање изабраних књига"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:604
 msgid "Change &cover"
-msgstr "Promeni o&mot"
+msgstr "Промени к&орице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:605
 msgid "&Generate default cover"
-msgstr "&Generiši podrazumevani omot"
+msgstr "&Направи подразумеване корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:606
 msgid "&Remove cover"
-msgstr "&Ukloni omot"
+msgstr "&Уклони корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:607
 msgid "Set from &ebook file(s)"
-msgstr "Postavi iz fajla s &e-knjigom"
+msgstr "Постави из  &е-књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:721
 msgid "&Basic metadata"
-msgstr "&Osnovni metapodaci"
+msgstr "&Основни метаподаци."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:562
 msgid "&Custom metadata"
-msgstr "&Korisnički metapodaci"
+msgstr "&Кориснички метаподаци."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:610
 msgid "Load searc&h/replace:"
@@ -9843,32 +9843,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:613
 msgid "Sa&ve"
-msgstr ""
+msgstr "Сач&увај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
 msgid "Delete"
-msgstr "Izbriši"
+msgstr "Избриши"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:616
 msgid "Search &field:"
-msgstr "Pretraži po&lje:"
+msgstr "Претражи по&ље:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:617
 msgid "The name of the field that you want to search"
-msgstr "Naziv polja koje želite da pretražujete"
+msgstr "Назив поља које желите да претражујете."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
 msgid "Search &mode:"
-msgstr "&Način pretraživanja:"
+msgstr "&Начин претраживања:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
 msgstr ""
-"Izaberite da li ćete koristiti jednostavno traženje teksta, ili regularne "
-"izraze"
+"Изаберите да ли ћете користити једноставно тражење текста, или регуларне "
+"изразе."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:642
@@ -9882,11 +9882,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
 msgid "Te&mplate:"
-msgstr "Šablo&n:"
+msgstr "Шабло&н:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr "Unesite šablon koji će biti korišćen za pretraživanje i zamenu"
+msgstr "Унесите шаблон који ће бити коришћен за претраживање и замену."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:625
 msgid ""
@@ -9899,26 +9899,27 @@ msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
-"Izaberite ovu opciju ako tekst za pretraživanje mora odgovarati i po "
-"veličini slova. Ako opcija nije izabrana veličina slova neće biti bitna"
+"Изаберите ову могућност ако текст за претраживање мора одговарати и по "
+"величини слова. Ако ова могућнос није изабрана величина слова неће бити "
+"битна."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:627
 msgid "Cas&e sensitive"
-msgstr "Razlikuj v&elika i mala slova"
+msgstr "Разликуј в&елика и мала слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:628
 msgid "&Replace with:"
-msgstr "&Zameni sa:"
+msgstr "&Замени са:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
-msgstr "Tekst za zaemnu. Pronađeni tekst će biti zamenjen ovim"
+msgstr "Текст за замену. Пронађени текст ће бити замењен овим."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:630
 msgid "&Apply function after replace:"
-msgstr "Primeni &funkiciju posle zamene:"
+msgstr "Примени &функицију после замене:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:631
 msgid ""
@@ -9934,24 +9935,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:633
 msgid "&Destination field:"
-msgstr "&Ciljno polje:"
+msgstr "&Циљно поље:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:634
 msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
-"Polje u koje će biti ubačen tekst posle svih zamena.\n"
-"Ako je ostavljeno prazno, tekst će biti ubačen u izvorno polje ako je to "
-"moguće"
+"Поље у које ће бити убачен текст после свих замена.\n"
+"Ако је остављено празно, текст ће бити убачен у изворно поље ако је то "
+"могуће."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:636
 msgid "M&ode:"
-msgstr "N&ačin:"
+msgstr "Н&ачин:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:637
 msgid "Specify how the text should be copied into the destination."
-msgstr "Odredi kako će tekst biti kopiran u ciljno polje"
+msgstr "Одреди како ће текст бити копиран у циљно поље."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:638
 msgid ""
@@ -9960,78 +9961,78 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
-"Određuje da li će rezultat biti podeljen u više vrednosti, ili\n"
-"će ostati kao celina. Ova opcija ima najviše efekta kada izvorno\n"
-"polje nije višestruko, a kada ciljno jeste"
+"Одређује да ли ће резултат бити подељен у више вредности, или\n"
+"ће остати као целина. Ова могућност има највише ефекта када изворно\n"
+"поље није вишеструко, а када циљно јесте."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:641
 msgid "Split &result"
-msgstr "Razdvoj &rezultate"
+msgstr "Раздвој &резултате."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:644
 msgid "For multiple-valued fields, sho&w"
-msgstr "Za polja s više vrednosti pri&kaži"
+msgstr "За поља с више вредности при&кажи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:645
 msgid "values starting a&t"
-msgstr "vrednosti koje počinju &na"
+msgstr "вредности које почињу &на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:646
 msgid "with values separated b&y"
-msgstr "vrednosti razdvojene &sa"
+msgstr "вредности раздвојене &са"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:647
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
-"Koristi kada prikazuješ rezultate da bi razdvojio elemente u poljima s više "
-"vrednosti"
+"Користи када приказујеш резултате да би раздвојио елементе у пољима с више "
+"вредности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:648
 msgid "Test text"
-msgstr "Test tekst"
+msgstr "Пробни текст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:649
 msgid "Test result"
-msgstr "Test rezultat"
+msgstr "Резултат теста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:650
 msgid "Your test:"
-msgstr "Vaš test:"
+msgstr "Ваш тест:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:651
 msgid "&Search and replace"
-msgstr "&Traži i zameni"
+msgstr "&Тражи и замени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:61
 msgid "Password needed"
-msgstr "Potrebna je lozinka"
+msgstr "Потребна је лозинка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
 msgid "&Username:"
-msgstr "&Korisničko ime:"
+msgstr "&Корисничко име:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Password:"
-msgstr "&Lozinka:"
+msgstr "&Лозинка:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:81
 msgid "&Show password"
-msgstr "&Prikaži lozinku"
+msgstr "&Прикажи лозинку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:122
 msgid "Restart required"
-msgstr "Потребно је рестартовање"
+msgstr "Потребно је поновно покретање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
@@ -10061,7 +10062,7 @@ msgstr "Није инсталирано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr "Nova verzija je na raspolaganju"
+msgstr "Ново издање је на располагању"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
@@ -10070,7 +10071,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:68
 msgid "Status"
-msgstr "Status"
+msgstr "Стање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Available"
@@ -10178,7 +10179,7 @@ msgstr "Опис"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
 msgid "&Install"
-msgstr ""
+msgstr "&Инсталирај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
@@ -10209,7 +10210,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "Enable/&Disable plugin"
-msgstr "Uključi/&Isključi dodatak"
+msgstr "Укључи/&Искључи додатак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
 msgid "Enable or disable this plugin"
@@ -10218,7 +10219,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:116
 msgid "&Remove plugin"
-msgstr "&Ukloni dodatak"
+msgstr "&Уклони додатак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
 msgid "Uninstall the selected plugin"
@@ -10245,7 +10246,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 #, python-format
 msgid "Install %s"
-msgstr ""
+msgstr "Инсталирај %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:688
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:299
@@ -10311,18 +10312,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:780
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:350
 msgid "Plugin not customizable"
-msgstr "Dodatak nema opcija koje se mogu menjati"
+msgstr "Додатак нема могућност које се могу мењати"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:781
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:351
 #, python-format
 msgid "Plugin: %s does not need customization"
-msgstr "Dodatak: %s ne zahteva podešavanje"
+msgstr "Додатак: %s не захтева подешавање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:785
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:357
 msgid "Must restart"
-msgstr "Potrebno je ponovno pokretanje"
+msgstr "Потребно је поновно покретање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:786
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:358
@@ -10334,24 +10335,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:794
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:339
 msgid "Plugin cannot be disabled"
-msgstr "Dodatak se ne može isključiti"
+msgstr "Додатак се не може искључити."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:340
 #, python-format
 msgid "The plugin: %s cannot be disabled"
-msgstr "Dodatak: %s se ne može isključiti"
+msgstr "Додатак: %s се не може искључити."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:66
 msgid "Aborting..."
-msgstr "Prekidam..."
+msgstr "Прекидам..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:156
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:113
 msgid "Authors"
-msgstr "Autori"
+msgstr "Аутори"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:188
 msgid "**No items found**"
@@ -10390,7 +10391,7 @@ msgstr "Ставке"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:681
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
 msgid "Search"
-msgstr "Traži"
+msgstr "Претрага"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:76
 msgid "Search in the library view for the selected item"
@@ -10442,7 +10443,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr "Сачувана претрага веч постоји"
+msgstr "Сачувана претрага већ постоји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
@@ -10454,31 +10455,31 @@ msgstr ""
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"Izabana sačuvana pretraga će biti <b>izbrisana zauvek</b>. Da li ste sigurni?"
+"Изабана сачувана претрага ће бити <b>избрисана заувек</b>. Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Saved Search Editor"
-msgstr "Uređivač sačuvanih pretraga"
+msgstr "Уређивач сачуваних претрага."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:95
 msgid "Saved Search: "
-msgstr "Sačuvana pretraga: "
+msgstr "Сачувана претрага: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:96
 msgid "Select a saved search to edit"
-msgstr "Izaberite sačuvanu pretragu za obadu"
+msgstr "Изаберите сачувану претрагу за обраду"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:97
 msgid "Delete this selected saved search"
-msgstr "Izbriši izabranu sačuvanu pretragu"
+msgstr "Избриши изабрану сачувану претрагу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:99
 msgid "Enter a new saved search name."
-msgstr "Unesite novo ime za sačuvanu pretragu"
+msgstr "Унесите ново име за сачувану претрагу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:100
 msgid "Add the new saved search"
-msgstr "Dodaj novu sačuvanu pretragu"
+msgstr "Додај нову сачувану претрагу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
@@ -10486,7 +10487,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
-msgstr "Izmeni sadržaj sačuvane pretrage"
+msgstr "Измени садржај сачуване претраге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:42
 msgid ""
