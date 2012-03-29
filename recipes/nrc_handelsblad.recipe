@@ -8,7 +8,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class NRC(BasicNewsRecipe):
     title                  = 'NRC Handelsblad'
     __author__             = 'veezh'
-    description            = 'Nieuws'
+    description            = 'Nieuws (no subscription needed)'
     oldest_article         = 1
     max_articles_per_feed  = 100
     no_stylesheets         = True
