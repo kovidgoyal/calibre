@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-24 10:42+0000\n"
-"PO-Revision-Date: 2012-03-28 18:57+0000\n"
+"PO-Revision-Date: 2012-03-29 05:57+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-29 04:33+0000\n"
+"X-Launchpad-Export-Date: 2012-03-30 04:33+0000\n"
 "X-Generator: Launchpad (build 15032)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -10503,7 +10503,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
-msgstr ""
+msgstr "&Преузми после:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
 msgid ""
@@ -10520,7 +10520,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
-msgstr ""
+msgstr "&Дани у месецу:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
@@ -10542,7 +10542,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
-msgstr ""
+msgstr "&Преузми сваког:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
@@ -10565,42 +10565,42 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:217
 msgid "&Download now"
-msgstr "&Preuzmi odmah"
+msgstr "&Преузми одмах."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:314
 msgid "Need username and password"
-msgstr "Potrebno je korisničko ime i lozinka"
+msgstr "Потребно је корисничко име и лозинка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:315
 msgid "You must provide a username and/or password to use this news source."
 msgstr ""
-"Morate navesti korisničko ime i/ili lozinku da biste koristili ovaj izvor "
-"vesti."
+"Морате навести корисничко име и/или лозинку да бисте користили овај извор "
+"вести."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:355
 msgid "Account"
-msgstr "Nalog"
+msgstr "Налог"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:356
 msgid "(optional)"
-msgstr "(neobavezno)"
+msgstr "(необавезно)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:357
 msgid "(required)"
-msgstr "(obavezno)"
+msgstr "(обавезно)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:374
 msgid "Created by: "
-msgstr "Autor: "
+msgstr "Направио: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "Преузми %s одмах"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:382
 msgid "Last downloaded: never"
-msgstr "Poslednji put preuzeto: nikada"
+msgstr "Последњи пут преузето: никада"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:383
 msgid "never"
@@ -10613,24 +10613,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:405
 msgid "Last downloaded:"
-msgstr "Задњи пут скинуто:"
+msgstr "Задњи пут преузето:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:426
 msgid "Cannot download news as no internet connection is active"
-msgstr "Ne mogu da preuzmem vesti, jer nema aktivne veze sa Internetom"
+msgstr "Не могу да преузмем вести, јер нема активне везе са интернетом."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
 msgid "No internet connection"
-msgstr "Nema veze sa Internetom"
+msgstr "Нема везе са Интернетом."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:440
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Schedule news download"
-msgstr "Planiraj preuzimanje vesti"
+msgstr "Планирај преузимање вести."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:443
 msgid "Add a custom news source"
-msgstr "Dodaj sopstveni izvor vesti"
+msgstr "Додај сопствени извор вести."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:448
 msgid "Download all scheduled news sources"
@@ -10638,15 +10638,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Go"
-msgstr "Ићи"
+msgstr "Иди"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
 msgid "blurb"
-msgstr "opis"
+msgstr "опис"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "&Schedule for download:"
-msgstr "&Planiraj za preuzimanje:"
+msgstr "&Планирај за преузимање:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Days of  week"
@@ -10658,27 +10658,27 @@ msgstr "Дани у месецу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid "Every x days"
-msgstr ""
+msgstr "Сваких x дана"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 msgid "&Account"
-msgstr "&Nalog"
+msgstr "&Налог"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid "For the scheduling to work, you must leave calibre running."
-msgstr "Da bi planiranje radilo calibre mora da bude pokrenut."
+msgstr "Да би планирање радило calibre мора да буде покренут."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
 msgid "&Schedule"
-msgstr "&Raspored"
+msgstr "&Распоред."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:216
 msgid "Add &title as tag"
-msgstr "Dodaj &naslov kao etiketu"
+msgstr "Додај &наслов као етикету."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "&Extra  tags:"
-msgstr "&Dodatne  etikete:"
+msgstr "&Додатне  етикете:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid ""
@@ -10703,15 +10703,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:223
 msgid "all issues"
-msgstr ""
+msgstr "сва питања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:224
 msgid " issues"
-msgstr ""
+msgstr " питања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:225
 msgid "&Advanced"
-msgstr "N&apredno"
+msgstr "&Напредно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
@@ -10733,7 +10733,7 @@ msgstr "никада брисати"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
 msgid " days"
-msgstr " dana"
+msgstr " дани"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid "Download all scheduled news sources at once"
@@ -10741,48 +10741,48 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:232
 msgid "Download &all scheduled"
-msgstr "Preuzmi &sve planirano"
+msgstr "Преузми &све планирано."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:41
 msgid "contains"
-msgstr "sadrži"
+msgstr "садржи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:42
 msgid "The text to search for. It is interpreted as a regular expression."
-msgstr "Tekst koji se traži. Biće interpretiran kao regularni izraz."
+msgstr "Текст који се тражи. Биће интерпретиран као регуларни израз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:43
 msgid ""
 "<p>Negate this match. That is, only return results that <b>do not</b> match "
 "this query."
 msgstr ""
-"<p>Negiraj ovaj upit. To jest, prikaži samo rezultate koji <b>ne</b> "
-"odgovaraju upitu."
+"<p>Негирај овај упит. То јест, прикажи само резултате који <b>не</b> "
+"одговарају упиту."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:44
 msgid "Negate"
-msgstr "Negiraj"
+msgstr "Негирај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:168
 msgid "Advanced Search"
-msgstr "Napredna pretraga"
+msgstr "Напредна претрага"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:169
 msgid "&What kind of match to use:"
-msgstr "&Način analize:"
+msgstr "&Начин анализе:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:170
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
-msgstr "Sadrži: reč, ili fraza se nalaze bilo gde u polju s metapodacima"
+msgstr "Садржи: реч, или фраза се налазе било где у пољу с метаподацима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:209
@@ -10790,8 +10790,8 @@ msgstr "Sadrži: reč, ili fraza se nalaze bilo gde u polju s metapodacima"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:171
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
-"Jednako: reč, ili fraza moraju odgovarati kompletnom sadržaju polja s "
-"metapodacima"
+"Једнако: реч, или фраза морају одговарати комплетном садржају поља с "
+"метаподацима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
@@ -10800,49 +10800,49 @@ msgstr ""
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr ""
-"Regularni izraz: izraz mora odgovarati bilo kom delu polja s metapodacima"
+"Регуларни израз: израз мора одговарати било ком делу поља с метаподацима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:173
 msgid "Find entries that have..."
-msgstr "Pronađi stavke koje sadrže..."
+msgstr "Пронађи ставке које садрже..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:174
 msgid "&All these words:"
-msgstr "&Sve ove reči:"
+msgstr "&Све ове речи:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:175
 msgid "This exact &phrase:"
-msgstr "Ovu &frazu:"
+msgstr "Ову &фразу:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:176
 msgid "&One or more of these words:"
-msgstr "&Jednu ili više ovih reči:"
+msgstr "&Једну или више ових речи:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:177
 msgid "But dont show entries that have..."
-msgstr "Ali ne prikazuj stavke koje sadrže..."
+msgstr "Али не приказуј ставке које садрже..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:178
 msgid "Any of these &unwanted words:"
-msgstr "Bilo koje od ovih &neželjenih reči:"
+msgstr "Било које од ових &нежељених речи:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:209
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:217
@@ -10857,40 +10857,40 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:180
 msgid "A&dvanced Search"
-msgstr "Napre&dna pretraga"
+msgstr "Напре&дна претрага."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:182
 msgid "Enter the title."
-msgstr "Unesite naslov."
+msgstr "Унесите наслов."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:183
 msgid "&Author:"
-msgstr "&Autor:"
+msgstr "&Аутор:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1106
 msgid "Ta&gs:"
-msgstr "E&tikete:"
+msgstr "Е&тикете:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
-msgstr "Unesite ime autora. Može se upotrebiti samo jedno ime autora."
+msgstr "Унесите име аутора. Може се употребити само једно име аутора."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:217
 msgid ""
 "Enter a series name, without an index. Only one series name can be used."
 msgstr ""
-"Unesite naziv serije, bez rednog broja. Može se upotrebiti samo jedan naziv "
-"serije."
+"Унесите назив серије, без редног броја. Може се употребити само један назив "
+"серије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:218
 msgid "Enter tags separated by spaces"
-msgstr "Unesite etikete razdvojene zarezima"
+msgstr "Унесите етикете раздвојене зарезима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:101
@@ -10898,31 +10898,31 @@ msgstr "Unesite etikete razdvojene zarezima"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:184
 msgid "&Clear"
-msgstr "&Očisti"
+msgstr "&Очисти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:185
 msgid "Search only in specific fields:"
-msgstr "Traži samo u određenim poljima:"
+msgstr "Тражи само у одређеним пољима:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr "Naslov/Autor/S&erija..."
+msgstr "Наслов/Аутор/С&ерија..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr "Izaberi formate"
+msgstr "Изабери формате."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
 msgid "Publishers"
-msgstr "Izdavači"
+msgstr "Издавачи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:143
 msgid " (not on any book)"
-msgstr " (ni na jednoj knjizi)"
+msgstr " (ни на једној књизи)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
@@ -10954,24 +10954,24 @@ msgstr ""
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"Trenutna kategorija etiketa će biti <b>izbrisana zauvek</b>. Da li ste "
-"sigurni?"
+"Тренутна категорија етикета ће бити <b>избрисана заувек</b>. Да ли сте "
+"сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:166
 msgid "User Categories Editor"
-msgstr "Uređivač korisničkih kategorija"
+msgstr "Уређивач корисничких категорија."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category name: "
-msgstr "Naziv kategorije: "
+msgstr "Назив категорије: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select a category to edit"
-msgstr "Izaberite kategoriju za promene"
+msgstr "Изаберите категорију за промене."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:169
 msgid "Delete this selected tag category"
-msgstr "Izbriši izabranu kategoriju etiketa"
+msgstr "Избриши изабрану категорију етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:171
 msgid "Enter a category name, then use the add button or the rename button"
@@ -10987,31 +10987,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
-msgstr "Filter za kategorije: "
+msgstr "Сито за категорије: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:177
 msgid "Select the content kind of the new category"
-msgstr "Izaberite vrstu sadržaja za novu kategoriju"
+msgstr "Изаберите врсту садржаја за нову категорију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:178
 msgid "A&vailable items"
-msgstr "&Raspoloživo"
+msgstr "&Расположиве ставке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:179
 msgid "Apply tags to current tag category"
-msgstr "Dodaj etiketu u trenutnu kategoriju etiketa"
+msgstr "Додај етикету у тренутну категорију етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:181
 msgid "A&pplied items"
-msgstr "&Primenjeno"
+msgstr "&Примењено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:182
 msgid "Unapply (remove) tag from current tag category"
-msgstr "Ukloni etiketu iz trenutne kategorije etiketa"
+msgstr "Уклони етикету из тренутне категорије етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:83
 msgid "Are your sure?"
-msgstr "Da li ste sigurni?"
+msgstr "Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:84
 msgid ""
