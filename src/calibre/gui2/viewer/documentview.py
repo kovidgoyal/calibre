@@ -4,14 +4,14 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, re, glob, sys, zipfile
+import os, math, glob, zipfile
 from base64 import b64encode
 from functools import partial
 
 from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt,
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog,
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon,
-                     QFont, pyqtSignature, QAction, QByteArray, QMenu,
+                     QFont, pyqtSignature, QAction, QMenu,
                      pyqtSignal, QSwipeGesture, QApplication)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
@@ -21,10 +21,11 @@ from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
-from calibre import prints, guess_type
+from calibre import prints
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
+from calibre.ebooks.oeb.display.webview import load_html
 
 # }}}
 
@@ -312,10 +313,14 @@ class Document(QWebPage): # {{{
         self.javascript('goto_reference("%s")'%ref)
 
     def goto_bookmark(self, bm):
-        bm = bm.strip()
-        if bm.startswith('>'):
-            bm = bm[1:].strip()
-        self.javascript('scroll_to_bookmark("%s")'%bm)
+        if bm['type'] == 'legacy':
+            bm = bm['pos']
+            bm = bm.strip()
+            if bm.startswith('>'):
+                bm = bm[1:].strip()
+            self.javascript('scroll_to_bookmark("%s")'%bm)
+        elif bm['type'] == 'cfi':
+            self.page_position.to_pos(bm['pos'])
 
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
@@ -366,40 +371,9 @@ class Document(QWebPage): # {{{
     def elem_outer_xml(self, elem):
         return unicode(elem.toOuterXml())
 
-    def find_bookmark_element(self):
-        mf = self.mainFrame()
-        doc_pos = self.ypos
-        min_delta, min_elem = sys.maxint, None
-        for y in range(10, -500, -10):
-            for x in range(-50, 500, 10):
-                pos = QPoint(x, y)
-                result = mf.hitTestContent(pos)
-                if result.isNull(): continue
-                elem = result.enclosingBlockElement()
-                if elem.isNull(): continue
-                try:
-                    ypos = self.element_ypos(elem)
-                except:
-                    continue
-                delta = abs(ypos - doc_pos)
-                if delta < 25:
-                    return elem
-                if delta < min_delta:
-                    min_elem, min_delta = elem, delta
-        return min_elem
-
-
     def bookmark(self):
-        elem = self.find_bookmark_element()
-
-        if elem is None or self.element_ypos(elem) < 100:
-            bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
-        else:
-            bm = unicode(elem.evaluateJavaScript(
-                'calculate_bookmark(%d, this)'%self.ypos).toString())
-            if not bm:
-                bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
-        return bm
+        pos = self.page_position.current_pos
+        return {'type':'cfi', 'pos':pos}
 
     @property
     def at_bottom(self):
@@ -474,19 +448,6 @@ class Document(QWebPage): # {{{
 
 # }}}
 
-class EntityDeclarationProcessor(object): # {{{
-
-    def __init__(self, html):
-        self.declared_entities = {}
-        for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
-            tokens = match.group(1).split()
-            if len(tokens) > 1:
-                self.declared_entities[tokens[0].strip()] = tokens[1].strip().replace('"', '')
-        self.processed_html = html
-        for key, val in self.declared_entities.iteritems():
-            self.processed_html = self.processed_html.replace('&%s;'%key, val)
-# }}}
-
 class DocumentView(QWebView): # {{{
 
     magnification_changed = pyqtSignal(object)
@@ -497,8 +458,6 @@ class DocumentView(QWebView): # {{{
         self.is_auto_repeat_event = False
         self.debug_javascript = debug_javascript
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
-        self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
-                re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
         self.initial_pos = 0.0
@@ -689,30 +648,16 @@ class DocumentView(QWebView): # {{{
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
 
-    def self_closing_sub(self, match):
-        tag = match.group(1)
-        if tag.lower().strip() == 'br':
-            return match.group()
-        return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
-
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
-        mt = getattr(path, 'mime_type', None)
-        if mt is None:
-            mt = guess_type(path)[0]
-        html = open(path, 'rb').read().decode(path.encoding, 'replace')
-        html = EntityDeclarationProcessor(html).processed_html
-        has_svg = re.search(r'<[:a-zA-Z]*svg', html) is not None
 
-        if 'xhtml' in mt:
-            html = self.self_closing_pat.sub(self.self_closing_sub, html)
-        if self.manager is not None:
-            self.manager.load_started()
-        self.loading_url = QUrl.fromLocalFile(path)
-        if has_svg:
-            self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
-        else:
-            self.setHtml(html, self.loading_url)
+        def callback(lu):
+            self.loading_url = lu
+            if self.manager is not None:
+                self.manager.load_started()
+
+        load_html(path, self, codec=path.encoding, mime_type=getattr(path,
+            'mime_type', None), pre_load_callback=callback)
         self.turn_off_internal_scrollbars()
 
     def initialize_scrollbar(self):
@@ -1010,8 +955,12 @@ class DocumentView(QWebView): # {{{
             finally:
                 self.is_auto_repeat_event = False
         elif key == 'Down':
+            if self.document.at_bottom:
+                self.manager.next_document()
             self.scroll_by(y=15)
         elif key == 'Up':
+            if self.document.at_top:
+                self.manager.previous_document()
             self.scroll_by(y=-15)
         elif key == 'Left':
             self.scroll_by(x=-15)

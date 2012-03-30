@@ -1460,7 +1460,7 @@ class StoreNextoStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.nexto_plugin:NextoStore'
 
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
+    formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
 class StoreOpenBooksStore(StoreBase):

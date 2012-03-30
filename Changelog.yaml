@@ -19,11 +19,67 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.45
+  date: 2012-03-30
+
+  new features:
+    - title: "E-book viewer: Allow the up and down keys to scroll past section boundaries"
+
+    - title: "calibredb: Allow specification of basic metadata on the command line when adding books."
+      tickets: [951063]
+
+    - title: "Driver for Samsung Galaxy Plus GT-I9001"
+
+    - title: "KF8 Input: Support KF8 format Amazon book samples."
+      tickets: [963418]
+
+    - title: "When a new plugin is added to calibre for the first time, have its icon (if any) show up even when a device is connected (this can be changed by the user at the time of plugin installation)"
+
+    - title: "Add keyboard shortcuts for Bold, Italic and Underline to the comments editor in the edit metadata dialog"
+      tickets: [963559] 
+ 
+  bug fixes:
+    - title: "E-book viewer: Fix last read position (and bookmarks in general) being inaccurate for some books."
+      description: "The technique for marking locations in books used by the viewer has changed. The new technique should be much more accurate than the last one, especially when the font size at which the book is being viewed is changed. Note that this change means that bookmarks created with this release of calibre will not be read by previous calibre versions. On a technical note, the viewer now uses the CFI specification from the EPUB 3 standard for bookmarks."
+      type: major
+
+    - title: "Workarounds for a few regressions in the user interface in 0.8.44 caused by the update to Qt 4.8.0"
+
+    - title: "Books list: Preserve the horizontal scroll position when sorting by a column"
+
+    - title: "Fix saving to disk and then adding the book back not restoring tags-like custom columns"
+
+    - title: "Linux installer: Fix completion for ebook-convert not working." 
+      tickets: [967834]
+
+    - title: "MOBI Output: Recognize type=text in addition to type=start guide elements"
+
+    - title: "Get Books: Updates to Nexto, Ebookpoint and Woblink stores"
+
+    - title: "Fix unable to clear username/password in Fetch news dialog"
+
+    - title: "PDF Output: Fix margin specifications not being applied"
+
+    - title: "Linux installer: Manually preserve the defaults.list mimetype association file to workaround buggy xdg-desktop-menu implementations in some distros."
+      tickets: [926559]
+
+    - title: "E-book viewer: Fix regression that caused the ebook viewer to stop functioning if it is launched from the main calibre program and then the main calibre program is closed."
+      tickets: [963960]
+
+
+  improved recipes:
+    - Our Daily Bread
+
+  new recipes:
+    - title: NRC Handelsblad (free)
+      author: veezh
+
 - version: 0.8.44
   date: 2012-03-23
 
   new features:
-    - title: "E-book viewer: A whole new full screen mode, with no toolbars to distract from the text and the ability to set the width of the column of text via Preferences in the ebook viewer."
+    - title: "E-book viewer: A whole new full screen mode."
+      description: "The new mode has no toolbars to distract from the text and the ability to set the width of the column of text via Preferences in the ebook viewer. Click the Fullscreen button on the toolbar in the viewer to enter fullscreen mode (or press the F11 or Ctrl+Shit+F keys)"
       type: major
       tickets: [959830]
 

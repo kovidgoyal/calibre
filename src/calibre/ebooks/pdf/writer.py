@@ -18,10 +18,11 @@ from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import __appname__, __version__, fit_image
+from calibre.ebooks.oeb.display.webview import load_html
 
 from PyQt4 import QtCore
-from PyQt4.Qt import QUrl, QEventLoop, QObject, \
-    QPrinter, QMetaObject, QSizeF, Qt, QPainter, QPixmap
+from PyQt4.Qt import (QEventLoop, QObject,
+    QPrinter, QMetaObject, QSizeF, Qt, QPainter, QPixmap)
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -70,7 +71,7 @@ def get_pdf_printer(opts, for_comic=False):
                 opts.margin_right, opts.margin_bottom, QPrinter.Point)
     printer.setOrientation(orientation(opts.orientation))
     printer.setOutputFormat(QPrinter.PdfFormat)
-    printer.setFullPage(True)
+    printer.setFullPage(for_comic)
     return printer
 
 def get_printer_page_size(opts, for_comic=False):
@@ -156,8 +157,7 @@ class PDFWriter(QObject): # {{{
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)
-
-        self.view.load(QUrl.fromLocalFile(item))
+        load_html(item, self.view)
 
     def _render_html(self, ok):
         if ok:
@@ -168,9 +168,14 @@ class PDFWriter(QObject): # {{{
             # We have to set the engine to Native on OS X after the call to set
             # filename. Setting a filename with .pdf as the extension causes
             # Qt to set the format to use Qt's PDF engine even if native was
-            # previously set on the printer.
+            # previously set on the printer. Qt's PDF engine produces image
+            # based PDFs on OS X, so we cannot use it.
             if isosx:
                 printer.setOutputFormat(QPrinter.NativeFormat)
+            self.view.page().mainFrame().evaluateJavaScript('''
+                document.body.style.backgroundColor = "white";
+
+                ''')
             self.view.print_(printer)
             printer.abort()
         else:
