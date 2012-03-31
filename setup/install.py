@@ -156,9 +156,6 @@ class Develop(Command):
             self.warn('Failed to compile mount helper. Auto mounting of',
                 ' devices will not work')
 
-        if not isbsd and os.geteuid() != 0:
-            return self.warn('Must be run as root to compile mount helper. Auto '
-                    'mounting of devices will not work.')
         src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
         dest = os.path.join(self.staging_bindir, 'calibre-mount-helper')
         self.info('Installing mount helper to '+ dest)

@@ -25,7 +25,7 @@ from calibre.ebooks.conversion.config import GuiRecommendations, \
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
-        out_format=None):
+        out_format=None, show_no_format_warning=True):
     changed = False
     jobs = []
     bad = []
@@ -91,7 +91,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
         except NoSupportedInputFormats:
             bad.append(book_id)
 
-    if bad != []:
+    if bad and show_no_format_warning:
         res = []
         for id in bad:
             title = db.title(id, True)

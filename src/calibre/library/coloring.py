@@ -117,7 +117,10 @@ class Rule(object): # {{{
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        return "cmp(raw_field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
+        if col == 'size':
+            return "cmp(booksize(), %s, '%s', '%s', '%s')" % (val, lt, eq, gt)
+        else:
+            return "cmp(raw_field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
 
     def rating_condition(self, col, action, val):
         lt, eq, gt = {

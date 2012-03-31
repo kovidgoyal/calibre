@@ -48,7 +48,7 @@ class Push(Command):
         threads = []
         for host in (
             r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre',
-            'kovid@leopard_test:calibre',
+            'kovid@ox:calibre',
             r'kovid@win7:/cygdrive/c/Users/kovid/calibre',
             ):
             rcmd = BASE_RSYNC + EXCLUDES + ['.', host]

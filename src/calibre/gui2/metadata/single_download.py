@@ -27,11 +27,13 @@ from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import (identify,
         urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import error_dialog, NONE
+from calibre.gui2 import error_dialog, NONE, rating_font
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
+from calibre.utils.config import tweaks
+
 # }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
@@ -254,6 +256,7 @@ class ResultsView(QTableView): # {{{
         return ret
 
     def show_details(self, index):
+        f = rating_font()
         book = self.model().data(index, Qt.UserRole)
         parts = [
             '<center>',
@@ -265,7 +268,8 @@ class ResultsView(QTableView): # {{{
             if series[1]:
                 parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
-            parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
+            style = 'style=\'font-family:"%s"\''%f
+            parts.append('<div %s>%s</div>'%(style, '\u2605'*int(book.rating)))
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
@@ -323,14 +327,19 @@ class Comments(QWebView): # {{{
                     ans = unicode(col.name())
             return ans
 
-        f = QFontInfo(QApplication.font(self.parent())).pixelSize()
+        fi = QFontInfo(QApplication.font(self.parent()))
+        f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
+        fam = unicode(fi.family()).strip().replace('"', '')
+        if not fam:
+            fam = 'sans-serif'
+
         c = color_to_string(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText))
         templ = '''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-family: %s; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
@@ -342,7 +351,7 @@ class Comments(QWebView): # {{{
             </div>
             </body>
         <html>
-        '''%(f, c)
+        '''%(fam, f, c)
         self.setHtml(templ%html)
 # }}}
 
@@ -873,6 +882,11 @@ class FullFetch(QDialog): # {{{
         self.covers_widget.chosen.connect(self.ok_clicked)
         self.stack.addWidget(self.covers_widget)
 
+        # Workaround for Qt 4.8.0 bug that causes the frame of the window to go
+        # off the top of the screen if a max height is not set for the
+        # QWebView. Seems to only happen on windows, but keep it for all
+        # platforms just in case.
+        self.identify_widget.comments_view.setMaximumHeight(500)
         self.resize(850, 550)
 
         self.finished.connect(self.cleanup)

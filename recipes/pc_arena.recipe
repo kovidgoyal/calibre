@@ -1,0 +1,25 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class PC_Arena(BasicNewsRecipe):
+    title          = u'PCArena'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Najnowsze informacje z branży IT - testy, recenzje, aktualności, rankingi, wywiady. Twoje źródło informacji o sprzęcie komputerowym.'
+    category       = 'IT'
+    language       = 'pl'
+    masthead_url='http://pcarena.pl/pcarena/img/logo.png'
+    cover_url= 'http://pcarena.pl/pcarena/img/logo.png'
+    no_stylesheets = True
+    remove_empty_feeds=True
+    #keep_only_tags=[dict(attrs={'class':['artHeader', 'art']})]
+    #remove_tags=[dict(attrs={'class':'pages'})]
+    feeds          = [(u'Aktualności', u'http://pcarena.pl/aktualnosci/feeds.rss'), (u'Testy', u'http://pcarena.pl/testy/feeds.rss'), (u'Software', u'http://pcarena.pl/oprogramowanie/feeds.rss'), (u'Poradniki', u'http://pcarena.pl/poradniki/feeds.rss'), (u'Mobile', u'http://pcarena.pl/mobile/feeds.rss')]
+    
+    def print_version(self, url):
+        return url.replace('show', 'print')
+
+    def image_url_processor(self, baseurl, url):
+        if 'http' not in url:
+            return 'http://pcarena.pl' + url
+        else:
+            return url

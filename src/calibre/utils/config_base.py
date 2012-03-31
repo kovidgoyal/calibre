@@ -351,6 +351,9 @@ class ConfigProxy(object):
     def __setitem__(self, key, val):
         return self.set(key, val)
 
+    def __delitem__(self, key):
+        self.set(key, self.defaults[key])
+
     def get(self, key):
         if self.__opts is None:
             self.refresh()

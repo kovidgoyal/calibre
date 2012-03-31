@@ -106,7 +106,7 @@ class TextileMLizer(OEB2HTML):
         #correct blockcode paras
         text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)
         #correct blockquote paras
-        text = re.sub(r'\nbq\.\n?\np.*\. ', r'\nbq. ', text)
+        text = re.sub(r'\nbq\.\n?\np.*?\. ', r'\nbq. ', text)
 
         #reduce blank lines
         text = re.sub(r'\n{3}', r'\n\np. \n\n', text)

@@ -157,7 +157,7 @@ class HeuristicProcessor(object):
 
         ITALICIZE_STYLE_PATS = [
             ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_',
-            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*>]+)/',
+            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
             ur'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
             ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
             ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
@@ -172,8 +172,11 @@ class HeuristicProcessor(object):
         for word in ITALICIZE_WORDS:
             html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
+        def sub(mo):
+            return '<i>%s</i>'%mo.group('words')
+
         for pat in ITALICIZE_STYLE_PATS:
-            html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
+            html = re.sub(pat, sub, html)
 
         return html
 
@@ -524,11 +527,17 @@ class HeuristicProcessor(object):
         if re.findall('(<|>)', replacement_break):
             if re.match('^<hr', replacement_break):
                 if replacement_break.find('width') != -1:
-                    width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
-                    replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
-                    divpercent = (100 - width) / 2
-                    hr_open = re.sub('45', str(divpercent), hr_open)
-                    scene_break = hr_open+replacement_break+'</div>'
+                    try:
+                        width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                    except:
+                        scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+                        self.log.warn('Invalid replacement scene break'
+                                ' expression, using default')
+                    else:
+                        replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
+                        divpercent = (100 - width) / 2
+                        hr_open = re.sub('45', str(divpercent), hr_open)
+                        scene_break = hr_open+replacement_break+'</div>'
                 else:
                     scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
             elif re.match('^<img', replacement_break):

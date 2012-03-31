@@ -187,7 +187,7 @@ class Resource(object):
 
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -230,7 +230,7 @@ class Resource(object):
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwd()
+                basedir = os.getcwdu()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment

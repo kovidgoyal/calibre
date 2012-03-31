@@ -36,6 +36,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('max_cover', self.proxy)
         r('max_opds_items', self.proxy)
         r('max_opds_ungrouped_items', self.proxy)
+        r('url_prefix', self.proxy)
 
         self.show_server_password.stateChanged[int].connect(
                      lambda s: self.opt_password.setEchoMode(
@@ -100,7 +101,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.stopping_msg.accept()
 
     def test_server(self):
-        open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())))
+        prefix = unicode(self.opt_url_prefix.text()).strip()
+        open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())+prefix))
 
     def view_server_logs(self):
         from calibre.library.server import log_access_file, log_error_file

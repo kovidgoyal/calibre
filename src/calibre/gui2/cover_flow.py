@@ -10,10 +10,11 @@ Module to implement the Cover Flow feature
 import sys, os, time
 
 from PyQt4.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
-        QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence)
+        QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence, QFont)
 
 from calibre import plugins
-from calibre.gui2 import config, available_height, available_width, gprefs
+from calibre.gui2 import (config, available_height, available_width, gprefs,
+        rating_font)
 
 pictureflow, pictureflowerror = plugins['pictureflow']
 
@@ -102,6 +103,8 @@ if pictureflow is not None:
                     type=Qt.QueuedConnection)
             self.context_menu = None
             self.setContextMenuPolicy(Qt.DefaultContextMenu)
+            if hasattr(self, 'setSubtitleFont'):
+                self.setSubtitleFont(QFont(rating_font()))
 
         def set_context_menu(self, cm):
             self.context_menu = cm

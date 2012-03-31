@@ -51,8 +51,9 @@ Run an embedded python interpreter.
             'with sqlite3 works.')
     parser.add_option('-p', '--py-console', help='Run python console',
             default=False, action='store_true')
-    parser.add_option('-m', '--inspect-mobi',
-            help='Inspect the MOBI file at the specified path', default=None)
+    parser.add_option('-m', '--inspect-mobi', action='store_true',
+            default=False,
+            help='Inspect the MOBI file(s) at the specified path(s)')
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
 
@@ -137,7 +138,7 @@ def add_simple_plugin(path_to_plugin):
     tdir = tempfile.mkdtemp()
     open(os.path.join(tdir, 'custom_plugin.py'),
             'wb').write(open(path_to_plugin, 'rb').read())
-    odir = os.getcwd()
+    odir = os.getcwdu()
     os.chdir(tdir)
     zf = zipfile.ZipFile('plugin.zip', 'w')
     zf.write('custom_plugin.py')
@@ -232,9 +233,13 @@ def main(args=sys.argv):
         if len(args) > 1 and os.access(args[-1], os.R_OK):
             sql_dump = args[-1]
         reinit_db(opts.reinitialize_db, sql_dump=sql_dump)
-    elif opts.inspect_mobi is not None:
-        from calibre.ebooks.mobi.debug import inspect_mobi
-        inspect_mobi(opts.inspect_mobi)
+    elif opts.inspect_mobi:
+        from calibre.ebooks.mobi.debug.main import inspect_mobi
+        for path in args[1:]:
+            prints('Inspecting:', path)
+            inspect_mobi(path)
+            print
+
     elif opts.test_build:
         from calibre.test_build import test
         test()

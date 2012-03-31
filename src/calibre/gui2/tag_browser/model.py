@@ -377,13 +377,15 @@ class TagsModel(QAbstractItemModel): # {{{
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
 
-        def process_one_node(category, state_map): # {{{
+        def process_one_node(category, collapse_model, state_map): # {{{
             collapse_letter = None
             category_node = category
             key = category_node.category_key
             is_gst = category_node.is_gst
             if key not in data:
                 return
+            if key in gprefs['tag_browser_dont_collapse']:
+                collapse_model = 'disable'
             cat_len = len(data[key])
             if cat_len <= 0:
                 return
@@ -523,7 +525,8 @@ class TagsModel(QAbstractItemModel): # {{{
         # }}}
 
         for category in self.category_nodes:
-            process_one_node(category, state_map.get(category.category_key, {}))
+            process_one_node(category, collapse_model,
+                             state_map.get(category.category_key, {}))
 
     def get_category_editor_data(self, category):
         for cat in self.root_item.children:
@@ -828,7 +831,10 @@ class TagsModel(QAbstractItemModel): # {{{
                         if lower(t.name).find(self.filter_categories_by) >= 0]
 
         tb_categories = self.db.field_metadata
-        for category in tb_categories:
+        order = tweaks['tag_browser_category_order']
+        defvalue = order.get('*', 100)
+        tb_keys = sorted(tb_categories.keys(), key=lambda x: order.get(x, defvalue))
+        for category in tb_keys:
             if category in data: # The search category can come and go
                 self.row_map.append(category)
                 self.categories[category] = tb_categories[category]['name']
@@ -1164,6 +1170,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         charclass = ''.join(letters_seen)
                         if k == 'author_sort':
                             expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                        elif k == 'series':
+                            expr = r'series_sort:"~^[%s]"'%(charclass)
                         else:
                             expr = r'%s:"~^[%s]"'%(k, charclass)
                         if node_searches[tag_item.tag.state] == 'true':

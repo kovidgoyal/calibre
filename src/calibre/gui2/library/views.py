@@ -200,10 +200,10 @@ class BooksView(QTableView): # {{{
                 ac = a if self._model.sorted_on[1] else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
-            if col not in ('ondevice', 'rating', 'inlibrary') and \
+            if col not in ('ondevice', 'inlibrary') and \
                     (not self.model().is_custom_column(col) or \
                     self.model().custom_columns[col]['datatype'] not in ('bool',
-                        'rating')):
+                        )):
                 m = self.column_header_context_menu.addMenu(
                         _('Change text alignment for %s') % name)
                 al = self._model.alignment_map.get(col, 'left')
@@ -262,9 +262,11 @@ class BooksView(QTableView): # {{{
         self.selected_ids = [idc(r) for r in selected_rows]
 
     def sorting_done(self, indexc):
+        pos = self.horizontalScrollBar().value()
         self.select_rows(self.selected_ids, using_ids=True, change_current=True,
             scroll=True)
         self.selected_ids = []
+        self.horizontalScrollBar().setValue(pos)
 
     def sort_by_named_field(self, field, order, reset=True):
         if field in self.column_map:

@@ -97,3 +97,13 @@ class FOLDER_DEVICE(USBMS):
     @classmethod
     def settings(self):
         return FOLDER_DEVICE_FOR_CONFIG._config().parse()
+
+    @classmethod
+    def config_widget(cls):
+        return FOLDER_DEVICE_FOR_CONFIG.config_widget()
+
+    @classmethod
+    def save_settings(cls, config_widget):
+        return FOLDER_DEVICE_FOR_CONFIG.save_settings(config_widget)
+
+

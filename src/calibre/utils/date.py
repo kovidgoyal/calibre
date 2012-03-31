@@ -10,7 +10,6 @@ import re
 from datetime import datetime, time
 from functools import partial
 
-from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
 
 from calibre import strftime
@@ -71,6 +70,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     :param default: Missing fields are filled in from default. If None, the
     current date is used.
     '''
+    from dateutil.parser import parse
     if not date_string:
         return UNDEFINED_DATE
     if default is None:

@@ -774,6 +774,8 @@ class Manifest(object):
 
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
+            if href:
+                href = unicode(href)
             self.oeb = oeb
             self.id = id
             self.href = self.path = urlnormalize(href)
@@ -830,22 +832,8 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
-            from cssutils.css import CSSRule
-            from cssutils import CSSParser, log
+            from cssutils import CSSParser, log, resolveImports
             log.setLevel(logging.WARN)
-            def get_style_rules_from_import(import_rule):
-                ans = []
-                if not import_rule.styleSheet:
-                    return ans
-                rules = import_rule.styleSheet.cssRules
-                for rule in rules:
-                    if rule.type == CSSRule.IMPORT_RULE:
-                        ans.extend(get_style_rules_from_import(rule))
-                    elif rule.type in (CSSRule.FONT_FACE_RULE,
-                            CSSRule.STYLE_RULE):
-                        ans.append(rule)
-                return ans
-
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
             data = self.oeb.css_preprocessor(data, add_namespace=True)
@@ -853,19 +841,8 @@ class Manifest(object):
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
             data = parser.parseString(data, href=self.href)
+            data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
-            import_rules = list(data.cssRules.rulesOfType(CSSRule.IMPORT_RULE))
-            rules_to_append = []
-            insert_index = None
-            for r in data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-                insert_index = data.cssRules.index(r)
-                break
-            for rule in import_rules:
-                rules_to_append.extend(get_style_rules_from_import(rule))
-            for r in reversed(rules_to_append):
-                data.insertRule(r, index=insert_index)
-            for rule in import_rules:
-                data.deleteRule(rule)
             return data
 
         def _fetch_css(self, path):
@@ -878,7 +855,8 @@ class Manifest(object):
                 self.oeb.logger.warn('CSS import of non-CSS file %r' % path)
                 return (None, None)
             data = item.data.cssText
-            return ('utf-8', data)
+            enc = None if isinstance(data, unicode) else 'utf-8'
+            return (enc, data)
 
         # }}}
 
@@ -1077,6 +1055,12 @@ class Manifest(object):
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
+    def remove_duplicate_item(self, item):
+        if item in self.ids:
+            item = self.ids[item]
+        del self.ids[item.id]
+        self.items.remove(item)
+
     def generate(self, id=None, href=None):
         """Generate a new unique identifier and/or internal path for use in
         creating a new manifest item, using the provided :param:`id` and/or
@@ -1100,7 +1084,7 @@ class Manifest(object):
             while href.lower() in lhrefs:
                 href = base + str(index) + ext
                 index += 1
-        return id, href
+        return id, unicode(href)
 
     def __iter__(self):
         for item in self.items:
@@ -1314,6 +1298,8 @@ class Guide(object):
 
     def add(self, type, title, href):
         """Add a new reference to the `Guide`."""
+        if href:
+            href = unicode(href)
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
@@ -1477,9 +1463,17 @@ class TOC(object):
         except ValueError:
             return 1
 
-    def __str__(self):
-        return 'TOC: %s --> %s'%(self.title, self.href)
+    def get_lines(self, lvl=0):
+        ans = [(u'\t'*lvl) + u'TOC: %s --> %s'%(self.title, self.href)]
+        for child in self:
+            ans.extend(child.get_lines(lvl+1))
+        return ans
 
+    def __str__(self):
+        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+
+    def __unicode__(self):
+        return u'\n'.join(self.get_lines())
 
     def to_opf1(self, tour):
         for node in self.nodes:

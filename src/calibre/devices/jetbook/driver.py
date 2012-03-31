@@ -125,4 +125,29 @@ class JETBOOK_MINI(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
+class JETBOOK_COLOR(USBMS):
+
+    '''
+set([(u'0x951',
+      u'0x160b',
+      u'0x0',
+      u'Freescale',
+      u'Mass Storage Device',
+      u'0802270905553')])
+    '''
+
+    FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'djvu']
+
+    gui_name = 'JetBook Color'
+    name = 'JetBook Color Device Interface'
+    description    = _('Communicate with the JetBook Color reader.')
+    author         = 'Kovid Goyal'
+
+    VENDOR_ID = [0x951]
+    PRODUCT_ID = [0x160b]
+    BCD = [0x0]
+    EBOOK_DIR_MAIN = 'My Books'
+
+    SUPPORTS_SUB_DIRS = True
+
 

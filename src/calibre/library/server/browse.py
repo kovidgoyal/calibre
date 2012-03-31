@@ -825,7 +825,7 @@ class BrowseServer(object):
                     continue
                 if m['datatype'] == 'rating':
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
-                            render_rating(mi.rating/2.0, self.opts.url_prefix,
+                            render_rating(mi.get(field)/2.0, self.opts.url_prefix,
                                     prefix=m['name'])[0]
                 else:
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \

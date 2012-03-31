@@ -41,6 +41,7 @@ from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
+from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
 
 class Listener(Thread): # {{{
@@ -101,10 +102,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ):
     'The main GUI'
 
+    proceed_requested = pyqtSignal(object, object)
 
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        self.proceed_requested.connect(self.do_proceed,
+                type=Qt.QueuedConnection)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
@@ -264,6 +268,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ####################### Location Manager ########################
         self.location_manager.location_selected.connect(self.location_selected)
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
+        self.location_manager.configure_device.connect(self.configure_connected_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
@@ -349,6 +354,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_manager.set_current_library_uuid(db.library_id)
 
         self.keyboard.finalize()
+        self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
         # Collect cycles now
         gc.collect()
@@ -398,6 +404,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             return self.spare_servers.pop()
         except:
             pass
+
+    def do_proceed(self, func, payload):
+        if callable(func):
+            func(payload)
 
     def no_op(self, *args):
         pass
@@ -697,6 +707,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
+        self.auto_adder.stop()
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()

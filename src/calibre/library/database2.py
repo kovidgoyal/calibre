@@ -235,6 +235,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
         defs['column_color_rules'] = []
+        defs['grouped_search_make_user_categories'] = []
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -433,6 +434,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
         self.FIELD_MAP['marked'] = base = base+1
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
+        self.FIELD_MAP['series_sort'] = base = base+1
+        self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -534,6 +537,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
             self.refresh()
+            self.refresh_format_cache()
         self.last_update_check = utcnow()
 
     def path(self, index, index_is_id=False):
@@ -908,7 +912,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
         '''
-        row = self.data._data[idx] if index_is_id else self.data[idx]
+        idx = idx if index_is_id else self.id(idx)
+        try:
+            row = self.data._data[idx]
+        except:
+            row = None
+
+        if row is None:
+            raise ValueError('No book with id: %d'%idx)
+
         fm = self.FIELD_MAP
         mi = Metadata(None, template_cache=self.formatter_template_cache)
 
@@ -946,14 +958,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
-        id = idx if index_is_id else self.id(idx)
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
             good_formats = None
         else:
             formats = sorted(formats.split(','))
-            mi.format_metadata = FormatMetadata(self, id, formats)
+            mi.format_metadata = FormatMetadata(self, idx, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
         tags = row[fm['tags']]
@@ -966,19 +977,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             mi.series_index = row[fm['series_index']]
         mi.rating = row[fm['rating']]
-        mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
-        mi.application_id = id
-        mi.id = id
+        mi.set_identifiers(self.get_identifiers(idx, index_is_id=True))
+        mi.application_id = idx
+        mi.id = idx
 
+        mi.set_all_user_metadata(self.field_metadata.custom_field_metadata())
         for key, meta in self.field_metadata.custom_iteritems():
-            mi.set_user_metadata(key, meta)
             if meta['datatype'] == 'composite':
                 mi.set(key, val=row[meta['rec_index']])
             else:
-                mi.set(key, val=self.get_custom(idx, label=meta['label'],
-                                            index_is_id=index_is_id),
-                        extra=self.get_custom_extra(idx, label=meta['label'],
-                                                    index_is_id=index_is_id))
+                val, extra = self.get_custom_and_extra(idx, label=meta['label'],
+                                                       index_is_id=True)
+                mi.set(key, val=val, extra=extra)
 
         user_cats = self.prefs['user_categories']
         user_cat_vals = {}
@@ -997,12 +1007,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         if get_cover:
             if cover_as_data:
-                cdata = self.cover(id, index_is_id=True)
+                cdata = self.cover(idx, index_is_id=True)
                 if cdata:
                     mi.cover_data = ('jpeg', cdata)
             else:
-                mi.cover = self.cover(id, index_is_id=True, as_path=True)
-        mi.has_cover = _('Yes') if self.has_cover(id) else ''
+                mi.cover = self.cover(idx, index_is_id=True, as_path=True)
+        mi.has_cover = _('Yes') if self.has_cover(idx) else ''
         return mi
 
     def has_book(self, mi):
@@ -3233,7 +3243,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return id
 
 
-    def add_books(self, paths, formats, metadata, add_duplicates=True):
+    def add_books(self, paths, formats, metadata, add_duplicates=True,
+            return_ids=False):
         '''
         Add a book to the database. The result cache is not updated.
         :param:`paths` List of paths to book files or file-like objects
@@ -3279,7 +3290,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             formats  = list(duplicate[1] for duplicate in duplicates)
             metadata = list(duplicate[2] for duplicate in duplicates)
             return (paths, formats, metadata), len(ids)
-        return None, len(ids)
+        return None, (ids if return_ids else len(ids))
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,
             apply_import_tags=True, preserve_uuid=False):

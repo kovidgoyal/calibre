@@ -9,8 +9,8 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QLabel, QDialogButtonBox,  \
-            QListWidget, QAbstractItemView
+from PyQt4.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
+            QListWidget, QAbstractItemView)
 from PyQt4 import QtGui
 
 class ChoosePluginToolbarsDialog(QDialog):
@@ -39,6 +39,9 @@ class ChoosePluginToolbarsDialog(QDialog):
         self._locations_list.setSizePolicy(sizePolicy)
         for key, text in locations:
             self._locations_list.addItem(text)
+            if key in {'toolbar', 'toolbar-device'}:
+                self._locations_list.item(self._locations_list.count()-1
+                        ).setSelected(True)
         self._layout.addWidget(self._locations_list)
 
         self._footer_label = QLabel(

@@ -87,6 +87,7 @@ gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
+gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
         ('title', False), ('authors', True), ('formats', True),
@@ -101,6 +102,10 @@ gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True
+gprefs.defaults['auto_add_path'] = None
+gprefs.defaults['auto_add_check_for_duplicates'] = False
+gprefs.defaults['blocked_auto_formats'] = []
+gprefs.defaults['auto_add_auto_convert'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -257,7 +262,8 @@ def extension(path):
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.WARNING, 'WARNING: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.WARNING, _('WARNING:')+ ' ' +
+            title, msg, det_msg, parent=parent,
             show_copy_button=show_copy_button)
     if show:
         return d.exec_()
@@ -266,7 +272,8 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.ERROR, 'ERROR: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.ERROR, _('ERROR:')+ ' ' +
+            title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button)
     if show:
         return d.exec_()
@@ -801,6 +808,23 @@ def is_gui_thread():
     global gui_thread
     return gui_thread is QThread.currentThread()
 
+_rating_font = None
+def rating_font():
+    global _rating_font
+    if _rating_font is None:
+        from PyQt4.Qt import QFontDatabase
+        _rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
+        fontid = QFontDatabase.addApplicationFont(
+                #P('fonts/liberation/LiberationSerif-Regular.ttf')
+                P('fonts/calibreSymbols.otf')
+                )
+        if fontid > -1:
+            try:
+                _rating_font = unicode(list(
+                    QFontDatabase.applicationFontFamilies(fontid))[0])
+            except:
+                pass
+    return _rating_font
 
 def find_forms(srcdir):
     base = os.path.join(srcdir, 'calibre', 'gui2')

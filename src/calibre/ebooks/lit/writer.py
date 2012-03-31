@@ -664,7 +664,8 @@ class LitWriter(object):
         quickref = []
         name = directory[0].name
         for entry in directory:
-            next = ''.join([decint(len(entry.name)), entry.name,
+            en = entry.name.encode('utf-8') if entry.name else entry.name
+            next = ''.join([decint(len(en)), en,
                 decint(entry.section), decint(entry.offset),
                 decint(entry.size)])
             usedlen = dchunk.tell() + len(next) + (len(quickref) * 2) + 52
@@ -673,7 +674,7 @@ class LitWriter(object):
                 dchunk = StringIO()
                 dcount = 0
                 quickref = []
-                name = entry.name
+                name = en
             if (dcount % qrn) == 0:
                 quickref.append(dchunk.tell())
             dchunk.write(next)

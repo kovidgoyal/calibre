@@ -13,6 +13,7 @@ from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
+from calibre import sanitize_file_name_unicode
 
 class GenerateCatalogAction(InterfaceAction):
 
@@ -89,7 +90,8 @@ class GenerateCatalogAction(InterfaceAction):
                     _('Select destination for %(title)s.%(fmt)s') % dict(
                         title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
-                destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
+                destination = os.path.join(export_dir, '%s.%s' % (
+                    sanitize_file_name_unicode(job.catalog_title), job.fmt.lower()))
                 shutil.copyfile(job.catalog_file_path, destination)
 
 

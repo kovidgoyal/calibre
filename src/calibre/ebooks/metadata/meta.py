@@ -199,7 +199,7 @@ def metadata_from_filename(name, pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', os.getcwd())
+        opfpath = getattr(f, 'name', os.getcwdu())
     else:
         f = open(opfpath, 'rb')
     try:
@@ -217,3 +217,23 @@ def opf_metadata(opfpath):
         import traceback
         traceback.print_exc()
         pass
+
+def forked_read_metadata(path, tdir):
+    from calibre.ebooks.metadata.opf2 import metadata_to_opf
+    with open(path, 'rb') as f:
+        fmt = os.path.splitext(path)[1][1:].lower()
+        f.seek(0, 2)
+        sz = f.tell()
+        with open(os.path.join(tdir, 'size.txt'), 'wb') as s:
+            s.write(str(sz).encode('ascii'))
+        f.seek(0)
+        mi = get_metadata(f, fmt)
+    if mi.cover_data and mi.cover_data[1]:
+        with open(os.path.join(tdir, 'cover.jpg'), 'wb') as f:
+            f.write(mi.cover_data[1])
+        mi.cover_data = (None, None)
+        mi.cover = 'cover.jpg'
+    opf = metadata_to_opf(mi, default_lang='und')
+    with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
+        f.write(opf)
+

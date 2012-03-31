@@ -350,20 +350,20 @@ def get_proxy_info(proxy_scheme, proxy_string):
 USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
-def random_user_agent():
+def random_user_agent(choose=None):
     choices = [
         'Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
         'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
-        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19',
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
+        'Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0',
+        'Mozilla/5.0 (Windows NT 6.2; rv:9.0.1) Gecko/20100101 Firefox/9.0.1',
         'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
         'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5',
         'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
     ]
-    #return choices[-1]
-    return choices[random.randint(0, len(choices)-1)]
+    if choose is None:
+        choose = random.randint(0, len(choices)-1)
+    return choices[choose]
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
@@ -381,12 +381,15 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
         user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
     opener.addheaders = [('User-agent', user_agent)]
     proxies = get_proxies()
+    to_add = {}
     http_proxy = proxies.get('http', None)
     if http_proxy:
-        opener.set_proxies({'http':http_proxy})
+        to_add['http'] = http_proxy
     https_proxy = proxies.get('https', None)
     if https_proxy:
-        opener.set_proxies({'https':https_proxy})
+        to_add['https'] = https_proxy
+    if to_add:
+        opener.set_proxies(to_add)
 
     return opener
 
@@ -419,7 +422,7 @@ class CurrentDir(object):
         self.cwd = None
 
     def __enter__(self, *args):
-        self.cwd = os.getcwd()
+        self.cwd = os.getcwdu()
         os.chdir(self.path)
         return self.cwd
 

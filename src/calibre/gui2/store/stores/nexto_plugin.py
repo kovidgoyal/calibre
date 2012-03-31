@@ -3,7 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -47,41 +47,47 @@ class NextoStore(BasicStoreConfig, StorePlugin):
         url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query) + '&scid=1015'
 
         br = browser()
+        offset=0
 
         counter = max_results
-        with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
-            for data in doc.xpath('//ul[@class="productslist"]/li'):
-                if counter <= 0:
+
+        while counter:
+            with closing(br.open(url + '&_offset=' + str(offset), timeout=timeout)) as f:
+                doc = html.fromstring(f.read())
+                for data in doc.xpath('//ul[@class="productslist"]/li'):
+                    if counter <= 0:
+                        break
+
+                    id = ''.join(data.xpath('.//div[@class="cover_container"]/a[1]/@href'))
+                    if not id:
+                        continue
+
+                    price = ''.join(data.xpath('.//strong[@class="nprice"]/text()'))
+
+                    cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
+                    title = ''.join(data.xpath('.//a[@class="title"]/text()'))
+                    title = re.sub(r' - ebook$', '', title)
+                    formats = ', '.join(data.xpath('.//ul[@class="formats_available"]/li//b/text()'))
+                    DrmFree = re.search(r'znak', formats)
+                    formats = re.sub(r'\ ?\(.+?\)', '', formats)
+
+                    author = ''
+                    with closing(br.open('http://www.nexto.pl/' + id.strip(), timeout=timeout/4)) as nf:
+                        idata = html.fromstring(nf.read())
+                        author = ', '.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
+
+                    counter -= 1
+
+                    s = SearchResult()
+                    s.cover_url = cover_url
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.price = price
+                    s.detail_item = id.strip()
+                    s.drm = SearchResult.DRM_UNLOCKED if DrmFree else SearchResult.DRM_LOCKED
+                    s.formats = formats.upper().strip()
+
+                    yield s
+                if not doc.xpath('//div[@class="listnavigator"]//a[@class="next"]'):
                     break
-
-                id = ''.join(data.xpath('.//div[@class="cover_container"]/a[1]/@href'))
-                if not id:
-                    continue
-
-                price = ''.join(data.xpath('.//strong[@class="nprice"]/text()'))
-
-                cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
-                title = ''.join(data.xpath('.//a[@class="title"]/text()'))
-                title = re.sub(r' - ebook$', '', title)
-                formats = ', '.join(data.xpath('.//ul[@class="formats_available"]/li//b/text()'))
-                DrmFree = re.search(r'bez.DRM', formats)
-                formats = re.sub(r'\(.+\)', '', formats)
-
-                author = ''
-                with closing(br.open('http://www.nexto.pl/' + id.strip(), timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
-                    author = ', '.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
-
-                counter -= 1
-
-                s = SearchResult()
-                s.cover_url = cover_url
-                s.title = title.strip()
-                s.author = author.strip()
-                s.price = price
-                s.detail_item = id.strip()
-                s.drm = SearchResult.DRM_UNLOCKED if DrmFree else SearchResult.DRM_LOCKED
-                s.formats = formats.upper().strip()
-
-                yield s
+            offset+=10

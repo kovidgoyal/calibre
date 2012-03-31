@@ -21,8 +21,7 @@ NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
 
 def iterate_over_builtin_recipe_files():
-    exclude = ['craigslist', 'toronto_sun',
-            'livemint']
+    exclude = ['craigslist', 'toronto_sun']
     d = os.path.dirname
     base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'recipes')
     for f in os.listdir(base):
@@ -437,6 +436,14 @@ class SchedulerConfig(object):
             for x in self.iter_accounts():
                 if x.get('id', False) == urn:
                     return x.get('username', ''), x.get('password', '')
+
+    def clear_account_info(self, urn):
+        with self.lock:
+            for x in self.iter_accounts():
+                 if x.get('id', False) == urn:
+                     x.getparent().remove(x)
+                     self.write_scheduler_file()
+                     break
 
     def get_customize_info(self, urn):
         keep_issues = 0

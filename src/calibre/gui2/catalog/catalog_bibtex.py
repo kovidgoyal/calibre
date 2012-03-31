@@ -31,7 +31,7 @@ class PluginWidget(QWidget, Ui_Form):
         self.setupUi(self)
 
     def initialize(self, name, db): #not working properly to update
-        from calibre.library.catalog import FIELDS
+        from calibre.library.catalogs import FIELDS
 
         self.all_fields = [x for x in FIELDS if x != 'all']
         #add custom columns

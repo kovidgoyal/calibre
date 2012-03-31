@@ -187,9 +187,10 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db = None
         self.reset()
 
-    def add_books(self, paths, formats, metadata, add_duplicates=False):
+    def add_books(self, paths, formats, metadata, add_duplicates=False,
+            return_ids=False):
         ret = self.db.add_books(paths, formats, metadata,
-                                 add_duplicates=add_duplicates)
+                add_duplicates=add_duplicates, return_ids=return_ids)
         self.count_changed()
         return ret
 
@@ -588,8 +589,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def rating_type(r, idx=-1):
             r = self.db.data[r][idx]
-            r = r/2 if r else 0
-            return QVariant(r)
+            r = r/2.0 if r else 0
+            return QVariant(int(r))
 
         def datetime_type(r, idx=-1):
             val = self.db.data[r][idx]
@@ -1073,19 +1074,40 @@ class DeviceBooksModel(BooksModel): # {{{
         self.book_in_library = None
 
     def mark_for_deletion(self, job, rows, rows_are_ids=False):
+        db_indices = rows if rows_are_ids else self.indices(rows)
+        db_items = [self.db[i] for i in db_indices if -1 < i < len(self.db)]
+        self.marked_for_deletion[job] = db_items
         if rows_are_ids:
-            self.marked_for_deletion[job] = rows
             self.reset()
         else:
-            self.marked_for_deletion[job] = self.indices(rows)
             for row in rows:
                 indices = self.row_indices(row)
                 self.dataChanged.emit(indices[0], indices[-1])
 
+    def find_item_in_db(self, item):
+        idx = None
+        try:
+            idx = self.db.index(item)
+        except:
+            path = getattr(item, 'path', None)
+            if path:
+                for i, x in enumerate(self.db):
+                    if getattr(x, 'path', None) == path:
+                        idx = i
+                        break
+        return idx
+
     def deletion_done(self, job, succeeded=True):
-        if not self.marked_for_deletion.has_key(job):
-            return
-        rows = self.marked_for_deletion.pop(job)
+        db_items = self.marked_for_deletion.pop(job, [])
+        rows = []
+        for item in db_items:
+            idx = self.find_item_in_db(item)
+            if idx is not None:
+                try:
+                    rows.append(self.map.index(idx))
+                except ValueError:
+                    pass
+
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
@@ -1096,11 +1118,18 @@ class DeviceBooksModel(BooksModel): # {{{
         self.resort(False)
         self.research(True)
 
-    def indices_to_be_deleted(self):
-        ans = []
-        for v in self.marked_for_deletion.values():
-            ans.extend(v)
-        return ans
+    def is_row_marked_for_deletion(self, row):
+        try:
+            item = self.db[self.map[row]]
+        except IndexError:
+            return False
+
+        path = getattr(item, 'path', None)
+        for items in self.marked_for_deletion.itervalues():
+            for x in items:
+                if x is item or (path and path == getattr(x, 'path', None)):
+                    return True
+        return False
 
     def clear_ondevice(self, db_ids, to_what=None):
         for data in self.db:
@@ -1112,8 +1141,8 @@ class DeviceBooksModel(BooksModel): # {{{
             self.reset()
 
     def flags(self, index):
-        if self.map[index.row()] in self.indices_to_be_deleted():
-            return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
+        if self.is_row_marked_for_deletion(index.row()):
+            return Qt.NoItemFlags
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():
             cname = self.column_map[index.column()]
@@ -1347,7 +1376,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif DEBUG and cname == 'inlibrary':
                 return QVariant(self.db[self.map[row]].in_library)
         elif role == Qt.ToolTipRole and index.isValid():
-            if self.map[row] in self.indices_to_be_deleted():
+            if self.is_row_marked_for_deletion(row):
                 return QVariant(_('Marked for deletion'))
             if cname in ['title', 'authors'] or (cname == 'collections' and \
                     self.db.supports_collections()):
