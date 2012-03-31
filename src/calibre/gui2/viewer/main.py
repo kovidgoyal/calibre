@@ -513,17 +513,18 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     self.load_path(self.iterator.spine[spine_index])
 
     def goto_bookmark(self, bm):
-        m = bm[1].split('#')
-        if len(m) > 1:
-            spine_index, m = int(m[0]), m[1]
-            if spine_index > -1 and self.current_index == spine_index:
-                self.view.goto_bookmark(m)
+        spine_index = bm['spine']
+        if spine_index > -1 and self.current_index == spine_index:
+            if self.resize_in_progress:
+                self.view.document.page_position.set_pos(bm['pos'])
             else:
-                self.pending_bookmark = bm
-                if spine_index < 0 or spine_index >= len(self.iterator.spine):
-                    spine_index = 0
-                    self.pending_bookmark = None
-                self.load_path(self.iterator.spine[spine_index])
+                self.view.goto_bookmark(bm)
+        else:
+            self.pending_bookmark = bm
+            if spine_index < 0 or spine_index >= len(self.iterator.spine):
+                spine_index = 0
+                self.pending_bookmark = None
+            self.load_path(self.iterator.spine[spine_index])
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
@@ -700,6 +701,14 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.load_path(path, pos=pos)
 
     def viewport_resize_started(self, event):
+        old, curr = event.size(), event.oldSize()
+        if not self.window_mode_changed and old.width() == curr.width():
+            # No relayout changes, so page position does not need to be saved
+            # This is needed as Qt generates a viewport resized event that
+            # changes only the height after a file has been loaded. This can
+            # cause the last read position bookmark to become slightly
+            # inaccurate
+            return
         if not self.resize_in_progress:
             # First resize, so save the current page position
             self.resize_in_progress = True
@@ -747,9 +756,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 _('Enter title for bookmark:'), text=bm)
         title = unicode(title).strip()
         if ok and title:
-            pos = self.view.bookmark()
-            bookmark = '%d#%s'%(self.current_index, pos)
-            self.iterator.add_bookmark((title, bookmark))
+            bm = self.view.bookmark()
+            bm['spine'] = self.current_index
+            bm['title'] = title
+            self.iterator.add_bookmark(bm)
             self.set_bookmarks(self.iterator.bookmarks)
 
     def set_bookmarks(self, bookmarks):
@@ -759,12 +769,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         current_page = None
         self.existing_bookmarks = []
         for bm in bookmarks:
-            if bm[0] == 'calibre_current_page_bookmark' and \
-                                self.get_remember_current_page_opt():
-                current_page = bm
+            if bm['title'] == 'calibre_current_page_bookmark':
+                if self.get_remember_current_page_opt():
+                    current_page = bm
             else:
-                self.existing_bookmarks.append(bm[0])
-                self.bookmarks_menu.addAction(bm[0], partial(self.goto_bookmark, bm))
+                self.existing_bookmarks.append(bm['title'])
+                self.bookmarks_menu.addAction(bm['title'], partial(self.goto_bookmark, bm))
         return current_page
 
     def manage_bookmarks(self):
@@ -784,9 +794,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             return
         if hasattr(self, 'current_index'):
             try:
-                pos = self.view.bookmark()
-                bookmark = '%d#%s'%(self.current_index, pos)
-                self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
+                bm = self.view.bookmark()
+                bm['spine'] = self.current_index
+                bm['title'] = 'calibre_current_page_bookmark'
+                self.iterator.add_bookmark(bm)
             except:
                 traceback.print_exc()
 

@@ -53,6 +53,24 @@ class ConvertAction(InterfaceAction):
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted, extra_job_args=[on_card])
 
+    def auto_convert_auto_add(self, book_ids):
+        previous = self.gui.library_view.currentIndex()
+        db = self.gui.current_db
+        needed = set()
+        of = prefs['output_format'].lower()
+        for book_id in book_ids:
+            fmts = db.formats(book_id, index_is_id=True)
+            fmts = set(x.lower() for x in fmts.split(',')) if fmts else set()
+            if of not in fmts:
+                needed.add(book_id)
+        if needed:
+            jobs, changed, bad = convert_single_ebook(self.gui,
+                    self.gui.library_view.model().db, needed, True, of,
+                    show_no_format_warning=False)
+            if not jobs: return
+            self.queue_convert_jobs(jobs, changed, bad, list(needed), previous,
+                    self.book_converted, rows_are_ids=True)
+
     def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format, subject):
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in \
@@ -118,7 +136,7 @@ class ConvertAction(InterfaceAction):
                 num, 2000)
 
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
-            converted_func, extra_job_args=[]):
+            converted_func, extra_job_args=[], rows_are_ids=False):
         for func, args, desc, fmt, id, temp_files in jobs:
             func, _, same_fmt = func.partition(':')
             same_fmt = same_fmt == 'same_fmt'
@@ -140,7 +158,11 @@ class ConvertAction(InterfaceAction):
                 self.conversion_jobs[job] = tuple(args)
 
         if changed:
-            self.gui.library_view.model().refresh_rows(rows)
+            m = self.gui.library_view.model()
+            if rows_are_ids:
+                m.refresh_ids(rows)
+            else:
+                m.refresh_rows(rows)
             current = self.gui.library_view.currentIndex()
             self.gui.library_view.model().current_changed(current, previous)
 
