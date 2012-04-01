@@ -446,6 +446,7 @@ class Mobi8Reader(object):
         current_depth = None
         parent = ans
         seen = set()
+        links = []
         for elem in root.iterdescendants(etree.Element):
             if reached and elem.tag == XHTML('a') and elem.get('href',
                     False):
@@ -453,24 +454,32 @@ class Mobi8Reader(object):
                 href, frag = urldefrag(href)
                 href = base_href + '/' + href
                 text = xml2text(elem).strip()
-                if text in seen:
+                if (text, href, frag) in seen:
                     continue
-                seen.add(text)
-                depth = node_depth(elem)
-                if current_depth is None:
-                    current_depth = depth
-                if current_depth == depth:
-                    parent.add_item(href, frag, text)
-                elif current_depth < depth:
-                    parent = parent[-1]
-                    parent.add_item(href, frag, text)
-                    current_depth = depth
-                else:
-                    parent = parent.parent
-                    parent.add_item(href, frag, text)
-                    current_depth = depth
+                seen.add((text, href, frag))
+                links.append((text, href, frag, node_depth(elem)))
+            elif elem is start:
+                reached = True
+
+        depths = sorted(set(x[-1] for x in links))
+        depth_map = {x:i for i, x in enumerate(depths)}
+        for text, href, frag, depth in links:
+            depth = depth_map[depth]
+            if current_depth is None:
+                current_depth = 0
+                parent.add_item(href, frag, text)
+            elif current_depth == depth:
+                parent.add_item(href, frag, text)
+            elif current_depth < depth:
+                parent = parent[-1] if len(parent) > 0 else parent
+                parent.add_item(href, frag, text)
+                current_depth += 1
             else:
-                if elem is start:
-                    reached = True
+                delta = current_depth - depth
+                while delta > 0 and parent.parent is not None:
+                    parent = parent.parent
+                    delta -= 1
+                parent.add_item(href, frag, text)
+                current_depth = depth
         return ans
 
