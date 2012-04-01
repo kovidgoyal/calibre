@@ -10,13 +10,19 @@ __docformat__ = 'restructuredtext en'
 import struct, re, os, imghdr
 from collections import namedtuple
 from itertools import repeat
+from urlparse import urldefrag
+
+from lxml import etree
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
 from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
+from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.oeb.parse_utils import parse_html
+from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -383,6 +389,19 @@ class Mobi8Reader(object):
                 len(resource_map)):
             mi.cover = resource_map[self.cover_offset]
 
+        if len(list(toc)) < 2:
+            self.log.warn('KF8 has no metadata Table of Contents')
+
+            for ref in guide:
+                if ref.type == 'toc':
+                    href = ref.href()
+                    href, frag = urldefrag(href)
+                    if os.path.exists(href.replace('/', os.sep)):
+                        try:
+                            toc = self.read_inline_toc(href, frag)
+                        except:
+                            self.log.exception('Failed to read inline ToC')
+
         opf = OPFCreator(os.getcwdu(), mi)
         opf.guide = guide
 
@@ -397,4 +416,70 @@ class Mobi8Reader(object):
             opf.render(of, ncx, 'toc.ncx')
         return 'metadata.opf'
 
+    def read_inline_toc(self, href, frag):
+        ans = TOC()
+        base_href = '/'.join(href.split('/')[:-1])
+        with open(href.replace('/', os.sep), 'rb') as f:
+            raw = f.read().decode(self.header.codec)
+        root = parse_html(raw, log=self.log)
+        body = XPath('//h:body')(root)
+        reached = False
+        if body:
+            start = body[0]
+        else:
+            start = None
+            reached = True
+        if frag:
+            elems = XPath('//*[@id="%s"]'%frag)
+            if elems:
+                start = elems[0]
+
+        def node_depth(elem):
+            ans = 0
+            parent = elem.getparent()
+            while parent is not None:
+                parent = parent.getparent()
+                ans += 1
+            return ans
+
+        # Layer the ToC based on nesting order in the source HTML
+        current_depth = None
+        parent = ans
+        seen = set()
+        links = []
+        for elem in root.iterdescendants(etree.Element):
+            if reached and elem.tag == XHTML('a') and elem.get('href',
+                    False):
+                href = elem.get('href')
+                href, frag = urldefrag(href)
+                href = base_href + '/' + href
+                text = xml2text(elem).strip()
+                if (text, href, frag) in seen:
+                    continue
+                seen.add((text, href, frag))
+                links.append((text, href, frag, node_depth(elem)))
+            elif elem is start:
+                reached = True
+
+        depths = sorted(set(x[-1] for x in links))
+        depth_map = {x:i for i, x in enumerate(depths)}
+        for text, href, frag, depth in links:
+            depth = depth_map[depth]
+            if current_depth is None:
+                current_depth = 0
+                parent.add_item(href, frag, text)
+            elif current_depth == depth:
+                parent.add_item(href, frag, text)
+            elif current_depth < depth:
+                parent = parent[-1] if len(parent) > 0 else parent
+                parent.add_item(href, frag, text)
+                current_depth += 1
+            else:
+                delta = current_depth - depth
+                while delta > 0 and parent.parent is not None:
+                    parent = parent.parent
+                    delta -= 1
+                parent.add_item(href, frag, text)
+                current_depth = depth
+        return ans
 

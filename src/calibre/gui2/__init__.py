@@ -105,6 +105,7 @@ gprefs.defaults['show_files_after_save'] = True
 gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
+gprefs.defaults['auto_add_auto_convert'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models

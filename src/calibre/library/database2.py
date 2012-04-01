@@ -3243,7 +3243,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return id
 
 
-    def add_books(self, paths, formats, metadata, add_duplicates=True):
+    def add_books(self, paths, formats, metadata, add_duplicates=True,
+            return_ids=False):
         '''
         Add a book to the database. The result cache is not updated.
         :param:`paths` List of paths to book files or file-like objects
@@ -3289,7 +3290,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             formats  = list(duplicate[1] for duplicate in duplicates)
             metadata = list(duplicate[2] for duplicate in duplicates)
             return (paths, formats, metadata), len(ids)
-        return None, len(ids)
+        return None, (ids if return_ids else len(ids))
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,
             apply_import_tags=True, preserve_uuid=False):
