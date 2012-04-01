@@ -202,9 +202,9 @@ class ProceedNotification(MessageBox): # {{{
         gui = get_gui()
         gui.proceed_requested.emit(func, self.payload)
         # Ensure this notification is garbage collected
+        self.vlb.clicked.disconnect()
         self.callback = self.cancel_callback = self.payload = None
         self.setParent(None)
-        self.vlb.clicked.disconnect()
         _proceed_memory.remove(self)
 
     def done(self, r):
