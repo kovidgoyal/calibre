@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil
 from functools import partial
 
 from PyQt4.Qt import QMenu, QModelIndex, QTimer
@@ -16,6 +16,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.utils.icu import sort_key
 from calibre.db.errors import NoSuchFormat
 
@@ -79,14 +80,27 @@ class EditMetadataAction(InterfaceAction):
                 Dispatcher(self.metadata_downloaded),
                 ensure_fields=ensure_fields)
 
+    def cleanup_bulk_download(self, tdir, log_file):
+        try:
+            shutil.rmtree(tdir, ignore_errors=True)
+        except:
+            pass
+        try:
+            os.remove(log_file)
+        except:
+            pass
+
     def metadata_downloaded(self, job):
         if job.failed:
             self.gui.job_exception(job, dialog_title=_('Failed to download metadata'))
             return
         from calibre.gui2.metadata.bulk_download import get_job_details
-        id_map, failed_ids, failed_covers, all_failed, det_msg = \
-                                            get_job_details(job)
+        (aborted, id_map, tdir, log_file, failed_ids, failed_covers, all_failed,
+                det_msg, lm_map) = get_job_details(job)
+        if aborted:
+            return self.cleanup_bulk_download(tdir, log_file)
         if all_failed:
+            self.cleanup_bulk_download(tdir, log_file)
             return error_dialog(self.gui, _('Download failed'),
             _('Failed to download metadata or covers for any of the %d'
                ' book(s).') % len(id_map), det_msg=det_msg, show=True)
@@ -103,28 +117,26 @@ class EditMetadataAction(InterfaceAction):
             msg += '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
                     ' "Show details" to see which books.')%num
 
-        payload = (id_map, failed_ids, failed_covers)
+        payload = (id_map, tdir, log_file, lm_map)
         from calibre.gui2.dialogs.message_box import ProceedNotification
         p = ProceedNotification(self.apply_downloaded_metadata,
-                payload, job.html_details,
+                payload, open(log_file, 'rb').read().decode('utf-8'),
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 parent=self.gui)
         p.show()
 
     def apply_downloaded_metadata(self, payload):
-        id_map, failed_ids, failed_covers = payload
-        id_map = dict([(k, v) for k, v in id_map.iteritems() if k not in
-            failed_ids])
-        if not id_map:
+        good_ids, tdir, log_file, lm_map = payload
+        if not good_ids:
             return
 
         modified = set()
         db = self.gui.current_db
 
-        for i, mi in id_map.iteritems():
+        for i in good_ids:
             lm = db.metadata_last_modified(i, index_is_id=True)
-            if lm > mi.last_modified:
+            if lm > lm_map[i]:
                 title = db.title(i, index_is_id=True)
                 authors = db.authors(i, index_is_id=True)
                 if authors:
@@ -144,7 +156,18 @@ class EditMetadataAction(InterfaceAction):
                         'Do you want to proceed?'), det_msg='\n'.join(modified)):
                 return
 
-        self.apply_metadata_changes(id_map)
+        id_map = {}
+        for bid in good_ids:
+            opf = os.path.join(tdir, '%d.mi')
+            if not os.path.exists(opf):
+                opf = None
+            cov = os.path.join(tdir, '%d.cover'%bid)
+            if not os.path.exists(cov):
+                cov = None
+            id_map[bid] = (opf, cov)
+
+        self.apply_metadata_changes(id_map, callback=lambda x:
+                self.cleanup_bulk_download(tdir, log_file))
 
     # }}}
 
@@ -468,6 +491,11 @@ class EditMetadataAction(InterfaceAction):
         callback can be either None or a function accepting a single argument,
         in which case it is called after applying is complete with the list of
         changed ids.
+
+        id_map can also be a mapping of ids to 2-tuple's where each 2-tuple
+        contains the absolute paths to an OPF and cover file respectively. If
+        either of the paths is None, then the corresponding metadata is not
+        updated.
         '''
         if title is None:
             title = _('Applying changed metadata')
@@ -492,39 +520,54 @@ class EditMetadataAction(InterfaceAction):
             return self.finalize_apply()
 
         i, mi = self.apply_id_map[self.apply_current_idx]
+        if isinstance(mi, tuple):
+            opf, cover = mi
+            if opf:
+                mi = OPF(open(opf, 'rb'), basedir=os.path.dirname(opf),
+                        populate_spine=False).to_book_metadata()
+                self.apply_mi(i, mi)
+            if cover:
+                self.gui.current_db.set_cover(i, open(cover, 'rb'),
+                        notify=False, commit=False)
+        else:
+            self.apply_mi(i, mi)
+
+        self.apply_current_idx += 1
+        if self.apply_pd is not None:
+            self.apply_pd.value += 1
+        QTimer.singleShot(50, self.do_one_apply)
+
+
+    def apply_mi(self, book_id, mi):
         db = self.gui.current_db
+
         try:
             set_title = not mi.is_null('title')
             set_authors = not mi.is_null('authors')
-            idents = db.get_identifiers(i, index_is_id=True)
+            idents = db.get_identifiers(book_id, index_is_id=True)
             if mi.identifiers:
                 idents.update(mi.identifiers)
             mi.identifiers = idents
             if mi.is_null('series'):
                 mi.series_index = None
             if self._am_merge_tags:
-                old_tags = db.tags(i, index_is_id=True)
+                old_tags = db.tags(book_id, index_is_id=True)
                 if old_tags:
                     tags = [x.strip() for x in old_tags.split(',')] + (
                             mi.tags if mi.tags else [])
                     mi.tags = list(set(tags))
-            db.set_metadata(i, mi, commit=False, set_title=set_title,
+            db.set_metadata(book_id, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
-            self.applied_ids.append(i)
+            self.applied_ids.append(book_id)
         except:
             import traceback
-            self.apply_failures.append((i, traceback.format_exc()))
+            self.apply_failures.append((book_id, traceback.format_exc()))
 
         try:
             if mi.cover:
                 os.remove(mi.cover)
         except:
             pass
-
-        self.apply_current_idx += 1
-        if self.apply_pd is not None:
-            self.apply_pd.value += 1
-        QTimer.singleShot(50, self.do_one_apply)
 
     def finalize_apply(self):
         db = self.gui.current_db
