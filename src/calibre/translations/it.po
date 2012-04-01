@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-03-24 01:34+0000\n"
+"PO-Revision-Date: 2012-03-31 23:13+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-03-31 04:56+0000\n"
+"X-Launchpad-Export-Date: 2012-04-01 04:37+0000\n"
 "X-Generator: Launchpad (build 15032)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -16476,6 +16476,9 @@ msgid ""
 "the store caters to. However, this does not necessarily mean that the store "
 "is limited to that market only."
 msgstr ""
+"Il negozio ha sede in %s. È una chiara indicazione di quale sia il mercato "
+"di riferimento del negozio. In ogni caso, ciò non significa necessariamente "
+"che il negozio sia limitato a quel mercato."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:249
@@ -17722,7 +17725,7 @@ msgstr "Nessuna posizione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:534
 msgid "The location pointed to by this item does not exist."
-msgstr ""
+msgstr "La posizione alla quale l'elemento fa riferimento non esiste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "Choose ebook"
@@ -17947,6 +17950,8 @@ msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
 msgstr ""
+"<p>Una biblioteca non valida esiste già in %(loc)s, eliminala prima di "
+"provare a spostare la biblioteca esistente.<br>Errore: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:645
 msgid "Could not move library"
@@ -18928,27 +18933,27 @@ msgstr "Aggiungi un libro vuoto (un libro senza formati)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:311
 msgid "Set the title of the added book(s)"
-msgstr ""
+msgstr "Imposta il titolo dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "Set the authors of the added book(s)"
-msgstr ""
+msgstr "Imposta gli autori dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:315
 msgid "Set the ISBN of the added book(s)"
-msgstr ""
+msgstr "Imposta l'ISBN dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:317
 msgid "Set the tags of the added book(s)"
-msgstr ""
+msgstr "Imposta i tag dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:319
 msgid "Set the series of the added book(s)"
-msgstr ""
+msgstr "Imposta le serie dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:321
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "Imposta il numero della serie dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"

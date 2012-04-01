@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-03-29 16:41+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-03-31 18:23+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-03-31 04:53+0000\n"
+"X-Launchpad-Export-Date: 2012-04-01 04:37+0000\n"
 "X-Generator: Launchpad (build 15032)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -204,7 +204,7 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
-msgstr "Inconnu"
+msgstr "Inconnu(e)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -1731,7 +1731,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
-msgstr "Communique avec le Palm Pre"
+msgstr "Communiquer avec le Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
@@ -1768,7 +1768,7 @@ msgstr "Communique avec le Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:242
 msgid "Communicate with the EEE Reader"
-msgstr "Communique avec le lecteur EEE"
+msgstr "Communiquer avec le lecteur EEE"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
@@ -5073,7 +5073,7 @@ msgid ""
 "window"
 msgstr ""
 "Afficher la navigation par couverture dans une fenêtre séparée au lieu de la "
-"fenêtre principale de calibre."
+"fenêtre principale de Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:153
 msgid "Disable notifications from the system tray icon"
@@ -7995,7 +7995,7 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
-"<p>Quand calibre supprime les interlignes entre paragraphes, il crée "
+"<p>Quand Calibre supprime les interlignes entre paragraphes, il crée "
 "automatiquement une indentation de paragraphe, pour améliorer la distinction "
 "des paragraphes. Cette option contrôle la largeur de chaque indentation."
 
@@ -13895,7 +13895,7 @@ msgid ""
 "preserve the date"
 msgstr ""
 "Lorsque vous utilisez l’action \"&Copier dans la bibliothèque\" pour copier "
-"des libres entre biblithèques, cela préserve la date"
+"des libres entre bibliothèques, cela préserve la date"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:121
 msgid ""
@@ -15480,7 +15480,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:51
 msgid "Open calibre &configuration directory"
-msgstr "Ouvrir le répertoire de &configuration de calibre"
+msgstr "Ouvrir le répertoire de &configuration de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:57
 msgid "&Install command line tools"
@@ -18430,7 +18430,7 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Félicitations!</h2> Bravo, vous avez réussi à installer calibre. Appuyer "
+"<h2>Félicitations!</h2> Bravo, vous avez réussi à installer Calibre. Appuyer "
 "sur le bouton %s pour valider votre paramétrage."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
@@ -19291,7 +19291,7 @@ msgid ""
 msgstr ""
 "%prog list [options]\n"
 "\n"
-"Lister les livres disponibles dans la base calibre.\n"
+"Lister les livres disponibles dans la base Calibre.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:146
 #, python-format
@@ -20031,7 +20031,7 @@ msgstr "Triage Auteur"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
-msgstr ""
+msgstr "Tri séries"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
@@ -20232,7 +20232,7 @@ msgstr "Formats demandés non disponible"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:21
 msgid "Settings to control the calibre content server"
-msgstr "Paramètres pour contrôler le serveur de contenu calibre"
+msgstr "Paramètres pour contrôler le serveur de contenu Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 #, python-format
