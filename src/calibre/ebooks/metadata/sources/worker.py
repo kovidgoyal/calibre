@@ -89,7 +89,7 @@ def main(do_identify, covers, metadata, ensure_fields):
                 all_failed = False
 
         with open('%d.log'%book_id, 'wb') as f:
-            f.write(log.html.encode('utf-8'))
+            f.write(log.plain_text.encode('utf-8'))
 
     return failed_ids, failed_covers, all_failed
 

@@ -402,7 +402,8 @@ class DetailView(QDialog, Ui_Dialog): # {{{
         self.setupUi(self)
         self.setWindowTitle(job.description)
         self.job = job
-        self.html_view = hasattr(job, 'html_details')
+        self.html_view = (hasattr(job, 'html_details') and not getattr(job,
+            'ignore_html_details', False))
         if self.html_view:
             self.log.setVisible(False)
         else:

@@ -80,13 +80,9 @@ class EditMetadataAction(InterfaceAction):
                 Dispatcher(self.metadata_downloaded),
                 ensure_fields=ensure_fields)
 
-    def cleanup_bulk_download(self, tdir, log_file):
+    def cleanup_bulk_download(self, tdir):
         try:
             shutil.rmtree(tdir, ignore_errors=True)
-        except:
-            pass
-        try:
-            os.remove(log_file)
         except:
             pass
 
@@ -98,9 +94,9 @@ class EditMetadataAction(InterfaceAction):
         (aborted, id_map, tdir, log_file, failed_ids, failed_covers, all_failed,
                 det_msg, lm_map) = get_job_details(job)
         if aborted:
-            return self.cleanup_bulk_download(tdir, log_file)
+            return self.cleanup_bulk_download(tdir)
         if all_failed:
-            self.cleanup_bulk_download(tdir, log_file)
+            self.cleanup_bulk_download(tdir)
             return error_dialog(self.gui, _('Download failed'),
             _('Failed to download metadata or covers for any of the %d'
                ' book(s).') % len(id_map), det_msg=det_msg, show=True)
@@ -120,10 +116,10 @@ class EditMetadataAction(InterfaceAction):
         payload = (id_map, tdir, log_file, lm_map)
         from calibre.gui2.dialogs.message_box import ProceedNotification
         p = ProceedNotification(self.apply_downloaded_metadata,
-                payload, open(log_file, 'rb').read().decode('utf-8'),
+                payload, log_file,
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
-                parent=self.gui)
+                parent=self.gui, log_is_file=True)
         p.show()
 
     def apply_downloaded_metadata(self, payload):
@@ -167,7 +163,7 @@ class EditMetadataAction(InterfaceAction):
             id_map[bid] = (opf, cov)
 
         self.apply_metadata_changes(id_map, callback=lambda x:
-                self.cleanup_bulk_download(tdir, log_file))
+                self.cleanup_bulk_download(tdir))
 
     # }}}
 

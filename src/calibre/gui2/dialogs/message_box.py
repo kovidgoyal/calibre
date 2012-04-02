@@ -160,7 +160,7 @@ class ProceedNotification(MessageBox): # {{{
 
     def __init__(self, callback, payload, html_log, log_viewer_title, title, msg,
             det_msg='', show_copy_button=False, parent=None,
-            cancel_callback=None):
+            cancel_callback=None, log_is_file=False):
         '''
         A non modal popup that notifies the user that a background task has
         been completed.
@@ -175,12 +175,15 @@ class ProceedNotification(MessageBox): # {{{
         :param title: The title for this popup
         :param msg: The msg to display
         :param det_msg: Detailed message
+        :param log_is_file: If True the html_log parameter is interpreted as
+        the path to a file on disk containing the log encoded with utf-8
         '''
         MessageBox.__init__(self, MessageBox.QUESTION, title, msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 parent=parent)
         self.payload = payload
         self.html_log = html_log
+        self.log_is_file = log_is_file
         self.log_viewer_title = log_viewer_title
 
         self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
@@ -192,7 +195,11 @@ class ProceedNotification(MessageBox): # {{{
         _proceed_memory.append(self)
 
     def show_log(self):
-        self.log_viewer = ViewLog(self.log_viewer_title, self.html_log,
+        log = self.html_log
+        if self.log_is_file:
+            with open(log, 'rb') as f:
+                log = f.read().decode('utf-8')
+        self.log_viewer = ViewLog(self.log_viewer_title, log,
                 parent=self)
 
     def do_proceed(self, result):

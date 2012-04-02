@@ -20,6 +20,28 @@ from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
 
 # Start download {{{
+
+class Job(ThreadedJob):
+
+    ignore_html_details = True
+
+    def consolidate_log(self):
+        self.consolidated_log = self.log.plain_text
+        self.log = None
+
+    def read_consolidated_log(self):
+        return self.consolidated_log
+
+    @property
+    def details(self):
+        if self.consolidated_log is None:
+            return self.log.plain_text
+        return self.read_consolidated_log()
+
+    @property
+    def log_file(self):
+        return open(self.download_debug_log, 'rb')
+
 def show_config(gui, parent):
     from calibre.gui2.preferences import show_config_widget
     show_config_widget('Sharing', 'Metadata download', parent=parent,
@@ -101,11 +123,14 @@ def start_download(gui, ids, callback, ensure_fields=None):
     d.b.clicked.disconnect()
     if ret != d.Accepted:
         return
+    tf = PersistentTemporaryFile('_metadata_bulk_log_')
+    tf.close()
 
-    job = ThreadedJob('metadata bulk download',
+    job = Job('metadata bulk download',
         _('Download metadata for %d books')%len(ids),
-        download, (ids, gui.current_db, d.identify, d.covers,
+        download, (ids, tf.name, gui.current_db, d.identify, d.covers,
             ensure_fields), {}, callback)
+    job.download_debug_log = tf.name
     gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
 
@@ -144,18 +169,15 @@ class HeartBeat(object):
             self.last_time = time.time()
         return True
 
-# Fix log viewer, get_job_details, database update code
+# Fix log viewer, ratings
 # Test: abort, covers only, metadata only, both, 200 entry download, memory
 # consumption, all errors and on and on
 
-def download(all_ids, db, do_identify, covers, ensure_fields,
+def download(all_ids, tf, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):
     batch_size = 10
     batches = split_jobs(all_ids, batch_size=batch_size)
     tdir = PersistentTemporaryDirectory('_metadata_bulk_')
-    tf = PersistentTemporaryFile('_metadata_bulk_log_')
-    tf.close()
-    tf = tf.name
     heartbeat = HeartBeat(tdir)
 
     failed_ids = set()
@@ -201,8 +223,10 @@ def download(all_ids, db, do_identify, covers, ensure_fields,
         for book_id in ids:
             lp = os.path.join(tdir, '%d.log'%book_id)
             if os.path.exists(lp):
-                with open(lp, 'rb') as f, open(tf, 'ab') as d:
-                    shutil.copyfileobj(f, d)
+                with open(tf, 'ab') as dest, open(lp, 'rb') as src:
+                    dest.write(('\n'+'#'*20 + ' Log for %s '%title_map[book_id] +
+                        '#'*20+'\n').encode('utf-8'))
+                    shutil.copyfileobj(src, dest)
 
     if abort.is_set():
         aborted = True
