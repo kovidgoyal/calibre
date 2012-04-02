@@ -648,7 +648,10 @@ class BasicNewsRecipe(Recipe):
             'url'         : URL of print version,
             'date'        : The publication date of the article as a string,
             'description' : A summary of the article
-            'content'     : The full article (can be an empty string). This is used by FullContentProfile
+            'content'     : The full article (can be an empty string). Obsolete
+                            do not use, instead save the content to a temporary
+                            file and pass a file:///path/to/temp/file.html as
+                            the URL.
             }
 
         For an example, see the recipe for downloading `The Atlantic`.
