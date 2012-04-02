@@ -883,6 +883,8 @@ class OPF(object): # {{{
                     val = etree.tostring(x, with_tail=False, encoding=unicode,
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
+                        if typ == 'isbn' and val.lower().startswith('urn:isbn:'):
+                            val = val[len('urn:isbn:'):]
                         identifiers[typ] = val
                     found_scheme = True
                     break
