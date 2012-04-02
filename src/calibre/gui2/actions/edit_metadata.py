@@ -158,7 +158,7 @@ class EditMetadataAction(InterfaceAction):
 
         id_map = {}
         for bid in good_ids:
-            opf = os.path.join(tdir, '%d.mi')
+            opf = os.path.join(tdir, '%d.mi'%bid)
             if not os.path.exists(opf):
                 opf = None
             cov = os.path.join(tdir, '%d.cover'%bid)
