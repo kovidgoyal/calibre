@@ -169,10 +169,6 @@ class HeartBeat(object):
             self.last_time = time.time()
         return True
 
-# Fix log viewer, ratings
-# Test: abort, covers only, metadata only, both, 200 entry download, memory
-# consumption, all errors and on and on
-
 def download(all_ids, tf, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):
     batch_size = 10
