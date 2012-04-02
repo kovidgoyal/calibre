@@ -73,7 +73,7 @@ Edit metadata
 
 |emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by doing a right-click on the button.
 
-    1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book. 
+    1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book.
     2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     4. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
@@ -117,7 +117,7 @@ View
 
 |vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a built-in viewer for many ebook formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
-Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button. 
+Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button.
 
 
 .. _send_to_device:
@@ -175,7 +175,7 @@ Library
     5. **<library name>**: Actions 5, 6 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
     6. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
 
-.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your |app| library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, |app| automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore Library action under Library Maintenance described above, you can have |app| rebuild the metadata.db file from the individual OPF files for you. 
+.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your |app| library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, |app| automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore Library action under Library Maintenance described above, you can have |app| rebuild the metadata.db file from the individual OPF files for you.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on the book and selecting the action :guilabel:`Copy to library`.
 
@@ -235,7 +235,7 @@ Connect/Share
 
     1. **Connect to folder**: Allows you to connect to any folder on your computer as though it were a device and use all the facilities |app| has for devices with that folder. Useful if your device cannot be supported by |app| but is available as a USB disk.
 
-    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can use iTunes to make them available to your various iDevices. This is useful if you would rather not have |app| send books to your iDevice directly.
+    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can use iTunes to make them available to your various iDevices.
 
     3. **Start Content Server**: Starts |app|'s built-in web server.  When started, your |app| library will be accessible via a web browser from the Internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
 
@@ -338,9 +338,9 @@ Two other kinds of searches are available: equality search and search using `reg
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
 indicated by prefixing the search string with a tilde (~). Any `python-compatible regular expression <http://docs.python.org/library/re.html>`_ can
-be used. Note that backslashes used to escape special characters in reqular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors. 
+be used. Note that backslashes used to escape special characters in reqular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors.
 
-Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
+Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
 
 Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
 for the tag ``Science Fiction`` you would need to search for ``tag:"=science fiction"``. If you search for
@@ -362,7 +362,7 @@ The syntax for searching for dates is::
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
-strings ``yesterday`` and ``thismonth`` (or the translated equivalent in the current language) also work. 
+strings ``yesterday`` and ``thismonth`` (or the translated equivalent in the current language) also work.
 In addition, the string ``daysago`` (also translated) can be used to compare to a date some number of days ago.
 For example::
 
