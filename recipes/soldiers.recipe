@@ -15,6 +15,8 @@ class Soldiers(BasicNewsRecipe):
     max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
+    auto_cleanup = True
+    auto_cleanup_keep = '//div[@id="mediaWrapper"]'
     simultaneous_downloads = 1
     delay                  = 4
     max_connections        = 1    
@@ -31,14 +33,14 @@ class Soldiers(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    keep_only_tags = [dict(name='div', attrs={'id':['storyHeader','textArea']})]
+    #keep_only_tags = [dict(name='div', attrs={'id':['storyHeader','textArea']})]
                      
-    remove_tags = [
-                     dict(name='div', attrs={'id':['addThis','comment','articleFooter']})
-                    ,dict(name=['object','link'])
-                  ]
+    #remove_tags = [
+                     #dict(name='div', attrs={'id':['addThis','comment','articleFooter']})
+                    #,dict(name=['object','link'])
+                  #]
                             
-    feeds = [(u'Frontpage', u'http://www.army.mil/rss/feeds/soldiersfrontpage.xml' )]
+    feeds = [(u'Frontpage', u'http://www.army.mil/rss/2/' )]
 
 
     def get_cover_url(self):
