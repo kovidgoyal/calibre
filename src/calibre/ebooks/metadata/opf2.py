@@ -535,7 +535,7 @@ class OPF(object): # {{{
         series_index    = MetadataField('series_index', is_dc=False,
                                         formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
-    rating          = MetadataField('rating', is_dc=False, formatter=int)
+    rating          = MetadataField('rating', is_dc=False, formatter=float)
     pubdate         = MetadataField('date', formatter=parse_date,
                                     renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
