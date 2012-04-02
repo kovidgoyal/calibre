@@ -120,6 +120,7 @@ class EditMetadataAction(InterfaceAction):
                 payload, log_file,
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
+                cancel_callback=lambda x:self.cleanup_bulk_download(tdir),
                 parent=self.gui, log_is_file=True)
         p.show()
 

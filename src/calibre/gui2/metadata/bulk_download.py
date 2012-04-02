@@ -124,7 +124,7 @@ def start_download(gui, ids, callback, ensure_fields=None):
     d.b.clicked.disconnect()
     if ret != d.Accepted:
         return
-    tf = PersistentTemporaryFile('_metadata_bulk_log_')
+    tf = PersistentTemporaryFile('_metadata_bulk.log')
     tf.close()
 
     job = Job('metadata bulk download',
@@ -204,7 +204,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):
     batch_size = 10
     batches = split_jobs(all_ids, batch_size=batch_size)
-    tdir = PersistentTemporaryDirectory('_metadata_bulk_')
+    tdir = PersistentTemporaryDirectory('_metadata_bulk')
     heartbeat = HeartBeat(tdir)
 
     failed_ids = set()
