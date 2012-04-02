@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-03-31 18:23+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2012-04-01 18:04+0000\n"
+"Last-Translator: Lucie Poudoulec <lucie.poudoulec@gmail.com>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-04-01 04:37+0000\n"
+"X-Launchpad-Export-Date: 2012-04-02 04:35+0000\n"
 "X-Generator: Launchpad (build 15032)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -357,11 +357,11 @@ msgstr "Convertir des livres vers divers formats de livres numériques"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Delete books from your calibre library or connected device"
 msgstr ""
-"Supprimer des livres dans votre librairie calibre ou un périphérique connecté"
+"Supprimer des livres de votre librairie calibre ou d'un périphérique connecté"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Edit the metadata of books in your calibre library"
-msgstr "Éditer les métadonnées des livres dans votre librairie calibre"
+msgstr "Modifier les métadonnées des livres dans votre librairie calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Read books in your calibre library"
@@ -370,7 +370,7 @@ msgstr "Lire des livres dans votre librairie calibre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Download news from the internet in ebook form"
 msgstr ""
-"Télécharger les informations depuis Internet au format livre numérique"
+"Télécharger les informations depuis Internet sous forme de livre numérique"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Show a list of related books quickly"
@@ -435,7 +435,7 @@ msgstr "Copier des livres de votre appareil vers votre librairie calibre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Edit the collections in which books are placed on your device"
 msgstr ""
-"Éditer les collections dans lesquelles les livres seront placés dans votre "
+"Modifier les collections dans lesquelles les livres seront placés sur votre "
 "appareil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
@@ -445,7 +445,7 @@ msgstr "Copier un livre depuis une librairie calibre vers une autre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
-"Effectuez de petites personnalisations sur les fichiers EPUB ou htmlz de "
+"Effectuer de petites personnalisations sur les fichiers EPUB ou htmlz de "
 "votre bibliothèque calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
@@ -502,7 +502,7 @@ msgstr "Ajouter vos colonnes personnalisées"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:945
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Ajouter/retirer vos colonnes personnalisées dans la liste des livres"
+msgstr "Ajouter/retirer vos colonnes personnalisées de la liste des livres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:950
 msgid "Toolbar"
@@ -559,7 +559,7 @@ msgstr "Définir des options de conversion pour chaque format de sortie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1006
 msgid "Adding books"
-msgstr "Ajouter des livres"
+msgstr "Ajout de livres en cours"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1020
@@ -576,7 +576,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1018
 msgid "Saving books to disk"
-msgstr "Enregistrer les livres sur le disque"
+msgstr "Enregistrement des livres sur le disque en cours"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1024
 msgid ""
@@ -584,17 +584,17 @@ msgid ""
 "to disk"
 msgstr ""
 "Contrôler la manière dont calibre exporte les fichiers de sa base de données "
-"sur le disque lors des enregistrements sur disque"
+"vers le disque lors de l'enregistrement vers le disque"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 msgid "Sending books to devices"
-msgstr "Envoyer les livres aux appareils"
+msgstr "Envoi des livres vers appareils en cours"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1036
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
-"Contrôler la manière dont calibre exporte les fichiers vers votre liseuse "
-"électronique"
+"Contrôler la manière dont calibre exporte les fichiers vers votre lecteur de "
+"livres numériques"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1042
 msgid "Metadata plugboards"
@@ -628,7 +628,7 @@ msgstr "Partager des livres par courriel"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1091
 msgid "Sharing"
-msgstr "Partage"
+msgstr "Partage en cours"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1070
 msgid ""
@@ -641,7 +641,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1076
 msgid "Sharing over the net"
-msgstr "Partager à travers le réseau"
+msgstr "Partage sur internet en cours"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1082
 msgid ""
@@ -659,7 +659,7 @@ msgstr "Télécharger les métadonnées"
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
 "Contrôler comment calibre télécharge les métadonnées du livre numérique à "
-"partir du réseau"
+"partir d'internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -668,11 +668,11 @@ msgstr "Modules d’extension"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr "Ajouter/Retirer/Modifier diverses fonctionnalités de calibre"
+msgstr "Ajouter/Retirer/Personnaliser diverses fonctionnalités de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Tweaks"
-msgstr "Réglages"
+msgstr "Ajustements"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1118
 msgid "Fine tune how calibre behaves in various contexts"
@@ -739,7 +739,7 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Ce profil essaie de fournir des valeurs sensées par défaut et est utile si "
+"Ce profil essaie de fournir des valeurs saines par défaut et est utile si "
 "vous ne savez rien à propos du document d’entrée."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:59
@@ -823,8 +823,8 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Ce profil essaie de fournir des défauts raisonnables et est utilisé si vous "
-"souhaitez générer un document que vous avez l’intention de lire sur un "
+"Ce profil essaie de fournir des valeurs par défaut saines et est utilisé si "
+"vous souhaitez générer un document que vous avez l’intention de lire sur un "
 "ordinateur ou  sur une gamme d’appareils."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:277
@@ -19431,7 +19431,7 @@ msgstr "Définir les séries du(es) livre(s) ajouté(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:321
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "Assigne le numéro de la série des livres ajoutés"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"
@@ -21234,7 +21234,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:844
 msgid "series_sort() -- return the series sort value"
-msgstr ""
+msgstr "series_sort() -- renvoie la valeur de tri des séries"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:855
 msgid ""
@@ -21429,6 +21429,11 @@ msgid ""
 "same output as the above template: program: "
 "finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 msgstr ""
+"finish_formatting(val, fmt, prefix, suffix) -- applique le format, le "
+"préfixe et le suffixe à une valeur de la même manière qu'un modèle comme "
+"{series_index:05.2f| - |- }. Par exemple, le programme suivant produit la "
+"même sortie que le modèle ci-dessus : program: "
+"finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -23037,7 +23042,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:504
 msgid "Compile General Program Mode templates to Python"
-msgstr ""
+msgstr "Compiler les modèles du Mode Général de Programme en Python"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:505
 msgid ""
@@ -23050,3 +23055,16 @@ msgid ""
 "Default:    compile_gpm_templates = True\n"
 "No compile: compile_gpm_templates = False"
 msgstr ""
+"Les modèles du mode général de programme compilé sont significativement\n"
+"plus rapides que les modèles interprétés. Mettre cette personnalisation à "
+"True\n"
+"entraine la compilation (dans la plupart des cas) des modèles du mode "
+"général\n"
+"de programme. Mettre cette personnalisation à False entraine l'utilisation "
+"par\n"
+"Calibre de l'ancien comportement  -- l'interprétation des modèles.  Mettez "
+"cette\n"
+"valeur à False si certains des modèles compilés produisent des valeurs "
+"incorrectes.\n"
+"Par défaut :    compile_gpm_templates = True\n"
+"Pas de compilation : compile_gpm_templates = False"

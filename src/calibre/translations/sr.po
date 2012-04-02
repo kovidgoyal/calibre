@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-03-31 16:26+0000\n"
+"PO-Revision-Date: 2012-04-01 17:56+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-01 04:38+0000\n"
+"X-Launchpad-Export-Date: 2012-04-02 04:36+0000\n"
 "X-Generator: Launchpad (build 15032)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -13961,7 +13961,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:245
 msgid "Use &Roman numerals for series"
-msgstr "Koristi &rimske brojeve za serije"
+msgstr "Користи &римске бројеве за серије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:246
 msgid ""
@@ -13981,11 +13981,11 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
-"Izaberite kako će biti prikazene podkategorije u izlogu etiketa kada\n"
-"ima više elemenata nego što je moguće prikazati. Izaberite 'po \n"
-"prvom slovu' da vidite abecednu listu. Izaberite 'podeljeno' da \n"
-"vidite grupe podjednake veličine. Postavite na 'isključeno'\n"
-"ako vam podkategorije nikada nisu potrebne"
+"Изаберите како ће бити приказане подкатегорије у излогу етикета када\n"
+"има више елемената него што је могуће приказати. Изаберите 'по \n"
+"првом слову' да видите абецедну листу. Изаберите 'подељено' да \n"
+"видите групе подједнаке величине. Поставите на 'искључено'\n"
+"ако вам подкатегорије никада нису потребне."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:254
 msgid "&Collapse when more items than:"
@@ -14013,7 +14013,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:263
 msgid "Show &average ratings in the tags browser"
-msgstr "Prik&aži srednje ocene u izlogu etiketa"
+msgstr "Прик&ажи средње оцене у излогу етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:264
 msgid "Categories with &hierarchical items:"
@@ -14032,14 +14032,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr ""
-"Prikaži &izlog naslovnih strana u posebnom prozoru (zahteva ponovno "
-"startovanje programa)"
+"Прикажи &излог насловних страна у посебном прозору (поново препокрени)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:273
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
-"&Broj naslovnih strana koje će biti prikazane u izlogu (zahteva ponovno "
-"startovanje programa):"
+"&Број насловних страна које ће бити приказане у излогу (поново препокрени):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "When showing cover browser in separate window, show it &fullscreen"
@@ -14053,44 +14051,44 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:92
 msgid "&Apply"
-msgstr "&Primeni"
+msgstr "&Примени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:237
 msgid "Restore &defaults"
-msgstr "Vrati po&drazumevane vrednosti"
+msgstr "Врати по&дразумеване вредности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:238
 msgid "Save changes"
-msgstr "Sačuvaj izmene"
+msgstr "Сачувај измене"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:239
 msgid "Cancel and return to overview"
-msgstr "Odustani i vrati se na pregled"
+msgstr "Одустани и врати се на преглед."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:295
 msgid "Restoring to defaults not supported for"
-msgstr "Vraćanje na podrazumevane vrednosti nije podržano za"
+msgstr "Враћање на подразумеване вредности није подржано за"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:331
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
-"Neke od izmena koje ste napravili zahtevaju ponovo pokretanje programa. "
-"Molim vas da što pre ponovo pokrenete calibre."
+"Неке од измена које сте направили захтевају поново покретање програма. Молим "
+"вас да што пре поново покренете calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:334
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
-"Izmene koje ste uneli zahtevaju da odmah ponovo pokrenete calibre. Dok to ne "
-"uradite neće biti moguće menjati ostala podešavanja."
+"Измене које сте унели захтевају да одмах поново покренете calibre. Док то не "
+"урадите неће бити могуће мењати остала подешавања."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
 msgid "Restart needed"
-msgstr "Potrebno je ponovno pokretanje"
+msgstr "Потребно је поновно покретање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:341
 msgid "Restart calibre now"
@@ -14098,7 +14096,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
-msgstr ""
+msgstr "Извор"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:50
 msgid "Cover priority"
@@ -14129,7 +14127,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:322
 msgid "No source selected"
-msgstr ""
+msgstr "Извор није изабран"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:323
 msgid "No source selected, cannot configure."
@@ -14163,7 +14161,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:71
 msgid "&Select all"
-msgstr ""
+msgstr "&Означи све"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:75
 msgid "&Clear all"
@@ -14209,7 +14207,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:206
 msgid " secs"
-msgstr " sekundi"
+msgstr " секунди"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:113
 msgid "Max. time to wait after first &cover is found:"
@@ -14240,22 +14238,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:66
 msgid "Failed to install command line tools."
-msgstr "Nisam uspeo da instaliram alate za komandnu liniju."
+msgstr "Нисам успео да инсталирам алате за командну линију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:69
 msgid "Command line tools installed"
-msgstr "Alati za komandnu liniju su instalirani"
+msgstr "Алати за командну линију су инсталирани."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:70
 msgid "Command line tools installed in"
-msgstr "Alati za komandnu liniju su instalirani u"
+msgstr "Алати за командну линију су инсталирани у"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:71
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
-"Ako promenite direktorijum za calibre.app moraćete da ponovo instalirate "
-"alate za komandnu liniju."
+"Ако промените директоријум за calibre.app мораћете да поново инсталирате "
+"алате за командну линију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:25
 msgid "Max. simultaneous conversion/news download jobs:"
@@ -14264,12 +14262,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:33
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
-"Ograniči najveći broj istovremenih poslova na broj raspoloživih &procesora "
-"(ili procesorskih jezgara)"
+"Ограничи највећи број истовремених послова на број расположивих &процесора "
+"(или процесорских језгара)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:39
 msgid "Debug &device detection"
-msgstr "Traži greške u otkrivanju &uređaja"
+msgstr "Тражи грешке у откривању &уређаја."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:43
 msgid "Get information to setup the &user defined device"
@@ -14277,11 +14275,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:51
 msgid "Open calibre &configuration directory"
-msgstr "Otvori direktorijum koji sadrži calibre &konfiguraciju"
+msgstr "Отвори директоријум који садржи calibre &конфигурацију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:57
 msgid "&Install command line tools"
-msgstr "&Instaliraj alatke za komandnu liniju"
+msgstr "&Инсталирај алатке за командну линију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Abort conversion jobs that take more than:"
@@ -14293,15 +14291,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
-msgstr ""
+msgstr " минута"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:53
 msgid "Device currently connected: "
-msgstr "Trenutno priključen uređaj: "
+msgstr "Тренутно прикључен уређај: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:56
 msgid "Device currently connected: None"
-msgstr "Trenutno priključen uređaj: Nijedan"
+msgstr "Тренутно прикључен уређај: Ниједан"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:193
 msgid "That format and device already has a plugboard."
@@ -14350,11 +14348,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:285
 msgid "Invalid destination"
-msgstr "Neispravno odredište"
+msgstr "Неисправно одредиште."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:286
 msgid "The destination field cannot be blank"
-msgstr "Odredište ne može biti prazno"
+msgstr "Одредиште не може бити празно."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:114
 msgid ""
@@ -14375,58 +14373,58 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
-"Ovde možete izmeniti metapodatke koje calibre koristi kako bi ažurirao "
-"knjige kada ih snima na disk, ili šalje na uređaj.\n"
+"Овде можете изменити метаподатке које calibre користи како би ажурирао књиге "
+"када их снима на диск, или шаље на уређај.\n"
 "\n"
-"Koristite ovaj dijalog da definišete 'priključak' za format (ili sve "
-"formate), ili uređaj (ili sve uređaje). Priključak određuje koji šablon će "
-"biti povezan s kojim poljem. Šablon se koristi da odredi vrednost koj aće "
-"biti dodeljena priključenom polju.\n"
+"Користите овај дијалог да дефинишете 'прикључак' за формат (или све "
+"формате), или уређај (или све уређаје). Прикључак одређује који шаблон ће "
+"бити повезан с којим пољем. Шаблон се користи да одреди вредност која ће "
+"бити додељена прикљученом пољу.\n"
 "\n"
-"Šabloni će često sadržati jednostavne veze ka složenim kolonama, ali to nije "
-"neophodno. U izvornom polju možete koristiti bilo koji šablon koji može da "
-"se koristi drugde u calibreu.\n"
+"Шаблони ће често садржати једноставне везе ка сложеним колонама, али то није "
+"неопходно. У изворном пољу можете користити било који шаблон који може да се "
+"користи другде у calibre-у.\n"
 "\n"
-"Jedna moguća upotreba priključaka je da u naslov daodate informaciju o "
-"seriji. Druga mogućša upotreba je da se izmeni način sortiranja po autoru, "
-"nešto što bi korisnici formata MOBI mogli da urade kako bi dodali ';' koji "
-"Kindle zahteva. Treća upotreba bi mogla da bude definisanje jezika."
+"Једна могућа употреба прикључака је да у наслов додате информацију о серији. "
+"Друга могућа употреба је да се измени начин разврставања по аутору, нешто "
+"што би корисници формата MOBI могли да ураде како би додали ';' који Kindlе "
+"захтева. Трећа употреба би могла да буде дефинисање језика."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
-msgstr "Format (izaberite prvi)"
+msgstr "Формат (изаберите први)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:122
 msgid "Device (choose second)"
-msgstr "Uređaj (izaberite drugi)"
+msgstr "Уређај (изаберите други)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:123
 msgid "Add new plugboard"
-msgstr "Dodaj novi priključak"
+msgstr "Додај нови прикључак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr "Izmeni postojeći priključak"
+msgstr "Измени постојећи прикључак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr "Postojeći priključci"
+msgstr "Постојећи прикључци."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
-msgstr "Izvorni šablon"
+msgstr "Изворни шаблон."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:127
 msgid "Destination field"
-msgstr "Odredišno polje"
+msgstr "Одредишно поље."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr "Snimi priključak"
+msgstr "Сними прикључак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr "Izbriši priključak"
+msgstr "Избриши прикључак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:193
 #, python-format
@@ -14443,7 +14441,7 @@ msgid ""
 "Customization: "
 msgstr ""
 "\n"
-"Podešavanja: "
+"Подешавања: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:234
 msgid "Search for plugin"
@@ -14455,7 +14453,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:290
 msgid "files"
-msgstr ""
+msgstr "датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:291
 msgid "Add plugin"
@@ -14463,12 +14461,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:323
 msgid "No valid plugin path"
-msgstr "Ne postoji ispravna putanja do dodataka"
+msgstr "Не постоји исправна путања до додатака."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:324
 #, python-format
 msgid "%s is not a valid plugin path"
-msgstr "%s nije ispravna putanja do dodataka"
+msgstr "%s није исправна путања до додатака."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:333
 #, python-format
@@ -14481,20 +14479,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:371
 msgid "Cannot remove builtin plugin"
-msgstr "Ne mogu da uklonim ugrađeni dodatak"
+msgstr "Не могу да уклоним уграђени додатак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:372
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
-" se ne može ukloniti. Ovaj dodatak je ugrađen. Probajte da ga isključite."
+" се не може уклонити. Овај додатак је уграђен. Пробајте да га искључите."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
-"Ovde možete promeniti ponašanje Calibrea izborom dodataka koji će biti "
-"korišćeni za:"
+"Овде можете променити понашање Calibre-а избором додатака који ће бити "
+"коришћени за:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
@@ -14518,7 +14516,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "Any custom field"
-msgstr "Dodaj korisničko polje"
+msgstr "Додај корисничко поље."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:35
 msgid "The lookup name of any custom field (these names begin with \"#\")."
@@ -14526,19 +14524,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
-msgstr "Stalni šablon"
+msgstr "Стални шаблон."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:67
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
-"Šablon ne sadrži nijedno od polja {fields}, pa će sve knjige imati isti "
-"naziv. Da li je ovo u redu?"
+"Шаблон не садржи ниједно од поља , па ће све књиге имати исти назив. Да ли "
+"је ово у реду?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:57
 msgid "Save &template"
-msgstr "&Snimi šablon:"
+msgstr "&Сачувај шаблон:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:58
 msgid ""
@@ -14548,15 +14546,15 @@ msgid ""
 "particular book does not have some metadata, the variable will be replaced "
 "by the empty string."
 msgstr ""
-"Podešavanjem ovog šablona možete birati u koje direktorijume i kako će biti "
-"snimljeni fajlovi. Možete koristitii znak / da navedete pod-direktorijume. "
-"Metapodaci (promenljive) koji su vam na raspolaganju su takođe navedeni "
-"niže. Ako određena knjiga nema neki od metapodataka oni će biti zamenjeni "
-"praznim nizom znakova."
+"Подешавањем овог шаблона можете бирати у које директоријуме и како ће бити "
+"снимљене датотеке. Можете користитии знак / да наведете под-директоријуме. "
+"Метаподаци (променљиве) који су вам на располагању су такође наведени ниже. "
+"Ако одређена књига нема неки од метаподатака они ће бити замењени празним "
+"низом знакова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:59
 msgid "Available variables:"
-msgstr "Raspoložive promenljive:"
+msgstr "Расположиве променљиве:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:60
 msgid "Template Editor"
@@ -14567,41 +14565,41 @@ msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
 msgstr ""
-"Ovde možete upravljati načinom na koji calibre snima vaše knjige kada "
-"pritisnete dugme Snimi na disk:"
+"Овде можете управљати начином на који calibre чува ваше књиге када "
+"притиснете дугме Сачувај на диск:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:30
 msgid "Save &cover separately"
-msgstr "Snimi &naslovnu stranu u poseban fajl"
+msgstr "Сачувај &насловну страну у посебну датотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:34
 msgid "Replace space with &underscores"
-msgstr "Promeni razmake u &donje crte"
+msgstr "Промени размаке у &доње црте."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:38
 msgid "Update &metadata in saved copies"
-msgstr "Osveži &metapodatke u snimljenim kopijama"
+msgstr "Освежи &метаподатке у сачуваним копијама"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:42
 msgid "Change paths to &lowercase"
-msgstr "Promeni putanje u &mala slova"
+msgstr "Промени путање у &мала слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:57
 msgid "Format &dates as:"
-msgstr "Formatiraj &datume na sledeći način:"
+msgstr "Форматирај &датуме на следећи начин:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:53
 msgid "File &formats to save:"
-msgstr "&Formati koji će biti snimljeni:"
+msgstr "&Формати који ће бити сачувани:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:63
 msgid "Convert non-English characters to &English equivalents"
-msgstr "Konvertuj ne-engleske znake u &engleske ekvivalente"
+msgstr "Претвори не-енглеске знаке у &енглеске еквиваленте."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:67
 msgid "Save metadata in &OPF file"
-msgstr "Snimi metapodatke u &OPF fajl"
+msgstr "Сачувај метаподатке у &OPF датотеци"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
@@ -14735,7 +14733,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Save"
-msgstr ""
+msgstr "&Сачувај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
@@ -14750,17 +14748,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:41
 msgid "Manual management"
-msgstr "Ručno upravljanje"
+msgstr "Ручно управљање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:43
 msgid "Only on send"
-msgstr "Samo pri slanju"
+msgstr "Само при слању."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:45
 msgid "Automatic management"
-msgstr "Automatsko upravljanje"
+msgstr "Аутоматско управљање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
@@ -14768,7 +14766,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
-msgstr "Upravljanje &metapodacima:"
+msgstr "Управљање &метаподацима:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:50
 msgid ""
@@ -14780,14 +14778,14 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
-"<li><b>Ručno upravljanje</b>: Calibre obnavlja metapodatke i dodaje "
-"kolekcije samo kada je knjiga poslata. Sa ovom opcijom, calibre nikada neće "
-"ukloniti kolekciju.</li>\n"
-"<li><b>Samo pri slanju</b>: Calibre obnavlja metapodatke i dodaje/uklanja "
-"kolekcije za knjigu samo kada se ona šalje na uređaj. </li>\n"
-"<li><b>Automatsko upravljanje</b>: Calibre automatski održava sinhronizaciju "
-"metapodataka na uređaju i u calibre biblioteci, pri svakom "
-"povezivanju</li></ul>"
+"<li><b>Ручно управљање</b>: Calibre обнавља метаподатке и додаје колекције "
+"само када је књига послата. Са овом могућношћу, calibre никада неће уклонити "
+"колекцију.</li>\n"
+"<li><b>Само при слању</b>: Calibre обнавља метаподатке и додаје/уклања "
+"колекције за књигу само када се она шаље на уређај. </li>\n"
+"<li><b>Аутоматско управљање</b>: Calibre аутоматски одржава синхронизацију "
+"метаподатака на уређају и у calibre библиотеци, при сваком "
+"повезивању</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:64
 msgid ""
@@ -14795,22 +14793,22 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
-"Ovde možete upravljati time kako calibre snima vaše knjige kada kliknete "
-"dugme Pošalji na uređaj. Ova podešavanja se mogu promeniti za pojedine "
-"uređaje podešavanjem dodatka za uređaj u meniju Podešavanja->Napredna->Dodaci"
+"Овде можете управљати тиме како calibre чува ваше књиге када кликнете дугме "
+"Пошаљи на уређај. Ова подешавања се могу променити за поједине уређаје "
+"подешавањем додатка за уређај у изборнику Подешавања->Напредна->Додаци"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:452
 msgid "Failed to start content server"
-msgstr "Nisam uspeo da pokrenem server sadržaja"
+msgstr "Нисам успео да покренем сервер садржаја."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:113
 msgid "Error log:"
-msgstr "Dnevnik grešaka:"
+msgstr "Дневник грешака:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Access log:"
-msgstr "Dnevnik pristupa:"
+msgstr "Дневник приступа:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:135
 msgid "You need to restart the server for changes to take effect"
@@ -14831,28 +14829,28 @@ msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
 msgstr ""
-"Maksimalna veličina (širinaxvisina) za prikaz naslovnih strana. Veće "
-"naslovne strane će biti smanjene. "
+"Максимална величина (ширинаxвисина) за приказ насловних страна. Веће "
+"насловне стране ће бити смањене. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:147
 msgid "Max. &cover size:"
-msgstr "Maks. veličina &naslovne strane:"
+msgstr "Нај. величина &насловне стране:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:148
 msgid "Server &port:"
-msgstr "&Port za server:"
+msgstr "&Прикључак за сервер:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:151
 msgid "Max. &OPDS items per query:"
-msgstr "Maks. broj &OPDS stavki po upitu:"
+msgstr "Нај. број &OPDS ставки по упиту:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:152
 msgid "Max. OPDS &ungrouped items:"
-msgstr "Maks. OPDS negr&upisane stavke:"
+msgstr "Нај. OPDS негр&уписане ставке:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Restriction (saved search) to apply:"
-msgstr "Ograničenje (sačuvana pretraga) koje treba priemeniti:"
+msgstr "Ограничење (сачувана претрага) које треба применити:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid ""
@@ -14860,10 +14858,9 @@ msgid ""
 "content server makes available to those matching the search. This setting is "
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
-"Ovo ograničenje (zasnovano na sačuvanoj pretrazi) će ograničiti kojim "
-"knjigama će server dozvoliti pristup. Ovo podešavanje je vezano za "
-"biblioteku (tj. možete navesti različita ograničenja za različite "
-"biblioteke)."
+"Ово ограничење (засновано на сачуваној претрази) ће ограничити којим књигама "
+"ће сервер дозволити приступ. Ово подешавање је везано за библиотеку (тј. "
+"можете навести различита ограничења за различите библиотеке)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid ""
@@ -14891,15 +14888,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid "&Start Server"
-msgstr "&Pokreni server"
+msgstr "&Покрени сервер."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:164
 msgid "St&op Server"
-msgstr "&Zaustavi server"
+msgstr "&Заустави сервер."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:165
 msgid "&Test Server"
-msgstr "&Proveri server"
+msgstr "&Провери сервер."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:166
 msgid ""
@@ -14907,9 +14904,9 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
-"calibre sadrži server koji omogućava pristup vašoj biblioteci preko "
-"Interneta. Sve izmene koje ovde unesete će postati aktivne tek posle "
-"ponovnog pokretanja servera."
+"calibre садржи сервер који омогућава приступ вашој библиотеци преко "
+"Интернета. Све измене које овде унесете ће постати активне тек после "
+"поновног покретања сервера."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:167
 msgid "Run server &automatically when calibre starts"
@@ -14917,7 +14914,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:168
 msgid "View &server logs"
-msgstr "Prikaži &serverski dnevnik"
+msgstr "Прикажи &серверски дневник."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:169
 msgid ""
@@ -15034,7 +15031,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "&Функција:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
@@ -15050,15 +15047,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Обриши"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "&Замени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "Н&аправи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
@@ -15070,7 +15067,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
-msgstr "Prebaci se između pogleda na biblioteku, ili uređaj"
+msgstr "Пребаци се између погледа на библиотеку, или уређај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:42
 msgid "Separator"
