@@ -5,11 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, sys
+import time, sys, uuid, hashlib
 from urllib import quote as quote_, unquote as unquote_
 from functools import wraps
 
 import cherrypy
+from cherrypy.lib.auth_digest import digest_auth, get_ha1_dict_plain
 
 from calibre import strftime as _strftime, prints, isbytestring
 from calibre.utils.date import now as nowf
@@ -58,6 +59,53 @@ def expose(func):
 
     return do
 
+class AuthController(object):
+
+    MAX_AGE = 3600 # Number of seconds after a successful digest auth for which
+                   # the cookie auth will be allowed
+
+    def __init__(self, realm, users_dict):
+        self.realm = realm
+        self.users_dict = users_dict
+        self.secret = bytes(uuid.uuid4().hex)
+        self.cookie_name = 'android_workaround'
+
+    def hashit(self, raw):
+        return hashlib.sha1(raw).hexdigest()
+
+    def __call__(self, func, allow_cookie_auth):
+
+        @wraps(func)
+        def authenticate(*args, **kwargs):
+            cookie = cherrypy.request.cookie.get(self.cookie_name, None)
+            if not (allow_cookie_auth and self.is_valid(cookie)):
+                digest_auth(self.realm, get_ha1_dict_plain(self.users_dict),
+                            self.secret)
+
+            cookie = cherrypy.response.cookie
+            cookie[self.cookie_name] = self.generate_cookie()
+            cookie[self.cookie_name]['path'] = '/'
+            cookie[self.cookie_name]['version'] = '1'
+
+            return func(*args, **kwargs)
+
+        authenticate.im_self = func.im_self
+        return authenticate
+
+    def generate_cookie(self, timestamp=None):
+        timestamp = int(time.time()) if timestamp is None else timestamp
+        key = self.hashit('%d:%s'%(timestamp, self.secret))
+        return '%d:%s'%(timestamp, key)
+
+    def is_valid(self, cookie):
+        try:
+            timestamp, hashpart = cookie.value.split(':', 1)
+            timestamp = int(timestamp)
+        except:
+            return False
+        s_timestamp, s_hashpart = self.generate_cookie(timestamp).split(':', 1)
+        is_valid = s_hashpart == hashpart
+        return (is_valid and (time.time() - timestamp) < self.MAX_AGE)
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     if not hasattr(dt, 'timetuple'):
