@@ -69,6 +69,13 @@ class AuthController(object):
     cookies are passed to the download process. The cookie expires after
     MAX_AGE seconds.
 
+    The android browser appears to send a GET request to the server and only if
+    that request succeeds is the download handed off to the download process.
+    Therefore, even if the user clicks Get after MAX_AGE, it should still work.
+    In fact, we could reduce MAX_AGE, but we leave it high as the download
+    process might have downloads queued and therefore not start the download
+    immediately.
+
     Note that this makes the server vulnerable to session-hijacking (i.e. some
     one can sniff the traffic and create their own requests to /get with the
     appropriate cookie, for an hour). The fix is to use https, but since this
