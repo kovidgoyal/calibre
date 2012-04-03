@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-04-01 17:56+0000\n"
+"PO-Revision-Date: 2012-04-02 19:48+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-02 04:36+0000\n"
-"X-Generator: Launchpad (build 15032)\n"
+"X-Launchpad-Export-Date: 2012-04-03 04:52+0000\n"
+"X-Generator: Launchpad (build 15052)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -15071,19 +15071,19 @@ msgstr "Пребаци се између погледа на библиотек�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:42
 msgid "Separator"
-msgstr "Separator"
+msgstr "Раздвајач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:59
 msgid "Choose library"
-msgstr "Izaberite biblioteku"
+msgstr "Изаберите библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:220
 msgid "The main toolbar"
-msgstr "Glavna traka sa alatima"
+msgstr "Главна трака са алатима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:221
 msgid "The main toolbar when a device is connected"
-msgstr "Glavna traka sa alatima kada je uređaj priključen"
+msgstr "Главна трака са алатима када је уређај прикључен."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The optional second toolbar"
@@ -15099,11 +15099,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:225
 msgid "The context menu for the books in the calibre library"
-msgstr "Kontektskno osetljiv meni za knjige u calibre biblioteci"
+msgstr "Контектскно осетљив мени за књиге у calibre библиотеци."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:227
 msgid "The context menu for the books on the device"
-msgstr "Kontektskno osetljiv meni za knjige na uerđaju"
+msgstr "Контектскно осетљив изборник за књиге на уерђају."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:229
 msgid "The context menu for the cover browser"
@@ -15115,21 +15115,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:271
 msgid "Cannot add"
-msgstr "Ne mogu da dodam"
+msgstr "Не могу да додам."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:272
 #, python-format
 msgid "Cannot add the actions %s to this location"
-msgstr "Ne mogu da dodam akcije %s na ovo mesto"
+msgstr "Не могу да додам акције %s на ово место."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:290
 msgid "Cannot remove"
-msgstr "Ne mogu da uklonim"
+msgstr "Не могу да уклоним."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:291
 #, python-format
 msgid "Cannot remove the actions %s from this location"
-msgstr "Ne mogu da uklonim akcije %s sa ovog mesta"
+msgstr "Не могу да уклоним акције %s са овог места."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:25
 msgid ""
@@ -15143,7 +15143,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:42
 msgid "A&vailable actions"
-msgstr "Raspoloži&ve akcije"
+msgstr "Расположи&ве акције."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:62
 msgid "Add selected actions to toolbar"
@@ -15151,19 +15151,19 @@ msgstr "Dodaj izabranu akciju na traku sa alatima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:73
 msgid "Remove selected actions from toolbar"
-msgstr "Ukloni izabranu akciju s trake sa alatima"
+msgstr "Уклони изабрану акцију с траке са алатима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:83
 msgid "&Current actions"
-msgstr "A&ktuelne akcije"
+msgstr "А&ктуелне акције."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:102
 msgid "Move selected action up"
-msgstr "Pomeri izabranu akciju naviše"
+msgstr "Помери изабрану акцију навише."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:113
 msgid "Move selected action down"
-msgstr "Pomeri izabranu akciju naniže"
+msgstr "Помери изабрану акцију наниже."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
@@ -15193,16 +15193,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:391
 msgid "Invalid tweaks"
-msgstr "Neispravna podešavanja"
+msgstr "Неисправна подешавања."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:392
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
-"Podešavanja koja ste uneli su neispravna. Probajte da ih vratite na "
-"podrazumevanu vrednost, a zatim menjate jedno po jedno dok ne otkrijete koje "
-"je pogrešno."
+"Подешавања која сте унели су неисправна. Пробајте да их вратите на "
+"подразумевану вредност, а затим мењатје једно по једно док не откријете које "
+"је погрешно."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:25
 msgid ""
@@ -15245,15 +15245,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:351
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
-msgstr "Izabrana pretraga će bit <b>izbrisana zauvek</b>. Da li ste sigurni?"
+msgstr ""
+"Изабрана претрага ће бити <b>избрисана заувек</b>. Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:376
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr "Traži (za naprednu pretragu kliknite dugme levo)"
+msgstr "Тражи (за напредну претрагу кликните дугме лево)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:392
 msgid "Start search"
-msgstr ""
+msgstr "Покрени претрагу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:402
 msgid "Enable or disable search highlighting."
@@ -15261,11 +15262,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:457
 msgid "Saved Searches"
-msgstr "Sačuvane pretrage"
+msgstr "Сачуване претраге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:459
 msgid "Choose saved search or enter name for new saved search"
-msgstr "Izaberite sačuvanu pretragu, ili unesite ime za novu"
+msgstr "Изаберите сачувану претрагу, или унесите име за нову."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:465
 msgid ""
@@ -15291,12 +15292,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
-msgstr "Ograniči na"
+msgstr "Ограничи на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:19
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:93
 msgid "(all books)"
-msgstr "(sve knjige)"
+msgstr "(све књиге)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:21
 msgid ""
@@ -15309,41 +15310,41 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:88
 msgid "({0} of {1})"
-msgstr "({0} od {1})"
+msgstr "({0} од {1})"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:95
 msgid "({0} of all)"
-msgstr "({0} od svih)"
+msgstr "({0} од свих)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:74
 msgid "&Default"
-msgstr "Po&drazumevano"
+msgstr "&Подразумевано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:136
 msgid "Customize shortcuts for"
-msgstr "Podesi prečice za"
+msgstr "Подеси пречице за"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid "Keys"
-msgstr "Dirke"
+msgstr "Тастери"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:225
 msgid "Double click to change"
-msgstr "Klikni dva puta da promeniš"
+msgstr "Кликни два пута да промениш."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
-msgstr "Okvir"
+msgstr "Оквир"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Custom"
-msgstr "&Posebno"
+msgstr "&Прилагођено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:82
 msgid "Click to change"
-msgstr "Klikni da promeniš"
+msgstr "Кликните за измену"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
 msgid "Added Tags:"
@@ -15355,11 +15356,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
-msgstr ""
+msgstr "&Име:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
 msgid "&Description:"
-msgstr ""
+msgstr "&Опис:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
@@ -15367,7 +15368,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
-msgstr ""
+msgstr "Омогућено:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
@@ -15381,7 +15382,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:197
 msgid "true"
-msgstr ""
+msgstr "тачно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:231
@@ -15390,7 +15391,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:199
 msgid "false"
-msgstr ""
+msgstr "нетачно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:163
@@ -15405,17 +15406,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
-msgstr ""
+msgstr "Упит:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr ""
+msgstr "Омогући"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
 msgid "Invert"
-msgstr ""
+msgstr "Окрени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -15424,7 +15425,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
-msgstr ""
+msgstr "Укључено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
@@ -15476,12 +15477,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr ""
+msgstr "Подеси..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
 msgid "Time"
-msgstr ""
+msgstr "Време"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:100
@@ -15496,7 +15497,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:102
 msgid "Display"
-msgstr ""
+msgstr "Приказ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:103
@@ -15510,7 +15511,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:68
 msgid "Threads"
-msgstr ""
+msgstr "Нити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:73
 msgid "Number of search threads to use"
@@ -15530,7 +15531,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:105
 msgid "Performance"
-msgstr ""
+msgstr "Учинак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:106
 msgid "Number of simultaneous searches"
@@ -15550,13 +15551,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr ""
+msgstr "Тражи:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:77
 msgid "Books:"
-msgstr ""
+msgstr "Књиге:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -15565,15 +15566,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:670
 msgid "Close"
-msgstr ""
+msgstr "Затвори"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:129
 msgid "&Price:"
-msgstr ""
+msgstr "&Цена:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:176
 msgid "Download:"
-msgstr ""
+msgstr "Преузми:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
@@ -15586,11 +15587,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Download"
-msgstr ""
+msgstr "Преузми"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Price"
-msgstr ""
+msgstr "Цена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:234
 #, python-format
@@ -15629,7 +15630,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
-msgstr ""
+msgstr "Преузми..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:45
 msgid "Goto in store..."
@@ -15671,15 +15672,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/ebooks_com_plugin.py:102
 msgid "Not Available"
-msgstr ""
+msgstr "Недоступна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:179
 msgid ""
 "See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
-"Za više informacija i pomoć vidi <a href=\"http://calibre-"
-"ebook.com/user_manual/gui.html#the-search-interface\">Korisničko uputstvo</a>"
+"За више информација и помоћ види <a href=\"http://calibre-"
+"ebook.com/user_manual/gui.html#the-search-interface\">Корисничко упутство</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
@@ -15708,7 +15709,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:74
 msgid "&Query:"
-msgstr ""
+msgstr "&Испитај:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:75
 msgid ""
@@ -15726,15 +15727,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
-msgstr ""
+msgstr "Почетна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:60
 msgid "Reload"
-msgstr ""
+msgstr "Поново учитај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:61
 msgid "%p%"
-msgstr ""
+msgstr "%p%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:307
 msgid "The grouped search term name is \"{0}\""
@@ -15743,18 +15744,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:734
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
-msgstr "Promena autora za više knjiga može potrajati. Da li ste sigurni?"
+msgstr "Промена аутора за више књига може потрајати. Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:739
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
-"Izmena metapodataka za ovoliko knjiga može potrajati. Da li ste sigurni?"
+"Измена метаподатака за оволико књига може потрајати. Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:826
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:469
 msgid "Searches"
-msgstr "Pretrage"
+msgstr "Претраге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:894
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:914
@@ -15774,12 +15775,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:943
 msgid "Duplicate search name"
-msgstr "Naziv pretrage već postoji"
+msgstr "Назив претраге већ постоји."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:944
 #, python-format
 msgid "The saved search name %s is already used."
-msgstr "Naziv sačuvane pretrage %s je već u upotrebi."
+msgstr "Назив сачуване претраге %s је већ у употреби."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:49
 msgid "Manage Authors"
@@ -15801,12 +15802,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:476
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:480
 msgid "Manage User Categories"
-msgstr "Uredi korisničke kategorije"
+msgstr "Уреди корисничке категорије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:468
 msgid "Manage Saved Searches"
-msgstr "Uredi sačuvane pretrage"
+msgstr "Уреди сачуване претраге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:67
 msgid "Invalid search restriction"
@@ -15818,7 +15819,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:84
 msgid "New Category"
-msgstr ""
+msgstr "Нова категорија"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:138
@@ -15855,7 +15856,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:253
 msgid "Delete item"
-msgstr ""
+msgstr "Обриши ставку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:255
 #, python-format
@@ -15864,7 +15865,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
 msgid "Find item in tag browser"
-msgstr "Pronađi stavku u izlogu etiketa"
+msgstr "Пронађи ставку у излогу етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:337
 msgid ""
@@ -15875,14 +15876,13 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
-"Traži stavke. Ovo je pretraga tipa \"sadrži\"; biće pronađene stavke koje\n"
-"sadrže zadati tekst bilo gde u svom imenu. Možete ograničiti pertraživanje\n"
-"na odeređene kategorije koristeći sintaksu sličnu običnom pretraživanju.\n"
-"Na primer, tags:foo će pronaći 'foo' u bilo kojoj etiketi, ali ne i u "
-"autoru, itd.\n"
-"Unošenje *foo će pretražiti sve kategorije odjednom, prikazujući samo "
-"stavke\n"
-"koje sadrže tekst \"foo\""
+"Тражи ставке. Ово је претрага типа \"садржи\"; биће пронађене ставке које\n"
+"садрже задати текст било где у свом имену. Можете ограничити пертраживање\n"
+"на одеређене категорије користећи синтаксу сличну обичном претраживању.\n"
+"На пример, tags:foo ће пронаћи 'foo' у било којој етикети, али не и у "
+"аутору, итд.\n"
+"Уношење *foo ће претражити све категорије одједном, приказујући само ставке\n"
+"које садрже текст \"foo\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:345
 msgid "ALT+f"
@@ -15890,47 +15890,47 @@ msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:350
 msgid "Find the first/next matching item"
-msgstr "Pronađi prvu/sledeću stavku"
+msgstr "Пронађи прву/следећу ставку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:355
 msgid "Collapse all categories"
-msgstr "Zatvori sve kategorije"
+msgstr "Затвори све категорије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:379
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
-"Nema više rezultata pretrage.</b><p> Kliknite na \"Traži ponovo\" da biste "
-"skočili na prvi rezultat"
+"Нема више резултата претраге.</b><p> Кликните на \"Тражи поново\" да бисте "
+"скочили на први резултат."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:392
 msgid "Sort by name"
-msgstr "Sortiraj po imenu"
+msgstr "Поређај по имену"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:392
 msgid "Sort by popularity"
-msgstr "Sortiraj po popularnosti"
+msgstr "Поређај по популарности"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:393
 msgid "Sort by average rating"
-msgstr "Sortiraj po srednjoj oceni"
+msgstr "Поређај по средњој оцени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:396
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr "Odredite način sortiranja u Izlogu etiketa"
+msgstr "Одредите начин разврставања у Излогу етикета"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Match all"
-msgstr "Moraju odgovarati svi"
+msgstr "Морају одговарати сви."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Match any"
-msgstr "Odgovara bilo koji od"
+msgstr "Одговара било који од."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:408
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
-"Kada je u Izlogu etiketa izabrano više stavki traži bilo koju od njih"
+"Када је у Излогу етикета изабрано више ставки тражи било коју од њих."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:415
 msgid "Manage authors, tags, etc"
@@ -15952,7 +15952,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:355
 #, python-format
 msgid "Delete %s"
-msgstr ""
+msgstr "Обриши %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
@@ -16007,11 +16007,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:431
 #, python-format
 msgid "Hide category %s"
-msgstr "Sakrij kategoriju %s"
+msgstr "Сакриј категорију %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:435
 msgid "Show category"
-msgstr "Prikaži kategoriju"
+msgstr "Прикажи категорију."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:445
 #, python-format
@@ -16027,15 +16027,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:465
 #, python-format
 msgid "Manage %s"
-msgstr "Uredi '%s'"
+msgstr "Уреди '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:487
 msgid "Show all categories"
-msgstr "Prikaži sve kategorije"
+msgstr "Прикажи све категорије"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:490
 msgid "Change sub-categorization scheme"
-msgstr "Promeni naćin kreiranja podkategorija"
+msgstr "Промени шему подкатегорије"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:510
 msgid "First letter is usable only when sorting by name"
@@ -16044,12 +16044,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr "Konvertuj knjigu %(num)d od %(total)d (%(title)s)"
+msgstr "Пребаци књигу %(num)d од %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:225
 msgid "Could not convert some books"
-msgstr "Nisam uspeo da konvertujem neke knjige"
+msgstr "Нисам успео да конвертујем неке књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:226
@@ -16061,11 +16061,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:136
 msgid "Queueing books for bulk conversion"
-msgstr "Stavljam knjige u red čekanja za masovnu konverziju"
+msgstr "Стављам књиге у ред чекања за масовно претварање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:199
 msgid "Queueing "
-msgstr "Stavljam u red za čekanje "
+msgstr "Стављам у ред за чекање. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:200
 #, python-format
@@ -16074,11 +16074,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:274
 msgid "Fetch news from "
-msgstr "Preuzmi vesti sa "
+msgstr "Преузми вести са "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:347
 msgid "Convert existing"
-msgstr "Konvertuj postojeće"
+msgstr "Претвори постојеће"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:348
 #, python-format
@@ -16086,20 +16086,20 @@ msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
 msgstr ""
-"Ove knjige su već konvertovane u format %s. Da li želite da ih ponovo "
-"konvertujete?"
+"Ове књиге су већ претворене у формат %s. Да ли желите да их поново "
+"претворите?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:203
 msgid "&Donate to support calibre"
-msgstr "Pošaljite &donaciju da podržite razvoj calibre programa"
+msgstr "&Дарујте да подржите развој calibre програма"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:239
 msgid "&Restore"
-msgstr "V&rati na ekran"
+msgstr "&Поврати"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:244
 msgid "&Eject connected device"
-msgstr "Isključi pov&ezani uređaj"
+msgstr "Искључи пов&езани уређај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:248
 msgid "Quit calibre"
@@ -16111,7 +16111,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:363
 msgid "Debug mode"
-msgstr "Test način rada"
+msgstr "Режим исправљања грешака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:364
 #, python-format
@@ -16120,9 +16120,9 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
-"Pokrenuli ste calibre u test načinu rada. Kada završite rad s programom, "
-"izveštaj o radu će biti u fajlu: %s<p>Sadržaj ovog fajlaće biti prikazan "
-"automatski."
+"Покренули сте calibre у тест начину рада. Када завршите рад с програмом, "
+"извештај о раду ће бити у датотеци: %s<p>Садржај ове датотеке ће бити "
+"приказан аутоматски."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:384
 msgid "Failed to start Content Server"
@@ -16146,20 +16146,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:600
 msgid "Conversion Error"
-msgstr "Greška u konverziji"
+msgstr "Грешка претварања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 msgid "Recipe Disabled"
-msgstr "Recept je isključen"
+msgstr "Рецепт је искључен."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:639
 msgid "<b>Failed</b>"
-msgstr "<b>Neuspelo</b>"
+msgstr "<b>Неуспело</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:673
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr ""
-"Još uvek ima aktivnih poslova. Da li ste sigurni da želite da prekinete rad?"
+"Још увек има активних послова. Да ли сте сигурни да желите да прекинете рад?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:676
 msgid ""
@@ -16167,10 +16167,10 @@ msgid ""
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
-" komunicira sa uređajem!<br>\n"
-"                      Prekid rada može dovesti do neispravnih podataka na "
-"uređaju.<br>\n"
-"                      Da li ste sigurni da želite da prekinete rad?"
+" комуницира са уређајем!<br>\n"
+"                      Прекид рада може довести до неисправних података на "
+"уређају.<br>\n"
+"                      Да ли сте сигурни да желите да прекинете рад?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:680
 msgid "Active jobs"
@@ -16181,8 +16181,8 @@ msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
 msgstr ""
-"će nastaviti da radi kao sistemska ikona. Da prekinete rad izaberite "
-"<b>Izlaz</b> u meniju."
+"ће наставити да ради као у системској палети. Да прекинете рад изаберите "
+"<b>Излаз</b> у изборнику."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:74
 #, python-format
@@ -16193,15 +16193,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
-msgstr "Na raspolaganju je nova verzija!"
+msgstr "Доступне су исправке!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:85
 msgid "Show this notification for future updates"
-msgstr "Prikaži ovo obaveštenje i za buduće nove verzije"
+msgstr "Прикажи ово обавештење и за будуће нове верзије."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:90
 msgid "&Get update"
-msgstr "&Preuzmi novu verziju"
+msgstr "&Преузми исправке."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
@@ -16214,7 +16214,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
-msgstr "Pronađena je novija verzija"
+msgstr "Пронађена је новија верзија."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
@@ -16236,102 +16236,102 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:44
 msgid "Edit bookmark"
-msgstr "Promeni oznaku"
+msgstr "Уреди обележивач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:44
 msgid "New title for bookmark:"
-msgstr "Novi naziv za oznaku:"
+msgstr "Нови назив за ознаку:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:53
 msgid "Export Bookmarks"
-msgstr "Izvezi oznake"
+msgstr "Извези обележиваче"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:55
 msgid "Saved Bookmarks (*.pickle)"
-msgstr "Sačuvane oznake (*.pickle)"
+msgstr "Сачуване ознаке (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:63
 msgid "Import Bookmarks"
-msgstr "Uvezi oznake"
+msgstr "Увези обележиваче"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:63
 msgid "Pickled Bookmarks (*.pickle)"
-msgstr "Pickle oznake (*.pickle)"
+msgstr "Pickled обележивачи (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:61
 msgid "Bookmark Manager"
-msgstr "Upravljanje oznakama"
+msgstr "Менаџер обележивача"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:62
 msgid "Actions"
-msgstr "Akcije"
+msgstr "Акције"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:63
 msgid "Edit"
-msgstr "Uredi"
+msgstr "Уреди"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:65
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Reset"
-msgstr "Poništi"
+msgstr "Поново постави"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:66
 msgid "Export"
-msgstr "Izvezi"
+msgstr "Извези"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:67
 msgid "Import"
-msgstr "Uvezi"
+msgstr "Увези"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
 msgid "Configure Ebook viewer"
-msgstr "Podesi čitač e-knjiga"
+msgstr "Подеси читач е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:186
 msgid "&Font options"
-msgstr "Opcije za &vrstu slova"
+msgstr "Избор за &врсту слова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:187
 msgid "Se&rif family:"
-msgstr "Se&rifna vrsta slova"
+msgstr "Se&rif врста слова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:188
 msgid "&Sans family:"
-msgstr "Bez-&serifna vrsta slova"
+msgstr "&Sans врста слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:189
 msgid "&Monospace family:"
-msgstr "Šta&mpana slova"
+msgstr "Шта&мпана слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:190
 msgid "&Default font size:"
-msgstr "Po&drazumevana veličina slova"
+msgstr "По&дразумевана величина слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:209
 msgid " px"
-msgstr " štamparskih tačaka"
+msgstr " px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Monospace &font size:"
-msgstr "Veličina štampanih &slova"
+msgstr "Величина штампаних &слова:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:194
 msgid "S&tandard font:"
-msgstr "S&tandardna vrsta slova:"
+msgstr "&Стандардни словолик:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
 msgid "Serif"
-msgstr "Serifni"
+msgstr "Serif"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "Sans-serif"
-msgstr "Bez-serifni"
+msgstr "Sans-serif"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Monospace"
-msgstr "Štampana"
+msgstr "једноширински"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
@@ -16339,39 +16339,39 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
-msgstr "Zapamti te&kuću stranu na završetku rada"
+msgstr "Запамти те&кућу страну на завршетку рада."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "H&yphenate (break line in the middle of large words)"
-msgstr "Hifeniraj (prelomi red u sredini dugačkih reči)"
+msgstr "Споји цртицом (преломи ред у средини дугачких речи)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:201
 msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
 msgstr ""
-"Podrazumevani jezik za hifenaciona pravila. Ako knjiga ne definiše poseban "
-"jezik, biće korišćen ovaj."
+"Подразумевани језик за  правила спајања цртицом. Ако књига не дефинише "
+"посебан језик, биће коришћен овај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Default &language for hyphenation:"
-msgstr "Podrazumevani &jezik za hifenaciju"
+msgstr "Подразумевани &језик за растављање речи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "&Resize images larger than the viewer window (needs restart)"
-msgstr "Smanji slike veće od p&rozora (zahteva ponovno pokretanje programa)"
+msgstr "Смањи слике веће од п&розора (захтева поновно покретање програма)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Page flip &duration:"
-msgstr "Trajanje &animacije okretanja strane:"
+msgstr "Трајање &анимације окретања стране:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "disabled"
-msgstr "isključeno"
+msgstr "искључен"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "Mouse &wheel flips pages"
-msgstr "Točak na &mišu okreće strane"
+msgstr "Точак на &мишу окреће стране."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:51
@@ -16397,19 +16397,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:215
 msgid "&General"
-msgstr "&Opšte"
+msgstr "&Опште"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:216
 msgid "Double click to change a keyboard shortcut"
-msgstr "Kliknite dva puta da promenite prečice"
+msgstr "Кликните два пута да промените пречице."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:217
 msgid "&Keyboard shortcuts"
-msgstr "&Prečice"
+msgstr "&Пречице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:218
 msgid ""
@@ -16417,26 +16417,26 @@ msgid ""
 "For examples, click <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
-"<p>CSS stil koji će biti korišćen za određivanje izgleda knjiga. Za primere "
-"kliknite <a "
-"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">ovde</a>."
+"<p>CSS стил који ће бити коришћен за одређивање изгледа књига. За примере "
+"кликните <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">овде</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:219
 msgid "User &Stylesheet"
-msgstr "Korisnički &stil"
+msgstr "Кориснички &стил."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr "Ništa nije pronađeno za:"
+msgstr "Ништа није пронађено за:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:40
 msgid "Options to customize the ebook viewer"
-msgstr "Opcije za podešavanje čitača e-knjiga"
+msgstr "Избор за подешавање читача е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:941
 msgid "Remember last used window size"
-msgstr "Zapamti poslednje korišćenu veličinu prozora"
+msgstr "Запамти последње коришћену величину прозора."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:106
@@ -16444,35 +16444,35 @@ msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
 msgstr ""
-"Postavi korisnički CSS stil. Ovu opciju možete koristiti da podesite izgled "
-"svih knjiga."
+"Постави кориснички CSS стил. Ову могућност можете користити да подесите "
+"изглед свих књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Resize images larger than the viewer window to fit inside it"
-msgstr "Smanji velike slike kako bi stale u prozor"
+msgstr "Смањи велике слике како би стале у прозор."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:56
 msgid "Hyphenate text"
-msgstr "Hifeniraj tekst"
+msgstr "Споји цртицом текст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:58
 msgid "Default language for hyphenation rules"
-msgstr "Podrazumevani jezik za hifenaciona pravila"
+msgstr "Подразумевани језик за  правила прелома речи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "Save the current position in the document, when quitting"
-msgstr "Sačuvaj trenutnu poziciju u dokumentu pri završetku rada"
+msgstr "Сачувај тренутну позицију у документу при завршетку рада."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "Have the mouse wheel turn pages"
-msgstr "Točak na mišu će okretati strane"
+msgstr "Точак на мишу ће окретати стране."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:64
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
-"Vreme trajanja animacije okretanja strane, u sekundama. Podrazumeva se pola "
-"sekunde."
+"Време трајања анимације окретања стране, у секундама. Подразумева се пола "
+"секунде."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
 msgid ""
@@ -16482,31 +16482,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:71
 msgid "Font options"
-msgstr "Opcije za vrstu slova"
+msgstr "Могућности словолика."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:73
 msgid "The serif font family"
-msgstr "Familija serifnih slova"
+msgstr "Фамилија serif слова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:75
 msgid "The sans-serif font family"
-msgstr "Familija bez-serifnih slova"
+msgstr "Фамилија sans-serif слова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:77
 msgid "The monospaced font family"
-msgstr "Familija štampanih slova"
+msgstr "Фамилија штампаних слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:78
 msgid "The standard font size in px"
-msgstr "Standardna veličina slova u px"
+msgstr "Стандардна величина слова у px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:79
 msgid "The monospaced font size in px"
-msgstr "Veličina štampanih slova u px"
+msgstr "Величина штампаних слова у px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:80
 msgid "The standard font type"
-msgstr "Standardna vrsta slova"
+msgstr "Стандардна врста слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:135
 msgid "Still editing"
@@ -16520,7 +16520,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
 msgid "&Lookup in dictionary"
-msgstr "&Pronađi u rečniku"
+msgstr "&Пронађи у речнику."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:490
 msgid "&Search for next occurrence"
@@ -16529,97 +16529,97 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:495
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:147
 msgid "Go to..."
-msgstr "Idi na..."
+msgstr "Иди на..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "Next Section"
-msgstr "Sledeći odeljak"
+msgstr "Следећи одељак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
 msgid "Previous Section"
-msgstr "Prethodni odeljak"
+msgstr "Претходни одељак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:510
 msgid "Document Start"
-msgstr "Početak dokumenta"
+msgstr "Почетак документа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:511
 msgid "Document End"
-msgstr "Kraj dokumenta"
+msgstr "Крај документа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
 msgid "Section Start"
-msgstr "Početak odeljka"
+msgstr "Почетак одељка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:514
 msgid "Section End"
-msgstr "Kraj odeljka"
+msgstr "Крај одељка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr "Pređi na sledeću stranu"
+msgstr "Пређи на следећу страну."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr "Vrati se na prethodnu stranu"
+msgstr "Врати се на претходну страну."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr "Pređi na sledeći odeljak"
+msgstr "Пређи на следећи одељак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
-msgstr "Vrati se na prethodni odeljak"
+msgstr "Врати се на претходни одељак."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr "Skoči na kraj odeljka"
+msgstr "Скочи на крај одељка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr "Vrati se na početak odeljka"
+msgstr "Врати се на почетак одељка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr "Skoči na kraj dokumenta"
+msgstr "Скочи на крај документа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
-msgstr "Vrati se na početak dokumenta"
+msgstr "Врати се на почетак документа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr "Spusti se niže"
+msgstr "Помери наниже"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr "Vrati se više"
+msgstr "Помери навише"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr "Pomeri levo"
+msgstr "Клизај улево"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr "Pomeri desno"
+msgstr "Клизај удесно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:117
 msgid "Book format"
-msgstr "Format knjige"
+msgstr "Формат књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:135
 msgid "Position in book"
-msgstr "Pozicija u knjizi"
+msgstr "Позиција у књизи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:212
 msgid "Go to a reference. To get reference numbers, use the reference mode."
 msgstr ""
-"Skoči na referencu. Da biste dobili broj reference iskoristite način rada s "
-"referencama."
+"Скочи на референцу. Да бисте добили број референце искористите начин рада с "
+"референцама."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:220
 msgid "Search for text in book"
-msgstr "Traži tekst u knjizi"
+msgstr "Тражи текст у књизи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:272
 #, python-format
@@ -16644,7 +16644,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:335
 msgid "Print Preview"
-msgstr "Pregled pred štampanje"
+msgstr "Преглед пре штампања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:345
 msgid "Clear list of recently opened books"
@@ -16653,7 +16653,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:426
 #, python-format
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr "Poveži se sa dict.org da pronađeš: <b>%s</b>&hellip;"
+msgstr "Повежи се са dict.org да пронађеш: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:533
 msgid "No such location"
@@ -16665,11 +16665,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "Choose ebook"
-msgstr "Izaberi e-knjigu"
+msgstr "Изабери е-књигу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:585
 msgid "Ebooks"
-msgstr "E-knjige"
+msgstr "Е-књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:605
 #, python-format
@@ -16684,67 +16684,67 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:609
 msgid "smaller"
-msgstr ""
+msgstr "мањи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:625
 #, python-format
 msgid "No matches found for: %s"
-msgstr "Nije pronađeno ništa za: %s"
+msgstr "Није пронађено ништа за: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:662
 msgid "Loading flow..."
-msgstr "Učitavam izlog..."
+msgstr "Учитавам излог..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:700
 #, python-format
 msgid "Laying out %s"
-msgstr "Predstavljam %s"
+msgstr "Представљам %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:751
 #, python-format
 msgid "Bookmark #%d"
-msgstr "Oznaka #%d"
+msgstr "Обележивач #%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:755
 msgid "Add bookmark"
-msgstr "Dodaj oznaku"
+msgstr "Додај обележивач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:756
 msgid "Enter title for bookmark:"
-msgstr "Unesi naziv za oznaku"
+msgstr "Unesi naziv za обележивач."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:767
 msgid "Manage Bookmarks"
-msgstr "Uredi oznake"
+msgstr "Уреди обележиваче."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:809
 msgid "Loading ebook..."
-msgstr "Učitavam e-knjigu..."
+msgstr "Учитавам е-књигу..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:821
 msgid "Could not open ebook"
-msgstr "Nisam uspeo da otvorim e-knjigu"
+msgstr "Нисам успео да отворим е-књигу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:928
 msgid "Options to control the ebook viewer"
-msgstr "Opcije za kontrolu čitača e-knjiga"
+msgstr "Могућности за контролу читача е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:935
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"Ako je naveden, prozor čitača će pokušati da pri pokretanju dođe u prvi plan."
+"Ако је наведен, прозор читача ће покушати да при покретању дође у први план."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:938
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
-"Ako je navedeno, prozor za čitanje će se pri pokretanju otvoriti preko celog "
-"ekrana."
+"Ако је наведено, прозор за читање ће се при покретању отворити преко целог "
+"екрана."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:943
 msgid "Print javascript alert and console messages to the console"
-msgstr "Prikaži javascript upozorenja i poruke na konzoli"
+msgstr "Прикажi javascript упозорења и поруке на конзоли."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:945
 msgid ""
@@ -16758,73 +16758,73 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
-"%prog [opcije] fajl\n"
+"%prog [опције] датотека\n"
 "\n"
-"Pregledaj e-knjigu.\n"
+"Прегледај е-књигу.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr "Čitač e-knjiga"
+msgstr "Читач е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
-msgstr "Zatvori rečnik"
+msgstr "Затвори речник."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:192
 msgid "toolBar"
-msgstr "Traka sa alatkama"
+msgstr "Алатна трака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:195
 msgid "Next page"
-msgstr "Sledeća strana"
+msgstr "Следећа страна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:196
 msgid "Previous page"
-msgstr "Prethodna strana"
+msgstr "Претходна страна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:197
 msgid "Font size larger"
-msgstr "Povećaj slova"
+msgstr "Повећај слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:198
 msgid "Font size smaller"
-msgstr "Smanji slova"
+msgstr "Смањи слова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:202
 msgid "Find next"
-msgstr "Nađi sledeće"
+msgstr "Нађи следеће"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Find next occurrence"
-msgstr "Nađi sledeće"
+msgstr "Нађи следећи случај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Reference Mode"
-msgstr "Način rada s referencama"
+msgstr "Начин рада с референцама."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Bookmark"
-msgstr "Oznaka"
+msgstr "Обележивач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:209
 msgid "Toggle full screen"
-msgstr "Uključi/isključi prikaz na celom ekranu"
+msgstr "Укључи/искључи приказ на целом екрану."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:210
 msgid "Print"
-msgstr "Štampaj"
+msgstr "Одштампај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Find previous"
-msgstr "Nađi prethodno"
+msgstr "Нађи претходно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
-msgstr "Pronađi prethodno pojavljivanje"
+msgstr "Пронађи претходно појављивање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
-msgstr "Štampaj e-knjigu"
+msgstr "Штампај е-књигу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 msgid "Test name invalid"
@@ -16839,19 +16839,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Drag to resize"
-msgstr "Povuci za promenu veličine"
+msgstr "Повуци за промену величине."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1030
 msgid "Show"
-msgstr "Prikaži"
+msgstr "Прикажи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1037
 msgid "Hide"
-msgstr "Sakrij"
+msgstr "Сакриј"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1074
 msgid "Toggle"
-msgstr "Prebaci"
+msgstr "Пребаци"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:501
 #, python-format
@@ -16862,16 +16862,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:562
 msgid "Moving library..."
-msgstr "Premeštam biblioteku..."
+msgstr "Премештам библиотеку..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:578
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:579
 msgid "Failed to move library"
-msgstr "Nisam uspeo da premestim biblioteku"
+msgstr "Нисам успео да преместим библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:633
 msgid "Invalid database"
-msgstr "Neispravna baza podataka"
+msgstr "Неисправна база података."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:634
 #, python-format
@@ -16882,11 +16882,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:645
 msgid "Could not move library"
-msgstr "Nisam uspeo da premestim biblioteku"
+msgstr "Нисам успео да преместим библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:729
 msgid "Select location for books"
-msgstr "Izaberite putanju za knjige"
+msgstr "Изаберите путању за књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:742
 #, python-format
@@ -16898,32 +16898,32 @@ msgstr ""
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr ""
-"Morate izabrati prazan direktorijum za calibre biblioteku. %s nije prazan."
+"Морате изабрати празна фасцикла за calibre библиотеку. %s није празан."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:841
 msgid "&Next >"
-msgstr ""
+msgstr "&Даље >"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:842
 msgid "< &Back"
-msgstr ""
+msgstr "< &Назад"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:843
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:667
 msgid "Cancel"
-msgstr ""
+msgstr "Откажи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:844
 msgid "&Finish"
-msgstr ""
+msgstr "&Заврши"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:845
 msgid "Commit"
-msgstr ""
+msgstr "Пошаљи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:850
 msgid "welcome wizard"
-msgstr "čarobnjak za dobrodošlicu"
+msgstr "чаробњак за добродошлицу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:55
@@ -16932,7 +16932,7 @@ msgstr "čarobnjak za dobrodošlicu"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:47
 msgid "Welcome to calibre"
-msgstr "Dobrodošli u calibre"
+msgstr "Добродошли у calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:48
@@ -16940,11 +16940,11 @@ msgstr "Dobrodošli u calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:48
 msgid "The one stop solution to all your e-book needs."
-msgstr "Jedinstveno rešenje za sve vaše potrebe vezane za e-knjige."
+msgstr "Јединствено решење за све ваше потребе везане за е-књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
-msgstr "&Proizvođači"
+msgstr "&Произвођачи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
