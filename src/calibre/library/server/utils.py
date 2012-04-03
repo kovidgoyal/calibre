@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import time, sys
 from urllib import quote as quote_, unquote as unquote_
+from functools import wraps
 
 import cherrypy
 
@@ -40,6 +41,7 @@ class Offsets(object):
 
 def expose(func):
 
+    @wraps(func)
     def do(*args, **kwargs):
         self = func.im_self
         if self.opts.develop:
@@ -53,8 +55,6 @@ def expose(func):
             prints('Function', func.__name__, 'called with args:', args, kwargs)
             prints('\tTime:', func.__name__, time.time()-start)
         return ans
-
-    do.__name__ = func.__name__
 
     return do
 
