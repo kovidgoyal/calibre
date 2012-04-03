@@ -66,7 +66,14 @@ class AuthController(object):
     cannot handle HTTP AUTH when downloading files, as the download is handed
     off to a separate process. So we use a cookie based authentication scheme
     for some endpoints (/get) to allow downloads to work on android. Apparently,
-    cookies are passed to the download process.
+    cookies are passed to the download process. The cookie expires after
+    MAX_AGE seconds.
+
+    Note that this makes the server vulnerable to session-hijacking (i.e. some
+    one can sniff the traffic and create their own requests to /get with the
+    appropriate cookie, for an hour). The fix is to use https, but since this
+    is usually run as a private server, that cannot be done. If you care about
+    this vulnerability, run the server behind a reverse proxy that uses HTTPS.
     '''
 
     MAX_AGE = 3600 # Number of seconds after a successful digest auth for which
