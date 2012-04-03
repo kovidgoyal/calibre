@@ -61,6 +61,14 @@ def expose(func):
 
 class AuthController(object):
 
+    '''
+    Implement Digest authentication for the content server. Android browsers
+    cannot handle HTTP AUTH when downloading files, as the download is handed
+    off to a separate process. So we use a cookie based authentication scheme
+    for some endpoints (/get) to allow downloads to work on android. Apparently,
+    cookies are passed to the download process.
+    '''
+
     MAX_AGE = 3600 # Number of seconds after a successful digest auth for which
                    # the cookie auth will be allowed
 
@@ -93,11 +101,21 @@ class AuthController(object):
         return authenticate
 
     def generate_cookie(self, timestamp=None):
+        '''
+        Generate a cookie. The cookie contains a plain text timestamp and a
+        hashe of the timestamp and the server secret.
+        '''
         timestamp = int(time.time()) if timestamp is None else timestamp
         key = self.hashit('%d:%s'%(timestamp, self.secret))
         return '%d:%s'%(timestamp, key)
 
     def is_valid(self, cookie):
+        '''
+        Check that cookie has not been spoofed (i.e. verify the declared
+        timestamp against the hashed timestamp). If the timestamps match, check
+        that the cookie has not expired. Return True iff the cookie has not
+        been spoofed and has not expired.
+        '''
         try:
             timestamp, hashpart = cookie.value.split(':', 1)
             timestamp = int(timestamp)
