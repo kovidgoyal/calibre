@@ -161,10 +161,10 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
         self.series = SeriesEdit(self)
-        self.remove_unused_series_button = QToolButton(self)
-        self.remove_unused_series_button.setToolTip(
-               _('Remove unused series (Series that have no books)') )
-        self.remove_unused_series_button.clicked.connect(self.remove_unused_series)
+        self.clear_series_button = QToolButton(self)
+        self.clear_series_button.setToolTip(
+               _('Clear series') )
+        self.clear_series_button.clicked.connect(self.series.clear)
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
@@ -198,6 +198,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.append(self.identifiers)
         self.clear_identifiers_button = QToolButton(self)
         self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
+        self.clear_identifiers_button.setToolTip(_('Clear Ids'))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
         self.paste_isbn_button = QToolButton(self)
         self.paste_isbn_button.setToolTip('<p>' +
@@ -302,17 +303,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.authors.current_val = string_to_authors(title)
         self.title_sort.auto_generate()
         self.author_sort.auto_generate()
-
-    def remove_unused_series(self, *args):
-        self.db.remove_unused_series()
-        idx = self.series.current_val
-        self.series.clear()
-        self.series.initialize(self.db, self.book_id)
-        if idx:
-            for i in range(self.series.count()):
-                if unicode(self.series.itemText(i)) == idx:
-                    self.series.setCurrentIndex(i)
-                    break
 
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
@@ -591,7 +581,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         sto(self.title_sort, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
         sto(self.author_sort, self.series)
-        create_row(2, self.series, self.remove_unused_series_button,
+        create_row(2, self.series, self.clear_series_button,
                 self.series_index, icon='trash.png')
         sto(self.series_index, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
@@ -756,7 +746,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    span=2, icon='auto_author_sort.png')
         create_row(3, self.author_sort, self.series)
         create_row(4, self.series, self.series_index,
-                   button=self.remove_unused_series_button, icon='trash.png')
+                   button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.tags_editor_button)
         create_row(7, self.rating, self.pubdate)
@@ -892,7 +882,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    span=2, icon='auto_author_sort.png')
         create_row(3, self.author_sort, self.series)
         create_row(4, self.series, self.series_index,
-                   button=self.remove_unused_series_button, icon='trash.png')
+                   button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.tags_editor_button)
         create_row(7, self.rating, self.pubdate)
