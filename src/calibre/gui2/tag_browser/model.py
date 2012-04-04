@@ -840,6 +840,15 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.categories[category] = tb_categories[category]['name']
         return data
 
+    def set_categories_filter(self, txt):
+        if txt:
+            self.filter_categories_by = icu_lower(txt)
+        else:
+            self.filter_categories_by = None
+
+    def get_categories_filter(self):
+        return self.filter_categories_by
+
     def refresh(self, data=None):
         '''
         Here to trap usages of refresh in the old architecture. Can eventually
