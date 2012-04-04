@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-03-30 15:16+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2012-04-03 04:59+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-03-31 05:03+0000\n"
-"X-Generator: Launchpad (build 15032)\n"
+"X-Launchpad-Export-Date: 2012-04-04 04:38+0000\n"
+"X-Generator: Launchpad (build 15055)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
 msgid ""
@@ -16990,18 +16990,18 @@ msgstr "Administrar editoriales"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:55
 msgid "Manage Tags"
-msgstr "Administrar etiquetas"
+msgstr "Gestionar etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:476
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:480
 msgid "Manage User Categories"
-msgstr "Administrar categorías de usuario"
+msgstr "Gestionar categorías de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:468
 msgid "Manage Saved Searches"
-msgstr "Administrar búsquedas guardadas"
+msgstr "Gestionar búsquedas guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:67
 msgid "Invalid search restriction"

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-04-02 19:48+0000\n"
+"PO-Revision-Date: 2012-04-03 14:21+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-03 04:52+0000\n"
-"X-Generator: Launchpad (build 15052)\n"
+"X-Launchpad-Export-Date: 2012-04-04 04:38+0000\n"
+"X-Generator: Launchpad (build 15055)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -16948,7 +16948,7 @@ msgstr "&Произвођачи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
-msgstr "&Uređaji"
+msgstr "&Уређаји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:49
 #, python-format
@@ -16956,16 +16956,16 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Čestitamo!</h2> Uspešno ste podesili calibre. Pritisnite dugme %s da "
-"aktivirate ova podešavanja."
+"<h2>Честитамо!</h2> Успешно сте подесили calibre. Притисните дугме %s да "
+"активирате ова подешавања."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
-"<h2>Demo snimci</h2>Snimci koji demonstriraju različite funkcije programa "
-"calibre su vam na raspolaganju na <a href=\"http://calibre-"
+"<h2>Демо снимци</h2>Снимци који демонстрирају различите функције програма "
+"calibre су вам на располагању на <a href=\"http://calibre-"
 "ebook.com/demo\">Internetu</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
@@ -16982,15 +16982,15 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
-"<p>calibre može da automatski šalje knjige na vaš Kindle elektronskom "
-"poštom. Da biste to omogućili podesite donje opcije. Najlakše je da otvorite "
-"besplatan <a href=\"http://gmail.com\">gmail nalog</a> i kliknete na dugme "
-"Koristi gmail. Ovu adresu ćete morati da registrujete i u vašem Amazon "
-"nalogu."
+"<p>calibre може да аутоматски шаље књиге на ваш Kindle електронском поштом. "
+"Да бисте то омогућили подесите доње могућности. Најлакше је да отворите "
+"бесплатан <a href=\"http://gmail.com\">gmail налог</a> и кликнете на дугме "
+"Користи gmail. Ову адресу ћете морати да региструјете и у вашем Amazon "
+"налогу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:50
 msgid "&Kindle email:"
-msgstr "&Kindle elektronska pošta:"
+msgstr "&Kindle електронска пошта:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
@@ -17001,13 +17001,13 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
-"<p>Izaberite lokaciju za vaše knjige. Kada budete dodavali knjige u calibre "
-"one će biti smeštene ovde. Izaberite <b>prazan direktorijum</b> za novu "
-"calibre biblioteku:"
+"<p>Изаберите локацију за ваше књиге. Када будете додавали књиге у calibre "
+"оне ће бити смештене овде. Изаберите <b>празну фасциклу</b> за нову calibre "
+"библиотеку:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
-msgstr "&Promeni"
+msgstr "&Измени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:60
 msgid ""
@@ -17015,8 +17015,8 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
-"Ako već imate calibre biblioteku ona će biti kopirana na novo mesto. Ako "
-"tamo već postoji biblioteka calibre će nastaviti da je koristi."
+"Ако већ имате calibre библиотеку она ће бити копирана на ново место. Ако "
+"тамо већ постоји библиотека calibre ће наставити да је користи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
@@ -17025,38 +17025,38 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
-msgstr "Šaljem..."
+msgstr "Шаљем..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
-msgstr "Pošta je uspešno poslata"
+msgstr "Пошта је успешно послата."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:59
 msgid "Setup sending email using"
-msgstr "Podesi slanje elektronske pošte korišćenjem"
+msgstr "Подеси слање електронске поште коришћењем"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:61
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
-"Ako nemate nalog, možete se prijaviti za novu besplatnu {name} adresu na <a "
+"Ако немате налог, можете се пријавити за нову бесплатну  адресу на <a "
 "href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:68
 #, python-format
 msgid "Your %s &email address:"
-msgstr "Vaša %s &elektronska adresa"
+msgstr "Ваша %s &електронска адреса."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:69
 #, python-format
 msgid "Your %s &username:"
-msgstr "Vaše %s &korisničko ime:"
+msgstr "Ваше %s &корисничко име:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:70
 #, python-format
 msgid "Your %s &password:"
-msgstr "Vaša %s &lozinka:"
+msgstr "Ваша %s &лозинка:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:89
 #, python-format
@@ -17065,17 +17065,17 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
-"Ako nameravate da korisite elektronsku poštu da šaljete knjige na vaš "
-"Kindle, ne zaboravite da dodate vašu %s elektronsku adresu na vašoj Amazon "
-"Kindle internet stranici"
+"Ако намеравате да корисите електронску пошту да шаљете књиге на ваш Kindle, "
+"не заборавите да додате вашу %s електронску адресу на вашој Amazon Kindle "
+"интернет страници."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "Setup"
-msgstr "Podešavanje"
+msgstr "Подешавање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:102
 msgid "Incorrect username"
-msgstr ""
+msgstr "Погрешно корисничко име"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 #, python-format
@@ -17102,11 +17102,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:237
 msgid "Bad configuration"
-msgstr "Loša konfiguracija"
+msgstr "Лоша конфигурација."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:222
 msgid "You must set the From email address"
-msgstr "Morate postaviti elektronsku adresu pošiljaoca"
+msgstr "Морате поставити електронску адресу пошиљаоца."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:233
 msgid ""
@@ -17126,74 +17126,76 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
-msgstr "&Pošiljalac:"
+msgstr "&Пошиљалац:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
 msgstr ""
-"<p>Ovo će se naći u From: polju poruka koje će calibre slati.<br> Ovde "
-"navedite svoju elektronsku adresu"
+"<p>Ово ће се наћи у пољу ОД:  порука које ће calibre слати.<br> Овде "
+"наведите своју електронску адресу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid ""
 "<p>A mail server is useful if the service you are sending mail to only "
 "accepts email from well know mail services."
 msgstr ""
-"<p>Server za elektronsku poštu je koristan ako onaj kome šaljete poštu "
-"prihvata poruke samo sa dobro poznatih servisa elektronske pošte."
+"<p>Послужитељ за електронску пошту је користан ако онај коме шаљете пошту "
+"прихвата поруке само са добро познатих сервиса електронске поште."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
 msgid "Mail &Server"
-msgstr "&Server elektronske pošte"
+msgstr "&Послужитељ електронске поште"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "calibre can <b>optionally</b> use a server to send mail"
 msgstr ""
-"calibre može <b>opciono</b> da koristi server za slanje elektronskih poruka"
+"calibre може <b>изборно</b> да користи послужитељ за слање електронских "
+"порука."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
 msgid "&Hostname:"
-msgstr "&Server"
+msgstr "&Име домаћина:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
-msgstr "Naziv vašeg servera elektronske pošte. Na primer smtp.gmail.com"
+msgstr "Назив вашег послужитеља електронске поште. На пример smtp.gmail.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
 msgid "&Port:"
-msgstr "&Port:"
+msgstr "&Прикључак:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:132
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
-"Port na kome vaš server elektronske pošte očekuje poruke. Podrazumeva se 25"
+"Прикључак на коме ваш послужитељ електронске поште очекује поруке. "
+"Подразумева се 25"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:134
 msgid "Your username on the mail server"
-msgstr "Vaše korisničko ime na serveru elektronske pošte"
+msgstr "Ваше корисничко име на послужитељу електронске поште"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:136
 msgid "Your password on the mail server"
-msgstr "Vaša lozinka na serveru elektronske pošte"
+msgstr "Ваша лозинка на послужитељу електронске поште"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
-msgstr "&Prikaži"
+msgstr "&Прикажи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
-msgstr "Ši&frovanje:"
+msgstr "Ши&фровање:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:139
 msgid ""
 "Use TLS encryption when connecting to the mail server. This is the most "
 "common."
 msgstr ""
-"Koristi TLS šifrovanje u komunikaciji sa serverom elektronske pošte. Ovo je "
-"najuobičajenija opcija."
+"Користи TLS шифровање у комуникацији са послужитељом електронске поште. Ово "
+"је најуобичајенија могућност."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:140
 msgid "&TLS"
@@ -17201,7 +17203,8 @@ msgstr "&TLS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:141
 msgid "Use SSL encryption when connecting to the mail server."
-msgstr "Koristi SSL šifrovanje u komunikaciji sa serverom elektronske pošte."
+msgstr ""
+"Користи SSL шифровање у комуникацији са послужитељом електронске поште."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:142
 msgid "&SSL"
@@ -17209,23 +17212,23 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr "UPOZORENJE: Nekorišćenje enkripcije je veoma nebezbedno"
+msgstr "УПОЗОРЕЊЕ: Некоришћење шифровања је веома небезбедно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr "&Nijedna"
+msgstr "&Ниједна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
-msgstr "Koristi Gmail"
+msgstr "Користи Gmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:146
 msgid "Use Hotmail"
-msgstr "Koristi Hotmail"
+msgstr "Користи Hotmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"
-msgstr "&Probna poruka"
+msgstr "&Пробна порука."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:49
 msgid ""
@@ -17234,14 +17237,14 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
-"<p>Ako koristite <a href=\"http://www.lexcycle.com/download\">Stanza</a> "
-"program za čitanje na vašem iPhone/iTouch uređaju, možete pristupiti vašoj "
-"calibre biblioteci direktno sa uređaja. Da biste ovo postigli uključite "
-"calibre server sadržaja."
+"<p>Ако користите <a href=\"http://www.lexcycle.com/download\">Stanza</a> "
+"програм за читање на вашем iPhone/iTouch уређају, можете приступити вашој "
+"calibre библиотеци директно са уређаја. Да бисте ово постигли укључите "
+"calibre послужитељ садржаја."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
-msgstr "Uključite &server sadržaja"
+msgstr "Укључите &послужитељ садржаја."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:51
 msgid ""
@@ -17252,19 +17255,19 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
-"<p>Ne zaboravite da ostavite calibre da radi, jer server inače neće biti "
-"aktivan.\n"
-"<p>Stanza bi trebalo da automatski prepozna vašu biblioteku. Ako ne, "
-"probajte da dodate URL http://mojhost:8080 kao novi katalog u Stanza čitač "
-"na vašem iPhoneu. Ovde mojhost treba da bude puno ime ili IP adresa računara "
-"na kojem ste pokrenuli calibre."
+"<p>Не заборавите да оставите calibre да ради, јер послужитељ иначе неће бити "
+"активан.\n"
+"<p>Stanza би требало да аутоматски препозна вашу библиотеку. Ако не, "
+"пробајте да додате URL http://mojhost:8080 као нови каталог у  Stanza читач "
+"на вашем iPhoneu. Овде име домаћина треба да буде пуно име или ИП адреса "
+"рачунара на којем сте покренули calibre."
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:163
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:596
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:610
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:620
 msgid "checked"
-msgstr "obeleženo"
+msgstr "означено"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:163
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:596
@@ -17272,7 +17275,7 @@ msgstr "obeleženo"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:620
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:222
 msgid "yes"
-msgstr "da"
+msgstr "да"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:165
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:595
@@ -17280,41 +17283,41 @@ msgstr "da"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:617
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:222
 msgid "no"
-msgstr "ne"
+msgstr "не"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:165
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:595
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:607
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:617
 msgid "unchecked"
-msgstr "neobeleženo"
+msgstr "неозначено"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:389
 msgid "today"
-msgstr "danas"
+msgstr "данас"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:392
 msgid "yesterday"
-msgstr "juče"
+msgstr "јуче"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:395
 msgid "thismonth"
-msgstr "ovog meseca"
+msgstr "овог месеца"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:398
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:399
 msgid "daysago"
-msgstr "dana ranije"
+msgstr "дана раније"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:597
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:614
 msgid "blank"
-msgstr "prazno"
+msgstr "празно"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:597
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:614
 msgid "empty"
-msgstr "prazno"
+msgstr "празно"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:598
 msgid "Invalid boolean query \"{0}\""
@@ -17340,10 +17343,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Izlazna polja za sortiranje.\n"
-"Raspoloživa polja: author_sort, id, rating, size, timestamp, title.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: BIBTEX izlazni format"
+"Излазна поља за разврставање.\n"
+"Расположива поља: author_sort, id, rating, size, timestamp, title.\n"
+"Подразумева се: '%default'\n"
+"Важи за: BIBTEX излазни формат."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:58
 #, python-format
@@ -17353,10 +17356,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Kreiraj citate za BIBTEX stavke.\n"
-"Logička vrednost: True, False\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: BIBTEX izlazni format"
+"Креирај цитате за BIBTEX ставке.\n"
+"Логичка вредност: True, False\n"
+"Подразумева се: '%default'\n"
+"Важи за: BIBTEX iзлазни формат."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:67
 #, python-format
@@ -17385,10 +17388,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Izlaz za BibTeX konverziju.\n"
-"Raspoloživi tipovi: utf8, cp1252, ascii.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: BIBTEX izlazni format"
+"Излаз за BibTeX претварање.\n"
+"Расположиви типови: utf8, cp1252, ascii.\n"
+"Подразумева се: '%default'\n"
+"Важи за: BIBTEX излазни формат."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:95
 #, python-format
@@ -17398,10 +17401,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Opcije za BibTeX konverziju.\n"
-"Raspoloživi tipovi: strict, replace, ignore, backslashreplace.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: BIBTEX izlazni form"
+"Избор за BibTeX претварање.\n"
+"Расположиви типови: strict, replace, ignore, backslashreplace.\n"
+"Подразумева се: '%default'\n"
+"Важи за: BIBTEX излазни форм."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:104
 #, python-format
@@ -17411,10 +17414,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Ulazni tip za BibTeX katalog.\n"
-"Raspoloživi tipovi: book, misc, mixed.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: BIBTEX izlazni form"
+"Улазни тип за BibTeX каталог.\n"
+"Расположиви типови: book, misc, mixed.\n"
+"Подразумева се: '%default'\n"
+"Важи за: BIBTEX излазни форм."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:32
 #, python-format
@@ -17444,9 +17447,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Naslov generisanog kataloga korišćen kao naslov u metapodacima.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: ePub, MOBI izlazne formate"
+"Наслов генерисаног каталога коришћен као наслов у метаподацима.\n"
+"Подразумева се: '%default'\n"
+"Важи за: ePub, MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:45
 #, python-format
@@ -17466,10 +17469,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"polje:šablon koji određuje korisničko polje/sadržaj koje određuje koje "
-"knjige će biti isključene.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za ePub i MOBI izlazne formate"
+"поље:шаблон који одређује корисничко поље/садржај које одређује које књиге "
+"ће бити искључене.\n"
+"Подразумева се: '%default'\n"
+"Важи за ePub i MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:62
 #, python-format
@@ -17478,10 +17481,10 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Regularni izraz koji opisuje etikete koje će biti izbegnute kao žanrovi.\n"
-"Podrazumeva se: '%default' osim etiketa u uglastim zagradama, npr. "
-"'[<etiketa>]'\n"
-"Važi za: ePub, MOBI izlazne formate"
+"Регуларни израз који описује етикете које ће бити избегнуте као жанрови.\n"
+"Подразумева се: '%default' осим етикета у угластим заградама, нпр. "
+"'[<етикета>]'\n"
+"Важи за: ePub, MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:68
 #, python-format
@@ -17515,9 +17518,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Uključi odeljak 'Žanroviž u katalog.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za ePub i MOBI izlazne formate"
+"Укључи одељак 'Жанрови' у каталог.\n"
+"Подразумева се: '%default'\n"
+"Важи за ePub и MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:97
 #, python-format
@@ -17526,9 +17529,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Uključi sekciju 'Naslovi' u katalog.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: ePub, MOBI izlazne formate"
+"Укључи секцију 'Наслови' у каталог.\n"
+"Подразумева се: '%default'\n"
+"Важи за: ePub, MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:104
 #, python-format
@@ -17537,9 +17540,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Uključi odeljak 'Serija' u katalog.\n"
-"Podrazumava se: '%default'\n"
-"Odnosi se na: ePub i MOBI izlazne formate"
+"Укључи одељак 'Серија' у каталог.\n"
+"Подразумава се: '%default'\n"
+"Односи се на: ePub и MOBI излазне формате"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:111
 #, python-format
@@ -17548,9 +17551,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Uključi sekciju 'Nedavno dodato' u katalog.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: ePub, MOBI izlazne formate"
+"Укључи секцију 'Недавно додато' у каталог.\n"
+"Подразумева се: '%default'\n"
+"Важи за: ePub, MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:118
 #, python-format
@@ -17559,9 +17562,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Korisničko polje koje sadrži belešku koja će biti dodata u zaglavlje Opis.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za ePub i MOBI izlazne formate"
+"Корисничко поље које садржи белешку која ће бити додата у заглавље Опис.\n"
+"Подразумева се: '%default'\n"
+"Важи за: ePub i MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:125
 #, python-format
@@ -17573,13 +17576,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"<korisničko polje>:[before|after]:[True|False] koje određuje:\n"
-" <korisničko polje> Korisničko polje koje sadrži beleške koje će bit spojene "
-"s Komentarima\n"
-" [before|after] Mesto na koje će beleška biti priključena (pre/posle)\n"
-" [True|False] - Da li će beleške biti razdvojene vodoravnom crtom (da/ne)\n"
-"Podrazumeva se: '%default'\n"
-"Važi za ePub i MOBI izlazne formate"
+"<корисничко поље>:[before|after]:[True|False] које одређује:\n"
+" <корисничко поље> Корисничко поље које садржи белешке које ће бит спојене с "
+"Коментарима\n"
+" [before|after] Место на које ће белешка бити прикључена (пре/после)\n"
+" [True|False] - Да ли ће белешке бити раздвојене водоравном цртом (да/не)\n"
+"Подразумева се: '%default'\n"
+"Важи за ePub и MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
 #, python-format
@@ -17591,11 +17594,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"određuje izlazni profil. U nekim slučajevima izlazni profil je neophodan da "
-"bi se optimizovao katalog na uređaju. Na primer, 'kindle' ili 'kindle_dx' će "
-"kreirati Sadržaj u čijoj strukturi će se nalaziti Odeljci i Članci.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: ePub, MOBI izlazne formate"
+"Одређује излазни профил. У неким случајевима излазни профил је неопходан да "
+"би се оптимизовао каталог на уређају. На пример, 'kindle' или 'kindle_dx' ће "
+"направити Садржај у чијој структури ће се налазити Одељци и Чланци.\n"
+"Подразумева се: '%default'\n"
+"Важи за: ePub, MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:142
 #, python-format
@@ -17604,9 +17607,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"polje:šablon koji označava da je knjiga pročitana.\n"
-"Podrazumeva se: '%default'\n"
-"Vaći za ePub i MOBI izlazne formate"
+"поље:шаблон који означава да је књига прочитана.\n"
+"Подразумева се: '%default'\n"
+"Ваћи за ePub и MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:148
 #, python-format
@@ -17616,10 +17619,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"Predlog veličine (u inčima) za omot knjiga u katalogu:\n"
-"Opseg: 1.0 - 2.0\n"
-"Podrazumeva se: '%default'\n"
-"Važi za ePub i MOBI izlazne formate"
+"Предлог величине (у инчима) за омот књига у каталогу:\n"
+"Опсег: 1.0 - 2.0\n"
+"Подразумева се: '%default'\n"
+"Важи за ePub и MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:156
 #, python-format
@@ -17628,9 +17631,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Etiketa koja određuje knjigu koja će biti prikazana u spisku želja.\n"
-"Podrazumeva se: '%default'\n"
-"Važi za: ePub i MOBI izlazne formate"
+"Етикета која одређује књигу која ће бити приказана у списку жеља.\n"
+"Подразумева се: '%default'\n"
+"Важи за: ePub и MOBI излазне формате."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:259
 msgid ""
@@ -17676,31 +17679,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
-msgstr "Neispravni naslovi"
+msgstr "Неважећи наслови."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:27
 msgid "Extra titles"
-msgstr "Dodatni naslovi"
+msgstr "Додатни наслови."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:28
 msgid "Invalid authors"
-msgstr "Neispravni autori"
+msgstr "Неважећи аутори."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:29
 msgid "Extra authors"
-msgstr "Dodatni autori"
+msgstr "Додатни аутори."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:30
 msgid "Missing book formats"
-msgstr "Nedostajući formati knjiga"
+msgstr "Недостајући формати књига."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:31
 msgid "Extra book formats"
-msgstr "Dodatni formati knjiga"
+msgstr "Додатни формати књига."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:32
 msgid "Unknown files in books"
-msgstr "Nepoznati fajlovi u knjizi"
+msgstr "Непознате датотеке у књизи."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
@@ -17712,15 +17715,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
-msgstr "Direktorijumi s greškom"
+msgstr "Фасцикле с грешком."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
 msgstr ""
-"Putanja do calibre biblioteke. Podrazumeva se da je to putanja navedena u "
-"podešavanjima."
+"Путања до calibre библиотеке. Подразумева се да је то путања наведена у "
+"подешавањима."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:139
 msgid ""
@@ -17728,9 +17731,9 @@ msgid ""
 "\n"
 "List the books available in the calibre database.\n"
 msgstr ""
-"%prog spisak [opcije]\n"
+"%прог списак [могућности]\n"
 "\n"
-"Spisak knjiga iz calibre biblioteke.\n"
+"Списак књига из calibre библиотеке.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:146
 #, python-format
@@ -17741,11 +17744,11 @@ msgid ""
 "Default: %%default. The special field \"all\" can be used to select all "
 "fields. Only has effect in the text output format."
 msgstr ""
-"Polja koja će biti prikazana kada se prikazuju knjige iz biblioteke. Treba "
-"da bude zarezima razdvojena lista polja. \n"
-"Raspoloživa polja: %s\n"
-"Podrazumeva se: %%default. Možete koristiti poseban naziv polja \"all\" da "
-"biste izabrali sva polja. Ovo ima uticaj samo na tekstualni izlazni format."
+"Поља која ће бити приказана када се приказују књиге из библиотеке. Треба да "
+"буде зарезима раздвојен списак поља. \n"
+"Расположива поља: %s\n"
+"Подразумева се: %%default. Можете користити посебан назив поља \"all\" да "
+"бисте изабрали сва поља. Ово има утицај само на текстуални излазни формат."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:153
 #, python-format
@@ -17754,13 +17757,13 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
-"Polje po kome će se sortirati rezultati.\n"
-"Rapoloživa polja: %s\n"
-"Podrazumeva se: %%default"
+"Поље по коме ће се разврстати резултати.\n"
+"Раположива поља: %s\n"
+"Подразумева се: %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:155
 msgid "Sort results in ascending order"
-msgstr "Sortiraj rezultate u rastućem redosledu"
+msgstr "Разврстај резултате у растућем редоследу."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:157
 msgid ""
@@ -17768,43 +17771,43 @@ msgid ""
 "please see the search related documentation in the User Manual. Default is "
 "to do no filtering."
 msgstr ""
-"Filtriraj rezultate koristeći upit za pretragu. Za format upita molim vas da "
-"pogledate odgovarajući deo Korisničkog uputstva. Podrazumeva se da neće biti "
-"filtriranja."
+"Филтрирај резултате користећи упит за претрагу. За формат упита молим вас да "
+"погледате одговарајући део Корисничког упутства. Подразумева се да неће бити "
+"филтрирања."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:159
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1086
 msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
-msgstr "Maksimalna širina reda u izlazu. Podrazumeva se širina ekrana."
+msgstr "Највећа ширина реда у излазу. Подразумева се ширина екрана."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:160
 msgid "The string used to separate fields. Default is a space."
-msgstr "Znaci koji služe za razdvajanje polja. Podrazumeva se razmak."
+msgstr "Знаци који служе за раздвајање поља. Подразумева се размак."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:161
 msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
 msgstr ""
-"Prefiks za sve putanje direktorijuma. Podrazumeva se apsolutna putanja do "
-"direktorijuma koji sadrži biblioteku."
+"Префикс за све путање. Подразумева се апсолутна путања до фасцикле која "
+"садржи библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:185
 msgid "Invalid fields. Available fields:"
-msgstr "Neispravna polja. Raspoloživa polja:"
+msgstr "Неисправна поља. Расположива поља:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:192
 msgid "Invalid sort field. Available fields:"
-msgstr "Neispravno polje za sortiranje. Raspoloživa polja:"
+msgstr "Неисправно поље за разврставање. Расположива поља:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:270
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr ""
-"Sledeće knjige nisu dodate, jer već postoje u bazi podataka (vidi opciju --"
+"Следеће књиге нису додате, јер већ постоје у бази података (види могућност--"
 "duplicates):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:295
@@ -17815,35 +17818,35 @@ msgid ""
 "directories, see\n"
 "the directory related options below.\n"
 msgstr ""
-"%prog add [opcije] fajl1 fajl2 fajl3 ...\n"
+"%прог add [могућности] датотека1 датотека2 датотека3 ...\n"
 "\n"
-"Dodaj navedene fajlove u biblioteku kao knjige. Možete navesti i "
-"direktorijume, vidite\n"
-"opcije za direktorijume navedene niže.\n"
+"Додај наведене датотеке у библиотеку као књиге. Можете навести и "
+"директоријуме, видите\n"
+"могућности за директоријуме наведене ниже.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:303
 msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr ""
-"Podrazumevaj da svaki direktorijum sadrži samo jednu knjigu i da su svi "
-"fajlovi u njemu samo različiti formati iste knjige."
+"Подразумевај да сваки директоријум садржи само једну књигу и да су све "
+"датотеке у њему само различити формати исте књиге."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:305
 msgid "Process directories recursively"
-msgstr "Rekurzivno obradi direktorijume"
+msgstr "Рекурзивно обради директоријуме."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:307
 msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
 msgstr ""
-"Dodaj knjige u biblioteku čak i ako su već u njoj. Poređenje se vrši na "
-"osnovu naslova."
+"Додај књиге у библиотеку чак и ако су већ у њој. Поређење се врши на основу "
+"наслова."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:309
 msgid "Add an empty book (a book with no formats)"
-msgstr "Dodaj praznu knjigu (knjigu bez ijednog formata)"
+msgstr "Додај празну књигу (књигу без иједног формата)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:311
 msgid "Set the title of the added book(s)"
@@ -17871,7 +17874,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"
-msgstr "Morate navesti bar jedan fajl za dodavanje"
+msgstr "Морате навести бар једну датотеку за додавање."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:376
 msgid ""
@@ -17886,7 +17889,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:391
 msgid "You must specify at least one book to remove"
-msgstr "Morate navesti bar jednu knjigu za uklanjanje"
+msgstr "Морате навести бар једну књигу за уклањање."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:412
 msgid ""
@@ -17896,19 +17899,19 @@ msgid ""
 "identified by id. You can get id by using the list command. If the format "
 "already exists, it is replaced.\n"
 msgstr ""
-"%prog add_format [opcije] identifikator fajl_eknjige\n"
+"%prog add_format [могућности] идентификатор датотеке_екњиге\n"
 "\n"
-"Dodaj e-knjigu iz fajl_eknjige u raspoložive formate knjige određene "
-"identifikatorom. Idenitifikatore možete dobiti korišćenjem komande list.  "
-"Ako format već postoji biće zamenjen novim.\n"
+"Додај е-књигу из датотеке_екњиге у расположиве формате књиге одређене "
+"идентификатором. Иденитификаторе можете добити коришћењем списка команди.  "
+"Ако формат већ постоји биће замењен новим.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:426
 msgid "You must specify an id and an ebook file"
-msgstr "Morate navesti i identifikator i fajl sa e-knjigom"
+msgstr "Морате навести и идентификатор и датотеку са е-књигом"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:431
 msgid "ebook file must have an extension"
-msgstr "e-knjiga mora da ima ekstenziju"
+msgstr "е-књига мора да има наставак"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:441
 msgid ""
@@ -17920,16 +17923,16 @@ msgid ""
 "EPUB. If the logical book does not have fmt available, do nothing.\n"
 msgstr ""
 "\n"
-"%prog remove_format [opcije] idenitifikator fmt\n"
+"%prog remove_format [могућности] иденитификатор fmt\n"
 "\n"
-"Ukloni format fmt iz knjige određene identifikatorom. Identifikator možete "
-"dobiti korišćenjem list komande. Fmt treba da bude ekstenzija kao na primer "
-"LRF, ili TXT, ili EPUB. Ako knjiga nema odgovarajući format neće biti "
-"izvršena nikakva akcija.\n"
+"Уклони формат fmt из књиге одређене идентификатором. Идентификатор можете "
+"добити коришћењем лист команде. Fmt треба да буде наставак као на пример "
+"LRF, или TXT, или EPUB. Ако књига нема одговарајући формат неће бити "
+"извршена никаква акција.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:457
 msgid "You must specify an id and a format"
-msgstr "Morate navesti identifikator i format"
+msgstr "Морате навести идентификатор и формат."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:476
 msgid ""
@@ -17941,19 +17944,19 @@ msgid ""
 "id is an id number from the list command.\n"
 msgstr ""
 "\n"
-"%prog show_metadata [opcije] identifikator\n"
+"%prog show_metadata [могућности] идентификатор\n"
 "\n"
-"Prikaži metapodatke iz calibre baze podataka za knjigu određenu "
-"idenitifkatorom.\n"
-"Identifikator je broj dobijen korišćenjem list komande.\n"
+"Прикажи метаподатке из calibre базе података за књигу одређену "
+"иденитифкатором.\n"
+"Идентификатор је број добијен коришћењем лист команде.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:483
 msgid "Print metadata in OPF form (XML)"
-msgstr "Prikaži metapodatke u OPF obliku (XML)"
+msgstr "Прикажи метаподатке у OPF облику (XML)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:492
 msgid "You must specify an id"
-msgstr "Morate navesti identifikator"
+msgstr "Морате навести идентификатор."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:508
 msgid ""
@@ -17968,18 +17971,18 @@ msgid ""
 "show_metadata command.\n"
 msgstr ""
 "\n"
-"%prog set_metadata [opcije] identifikator /putanja/do/metapodataka.opf\n"
+"%prog set_metadata [могућности] идентификатор /путања/до/метаподатака.opf\n"
 "\n"
-"Postavi metapodatke iz calibre baze podataka za knjigu određenu "
-"idenitifkatorom\n"
-"iz OPF fajla metapodataka.opf. Identifikator je broj dobijen korišćenjem "
-"list komande. Možete\n"
-"dobiti osnovnu ideju o OPF formatu korišćenjem --as-opf opcije za\n"
-"show_metadata komandu.\n"
+"Постави метаподатке из calibre базе података за књигу одређену "
+"иденитифкатором\n"
+"из OPF датотетеке метаподатака.opf. Идентификатор је број добијен коришћењем "
+"лист команде. Можете добити основну идеју о OPF формату коришћењем --as-opf "
+"избора за\n"
+"show_metadata команду.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:523
 msgid "You must specify an id and a metadata file"
-msgstr "Morate navesti identifikator i fajl sa metapodacima"
+msgstr "Морате навести идентификатор и датотеку са метаподацима."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:543
 msgid ""
@@ -17991,32 +17994,32 @@ msgid ""
 "(in\n"
 "an opf file). You can get id numbers from the list command.\n"
 msgstr ""
-"%prog export [opcije] identifikatori\n"
+"%prog export [могућности] идентификатори\n"
 "\n"
-"Izvezi na disk knjige određene identifikatorima (razdvojenim zarezima).\n"
-"Ova operacija snima sve formate knjiga, naslovne strane i metapodatke (u\n"
-"opf fajl). Identifikatore možete dobiti korišćenjem list komande.\n"
+"Извези на диск књиге одређене идентификаторима (раздвојеним зарезима).\n"
+"Ова операција чува све формате књига, насловне стране и метаподатке (у\n"
+"opf датотеци). Идентификаторе можете добити коришћењем лист команде.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:551
 msgid "Export all books in database, ignoring the list of ids."
-msgstr "Izvezi sve knjige iz baze podataka ignorišući listu identifikatora."
+msgstr "Извези све књиге из базе података занемаривши листу идентификатора."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:553
 msgid "Export books to the specified directory. Default is"
-msgstr "Izvezi knjige u navedeni direktorijum. Podrazumeva se"
+msgstr "Извези књиге у наведени директоријум. Подразумева се"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:555
 msgid "Export all books into a single directory"
-msgstr "Izvezi sve knjige u isti direktorijum"
+msgstr "Извези све књиге у исти директоријум."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:562
 msgid "Specifying this switch will turn this behavior off."
-msgstr "Navođenje ove opcije će sprečiti ovu akciju."
+msgstr "Навођење ове могућности ће спречити ову акцију."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "You must specify some ids or the %s option"
-msgstr "Morate navesti neke identifikatore za opciju %s"
+msgstr "Морате навести неке идентификаторе за могућност %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:598
 msgid ""
@@ -18028,20 +18031,20 @@ msgid ""
 "column.\n"
 "datatype is one of: {0}\n"
 msgstr ""
-"%prog add_custom_column [opcije] etiketa naziv tip\n"
+"%prog add_custom_column [могућност] етикета назив тип\n"
 "\n"
-"Napravi kolonu. Etiketa je računaru razumljivo ime kolone. Trebalo\n"
-"bi da ne sadrži praznine ili zareze. Naziv je ime kolone razumljivo "
-"korisniku.\n"
-"Tip je jedan on: {0}\n"
+"Направи колону. Етикета је рачунару разумљиво име колоне. Требало\n"
+"би да не садржи празнине или зарезе. Назив је име колоне разумљиво "
+"кориснику.\n"
+"Тип је један од: {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:607
 msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
-"Ova kolona čuva etikete kao podatke (tj. kao više vrednosti razdvojenih "
-"zarezima). Ovo važi ako je tip tekst."
+"Ова колона чува етикете као податке (тј. као више вредности раздвојених "
+"зарезима). Ово важи ако је тип текст."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:611
 msgid ""
@@ -18049,13 +18052,13 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
-"Rečnik opcija za podešavanje načina interpretiranja podataka u ovoj koloni. "
-"Ovo je JSON niz znakova. Za kolone enumeracije, koristite --"
-"display='{\"enum_values\":[\"val1\", \"val2\"]}'"
+"Речник опција за подешавање начина интерпретирања података у овој колони. "
+"Ово је JSON низ знакова. За колоне набрајање, користите --"
+"приказ='{\"enum_values\":[\"val1\", \"val2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:625
 msgid "You must specify label, name and datatype"
-msgstr "Morate navesti etiketu, naziv i tip."
+msgstr "Морате навести етикету, назив и тип."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:687
 msgid ""
@@ -18068,11 +18071,11 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %prog catalog /putanja/do/odredišta.(CSV|EPUB|MOBI|XML ...) [opcije]\n"
+"    %prog catalog /путања/до/одредишта.(CSV|EPUB|MOBI|XML ...) [могућности]\n"
 "\n"
-"    Izvezi katalog u formatu određenom ekstenzijom u putanja/do/odredišta.\n"
-"    Opcije određuju kako će stavke biti prikazane u generisanom izlaznom "
-"katalogu.\n"
+"    Извези каталог у формату одређеним проширењем у путања/до/одредишта.\n"
+"    Могућности одређују како ће ставке бити приказане у генерисаном излазном "
+"каталогу.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:700
@@ -18081,9 +18084,9 @@ msgid ""
 "If declared, --search is ignored.\n"
 "Default: all"
 msgstr ""
-"Zarezima razdvojena lista identifikatora za uključivanje u katalog.\n"
-"Ako je navedena ignorisaće se opcija --search.\n"
-"Podrazumeva se: svi"
+"Зарезима раздвојена листа идентификатора за укључивање у каталог.\n"
+"Ако је наведена занемариће се могућност --тражи.\n"
+"Подразумева се: све"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:704
 msgid ""
@@ -18091,18 +18094,18 @@ msgid ""
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr ""
-"Filtriraj rezultate na osnovu upita za pretragu. Za format upita molim vas "
-"da pogledate u odgovarajući odeljak Korisničkog uputstva.\n"
-"Podrazumeva se: bez filtriranja"
+"Филтрирај резултате на основу упита за претрагу. За формат упита молим вас "
+"да погледате у одговарајући одељак Корисничког упутства.\n"
+"Подразумева се: без филтрирања."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:710
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:528
 msgid "Show detailed output information. Useful for debugging"
-msgstr "Prikaži detaljne informacije. Korisno za traženje grešaka"
+msgstr "Прикажи детаљне информације. Корисно за тражење грешака."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:723
 msgid "Error: You must specify a catalog output file"
-msgstr "Greška: Morate navesti izlazni fajl za katalog"
+msgstr "Грешка: Морате навести излазну датотеку за каталог."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:770
 msgid ""
@@ -18116,12 +18119,12 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %prog set_custom [opcije] kolona id vrednost\n"
+"    %prog set_custom [могућности] колона ид вредност\n"
 "\n"
-"    Postavi vrednost korisničke kolone za knjigu određenu identifikatorom "
-"id.\n"
-"    Možete dobiti spisak identifikatora korišćenjem komande list.\n"
-"    Možete dobiti spisak naziva korisničkih kolona korišćenjem komande\n"
+"    Постави вредност корисничке колоне за књигу одређену идентификатором "
+"ид.\n"
+"    Можете добити списак идентификатора коришћењем команде лист.\n"
+"    Можете добити списак назива корисничких колона коришћењем команде\n"
 "    custom_columns.\n"
 "    "
 
@@ -18130,12 +18133,12 @@ msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
-"Ako kolona čuva više vrednosti, dodaj navedene vrednosti postojećim umesto "
-"da budu zemenjene."
+"Ако колона чува више вредности, додај наведене вредности постојећим уместо "
+"да буду замењене."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:791
 msgid "Error: You must specify a field name, id and value"
-msgstr "Greška: Morate navesti naziv polja, identifikator i vrednost"
+msgstr "Грешка: Морате навести назив поља, идентификатор и вредност."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:811
 msgid ""
@@ -18146,24 +18149,24 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %prog custom_columns [opcije]\n"
+"    %prog custom_columns [могућности]\n"
 "\n"
-"    Spisak raspoloživih kolona. Prikaži nazive kolona i njihove "
-"identifikatore.\n"
+"    Списак расположивих колона. Прикажи називе колона и њихове "
+"идентификаторе.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:817
 msgid "Show details for each column."
-msgstr "Prikaži detalje o svakoj koloni."
+msgstr "Прикажи детаље о свакој колони."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 #, python-format
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
-msgstr "Izgubićete sve podatke iz kolone: %r. Da li ste sigurni (y/n)? "
+msgstr "Изгубићете све податке из колоне: %r. Да ли сте сигурни (y/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:831
 msgid "y"
-msgstr "y"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:838
 msgid ""
@@ -18175,19 +18178,19 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %prog remove_custom_columns [opcije] etiketa\n"
+"    %prog remove_custom_columns [могућности] етикета\n"
 "\n"
-"    Ukloni korisničku kolonu određenu etiketom. Možete videti spisak\n"
-"    raspoloživih kolona korišćenjem komande custom_columns.\n"
+"    Уклони корисничку колону одређену етикетом. Можете видети списак\n"
+"    расположивих колона коришћењем команде custom_columns.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:845
 msgid "Do not ask for confirmation"
-msgstr "Nemoj da pitaš za odobrenje"
+msgstr "Немој да питаш за одобрење."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:855
 msgid "Error: You must specify a column label"
-msgstr "Greška: Morate navesti naziv kolone"
+msgstr "Грешка: Морате навести назив колоне."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:866
 msgid ""
@@ -18202,48 +18205,48 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %prog saved_searches [opcije] lista\n"
-"    %prog saved_searches add naziv pretraga\n"
-"    %prog saved_searches remove naziv\n"
+"    %prog saved_searches [могућности] листа\n"
+"    %prog saved_searches add назив претрага\n"
+"    %prog saved_searches remove назив\n"
 "\n"
-"    Ažuriraj sačuvane pretrage u ovoj bazi potaga.\n"
-"    Ako pokušate da dodate upit s nazivom koji već postoji, on će\n"
-"    biti zemenjen.\n"
+"    Ажурирај сачуване претраге у овој бази претрага.\n"
+"    Ако покушате да додате упит с називом који већ постоји, он ће\n"
+"    бити земењен.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:883
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr "Greška: Morate navesti akciju (add|remove|list)"
+msgstr "Грешка: Морате навести акцију  (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:891
 msgid "Name:"
-msgstr "Naziv:"
+msgstr "Назив:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:892
 msgid "Search string:"
-msgstr "Niz znakova za pretragu:"
+msgstr "Низ знакова за претрагу:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:898
 msgid "Error: You must specify a name and a search string"
-msgstr "Greška: Morate navesti naziv i niz znakova za pretragu"
+msgstr "Грешка: Морате навести назив и низ знакова за претрагу."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:901
 msgid "added"
-msgstr "dodato"
+msgstr "додато"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:906
 msgid "Error: You must specify a name"
-msgstr "Greška: Morate navesti naziv"
+msgstr "Грешка: Морате навести назив."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:909
 msgid "removed"
-msgstr "uklonjeno"
+msgstr "уклоњено"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:913
 #, python-format
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
-"Greška: Akcija %s nije prepoznata. Mora biti jedna od: (add|remove|list)"
+"Грешка: Акција %s није препозната. Мора бити једна од: (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:921
 msgid ""
@@ -18252,42 +18255,42 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
-"%prog check_library [opcije]\n"
+"%prog check_library [могућности]\n"
 "\n"
-"Izvrši neke provere u direktorijumima s bibliotekom. Izveštaji su {0}\n"
+"Изврши неке провере у директоријумима с библиотеком. Извештаји су {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:928
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1078
 msgid "Output in CSV"
-msgstr "Izveštaj u CSV formatu"
+msgstr "Извештај у  CSV формату."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:931
 msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
-"Zarezima razdvojena lista izveštaja.\n"
-"Podrazumevano: all"
+"Зарезима раздвојена листа извештаја.\n"
+"Подразумевано: све"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:935
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
-"Zarezima razdvojena lista ekstenzija koje će biti ignorisane.\n"
-"Podrazumevano: all"
+"Зарезима раздвојена листа проширења које ће бити занемарена.\n"
+"Подразумевано: све"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:939
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
-"Zarezima razdvojena lista imena koja će biti ignorisana.\n"
-"Podrazumevano: all"
+"Зарезима раздвојена листа имена која ће бити занемарена.\n"
+"Подразумевано: све"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:969
 msgid "Unknown report check"
-msgstr "Provera za nepoznat izveštaj"
+msgstr "Провера за непознат извештај."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1003
 msgid ""
@@ -18303,19 +18306,19 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
-"%prog restore_database [opcije]\n"
+"%prog restore_database [могућности]\n"
 "\n"
-"Ponovo kreiraj ovu bazu podataka od metapodataka sačuvanih u OPF fajlovima\n"
-"u svakom direktorijumu calibre biblioteke. Ovo je korisno ako vam se "
-"pokvario\n"
-"fajl metadata.db.\n"
+"Поново направи ову базу података од метаподатака сачуваних у OPF датотекама\n"
+"у сваком директоријуму calibre библиотеке. Ово је корисно ако вам се "
+"покварио\n"
+"датотеку metadata.db.\n"
 "\n"
-"UPOZORENJE: Ova komanda kreira potpuno novu bazu podataka. Izgubićete sve\n"
-"sačuvane pretrage, korisničke kategorije, priključke, uputstva za konverziju "
-"pojedinih\n"
-"knjiga, i sve korisničke recepte. Novi metapodaci će biti onoliko tačni "
-"koliko su tačni\n"
-"podaci u OPF fajlovima.\n"
+"УПОЗОРЕЊЕ: Ова команда прави потпуно нову базу података. Изгубићете све\n"
+"сачуване претраге, корисничке категорије, прикључке, упутства за претварање "
+"појединих\n"
+"књига, и све корисничке рецепте. Нови метаподаци ће бити онолико тачни "
+"колико су тачни\n"
+"подаци у OPF датотекама.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1017
@@ -18323,8 +18326,8 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
-"Zaista izvrši oporavak. Ova komanda neće biti pokrenuta ako ne izaberete ovu "
-"opciju."
+"Заиста изврши опоравак. Ова команда неће бити покренута ако не изаберете ову "
+"могућност."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1030
 #, python-format
@@ -18338,42 +18341,42 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
-"%prog list_categories [opcije]\n"
+"%prog list_categories [могућности]\n"
 "\n"
-"Sačini izveštaj o kategorijama u bazi podataka. Ovi podaci\n"
-"su identični onima prikazanim u prozoru sa etiketama.\n"
+"Сачини извештај о категоријама у бази података. Ови подаци\n"
+"су идентични онима приказаним у прозору са етикетама.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1075
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
-"Ispiši samo broj stavki po kategoriji umesto broja po stavki u kategoriji"
+"Испиши само број ставки по категорији уместо броја по ставки у категорији."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1080
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
-"Znak kojim će biti uokvirena kategorija u CSV načinu rada. Podrazumeva se "
-"navodnik (\")."
+"Знак којим ће бити уоквирена категорија у CSV начину рада. Подразумева се "
+"наводник (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1083
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
-"Zarezima razdvojena lista imena za pretraživanje kategorija.\n"
-"Podrazumeva se: sve"
+"Зарезима раздвојена листа имена за претраживање категорија.\n"
+"Подразумева се: све"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1089
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
-"Niz znakova koji razdvaja polja u CSV načinu rada. Podrazumeva se zarez."
+"Низ знакова који раздваја поља у CSV начину рада. Подразумева се зарез."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1127
 msgid "CATEGORY ITEMS"
-msgstr "STAVKE U KATEGORIJI"
+msgstr "СТАВКЕ У КАТЕГОРИЈИ"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1200
 #, python-format
@@ -18387,26 +18390,26 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
-"%%prog komanda [opcije] [argumenti]\n"
+"%%prog команда [могућности] [аргументи]\n"
 "\n"
-"%%prog je interfejs komandne linije za calibre bazu podataka.\n"
+"%%prog је интерфејс командне линије за calibre базу података.\n"
 "\n"
-"komanda je jedna od:\n"
+"команда је једна од:\n"
 "  %s\n"
 "\n"
 "Za pomoć vidite: %%prog komanda --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:660
 msgid "No label was provided"
-msgstr "Nije navedena nijedna etiketa"
+msgstr "Није наведена ниједна етикета."
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:662
 msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
 msgstr ""
-"Etiketa sme sadržati samo mala slova, cifre i donje crte, i mora početi "
-"slovom."
+"Етикета сме садржати само мала слова, цифре и доње црте, и мора почети "
+"словом."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:69
 #, python-format
@@ -18417,7 +18420,7 @@ msgstr ""
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
-"<p>Prevodim staru bazu podataka u biblioteku e-knjiga u %s<br><center>"
+"<p>Преводим стару базу података у библиотеку е-књига у %s<br><center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3495
 #, python-format

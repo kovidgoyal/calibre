@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-01-11 01:39+0000\n"
-"Last-Translator: Calidonia Hibernia <Unknown>\n"
+"PO-Revision-Date: 2012-04-03 11:55+0000\n"
+"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-03-31 04:54+0000\n"
-"X-Generator: Launchpad (build 15032)\n"
+"X-Launchpad-Export-Date: 2012-04-04 04:37+0000\n"
+"X-Generator: Launchpad (build 15055)\n"
 "Language: gl\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -395,6 +395,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Enviar libros por correo electrónico ou por web e conectar a iTunes o "
+"cartafoles locais como se fosen dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -421,7 +423,7 @@ msgstr "Copiar libros do dispositivo á túa biblioteca Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Modificar as coleccións onde se almacenan os libros no dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
 msgid "Copy a book from one calibre library to another"
@@ -430,12 +432,15 @@ msgstr "Copia un libro de unha biblioteca Calibre para outra"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Facer pequenos amaños aos ficheiros epub ou htmlz da biblioteca de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Atopar as coincidencias anteriores ou posteriores ao buscar na túa "
+"biblioteca Calibre en modo destaque"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Choose a random book from your calibre library"
@@ -812,6 +817,7 @@ msgstr ""
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"Pensado para o iPad e dispositivos semellantes cunha resolución de 1536×2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1313,7 +1319,7 @@ msgstr "Comunicarse cos lectores de ebooks da serie Boeye Bex"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Comunicar con lectores BOEYE BDX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1341,7 +1347,7 @@ msgstr "Comunicarse co lector PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Comunicar co lector PocketBook 360+."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
@@ -1349,7 +1355,7 @@ msgstr "Comunicar co PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Comunicar co lector Infibeam Pi2"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1407,7 +1413,7 @@ msgstr "Comunicar co lector The Book."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Comunicar co lector Libre Air."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:72
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1423,7 +1429,7 @@ msgstr "Comunicar co lector de libro electrónico Elonex EB 115"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Comunicar co lector Cybook Odyssey."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
