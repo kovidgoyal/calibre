@@ -93,7 +93,7 @@ class AuthController(object):
         self.cookie_name = 'android_workaround'
 
     def hashit(self, raw):
-        return hashlib.sha1(raw).hexdigest()
+        return hashlib.sha256(raw).hexdigest()
 
     def __call__(self, func, allow_cookie_auth):
 
