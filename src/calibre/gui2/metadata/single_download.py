@@ -342,7 +342,7 @@ class Comments(QWebView): # {{{
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-family: %s; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-family: "%s"; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
