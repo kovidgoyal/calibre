@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-04-03 14:21+0000\n"
+"PO-Revision-Date: 2012-04-04 17:17+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-04 04:38+0000\n"
-"X-Generator: Launchpad (build 15055)\n"
+"X-Launchpad-Export-Date: 2012-04-05 04:41+0000\n"
+"X-Generator: Launchpad (build 15060)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18425,11 +18425,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3495
 #, python-format
 msgid "Copying <b>%s</b>"
-msgstr "Kopiram <b>%s</b>"
+msgstr "Умножавам<b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3512
 msgid "Compacting database"
-msgstr "Sažimam bazu podataka"
+msgstr "Сажимам базу података"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:213
 msgid "Identifiers"
@@ -18437,7 +18437,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
-msgstr "Sortiranje po autoru"
+msgstr "Разврстај по аутору."
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
@@ -18445,51 +18445,51 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
-msgstr "Sortiranje po naslovu"
+msgstr "Разврстај по наслову."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:128
 msgid "Processed"
-msgstr "Obrađeno"
+msgstr "Обрађено"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:200
 msgid "creating custom column "
-msgstr "kreiram korisničku kolonu "
+msgstr "правим корисничку колону "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
-msgstr "Naslov"
+msgstr "Наслов"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:33
 msgid "The authors"
-msgstr "Autori"
+msgstr "Аутори"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:34
 msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
 msgstr ""
-"Niz zankova za sortiranje po autoru. Da bi se koristilo samo prvo slovo "
-"navedite {author_sort[0]}"
+"Низ знакова за разврставање по аутору. Да би се користило само прво слово "
+"наведите {author_sort[0]}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:36
 msgid "The tags"
-msgstr "Etikete"
+msgstr "Ознаке"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:37
 msgid "The series"
-msgstr "Serija"
+msgstr "Серија"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:38
 msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
 msgstr ""
-"Broj serije. Da biste dobili vodeće nule koristite {series_index:0>3s} ili "
-"{series_index:>3s} za vodeće praznine"
+"Број серије. Да бисте добили водеће нуле користите {series_index:0>3s} или "
+"{series_index:>3s} за водеће празнине."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
-msgstr "Ocena"
+msgstr "Оцена"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:42
 msgid "The ISBN"
@@ -18497,15 +18497,15 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:43
 msgid "The publisher"
-msgstr "Izdavač"
+msgstr "Издавач"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:44
 msgid "The date"
-msgstr "Datum"
+msgstr "Датум"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:45
 msgid "The published date"
-msgstr "Datum izdavanja"
+msgstr "Датум издавања."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
@@ -18513,43 +18513,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
-msgstr "Interni calibre identifikator"
+msgstr "Интерни calibre идентификатор."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:76
 msgid "Options to control saving to disk"
-msgstr "Opcije za kontrolu snimanja na disk"
+msgstr "Могућности за контролу чувања на диску."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:82
 msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
-"Calibre će obično ažurirati metapodatke u snimljenim fajlovima koristeći "
-"podatke iz svoje biblioteke. Ovo usporava snimanje na disk."
+"Calibre ће обично ажурирати метаподатке у сачуваним датотекама користећи "
+"податке из своје библиотеке. Ово успорава чување на диск."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:85
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
-"Calibre će obično upisati metapodatke u poseban OPF fajl uz fajl koji sadrži "
-"e-knjigu."
+"Calibre ће обично уписати метаподатке у посебну OPF датотеку уз датотеку "
+"која садржи е-књигу."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:88
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
-"Calibre će obično snimiti naslovnu stranu u poseban fajl uz fajl koji sadrži "
-"e-knjigu."
+"Calibre ће обично сачувати насловну страну у посебну датотеку уз датотеку "
+"која садржи е-књигу."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:91
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
 msgstr ""
-"Zarezima razdvojena lista formata koji će biti snimljeni za svaku od knjiga. "
-"Podrazumeva se da se snimaju svi raspoloživi formati."
+"Зарезима раздвојена листа формата који ће бити сачувани за сваку од књига. "
+"Подразумева се да се чувају сви расположиви формати."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:94
 #, python-format
@@ -18576,9 +18576,9 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
-"Calibre će obično prevesti sva ne-engleska slova u imenu fajla u engleske "
-"ekvivalente. UPOZORENJE: Ako isključite ovu opciju mogu se desiti greške pri "
-"snimanju ukoliko vaš fajl sistem ne podržava Unicode znake u imenu fajla."
+"Calibre ће обично превести сва не-енглеска слова у имену датотеке у енглеске "
+"еквиваленте. УПОЗОРЕЊЕ: Ако искључите ову могућност могу се десити грешке "
+"при чувању уколико ваш систем не подржава Уникод знаке у имену датотеке."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:117
@@ -18590,11 +18590,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
-msgstr "Promeni putanje u mala slova."
+msgstr "Промени путању за мала слова."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:123
 msgid "Replace whitespace with underscores."
-msgstr "Zameni razmake donjim crtama."
+msgstr "Замени размаке доњим цртама."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:125
 msgid ""
@@ -18616,51 +18616,51 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:405
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:438
 msgid "Requested formats not available"
-msgstr "Traženi format nije na raspolaganju"
+msgstr "Тражени формат није на располагању."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:21
 msgid "Settings to control the calibre content server"
-msgstr "Opcije koje upravljaju calibre serverom sadržaja"
+msgstr "Могућности које управљају calibre сервером садржаја."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 #, python-format
 msgid "The port on which to listen. Default is %default"
-msgstr "Port koji će se koristiti za komunikaciju. Podrazumeva se %default"
+msgstr ""
+"Прикључак који ће се користити за комуникацију. Подразумева се %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:27
 #, python-format
 msgid "The server timeout in seconds. Default is %default"
-msgstr ""
-"Maksimalno vreme čekanja na server, u sekundama. Podrazumeva se %default"
+msgstr "Најдуже време чекања на сервер, у секундама. Подразумева се %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:29
 #, python-format
 msgid "The max number of worker threads to use. Default is %default"
-msgstr "Najveći dozvoljen broj radnih procesa. Podrazumeva se %default"
+msgstr "Највећи дозвољен број радних процеса. Подразумева се %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
 msgstr ""
-"Postavite lozinku da ograničite pristup. Podrazumeva se slobodan pristup"
+"Поставите лозинку да ограничите приступ. Подразумева се слободан приступ."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:33
 #, python-format
 msgid "Username for access. By default, it is: %default"
-msgstr "Korisničko ime za pristup. Podrazumeva se: %default"
+msgstr "Корисничко име за приступ. Подразумева се: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 #, python-format
 msgid "The maximum size for displayed covers. Default is %default."
 msgstr ""
-"Maksimalna veličina prikazanih naslovnih strana. Podrazumeva se %default"
+"Највећа величина приказаних насловних страна. Подразумева се %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
-"Najveći broj rezultata koje će vratiti OPDS pretraga. Ovo utiče na "
-"integrisanje sa Stanza, WordPlayer, itd."
+"Највећи број резултата које ће вратити OPDS претрага. Ово утиче на "
+"интегрисање са Stanza, WordPlayer, итд."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:43
 #, python-format
@@ -18669,58 +18669,58 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
-"Stavke iz kategorija kao što su autor/etikete grupiši po prvom slovu kada ih "
-"ima više od ovog broja. Podrazumeva se: %default. Postavite ovo na dovoljno "
-"veliki broj da onemogućite grupisanje."
+"Ставке из категорија као што су аутор/етикете групиши по првом слову када их "
+"има више од овог броја. Подразумева се: %default. Поставите ово на довољно "
+"велики број да онемогућите груписање."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:48
 msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
-"Prefiks koji će biti dodat svim URLovima. Korisno za reverseproxying ka ovom "
-"serveru iz Apache/nginx/itd."
+"Префикс који ће бити додат свим УРЛ-овима. Корисно за reverseproxying ка "
+"овом серверу из Apache/nginx/итд."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
 msgid "All books"
-msgstr "Sve knjige"
+msgstr "Све књиге"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:295
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:579
 msgid "Newest"
-msgstr "Najnovije"
+msgstr "Најновије"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:498
 msgid "Loading, please wait"
-msgstr "Učitavam. Molim sačekajte."
+msgstr "Учитавам. Молим сачекајте."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
 msgid "Go to"
-msgstr "Idi na"
+msgstr "Иди на"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr "Prvi"
+msgstr "Прво"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
-msgstr "Poslednji"
+msgstr "Последњи"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 #, python-format
 msgid "Browsing %d books"
-msgstr "Pregled %d knjiga"
+msgstr "Преглед %d књига"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
 msgid "Average rating"
-msgstr "Prosečna ocena"
+msgstr "Просечна оцена"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
 #, python-format
@@ -18730,85 +18730,85 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
 #, python-format
 msgid "%d stars"
-msgstr "%d zvezdica"
+msgstr "%d звездица"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
 msgid "Popularity"
-msgstr "Popularnost"
+msgstr "Популарност"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr "Sortiraj po"
+msgstr "Разврстај по"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:279
 msgid "library"
-msgstr "biblioteka"
+msgstr "библиотека"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
 msgid "home"
-msgstr "početna"
+msgstr "почетна"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
 msgid "Browse books by"
-msgstr "Pregledaj knjige po"
+msgstr "Прегледај књиге по"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
 msgid "Choose a category to browse by:"
-msgstr "Izaberi kategoriju po kojoj će se pregledati:"
+msgstr "Изабери категорију по којој ће се прегледати:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Browsing by"
-msgstr "Pregled po"
+msgstr "Преглед по"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
 msgid "Up"
-msgstr "Gore"
+msgstr "Горе"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
 msgid "in"
-msgstr "u"
+msgstr "у"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:664
 msgid "Books in"
-msgstr "Knjige u"
+msgstr "Књиге у"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:758
 msgid "Other formats"
-msgstr "Drugi formati"
+msgstr "Други формати"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
 #, python-format
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr "Čitaj %(title)s u formatu %(fmt)s"
+msgstr "Читај %(title)s у формату %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:770
 msgid "Get"
-msgstr "Preuzmi"
+msgstr "Узми"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:783
 msgid "Details"
-msgstr "Detalji"
+msgstr "Појединости"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
 msgid "Permalink"
-msgstr "Trajni link"
+msgstr "Стална веза"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:786
 msgid "A permanent link to this book"
-msgstr "Trajni link ka ovoj knjizi"
+msgstr "Трајна веза ка овој књизи."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:798
 msgid "This book has been deleted"
-msgstr "Ova knjiga je obrisana"
+msgstr "Ова књига је избрисана"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:886
 msgid "in search"
-msgstr "u pretrazi"
+msgstr "у претрази"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:888
 msgid "Matching books"
-msgstr "Odgovarajuće knjige"
+msgstr "Одговарајуће књиге."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:40
 msgid ""
@@ -18822,42 +18822,41 @@ msgid ""
 "\n"
 "The OPDS interface is advertised via BonJour automatically.\n"
 msgstr ""
-"[opcije]\n"
+"[могућности]\n"
 "\n"
-"Pokrenite calibre server. calibre server čini\n"
-"vašu biblioteku vidljivom na Internetu. Podrazumevani\n"
-"interfejs omogućava da pregledate biblioteku po\n"
-"kategorijama. Možete takođe pristupiti i interfejsu \n"
-"optimiziovanom za mobilne uređaje na adresi /mobile\n"
-"kao i OPDS interfejs namenjen čitačima na adresi /opds.\n"
+"Покрените calibre сервер. calibre сервер чини\n"
+"вашу библиотеку видљивом на Интернету. Подразумевани\n"
+"интерфејс омогућава да прегледате библиотеку по\n"
+"категоријама. Можете такође приступити и интерфејсу \n"
+"оптимизиованом за мобилне уређаје на адреси /mobile\n"
+"као и OPDS интерфејс намењен читачима на адреси /opds.\n"
 "\n"
 "OPDS interfejs se automatski najavljuje preko Bonjour servisa.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:52
 msgid "Path to the library folder to serve with the content server"
-msgstr ""
-"Putanja do direktorijuma s bibliotekom koju će koristiti server sadržaja"
+msgstr "Путања до фасцикле с библиотеком коју ће користити сервер садржаја."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:54
 msgid "Write process PID to the specified file"
-msgstr "Upiši PID procesa u navedeni fajl"
+msgstr "Упиши PID процеса у наведену датотеку"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:58
 msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
 msgstr ""
-"Navodi ograničenje koje će biti korišćeno pri ovom pokretanju. Ovo "
-"podešavanje zamenjuje sva podešavanja za pojedine biblioteke koja su "
-"postavljena u korisničkom interfejsu"
+"Наводи ограничење које ће бити коришћено при овом покретању. Ово подешавање "
+"замењује сва подешавања за поједине библиотеке која су постављена у "
+"корисничком сучељу."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:62
 msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
-"Automatski ponovo pokreni server po izmeni izvornog koda. Ovo možda neće "
-"raditi u svim uslovima."
+"Аутоматски поново покрени послужитељ по измени изворног кода. Ово можда неће "
+"радити у свим условима."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:160
 msgid "Switch to the full interface (non-mobile interface)"
@@ -18872,22 +18871,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:126
 #, python-format
 msgid "%d book"
-msgstr "%d knjiga"
+msgstr "%d књига"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:149
 #, python-format
 msgid "%d items"
-msgstr "%d stavki."
+msgstr "%d ставки."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:167
 #, python-format
 msgid "RATING: %s<br />"
-msgstr "OCENA: %s<br />"
+msgstr "ОЦЕНА: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:170
 #, python-format
 msgid "TAGS: %s<br />"
-msgstr "ETIKETE: %s<br />"
+msgstr "ОЗНАКЕ: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:175
 #, python-format
@@ -18896,69 +18895,69 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:273
 msgid "Books in your library"
-msgstr "Knjige u vašoj biblioteci"
+msgstr "Књиге у вашој библиотеци."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:279
 msgid "By "
-msgstr "Od autora "
+msgstr "Од аутора "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:280
 msgid "Books sorted by "
-msgstr "Knjige sortirane po "
+msgstr "Разврстај књиге по "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:34
 msgid "Usage"
-msgstr ""
+msgstr "Употреба"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:85
 msgid "Created by "
-msgstr "Kreiran od strane "
+msgstr "Направљен од "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:86
 msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
-"Kad prosleđuješ argumente za %prog koji u sebi sadrže razmake obuhvati ih "
-"navodnicima."
+"Кад прослеђујеш аргументе за %prog који у себи садрже размаке обухвати их "
+"наводницима."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:377
 msgid "Path to the database in which books are stored"
-msgstr "Putanja do baze podataka u kojoj se nalaze knjige"
+msgstr "Путања до базе података у којој се налазе књиге."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:379
 msgid "Pattern to guess metadata from filenames"
-msgstr "Shema za određivanje metapodataka iz imena fajlova"
+msgstr "Шема за одређивање метаподатака из имена датотека."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:381
 msgid "Access key for isbndb.com"
-msgstr "Ključ za pristup isbndb.com"
+msgstr "Кључ за приступ isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:383
 msgid "Default timeout for network operations (seconds)"
 msgstr ""
-"Podrazumevano maksimalno vreme za čekanje na završetak mrežnih operacija (u "
-"sekundama)"
+"Подразумевано максимално време за чекање на завршетак мрежних операција (у "
+"секундама)."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:385
 msgid "Path to directory in which your library of books is stored"
-msgstr "Putanja do direktorijuma u kojem se nalazi biblioteka"
+msgstr "Путања до директоријума у којем се налази библиотека."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:387
 msgid "The language in which to display the user interface"
-msgstr "Jezik korišćen u programu"
+msgstr "Језик коришћен у програму."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:389
 msgid "The default output format for ebook conversions."
-msgstr "Podrazumevane opcije za konverziju e-knjiga."
+msgstr "Подразумеване могућности за претварање е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:393
 msgid "Ordered list of formats to prefer for input."
-msgstr "Lista izlaznih formata uređena po poželjnosti."
+msgstr "Листа излазних формата уређена по вољи."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:395
 msgid "Read metadata from files"
-msgstr "Čitaj metapodatke iz fajlova"
+msgstr "Читај метаподатке из датотека."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:397
 msgid ""
@@ -18969,23 +18968,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:402
 msgid "Swap author first and last names when reading metadata"
-msgstr "Zameni ime i prezime autora pri čitanju metapodataka"
+msgstr "Замени име и презиме аутора при читању метаподатака."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:404
 msgid "Add new formats to existing book records"
-msgstr "Dodaj nove formate za postojeće knjige"
+msgstr "Додај нове формате за постојеће књиге."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:406
 msgid "Tags to apply to books added to the library"
-msgstr "Etikete koje će biti primenjene na knjige dodate u biblioteku"
+msgstr "Етикете које ће бити примењене на књиге додате у библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:410
 msgid "List of named saved searches"
-msgstr "Spisak imenovanih sačuvanih pretraga"
+msgstr "Списак именованих сачуваних претрага."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:411
 msgid "User-created tag browser categories"
-msgstr "Korisničke kategorije za izlog etiketa"
+msgstr "Корисничке категорије за излог етикета."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:413
 msgid "How and when calibre updates metadata on the device."
@@ -19008,11 +19007,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
 msgid "failed to scan program. Invalid input {0}"
-msgstr "nisam uspeo da pročitam program. Loš ulaz {0}"
+msgstr "нисам успео да прочитам програм. Лош улаз {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:39
 msgid " near "
-msgstr " blizu "
+msgstr " близу "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:45
 msgid "end of program"
@@ -19021,7 +19020,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:107
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:197
 msgid "syntax error - program ends before EOF"
-msgstr "sintaksna greška - program se završio pre EOF"
+msgstr "синтаксна грешка - програм се завршио пре EOF"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:135
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:242
@@ -19031,27 +19030,27 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:141
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:250
 msgid "unknown function {0}"
-msgstr "nepoznata funkcija {0}"
+msgstr "непозната функција {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:161
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:263
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:283
 msgid "missing closing parenthesis"
-msgstr "nedostaje zatvorena zagrada"
+msgstr "недостаје затворена заграда"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:173
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:304
 msgid "expression is not function or constant"
-msgstr "izraz nije funkcija ili konstanta"
+msgstr "израз није функција или константа"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:338
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr "format: tip {0} zahteva celobrojnu vrednost, a navedeno je {1}"
+msgstr "формат: тип {0} захтева целобројну вредност, а наведено је {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:344
 msgid "format: type {0} requires a decimal (float) value, got {1}"
 msgstr ""
-"format: tip {0} zahteva decimalnu (realnu) vrednost, a navedeno je {1}"
+"формат: тип {0} захтева децималну (реалну) вредност, а наведено је {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:479
 #, python-format
@@ -19060,7 +19059,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:541
 msgid "No such variable "
-msgstr "Nema ovakve promenljive "
+msgstr "Нема овакве променљиве. "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:77
 msgid "No documentation provided"
@@ -19174,7 +19173,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:315
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr "pretraga zahteva ili 2, ili neparan broj argumenata"
+msgstr "претрага захтева или 2, или непаран број аргумената"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:328
 msgid ""
@@ -19200,7 +19199,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:365
 msgid "switch requires an odd number of arguments"
-msgstr "promena zateva neparan broj argumenata"
+msgstr "промена затева непаран број аргумената"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:378
 msgid ""
@@ -19559,7 +19558,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr "Čekam..."
+msgstr "Чекам..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
@@ -19567,43 +19566,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
-msgstr "Zaustavljeno"
+msgstr "Заустављено"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:58
 msgid "Finished"
-msgstr "Gotovo"
+msgstr "Завршено"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:80
 msgid "Working..."
-msgstr "Radim..."
+msgstr "Радим..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "Brazilian Portuguese"
-msgstr "Brazilski portugalski"
+msgstr "Бразилски португалски"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (UK)"
-msgstr "Engleski (Velika Britanija)"
+msgstr "Енглески (Велика Британија)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Simplified Chinese"
-msgstr "Uprošćeni kineski"
+msgstr "Упрошћени кинески"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Chinese (HK)"
-msgstr "Kineski (Hong Kong)"
+msgstr "Кинески (Хонг Конг)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Traditional Chinese"
-msgstr "Tradicionalni kineski"
+msgstr "Традиционални кинески"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English"
-msgstr "Engleski"
+msgstr "Енглески"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Australia)"
-msgstr "Engleski (Australija)"
+msgstr "Енглески (Аустралија)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Japan)"
@@ -19623,11 +19622,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (New Zealand)"
-msgstr "Engleski (Novi Zeland)"
+msgstr "Енглески (Нови Зеланд)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Canada)"
-msgstr "Engleski (Kanada)"
+msgstr "Енглески (Канада)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Greece)"
@@ -19635,7 +19634,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (India)"
-msgstr "Engleski (Indija)"
+msgstr "Енглески (Индија)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (Nepal)"
@@ -19643,7 +19642,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Thailand)"
-msgstr "Engleski (Tajland)"
+msgstr "Енглески (Тајланд)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Turkey)"
@@ -19651,7 +19650,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "English (Cyprus)"
-msgstr "Engleski (Kipar)"
+msgstr "Енглески (Кипар)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "English (Czech Republic)"
@@ -19659,7 +19658,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "English (Pakistan)"
-msgstr "Engleski (Pakistan)"
+msgstr "Енглески (Пакистан)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Croatia)"
@@ -19675,7 +19674,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "English (Israel)"
-msgstr "Engleski (Izrael)"
+msgstr "Енглески (Израел)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "English (Russia)"
@@ -19683,27 +19682,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "English (Singapore)"
-msgstr "Engleski (Singapur)"
+msgstr "Енглески (Сингапур)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "English (Yemen)"
-msgstr "Engleski (Jemen)"
+msgstr "Енглески (Јемен)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "English (Ireland)"
-msgstr "Engleski (Irska)"
+msgstr "Енглески (Ирска)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "English (China)"
-msgstr "Engleski (Kina)"
+msgstr "Енглески (Кина)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "English (South Africa)"
-msgstr ""
+msgstr "Енглески (Јужна Африка)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Paraguay)"
-msgstr "Španski (Paragvaj)"
+msgstr "Шпански (Парагвај)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "Spanish (Uruguay)"
@@ -19715,7 +19714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Шпански (Мексико)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Spanish (Cuba)"
@@ -19751,61 +19750,61 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "German (AT)"
-msgstr "Nemački (Austrija)"
+msgstr "Немачки (Аустрија)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:159
 msgid "French (BE)"
-msgstr "Francuski (BE)"
+msgstr "Француски (Белгија)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "Dutch (NL)"
-msgstr "Holandski (Holandija)"
+msgstr "Холандски (Холандија)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:161
 msgid "Dutch (BE)"
-msgstr "Holandski (Belgija)"
+msgstr "Холандски (Белгија)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:169
 msgid "AM"
-msgstr ""
+msgstr "ПрПо."
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:171
 msgid "PM"
-msgstr ""
+msgstr "ПоПо."
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:173
 msgid "am"
-msgstr ""
+msgstr "прпо."
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:175
 msgid "pm"
-msgstr ""
+msgstr "попо."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr "Izaberite stil (potrebno je pnovno pokretanje)"
+msgstr "Изаберите стил (потребно је поновно покретање)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
-msgstr "GREŠKA: Neočekivan izuzetak"
+msgstr "ГРЕШКА: Неочекиван изузетак."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
-msgstr "Nema prevodioca"
+msgstr "Нема преводиоца"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
 msgstr ""
-"Nije pronađen aktivan prevodilac. Probajte da ponovo pokrenete komandnu "
-"liniju"
+"Није пронађен активан преводилац. Пробајте да поново покренете командну "
+"линију."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr "Prevodilac je prestao s radom"
+msgstr "Преводилац је престао с радом."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
@@ -19815,82 +19814,82 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr "Dobrodošli u"
+msgstr "Добродошли у"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr " komandna linija "
+msgstr " командна линија "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
-msgstr "Program se izvršava"
+msgstr "Програм се извршава"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr "Ponovo pokreni komandnu liniju"
+msgstr "Поново покрени командну линију."
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
-msgstr "URL mora da ima sftp shemu"
+msgstr "УРЛ мора да има sftp шему"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:57
 msgid "host must be of the form user@hostname"
-msgstr "ime mora da bude u obliku korisnik@računar"
+msgstr "име мора да буде у облику корисник@рачунар"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
 msgid "Failed to negotiate SSH session: "
-msgstr "Nisam uspeo da dogovorim SSH sesiju: "
+msgstr "Нисам успео да договорим SSH мисију: "
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 #, python-format
 msgid "Failed to authenticate with server: %s"
-msgstr "Nije uspelo prijavljivanje na server: %s"
+msgstr "Није успело пријављивање на сервер: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:255
 msgid "Control email delivery"
-msgstr "Kontrola dostave elektronske pošte"
+msgstr "Контрола доставе електронске поште."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:121
 msgid "Unknown section"
-msgstr "Nepoznat odeljak"
+msgstr "Непознат одељак"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:143
 msgid "Unknown feed"
-msgstr "Nepoznat izvor"
+msgstr "Непознат извор"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:161
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:188
 msgid "Untitled article"
-msgstr "Članak bez imena"
+msgstr "Чланак без имена"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:48
 msgid "Unknown News Source"
-msgstr "Nepoznat izvor vesti"
+msgstr "Непознат извор вести"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:752
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
-msgstr "Recept \"%s\" zahteva korisničko ime i lozinku"
+msgstr "Рецепт \"%s\" захтева корисничко име и лозинку."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
 msgid "Download finished"
-msgstr "Preuzimanje gotovo"
+msgstr "Преузимање је завршено"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:861
 msgid "Failed to download the following articles:"
-msgstr "Nisam uspeo da preuzmem sledeće članke:"
+msgstr "Нисам успео да преузмем следеће чланке:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
 msgid "Failed to download parts of the following articles:"
-msgstr "Nisam uspeo da preuzmem delove sledećih članaka:"
+msgstr "Нисам успео да преузмем делове следећих чланаке:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid " from "
-msgstr " sa "
+msgstr " од "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:871
 msgid "\tFailed links:"
-msgstr "\tNeuspele veze:"
+msgstr "\tНеуспеле везе:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
 msgid "Could not fetch article."
@@ -19906,43 +19905,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
 msgid "Fetching feeds..."
-msgstr "Preuzimam izvore..."
+msgstr "Преузимам изворе..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1005
 msgid "Got feeds from index page"
-msgstr "Dobio sam izvore s osnovne strane..."
+msgstr "Добио сам изворе с основне стране..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
 msgid "Trying to download cover..."
-msgstr "Pokušavam da preuzmem naslovnu stranu..."
+msgstr "Покушавам да преузмем насловну страну..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1016
 msgid "Generating masthead..."
-msgstr "Generišem impresum..."
+msgstr "Правим списак уредника..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1096
 #, python-format
 msgid "Starting download [%d thread(s)]..."
-msgstr "Počinjem preuzimanje [%d niti]..."
+msgstr "Почиње преузимање [%d niti]..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1112
 #, python-format
 msgid "Feeds downloaded to %s"
-msgstr "Izvori su preuzeti u %s"
+msgstr "Извори су преузети у %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1121
 #, python-format
 msgid "Could not download cover: %s"
-msgstr "Nisam uspeo da preuzmem naslovnu stranu: %s"
+msgstr "Нисам успео да преузмем насловну страну: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1130
 #, python-format
 msgid "Downloading cover from %s"
-msgstr "Preuzimam naslovnu stranu sa %s"
+msgstr "Преузимам насловну страну са %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1176
 msgid "Masthead image downloaded"
-msgstr "Preuzeo sam sliku za impresum"
+msgstr "Преузео сам слику за импресум"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1257
 msgid "Articles in this issue: "
@@ -19950,76 +19949,76 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1329
 msgid "Untitled Article"
-msgstr "Članak bez imena"
+msgstr "Чланак без имена"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1401
 #, python-format
 msgid "Article downloaded: %s"
-msgstr "Preuzeo sam članak: %s"
+msgstr "Преузео сам чланак: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1412
 #, python-format
 msgid "Article download failed: %s"
-msgstr "Nije uspelo preuzimanje članka: %s"
+msgstr "Није успело преузимање чланка: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1429
 msgid "Fetching feed"
-msgstr "Preuzimam izvor"
+msgstr "Преузимам извор"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1573
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr ""
-"Neuspelo prijavljivanje. Proverite korisničko ime i lozinku vašeg calibre "
-"servisa za periodiku."
+"Неуспело пријављивање. Проверите корисничко име и лозинку вашег calibre "
+"сервиса за периодику."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1588
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
-"Nemate dozvolu za preuzimanje ovog broja. Ili vam je istekla pretplata, ili "
-"ste premašili dozvoljeni broj preuzimanja za danas."
+"Немате дозволу за преузимање овог броја. Или вам је истекла претплата, или "
+"сте премашили дозвољени број преузимања за данас."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 msgid "You"
-msgstr "Vi"
+msgstr "Ви"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:75
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:203
 msgid "Scheduled"
-msgstr "Planirano"
+msgstr "Заказано"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:123
 msgid "Next section"
-msgstr "Sledeći odeljak"
+msgstr "Следећи одељак"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:126
 msgid "Main menu"
-msgstr "Osnovni meni"
+msgstr "Главни изборник"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:130
 msgid "Previous section"
-msgstr "Prethodni odeljak"
+msgstr "Претходни одељак"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:222
 msgid "Section Menu"
-msgstr "Meni za odeljke"
+msgstr "Изборник за одељке"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:225
 msgid "Main Menu"
-msgstr "Osnovni meni"
+msgstr "Главни избор"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:314
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:402
 msgid "Sections"
-msgstr "Odeljci"
+msgstr "Одељци"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:399
 msgid "Articles"
-msgstr "Članci"
+msgstr "Чланци"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:505
 msgid ""
@@ -20029,7 +20028,7 @@ msgid ""
 msgstr ""
 "%prog URL\n"
 "\n"
-"Gde je URL na primer http://google.com"
+"Где је URL на пример http://google.com"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:508
 #, python-format

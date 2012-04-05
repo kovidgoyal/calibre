@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-01-10 17:42+0000\n"
-"Last-Translator: Konstantin <Unknown>\n"
+"PO-Revision-Date: 2012-04-04 22:09+0000\n"
+"Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-31 05:01+0000\n"
-"X-Generator: Launchpad (build 15032)\n"
+"X-Launchpad-Export-Date: 2012-04-05 04:41+0000\n"
+"X-Generator: Launchpad (build 15060)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1572,7 +1572,7 @@ msgstr "Загрузить чёрно-белые обложки"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Show expired books"
-msgstr ""
+msgstr "Показывать книги с истёкшим сроком давности авторского права"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid ""
@@ -4949,7 +4949,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Configure the adding of books"
-msgstr ""
+msgstr "Настроить добавление книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -8671,7 +8671,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:731
 #, python-format
 msgid "Configure %s"
-msgstr ""
+msgstr "Настроить %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Disconnect device"
@@ -9939,7 +9939,7 @@ msgstr "&Сгенерировать стандартную обложку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:606
 msgid "&Remove cover"
-msgstr "&Убрать обложку"
+msgstr "У&далить обложку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:607
 msgid "Set from &ebook file(s)"
@@ -11694,6 +11694,16 @@ msgid ""
 "group names for the various metadata entries are documented in "
 "tooltips.</p></div>"
 msgstr ""
+"<div style=\"font-size:10pt;\">\n"
+"<p>Задать регулярное выражение которое будет использоваться для получения "
+"ebook метаданных из имени файла.</p>\n"
+"<p>Доступна <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">инструкция</a> по использованию регулярных "
+"выражений.</p>\n"
+"<p>Используйте <b>Тестовый</b> функционал внизу для проверки ваших "
+"регулярных выражений на нескольких образцах имён файлов (не забывайте "
+"добавлять расширение файла). Названия групп различных метаданных описаны в "
+"подсказках.</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular &expression"
@@ -11709,7 +11719,7 @@ msgstr "Заголовок:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P<title>)"
-msgstr ""
+msgstr "Регулярное выражение (?P<title>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:142
@@ -11740,7 +11750,7 @@ msgstr "Серии:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:144
 msgid "Regular expression (?P<series>)"
-msgstr "Обычный параметр (?P<series>)"
+msgstr "Регулярное выражение (?P<author>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:146
 msgid "Series index:"
@@ -11748,7 +11758,7 @@ msgstr "Индекс серии:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:147
 msgid "Regular expression (?P<series_index>)"
-msgstr "Обычный параметр (?P<series_index>)"
+msgstr "Регулярное выражение (?P<series_index>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1303
@@ -11757,7 +11767,7 @@ msgstr "ISBN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:150
 msgid "Regular expression (?P<isbn>)"
-msgstr "Обычный параметр (?P<isbn>)"
+msgstr "Регулярное выражение (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
@@ -12013,7 +12023,7 @@ msgstr "Извлечь устройство"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:61
 msgid "Configure this device"
-msgstr ""
+msgstr "Настроить это устройство"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 msgid "Show books in calibre library"
@@ -12329,11 +12339,12 @@ msgstr "Инициализация пользовательского интер
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:164
 msgid "Repairing failed"
-msgstr ""
+msgstr "Восстановление не удалось"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:165
 msgid "The database repair failed. Starting with a new empty library."
 msgstr ""
+"Восстановление базы данных не удалось. Начните с новой пустой библиотеки."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:204
@@ -13138,31 +13149,36 @@ msgstr "&Настройка получения метаданных из име�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "The Add &Process"
-msgstr ""
+msgstr "Добавление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
+"Укажите папку. Все файлы помещённые в эту папку будут автоматически "
+"добавлены в calibre (требуется перезагрузка)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:142
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
+"<b>ВНИМАНИЕ:</b> Файлы в вышеуказанной папке будут автоматически удалены "
+"после добавления в calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:143
 msgid "Ignore files with the following extensions when automatically adding "
 msgstr ""
+"Игнорировать файлы с следующими расширениями при автоматическом добавлении "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
 msgid "Folder to auto-add files from"
-msgstr ""
+msgstr "Папка для авто-добавления файлов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:145
 msgid "Browse for folder"
-msgstr ""
+msgstr "Выбрать папку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:147
 msgid ""
@@ -13174,11 +13190,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "Check for &duplicates when auto-adding files"
-msgstr ""
+msgstr "Проверка на наличие дубликатов при автоматическом добавлении файлов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Автоматическое добавление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -15826,6 +15842,8 @@ msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
 msgstr ""
+"DRM статус этой книги не может быть определен. Вероятно эта книга защищена "
+"DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:246
 #, python-format
@@ -18003,23 +18021,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "Set the authors of the added book(s)"
-msgstr ""
+msgstr "Указать авторов добавляемых книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:315
 msgid "Set the ISBN of the added book(s)"
-msgstr ""
+msgstr "Указать ISBN добавляемых книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:317
 msgid "Set the tags of the added book(s)"
-msgstr ""
+msgstr "Указать тэги добавляемых книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:319
 msgid "Set the series of the added book(s)"
-msgstr ""
+msgstr "Указать серию добавляемых книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:321
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "Указать номер серии добавляемых книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"
