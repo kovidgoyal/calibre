@@ -398,9 +398,11 @@ class IdentifyWorker(Thread): # {{{
                         'calibre.ebooks.metadata.sources.worker',
                         'single_identify', (self.title, self.authors,
                             self.identifiers), no_output=True, abort=self.abort)
-                self.results, caches, log_dump = res['result']
+                self.results, covers, caches, log_dump = res['result']
                 self.results = [OPF(BytesIO(r), basedir=os.getcwdu(),
                     populate_spine=False).to_book_metadata() for r in self.results]
+                for r, cov in zip(self.results, covers):
+                    r.has_cached_cover_url = cov
                 self.caches.update(caches)
                 self.log.load(log_dump)
             for i, result in enumerate(self.results):

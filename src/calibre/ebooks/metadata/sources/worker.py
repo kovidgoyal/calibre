@@ -100,7 +100,8 @@ def single_identify(title, authors, identifiers):
     log = GUILog()
     results = identify(log, Event(), title=title, authors=authors,
             identifiers=identifiers)
-    return [metadata_to_opf(r) for r in results], dump_caches(), log.dump()
+    return [metadata_to_opf(r) for r in results], [r.has_cached_cover_url for
+        r in results], dump_caches(), log.dump()
 
 def single_covers(title, authors, identifiers, caches):
     load_caches(caches)
