@@ -8,9 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 DEBUG_DIALOG = False
-# Test:  turn fields off, error
-# handling
-# Do some testing in windows as filesystem model is different
 
 # Imports {{{
 import os, time
