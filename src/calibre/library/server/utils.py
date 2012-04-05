@@ -92,6 +92,7 @@ class AuthController(object):
         self.secret = bytes(binascii.hexlify(os.urandom(random.randint(20,
             30))))
         self.cookie_name = 'android_workaround'
+        self.key_order = random.choice(('%(t)s:%(s)s', '%(s)s:%(t)s'))
 
     def hashit(self, raw):
         return hashlib.sha256(raw).hexdigest()
@@ -121,7 +122,7 @@ class AuthController(object):
         hashe of the timestamp and the server secret.
         '''
         timestamp = int(time.time()) if timestamp is None else timestamp
-        key = self.hashit('%d:%s'%(timestamp, self.secret))
+        key = self.hashit(self.key_order%dict(t=timestamp, s=self.secret))
         return '%d:%s'%(timestamp, key)
 
     def is_valid(self, cookie):
