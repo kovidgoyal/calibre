@@ -119,7 +119,7 @@ class AuthController(object):
     def generate_cookie(self, timestamp=None):
         '''
         Generate a cookie. The cookie contains a plain text timestamp and a
-        hashe of the timestamp and the server secret.
+        hash of the timestamp and the server secret.
         '''
         timestamp = int(time.time()) if timestamp is None else timestamp
         key = self.hashit(self.key_order%dict(t=timestamp, s=self.secret))
