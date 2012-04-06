@@ -234,7 +234,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 mi.authors = [_('Unknown')]
             for x in ('title', 'authors', 'isbn', 'tags', 'series'):
                 val = locals()['o'+x]
-                if val: setattr(mi, x[1:], val)
+                if val: setattr(mi, x, val)
             if oseries:
                 mi.series_index = oseries_index
 
@@ -356,7 +356,7 @@ def command_add(args, dbpath):
         print >>sys.stderr, _('You must specify at least one file to add')
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
-            opts.recurse, opts.duplicates, opts.title, opts.authors, opts.isbn,
+            opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
             tags, opts.series, opts.series_index)
     return 0
 
