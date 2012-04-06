@@ -1,9 +1,9 @@
 #  Test with "\Program Files\Calibre2\ebook-convert.exe" RealClear.recipe .epub --test -vv --debug-pipeline debug
-import string, re
+import re
 import time
 from urlparse import urlparse
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
+from calibre.ebooks.BeautifulSoup import NavigableString
 
 class RealClear(BasicNewsRecipe):
     title           = u'Real Clear'
@@ -23,8 +23,8 @@ class RealClear(BasicNewsRecipe):
     recursions      = 0
     max_articles_per_feed = 400
     debugMessages = True
-    
-    # Numeric parameter is type, controls whether we look for 
+
+    # Numeric parameter is type, controls whether we look for
     feedsets = [
                 ["Politics",        "http://www.realclearpolitics.com/index.xml",   0],
                 ["Policy",           "http://www.realclearpolicy.com/index.xml", 0],
@@ -41,17 +41,17 @@ class RealClear(BasicNewsRecipe):
     # Hints to extractPrintURL.
     # First column is the URL snippet.  Then the string to search for as text, and the attributes to look for above it.  Start with attributes and drill down.
     phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
-    
+
     printhints = [  ["realclear",           "",                            '' , 'printpage'],
                     ["billoreilly.com",     "Print this entry",            'a', ''],
                     ["billoreilly.com",     "Print This Article",          'a', ''],
-                    ["politico.com",        "Print",                       'a', 'share-print'],    
+                    ["politico.com",        "Print",                       'a', 'share-print'],
                     ["nationalreview.com",  ">Print<",                     'a', ''],
                     ["reason.com",          "",                       'a', 'printer']
                     # The following are not supported due to JavaScripting, and would require obfuscated_article to handle
-                    # forbes, 
+                    # forbes,
                     # usatoday - just prints with all current crap anyhow
-            
+
             ]
      # RCP - look for a strange compound.  See http://www.realclearpolitics.com/articles/2012/01/24/in_speech_obama_to_call_for_fairness_--_and_four_more_years_112879.html
      # The print link isn't obvious, and only the end is needed (the -full append.)  SO maybe try that first?s
@@ -64,7 +64,7 @@ class RealClear(BasicNewsRecipe):
      # from  http://www.nytimes.com/2012/01/22/business/apple-america-and-a-squeezed-middle-class.html?_r=1
      # to    http://www.nytimes.com/2012/01/22/business/apple-america-and-a-squeezed-middle-class.html?_r=1&pagewanted=all
      # which is at link rel="canonical"   and at        <meta property="og:url"    or look for "Single Page"
-     
+
     # Returns the best-guess print url.
     # The second parameter (pageURL) is returned if nothing is found.
     def extractPrintURL(self, pageURL):
@@ -104,7 +104,7 @@ class RealClear(BasicNewsRecipe):
                     # print(soup)
                     print("end soup\n\n");
                 continue
-                
+
             print(printFind)
             if isinstance(printFind, NavigableString)==False:
                 if printFind['href'] is not None:
@@ -130,7 +130,7 @@ class RealClear(BasicNewsRecipe):
             print("In get_browser")
         br = BasicNewsRecipe.get_browser()
         return br
-        
+
     def parseRSS(self, index) :
         if self.debugMessages == True :
             print("\n\nStarting "+self.feedsets[index][0])
@@ -160,7 +160,7 @@ class RealClear(BasicNewsRecipe):
             pubDateEl = div.find("pubDate")
             if pubDateEl is None :
                 pubDateEl = div.find("pubdate")
-            if pubDateEl is None :    
+            if pubDateEl is None :
                 pubDate = time.strftime('%a, %d %b')
             else :
                 pubDate = pubDateEl.contents[0]
@@ -176,7 +176,7 @@ class RealClear(BasicNewsRecipe):
             pubdate = time.strftime('%a, %d %b')
             articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
         return articleList
-    
+
     # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
     # returns a list of tuple ('feed title', list of articles)
     # {
@@ -189,8 +189,8 @@ class RealClear(BasicNewsRecipe):
     # this is used instead of BasicNewsRecipe.parse_feeds().
     def parse_index(self):
         # Parse the page into Python Soup
-        
-        articleList = []
+
+        #articleList = []
         ans = []
         feedsCount = len(self.feedsets)
         for x in range(0,feedsCount): # should be ,4
@@ -200,5 +200,5 @@ class RealClear(BasicNewsRecipe):
         if self.debugMessages == True :
             print(ans)
         return ans
-        
+
 
