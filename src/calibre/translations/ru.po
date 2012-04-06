@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-30 07:51+0000\n"
-"PO-Revision-Date: 2012-04-04 22:09+0000\n"
+"PO-Revision-Date: 2012-04-05 19:22+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-05 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-04-06 04:35+0000\n"
 "X-Generator: Launchpad (build 15060)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -1443,7 +1443,7 @@ msgstr "Соединиться с JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Подключиться к JetBook Color reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1872,7 +1872,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Использовать формат авторов SONY (только первый автор)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
@@ -1880,6 +1880,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Установите эту опцию если хотите что бы автор на Sony появлялся так же как и "
+"на T1. Это значит что будет отображаться только первый автор книги, "
+"написанной несколькими авторами. Оставьте это включённым если используете "
+"Metadata Plugboards."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -11157,7 +11161,7 @@ msgstr "Добавить новую категорию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to what is in the box"
-msgstr ""
+msgstr "Переименовать текущую категорию на ту что введена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -13187,6 +13191,10 @@ msgid ""
 " If it is, a meesage will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Если включено, то calibre будет проверять \n"
+" добавляемые файлы на наличие в библиотеке.\n"
+" Если файлы уже имеются, то появится сообщение \n"
+" о том желаете ли вы всё равно добавить файлы."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "Check for &duplicates when auto-adding files"
@@ -16139,16 +16147,18 @@ msgstr "Задать порядок сортировки для записей �
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Match all"
-msgstr "Сравнить все"
+msgstr "Совпадение со всеми"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Match any"
-msgstr "Сравнить некоторые"
+msgstr "Совпадение с любым"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:408
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
+"При выборе нескольких элементов в меню тэгов результат должен совпадать с "
+"любым или со всеми из них"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:415
 msgid "Manage authors, tags, etc"
@@ -16159,6 +16169,8 @@ msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
 msgstr ""
+"Все менеджеры категорий доступны при нажатии правой кнопкой на элементе в "
+"меню тегов выше"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:388
@@ -16170,7 +16182,7 @@ msgstr "Переименовать %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:355
 #, python-format
 msgid "Delete %s"
-msgstr ""
+msgstr "Удалить %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
