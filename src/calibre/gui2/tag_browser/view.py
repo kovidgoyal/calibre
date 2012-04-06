@@ -302,7 +302,7 @@ class TagsView(QTreeView): # {{{
                 self.hidden_categories.clear()
             self.db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
             if reset_filter_categories:
-                self._model.filter_categories_by = None
+                self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()
         except:
             return

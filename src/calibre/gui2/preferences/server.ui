@@ -35,9 +35,7 @@
         <string>&lt;p&gt;If you leave the password blank, anyone will be able to
  access your book collection using the web interface.
 &lt;br&gt;
-&lt;p&gt;Note that passwords do not work with Android devices. 
-Leave this blank if you intend to use the server with an
- Android phone or tablet.</string>
+&lt;p&gt;Some devices have browsers that do not support authentication. If you are having trouble downloading files from the content server, try removing the password.</string>
        </property>
       </widget>
      </item>
@@ -167,17 +165,13 @@ Leave this blank if you intend to use the server with an
         </font>
        </property>
        <property name="toolTip">
-        <string>&lt;p&gt;Because of a bug in Google's Android, setting a password
- will prevent the server from working with Android devices.
-&lt;br&gt;
-&lt;p&gt;Do not set a password if you plan to use the server with an
- Android phone or tablet.</string>
+        <string>&lt;p&gt;Some devices have browsers that do not support authentication. If you are having trouble downloading files from the content server, trying removing the password.</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QLabel {color:red}</string>
        </property>
        <property name="text">
-        <string>Password incompatible with Android devices</string>
+        <string>Password incompatible with some devices</string>
        </property>
       </widget>
      </item>

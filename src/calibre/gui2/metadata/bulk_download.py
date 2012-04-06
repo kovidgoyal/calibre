@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, time, shutil
 from functools import partial
+from threading import Thread
 
 from PyQt4.Qt import (QIcon, QDialog,
         QDialogButtonBox, QLabel, QGridLayout, QPixmap, Qt)
@@ -123,7 +124,7 @@ def start_download(gui, ids, callback, ensure_fields=None):
     d.b.clicked.disconnect()
     if ret != d.Accepted:
         return
-    tf = PersistentTemporaryFile('_metadata_bulk_log_')
+    tf = PersistentTemporaryFile('_metadata_bulk.log')
     tf.close()
 
     job = Job('metadata bulk download',
@@ -169,15 +170,41 @@ class HeartBeat(object):
             self.last_time = time.time()
         return True
 
-# Fix log viewer, ratings
-# Test: abort, covers only, metadata only, both, 200 entry download, memory
-# consumption, all errors and on and on
+class Notifier(Thread):
+
+    def __init__(self, notifications, title_map, tdir, total):
+        Thread.__init__(self)
+        self.daemon = True
+        self.notifications, self.title_map = notifications, title_map
+        self.tdir, self.total = tdir, total
+        self.seen = set()
+        self.keep_going = True
+
+    def run(self):
+        while self.keep_going:
+            try:
+                names = os.listdir(self.tdir)
+            except:
+                pass
+            else:
+                for x in names:
+                    if x.endswith('.log'):
+                        try:
+                            book_id = int(x.partition('.')[0])
+                        except:
+                            continue
+                        if book_id not in self.seen and book_id in self.title_map:
+                            self.seen.add(book_id)
+                            self.notifications.put((
+                                float(len(self.seen))/self.total,
+                                _('Processed %s')%self.title_map[book_id]))
+            time.sleep(1)
 
 def download(all_ids, tf, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):
     batch_size = 10
     batches = split_jobs(all_ids, batch_size=batch_size)
-    tdir = PersistentTemporaryDirectory('_metadata_bulk_')
+    tdir = PersistentTemporaryDirectory('_metadata_bulk')
     heartbeat = HeartBeat(tdir)
 
     failed_ids = set()
@@ -188,49 +215,52 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
     all_failed = True
     aborted = False
     count = 0
+    notifier = Notifier(notifications, title_map, tdir, len(all_ids))
+    notifier.start()
 
-    for ids in batches:
+    try:
+        for ids in batches:
+            if abort.is_set():
+                log.error('Aborting...')
+                break
+            metadata = {i:db.get_metadata(i, index_is_id=True,
+                get_user_categories=False) for i in ids}
+            for i in ids:
+                title_map[i] = metadata[i].title
+                lm_map[i] = metadata[i].last_modified
+            metadata = {i:metadata_to_opf(mi, default_lang='und') for i, mi in
+                    metadata.iteritems()}
+            try:
+                ret = fork_job('calibre.ebooks.metadata.sources.worker', 'main',
+                        (do_identify, covers, metadata, ensure_fields),
+                        cwd=tdir, abort=abort, heartbeat=heartbeat, no_output=True)
+            except WorkerError as e:
+                if e.orig_tb:
+                    raise Exception('Failed to download metadata. Original '
+                            'traceback: \n\n'+e.orig_tb)
+                raise
+            count += batch_size
+
+            fids, fcovs, allf = ret['result']
+            if not allf:
+                all_failed = False
+            failed_ids = failed_ids.union(fids)
+            failed_covers = failed_covers.union(fcovs)
+            ans = ans.union(set(ids) - fids)
+            for book_id in ids:
+                lp = os.path.join(tdir, '%d.log'%book_id)
+                if os.path.exists(lp):
+                    with open(tf, 'ab') as dest, open(lp, 'rb') as src:
+                        dest.write(('\n'+'#'*20 + ' Log for %s '%title_map[book_id] +
+                            '#'*20+'\n').encode('utf-8'))
+                        shutil.copyfileobj(src, dest)
+
         if abort.is_set():
-            log.error('Aborting...')
-            break
-        metadata = {i:db.get_metadata(i, index_is_id=True,
-            get_user_categories=False) for i in ids}
-        for i in ids:
-            title_map[i] = metadata[i].title
-            lm_map[i] = metadata[i].last_modified
-        metadata = {i:metadata_to_opf(mi, default_lang='und') for i, mi in
-                metadata.iteritems()}
-        try:
-            ret = fork_job('calibre.ebooks.metadata.sources.worker', 'main',
-                    (do_identify, covers, metadata, ensure_fields),
-                    cwd=tdir, abort=abort, heartbeat=heartbeat, no_output=True)
-        except WorkerError as e:
-            if e.orig_tb:
-                raise Exception('Failed to download metadata. Original '
-                        'traceback: \n\n'+e.orig_tb)
-            raise
-        count += batch_size
-        notifications.put((count/len(ids),
-            _('Downloaded %(num)d of %(tot)d')%dict(
-                num=count, tot=len(all_ids))))
+            aborted = True
+        log('Download complete, with %d failures'%len(failed_ids))
+        return (aborted, ans, tdir, tf, failed_ids, failed_covers, title_map,
+                lm_map, all_failed)
+    finally:
+        notifier.keep_going = False
 
-        fids, fcovs, allf = ret['result']
-        if not allf:
-            all_failed = False
-        failed_ids = failed_ids.union(fids)
-        failed_covers = failed_covers.union(fcovs)
-        ans = ans.union(set(ids) - fids)
-        for book_id in ids:
-            lp = os.path.join(tdir, '%d.log'%book_id)
-            if os.path.exists(lp):
-                with open(tf, 'ab') as dest, open(lp, 'rb') as src:
-                    dest.write(('\n'+'#'*20 + ' Log for %s '%title_map[book_id] +
-                        '#'*20+'\n').encode('utf-8'))
-                    shutil.copyfileobj(src, dest)
-
-    if abort.is_set():
-        aborted = True
-    log('Download complete, with %d failures'%len(failed_ids))
-    return (aborted, ans, tdir, tf, failed_ids, failed_covers, title_map,
-            lm_map, all_failed)
 

@@ -96,10 +96,11 @@ class EditMetadataAction(InterfaceAction):
         if aborted:
             return self.cleanup_bulk_download(tdir)
         if all_failed:
+            num = len(failed_ids | failed_covers)
             self.cleanup_bulk_download(tdir)
             return error_dialog(self.gui, _('Download failed'),
             _('Failed to download metadata or covers for any of the %d'
-               ' book(s).') % len(id_map), det_msg=det_msg, show=True)
+               ' book(s).') % num, det_msg=det_msg, show=True)
 
         self.gui.status_bar.show_message(_('Metadata download completed'), 3000)
 
@@ -119,6 +120,7 @@ class EditMetadataAction(InterfaceAction):
                 payload, log_file,
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
+                cancel_callback=lambda x:self.cleanup_bulk_download(tdir),
                 parent=self.gui, log_is_file=True)
         p.show()
 
@@ -498,7 +500,7 @@ class EditMetadataAction(InterfaceAction):
         self.apply_id_map = list(id_map.iteritems())
         self.apply_current_idx = 0
         self.apply_failures = []
-        self.applied_ids = []
+        self.applied_ids = set()
         self.apply_pd = None
         self.apply_callback = callback
         if len(self.apply_id_map) > 1:
@@ -525,6 +527,7 @@ class EditMetadataAction(InterfaceAction):
             if cover:
                 self.gui.current_db.set_cover(i, open(cover, 'rb'),
                         notify=False, commit=False)
+                self.applied_ids.add(i)
         else:
             self.apply_mi(i, mi)
 
@@ -554,7 +557,7 @@ class EditMetadataAction(InterfaceAction):
                     mi.tags = list(set(tags))
             db.set_metadata(book_id, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
-            self.applied_ids.append(book_id)
+            self.applied_ids.add(book_id)
         except:
             import traceback
             self.apply_failures.append((book_id, traceback.format_exc()))
@@ -589,7 +592,7 @@ class EditMetadataAction(InterfaceAction):
         if self.applied_ids:
             cr = self.gui.library_view.currentIndex().row()
             self.gui.library_view.model().refresh_ids(
-                self.applied_ids, cr)
+                list(self.applied_ids), cr)
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
             self.gui.tags_view.recount()
@@ -598,7 +601,7 @@ class EditMetadataAction(InterfaceAction):
         self.apply_pd = None
         try:
             if callable(self.apply_callback):
-                self.apply_callback(self.applied_ids)
+                self.apply_callback(list(self.applied_ids))
         finally:
             self.apply_callback = None
 

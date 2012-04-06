@@ -381,6 +381,18 @@ that allows you to create collections on your Kindle from the |app| metadata. It
 
 .. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY Readers.
 
+I am getting an error when I try to use |app| with my Kobo Touch?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Kobo Touch has very buggy firmware. Connecting to it has been known to fail at random. Certain combinations of motherboard, USB ports/cables/hubs can exacerbate this tendency to fail. If you are getting an error when connecting to your touch with |app| try the following, each of which has solved the problem for *some* |app| users.
+
+  * Connect the Kobo directly to your computer, not via USB Hub
+  * Try a different USB cable and a different USB port on your computer
+  * Try a different computer (preferably an older model)
+  * Try upgrading the firmware on your Kobo Touch to the latest
+  * Try resetting the Kobo (sometimes this cures the problem for a little while, but then it re-appears, in which case you have to reset again and again)
+  * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
+
 Library Management
 ------------------
 

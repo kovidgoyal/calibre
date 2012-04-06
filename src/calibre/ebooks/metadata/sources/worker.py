@@ -8,14 +8,17 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from threading import Event
+from threading import Event, Thread
+from Queue import Queue, Empty
 from io import BytesIO
 
 from calibre.utils.date import as_utc
 from calibre.ebooks.metadata.sources.identify import identify, msprefs
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.customize.ui import metadata_plugins
-from calibre.ebooks.metadata.sources.covers import download_cover
+from calibre.ebooks.metadata.sources.covers import (download_cover,
+        run_download)
+from calibre.ebooks.metadata.sources.base import dump_caches, load_caches
 from calibre.utils.logging import GUILog
 from calibre.ebooks.metadata.opf2 import metadata_to_opf, OPF
 
@@ -92,4 +95,33 @@ def main(do_identify, covers, metadata, ensure_fields):
             f.write(log.plain_text.encode('utf-8'))
 
     return failed_ids, failed_covers, all_failed
+
+def single_identify(title, authors, identifiers):
+    log = GUILog()
+    results = identify(log, Event(), title=title, authors=authors,
+            identifiers=identifiers)
+    return [metadata_to_opf(r) for r in results], [r.has_cached_cover_url for
+        r in results], dump_caches(), log.dump()
+
+def single_covers(title, authors, identifiers, caches):
+    load_caches(caches)
+    log = GUILog()
+    results = Queue()
+    worker = Thread(target=run_download, args=(log, results, Event()),
+            kwargs=dict(title=title, authors=authors, identifiers=identifiers))
+    worker.daemon = True
+    worker.start()
+    while worker.is_alive():
+        try:
+            plugin, width, height, fmt, data = results.get(True, 1)
+        except Empty:
+            continue
+        else:
+            name = '%s,,%s,,%s,,%s.cover'%(plugin.name, width, height, fmt)
+            with open(name, 'wb') as f:
+                f.write(data)
+            os.mkdir(name+'.done')
+
+    return log.dump()
+
 

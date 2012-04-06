@@ -19,6 +19,52 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.46
+  date: 2012-04-06
+
+  new features:
+    - title: "Auto adding: When automatically adding files from a folder, automatically convert the files to the current output format after adding. This can be turned off via Preferences->Adding Books->Automatic Adding."
+      tickets: [969053]
+
+    - title: "E-book viewer: When reading a MOBI file that is actually a KF8 book, show the format as being KF8"
+
+    - title: "Content server: Workaround for android stock browser not support HTTP AUTH."
+
+    - title: "Edit metadata dialog: Change the remove unused series button to a clear series button (as the remove unused series function is now automatic)"
+
+    - title: "Driver for PocketBook 622."
+      tickets: [969875]
+ 
+  bug fixes:
+    - title: "Run metadata downloads in a separate process to workaround memory leaks in third party plugins. Also removes the need to break up bulk metadata downloads into 100 book batches."
+
+    - title: "Make tag browser filtering work when capital letters are entered."
+
+    - title: "EPUB metadata: Ignore urn:isbn: prefix from ISBN declaration when reading metadata"
+
+    - title: "Get books: Fix feedbooks store not showing all available formats"
+
+    - title: "KF8 Input: When the KF8 book has no metadata ToC, try to extract the ToC from the HTML instead."
+      tickets: [969238]
+
+    - title: "Fix regression that broke access to Preferences via the Preferences item in the calibre menu on OS X"
+      tickets: [969418] 
+
+    - title: "Fix bug that ignored metadata specified on the command line when using calibredb add"
+
+  improved recipes:
+    - OReilly Premium 
+    - Real Clear
+    - Soldier's Magazine
+    - Rue89
+
+  new recipes:
+    - title: The Southern Star 
+      author: watou
+
+    - title: Buenos Aires Herald 
+      author: Darko Miletic
+
 - version: 0.8.45
   date: 2012-03-30
 
