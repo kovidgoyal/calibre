@@ -460,7 +460,7 @@ class DirContainer(object):
             # On linux, if LANG is unset, the os.stat call tries to encode the
             # unicode path using ASCII
             # To replicate try:
-            # LANG=en_US.ASCII python -c "import os; os.stat('Espa\xf1a')"
+            # LANG=en_US.ASCII python -c "import os; os.stat(u'Espa\xf1a')"
             return os.path.isfile(path.encode(filesystem_encoding))
 
     def namelist(self):
