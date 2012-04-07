@@ -904,7 +904,6 @@ class Wizard(QWizard):
 
     def set_finish_text(self, *args):
         bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
-        print (1111111, bt)
         t = unicode(self.finish_page.finish_text.text())
         if '%s' in t:
             self.finish_page.finish_text.setText(t%bt)
