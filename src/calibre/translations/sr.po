@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-06 07:12+0000\n"
-"PO-Revision-Date: 2012-04-06 13:10+0000\n"
+"PO-Revision-Date: 2012-04-07 18:00+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-07 04:49+0000\n"
+"X-Launchpad-Export-Date: 2012-04-08 04:38+0000\n"
 "X-Generator: Launchpad (build 15060)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -7126,7 +7126,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU-улазни"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
@@ -7263,7 +7263,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:16
 msgid "Modify the document text and structure using common patterns."
-msgstr ""
+msgstr "Измени текст документа и структуру користећи уобичајене обрасце."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:113
 msgid ""
@@ -7493,7 +7493,7 @@ msgstr "&Боје"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Остала CSS својства:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
@@ -7507,7 +7507,7 @@ msgstr "&Посебан CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr ""
+msgstr "&Филтер стила обавештења"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -7830,7 +7830,7 @@ msgstr "Сачувај р&азмере насловне стране."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "&Прилагођена величина:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -7947,7 +7947,7 @@ msgstr "Први израз"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 msgid "&Replacement Text"
-msgstr ""
+msgstr "&Замени текст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
@@ -9057,7 +9057,7 @@ msgstr "Пре&мести тренутну библиотеку на нову л
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 #, python-format
 msgid "Add \"%s\" to toolbars or menus"
-msgstr ""
+msgstr "Додај \"%s\" за алатну траку или изборнике"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:29
 #, python-format
@@ -9599,7 +9599,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1022
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:614
 msgid "Delete saved search/replace"
-msgstr ""
+msgstr "Обриши сачувану претрагу / замену"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1023
 msgid "The selected saved search/replace will be deleted. Are you sure?"
@@ -9620,6 +9620,7 @@ msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
 msgstr ""
+"Тa сачуванa претрагa/ аменa већ постоји и биће замењена. Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:547
 msgid "Edit Meta information"
@@ -9734,7 +9735,7 @@ msgstr "&Датум:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 msgid "d MMM yyyy"
-msgstr ""
+msgstr "d MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
@@ -9747,7 +9748,7 @@ msgstr "&Објављено:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid "Clear published date"
-msgstr ""
+msgstr "Очисти јавни датум"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1170
@@ -9793,7 +9794,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid "Update &title sort"
-msgstr ""
+msgstr "Ажурирај &разврставање наслова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid ""
@@ -9838,7 +9839,7 @@ msgstr "&Кориснички метаподаци."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:610
 msgid "Load searc&h/replace:"
-msgstr ""
+msgstr "Учитај претра&жи/замени:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:611
 msgid "Select saved search/replace to load."

@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-06 07:12+0000\n"
-"PO-Revision-Date: 2012-03-31 23:13+0000\n"
+"PO-Revision-Date: 2012-04-07 19:14+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-07 04:43+0000\n"
+"X-Launchpad-Export-Date: 2012-04-08 04:37+0000\n"
 "X-Generator: Launchpad (build 15060)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5159,7 +5159,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Controlla l'aggiunta di libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -13310,7 +13310,7 @@ msgstr "(Copertina non riuscita)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr ""
+msgstr "Elaborato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:61
@@ -13385,11 +13385,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Clear series"
-msgstr ""
+msgstr "Cancella serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
-msgstr ""
+msgstr "Cancella ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:205
 msgid ""
@@ -15771,10 +15771,13 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
+"<p>Alcuni dispositivi hanno browser che non supportano l'autenticazione. Se "
+"hai problemi a scaricare file dal server dei contenuti, prova a rimuovere la "
+"password."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "Password incompatibile con alcuni dispositivi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
@@ -20215,13 +20218,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:267
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(nome) -- restituisce il campo dei metadati con quel nome"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:276
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(nome) -- restituisce il campo dei metadati con quel nome senza "
+"applicare alcuna formattazione."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:286
 msgid ""

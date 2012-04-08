@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-06 07:12+0000\n"
-"PO-Revision-Date: 2011-08-05 16:02+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-04-07 23:34+0000\n"
+"Last-Translator: Hyun-ho Noh <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-04-07 04:44+0000\n"
+"X-Launchpad-Export-Date: 2012-04-08 04:37+0000\n"
 "X-Generator: Launchpad (build 15060)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -252,7 +252,7 @@ msgstr "환경설정"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "저장"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
@@ -330,7 +330,7 @@ msgstr "%s 파일에서 메타 정보를 지정합니다"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "책은 calibre 프로그램이나 연결된 장치에 추가됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Fetch annotations from a connected Kindle (experimental)"
@@ -342,31 +342,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "책들은 다양한 종류의 이북 포맷으로 변환합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "책을 calibre 프로그램이나 연결된 장치에서 삭제합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "calibre 저장소에 있는 책들의 메타정보를 수정합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "calibre 저장소의 책을 읽습니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "인터넷에서 뉴스를 전자책형식으로 다운로드합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "관련된 책들의 리스트를 빠르게 보여줍니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "calibre 저장소에서 책을 하드디스크에 저장합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Show book details in a separate popup"
@@ -374,7 +374,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Restart calibre"
-msgstr ""
+msgstr "프로그램을 다시 시작합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Open the folder that contains the book files in your calibre library"
@@ -382,7 +382,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "연결된 장치로 책들을 보냅니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid ""
@@ -582,7 +582,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 msgid "Sharing books by email"
-msgstr "전자우편으로 책 공유하기"
+msgstr "이메일으로 책 공유하기"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
@@ -594,7 +594,7 @@ msgstr "공유"
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
-msgstr "전자우편을 통해서 책 공유하기를 설정합니다. 내려받은 뉴스를 자동으로 장치로 전송하기를 사용할 수 있습니다"
+msgstr "이메일을 통해서 책 공유하기를 설정합니다. 내려받은 뉴스를 자동으로 장치로 전송하기때 사용될 수 있습니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1076
 msgid "Sharing over the net"
@@ -5228,7 +5228,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:118
 msgid "Setup email based sharing of books"
-msgstr "전자우편을 기반으로 책 공유하기 설정"
+msgstr "이메일을 통한 책 공유하기 설정"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:136
 msgid "D"
@@ -10671,7 +10671,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
-msgstr "전자우편 설정을 시험합니다"
+msgstr "이메일 설정을 시험니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:57
 #, python-format
@@ -10996,7 +10996,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:254
 msgid "Auto convert the following books before sending via email?"
-msgstr "다음의 책들을 전자우편을 통해서 보내기 전에 자동으로 변환합니까?"
+msgstr "다음의 책들을 이메일을 통하여 전송하기 전에 자동으로 변환하시겠습니까?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:261
 msgid ""
@@ -13228,16 +13228,16 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
-"calibre는 전자우편으로 당신이나 당신의 독자에게 책을 보낼 수 있습니다. 자동 송신을 사용하는 모든 전자우편 주소에 내려받은 뉴스에 "
-"대한 전자우편을 자동으로 보낼것입니다."
+"calibre는 전자우편으로 당신이나 당신의 독자에게 책을 보낼 수 있습니다.  다운받은 뉴스들은 자동-송신 설정을 한 모든 이메일 "
+"주소들로 자동으로 전송됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
 msgid "Add an email address to which to send books"
-msgstr "책을 보낼 전자우편 주소를 추가합니다"
+msgstr "책들을 전송할 이메일 주소를 추가합니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:68
 msgid "&Add email"
-msgstr "전자우편 추가(&A)"
+msgstr "이메일 추가(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:69
 msgid "Make &default"
@@ -13245,7 +13245,7 @@ msgstr "기본값 만듦(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:70
 msgid "&Remove email"
-msgstr "전자우편 제거(&R)"
+msgstr "이메일 제거(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 msgid "Auto send"
@@ -13253,7 +13253,7 @@ msgstr "자동 송신"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 msgid "Email"
-msgstr "전자우편"
+msgstr "이메일"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:32
 msgid "Formats to email. The first matching format will be sent."
@@ -16211,7 +16211,7 @@ msgstr ""
 msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
-msgstr ""
+msgstr "가지고 있는 e-book 장비를 선택하십시요. 만약 장비가 아래의 리스트에 존재하지 않다면 \"%s\" 를 선택하십시요."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:562
 msgid "Moving library..."
@@ -16292,7 +16292,7 @@ msgstr "Calibre에 오신 것을 환영합니다"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:48
 msgid "The one stop solution to all your e-book needs."
-msgstr ""
+msgstr "e-book 설정 마법사"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
@@ -16322,6 +16322,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>사용 설명서</h2>사용 설명서는 <a href=\"http://manual.calibre-"
+"ebook.com\">온라인</a>으로도 확인하실 수 있습니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -16348,6 +16350,8 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>책들을 저장할 위치를 선택하십시요. 책을 calibre 프로그램에 추가하면, 지정된 위치로 복사됩니다.  책을 저장할 위치로는 "
+"<b>빈 폴더</b>를 지정해주십시요."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -16359,8 +16363,8 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
-"기존의 Calibre 라이브러리가 있다면 새로운 위치로 복사할 것입니다. 새로운 위치에 이미 Calibre 라이브러리가 존재한다면, "
-"Calibre는 그것을 사용하는 것으로 바꿀 것입니다."
+"만약 기존의 Calibre 라이브러리가 있다면 새로 지정된 위치로 복사할 것입니다. 또한 새로운 위치에 이미 Calibre 라이브러리가 "
+"존재한다면, Calibre는 이 라이브러리를 사용합니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
