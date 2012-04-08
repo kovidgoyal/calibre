@@ -347,7 +347,10 @@ class Worker(Thread): # Get details {{{
                     method='text').strip()
         else:
             title = self.tostring(tdiv, encoding=unicode, method='text').strip()
-        return re.sub(r'[(\[].*[)\]]', '', title).strip()
+        ans = re.sub(r'[(\[].*[)\]]', '', title).strip()
+        if not ans:
+            ans = title.rpartition('[')[0].strip()
+        return ans
 
     def parse_authors(self, root):
         x = '//h1[contains(@class, "parseasinTitle")]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
