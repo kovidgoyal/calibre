@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-06 07:12+0000\n"
-"PO-Revision-Date: 2012-04-06 08:45+0000\n"
+"POT-Creation-Date: 2012-04-08 09:51+0000\n"
+"PO-Revision-Date: 2012-04-08 10:15+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-07 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-04-09 04:53+0000\n"
 "X-Generator: Launchpad (build 15060)\n"
 "Language: uk\n"
 
@@ -29,8 +29,8 @@ msgstr "Не робить абсолютно нічого"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:316
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:317
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:318
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -114,7 +114,7 @@ msgstr "Не робить абсолютно нічого"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:168
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:170
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:829
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:836
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:353
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:356
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:360
@@ -188,9 +188,9 @@ msgstr "Не робить абсолютно нічого"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:580
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2087
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2241
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3302
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3304
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3441
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3303
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3305
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3442
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:245
@@ -989,7 +989,7 @@ msgstr "Журнал зневаджування"
 msgid "Communicate with Android phones."
 msgstr "Зв'язується з телефонами на базі операційної системи \"Android\""
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:166
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:167
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -997,11 +997,11 @@ msgstr ""
 "Перелік папок (розділений комами) для надсилання електронних книжок на "
 "пристрій. Будуть використані ті, що були створені першими."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:256
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:257
 msgid "Communicate with S60 phones."
 msgstr "Зв'язується з телефонами на базі операційної системи \"S60\""
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:275
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:276
 msgid "Communicate with WebOS tablets."
 msgstr "Обмін даними з планшетами під керуванням WebOS."
 
@@ -1958,23 +1958,23 @@ msgstr "З’єднатися з Archos reader."
 msgid "Communicate with the Pico reader."
 msgstr "З’єднатися з  Pico reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:69
 msgid "Communicate with the iPapyrus reader."
 msgstr "Зв’язується з iPapyrus reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:79
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:80
 msgid "Communicate with the Sovos reader."
 msgstr "Зв’язується з Sovos reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:89
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:90
 msgid "Communicate with the Sunstech EB700 reader."
 msgstr "З’єднатися з  EB700 reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:101
 msgid "Communicate with the Stash W950 reader."
 msgstr "З’єднатися з  Stash W950 reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:113
 msgid "Communicate with the Wexler reader."
 msgstr "З’єднатися з Wexler reader."
 
@@ -4380,56 +4380,56 @@ msgstr ""
 "LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1434
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1237
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1244
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:937
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Cover"
 msgstr "Обкладинка"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:488
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:491
 msgid "Downloads metadata and covers from Amazon"
 msgstr "Отримує метадані і обкладинки з Amazon"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:498
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:501
 msgid "US"
 msgstr "США"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:499
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:502
 msgid "France"
 msgstr "Франція"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:500
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:503
 msgid "Germany"
 msgstr "Німеччина"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:501
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:504
 msgid "UK"
 msgstr "Великобританія"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:502
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:505
 msgid "Italy"
 msgstr "Італія"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:503
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:506
 msgid "Japan"
 msgstr "Японія"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:504
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:507
 msgid "Spain"
 msgstr "Іспанія"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:511
 msgid "Amazon website to use:"
 msgstr "Вебсайт Amazon, який слід використовувати:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:509
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:512
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr ""
 "Метадані від Amazon буде отримано з сайта Amazon, призначеного для вказаної "
 "країни."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:741
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:744
 msgid "Amazon timed out. Try again later."
 msgstr ""
 "Перевищення часу очікування на дані з Amazon. Повторіть спробу пізніше."
@@ -4520,70 +4520,70 @@ msgstr "Це книжка Amazon Topaz. Її обробка є неможлив�
 msgid "No details available"
 msgstr "Подробиці недоступні"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1238
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1245
 msgid "Title Page"
 msgstr "Титульна сторінка"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1239
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1246
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "Table of Contents"
 msgstr "Зміст"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1240
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1247
 msgid "Index"
 msgstr "Індекс"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1241
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1248
 msgid "Glossary"
 msgstr "Глосарій"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1242
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1249
 msgid "Acknowledgements"
 msgstr "Підтвердження"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1243
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1250
 msgid "Bibliography"
 msgstr "Бібліографія"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1244
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1251
 msgid "Colophon"
 msgstr "Емблема видавництва"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1245
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1252
 msgid "Copyright"
 msgstr "Авторські права"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1246
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1253
 msgid "Dedication"
 msgstr "Присвята"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1247
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1254
 msgid "Epigraph"
 msgstr "Епіграф"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1248
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1255
 msgid "Foreword"
 msgstr "Передмова"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1249
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1256
 msgid "List of Illustrations"
 msgstr "Список ілюстрацій"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1250
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1257
 msgid "List of Tables"
 msgstr "Список заголовків"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1251
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1258
 msgid "Notes"
 msgstr "Нотатки"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1252
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1259
 msgid "Preface"
 msgstr "Вступ"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1253
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
 msgid "Main Text"
 msgstr "Основний текст"
 
@@ -7399,7 +7399,7 @@ msgid "Bulk Convert"
 msgstr "Загальне перетворення"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:96
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:197
 msgid "Options specific to the output format."
 msgstr "Параметри, характерні для формату виведення даних."
 
@@ -8416,11 +8416,11 @@ msgstr ""
 "змогу перевірити дію ваших формальних виразів на поточному документі з "
 "вхідними даними."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"
 msgstr "Перетворити"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:208
 msgid "Options specific to the input format."
 msgstr "Специфічні параметри формату вхідних даних."
 
@@ -14793,6 +14793,7 @@ msgid "Never"
 msgstr "Ніколи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:493
 msgid "By first letter"
 msgstr "За першою літерою"
 
@@ -15867,15 +15868,15 @@ msgid ""
 " access your book collection using the web interface.\n"
 "<br>\n"
 "<p>Some devices have browsers that do not support authentication. If you are "
-"having trouble downloading files from the content server, trying removing "
-"the password."
+"having trouble downloading files from the content server, try removing the "
+"password."
 msgstr ""
-"<p>Якщо ви використаєте порожній пароль, доступ до вашої\n"
-"збірки зможе отримати будь-хто, хто має доступ до відповідного інтерфейсу.\n"
+"<p>Якщо ви залишите поле пароля порожнім, доступ до вашої збірки книг матиме "
+"будь-хто. Достатньо буде доступу до відповідного інтерфейсу.\n"
 "<br>\n"
-"<p>Програми для перегляду, встановлені на деяких пристроях, не передбачають "
-"можливості розпізнавання користувачів. Якщо у вас виникають проблеми з "
-"отриманням файлів з сервера даних, спробуйте вилучити пароль."
+"<p>У програмах для перегляду деяких пристроїв для читання не передбачено "
+"можливості розпізнавання за паролем. Якщо у вас виникають труднощі з "
+"отриманням файлів з сервера даних,спробуйте спорожнити поле пароля."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
 msgid ""
@@ -17231,6 +17232,14 @@ msgstr "Показати всі категорії"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:490
 msgid "Change sub-categorization scheme"
 msgstr "Змінити схему підкатегорій"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:491
+msgid "Disable"
+msgstr "Вимкнути"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
+msgid "Partition"
+msgstr "Поділ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:510
 msgid "First letter is usable only when sorting by name"
@@ -19742,19 +19751,19 @@ msgstr ""
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr "%(tt)sСередня оцінка — %(rating)3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3467
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3468
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Перенесення старої бази даних до бібліотеки електронних книжок у "
 "%s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3496
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3497
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "Копіювання <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3513
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3514
 msgid "Compacting database"
 msgstr "Ущільнення бази даних"
 

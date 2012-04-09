@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-06 07:12+0000\n"
+"POT-Creation-Date: 2012-04-08 09:51+0000\n"
 "PO-Revision-Date: 2012-03-18 08:47+0000\n"
 "Last-Translator: viktorc <dinalt@email.cz>\n"
 "Language-Team: Slovak <sk@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-04-07 04:49+0000\n"
+"X-Launchpad-Export-Date: 2012-04-09 04:50+0000\n"
 "X-Generator: Launchpad (build 15060)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26,8 +26,8 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:316
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:317
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:318
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -111,7 +111,7 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:168
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:170
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:829
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:836
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:353
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:356
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:360
@@ -185,9 +185,9 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:580
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2087
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2241
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3302
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3304
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3441
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3303
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3305
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3442
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:245
@@ -979,7 +979,7 @@ msgstr "Debug log"
 msgid "Communicate with Android phones."
 msgstr "Komunikácia s telefónmi Android."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:166
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:167
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -987,11 +987,11 @@ msgstr ""
 "Čiarkou oddelený zoznam adresárov na poslanie e-knihy do zariadení. Prvý "
 "existujúci bude použitý"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:256
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:257
 msgid "Communicate with S60 phones."
 msgstr "Komunikácia s telefónmi S60"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:275
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:276
 msgid "Communicate with WebOS tablets."
 msgstr "Komunikácia s tabletmi WebOS."
 
@@ -1929,23 +1929,23 @@ msgstr "Komunikácia s čítačkou Archos."
 msgid "Communicate with the Pico reader."
 msgstr "Komunikácia s čítačkou Pico."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:69
 msgid "Communicate with the iPapyrus reader."
 msgstr "Komunikácia s čítačkou iPapyrus."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:79
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:80
 msgid "Communicate with the Sovos reader."
 msgstr "Komunikácia s čítačkou Sovos."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:89
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:90
 msgid "Communicate with the Sunstech EB700 reader."
 msgstr "Komunikácia s čítačkou Sunstech EB700."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:101
 msgid "Communicate with the Stash W950 reader."
 msgstr "Komunikácia s čítačkou Stash W950."
 
-#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
+#: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:113
 msgid "Communicate with the Wexler reader."
 msgstr "Komunikácia s čítačkou Wexler."
 
@@ -4271,54 +4271,54 @@ msgstr ""
 "obálky/sociálne metadáta\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1434
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1237
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1244
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:937
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Cover"
 msgstr "Obálka"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:488
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:491
 msgid "Downloads metadata and covers from Amazon"
 msgstr "Stiahne metadáta a obálky z Amazon-u"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:498
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:501
 msgid "US"
 msgstr "US"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:499
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:502
 msgid "France"
 msgstr "Francúzsko"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:500
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:503
 msgid "Germany"
 msgstr "Nemecko"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:501
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:504
 msgid "UK"
 msgstr "Veľká Británia"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:502
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:505
 msgid "Italy"
 msgstr "Taliansko"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:503
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:506
 msgid "Japan"
 msgstr "Japonsko"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:504
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:507
 msgid "Spain"
 msgstr "Španielsko"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:511
 msgid "Amazon website to use:"
 msgstr "Použiť web Amazonu:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:509
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:512
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr "Metadáta z Amazonu budú stiahnuté z jej verzie pre súto krajinu."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:741
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:744
 msgid "Amazon timed out. Try again later."
 msgstr "Čas pre Amazon vypršal. Skúste neskôr."
 
@@ -4406,70 +4406,70 @@ msgstr "Toto je Amazon Topaz kniha. Nemôže byť spracovaná."
 msgid "No details available"
 msgstr "Podrobnosti nie sú k dispozícii"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1238
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1245
 msgid "Title Page"
 msgstr "Titulná strana"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1239
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1246
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "Table of Contents"
 msgstr "Obsah"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1240
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1247
 msgid "Index"
 msgstr "Register"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1241
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1248
 msgid "Glossary"
 msgstr "Slovník"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1242
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1249
 msgid "Acknowledgements"
 msgstr "Poďakovania"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1243
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1250
 msgid "Bibliography"
 msgstr "Zoznam použitej literatúry"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1244
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1251
 msgid "Colophon"
 msgstr "Tiráž"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1245
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1252
 msgid "Copyright"
 msgstr "Autorské práva"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1246
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1253
 msgid "Dedication"
 msgstr "Venovanie"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1247
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1254
 msgid "Epigraph"
 msgstr "Doslov"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1248
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1255
 msgid "Foreword"
 msgstr "Predslov"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1249
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1256
 msgid "List of Illustrations"
 msgstr "Zoznam obrázkov"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1250
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1257
 msgid "List of Tables"
 msgstr "Zoznam tabuliek"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1251
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1258
 msgid "Notes"
 msgstr "Poznámky"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1252
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1259
 msgid "Preface"
 msgstr "Predhovor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1253
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
 msgid "Main Text"
 msgstr "Hlavný text"
 
@@ -7253,7 +7253,7 @@ msgid "Bulk Convert"
 msgstr "Dávková konverzia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:96
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:197
 msgid "Options specific to the output format."
 msgstr "Voľby špecifické pre výstupný formát."
 
@@ -8256,11 +8256,11 @@ msgstr ""
 "regulárnych výrazov voči vstupnému dokumentu si môžete vyskúšať kliknutím na "
 "tlačidlo sprievodcu nižšie."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"
 msgstr "Konvertovať"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:208
 msgid "Options specific to the input format."
 msgstr "Voľby špecifické pre vstupný formát."
 
@@ -14483,6 +14483,7 @@ msgid "Never"
 msgstr "Nikdy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:493
 msgid "By first letter"
 msgstr "Podľa prvého písmena"
 
@@ -15507,8 +15508,8 @@ msgid ""
 " access your book collection using the web interface.\n"
 "<br>\n"
 "<p>Some devices have browsers that do not support authentication. If you are "
-"having trouble downloading files from the content server, trying removing "
-"the password."
+"having trouble downloading files from the content server, try removing the "
+"password."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
@@ -16839,6 +16840,14 @@ msgstr "Zobraziť všetky kategórie"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:490
 msgid "Change sub-categorization scheme"
 msgstr "Zmeniť schému pod-kategórií"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:491
+msgid "Disable"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
+msgid "Partition"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:510
 msgid "First letter is usable only when sorting by name"
@@ -19274,18 +19283,18 @@ msgstr ""
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr "%(tt)sPriemerné hodnotenie je %(rating)3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3467
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3468
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Migrujem starú databázu do knižnice elektronických kníh v %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3496
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3497
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "Kopírujem <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3513
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3514
 msgid "Compacting database"
 msgstr "Zmenšujem databázu"
 
