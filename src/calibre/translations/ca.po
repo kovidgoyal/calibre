@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-08 09:51+0000\n"
-"PO-Revision-Date: 2012-03-31 07:23+0000\n"
+"PO-Revision-Date: 2012-04-09 14:29+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-09 04:40+0000\n"
-"X-Generator: Launchpad (build 15060)\n"
+"X-Launchpad-Export-Date: 2012-04-10 04:55+0000\n"
+"X-Generator: Launchpad (build 15070)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -547,7 +547,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1006
 msgid "Adding books"
-msgstr "Afegeix llibres"
+msgstr "Addició de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1020
@@ -2822,6 +2822,11 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Per defecte el calibre passa totes les imatges a format JPEG al fitxer de "
+"sortida MOBI. Això és per aconseguir el màxim de compatibilitat perquè "
+"alguns visors MOBI antics tenen problemes amb altres formats d'imatge. Amb "
+"aquesta opció el calibre no ho farà. Útil si el document conté moltes "
+"imatges GIF/PNG que augmente molt de mida en convertir-les a JPEG."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:114
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -4939,7 +4944,7 @@ msgstr "Valors per defecte per a la conversió a LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 msgid "Options for the LRF ebook viewer"
-msgstr "Opcions per al lector LRF"
+msgstr "Opcions per al visor LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
 msgid "Formats that are viewed using the internal viewer"
@@ -5178,7 +5183,7 @@ msgstr "Maj+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Control de l'addició de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -5705,7 +5710,7 @@ msgstr "%(num)d llibres copiats a %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:205
 msgid "Auto merged"
-msgstr ""
+msgstr "Fusió automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:206
 msgid ""
@@ -5713,6 +5718,10 @@ msgid ""
 "library. Click Show details to see which ones. This behavior is controlled "
 "by the Auto merge option in Preferences->Adding books."
 msgstr ""
+"Alguns llibres s'han fusionat automàticament en registres existents a la "
+"biblioteca. Feu clic a «Mostra detalls» per veure quins són. Aquest "
+"comportament està controlat per l'opció «Fusió automàtica» a «Preferències-"
+">Addició de llibres»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:225
 msgid ""
@@ -8195,7 +8204,7 @@ msgid ""
 "older viewers)"
 msgstr ""
 "No converteixis totes les imatges a &JPEG (pot fer que no es vegin les "
-"imatges en lectors antics)"
+"imatges en visors antics)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -10009,7 +10018,7 @@ msgstr "&Atura les tasques seleccionades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr "&Amaga les tasques seleccionades"
+msgstr "&Oculta les tasques seleccionades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -10025,7 +10034,7 @@ msgstr "Atura &totes les tasques que no són de dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr "&Amaga totes les tasques"
+msgstr "&Oculta totes les tasques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:289
@@ -12732,7 +12741,7 @@ msgstr "Feu doble clic per a <b>edittar>/b><br>-me<b>"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:187
 #, python-format
 msgid "Hide column %s"
-msgstr "Amaga la columna %s"
+msgstr "Oculta la columna %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:192
 #, python-format
@@ -13352,7 +13361,7 @@ msgstr "(Error a la portada)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr ""
+msgstr "S'ha processat %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:61
@@ -13431,11 +13440,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Clear series"
-msgstr ""
+msgstr "Suprimeix la sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
-msgstr ""
+msgstr "Suprimeix l'identificador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:205
 msgid ""
@@ -13833,6 +13842,7 @@ msgstr "Cerca la carpeta"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "Automatically &convert added files to the current output format"
 msgstr ""
+"&Converteix automàticament els llibres afegits al format de sortida actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "&Automatic Adding"
@@ -15885,6 +15895,12 @@ msgid ""
 "having trouble downloading files from the content server, try removing the "
 "password."
 msgstr ""
+"<p>Si deixeu la contrasenya en blanc qualsevol podrà\n"
+" accedir a la vostra col·lecció de llibres amb la interfície web.\n"
+"<br>\n"
+"<p>Alguns dispositius tenen navegadors que no són compatibles amb "
+"l'autentificació. Si teniu problemes baixant fitxers del servidor de "
+"continguts, intenteu suprimir la contrasenya."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
 msgid ""
@@ -15931,10 +15947,13 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
+"<p>Alguns dispositius tenen navegadors que no són compatibles amb "
+"l'autentificació. Si teniu problemes baixant fitxers del servidor de "
+"continguts, intenteu suprimir la contrasenya."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "La contrasenya és incompatible amb alguns dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
@@ -17211,7 +17230,7 @@ msgstr "Suprimeix la categoria d'usuari %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:431
 #, python-format
 msgid "Hide category %s"
-msgstr "Amaga la categoria %s"
+msgstr "Oculta la categoria %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:435
 msgid "Show category"
@@ -17243,11 +17262,11 @@ msgstr "Canvia el mètode de divisió per categories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:491
 msgid "Disable"
-msgstr ""
+msgstr "Inhabilita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
 msgid "Partition"
-msgstr ""
+msgstr "Partició"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:510
 msgid "First letter is usable only when sorting by name"
@@ -17555,7 +17574,7 @@ msgstr "Monoespai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
-msgstr ""
+msgstr "Recorda la darrera mida i disposició de la &finestra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -17602,10 +17621,13 @@ msgid ""
 "fullscreen mode. This allows you to read the book text without it becoming "
 "too wide."
 msgstr ""
+"Estableix l'amplada màxima del text i imatges del llibre en mode de pantalla "
+"completa. Permet llegir el text del llibre sense que sigui d'una amplada "
+"excessiva."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Maximum text width in &fullscreen:"
-msgstr ""
+msgstr "Amplada màxima del text en &pantalla completa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid "Font &magnification step size:"
@@ -17854,23 +17876,23 @@ msgstr "Cerca un text al llibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:272
 #, python-format
 msgid "Toggle full screen (%s)"
-msgstr ""
+msgstr "Commuta la pantalla completa (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:307
 msgid "Full screen mode"
-msgstr ""
+msgstr "Mode de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:308
 msgid "Right click to show controls"
-msgstr ""
+msgstr "Feu clic dret per mostrar els controls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:309
 msgid "Press Esc to quit"
-msgstr ""
+msgstr "Premeu Esc per sortir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:323
 msgid "Show/hide controls"
-msgstr ""
+msgstr "Mostra/oculta els controls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:335
 msgid "Print Preview"
@@ -17887,11 +17909,11 @@ msgstr "S'està connectant amb dict-org per cercar: <b>%s</b>..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:533
 msgid "No such location"
-msgstr ""
+msgstr "La ubicació no existeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:534
 msgid "The location pointed to by this item does not exist."
-msgstr ""
+msgstr "La ubicació que apunta aquest element no existeix."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "Choose ebook"
@@ -18085,7 +18107,7 @@ msgstr "Mostra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1037
 msgid "Hide"
-msgstr "Amaga"
+msgstr "Oculta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1074
 msgid "Toggle"
@@ -19175,27 +19197,27 @@ msgstr "Afegeix un llibre en blanc (sense formats)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:311
 msgid "Set the title of the added book(s)"
-msgstr ""
+msgstr "Estableix el títol del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "Set the authors of the added book(s)"
-msgstr ""
+msgstr "Estableix els autors del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:315
 msgid "Set the ISBN of the added book(s)"
-msgstr ""
+msgstr "Estableix l'ISBN del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:317
 msgid "Set the tags of the added book(s)"
-msgstr ""
+msgstr "Estableix les etiquetes del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:319
 msgid "Set the series of the added book(s)"
-msgstr ""
+msgstr "Estableix la sèrie del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:321
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "Estableix el nombre de sèrie del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"
@@ -19784,7 +19806,7 @@ msgstr "Ordre per autor"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
-msgstr ""
+msgstr "Ordre de sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
@@ -20962,7 +20984,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:844
 msgid "series_sort() -- return the series sort value"
-msgstr ""
+msgstr "series_sort() -- s'obté el valor de l'ordre de sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:855
 msgid ""
@@ -21156,6 +21178,11 @@ msgid ""
 "same output as the above template: program: "
 "finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 msgstr ""
+"finish_formatting(val, fmt, prefix, sufix) -- aplica el format, prefix i "
+"sufix a un valor de la mateixa manera que en una plantilla com "
+"{series_index:05.2f| - |- }. Per exemple, el programa següent dóna la "
+"mateixa sortida que la plantilla anterior: "
+"finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -22080,6 +22107,17 @@ msgid ""
 "Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}\n"
 "resulting in the order series, tags, then everything else in default order."
 msgstr ""
+"Modifiqueu la llista següent per canviar l'ordre que es mostren les "
+"categories al\n"
+"navegador d'etiquetes. Els elements s'anomenen utilitzant el seu nom de "
+"cerca\n"
+"i s'ordenaran pel nombre subministrat. El nom de cerca «*» indica tots els "
+"noms\n"
+"que no surten de cap altra manera. S'ordenaran dos noms amb el mateix valor\n"
+"utilitzant l'ordre per defecte; el que es fa servir quan la llista està "
+"buida.\n"
+"Exemple: tag_browser_category_order = {'series':1, 'tags':2, '*':3}\n"
+"resulta en l'ordre sèrie, etiqueta i tota la resta en l'ordre per defecte."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:141
 msgid "Specify columns to sort the booklist by on startup"
@@ -22245,6 +22283,25 @@ msgid ""
 "formatter function raw_field will return the base value for title and\n"
 "series regardless of the setting of this tweak."
 msgstr ""
+"Controla com es dóna format al títol i al nom de sèrie quan es desa al disc "
+"o\n"
+"s'envia a un dispositiu. Aquest comportament depèn del camp que s'estigui\n"
+"processant. Si s'està processant el títol i s'estableix a «library_order» "
+"se\n"
+"substituirà el títol per l'ordre per títol. Si s'estableix a "
+"«strictly_alphabetic» no\n"
+"es canviarà el títol. Si s'està processant la sèrie i s'estableix a "
+"«library_order»,\n"
+"es mouran al final articles com «El» i «Un». Si s'estableix a "
+"«strictly_alphabetic»\n"
+"s'enviarà la sèrie sense cap canvi. Per exemple, si s'estableix a "
+"«library_order»,\n"
+"«El senyor dels anells» passarà a ser «Senyor dels anells, El». Si "
+"s'estableix a \n"
+"«strictly_alphabetic» seguirà com a «El senyor dels anells». Tingueu en "
+"compte\n"
+"que la funció de format «raw_field» dóna el valor inicial del títol i sèrie\n"
+"independentment com s'estableixi aquest ajustament."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:214
 msgid "Set the list of words considered to be \"articles\" for sort strings"
@@ -22391,6 +22448,91 @@ msgid ""
 "sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
 "sony_collection_name_template='{category:||: }{value}'"
 msgstr ""
+"Especifica les regles de canvi de nom per a les col·leccions Sony. Aquest "
+"ajustament\n"
+"només és aplicable si la gestió de metadades s'estableix a «automàtica». "
+"Les\n"
+"col·leccions als dispositius Sony s'anomenen depenent de si el camp és "
+"estàndard o\n"
+"personalitzat. Una col·lecció derivada d'un camp estàndard s'anomena amb el "
+"valor\n"
+"d'aquest camp. Per exemple, si la columna estàndard «sèrie» conté el valor "
+"«Darkover»,\n"
+"el nom de la col·lecció és «Darkover». Una col·lecció derivada d'un camp "
+"personalitzar\n"
+"tindrà el nom del camp afegit al valor. Per exemple, si una columna "
+"personalitzada de\n"
+"sèrie s'anomena «La meva sèrie» conté el valor «Darkover», la col·lecció "
+"s'anomenarà\n"
+"per defecte «Darkover (La meva sèrie)». Per als usos d'aquesta "
+"documentació,\n"
+"s'anomena «Darkover» el valor i «La meva sèrie» la categoria. Si dos llibres "
+"tenen camps\n"
+"que generen el mateix nom de col·lecció els dos llibres estaran en aquesta "
+"col·lecció.\n"
+"Aquest conjunt d'ajustaments us permet especificar com s'anomenaran les "
+"col·leccions\n"
+"per a un camp estàndard o personalitzat. Podeu utilitzar-ho per afegir una "
+"descripció al\n"
+"camp estàndard, per exemple «Naps (Etiqueta)» en lloc de «Naps». També "
+"podeu\n"
+"utilitzar-ho per forçar que múltiples camps acabin a la mateixa col·lecció. "
+"Per exemple,\n"
+"podeu forçar que els valors de «sèrie» «#la_meva_sèrie_1» i "
+"«la_meva_sèrie_2»\n"
+"apareguin a les col·leccions com a «algun_valor (Sèrie)», fusionant així "
+"tots els camps en\n"
+"un únic conjunt de col·leccions.\n"
+"Hi ha dos ajustaments relacionats. El primer determina el nom de la "
+"categoria que\n"
+"s'utilitzarà per a un camp de metadades. El segon és una plantilla que "
+"s'utilitza per\n"
+"determinar com es combinen el valor i la categoria per crear el nom de la "
+"col·lecció.\n"
+"La sintaxi del primer ajustament, «sony_collection_renaming_rules», és:\n"
+"«'nom_de_cerca_del_camp':'nom_de_la_categoria_a_utilitzar', "
+"'nom_de_cerca':'nom', ...}»\n"
+"El segon ajustament, «sony_collection_name_template» és una plantilla. "
+"Utilitza el\n"
+"mateix llenguatge que els de quadres de connexions i les plantilles de "
+"desar. Aquest\n"
+"ajustament controla com es combinen el valor i la categoria junts per fer el "
+"nom de la\n"
+"col·lecció. Els únics dos camps disponibles són {categoria} i {valor}. El "
+"camp {valor} no\n"
+"està mai buit. El camp {categoria} pot estar buit. Per defecte es posa "
+"primer el valor i\n"
+"després la categoria entre parèntesis, si no està buida: «{value} "
+"{category:|(|)}»\n"
+"Exemples: Als primers tres exemples s'assumeix que no s'ha canviat el segon "
+"ajustament.\n"
+"1: Vull que les tres columnes de sèrie es fusionin en un conjunt de "
+"col·leccions. Els\n"
+"noms de cerca de les columnes són «series», «#sèrie_1» i «#sèrie_2» i no "
+"vull res entre\n"
+"parèntesis. El valor a utilitzar a l'ajustament seria:\n"
+"«sony_collection_renaming_rules={'series':'', '#sèrie_1':'', "
+"'#sèrie_2':''}»\n"
+"2: Vull que la paraula «(Sèrie)» aparegui a les col·leccions fetes a partir "
+"de les sèries i\n"
+"que la paraula «(Etiqueta)» aparegui a les col·leccions fetes a partir de "
+"les etiquetes.\n"
+"Utilizeu:\n"
+"«sony_collection_renaming_rules={'series':'Sèrie', 'tags':'Etiqueta'}»\n"
+"3: Vull que «series» i «la_meva_sèrie» es fusionin i afegir «(Sèrie)» al nom "
+"de col·lecció.\n"
+"La regla per reanomenar és:\n"
+"«sony_collection_renaming_rules={'series':'Sèrie', "
+"'#la_meva_sèrie':'Sèrie'}»\n"
+"4: Igual que a l'exemple 2 però en lloc de tenir el nom de la categoria "
+"entre parèntesis i\n"
+"afegit al valor el vull al principi i separat per dos punts com a «Sèrie: "
+"Darkover». He de\n"
+"canviar la plantilla utilitzada per donar format al nom de la categoria. Els "
+"ajustaments\n"
+"resultants són:\n"
+"«sony_collection_renaming_rules={'series':'Sèrie', 'tags':'Etiqueta'}»\n"
+"«sony_collection_name_template='{category:||: }{value}'»"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:329
 msgid "Specify how SONY collections are sorted"
@@ -22846,7 +22988,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:498
 msgid "Change the font size of book details in the interface"
-msgstr ""
+msgstr "Canvia la mida de la lletra dels detalls del llibre a la interfície"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:499
 msgid ""
@@ -22855,10 +22997,15 @@ msgid ""
 "comments are rendered in the metadata edit dialog. Set it to a positive or\n"
 "negative number to increase or decrease the font size."
 msgstr ""
+"Canvia la mida de la lletra en què es mostren els detalls del llibre al "
+"panell lateral i\n"
+"els comentaris al quadre d'edició de metadades. Establiu-ho a un nombre "
+"positiu\n"
+"o negatiu per augmentar o reduir la mida de la lletra."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:504
 msgid "Compile General Program Mode templates to Python"
-msgstr ""
+msgstr "Compila les plantilles del mode general de programa en Python"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:505
 msgid ""
@@ -22871,3 +23018,16 @@ msgid ""
 "Default:    compile_gpm_templates = True\n"
 "No compile: compile_gpm_templates = False"
 msgstr ""
+"Les plantilles del mode general de programa compilades són "
+"significativament\n"
+"més ràpides que les interpretades. Si establiu aquest valor a «True» fareu "
+"que\n"
+"el calibre compili les plantilles en mode general de programa en la majoria "
+"de\n"
+"casos. Si l'establiu a «False» el calibre utilitzarà el comportament antic: "
+"\n"
+"interpretar les plantilles. Establiu-ho a «False» si algunes plantilles "
+"compilades\n"
+"donen valors incorrectes.\n"
+"Per defecte: compile_gpm_templates = True\n"
+"No compilis: compile_gpm_templates = False"
