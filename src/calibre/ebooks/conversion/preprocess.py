@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re
+import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
 
@@ -515,14 +515,14 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
-        for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
-            search_pattern = getattr(self.extra_opts, search, '')
+        search_replace = json.loads(getattr(self.extra_opts, 'search_replace', '[]'))
+        for search_pattern, replace_txt in search_replace:
             if search_pattern:
                 try:
                     search_re = re.compile(search_pattern)
-                    replace_txt = getattr(self.extra_opts, replace, '')
                     if not replace_txt:
                         replace_txt = ''
+                    print 'Replacing pattern \'{0}\' with text \'{1}\''.format(search_pattern, replace_txt)
                     rules.insert(0, (search_re, replace_txt))
                 except Exception as e:
                     self.log.error('Failed to parse %r regexp because %s' %

@@ -156,9 +156,7 @@ def add_pipeline_options(parser, plumber):
               'SEARCH AND REPLACE' : (
                  _('Modify the document text and structure using user defined patterns.'),
                  [
-                      'sr1_search', 'sr1_replace',
-                      'sr2_search', 'sr2_replace',
-                      'sr3_search', 'sr3_replace',
+                      'search_replace',
                  ]
               ),
 

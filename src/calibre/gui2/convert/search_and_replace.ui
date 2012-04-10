@@ -39,7 +39,7 @@
        <enum>QLayout::SetMinimumSize</enum>
       </property>
       <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr1_search" native="true">
+       <widget class="RegexEdit" name="sr_search" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -60,12 +60,12 @@
          <string>&amp;Replacement Text</string>
         </property>
         <property name="buddy">
-         <cstring>opt_sr1_replace</cstring>
+         <cstring>sr_replace</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLineEdit" name="opt_sr1_replace">
+       <widget class="QLineEdit" name="sr_replace">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -78,114 +78,6 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Second Expression</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
-      </property>
-      <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr2_search" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>&amp;Replacement Text</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_sr2_replace</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLineEdit" name="opt_sr2_replace">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Third expression</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
-      </property>
-      <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr3_search" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>&amp;Replacement Text</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_sr3_replace</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLineEdit" name="opt_sr3_replace">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>-1</number>
@@ -220,10 +112,24 @@
        </property>
 	  </widget>
      </item>
+     <item>			
+      <widget class="QPushButton" name="sr_load" native="true">
+       <property name="text">
+        <string>Load</string>
+       </property>
+	  </widget>
+	 </item>
+     <item>	 
+	  <widget class="QPushButton" name="sr_save" native="true">
+       <property name="text">
+        <string>Save</string>
+       </property>
+	  </widget>
+     </item>
     </layout>	
    </item>
-   <item row="5" column="0">
-	<widget class="QTableWidget" name="opt_sr" native="true">
+   <item row="3" column="0">
+	<widget class="QTableWidget" name="opt_search_replace" native="true">
 	 <property name="sizePolicy">
 	  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
 	   <horstretch>0</horstretch>

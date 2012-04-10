@@ -10,7 +10,7 @@ import textwrap, codecs, importlib
 from functools import partial
 
 from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
-    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel
+    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel, QTableWidget 
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import load_defaults, \
@@ -160,6 +160,15 @@ class Widget(QWidget):
             return g.xpath if g.xpath else None
         elif isinstance(g, RegexEdit):
             return g.regex if g.regex else None
+        elif isinstance(g, QTableWidget):
+            import json
+            ans = []
+            for row in xrange(0, g.rowCount()):
+                colItems = []
+                for col in xrange(0, g.columnCount()):
+                    colItems.append(unicode(g.item(row, col).text()))
+                ans.append(colItems)
+            return json.dumps(ans)
         else:
             raise Exception('Can\'t get value from %s'%type(g))
 
@@ -187,6 +196,8 @@ class Widget(QWidget):
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.editTextChanged.connect(f)
             g.edit.currentIndexChanged.connect(f)
+        elif isinstance(g, QTableWidget):
+            g.cellChanged.connect(f)
         else:
             raise Exception('Can\'t connect %s'%type(g))
 
@@ -220,6 +231,23 @@ class Widget(QWidget):
             g.setCheckState(Qt.Checked if bool(val) else Qt.Unchecked)
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.setText(val if val else '')
+        elif isinstance(g, (QTableWidget)):
+            import json
+            try:
+                rowItems = json.loads(val)
+                if not isinstance(rowItems, list):
+                    rowItems = []
+            except:
+                rowItems = []
+                
+
+            g.setRowCount(len(rowItems))
+           
+            for row, colItems in enumerate(rowItems):
+                for col, cellValue in enumerate(colItems):
+                    newItem = g.itemPrototype().clone()
+                    newItem.setText(cellValue)
+                    g.setItem(row,col, newItem)
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val),
                 unicode(g.objectName())))
