@@ -1,4 +1,3 @@
-import string, re
 import time
 import traceback
 # above for debugging via stack
@@ -6,22 +5,19 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 # Allows the Python soup converter, which makes parsing easier.
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-import os, time, traceback, re, urlparse, sys, cStringIO
-from collections import defaultdict
-from functools import partial
-from contextlib import nested, closing
+import os
 
 
-from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
+from calibre.web.feeds import feeds_from_index
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 
 
 # To Do: strip ads and graphics, Current Column lacks a title.
 # The News letter archive https://www.billoreilly.com/newsletterarchive is covered by other entries.
-# Newsletters: Talking Points Memos covered by cat12 
+# Newsletters: Talking Points Memos covered by cat12
 # ./ebook-convert  --username xxx --password xxx
 
-# this is derived from BasicNewsRecipe, so it can only overload those.  
+# this is derived from BasicNewsRecipe, so it can only overload those.
 # Soome of what we need is otherwise in article, so we have more copy to do than otherwise.
 class OReillyPremium(BasicNewsRecipe):
     title           = u'OReilly Premium'
@@ -42,9 +38,9 @@ class OReillyPremium(BasicNewsRecipe):
     # Don't go down
     recursions      = 0
     max_articles_per_feed = 20
-    
+
     debugMessages   = True
-    
+
     # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
     catList = [ ["TV Archives",         'https://www.billoreilly.com/show?action=tvShowArchive', 'a',    {'class':['showLinks','homeLinks']},                   []],
                 # ["No Spin Archives",    'https://www.billoreilly.com/blog?categoryID=7',         True,   {'class':['blogBody'], 'style':['padding-top:10px;']}, []],
@@ -53,19 +49,19 @@ class OReillyPremium(BasicNewsRecipe):
                 # ["Talking Points Memo", 'https://www.billoreilly.com/blog?categoryID=12',        'td',   {},                                                    []],
                 ["Current Column",      'https://www.billoreilly.com/currentcolumn',             'span', {'class':['defaultHeader']},                           []]
               ]
-              
+
     feeds          = [
         (u'No Spin',        u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=7'),
-        (u'Daily Briefing', u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=11'), 
+        (u'Daily Briefing', u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=11'),
         (u'Talking Points', u'https://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=12'),
         (u'Blog',           u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=0'),
         (u'StratFor',       u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=5')
     ]
-    # http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=8 is word for the day.              
-              
+    # http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=8 is word for the day.
+
     # Note: Talking Points is broken in the above model; the site changed to more Ajax-y.
     # Now using RSS
-    
+
     def get_browser(self):
         print("In get_browser")
         br = BasicNewsRecipe.get_browser()
@@ -76,7 +72,7 @@ class OReillyPremium(BasicNewsRecipe):
             br['formPasswordField'] = self.password
             br.submit()
         return br
-        
+
     # Returns the best-guess print url.
     # The second parameter (pageURL) is returned if nothing is found.
     def extractPrintURL(self, baseURL, pageURL, printString):
@@ -90,17 +86,17 @@ class OReillyPremium(BasicNewsRecipe):
             tag = printText.parent
             tagURL = baseURL+tag['href']
         return tagURL
-        
+
     def stripBadChars(self, inString) :
         return inString.replace("\'", "")
-        
-       
+
+
     def parseGeneric(self, baseURL):
-        # Does a generic parsing of the articles.  There are six categories (0-5) 
+        # Does a generic parsing of the articles.  There are six categories (0-5)
         # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
         # NoSpin and TV are generic
         fullReturn = []
-        for i in range(len(self.catList)) : 
+        for i in range(len(self.catList)) :
             articleList = []
             print("In "+self.catList[i][0]+", index: "+ str(i))
             soup = self.index_to_soup(self.catList[i][1])
@@ -110,7 +106,7 @@ class OReillyPremium(BasicNewsRecipe):
             # Problem: 0-2 create many in an array
             # 3-5 create one.
             # So no for-div for 3-5
-            
+
             if i == 0 :
                 print("Starting TV Archives")
                 for div in soup.findAll(self.catList[i][2], self.catList[i][3]):
@@ -151,7 +147,7 @@ class OReillyPremium(BasicNewsRecipe):
             print("Returning")
             # print fullReturn
         return fullReturn
-     
+
 
     # build_index() starts with:
     #     try:
@@ -161,7 +157,7 @@ class OReillyPremium(BasicNewsRecipe):
     #        self.report_progress(0, _('Got feeds from index page'))
     #    except NotImplementedError:
     #        feeds = self.parse_feeds()
-    
+
     # which in turn is from __init__.py
     #def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
     #    log=default_log):
@@ -177,10 +173,10 @@ class OReillyPremium(BasicNewsRecipe):
     #                                   max_articles_per_feed=max_articles_per_feed)
     #    feeds.append(pfeed)
     #           return feeds
-    
+
     #  use_embedded_content defaults to None, at which point if the content is > 2K, it is used as the article.
 
-            
+
     # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
     # returns a list of tuple ('feed title', list of articles)
     # {
@@ -201,7 +197,7 @@ class OReillyPremium(BasicNewsRecipe):
         masterList = self.parseGeneric(baseURL)
         #print(masterList)
         return masterList
-        
+
     def preprocess_html(self, soup):
         print("In preprocess_html")
         refresh = soup.find('meta', {'http-equiv':'refresh'})
@@ -210,22 +206,22 @@ class OReillyPremium(BasicNewsRecipe):
         content = refresh.get('content').partition('=')[2]
         raw = self.browser.open('https://www.billoreilly.com'+content).read()
         return BeautifulSoup(raw.decode('cp1252', 'replace'))
-    
+
     def build_index(self):
         print("In OReilly build_index()\n\n")
         feedsRSS = []
-        self.report_progress(0, _('Fetching feeds...'))
+        self.report_progress(0, ('Fetching feeds...'))
         #try:
         feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
                                  max_articles_per_feed=self.max_articles_per_feed,
                                  log=self.log)
-        self.report_progress(0, _('Got feeds from index page'))
+        self.report_progress(0, ('Got feeds from index page'))
         #except NotImplementedError:
         #    feeds = self.parse_feeds()
-        # Now add regular feeds.    
+        # Now add regular feeds.
         feedsRSS = self.parse_feeds()
         print ("feedsRSS is type "+feedsRSS.__class__.__name__)
-        
+
         for articles in feedsRSS:
             print("articles is type "+articles.__class__.__name__)
             print("Title:" + articles.title)
@@ -235,9 +231,9 @@ class OReillyPremium(BasicNewsRecipe):
 
         #feeds = FeedCollection(feeds)
 
-        self.report_progress(0, _('Trying to download cover...'))
+        self.report_progress(0, ('Trying to download cover...'))
         self.download_cover()
-        self.report_progress(0, _('Generating masthead...'))
+        self.report_progress(0, ('Generating masthead...'))
         self.masthead_path = None
 
         try:
@@ -317,7 +313,7 @@ class OReillyPremium(BasicNewsRecipe):
             tp.putRequest(req, block=True, timeout=0)
 
 
-        self.report_progress(0, _('Starting download [%d thread(s)]...')%self.simultaneous_downloads)
+        self.report_progress(0, ('Starting download [%d thread(s)]...')%self.simultaneous_downloads)
         while True:
             try:
                 tp.poll()
@@ -331,8 +327,8 @@ class OReillyPremium(BasicNewsRecipe):
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)
         self.create_opf(feeds)
-        self.report_progress(1, _('Feeds downloaded to %s')%index)
+        self.report_progress(1, ('Feeds downloaded to %s')%index)
 
         return index
-    
+
 

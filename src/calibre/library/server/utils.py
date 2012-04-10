@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, sys, uuid, hashlib
+import time, sys, hashlib, binascii, random, os
 from urllib import quote as quote_, unquote as unquote_
 from functools import wraps
 
@@ -89,11 +89,13 @@ class AuthController(object):
     def __init__(self, realm, users_dict):
         self.realm = realm
         self.users_dict = users_dict
-        self.secret = bytes(uuid.uuid4().hex)
+        self.secret = bytes(binascii.hexlify(os.urandom(random.randint(20,
+            30))))
         self.cookie_name = 'android_workaround'
+        self.key_order = random.choice(('%(t)s:%(s)s', '%(s)s:%(t)s'))
 
     def hashit(self, raw):
-        return hashlib.sha1(raw).hexdigest()
+        return hashlib.sha256(raw).hexdigest()
 
     def __call__(self, func, allow_cookie_auth):
 
@@ -117,10 +119,10 @@ class AuthController(object):
     def generate_cookie(self, timestamp=None):
         '''
         Generate a cookie. The cookie contains a plain text timestamp and a
-        hashe of the timestamp and the server secret.
+        hash of the timestamp and the server secret.
         '''
         timestamp = int(time.time()) if timestamp is None else timestamp
-        key = self.hashit('%d:%s'%(timestamp, self.secret))
+        key = self.hashit(self.key_order%dict(t=timestamp, s=self.secret))
         return '%d:%s'%(timestamp, key)
 
     def is_valid(self, cookie):

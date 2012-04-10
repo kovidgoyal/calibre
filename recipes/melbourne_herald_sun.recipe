@@ -1,0 +1,85 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2009, Matthew Briggs'
+__docformat__ = 'restructuredtext en'
+
+'''
+http://www.herald sun.com.au/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DailyTelegraph(BasicNewsRecipe):
+    title          = u'Melbourne Herald Sun'
+    __author__     = u'Ray Hartley'
+    description    = (u'Victorian and National News'
+            '. You will need to have a subscription to '
+            'http://www.heraldsun.com.au to get full articles.')
+    language = 'en_AU'
+
+    oldest_article = 2
+    needs_subscription = 'optional'
+    max_articles_per_feed = 30
+    remove_javascript      = True
+    no_stylesheets         = True
+    encoding               = 'utf8'
+    use_embedded_content  = False
+    language              = 'en_AU'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://resources2.news.com.au/cs/heraldsun/images/header-and-footer/logo.gif'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                               .caption{display: inline; font-size: x-small}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                         , 'language'  : language
+                        }
+
+    keep_only_tags = [dict(attrs={'id':'story'})]
+    remove_tags_before=dict(attrs={'class':'story-header'})
+    remove_tags_after=dict(attrs={'class':'story-footer'})
+    remove_tags = [
+                     dict(name=['meta','link','base','iframe','embed','object','media-metadata','media-reference','media-producer'])
+                    ,dict(attrs={'class':['story-header-tools','story-sidebar','story-footer','story-summary-list']})
+                  ]
+    remove_attributes=['lang']
+
+
+    feeds = [(u'Breaking News'   , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_breakingnews_206.xml'  )
+             ,(u'Business'        , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_business_207.xml'      )
+             ,(u'Entertainment'   , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_entertainment_208.xml' )
+             ,(u'Health Science'  , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_health_212.xml'        )
+             ,(u'Music'           , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_music_449.xml'         )
+             ,(u'National News'   , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_national_209.xml'      )
+             ,(u'Sport News'      , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_sport_213.xml'         )
+             ,(u'AFL   News'      , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_afl_205.xml'           )
+             ,(u'State News'      , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_vic_214.xml'           )
+             ,(u'Technology'      , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_tech_215.xml'          )
+             ,(u'World News'      , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_world_216.xml'         )
+             ,(u'Opinion',  u'http://feeds.news.com.au/public/rss/2.0/heraldsun_opinion_210.xml'   )
+             ,(u'Andrew Bolt'        , u'http://blogs.news.com.au/heraldsun/andrewbolt/index.php/xml/rss_2.0/heraldsun/hs_andrewbolt/')
+             ,(u'Afl - St Kilda'       , u'http://feeds.news.com.au/public/rss/2.0/heraldsun_afl_stkilda_565.xml')
+             ,(u'Terry McCrann'  ,u'http://feeds.news.com.au/public/rss/2.0/heraldsun_tmccrann_224.xml'  )
+             ,(u'The Other side'  ,u'http://feeds.news.com.au/public/rss/2.0/heraldsun_otherside_211.xml')]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            br.open('http://www.heraldsun.com.au')
+            br.select_form(nr=0)
+            br['username'] = self.username
+            br['password'] = self.password
+            raw = br.submit().read()
+            if '>log out' not in raw.lower():
+                raise ValueError('Failed to log in to www.heralsun'
+                        ' are your username and password correct?')
+        return br
+
+    def get_article_url(self, article):
+        return article.id
+
+
