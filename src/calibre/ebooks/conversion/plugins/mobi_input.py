@@ -32,6 +32,7 @@ class MOBIInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        self.is_kf8 = False
 
         if os.environ.get('USE_MOBIUNPACK', None) is not None:
             pos = stream.tell()
@@ -62,6 +63,7 @@ class MOBIInput(InputFormatPlugin):
             mr = Mobi8Reader(mr, log)
             opf = os.path.abspath(mr())
             self.encrypted_fonts = mr.encrypted_fonts
+            self.is_kf8 = True
             return opf
 
         raw = parse_cache.pop('calibre_raw_mobi_markup', False)

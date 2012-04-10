@@ -33,7 +33,8 @@ qop_auth = 'auth'
 qop_auth_int = 'auth-int'
 valid_qops = (qop_auth, qop_auth_int)
 
-valid_algorithms = ('MD5', 'MD5-sess')
+valid_algorithms = ('MD5', 'MD5-sess', 'md5', 'md5-sess') # Changed by Kovid to
+                                                          # add lowercase
 
 
 def TRACE(msg):
@@ -67,7 +68,7 @@ def get_ha1_dict(user_ha1_dict):
     argument to digest_auth().
     """
     def get_ha1(realm, username):
-        return user_ha1_dict.get(user)
+        return user_ha1_dict.get(username) # Changed by Kovid to fix typo
 
     return get_ha1
 
@@ -107,10 +108,10 @@ def synthesize_nonce(s, key, timestamp=None):
 
     key
         A secret string known only to the server.
-    
+
     timestamp
         An integer seconds-since-the-epoch timestamp
-    
+
     """
     if timestamp is None:
         timestamp = int(time.time())
@@ -190,10 +191,10 @@ class HttpDigestAuthorization (object):
 
         s
             A string related to the resource, such as the hostname of the server.
-            
+
         key
             A secret string known only to the server.
-        
+
         Both s and key must be the same values which were used to synthesize the nonce
         we are trying to validate.
         """
@@ -256,7 +257,7 @@ class HttpDigestAuthorization (object):
             4.3.  This refers to the entity the user agent sent in the request which
             has the Authorization header. Typically GET requests don't have an entity,
             and POST requests do.
-        
+
         """
         ha2 = self.HA2(entity_body)
         # Request-Digest -- RFC 2617 3.2.2.1
@@ -302,16 +303,16 @@ def www_authenticate(realm, key, algorithm='MD5', nonce=None, qop=qop_auth, stal
 def digest_auth(realm, get_ha1, key, debug=False):
     """A CherryPy tool which hooks at before_handler to perform
     HTTP Digest Access Authentication, as specified in :rfc:`2617`.
-    
+
     If the request has an 'authorization' header with a 'Digest' scheme, this
     tool authenticates the credentials supplied in that header.  If
     the request has no 'authorization' header, or if it does but the scheme is
     not "Digest", or if authentication fails, the tool sends a 401 response with
     a 'WWW-Authenticate' Digest header.
-    
+
     realm
         A string containing the authentication realm.
-    
+
     get_ha1
         A callable which looks up a username in a credentials store
         and returns the HA1 string, which is defined in the RFC to be
@@ -320,13 +321,13 @@ def digest_auth(realm, get_ha1, key, debug=False):
         where username is obtained from the request's 'authorization' header.
         If username is not found in the credentials store, get_ha1() returns
         None.
-    
+
     key
         A secret string known only to the server, used in the synthesis of nonces.
-    
+
     """
     request = cherrypy.serving.request
-    
+
     auth_header = request.headers.get('authorization')
     nonce_is_stale = False
     if auth_header is not None:
@@ -334,10 +335,10 @@ def digest_auth(realm, get_ha1, key, debug=False):
             auth = HttpDigestAuthorization(auth_header, request.method, debug=debug)
         except ValueError:
             raise cherrypy.HTTPError(400, "The Authorization header could not be parsed.")
-        
+
         if debug:
             TRACE(str(auth))
-        
+
         if auth.validate_nonce(realm, key):
             ha1 = get_ha1(realm, auth.username)
             if ha1 is not None:
@@ -355,7 +356,7 @@ def digest_auth(realm, get_ha1, key, debug=False):
                         if debug:
                             TRACE("authentication of %s successful" % auth.username)
                         return
-    
+
     # Respond with 401 status and a WWW-Authenticate header
     header = www_authenticate(realm, key, stale=nonce_is_stale)
     if debug:

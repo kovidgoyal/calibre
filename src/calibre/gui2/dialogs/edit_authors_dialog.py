@@ -177,7 +177,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         ca.triggered.connect(self.paste_from_clipboard)
         m.addSeparator()
 
-        if self.context_item.column() == 0:
+        if self.context_item is not None and self.context_item.column() == 0:
             ca = m.addAction(_('Copy to author sort'))
             ca.triggered.connect(self.copy_au_to_aus)
         else:
