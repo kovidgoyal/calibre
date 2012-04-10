@@ -120,7 +120,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 return False
         return True
 
-    def opt_sr_items
+    @property
+    def opt_sr_items(self):
         items = []
         for row in xrange(0, self.opt_sr.rowCount()):
             items.append([self.opt_sr.getItem(row,0).text(), self.opt_sr.getItem(row,1).text()])
