@@ -226,6 +226,9 @@ class RegexEdit(QWidget, Ui_Edit):
     def set_doc(self, doc):
         self.doc_cache = doc
 
+    def set_regex(self, regex):
+        self.edit.setText(regex)
+
     def break_cycles(self):
         self.db = self.doc_cache = None
 

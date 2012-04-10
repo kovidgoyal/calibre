@@ -185,6 +185,59 @@
      </layout>
     </widget>
    </item>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>-1</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="sr_add" native="true">
+       <property name="text">
+        <string>Add</string>
+       </property>
+	  </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_change" native="true">
+       <property name="text">
+        <string>Change</string>
+       </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+	  </widget>
+     </item>
+     <item>			
+      <widget class="QPushButton" name="sr_remove" native="true">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+	  </widget>
+     </item>
+    </layout>	
+   </item>
+   <item row="5" column="0">
+	<widget class="QTableWidget" name="opt_sr" native="true">
+	 <property name="sizePolicy">
+	  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+	   <horstretch>0</horstretch>
+	   <verstretch>0</verstretch>
+	  </sizepolicy>
+	 </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+	 </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+	 </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
