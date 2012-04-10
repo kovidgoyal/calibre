@@ -63,7 +63,6 @@ class MOBIFile(object):
 
         self.raw_text = b''.join(r.raw for r in self.text_records)
         self.header = self.mf.mobi8_header
-        self.kf8_records = mf.records[offset:]
         self.extract_resources()
         self.read_fdst()
 
