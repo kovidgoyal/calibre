@@ -289,7 +289,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 class PDBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read PDB metadata'
-    file_types  = set(['pdb'])
+    file_types  = set(['pdb', 'updb'])
     description = _('Read metadata from %s files') % 'PDB'
     author      = 'John Schember'
 

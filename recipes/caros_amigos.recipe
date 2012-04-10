@@ -1,7 +1,5 @@
 __copyright__ = '2011, Pablo Aldama <pabloaldama at gmail.com>'
-
 from calibre.web.feeds.news import BasicNewsRecipe
-
 class AdvancedUserRecipe1311839910(BasicNewsRecipe):
     title          = u'Caros Amigos'
     oldest_article = 20
@@ -9,9 +7,8 @@ class AdvancedUserRecipe1311839910(BasicNewsRecipe):
     language = 'pt_BR'
     __author__ =  'Pablo Aldama'
 
-    feeds          = [(u'Caros Amigos', u'http://carosamigos.terra.com.br/index/index.php?format=feed&type=rss')]
+    feeds          = [(u'Caros Amigos', u'http://carosamigos.terra.com.br/index2/index.php?format=feed&type=rss')]
     keep_only_tags    = [dict(name='div', attrs={'class':['blog']})
                         ,dict(name='div', attrs={'class':['blogcontent']})
                         ]
     remove_tags    = [dict(name='div', attrs={'class':'addtoany'})]
-

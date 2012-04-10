@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import struct, re, os, imghdr
 from collections import namedtuple
-from itertools import repeat
+from itertools import repeat, izip
 from urlparse import urldefrag
 
 from lxml import etree
@@ -71,16 +71,16 @@ class Mobi8Reader(object):
         return self.write_opf(guide, ncx, spine, resource_map)
 
     def read_indices(self):
-        self.flow_table = (0, NULL_INDEX)
+        self.flow_table = ()
 
         if self.header.fdstidx != NULL_INDEX:
             header = self.kf8_sections[self.header.fdstidx][0]
             if header[:4] != b'FDST':
                 raise ValueError('KF8 does not have a valid FDST record')
-            num_sections, = struct.unpack_from(b'>L', header, 0x08)
-            sections = header[0x0c:]
-            self.flow_table = struct.unpack_from(b'>%dL' % (num_sections*2),
-                    sections, 0)[::2] + (NULL_INDEX,)
+            sec_start, num_sections = struct.unpack_from(b'>LL', header, 4)
+            secs = struct.unpack_from(b'>%dL' % (num_sections*2),
+                    header, sec_start)
+            self.flow_table = tuple(izip(secs[::2], secs[1::2]))
 
         self.files = []
         if self.header.skelidx != NULL_INDEX:
@@ -127,13 +127,10 @@ class Mobi8Reader(object):
         raw_ml = self.mobi6_reader.mobi_html
         self.flows = []
         self.flowinfo = []
+        ft = self.flow_table if self.flow_table else [(0, len(raw_ml))]
 
         # now split the raw_ml into its flow pieces
-        for j in xrange(0, len(self.flow_table)-1):
-            start = self.flow_table[j]
-            end = self.flow_table[j+1]
-            if end == NULL_INDEX:
-                end = len(raw_ml)
+        for start, end in ft:
             self.flows.append(raw_ml[start:end])
 
         # the first piece represents the xhtml text
@@ -446,6 +443,7 @@ class Mobi8Reader(object):
         current_depth = None
         parent = ans
         seen = set()
+        links = []
         for elem in root.iterdescendants(etree.Element):
             if reached and elem.tag == XHTML('a') and elem.get('href',
                     False):
@@ -453,24 +451,32 @@ class Mobi8Reader(object):
                 href, frag = urldefrag(href)
                 href = base_href + '/' + href
                 text = xml2text(elem).strip()
-                if text in seen:
+                if (text, href, frag) in seen:
                     continue
-                seen.add(text)
-                depth = node_depth(elem)
-                if current_depth is None:
-                    current_depth = depth
-                if current_depth == depth:
-                    parent.add_item(href, frag, text)
-                elif current_depth < depth:
-                    parent = parent[-1]
-                    parent.add_item(href, frag, text)
-                    current_depth = depth
-                else:
-                    parent = parent.parent
-                    parent.add_item(href, frag, text)
-                    current_depth = depth
+                seen.add((text, href, frag))
+                links.append((text, href, frag, node_depth(elem)))
+            elif elem is start:
+                reached = True
+
+        depths = sorted(set(x[-1] for x in links))
+        depth_map = {x:i for i, x in enumerate(depths)}
+        for text, href, frag, depth in links:
+            depth = depth_map[depth]
+            if current_depth is None:
+                current_depth = 0
+                parent.add_item(href, frag, text)
+            elif current_depth == depth:
+                parent.add_item(href, frag, text)
+            elif current_depth < depth:
+                parent = parent[-1] if len(parent) > 0 else parent
+                parent.add_item(href, frag, text)
+                current_depth += 1
             else:
-                if elem is start:
-                    reached = True
+                delta = current_depth - depth
+                while delta > 0 and parent.parent is not None:
+                    parent = parent.parent
+                    delta -= 1
+                parent.add_item(href, frag, text)
+                current_depth = depth
         return ans
 

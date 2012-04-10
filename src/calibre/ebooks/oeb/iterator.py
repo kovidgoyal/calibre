@@ -217,6 +217,10 @@ class EbookIterator(object):
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
 
+        self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
+        if getattr(plumber.input_plugin, 'is_kf8', False):
+            self.book_format = 'KF8'
+
         self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
         if self.opf is None:
             self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))

@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, __builtin__, warnings
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
-from htmlentitydefs import name2codepoint
 from math import floor
 from functools import partial
 
@@ -551,6 +550,12 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
             return check(chr(num).decode(encoding))
         except UnicodeDecodeError:
             return check(my_unichr(num))
+    from calibre.utils.html5_entities import entity_map
+    try:
+        return check(entity_map[ent])
+    except KeyError:
+        pass
+    from htmlentitydefs import name2codepoint
     try:
         return check(my_unichr(name2codepoint[ent]))
     except KeyError:

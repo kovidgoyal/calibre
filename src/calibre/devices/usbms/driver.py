@@ -402,19 +402,23 @@ class USBMS(CLI, Device):
     def build_template_regexp(cls):
         def replfunc(match, seen=None):
             v = match.group(1)
-            if v in ['title', 'series', 'series_index', 'isbn']:
+            if v in ['authors', 'author_sort']:
+                v = 'author'
+            if v in ('title', 'series', 'series_index', 'isbn', 'author'):
                 if v not in seen:
-                    seen |= set([v])
+                    seen.add(v)
                     return '(?P<' + v + '>.+?)'
-            elif v in ['authors', 'author_sort']:
-                if v not in seen:
-                    seen |= set([v])
-                    return '(?P<author>.+?)'
             return '(.+?)'
         s = set()
         f = functools.partial(replfunc, seen=s)
-        template = cls.save_template().rpartition('/')[2]
-        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        template = None
+        try:
+            template = cls.save_template().rpartition('/')[2]
+            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        except:
+            prints(u'Failed to parse template: %r'%template)
+            template = u'{title} - {authors}'
+            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
     @classmethod
     def path_to_unicode(cls, path):
