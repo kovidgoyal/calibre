@@ -36,6 +36,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         proto.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable + Qt.ItemIsEnabled))
         self.opt_search_replace.setItemPrototype(proto)
         self.opt_search_replace.setColumnCount(2)
+        self.opt_search_replace.setColumnWidth(0, 300)
+        self.opt_search_replace.setColumnWidth(1, 300)
         self.opt_search_replace.setHorizontalHeaderLabels(['Search Expression', 'Replacement'])
 
         self.connect(self.sr_add, SIGNAL('clicked()'), self.sr_add_clicked)
