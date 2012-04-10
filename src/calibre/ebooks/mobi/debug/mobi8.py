@@ -82,7 +82,7 @@ class MOBIFile(object):
 
         if self.header.fdst_idx != NULL_INDEX:
             idx = self.header.fdst_idx
-            self.fdst = FDST(self.kf8_records[idx].raw)
+            self.fdst = FDST(self.mf.records[idx].raw)
             if self.fdst.num_sections != self.header.fdst_count:
                 raise ValueError('KF8 Header contains invalid FDST count')
 
