@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-08 09:51+0000\n"
-"PO-Revision-Date: 2012-04-08 20:17+0000\n"
+"PO-Revision-Date: 2012-04-10 18:49+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-09 04:50+0000\n"
-"X-Generator: Launchpad (build 15060)\n"
+"X-Launchpad-Export-Date: 2012-04-11 04:37+0000\n"
+"X-Generator: Launchpad (build 15070)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -4452,6 +4452,8 @@ msgid ""
 "Could not find reasonable point at which to split: %(path)s Sub-tree size: "
 "%(size)d KB"
 msgstr ""
+"Не было подходящего момента что бы разделить: %(path)s Размер поддерева: "
+"%(size)d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -12182,7 +12184,7 @@ msgstr "Нет совпадений"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:412
 #, python-format
 msgid "Could not find any shortcuts matching %s"
-msgstr ""
+msgstr "Не удалось найти похожих ярлыков %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:58
 msgid "Eject this device"
@@ -12293,6 +12295,7 @@ msgid ""
 "Could not change the on disk location of this book. Is it open in another "
 "program?"
 msgstr ""
+"Не удалось изменить положение книги на диске. Она открыта в другой программе?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:882
 msgid "Failed to set data"
@@ -13916,6 +13919,15 @@ msgid ""
 "book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
 "site."
 msgstr ""
+"Если отмечено, то эта колонка будет отображаться как HTML в описании книги и "
+"сервере. Это может быть использовано для создания ссылок с языком шаблонов. "
+"Например, шаблон "
+"<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| [|]]}</pre>создаст поле отображающее заголовок жирными "
+"большими буквами, вместе с серией, например <br>\"<big><b>An Oblique "
+"Approach</b></big> [Belisarius [1]]\". The template <pre>&lt;a "
+"href=\"http://www.beam-ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam "
+"book&lt;/a&gt;</pre> создаст ссылку на книгу на сайте Beam ebooks."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
@@ -13939,8 +13951,8 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
-"Пример: Формат <code>{0:0>4d}</code> дает 4-значное число с ведущими нулями. "
-"Формат <code>{0:d}&nbsp;дни</code> печает число, затем слово \"дни\""
+"Примеры: Формат <code>{0:0>4d}</code> даёт 4-значное число с ведущими "
+"нулями. Формат <code>{0:d}&nbsp;дни</code> печает число, затем слово \"дни\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
@@ -13950,6 +13962,10 @@ msgid ""
 "displays the number with 2 digits after the decimal point and thousands "
 "separated by commas."
 msgstr ""
+"Примеры: Формат <code>{0:.1f}</code> даёт число с плавающей точкой с одной "
+"цифрой после запятой. Формат <code>Цена:&nbsp;$&nbsp;{0:,.2f}</code> "
+"печатает \"Цена&nbsp;$&nbsp;\", затем отображает число с двумя цифрами после "
+"запятой и тысячи отделённые запятой."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No lookup name was provided"
@@ -14095,6 +14111,10 @@ msgid ""
 "specifier.\n"
 "            "
 msgstr ""
+"<p>Определитель формата должен начинаться с <code>{0:</code>\n"
+"и заканчиваться <code>}</code> Вы можете писать текст до и после "
+"определителя.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid ""
@@ -14132,15 +14152,18 @@ msgstr "По умолчанию: (ничего)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "Сртировавть/искать по колонке как"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
 msgid "How this column should handled in the GUI when sorting and searching"
 msgstr ""
+"Как эта колонка должна обрабатываться в интерфейсе при поиске и сортировке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Если отмечено, то эта колонка будет отображаться в обозревателе тэгов как "
+"категория."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:253
 msgid "Show in tags browser"
@@ -14161,6 +14184,9 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"Разделённый запятыми список допустимых значений. Пустое значение \n"
+"всегда включено и по умолчанию. Например, список 'one,two,three' имеет \n"
+"четыре значения и одно из них - пустое значение."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:259
 msgid "The empty string is always the first value"
@@ -14171,6 +14197,8 @@ msgid ""
 "A list of color names to use when displaying an item. The\n"
 "list must be empty or contain a color for each value."
 msgstr ""
+"Список названий цветов используемых при отображении элемента. \n"
+"Список должен быть пуст или иметь цвет для каждого значения."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:263
 msgid "Colors"
@@ -15577,7 +15605,7 @@ msgstr "Контекстное меню для просмотра обложек
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:235
 msgid "Click to choose toolbar or menu to customize"
-msgstr ""
+msgstr "Нажмите для выбора панели или меню для настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:271
 msgid "Cannot add"

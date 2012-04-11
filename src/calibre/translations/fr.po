@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-08 09:51+0000\n"
-"PO-Revision-Date: 2012-04-08 17:29+0000\n"
+"PO-Revision-Date: 2012-04-10 19:37+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-04-09 04:42+0000\n"
-"X-Generator: Launchpad (build 15060)\n"
+"X-Launchpad-Export-Date: 2012-04-11 04:37+0000\n"
+"X-Generator: Launchpad (build 15070)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5279,7 +5279,7 @@ msgstr "maj+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Contrôler l'ajout de livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -13553,7 +13553,7 @@ msgstr "(Echec sur la couverture)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr ""
+msgstr "Traité %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:61
@@ -13632,11 +13632,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Clear series"
-msgstr ""
+msgstr "Effacer la série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
-msgstr ""
+msgstr "Effacer les Ids"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:205
 msgid ""
@@ -14030,6 +14030,7 @@ msgstr "Parcourir pour chercher un dossier"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "Automatically &convert added files to the current output format"
 msgstr ""
+"Convertir automatiquement les fichiers ajoutés au format de sortie en cours"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "&Automatic Adding"
@@ -15209,6 +15210,15 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Une liste de catégories séparée par des virgules dans laquelle les articles "
+"contenant\n"
+"des points sont affichés dans l'arborescence des étiquettes. Par exemple, "
+"si\n"
+"ce champ contient \"étiquettes\" alors les étiquettes de la forme "
+"'Mystère.Anglais'\n"
+"et 'Mystère.Suspense' seront affichées avec Anglais et Suspense\n"
+"toutes deux sous 'Mystère'. Si 'étiquettes' n'est pas dans ce champ,\n"
+"alors les étiquettes seront affichées chacune sur leur propre ligne."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -16094,6 +16104,12 @@ msgid ""
 "having trouble downloading files from the content server, try removing the "
 "password."
 msgstr ""
+"<p> Si vous laissez le mot de passe vide, n'importe qui sera capable d'\n"
+" accéder à votre collection de livres en utilisant l'interface web.\n"
+"<br>\n"
+"<p> Certains appareils ont des navigateurs qui ne prennent pas en charge "
+"l'authentification. Si vous rencontrez des problèmes lors du téléchargement "
+"des fichiers du serveur de contenu, essayez de supprimer le mot de passe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
 msgid ""
@@ -16140,10 +16156,13 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
+"<p> Certains appareils ont des navigateurs qui ne prennent pas en charge "
+"l'authentification. Si vous rencontrez des problèmes lors du téléchargement "
+"des fichiers du serveur de contenu, essayez de supprimer le mot de passe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "Mot de passe incompatible avec certains appareils"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
@@ -17467,11 +17486,11 @@ msgstr "Modifier le schéma des sous-catégories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:491
 msgid "Disable"
-msgstr ""
+msgstr "Désactiver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
 msgid "Partition"
-msgstr ""
+msgstr "Partition"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:510
 msgid "First letter is usable only when sorting by name"
