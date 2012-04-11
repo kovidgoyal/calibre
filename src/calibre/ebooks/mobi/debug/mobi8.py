@@ -11,6 +11,7 @@ import sys, os, imghdr, struct
 from itertools import izip
 
 from calibre.ebooks.mobi.debug.headers import TextRecord
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex)
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -65,6 +66,7 @@ class MOBIFile(object):
         self.header = self.mf.mobi8_header
         self.extract_resources()
         self.read_fdst()
+        self.read_indices()
 
     def print_header(self, f=sys.stdout):
         print (str(self.mf.palmdb).encode('utf-8'), file=f)
@@ -84,6 +86,12 @@ class MOBIFile(object):
             self.fdst = FDST(self.mf.records[idx].raw)
             if self.fdst.num_sections != self.header.fdst_count:
                 raise ValueError('KF8 Header contains invalid FDST count')
+
+    def read_indices(self):
+        self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records,
+                self.header.encoding)
+        self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records,
+                self.header.encoding)
 
     def extract_resources(self):
         self.resource_map = []
@@ -144,4 +152,10 @@ def inspect_mobi(mobi_file, ddir):
     if f.fdst:
         with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:
             fo.write(str(f.fdst).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
+        fo.write(str(f.skel_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'sect.record'), 'wb') as fo:
+        fo.write(str(f.sect_index).encode('utf-8'))
 

@@ -111,6 +111,12 @@ class CNCX(object): # {{{
 
     def get(self, offset, default=None):
         return self.records.get(offset, default)
+
+    def __bool__(self):
+        return bool(self.records)
+
+    def iteritems(self):
+        return self.records.iteritems()
 # }}}
 
 def parse_tagx_section(data):
