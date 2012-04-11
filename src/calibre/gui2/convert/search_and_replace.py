@@ -4,10 +4,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, json
 
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QTableWidgetItem, QFileDialog
+from PyQt4.QtGui import QTableWidget, QTableWidgetItem, QFileDialog
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
@@ -122,4 +122,37 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
                 return False
+        return True
+
+
+    # Options handling
+
+    def connect_gui_obj_handler(self, g, slot):
+        if isinstance(g, QTableWidget):
+            g.cellChanged.connect(slot)
+
+    def get_value_handler(self, g):
+        ans = []
+        for row in xrange(0, g.rowCount()):
+            colItems = []
+            for col in xrange(0, g.columnCount()):
+                colItems.append(unicode(g.item(row, col).text()))
+            ans.append(colItems)
+        return json.dumps(ans)
+
+    def set_value_handler(self, g, val):
+        try:
+            rowItems = json.loads(val)
+            if not isinstance(rowItems, list):
+                rowItems = []
+        except:
+            rowItems = []
+
+        g.setRowCount(len(rowItems))
+           
+        for row, colItems in enumerate(rowItems):
+            for col, cellValue in enumerate(colItems):
+                newItem = g.itemPrototype().clone()
+                newItem.setText(cellValue)
+                g.setItem(row,col, newItem)
         return True
