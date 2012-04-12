@@ -153,11 +153,22 @@ class MOBIOutput(OutputFormatPlugin):
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
+
+        kf8 = self.create_kf8()
+        self.write_mobi(input_plugin, output_path, kf8)
+
+    def create_kf8(self):
+        from calibre.ebooks.mobi.writer8.main import KF8Writer
+        return KF8Writer(self.oeb, self.opts)
+
+    def write_mobi(self, input_plugin, output_path, kf8):
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.customize.ui import plugin_for_input_format
+
+        opts, oeb = self.opts, self.oeb
         if not opts.no_inline_toc:
             tocadder = HTMLTOCAdder(title=opts.toc_title, position='start' if
                     opts.mobi_toc_at_start else 'end')
