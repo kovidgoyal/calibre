@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-08 09:51+0000\n"
-"PO-Revision-Date: 2012-03-24 07:36+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-04-11 06:40+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-09 04:44+0000\n"
-"X-Generator: Launchpad (build 15060)\n"
+"X-Launchpad-Export-Date: 2012-04-12 04:48+0000\n"
+"X-Generator: Launchpad (build 15070)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -8928,7 +8928,7 @@ msgstr "%s beállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Disconnect device"
-msgstr ""
+msgstr "Eszköz lecsatolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:743
 #, python-format
@@ -13306,11 +13306,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Clear series"
-msgstr ""
+msgstr "Sorozatok törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
-msgstr ""
+msgstr "Azonosítók törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:205
 msgid ""
@@ -15769,7 +15769,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "Néhány eszköz nem kompatibilis a jelszóval"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
@@ -17052,7 +17052,7 @@ msgstr "Az alkategória séma megváltoztatása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:491
 msgid "Disable"
-msgstr ""
+msgstr "Tiltás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
 msgid "Partition"
@@ -17695,11 +17695,11 @@ msgstr "Kapcsolódás a dict.org-hoz, hogy keressük: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:533
 msgid "No such location"
-msgstr ""
+msgstr "Nincs ilyen hely"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:534
 msgid "The location pointed to by this item does not exist."
-msgstr ""
+msgstr "Az elem által megadott hely nem létezik."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "Choose ebook"
@@ -18966,27 +18966,27 @@ msgstr "Üres könyv hozzáadása (egy könyv formátum nélkül)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:311
 msgid "Set the title of the added book(s)"
-msgstr ""
+msgstr "A hozzáadott könyv(ek) címének megadása"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "Set the authors of the added book(s)"
-msgstr ""
+msgstr "A hozzáadott könyv(ek) szerzőjének megadása"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:315
 msgid "Set the ISBN of the added book(s)"
-msgstr ""
+msgstr "A hozzáadott könyv(ek) ISBN-számának megadása"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:317
 msgid "Set the tags of the added book(s)"
-msgstr ""
+msgstr "A hozzáadott könyv(ek) címkéinek megadása"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:319
 msgid "Set the series of the added book(s)"
-msgstr ""
+msgstr "A hozzáadott könyv(ek) sorozatának megadása"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:321
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "A hozzáadott könyv(ek) sorozatszámának megadása"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:356
 msgid "You must specify at least one file to add"

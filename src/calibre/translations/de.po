@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-08 09:51+0000\n"
-"PO-Revision-Date: 2012-03-30 15:47+0000\n"
-"Last-Translator: Dennis Baudys <Unknown>\n"
+"PO-Revision-Date: 2012-04-11 13:40+0000\n"
+"Last-Translator: Raymond Fürst <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-09 04:42+0000\n"
-"X-Generator: Launchpad (build 15060)\n"
+"X-Launchpad-Export-Date: 2012-04-12 04:48+0000\n"
+"X-Generator: Launchpad (build 15070)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -8163,7 +8163,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 msgid "&Publisher: "
-msgstr "&Herausgeber: "
+msgstr "&Verlag: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 msgid "Ta&gs: "
@@ -13351,7 +13351,7 @@ msgstr "Die ISBN eingegebene ist nicht gültig. Versuchen Sie es erneut."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1347
 msgid "&Publisher:"
-msgstr "&Verleger:"
+msgstr "&Verlag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1416
 msgid "Clear date"
@@ -15034,7 +15034,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:257
 msgid "Categories not to partition:"
-msgstr ""
+msgstr "Nicht zu unterteilende Kategorien:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid ""
@@ -17003,7 +17003,7 @@ msgstr "Buchreihen verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:53
 msgid "Manage Publishers"
-msgstr "Herausgeber verwalten"
+msgstr "Verlage verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:55
 msgid "Manage Tags"
