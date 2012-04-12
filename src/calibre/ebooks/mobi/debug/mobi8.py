@@ -11,7 +11,7 @@ import sys, os, imghdr, struct
 from itertools import izip
 
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex)
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex)
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -92,6 +92,8 @@ class MOBIFile(object):
                 self.header.encoding)
         self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records,
                 self.header.encoding)
+        self.ncx_index = NCXIndex(self.header.primary_index_record,
+                self.mf.records, self.header.encoding)
 
     def extract_resources(self):
         self.resource_map = []
@@ -158,4 +160,7 @@ def inspect_mobi(mobi_file, ddir):
 
     with open(os.path.join(ddir, 'sect.record'), 'wb') as fo:
         fo.write(str(f.sect_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
+        fo.write(str(f.ncx_index).encode('utf-8'))
 

@@ -12,6 +12,7 @@ from collections import OrderedDict, namedtuple
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import (CNCX, parse_indx_header,
         parse_tagx_section, parse_index_record, INDEX_HEADER_FIELDS)
+from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
 
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
@@ -122,5 +123,36 @@ class SECTIndex(Index):
                     tag_map[6][1]  # length
                     )
                 )
+
+class NCXIndex(Index):
+
+    def __init__(self, ncxidx, records, codec):
+        super(NCXIndex, self).__init__(ncxidx, records, codec)
+        self.records = []
+
+        if self.table is not None:
+            for num, x in enumerate(self.table.iteritems()):
+                text, tag_map = x
+                entry = default_entry.copy()
+                entry['name'] = text
+                entry['num'] = num
+
+                for tag in tag_fieldname_map.iterkeys():
+                    fieldname, i = tag_fieldname_map[tag]
+                    if tag in tag_map:
+                        fieldvalue = tag_map[tag][i]
+                        if tag == 6:
+                            # Appears to be an idx into the KF8 elems table with an
+                            # offset
+                            fieldvalue = tuple(tag_map[tag])
+                        entry[fieldname] = fieldvalue
+                        for which, name in {3:'text', 5:'kind', 70:'description',
+                                71:'author', 72:'image_caption',
+                                73:'image_attribution'}.iteritems():
+                            if tag == which:
+                                entry[name] = self.cncx.get(fieldvalue,
+                                        default_entry[name])
+                self.records.append(entry)
+
 
 
