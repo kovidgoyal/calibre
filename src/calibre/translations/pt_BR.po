@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-04-10 04:56+0000\n"
 "X-Generator: Launchpad (build 15070)\n"
+"X-Launchpad-Export-Date: 2012-04-10 04:56+0000\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5558,7 +5558,7 @@ msgstr "Não foi possível copiar os livros: "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:201
 #, python-format
 msgid "Copied %(num)d books to %(loc)s"
-msgstr "Foram copiados %(num) livros para %(loc)s"
+msgstr "Foram copiados %(num)d livros para %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:205
 msgid "Auto merged"
