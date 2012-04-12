@@ -6,11 +6,12 @@ class Forbes(BasicNewsRecipe):
     description    = 'Business and Financial News'
     __author__     = 'Darko Miletic'
     oldest_article = 30
-    max_articles_per_feed = 100
+    max_articles_per_feed = 20
     language = 'en'
 
     no_stylesheets = True
-    html2lrf_options = ['--base-font-size', '10']     
+    html2lrf_options = ['--base-font-size', '10']    
+    auto_cleanup = True
 
     cover_url  = u'http://www.forbes.com/media/current_covers/forbes_120_160.gif'
     
@@ -25,15 +26,12 @@ class Forbes(BasicNewsRecipe):
         (u'Sports Money', u'http://www.forbes.com/sportsmoney/index.xml'), 
         (u'Sports', u'http://www.forbes.com/forbeslife/sports/index.xml'),
         (u'Vehicles', u'http://www.forbes.com/forbeslife/vehicles/index.xml'),
-        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'), 
-        (u'Careers', u'http://www.forbes.com/leadership/careers/index.xml'),
-        (u'Compensation', u'http://www.forbes.com/leadership/compensation/index.xml'),
-        (u'Managing', u'http://www.forbes.com/leadership/managing/index.xml')]
+        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'),]
 
-    def print_version(self, url):
-        raw = self.browser.open(url).read()
-        soup = BeautifulSoup(raw.decode('latin1', 'replace'))
-        print_link = soup.find('a', {'onclick':"s_linkTrackVars='prop18';s_linkType='o';s_linkName='Print';if(typeof(globalPageName)!='undefined')s_prop18=globalPageName;s_lnk=s_co(this);s_gs(s_account);"})
-        if print_link is None:
-            return ''
-        return 'http://www.forbes.com' + print_link['href']
+    #def print_version(self, url):
+        #raw = self.browser.open(url).read()
+        #soup = BeautifulSoup(raw.decode('latin1', 'replace'))
+        #print_link = soup.find('a', {'onclick':"s_linkTrackVars='prop18';s_linkType='o';s_linkName='Print';if(typeof(globalPageName)!='undefined')s_prop18=globalPageName;s_lnk=s_co(this);s_gs(s_account);"})
+        #if print_link is None:
+            #return ''
+        #return 'http://www.forbes.com' + print_link['href'] 
