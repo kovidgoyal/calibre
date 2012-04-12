@@ -599,6 +599,32 @@ OptionRecommendation(name='renumber_headings',
     help=_('Looks for occurrences of sequential <h1> or <h2> tags. '
            'The tags are renumbered to prevent splitting in the middle '
            'of chapter headings.')),
+OptionRecommendation(name='sr1_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr1-replace.')),
+
+OptionRecommendation(name='sr1_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replacement to replace the text found with sr1-search.')),
+
+OptionRecommendation(name='sr2_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr2-replace.')),
+
+OptionRecommendation(name='sr2_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replacement to replace the text found with sr2-search.')),
+
+OptionRecommendation(name='sr3_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr3-replace.')),
+
+OptionRecommendation(name='sr3_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replacement to replace the text found with sr3-search.')),
 
 OptionRecommendation(name='search_replace',
     recommended_value='[]', level=OptionRecommendation.LOW,

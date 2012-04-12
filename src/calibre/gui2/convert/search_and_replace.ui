@@ -129,7 +129,7 @@
     </layout>	
    </item>
    <item row="3" column="0">
-	<widget class="QTableWidget" name="opt_search_replace" native="true">
+	<widget class="QTableWidget" name="search_replace" native="true">
 	 <property name="sizePolicy">
 	  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
 	   <horstretch>0</horstretch>
