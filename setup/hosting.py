@@ -26,7 +26,7 @@ def login_to_google(username, password):
     br.form['Email'] = username
     br.form['Passwd'] = password
     raw = br.submit().read()
-    if re.search(br'<title>.*?Account Settings</title>', raw) is None:
+    if re.search(br'(?i)<title>.*?Account Settings</title>', raw) is None:
         x = re.search(br'(?is)<title>.*?</title>', raw)
         if x is not None:
             print ('Title of post login page: %s'%x.group())
