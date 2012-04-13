@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-08 09:51+0000\n"
-"PO-Revision-Date: 2012-04-11 20:33+0000\n"
+"PO-Revision-Date: 2012-04-12 23:56+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-12 04:49+0000\n"
+"X-Launchpad-Export-Date: 2012-04-13 05:24+0000\n"
 "X-Generator: Launchpad (build 15070)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -581,7 +581,7 @@ msgstr "Контроль передачи книг на ваше устройс�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1042
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Связи метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1048
 msgid "Change metadata fields before saving/sending"
@@ -1595,6 +1595,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Изза ошибки в ранней версии потерялись записи о не kepub книгах. С этой "
+"опцией Calibre может показать истёкшие по времени записи и позволит вам "
+"удалить их с помощью новой логики удаления."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Show Previews"
@@ -1609,7 +1612,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Показать рекомендации"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
 msgid ""
@@ -1617,6 +1620,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo теперь показывает рекомендации на устройстве. Иногда там есть файлы, но "
+"иногда там только ссылки на сайт для покупки. Включите если хотите "
+"видеть/удалять их."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1902,7 +1908,7 @@ msgstr ""
 "Установите эту опцию если хотите что бы автор на Sony появлялся так же как и "
 "на T1. Это значит что будет отображаться только первый автор книги, "
 "написанной несколькими авторами. Оставьте это включённым если используете "
-"Metadata Plugboards."
+"Связи Метаданных."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -1985,7 +1991,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Невозможно подключить устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -2143,6 +2149,8 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Введите папку в которой будут храниться книги. Эта папка будет добавлена в "
+"любой шаблон отправки на устройство."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
@@ -2245,6 +2253,9 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Изменить текст документа и структуру используя общие шаблоны. По умолчанию "
+"выключено. Используйте %(en)s что бы включить. Отдельные действия могут быть "
+"отключены с помощью настройки %(dis)s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
@@ -2502,6 +2513,12 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"Указать разделение элементов. Значение \"nothing\" включит книгу в один "
+"раздел. Значение \"files\" включит каждый файл в отдельный раздел; "
+"используйте это если имеются проблемы с устройством. Значение \"Table of "
+"Contents\" включает записи оглавления в заголовки и создаёт разделы; если не "
+"получится, отрегулируйте \"Распознавание структуры\" и/или настройки "
+"оглавления (включите \"Принудительная автоматическая генерации Оглавления\")."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:157
 #, python-format
@@ -7947,7 +7964,7 @@ msgstr "Игнорировать &поля"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
 msgid "Use author &sort for author"
-msgstr ""
+msgstr "Использовать сортировочное имя автора как автора"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:81
 msgid "&Title for Table of Contents:"
@@ -9294,8 +9311,7 @@ msgid ""
 "Copy the custom columns, saved searches, column widths, plugboards,\n"
 "user categories, and other information from the old to the new library"
 msgstr ""
-"Копировать выбранные столбцы, сохранённые поиски, ширину столбцов, "
-"plugboards,\n"
+"Копировать выбранные столбцы, сохранённые поиски, ширину столбцов, связи,\n"
 "категории пользователей и другую информацию из старой библиотеки в новую."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
@@ -12627,7 +12643,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:139
 msgid "Title &sort:"
-msgstr ""
+msgstr "Сортировочный заголовок:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:148
 msgid ""
@@ -12671,7 +12687,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:319
 msgid "Author s&ort:"
-msgstr ""
+msgstr "Сортировочное имя автора:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:329
 msgid ""
@@ -13493,7 +13509,7 @@ msgstr "&Приоритет задачи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Restriction to apply when the current library is opened:"
-msgstr "Ограничения, применяемые при открытой библиотеке:"
+msgstr "Н"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:162
 msgid ""
@@ -14218,7 +14234,7 @@ msgstr "&Копировать в буфер обмена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Отладка обнаружения устройства"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -14801,6 +14817,7 @@ msgstr "Обнаружение устройства в режиме отладк
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:43
 msgid "Get information to setup the &user defined device"
 msgstr ""
+"Получить информацию для установки устройства, определённого пользователем"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:51
 msgid "Open calibre &configuration directory"
@@ -14832,44 +14849,52 @@ msgstr "Подлюченное устройство: нет"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:193
 msgid "That format and device already has a plugboard."
-msgstr ""
+msgstr "Этот формат и устройство уже имеют связь."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:205
 msgid "Possibly override plugboard?"
-msgstr ""
+msgstr "Возможно переопределить связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:206
 msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Более главная связь уже существует для этого формата и устройства. Вы "
+"уверены что хотите добавить новую связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:240
 msgid "Add possibly overridden plugboard?"
-msgstr ""
+msgstr "Добавление возможно переопределит связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:219
 msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
 msgstr ""
+"Более конкретные связи устройства существует для этого формата. Вы уверены "
+"что хотите добавить новую связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:230
 msgid "Really add plugboard?"
-msgstr ""
+msgstr "Действительно добавить связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:231
 msgid ""
 "A different plugboard matches that format and device combination. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Другая связь соответствует этому сочетанию формата и устройства. Вы уверены "
+"что хотите добавить новую связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:241
 msgid ""
 "More specific format and device plugboards already exist. Are you sure you "
 "want to add the new plugboard?"
 msgstr ""
+"Более конкретные связи формата и устройства уже существуют. Вы уверены что "
+"хотите добавить новую связь?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:252
 msgid "The {0} device does not support the {1} format."
@@ -14902,6 +14927,22 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Здесь вы можете изменить метаданные которые использует calibre для "
+"обновления книги при сохранении на диск или отправке на устройство.\n"
+"\n"
+"Используйте этот диалог для определения связей формата (всех форматов) и "
+"устройства (всех устройств). Связь определяет какой шаблон и с каким полем "
+"соединён. Шаблон используется для вычисления значения и это значение "
+"присваивается связанному полю.\n"
+"\n"
+"Часто шаблоны будут содержать ссылки на составные колонки, но это "
+"необязательно. Вы можете использовать любой шаблон в исходном поле и везде в "
+"calibre.\n"
+"\n"
+"Одно из возможных применений связи - это создание альтернативного заголовка "
+"с информацией о серии. Ещё можно изменить сортировку по автору так, что бы "
+"пользователи mobi могли использовать ';' как требует kindle. В третьих, "
+"можно указать язык."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -14913,15 +14954,15 @@ msgstr "Устройство (выбрать вторым)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:123
 msgid "Add new plugboard"
-msgstr ""
+msgstr "Добавить новую связь"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "Редактировать существующую связь"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr ""
+msgstr "Имеющиеся связи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
@@ -14933,11 +14974,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr ""
+msgstr "Сохранить связь"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr ""
+msgstr "Удалить связь"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:193
 #, python-format
@@ -15006,11 +15047,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr ""
+msgstr "Показывать только те плагины, которые были установлены вами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Показывать только установленные пользователем плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -15031,6 +15072,7 @@ msgstr "Пользовательские поля"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:35
 msgid "The lookup name of any custom field (these names begin with \"#\")."
 msgstr ""
+"Название любого пользовательского поля (эти названия начинаются с \"#\")."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
@@ -15111,7 +15153,7 @@ msgstr "Сохранить метаданные в OPF файле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
-msgstr ""
+msgstr "Показывать файлы в обозревателе после сохранения на диск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15209,6 +15251,11 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"Помните, что эта опция влияет на весь поиск, включая сохранённые поиски и "
+"ограничения. Поэтому если вы включите эту опцию, то лучше всегда "
+"использовать префиксы в ваших сохранённых поисках. Например используйте "
+"\"series:Foundation\"(\"серия:Основание\") вместо просто \"Основание\" в "
+"сохранённом поиске."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:117
 msgid ""
@@ -15294,6 +15341,14 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Ручное управление</b>: Calibre обновляет метаданные и добавляет "
+"коллекции только при передаче книги. С этой опцией calibre никогда не удалит "
+"коллекцию.</li>\n"
+"<li><b>Только при отправке</b>: Calibre бновляет метаданные и "
+"добавляет/удаляет коллекции для книги только когда передаёт на "
+"устройство.</li>\n"
+"<li><b>Автоматическое управление</b>: Calibre автоматически поддерживает "
+"метаданные в синхронизации с устройством при каждом соединении.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:64
 msgid ""
@@ -15301,6 +15356,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"Здесь вы можете настроить как calibre будет сохранять ваши книги при нажатии "
+"кнопки \"Отправить на устройство\". Эта настройка может быть определена для "
+"каждого устройства с помощью настройки плагинов интерфейса устройства в "
+"Предпочтения->Расширенный->Плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:452
@@ -15328,6 +15387,11 @@ msgid ""
 "having trouble downloading files from the content server, try removing the "
 "password."
 msgstr ""
+"<p>Если вы оставите пароль пустым, то любой будет\n"
+" иметь доступ к вашей коллекции книг через веб интерфейс.\n"
+"<br>\n"
+"<p>Некоторые устройства не поддерживают идентификацию. Если у вас есть "
+"проблемы с загрузкой файлов с контент сервера, попробуйте удалить пароль."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
 msgid ""
@@ -15351,7 +15415,7 @@ msgstr "Макс. &OPDS элементов на запрос:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:150
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Макс. несгруппированых &OPDS элементов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:151
 msgid "Restriction (saved search) to apply:"
@@ -15370,14 +15434,16 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
+"<p>Некоторые устройства не поддерживают идентификацию. Если у вас есть "
+"проблемы с загрузкой файлов с контент сервера, попробуйте удалить пароль."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "Пароль несовместим с некоторыми устройствами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "URL префикс:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
 msgid ""
@@ -15385,6 +15451,9 @@ msgid ""
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
+"Префикс который применяется ко всем URL адресам на контент сервере. Полезно "
+"только если вы собираетесь поставить сервер позади другого сервера вроде "
+"Apache с запасным прокси."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
 msgid "&Start Server"
@@ -15410,7 +15479,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Запускать сервер автоматически при запуске calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid "View &server logs"
@@ -15425,6 +15494,13 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Не забудьте оставить calibre включённым, так как сервер работает только "
+"пока calibre запущена.\n"
+"<p>Для соединения с сервером calibre из вашего устройства вы должны "
+"использовать URL адрес формата <b>http://myhostname:8080</b> как новый "
+"каталок в читалке Stanza на вашем iPhone. В данном случае \"myhostname\" "
+"должно быть полным именем хоста, либо ip адресом компьютера на котором "
+"запущена calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -15559,7 +15635,7 @@ msgstr "Создать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
-msgstr ""
+msgstr "Код программы: (обязательно следуйте правилам отступа Python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
@@ -16129,6 +16205,10 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"Эта книга определена как имеющая DRM ограничения. Эта книга может не "
+"работать с вашей читалкой и вы будете ограничены в ваших действиях с книгой. "
+"Сверьтесь с хранилищем прежде чем делать какие либо покупки что бы убедиться "
+"что вы действительно можете читать эту книгу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:239
 msgid ""
@@ -16338,11 +16418,11 @@ msgstr "Управление сохранёнными поисками"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:67
 msgid "Invalid search restriction"
-msgstr ""
+msgstr "Неверное поисковое ограничение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:68
 msgid "The current search restriction is invalid"
-msgstr ""
+msgstr "Текущее поисковое ограничение неверно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:84
 msgid "New Category"
@@ -16666,6 +16746,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Не удалось запустить контент сервер. Ошбика:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:516
 #, python-format
@@ -17287,6 +17370,9 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
+"%prog [параметры] file\n"
+"\n"
+"Просмотреть книгу.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
@@ -17773,7 +17859,7 @@ msgstr ""
 "<p>Если вы используете <a "
 "href=\"http://www.lexcycle.com/download\">Stanza</a> e-book на вашем "
 "iPhone/iTouch, вы можете зайти в вашу коллекцию книг calibre прямо с "
-"устройства. Для этого вам необходимо включить calibre сервер."
+"устройства. Для этого вам необходимо включить calibre контент сервер."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
@@ -17788,13 +17874,12 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
-"<p>Помните, что calibre в режиме сервера работает только пока calibre "
-"запущена.\n"
+"<p>Не забудьте оставить calibre включённым, так как сервер работает только "
+"пока calibre запущена.\n"
 "<p>Stanza должна увидеть коллекцию calibre автоматически. Если этого не "
-"произошло, попробуйте добавить следующий адрес каталога URL "
-"http://myhostname:8080  в читалку Stanza на вашем iPhone. В данном случае "
-"\"myhostname\" должно быть полным именем хоста, либо ip адресом компьютера "
-"на котором запущено приложение calibre."
+"произошло, попробуйте добавить каталог с URL адресом http://myhostname:8080  "
+"в читалку Stanza на вашем iPhone. В данном случае \"myhostname\" должно быть "
+"полным именем хоста, либо ip адресом компьютера на котором запущена calibre."
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:163
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:596
@@ -17877,6 +17962,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Выходные поля для сортировки.\n"
+"Доступны поля: author_sort, id, rating, size, timestamp, title.\n"
+"По умолчанию: '%default'\n"
+"Применимо к: выходной формат BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:58
 #, python-format
@@ -17953,6 +18042,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Выходные поля для сортировки.\n"
+"Доступны поля: author_sort, id, rating, size, timestamp, title.\n"
+"По умолчанию: '%default'\n"
+"Применимо к: выходные форматы CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:38
 #, python-format
@@ -18247,7 +18340,7 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
-"Поле, по которому будет отсортирован результат.\n"
+"Поле по которому сортировать результат.\n"
 "Доступные поля: %s\n"
 "По умолчанию: %%default"
 
@@ -18524,6 +18617,12 @@ msgid ""
 "column.\n"
 "datatype is one of: {0}\n"
 msgstr ""
+"%prog add_custom_column [параметры] ярлык имя тип_данных\n"
+"\n"
+"Создаёт пользовательский столбец. Ярлык - удобное компьютеру имя столбца. \n"
+"Не должно содержать пробелов и двоеточий. Имя - удобное человеку имя "
+"столбца.\n"
+"тип_данных один из: {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:607
 msgid ""
@@ -18795,9 +18894,9 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
-"%%prog команда [options] [arguments]\n"
+"%%prog команда [параметры] [аргументы]\n"
 "\n"
-"%%prog интерфейс командной строки лоя базы данных calibre.\n"
+"%%prog интерфейс командной строки для базы данных calibre.\n"
 "\n"
 "команда одна из:\n"
 "  %s\n"
@@ -18845,7 +18944,7 @@ msgstr "Сортировочное имя автора"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
-msgstr ""
+msgstr "Сортировочная серия"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
@@ -18926,6 +19025,8 @@ msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
+"По умолчанию calibre обновляет метаданные в сохранённых файлах в библиотеке. "
+"Может сделать запись на диск медленнее."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:85
 msgid ""
@@ -18959,6 +19060,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%(controls)s}"
 msgstr ""
+"Шаблон для управления названием файла и структурой папки с сохранёнными "
+"файлами. По умолчанию \"%(templ)s\" будет сохранять книги в подпапку с "
+"именем автора и названиями файлов включающими заголовок и автора. Доступные "
+"настройки: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:100
 #, python-format
@@ -18968,6 +19073,10 @@ msgid ""
 "author directory with filenames containing title and author. Available "
 "controls are: {%(controls)s}"
 msgstr ""
+"Шаблон для управления названием файла и структурой папки с файлами "
+"отправляемыми на устройство. По умолчанию \"%(templ)s\" будет сохранять "
+"книги в подпапку с именем автора и названиями файлов включающими заголовок и "
+"автора. Доступные настройки: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:107
 msgid ""
@@ -18976,6 +19085,10 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
+"По умолчанию, в именах файлов calibre конвертирует все не английские символы "
+"в английские эквиваленты. ПРЕДУПРЕЖДЕНИЕ: если вы выключите эту опцию, могут "
+"появиться ошибки при сохранении, в зависимости от того, насколько хорошо "
+"поддерживает юникод файловая система, в которой вы сохраняете."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:117
@@ -19066,6 +19179,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
+"Группировать записи в категориях вроде автор/тэги по первой букве когда "
+"имеется больше указанного количества записей. По умолчанию %default. "
+"Установите большое число для отключения группировки."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:48
 msgid ""
@@ -19214,6 +19330,15 @@ msgid ""
 "\n"
 "The OPDS interface is advertised via BonJour automatically.\n"
 msgstr ""
+"[параметры]\n"
+"\n"
+"Запустить контент сервер calibre. Сервер открывает доступ к вашей библиотеке "
+"через интернет. По умолчанию, интерфейс позволяет вам просматривать книги по "
+"категориям. Вы так же можете получить доступ к интерфейсу оптимизированному "
+"для мобильных браузеров через /mobile и основанному на OPDS интерфейсу, для "
+"использования с приложениями для чтения, через /opds.\n"
+"\n"
+"Интерфейс OPDS обьявляется автоматически через BonJour.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:52
 msgid "Path to the library folder to serve with the content server"
