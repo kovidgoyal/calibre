@@ -246,6 +246,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if rest:
             super(SearchAndReplaceWidget, self).apply_recommendations(rest)
 
+        self.set_value(self.opt_search_replace, None)
         if new_val is None and legacy:
             for i in range(1, 4):
                 x = 'sr%d'%i
@@ -255,14 +256,6 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     self.sr_add_row(s, r)
         if new_val is not None:
             self.set_value(self.opt_search_replace, new_val)
-
-    def restore_defaults(self, get_option):
-        super(SearchAndReplaceWidget, self).restore_defaults(get_option)
-        # This method is only called to set global defaults, not per book
-        # defaults. Therefore, we ensure that the value is None. Without this,
-        # apply_recommendations will not work, as it only applies the value if
-        # it is not None.
-        self.set_value(self.opt_search_replace, None)
 
     def setup_help_handler(self, g, help):
         if g is self.opt_search_replace:
