@@ -15,6 +15,12 @@ from calibre.ebooks.mobi.utils import (decint, count_set_bits,
 
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
 PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
+INDEX_HEADER_FIELDS = (
+            'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
+            'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
+    ) + tuple('unknown%d'%i for i in xrange(27)) + ('ocnt', 'oentries',
+            'ordt1', 'ordt2', 'tagx')
+
 
 class InvalidFile(ValueError):
     pass
@@ -36,11 +42,7 @@ def format_bytes(byts):
 
 def parse_indx_header(data):
     check_signature(data, b'INDX')
-    words = (
-            'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
-            'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
-    ) + tuple('unknown%d'%i for i in xrange(27)) + ('ocnt', 'oentries',
-            'ordt1', 'ordt2', 'tagx')
+    words = INDEX_HEADER_FIELDS
     num = len(words)
     values = struct.unpack(bytes('>%dL' % num), data[4:4*(num+1)])
     ans = dict(zip(words, values))
@@ -109,6 +111,12 @@ class CNCX(object): # {{{
 
     def get(self, offset, default=None):
         return self.records.get(offset, default)
+
+    def __bool__(self):
+        return bool(self.records)
+
+    def iteritems(self):
+        return self.records.iteritems()
 # }}}
 
 def parse_tagx_section(data):

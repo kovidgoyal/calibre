@@ -114,7 +114,8 @@ def fork_job(mod_name, func_name, args=(), kwargs={}, timeout=300, # seconds
     complete. If it takes longer a WorkerError is raised and the process is
     killed.
 
-    :param cwd: The working directory for the worker process.
+    :param cwd: The working directory for the worker process. I recommend
+    against using this, unless you are sure the path is pure ASCII.
 
     :param priority: The process priority for the worker process
 

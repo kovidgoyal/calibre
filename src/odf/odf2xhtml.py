@@ -760,7 +760,10 @@ class ODF2XHTML(handler.ContentHandler):
     def s_draw_object_ole(self, tag, attrs):
         """ A <draw:object-ole> is embedded OLE object in the document (e.g. MS Graph).
         """
-        class_id = attrs[(DRAWNS,"class-id")]
+        try:
+            class_id = attrs[(DRAWNS,"class-id")]
+        except KeyError: # Added by Kovid to ignore <draw> without the right
+            return       # attributes
         if class_id and class_id.lower() == "00020803-0000-0000-c000-000000000046": ## Microsoft Graph 97 Chart
             tagattrs = { 'name':'object_ole_graph', 'class':'ole-graph' }
             self.opentag('a', tagattrs)

@@ -573,8 +573,9 @@ class CoverWorker(Thread): # {{{
             try:
                 res = fork_job('calibre.ebooks.metadata.sources.worker',
                     'single_covers',
-                    (self.title, self.authors, self.identifiers, self.caches),
-                    cwd=tdir, no_output=True, abort=self.abort)
+                    (self.title, self.authors, self.identifiers, self.caches,
+                        tdir),
+                    no_output=True, abort=self.abort)
                 self.log.append_dump(res['result'])
             finally:
                 self.keep_going = False

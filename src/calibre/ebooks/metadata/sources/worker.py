@@ -48,7 +48,8 @@ def merge_result(oldmi, newmi, ensure_fields=None):
 
     return newmi
 
-def main(do_identify, covers, metadata, ensure_fields):
+def main(do_identify, covers, metadata, ensure_fields, tdir):
+    os.chdir(tdir)
     failed_ids = set()
     failed_covers = set()
     all_failed = True
@@ -103,7 +104,8 @@ def single_identify(title, authors, identifiers):
     return [metadata_to_opf(r) for r in results], [r.has_cached_cover_url for
         r in results], dump_caches(), log.dump()
 
-def single_covers(title, authors, identifiers, caches):
+def single_covers(title, authors, identifiers, caches, tdir):
+    os.chdir(tdir)
     load_caches(caches)
     log = GUILog()
     results = Queue()

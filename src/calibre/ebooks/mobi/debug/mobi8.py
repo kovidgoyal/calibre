@@ -7,10 +7,42 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, imghdr
+import sys, os, imghdr, struct
+from itertools import izip
 
 from calibre.ebooks.mobi.debug.headers import TextRecord
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex)
 from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.mobi.debug import format_bytes
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
+
+class FDST(object):
+
+    def __init__(self, raw):
+        if raw[:4] != b'FDST':
+            raise ValueError('KF8 does not have a valid FDST record')
+        self.sec_off, self.num_sections = struct.unpack_from(b'>LL', raw, 4)
+        if self.sec_off != 12:
+            raise ValueError('FDST record has unknown extra fields')
+        secf = b'>%dL' % (self.num_sections*2)
+        secs = struct.unpack_from(secf, raw, self.sec_off)
+        rest = raw[self.sec_off+struct.calcsize(secf):]
+        if rest:
+            raise ValueError('FDST record has trailing data: '
+                    '%s'%format_bytes(rest))
+        self.sections = tuple(izip(secs[::2], secs[1::2]))
+
+    def __str__(self):
+        ans = ['FDST record']
+        a = lambda k, v:ans.append('%s: %s'%(k, v))
+        a('Offset to sections', self.sec_off)
+        a('Number of section records', self.num_sections)
+        ans.append('**** %d Sections ****'% len(self.sections))
+        for sec in self.sections:
+            ans.append('Start: %20d End: %d'%sec)
+
+        return '\n'.join(ans)
+
 
 class MOBIFile(object):
 
@@ -31,7 +63,10 @@ class MOBIFile(object):
                 first_text_record+offset+h8.number_of_text_records])]
 
         self.raw_text = b''.join(r.raw for r in self.text_records)
+        self.header = self.mf.mobi8_header
         self.extract_resources()
+        self.read_fdst()
+        self.read_indices()
 
     def print_header(self, f=sys.stdout):
         print (str(self.mf.palmdb).encode('utf-8'), file=f)
@@ -42,6 +77,23 @@ class MOBIFile(object):
 
         print (file=f)
         print (str(self.mf.mobi8_header).encode('utf-8'), file=f)
+
+    def read_fdst(self):
+        self.fdst = None
+
+        if self.header.fdst_idx != NULL_INDEX:
+            idx = self.header.fdst_idx
+            self.fdst = FDST(self.mf.records[idx].raw)
+            if self.fdst.num_sections != self.header.fdst_count:
+                raise ValueError('KF8 Header contains invalid FDST count')
+
+    def read_indices(self):
+        self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records,
+                self.header.encoding)
+        self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records,
+                self.header.encoding)
+        self.ncx_index = NCXIndex(self.header.primary_index_record,
+                self.mf.records, self.header.encoding)
 
     def extract_resources(self):
         self.resource_map = []
@@ -96,7 +148,19 @@ def inspect_mobi(mobi_file, ddir):
         rec.dump(os.path.join(ddir, 'text_records'))
 
     for href, payload in f.resource_map:
-        with open(os.path.join(ddir, href), 'wb') as f:
-            f.write(payload)
+        with open(os.path.join(ddir, href), 'wb') as fo:
+            fo.write(payload)
 
+    if f.fdst:
+        with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:
+            fo.write(str(f.fdst).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
+        fo.write(str(f.skel_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'sect.record'), 'wb') as fo:
+        fo.write(str(f.sect_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
+        fo.write(str(f.ncx_index).encode('utf-8'))
 
