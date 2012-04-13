@@ -628,7 +628,17 @@ OptionRecommendation(name='sr3_replace',
 
 OptionRecommendation(name='search_replace',
     recommended_value='[]', level=OptionRecommendation.LOW,
-    help=_('Modify the document text and structure using user defined patterns.')),
+    help=_('Modify the document text and structure using user defined patterns.'
+           'This option accepts parameters in two forms:\n'
+           '1.file:<path to search/replace definitions file>\n'
+           'The file should contain alternating lines or search/replace strings:\n'
+           '      <search>\n'
+           '      <replace>\n'
+           '      <search>\n'
+           '      <replace>\n'
+           'Files saved through the user interface dialog can be used with this option.\n'
+           '2.json:<json encoded list containg [search, replace] touples:\n'
+           '      json:[["search","replace"],["search","replace"]]\n')),
 ]
         # }}}
 

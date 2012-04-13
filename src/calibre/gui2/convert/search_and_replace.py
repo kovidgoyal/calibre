@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
+__copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, json
+import re
+from calibre.ebooks.conversion import search_replace_option
 
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QTableWidget, QTableWidgetItem, QFileDialog
+from PyQt4.QtGui import QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
@@ -41,7 +42,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.setColumnCount(2)
         self.search_replace.setColumnWidth(0, 300)
         self.search_replace.setColumnWidth(1, 300)
-        self.search_replace.setHorizontalHeaderLabels(['Search Expression', 'Replacement'])
+        self.search_replace.setHorizontalHeaderLabels([_('Search Regular Expression'), _('Replacement Text')])
 
         self.connect(self.sr_add, SIGNAL('clicked()'), self.sr_add_clicked)
         self.connect(self.sr_change, SIGNAL('clicked()'), self.sr_change_clicked)
@@ -82,18 +83,14 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.search_replace.setCurrentCell(row-1, 0)
 
     def sr_load_clicked(self):
-        filename = QFileDialog.getOpenFileName(self, 'Load Calibre Search-Replace definitions file', '.', 'Calibre Search-Replace definitions file (*.csr)')
+        filename = QFileDialog.getOpenFileName(self, _('Load Calibre Search-Replace definitions file'), '.', _('Calibre Search-Replace definitions file (*.csr)'))
         if filename:
-            with open(filename, 'r') as f:
-                val = f.read()
-                self.set_value(self.search_replace, val)
+            self.set_value_handler(self.opt_search_replace, 'file:'+unicode(filename))
             
     def sr_save_clicked(self):
-        filename = QFileDialog.getSaveFileName(self, 'Save Calibre Search-Replace definitions file', '.', 'Calibre Search-Replace definitions file (*.csr)')
+        filename = QFileDialog.getSaveFileName(self, _('Save Calibre Search-Replace definitions file'), '.', _('Calibre Search-Replace definitions file (*.csr)'))
         if filename:
-            with open(filename, 'w') as f:
-                val = self.get_value(self.search_replace)
-                f.write(val)
+            search_replace_option.encodeFile(self.get_definitions(), unicode(filename))
         
     def sr_currentCellChanged(self, row, column, previousRow, previousColumn) :
         if row >= 0:
@@ -122,14 +119,40 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.sr_search.set_doc(doc)
 
     def pre_commit_check(self):
-        for row in xrange(0, self.search_replace.rowCount()):
+
+
+        definitions = self.get_definitions()
+
+        # Verify the search/replace in the edit widgets has been
+        # included to the list of search/replace definitions
+
+        edit_search = self.sr_search.regex
+
+        if edit_search:
+            edit_replace = unicode(self.sr_replace.text())
+            found = False
+            for search, replace in definitions:
+                if search == edit_search and replace == edit_replace:
+                    found = True
+                    break
+            if not found:
+                msgBox = QMessageBox(self)
+                msgBox.setText(_('The search / replace definition being edited has not been added to the list of definitions'))
+                msgBox.setInformativeText(_('Do you wish to continue with the conversion (the definition will not be used)?'))
+                msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                msgBox.setDefaultButton(QMessageBox.No)
+                if msgBox.exec_() != QMessageBox.Yes:
+                    return False
+
+        # Verify all search expressions are valid        
+        for search, replace in definitions:
             try:
-                pat = unicode(self.search_replace.item(row,0).text())
-                re.compile(pat)
+                re.compile(search)
             except Exception as err:
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
                 return False
+        
         return True
 
     # Options
@@ -171,14 +194,16 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     def get_value_handler(self, g):
         if g != self.opt_search_replace:
             return None
-        
+        return search_replace_option.encodeJson(self.get_definitions())
+
+    def get_definitions(self):
         ans = []
         for row in xrange(0, self.search_replace.rowCount()):
             colItems = []
             for col in xrange(0, self.search_replace.columnCount()):
                 colItems.append(unicode(self.search_replace.item(row, col).text()))
             ans.append(colItems)
-        return json.dumps(ans)
+        return ans
 
     def set_value_handler(self, g, val):
         if g != self.opt_search_replace:
@@ -186,7 +211,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             return True
 
         try:
-            rowItems = json.loads(val)
+            rowItems = search_replace_option.decode(val)
             if not isinstance(rowItems, list):
                 rowItems = []
         except:
