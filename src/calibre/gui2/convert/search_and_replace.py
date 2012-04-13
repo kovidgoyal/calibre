@@ -92,6 +92,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if  row >= 0:
             self.search_replace.removeRow(row)
             self.search_replace.setCurrentCell(row-1, 0)
+            self.sr_search.clear()
+            self.sr_replace.clear()
 
     def sr_load_clicked(self):
         files = choose_files(self, 'sr_saved_patterns',

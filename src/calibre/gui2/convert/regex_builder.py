@@ -242,5 +242,8 @@ class RegexEdit(QWidget, Ui_Edit):
     def regex(self):
         return self.text
 
+    def clear(self):
+        self.edit.clear()
+
     def check(self):
         return True
