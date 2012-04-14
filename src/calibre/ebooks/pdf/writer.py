@@ -18,10 +18,11 @@ from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import __appname__, __version__, fit_image
+from calibre.ebooks.oeb.display.webview import load_html
 
 from PyQt4 import QtCore
-from PyQt4.Qt import QUrl, QEventLoop, QObject, \
-    QPrinter, QMetaObject, QSizeF, Qt, QPainter, QPixmap
+from PyQt4.Qt import (QEventLoop, QObject,
+    QPrinter, QMetaObject, QSizeF, Qt, QPainter, QPixmap)
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -39,27 +40,34 @@ def get_custom_size(opts):
                 custom_size = None
     return custom_size
 
-def get_pdf_printer(opts, for_comic=False):
+def get_pdf_printer(opts, for_comic=False, output_file_name=None):
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt():
         raise Exception('Not OK to use Qt')
 
     printer = QPrinter(QPrinter.HighResolution)
     custom_size = get_custom_size(opts)
-
-    if opts.output_profile.short_name == 'default' or \
-            opts.output_profile.width > 9999:
-        if custom_size is None:
-            printer.setPaperSize(paper_size(opts.paper_size))
-        else:
-            printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+    if isosx and not for_comic:
+        # On OSX, the native engine can only produce a single page size
+        # (usually A4). The Qt engine on the other hand produces image based
+        # PDFs. If we set a custom page size using QSizeF the native engine
+        # produces unreadable output, so we just ignore the custom size
+        # settings.
+        printer.setPaperSize(paper_size(opts.paper_size))
     else:
-        w = opts.output_profile.comic_screen_size[0] if for_comic else \
-                opts.output_profile.width
-        h = opts.output_profile.comic_screen_size[1] if for_comic else \
-                opts.output_profile.height
-        dpi = opts.output_profile.dpi
-        printer.setPaperSize(QSizeF(float(w) / dpi, float(h) / dpi), QPrinter.Inch)
+        if opts.output_profile.short_name == 'default' or \
+                opts.output_profile.width > 9999:
+            if custom_size is None:
+                printer.setPaperSize(paper_size(opts.paper_size))
+            else:
+                printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+        else:
+            w = opts.output_profile.comic_screen_size[0] if for_comic else \
+                    opts.output_profile.width
+            h = opts.output_profile.comic_screen_size[1] if for_comic else \
+                    opts.output_profile.height
+            dpi = opts.output_profile.dpi
+            printer.setPaperSize(QSizeF(float(w) / dpi, float(h) / dpi), QPrinter.Inch)
 
     if for_comic:
         # Comic pages typically have their own margins, or their background
@@ -70,7 +78,13 @@ def get_pdf_printer(opts, for_comic=False):
                 opts.margin_right, opts.margin_bottom, QPrinter.Point)
     printer.setOrientation(orientation(opts.orientation))
     printer.setOutputFormat(QPrinter.PdfFormat)
-    printer.setFullPage(True)
+    printer.setFullPage(for_comic)
+    if output_file_name:
+        printer.setOutputFileName(output_file_name)
+    if isosx and not for_comic:
+        # Ensure we are not generating enormous image based PDFs
+        printer.setOutputFormat(QPrinter.NativeFormat)
+
     return printer
 
 def get_printer_page_size(opts, for_comic=False):
@@ -156,21 +170,17 @@ class PDFWriter(QObject): # {{{
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)
-
-        self.view.load(QUrl.fromLocalFile(item))
+        load_html(item, self.view)
 
     def _render_html(self, ok):
         if ok:
             item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
             self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-            printer = get_pdf_printer(self.opts)
-            printer.setOutputFileName(item_path)
-            # We have to set the engine to Native on OS X after the call to set
-            # filename. Setting a filename with .pdf as the extension causes
-            # Qt to set the format to use Qt's PDF engine even if native was
-            # previously set on the printer.
-            if isosx:
-                printer.setOutputFormat(QPrinter.NativeFormat)
+            printer = get_pdf_printer(self.opts, output_file_name=item_path)
+            self.view.page().mainFrame().evaluateJavaScript('''
+                document.body.style.backgroundColor = "white";
+
+                ''')
             self.view.print_(printer)
             printer.abort()
         else:
@@ -188,10 +198,7 @@ class PDFWriter(QObject): # {{{
         if self.cover_data is None:
             return
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
-        printer = get_pdf_printer(self.opts)
-        printer.setOutputFileName(item_path)
-        if isosx:
-            printer.setOutputFormat(QPrinter.NativeFormat)
+        printer = get_pdf_printer(self.opts, output_file_name=item_path)
         self.combine_queue.insert(0, item_path)
         p = QPixmap()
         p.loadFromData(self.cover_data)
@@ -243,10 +250,8 @@ class ImagePDFWriter(object):
             os.remove(f.name)
 
     def render_images(self, outpath, mi, items):
-        printer = get_pdf_printer(self.opts, for_comic=True)
-        printer.setOutputFileName(outpath)
-        if isosx:
-            printer.setOutputFormat(QPrinter.NativeFormat)
+        printer = get_pdf_printer(self.opts, for_comic=True,
+                output_file_name=outpath)
         printer.setDocName(mi.title)
         printer.setCreator(u'%s [%s]'%(__appname__, __version__))
         # Seems to be no way to set author

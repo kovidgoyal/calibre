@@ -187,9 +187,10 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db = None
         self.reset()
 
-    def add_books(self, paths, formats, metadata, add_duplicates=False):
+    def add_books(self, paths, formats, metadata, add_duplicates=False,
+            return_ids=False):
         ret = self.db.add_books(paths, formats, metadata,
-                                 add_duplicates=add_duplicates)
+                add_duplicates=add_duplicates, return_ids=return_ids)
         self.count_changed()
         return ret
 

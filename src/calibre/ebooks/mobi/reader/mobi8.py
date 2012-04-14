@@ -10,13 +10,19 @@ __docformat__ = 'restructuredtext en'
 import struct, re, os, imghdr
 from collections import namedtuple
 from itertools import repeat
+from urlparse import urldefrag
+
+from lxml import etree
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
 from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
+from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.oeb.parse_utils import parse_html
+from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -285,7 +291,11 @@ class Mobi8Reader(object):
     def create_guide(self):
         guide = Guide()
         for ref_type, ref_title, fileno in self.guide:
-            elem = self.elems[fileno]
+            try:
+                elem = self.elems[fileno]
+            except IndexError:
+                # Happens for thumbnailstandard in Amazon book samples
+                continue
             fi = self.get_file_info(elem.insert_pos)
             idtext = self.get_id_tag(elem.insert_pos).decode(self.header.codec)
             linktgt = fi.filename
@@ -379,6 +389,19 @@ class Mobi8Reader(object):
                 len(resource_map)):
             mi.cover = resource_map[self.cover_offset]
 
+        if len(list(toc)) < 2:
+            self.log.warn('KF8 has no metadata Table of Contents')
+
+            for ref in guide:
+                if ref.type == 'toc':
+                    href = ref.href()
+                    href, frag = urldefrag(href)
+                    if os.path.exists(href.replace('/', os.sep)):
+                        try:
+                            toc = self.read_inline_toc(href, frag)
+                        except:
+                            self.log.exception('Failed to read inline ToC')
+
         opf = OPFCreator(os.getcwdu(), mi)
         opf.guide = guide
 
@@ -393,4 +416,61 @@ class Mobi8Reader(object):
             opf.render(of, ncx, 'toc.ncx')
         return 'metadata.opf'
 
+    def read_inline_toc(self, href, frag):
+        ans = TOC()
+        base_href = '/'.join(href.split('/')[:-1])
+        with open(href.replace('/', os.sep), 'rb') as f:
+            raw = f.read().decode(self.header.codec)
+        root = parse_html(raw, log=self.log)
+        body = XPath('//h:body')(root)
+        reached = False
+        if body:
+            start = body[0]
+        else:
+            start = None
+            reached = True
+        if frag:
+            elems = XPath('//*[@id="%s"]'%frag)
+            if elems:
+                start = elems[0]
+
+        def node_depth(elem):
+            ans = 0
+            parent = elem.getparent()
+            while parent is not None:
+                parent = parent.getparent()
+                ans += 1
+            return ans
+
+        # Layer the ToC based on nesting order in the source HTML
+        current_depth = None
+        parent = ans
+        seen = set()
+        for elem in root.iterdescendants(etree.Element):
+            if reached and elem.tag == XHTML('a') and elem.get('href',
+                    False):
+                href = elem.get('href')
+                href, frag = urldefrag(href)
+                href = base_href + '/' + href
+                text = xml2text(elem).strip()
+                if text in seen:
+                    continue
+                seen.add(text)
+                depth = node_depth(elem)
+                if current_depth is None:
+                    current_depth = depth
+                if current_depth == depth:
+                    parent.add_item(href, frag, text)
+                elif current_depth < depth:
+                    parent = parent[-1]
+                    parent.add_item(href, frag, text)
+                    current_depth = depth
+                else:
+                    parent = parent.parent
+                    parent.add_item(href, frag, text)
+                    current_depth = depth
+            else:
+                if elem is start:
+                    reached = True
+        return ans
 

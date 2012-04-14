@@ -437,6 +437,14 @@ class SchedulerConfig(object):
                 if x.get('id', False) == urn:
                     return x.get('username', ''), x.get('password', '')
 
+    def clear_account_info(self, urn):
+        with self.lock:
+            for x in self.iter_accounts():
+                 if x.get('id', False) == urn:
+                     x.getparent().remove(x)
+                     self.write_scheduler_file()
+                     break
+
     def get_customize_info(self, urn):
         keep_issues = 0
         add_title_tag = True
