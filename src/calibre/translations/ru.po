@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-08 09:51+0000\n"
+"POT-Creation-Date: 2012-04-13 06:30+0000\n"
 "PO-Revision-Date: 2012-04-12 23:56+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-13 05:24+0000\n"
+"X-Launchpad-Export-Date: 2012-04-14 04:51+0000\n"
 "X-Generator: Launchpad (build 15070)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -45,7 +45,7 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:661
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:337
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:338
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:489
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:493
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/metadata.py:57
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/chm_input.py:109
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/chm_input.py:112
@@ -85,7 +85,7 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:472
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1245
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:41
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/plucker.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pml.py:23
@@ -5185,6 +5185,10 @@ msgstr "Не выбраны книги для генерации каталог�
 msgid "Generating %s catalog..."
 msgstr "Создается каталог %s"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
+msgid "Catalog generation complete, with warnings."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
 msgstr "Каталог произведен."
@@ -5309,7 +5313,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:283
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:726
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:308
 msgid "Already exists"
 msgstr "Уже существует"
@@ -5560,7 +5564,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:674
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:374
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:597
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:607
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:102
@@ -5835,7 +5839,7 @@ msgstr "Не удалось загрузить метаданные"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:507
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:817
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:818
 msgid "Download failed"
 msgstr "Ошибка загрузки"
 
@@ -5871,7 +5875,7 @@ msgid "Download complete"
 msgstr "Загрузка завершена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:121
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:879
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:880
 msgid "Download log"
 msgstr "Журнал загрузки"
 
@@ -9714,15 +9718,15 @@ msgid "Copied"
 msgstr "Скопирована"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:872
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:873
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
 msgid "Copy to clipboard"
 msgstr "Копировать в буфер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:244
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:936
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1042
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:937
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1043
 msgid "View log"
 msgstr "Просмотреть журнал"
 
@@ -11573,90 +11577,98 @@ msgstr "&Пересоздать {0}"
 msgid "&Preview {0}"
 msgstr "&Просмотреть {0}"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
+msgid "No recipes"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
+msgid "No custom recipes created."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
 msgstr "Нет выбранных параметров"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 #, python-format
 msgid "The attached file: %(fname)s is a recipe to download %(title)s."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:152
 msgid "Recipe for "
 msgstr "Параметры для "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:265
 msgid "Switch to Advanced mode"
 msgstr "Переключиться в расширенный режим"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:172
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:183
 msgid "Switch to Basic mode"
 msgstr "Переключиться в обычный режим"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:193
 msgid "Feed must have a title"
 msgstr "Поле должно быть заголовком"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:194
 msgid "The feed must have a title"
 msgstr "Поле должно быть заголовком"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:198
 msgid "Feed must have a URL"
 msgstr "Поле должно иметь URL"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:199
 #, python-format
 msgid "The feed %s must have a URL"
 msgstr "Поле %s должно иметь URL"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:205
 msgid "This feed has already been added to the recipe"
 msgstr "Поле уже было добавлено в параметры"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:244
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:253
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:256
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:343
 msgid "Invalid input"
 msgstr "Неверное значение"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:245
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:254
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:257
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:344
 #, python-format
 msgid "<p>Could not create recipe. Error:<br>%s"
 msgstr "<p>Не могу создать параметр. Ошибка:<br> %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:258
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:317
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:344
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:347
 msgid "Replace recipe?"
 msgstr "Заменить параметр"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:259
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:318
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:262
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:321
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:348
 #, python-format
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr "Выбранное имя параметра %s уже существует. Хотите заменить его?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:288
 msgid "Choose builtin recipe"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:331
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:334
 msgid "Choose a recipe file"
 msgstr "Выбрать файл параметра"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:332
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:335
 msgid "Recipes"
 msgstr "Состав"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:375
 msgid ""
 "You will lose any unsaved changes. To save your changes, click the "
 "Add/Update recipe button. Continue?"
@@ -12446,7 +12458,7 @@ msgid "Previous Page"
 msgstr "Предыдущая страница"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:933
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:934
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:193
 msgid "Back"
@@ -12967,7 +12979,7 @@ msgid "Edit Metadata"
 msgstr "Редактирование метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:66
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:926
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:927
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:219
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:410
@@ -13164,42 +13176,42 @@ msgstr ""
 "фамилию автора и одно характерное слово из заглавия.<p>Чтобы просмотреть "
 "полный отчёт, щёлкните «Показать подробности»."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:624
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:625
 msgid "Current cover"
 msgstr "Текущая обложка"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:627
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:628
 msgid "Searching..."
 msgstr "Поиск..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:787
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:788
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
 msgstr "Загружаются обложки для <b>%s</b>, подождите..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:818
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:819
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
 "Ошибки при получении обложек, нажмите \"Показать подробности\" чтобы увидеть "
 "их."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:824
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:825
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
 msgstr "Не удалось найти ни одной обложки для <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:826
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
 "Найдено <b>%(num)d</b> обложек для %(title)s. Выберите ту, которая вам "
 "нравится."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:915
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:916
 msgid "Downloading metadata..."
 msgstr "Загружаются метаданные..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1026
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1027
 msgid "Downloading cover..."
 msgstr "Загрузка обложки..."
 
@@ -19509,14 +19521,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:420
 msgid ""
 "Choose columns to be searched when not using prefixes, as for example, when "
-"searching for Redd instead of title:Red. Enter a list of search/lookup names "
+"searching for Red instead of title:Red. Enter a list of search/lookup names "
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
-"Выберите столбцы для поиска без использования префиксов, например при поиске "
-"Red (красный) вместо title:Red (заголовок:красный). Введите список имён для "
-"поиска, разделённых запятой. Используется только если установить опцию "
-"\"Ограничить метаданные, в которых производится поиск\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
