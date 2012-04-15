@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-13 06:30+0000\n"
-"PO-Revision-Date: 2012-04-12 23:56+0000\n"
+"PO-Revision-Date: 2012-04-14 11:49+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-14 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-04-15 04:42+0000\n"
 "X-Generator: Launchpad (build 15070)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -12854,7 +12854,7 @@ msgstr[2] "Языки %s не распознаны"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1207
 msgid "I&ds:"
-msgstr ""
+msgstr "Идентификаторы:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1208
 #, python-format
@@ -13521,7 +13521,7 @@ msgstr "&Приоритет задачи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Restriction to apply when the current library is opened:"
-msgstr "Н"
+msgstr "Ограничения, применяемые когда текущая библиотека открыта:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:162
 msgid ""
@@ -13532,7 +13532,7 @@ msgstr ""
 "Применить это ограничение при запуске calibre если используется текущая "
 "библиотека. Также применять \r\n"
 "когда происходит переключение на эту библиотеку. Обратите внимание, что эта "
-"настрока устанавливается \r\n"
+"настройка устанавливается \r\n"
 "для каждой библиотеки отдельно. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:163
