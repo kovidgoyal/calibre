@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
+from calibre.ebooks.mobi.utils import (rescale_image, mobify_image)
+from calibre.ebooks import generate_masthead
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+
+class Resources(object):
+
+    def __init__(self, oeb, opts, is_periodical, add_fonts=False):
+        self.oeb, self.log, self.opts = oeb, oeb.log, opts
+        self.is_periodical = is_periodical
+
+        self.item_map = {}
+        self.records = []
+        self.masthead_offset = 0
+        self.cover_offset = self.thumbnail_offset = None
+
+        self.add_resources(add_fonts)
+
+    def process_image(self, data):
+        return (mobify_image(data) if self.opts.mobi_keep_original_images else
+                rescale_image(data))
+
+    def add_resources(self, add_fonts):
+        oeb = self.oeb
+        oeb.logger.info('Serializing resources...')
+        index = 1
+
+        mh_href = None
+        if 'masthead' in oeb.guide and oeb.guide['masthead'].href:
+            mh_href = oeb.guide['masthead'].href
+            self.records.append(None)
+            index += 1
+        elif self.is_periodical:
+            # Generate a default masthead
+            data = generate_masthead(unicode(self.oeb.metadata['title'][0]))
+            self.records.append(data)
+            index += 1
+
+        cover_href = self.cover_offset = self.thumbnail_offset = None
+        if (oeb.metadata.cover and
+                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = unicode(oeb.metadata.cover[0])
+            item = oeb.manifest.ids[cover_id]
+            cover_href = item.href
+
+        for item in self.oeb.manifest.values():
+            if item.media_type not in OEB_RASTER_IMAGES: continue
+            try:
+                data = self.process_image(item.data)
+            except:
+                self.log.warn('Bad image file %r' % item.href)
+                continue
+            else:
+                if mh_href and item.href == mh_href:
+                    self.records[0] = data
+                    continue
+
+                self.records.append(data)
+                self.item_map[item.href] = index
+                index += 1
+
+                if cover_href and item.href == cover_href:
+                    self.cover_offset = self.item_map[item.href] - 1
+                    try:
+                        data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
+                            maxsizeb=MAX_THUMB_SIZE)
+                    except:
+                        self.log.warn('Failed to generate thumbnail')
+                    else:
+                        self.records.append(data)
+                        self.thumbnail_offset = index - 1
+                        index += 1
+            finally:
+                item.unload_data_from_memory()
+
+    def add_extra_images(self):
+        '''
+        Add any images that were created after the call to add_resources()
+        '''
+        for item in self.oeb.manifest.values():
+            if (item.media_type not in OEB_RASTER_IMAGES or item.href in
+                    self.item_map): continue
+            try:
+                data = self.process_image(item.data)
+            except:
+                self.log.warn('Bad image file %r' % item.href)
+            else:
+                self.records.append(data)
+                self.item_map[item.href] = len(self.records)
+            finally:
+                item.unload_data_from_memory()
+
+
+

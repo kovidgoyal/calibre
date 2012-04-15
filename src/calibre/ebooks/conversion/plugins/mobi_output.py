@@ -6,8 +6,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from cStringIO import StringIO
-
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.customize.conversion import OptionRecommendation
 
@@ -79,18 +77,9 @@ class MOBIOutput(OutputFormatPlugin):
     def check_for_masthead(self):
         found = 'masthead' in self.oeb.guide
         if not found:
+            from calibre.ebooks import generate_masthead
             self.oeb.log.debug('No masthead found in manifest, generating default mastheadImage...')
-            try:
-                from PIL import Image as PILImage
-                PILImage
-            except ImportError:
-                import Image as PILImage
-
-            raw = open(P('content_server/calibre_banner.png'), 'rb')
-            im = PILImage.open(raw)
-            of = StringIO()
-            im.save(of, 'GIF')
-            raw = of.getvalue()
+            raw = generate_masthead(unicode(self.oeb.metadata['title'][0]))
             id, href = self.oeb.manifest.generate('masthead', 'masthead')
             self.oeb.manifest.add(id, href, 'image/gif', data=raw)
             self.oeb.guide.add('masthead', 'Masthead Image', href)
@@ -151,17 +140,45 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
+    def remove_html_cover(self):
+        from calibre.ebooks.oeb.base import OEB_DOCS
+
+        oeb = self.oeb
+        if not oeb.metadata.cover \
+           or 'cover' not in oeb.guide:
+            return
+        href = oeb.guide['cover'].href
+        del oeb.guide['cover']
+        item = oeb.manifest.hrefs[href]
+        if item.spine_position is not None:
+            self.log.warn('Found an HTML cover: ', item.href, 'removing it.',
+                    'If you find some content missing from the output MOBI, it '
+                    'is because you misidentified the HTML cover in the input '
+                    'document')
+            oeb.spine.remove(item)
+            if item.media_type in OEB_DOCS:
+                self.oeb.manifest.remove(item)
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
+        from calibre.utils.config import tweaks
+        from calibre.ebooks.mobi.writer2.resources import Resources
         self.log, self.opts, self.oeb = log, opts, oeb
 
-        kf8 = self.create_kf8()
-        self.write_mobi(input_plugin, output_path, kf8)
+        create_kf8 = tweaks.get('create_kf8', False)
+
+        self.remove_html_cover()
+        resources = Resources(oeb, opts, self.is_periodical,
+                add_fonts=create_kf8)
+
+        kf8 = self.create_kf8() if create_kf8 else None
+
+        self.write_mobi(input_plugin, output_path, kf8, resources)
 
     def create_kf8(self):
         from calibre.ebooks.mobi.writer8.main import KF8Writer
         return KF8Writer(self.oeb, self.opts)
 
-    def write_mobi(self, input_plugin, output_path, kf8):
+    def write_mobi(self, input_plugin, output_path, kf8, resources):
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
@@ -180,12 +197,20 @@ class MOBIOutput(OutputFormatPlugin):
             rasterizer(oeb, opts)
         except Unavailable:
             self.log.warn('SVG rasterizer unavailable, SVG will not be converted')
+        else:
+            # Add rasterized SVG images
+            # Note that this means for SVG images that are simple wrappers
+            # around raster images, there will now be two copies of the image
+            # in the MOBI file. This could probably be fixed for common cases
+            # by detecting it and replacing the SVG with the raster image, but
+            # it isn't worth the effort to me.
+            resources.add_extra_images()
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         self.check_for_periodical()
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
         from calibre.ebooks.mobi.writer2.main import MobiWriter
-        writer = MobiWriter(opts,
+        writer = MobiWriter(opts, resources, kf8,
                         write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
 

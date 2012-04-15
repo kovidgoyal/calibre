@@ -10,7 +10,7 @@ import copy
 import re
 from lxml import etree
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEB_DOCS, urlnormalize
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.utils.magick.draw import identify_data
@@ -109,25 +109,7 @@ class MobiMLizer(object):
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
-        self.remove_html_cover()
         self.mobimlize_spine()
-
-    def remove_html_cover(self):
-        oeb = self.oeb
-        if not oeb.metadata.cover \
-           or 'cover' not in oeb.guide:
-            return
-        href = oeb.guide['cover'].href
-        del oeb.guide['cover']
-        item = oeb.manifest.hrefs[href]
-        if item.spine_position is not None:
-            self.log.warn('Found an HTML cover,', item.href, 'removing it.',
-                    'If you find some content missing from the output MOBI, it '
-                    'is because you misidentified the HTML cover in the input '
-                    'document')
-            oeb.spine.remove(item)
-            if item.media_type in OEB_DOCS:
-                self.oeb.manifest.remove(item)
 
     def mobimlize_spine(self):
         'Iterate over the spine and convert it to MOBIML'
