@@ -152,13 +152,13 @@ class MobiWriter(object):
 
     def generate_images(self):
         resources = self.resources
-        self.image_records = resources.records
+        image_records = resources.records
         self.image_map = resources.item_map
         self.masthead_offset = resources.masthead_offset
         self.cover_offset = resources.cover_offset
         self.thumbnail_offset = resources.thumbnail_offset
 
-        if self.image_records and self.image_records[0] is None:
+        if image_records and image_records[0] is None:
             raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
@@ -265,9 +265,12 @@ class MobiWriter(object):
 
         exth = self.build_exth(bt)
         first_image_record = None
-        if self.image_records:
+        if self.resources:
+            used_images = self.serializer.used_images
+            if self.kf8 is not None:
+                used_images |= self.kf8.used_images
             first_image_record  = len(self.records)
-            self.records.extend(self.image_records)
+            self.resources.serialize(self.records, used_images)
         last_content_record = len(self.records) - 1
 
         # FCIS/FLIS (Seems to serve no purpose)

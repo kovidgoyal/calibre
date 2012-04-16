@@ -19,6 +19,7 @@ class KF8Writer(object):
 
     def __init__(self, oeb, opts):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
+        self.used_images = set()
         self.dup_data()
 
         self.create_pieces()

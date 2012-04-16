@@ -12,6 +12,8 @@ from calibre.ebooks.mobi.utils import (rescale_image, mobify_image)
 from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
+PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00@\x02\x01D\x00;'
+
 class Resources(object):
 
     def __init__(self, oeb, opts, is_periodical, add_fonts=False):
@@ -21,6 +23,8 @@ class Resources(object):
         self.item_map = {}
         self.records = []
         self.masthead_offset = 0
+        self.used_image_indices = set()
+        self.image_indices = set()
         self.cover_offset = self.thumbnail_offset = None
 
         self.add_resources(add_fonts)
@@ -39,10 +43,14 @@ class Resources(object):
             mh_href = oeb.guide['masthead'].href
             self.records.append(None)
             index += 1
+            self.used_image_indices.add(0)
+            self.image_indices.add(0)
         elif self.is_periodical:
             # Generate a default masthead
             data = generate_masthead(unicode(self.oeb.metadata['title'][0]))
             self.records.append(data)
+            self.used_image_indices.add(0)
+            self.image_indices.add(0)
             index += 1
 
         cover_href = self.cover_offset = self.thumbnail_offset = None
@@ -64,20 +72,24 @@ class Resources(object):
                     self.records[0] = data
                     continue
 
+                self.image_indices.add(len(self.records))
                 self.records.append(data)
                 self.item_map[item.href] = index
                 index += 1
 
                 if cover_href and item.href == cover_href:
                     self.cover_offset = self.item_map[item.href] - 1
+                    self.used_image_indices.add(self.cover_offset)
                     try:
                         data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
                             maxsizeb=MAX_THUMB_SIZE)
                     except:
                         self.log.warn('Failed to generate thumbnail')
                     else:
+                        self.image_indices.add(len(self.records))
                         self.records.append(data)
                         self.thumbnail_offset = index - 1
+                        self.used_image_indices.add(self.thumbnail_offset)
                         index += 1
             finally:
                 item.unload_data_from_memory()
@@ -99,5 +111,14 @@ class Resources(object):
             finally:
                 item.unload_data_from_memory()
 
+    def serialize(self, records, used_images):
+        used_image_indices = self.used_image_indices | {
+                v-1 for k, v in self.item_map.iteritems() if k in used_images}
+        for i in self.image_indices-used_image_indices:
+            self.records[i] = PLACEHOLDER_GIF
+        records.extend(self.records)
 
+    def __bool__(self):
+        return bool(self.records)
+    __nonzero__ = __bool__
 

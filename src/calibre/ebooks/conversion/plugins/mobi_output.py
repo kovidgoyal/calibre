@@ -199,11 +199,6 @@ class MOBIOutput(OutputFormatPlugin):
             self.log.warn('SVG rasterizer unavailable, SVG will not be converted')
         else:
             # Add rasterized SVG images
-            # Note that this means for SVG images that are simple wrappers
-            # around raster images, there will now be two copies of the image
-            # in the MOBI file. This could probably be fixed for common cases
-            # by detecting it and replacing the SVG with the raster image, but
-            # it isn't worth the effort to me.
             resources.add_extra_images()
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
