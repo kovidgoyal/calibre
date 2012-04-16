@@ -13,10 +13,10 @@ from PyQt4.QtGui import (QDialog, QWidget, QDialogButtonBox,
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
 from calibre.gui2 import error_dialog, choose_files
-from calibre.ebooks.oeb.iterator import EbookIterator
-from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.constants import iswindows
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from calibre.ptempfile import TemporaryFile
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
@@ -161,16 +161,21 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         return True
 
     def open_book(self, pathtoebook):
-        self.iterator = EbookIterator(pathtoebook)
-        self.iterator.__enter__(only_input_plugin=True)
-        text = [u'']
-        preprocessor = HTMLPreProcessor(None, False)
-        for path in self.iterator.spine:
-            with open(path, 'rb') as f:
-                html = f.read().decode('utf-8', 'replace')
-            html = preprocessor(html, get_preprocess_html=True)
-            text.append(html)
-        self.preview.setPlainText('\n---\n'.join(text))
+        with TemporaryFile('_prepprocess_gui') as tf:
+            err_msg = _('Failed to generate markup for testing. Click '
+                            '"Show Details" to learn more.')
+            try:
+                fork_job('calibre.ebooks.oeb.iterator', 'get_preprocess_html',
+                    (pathtoebook, tf))
+            except WorkerError as e:
+                return error_dialog(self, _('Failed to generate preview'),
+                        err_msg, det_msg=e.orig_tb, show=True)
+            except:
+                import traceback
+                return error_dialog(self, _('Failed to generate preview'),
+                        err_msg, det_msg=traceback.format_exc(), show=True)
+            with open(tf, 'rb') as f:
+                self.preview.setPlainText(f.read().decode('utf-8'))
 
     def button_clicked(self, button):
         if button == self.button_box.button(QDialogButtonBox.Open):
