@@ -3,7 +3,10 @@ readitlaterlist.com
 '''
 __license__   = 'GPL v3'
 __copyright__ = '''
+2010, Darko Miletic <darko.miletic at gmail.com>
+2011, Przemyslaw Kryger <pkryger at gmail.com>
 2011, Keith Callenberg <keithcallenberg@gmail.com>
+2012, tBunnyMan <Wag That Tail At Me dot com>
 2012, Alayn Gortazar <zutoin at gmail dot com>
 '''
 
@@ -14,16 +17,17 @@ import json
 import urllib
 import urllib2
 
-class Readitlaterv2(BasicNewsRecipe):
-    title                 = 'Read It Later v2'
-    __author__            = 'Keith Callenberg'
+class Readitlater(BasicNewsRecipe):
+    title                 = 'Read It Later'
+    __author__            = 'Darko Miletic, Przemyslaw Kryger, Keith Callenberg, tBunnyMan, Alayn Gortazar'
     description           = '''Personalized news feeds. Go to readitlaterlist.com to
                                setup up your news. Fill in your account
                                username, and optionally you can add your password.'''
     publisher             = 'readitlaterlist.com'
     category              = 'news, custom'
     oldest_article        = 7
-    max_articles_per_feed = 100
+    max_articles_per_feed = 50
+    minimum_articles      = 1
     no_stylesheets        = True
     use_embedded_content  = False
     needs_subscription    = True
@@ -51,7 +55,10 @@ class Readitlaterv2(BasicNewsRecipe):
     def parse_index(self):
         index = self.INDEX + 'v2/get?'
         index += 'apikey=' + self.KEY
-        index += '&username=' + self.username + '&password=' + self.password 
+        if self.username is not None:
+            index += '&username=' + self.username 
+            if self.password is not None:
+                index += '&password=' + self.password 
         index += '&state=unread'
         index += '&count=' + str(self.max_articles_per_feed) 
 
@@ -62,10 +69,12 @@ class Readitlaterv2(BasicNewsRecipe):
             raise RuntimeError('Could not fetch index!')
 
         json_obj = json.loads(results)
-
-        if len(json_obj['list']) > 0:
+        
+        if len(json_obj['list']) >= self.minimum_articles:
             for item in json_obj['list'].iteritems():
-                dataurl = "https://readitlaterlist.com/a/x/getArticle.php?itemId=" + item[1]['item_id']
+                # TODO: This URL should be modified by it's corresponding API call in a future. 
+                #       Actually is not possible to get the Article View potential throught an API call (12/04/2012)
+                dataurl = self.INDEX + "a/x/getArticle.php?itemId=" + item[1]['item_id']
                 self.articles.append({
                                  'title':item[1]['title'],
                                  'date':item[1]['time_added'],
@@ -73,6 +82,9 @@ class Readitlaterv2(BasicNewsRecipe):
                                  'description':item[1]['item_id'],
                                  'real_url':item[1]['url']
                             })
+        else:
+            raise Exception("Not enough articles in RIL! Change minimum_articles or add more.")
+
         return [('Unread', self.articles)]
 
     def preprocess_raw_html(self, raw_html, url):
@@ -81,23 +93,25 @@ class Readitlaterv2(BasicNewsRecipe):
         self.images = {}
         for image in json_obj['article']['images']:
             self.images[image] = json_obj['article']['images'][image]['src']
-        return json_obj['article']['article']
+        title = '<h1>{title}</h1>'.format(title=json_obj['article']['title']) 
+        link = '<p>Original: <a href="{url}">{url}</a></p>'.format(url=json_obj['article']['resolvedUrl'])
+        return link + title + json_obj['article']['article']
 
     def preprocess_html(self, soup):
         # Insert images on RIL_IMG_# divs
         for key, url in self.images.iteritems():
-            tag = Tag(soup, 'img')
-            tag['src'] = url
+            imgtag = Tag(soup, 'img')
+            imgtag['src'] = url
             div = soup.find('div', attrs={'id':'RIL_IMG_' + key})
-            div.insert(0, tag)
+            div.insert(0, imgtag)
         return soup
 
     def cleanup(self):
         # From a list of urls, create a human-readable JSON string
         # suitable for passing to the ReadItLater SEND::READ method.
     
-        self.markAsRead(self.createMarkList(self.articles))
-    
+        #self.markAsRead(self.createMarkList(self.articles))
+        return 
 
     def createMarkList(self, articles):
         urls = []
