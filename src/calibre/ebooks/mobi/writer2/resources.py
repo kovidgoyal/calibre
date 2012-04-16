@@ -8,7 +8,8 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
-from calibre.ebooks.mobi.utils import (rescale_image, mobify_image)
+from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
+        write_font_record)
 from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
@@ -93,6 +94,13 @@ class Resources(object):
                         index += 1
             finally:
                 item.unload_data_from_memory()
+
+        if add_fonts:
+            for item in self.oeb.manifest.values():
+                if item.href and item.href.rpartition('.')[-1].lower() in {
+                        'ttf', 'otf'} and isinstance(item.data, bytes):
+                    self.records.append(write_font_record(item.data))
+                    self.item_map[item.href] = len(self.records)
 
     def add_extra_images(self):
         '''
