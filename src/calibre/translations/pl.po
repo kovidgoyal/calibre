@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-13 06:30+0000\n"
-"PO-Revision-Date: 2012-04-12 19:11+0000\n"
-"Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
+"PO-Revision-Date: 2012-04-15 12:43+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-14 04:50+0000\n"
-"X-Generator: Launchpad (build 15070)\n"
+"X-Launchpad-Export-Date: 2012-04-16 04:39+0000\n"
+"X-Generator: Launchpad (build 15099)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5115,7 +5115,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Sposób dodawania książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -5288,7 +5288,7 @@ msgstr "Generowanie katalogu %s..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
 msgid "Catalog generation complete, with warnings."
-msgstr ""
+msgstr "Tworzenie katalogu ukończone z ostrzeżeniami."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
@@ -11842,11 +11842,11 @@ msgstr "Podgląd {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"
-msgstr ""
+msgstr "Brak recept"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "No custom recipes created."
-msgstr ""
+msgstr "Nie utworzono recept użytkownika."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
@@ -13251,7 +13251,7 @@ msgstr "(Brak okładki)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr ""
+msgstr "Przetworzono %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:61
@@ -13330,11 +13330,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Clear series"
-msgstr ""
+msgstr "Wyczyść serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
-msgstr ""
+msgstr "Wyczyść identyfikatory"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:205
 msgid ""
@@ -13719,6 +13719,7 @@ msgstr "Przeglądaj foldery"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "Automatically &convert added files to the current output format"
 msgstr ""
+"Automatycznie konwertuj dodawane książki do bieżącego formatu wyjściowego"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "&Automatic Adding"
@@ -15592,7 +15593,7 @@ msgstr "&Ogranicz przeszukiwane metadane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr "&Kolumny których bezprefiksowe wyszukiwania są ograniczone do:"
+msgstr "&Kolumny, do których jest ograniczone szukanie bez prefiksu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
 msgid ""
@@ -15747,6 +15748,12 @@ msgid ""
 "having trouble downloading files from the content server, try removing the "
 "password."
 msgstr ""
+"<p>Jeśli pozostawisz hasło puste każdy będzie miał dostęp\n"
+"do biblioteki za pomocą przeglądarki internetowej.\n"
+"<br>\n"
+"Niektóre urządzenia mają przeglądarki, które nie obsługują autentykacji. "
+"Jeśli występują problemy ze ściąganiem książek z biblioteki spróbuj usunąć "
+"hasło."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
 msgid ""
@@ -15793,10 +15800,12 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
+"<p>Niektóre urządzenia mają przeglądarki nie obsługujące autentykacji. Jeśli "
+"występują problemy ze ściąganiem książek z biblioteki spróbuj usunąć hasło."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "Hasło niezgodne z niektórymi urządzeniami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
@@ -17083,11 +17092,11 @@ msgstr "Zmień schemat pod-kategoryzacji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:491
 msgid "Disable"
-msgstr ""
+msgstr "Wyłącz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
 msgid "Partition"
-msgstr ""
+msgstr "Partycja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:510
 msgid "First letter is usable only when sorting by name"
@@ -20182,6 +20191,11 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
+"Wybierz kolumny, które będą przeszukiwane jeśli kolumna nie została "
+"określona za pomocą prefiksu. Na przykład przy szukaniu słowa \"czerwony\" "
+"zamiast title:czerwony. Podaj listę nazw wyszukiwania kolumn oddzielonych "
+"przecinkami. Lista ta brana jest pod uwagę jedynie wtedy, gdy powyżej "
+"aznaczono opcję Ogranicz przeszukiwane metadane."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -20788,7 +20802,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:844
 msgid "series_sort() -- return the series sort value"
-msgstr ""
+msgstr "series_sort() -- zwraca wartość pola sortowania serii"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:855
 msgid ""
