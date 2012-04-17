@@ -6,13 +6,12 @@ __docformat__ = 'restructuredtext en'
 
 import re, os
 
-from PyQt4.QtCore import SIGNAL, Qt, pyqtSignal
-from PyQt4.QtGui import (QDialog, QWidget, QDialogButtonBox,
-        QBrush, QTextCursor, QTextEdit)
+from PyQt4.Qt import (QDialog, QWidget, QDialogButtonBox,
+        QBrush, QTextCursor, QTextEdit, QByteArray, Qt, pyqtSignal)
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
-from calibre.gui2 import error_dialog, choose_files
+from calibre.gui2 import error_dialog, choose_files, gprefs
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
@@ -28,7 +27,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.regex_valid()
 
         if not db or not book_id:
-            self.button_box.addButton(QDialogButtonBox.Open)
+            button = self.button_box.addButton(QDialogButtonBox.Open)
+            button.clicked.connect(self.open_clicked)
         elif not doc and not self.select_format(db, book_id):
             self.cancelled = True
             return
@@ -37,14 +37,23 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             self.preview.setPlainText(doc)
 
         self.cancelled = False
-        self.connect(self.button_box, SIGNAL('clicked(QAbstractButton*)'), self.button_clicked)
-        self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
-        self.connect(self.test, SIGNAL('clicked()'), self.do_test)
-        self.connect(self.previous, SIGNAL('clicked()'), self.goto_previous)
-        self.connect(self.next, SIGNAL('clicked()'), self.goto_next)
+        self.button_box.accepted.connect(self.accept)
+        self.regex.textChanged[str].connect(self.regex_valid)
+        for src, slot in (('test', 'do'), ('previous', 'goto'), ('next',
+            'goto')):
+            getattr(self, src).clicked.connect(getattr(self, '%s_%s'%(slot,
+                src)))
         self.test.setDefault(True)
 
         self.match_locs = []
+        geom = gprefs.get('regex_builder_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(QByteArray(geom))
+        self.finished.connect(self.save_state)
+
+    def save_state(self, result):
+        geom = bytearray(self.saveGeometry())
+        gprefs['regex_builder_geometry'] = geom
 
     def regex_valid(self):
         regex = unicode(self.regex.text())
@@ -178,14 +187,11 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             with open(tf, 'rb') as f:
                 self.preview.setPlainText(f.read().decode('utf-8'))
 
-    def button_clicked(self, button):
-        if button == self.button_box.button(QDialogButtonBox.Open):
-            files = choose_files(self, 'regexp tester dialog', _('Open book'),
-                    select_only_single_file=True)
-            if files:
-                self.open_book(files[0])
-        if button == self.button_box.button(QDialogButtonBox.Ok):
-            self.accept()
+    def open_clicked(self):
+        files = choose_files(self, 'regexp tester dialog', _('Open book'),
+                select_only_single_file=True)
+        if files:
+            self.open_book(files[0])
 
     def doc(self):
         return unicode(self.preview.toPlainText())
@@ -202,7 +208,7 @@ class RegexEdit(QWidget, Ui_Edit):
         self.db = None
         self.doc_cache = None
 
-        self.connect(self.button, SIGNAL('clicked()'), self.builder)
+        self.button.clicked.connect(self.builder)
 
     def builder(self):
         bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self.doc_cache, self)
