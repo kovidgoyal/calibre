@@ -325,6 +325,10 @@ class KINDLE2(KINDLE):
     OPT_APNX_ACCURATE  = 1
     OPT_APNX_CUST_COL  = 2
 
+    def formats_to_scan_for(self):
+        ans = USBMS.formats_to_scan_for(self) | {'azw3'}
+        return ans
+
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         # Read collections information
