@@ -95,7 +95,7 @@ class Readitlater(BasicNewsRecipe):
             self.images[image] = json_obj['article']['images'][image]['src']
         title = '<h1>{title}</h1>'.format(title=json_obj['article']['title']) 
         link = '<p>Original: <a href="{url}">{url}</a></p>'.format(url=json_obj['article']['resolvedUrl'])
-        return link + title + json_obj['article']['article']
+        return link + title + json_obj['article']['article'] + '<hr />'
 
     def preprocess_html(self, soup):
         # Insert images on RIL_IMG_# divs
