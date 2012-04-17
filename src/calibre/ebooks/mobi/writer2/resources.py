@@ -7,6 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import imghdr
+
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
         write_font_record)
@@ -23,6 +25,7 @@ class Resources(object):
 
         self.item_map = {}
         self.records = []
+        self.mime_map = {}
         self.masthead_offset = 0
         self.used_image_indices = set()
         self.image_indices = set()
@@ -76,6 +79,7 @@ class Resources(object):
                 self.image_indices.add(len(self.records))
                 self.records.append(data)
                 self.item_map[item.href] = index
+                self.mime_map[item.href] = 'image/%s'%imghdr.what(None, data)
                 index += 1
 
                 if cover_href and item.href == cover_href:

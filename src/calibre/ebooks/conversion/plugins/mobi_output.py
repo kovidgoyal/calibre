@@ -170,13 +170,13 @@ class MOBIOutput(OutputFormatPlugin):
         resources = Resources(oeb, opts, self.is_periodical,
                 add_fonts=create_kf8)
 
-        kf8 = self.create_kf8() if create_kf8 else None
+        kf8 = self.create_kf8(resources) if create_kf8 else None
 
         self.write_mobi(input_plugin, output_path, kf8, resources)
 
-    def create_kf8(self):
+    def create_kf8(self, resources):
         from calibre.ebooks.mobi.writer8.main import KF8Writer
-        return KF8Writer(self.oeb, self.opts)
+        return KF8Writer(self.oeb, self.opts, resources)
 
     def write_mobi(self, input_plugin, output_path, kf8, resources):
         from calibre.ebooks.mobi.mobiml import MobiMLizer
