@@ -110,8 +110,7 @@ class Readitlater(BasicNewsRecipe):
         # From a list of urls, create a human-readable JSON string
         # suitable for passing to the ReadItLater SEND::READ method.
     
-        #self.markAsRead(self.createMarkList(self.articles))
-        return 
+        self.markAsRead(self.createMarkList(self.articles))
 
     def createMarkList(self, articles):
         urls = []
