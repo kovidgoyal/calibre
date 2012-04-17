@@ -427,6 +427,8 @@ class KINDLE_FIRE(KINDLE2):
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
+    FORMATS = list(KINDLE2.FORMATS)
+    FORMATS.insert(0, 'azw3')
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]
