@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-13 06:30+0000\n"
-"PO-Revision-Date: 2012-04-11 13:40+0000\n"
-"Last-Translator: Raymond Fürst <Unknown>\n"
+"PO-Revision-Date: 2012-04-16 05:46+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-14 04:44+0000\n"
-"X-Generator: Launchpad (build 15070)\n"
+"X-Launchpad-Export-Date: 2012-04-17 04:49+0000\n"
+"X-Generator: Launchpad (build 15099)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2278,7 +2278,7 @@ msgstr "EINGABE-EINSTELLUNGEN"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:110
 #, python-format
 msgid "Options to control the processing of the input %s file"
-msgstr "Einstellungen zur Kontrolle der Verabeitung der Eingabe-Datei %s"
+msgstr "Einstellungen zur Steuerung der Verarbeitung der Eingabedatei %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:116
 msgid "OUTPUT OPTIONS"
@@ -2287,11 +2287,11 @@ msgstr "AUSGABE-EINSTELLUNGEN"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:117
 #, python-format
 msgid "Options to control the processing of the output %s"
-msgstr "Einstellungen zur Kontrolle der Verarbeitung der Ausgabe %s"
+msgstr "Einstellungen zur Steuerung der Verarbeitung der Ausgabe %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:131
 msgid "Options to control the look and feel of the output"
-msgstr "Einstellungen zur Kontrolle des Layouts der Ausgabe"
+msgstr "Einstellungen zur Steuerung des Layouts der Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:149
 #, python-format
@@ -2327,7 +2327,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:186
 msgid "Options to set metadata in the output"
-msgstr "Einstellungen zum Setzen von Metadaten in der Ausgabe"
+msgstr "Einstellungen zum Festlegen von Metadaten in der Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:189
 msgid "Options to help with debugging the conversion"
@@ -4766,7 +4766,7 @@ msgstr "Einstellungen zum Beschneiden:"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr "Einstellungen zur Kontrolle der Umwandlung von pdf"
+msgstr "Einstellungen zur Steuerung der Umwandlung von pdf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
@@ -4963,11 +4963,11 @@ msgstr "Voreinstellungen für Konvertierung zu LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 msgid "Options for the LRF ebook viewer"
-msgstr "Optionen für den LRF E-Book-Viewer"
+msgstr "Optionen für den LRF-E-Book-Betrachter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
 msgid "Formats that are viewed using the internal viewer"
-msgstr "Formate, die mithilfe des internen Viewers angesehen werden"
+msgstr "Formate, die mit dem internen Betrachter angezeigt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:143
 msgid "Columns to be displayed in the book list"
@@ -12870,7 +12870,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
-msgstr "Viewer konfigurieren"
+msgstr "Betrachter konfigurieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:53
 msgid "Use white background"
@@ -12886,7 +12886,7 @@ msgstr "<b>Änderungen werden erst nach einem Neustart wirksam.</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:70
 msgid " - LRF Viewer"
-msgstr " - LRF Viewer"
+msgstr " - LRF-Betrachter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #, python-format
@@ -12895,7 +12895,7 @@ msgstr "<b>Keine Treffer</b> für die Suchworte <i>%s</i> gefunden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:128
 msgid "LRF Viewer"
-msgstr "LRF Viewer"
+msgstr "LRF-Betrachter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:129
 msgid "Parsing LRF file"
@@ -12903,7 +12903,7 @@ msgstr "Analysiere LRF Datei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
-msgstr "LRF Viewer Symbolleiste"
+msgstr "LRF-Betrachter-Symbolleiste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:516
@@ -14037,7 +14037,7 @@ msgstr "Bevorzugte Reihenfolge des E&ingabe-Formats:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Use internal &viewer for:"
-msgstr "Internen &Viewer verwenden für:"
+msgstr "Internen &Betrachter verwenden für:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid "Reset all disabled &confirmation dialogs"
@@ -15840,7 +15840,7 @@ msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
 msgstr ""
-"Lösche alle gespeicherten Suchen in Calibre. Auch die Bücherliste, "
+"Alle gespeicherten Suchen in Calibre löschen. Auch die Bücherliste, "
 "Buchbetrachter, Nachrichtendialog usw."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
@@ -17531,7 +17531,7 @@ msgstr "Importieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
 msgid "Configure Ebook viewer"
-msgstr "E-Book Viewer konfigurieren"
+msgstr "E-Book-Betrachter konfigurieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:186
 msgid "&Font options"
@@ -17606,8 +17606,8 @@ msgstr "Voreingeste&llte Sprache für die Silbentrennung:"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
-"Bilder ve&rkleinern, die größer als das Viewer-Fenster sind  (erfordert "
-"Neustart)"
+"Bilder ve&rkleinern, die größer als das Betrachterfenster sind (Neustart "
+"erforderlich)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Page flip &duration:"
@@ -17679,7 +17679,7 @@ msgstr "Kein Ergebnis gefunden für:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:40
 msgid "Options to customize the ebook viewer"
-msgstr "Einstellungen zum Anpassen des E-Book Viewers"
+msgstr "Einstellungen zum Anpassen des E-Book-Betrachters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:942
@@ -17697,7 +17697,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Resize images larger than the viewer window to fit inside it"
-msgstr "Bilder, die größer als das Viewer-Fenster sind, passend verkleinern"
+msgstr ""
+"Bilder, die größer als das Betrachterfenster sind, passend verkleinern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:56
 msgid "Hyphenate text"
@@ -17982,20 +17983,20 @@ msgstr "Konnte E-Book nicht öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:929
 msgid "Options to control the ebook viewer"
-msgstr "Einstellungen zur Kontrolle des E-Book Viewers"
+msgstr "Einstellungen zur Steuerung des E-Book-Betrachters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:936
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"Falls angegeben, dann wird das Betrachter-Fenster beim Start im Vordergrund "
-"angezeigt."
+"Wenn ausgewählt, wird das Betrachterfenster nach Möglichkeit im Vordergrund "
+"geöffnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:939
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
-"Wenn ausgewählt, wird das Betrachter-Fenster nach Möglichkeit im "
+"Wenn ausgewählt, wird das Betrachterfenster nach Möglichkeit im "
 "Vollbildmodus geöffnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:944
@@ -18007,8 +18008,8 @@ msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
-"Die Stelle, an der das Buch geöffnet werden soll. Die Stelle wird oben links "
-"im Viewer angezeigt"
+"Bildschirmposition, an der das Buch geöffnet werden soll. Die Stelle wird "
+"oben links im Betrachter angezeigt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:953
 msgid ""
@@ -18022,7 +18023,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr "E-book Viewer"
+msgstr "E-Book-Betrachter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
@@ -19370,9 +19371,9 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
-"Ein Wörterbuch von Optionen zur Einstellung, wie Daten in dieser Spalte "
-"interpretiert werden. Dies ist ein JSON- String. Für Listenspalten, "
-"verwenden Sie --display='{\"enum_values\":[\"val1\", \"val2\"]}'"
+"Ein Wörterbuch mit Optionen zur Einstellung, wie Daten in dieser Spalte "
+"interpretiert werden. Dies ist eine JSON-Zeichenkette. Für nummerierte "
+"Spalten verwenden Sie --display='{\"enum_values\":[\"Wert1\", \"Wert2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:625
 msgid "You must specify label, name and datatype"
@@ -19845,7 +19846,7 @@ msgstr "Die Calibre interne ID"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:76
 msgid "Options to control saving to disk"
-msgstr "Einstellungen zur Kontrolle des Speicherns auf die Festplatte"
+msgstr "Einstellungen zur Steuerung des Speicherns auf die Festplatte"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:82
 msgid ""

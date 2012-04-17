@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-13 06:30+0000\n"
-"PO-Revision-Date: 2012-04-07 18:00+0000\n"
+"PO-Revision-Date: 2012-04-16 18:07+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-14 04:51+0000\n"
-"X-Generator: Launchpad (build 15070)\n"
+"X-Launchpad-Export-Date: 2012-04-17 04:49+0000\n"
+"X-Generator: Launchpad (build 15099)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5284,7 +5284,7 @@ msgstr "Групно претварање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:37
 msgid "Create a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Направите каталог књига за вашу  calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:612
@@ -5582,7 +5582,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
-msgstr "Уреди колекицје"
+msgstr "Уреди колекције"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:14
 msgid "Manage the collections on this device"
@@ -6103,7 +6103,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Није могуће подесити књигу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -9328,7 +9328,7 @@ msgstr "Име аутора не може садржати знак &."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:138
 msgid "Manage authors"
-msgstr "Организуј ауторе."
+msgstr "Организуј ауторе"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:624
@@ -9885,7 +9885,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:642
 msgid "Identifier type:"
-msgstr ""
+msgstr "Врста идентификатора:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:643
@@ -10573,7 +10573,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:197
 #, python-format
 msgid "%s news sources"
-msgstr ""
+msgstr "%s извора вести"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:217
 msgid "&Download now"
@@ -10727,7 +10727,7 @@ msgstr "&Напредно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
-msgstr ""
+msgstr "Избриши преузете вести &старије од:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid ""
@@ -10745,11 +10745,11 @@ msgstr "никада брисати"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
 msgid " days"
-msgstr " дани"
+msgstr " дана"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Преузмите све планиране изворе вести одједном"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:232
 msgid "Download &all scheduled"
@@ -10863,6 +10863,8 @@ msgid ""
 "See the <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Погледајте  <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
+"interface\">Упутство за употребу</a>за додатну помоћ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
@@ -11917,7 +11919,7 @@ msgstr "Поништи брзу претрагу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:236
 msgid "Copy current search text (instead of search name)"
-msgstr "Kopirajte tekst koji se trenutno traži (umesto imena pretrage)"
+msgstr "Копирајте текст који се тренутно тражи (уместо имена претраге)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1073
@@ -12443,7 +12445,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:988
 msgid "Could not change cover as the image is invalid."
-msgstr ""
+msgstr "Није могуће променити корице  слика је неважећа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1015
 msgid "This book has no cover"
@@ -12568,7 +12570,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:131
 #, python-format
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "Преузми метаподатке за  %d књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:136
 msgid "Metadata download started"
@@ -12672,11 +12674,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:218
 msgid "&Download metadata"
-msgstr ""
+msgstr "&Преузми метаподатке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:230
 msgid "Configure download metadata"
-msgstr ""
+msgstr "Подеси преузете метаподатке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:234
 msgid "Change how calibre downloads metadata"
@@ -12711,7 +12713,7 @@ msgstr "Сачувај измене и промени метаподатке з�
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:595
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:800
 msgid "Change cover"
-msgstr ""
+msgstr "Промени корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:654
 msgid "Co&mments"
@@ -13228,7 +13230,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:244
 msgid "Create a coloring rule by filling in the boxes below"
-msgstr ""
+msgstr "Стварање правила за  попуњавање бојом поља испод"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "to"
@@ -13437,7 +13439,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:56
 msgid "Create a custom column"
-msgstr ""
+msgstr "Направи прилагођену колону"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:67
 msgid "Quick create:"
@@ -14899,11 +14901,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "Лозинка није одговарајућа са неким уређајима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "&УРЛ префикс:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
 msgid ""
@@ -14936,7 +14938,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Покрени сервер &аутоматски кад се calibre покрене"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid "View &server logs"
@@ -15390,7 +15392,7 @@ msgstr "&Опис:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
-msgstr ""
+msgstr "&Седиште:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
@@ -15422,11 +15424,11 @@ msgstr "нетачно"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:163
 msgid "Affiliate:"
-msgstr ""
+msgstr "Подружница:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
-msgstr ""
+msgstr "Наз&ив/Опис ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:31
@@ -15447,7 +15449,7 @@ msgstr "Окрени"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Affiliate"
-msgstr ""
+msgstr "Подружница"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
@@ -15455,7 +15457,7 @@ msgstr "Укључено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
-msgstr ""
+msgstr "Седиште"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
@@ -15818,11 +15820,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:53
 msgid "Manage Publishers"
-msgstr ""
+msgstr "Управљање издавачима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:55
 msgid "Manage Tags"
-msgstr ""
+msgstr "Управљање oзнакама"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:476
@@ -15960,7 +15962,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:415
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "Управљање писцима, ознакама, итд"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:416
 msgid ""
@@ -17028,7 +17030,7 @@ msgstr "&Kindle електронска пошта:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr "Izaberite &jezik:"
+msgstr "Изаберите &језик:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
@@ -18467,7 +18469,7 @@ msgstr "Сажимам базу података"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:213
 msgid "Identifiers"
-msgstr ""
+msgstr "Идентификатори"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
