@@ -36,6 +36,7 @@ class KF8Writer(object):
 
         self.replace_resource_links()
         self.extract_css_into_flows()
+        self.extract_svg_into_flows()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
@@ -138,5 +139,21 @@ class KF8Writer(object):
             idx = to_ref(len(self.flows))
             for link in elems:
                 link.set('href', 'kindle:flow:%s?mime=text/css'%idx)
+
+    def extract_svg_into_flows(self):
+        for item in self.oeb.spine:
+            root = self.data(item)
+            if not hasattr(root, 'xpath'): continue
+
+            for svg in XPath('//svg:svg')(root):
+                raw = etree.tostring(svg, encoding=unicode, with_tail=False)
+                self.flows.append(raw)
+                p = svg.getparent()
+                pos = p.index(svg)
+                img = etree.Element(XHTML('img'),
+                        src="kindle:flow:%s?mime=image/svg+xml"%to_ref(
+                            len(self.flows)))
+                p.insert(pos, img)
+                extract(svg)
 
 
