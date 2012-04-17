@@ -42,6 +42,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.connect(self.test, SIGNAL('clicked()'), self.do_test)
         self.connect(self.previous, SIGNAL('clicked()'), self.goto_previous)
         self.connect(self.next, SIGNAL('clicked()'), self.goto_next)
+        self.test.setDefault(True)
 
         self.match_locs = []
 
