@@ -32,33 +32,38 @@ class Readitlater(BasicNewsRecipe):
     use_embedded_content  = False
     needs_subscription    = True
     KEY                   = '8e0p5f19A74emL3a47goP87m69d4VF8b'
+    API_TEXT_INDEX             = 'https://text.readitlaterlist.com/'
+    API_INDEX             = 'https://readitlaterlist.com/'
     INDEX                 = 'https://getpocket.com/'
     LOGIN                 = INDEX + u'/l'
+    enhanced_version      = True
 
-    articles           = []
+    articles              = []
     
     feeds = [(u'Unread articles' , INDEX)]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        if self.username is not None:
-            br.open(self.LOGIN)
-            br.select_form(nr=0)
-            br['feed_id'] = self.username
-            if self.password is not None:
-                br['password'] = self.password
-            br.submit()
+        if self.enhanced_version:
+            if self.username is not None:
+                br.open(self.LOGIN)
+                br.select_form(nr=0)
+                br['feed_id'] = self.username
+                if self.password is not None:
+                    br['password'] = self.password
+                br.submit()
         return br
 
-
+    def get_auth_params(self):
+        auth_params = 'apikey=' + self.KEY
+        if self.username is not None:
+            auth_params += '&username=' + self.username 
+            if self.password is not None:
+                auth_params += '&password=' + self.password 
+        return auth_params
 
     def parse_index(self):
-        index = self.INDEX + 'v2/get?'
-        index += 'apikey=' + self.KEY
-        if self.username is not None:
-            index += '&username=' + self.username 
-            if self.password is not None:
-                index += '&password=' + self.password 
+        index = self.API_INDEX + 'v2/get?' + self.get_auth_params()
         index += '&state=unread'
         index += '&count=' + str(self.max_articles_per_feed) 
 
@@ -74,7 +79,11 @@ class Readitlater(BasicNewsRecipe):
             for item in json_obj['list'].iteritems():
                 # TODO: This URL should be modified by it's corresponding API call in a future. 
                 #       Actually is not possible to get the Article View potential throught an API call (12/04/2012)
-                dataurl = self.INDEX + "a/x/getArticle.php?itemId=" + item[1]['item_id']
+                if self.enhanced_version:
+                    dataurl = self.INDEX + 'a/x/getArticle.php?itemId=' + item[1]['item_id']
+                else:
+                    dataurl = self.API_TEXT_INDEX + 'v2/text?' + self.get_auth_params()
+                    dataurl += '&url=' + item[1]['url']
                 self.articles.append({
                                  'title':item[1]['title'],
                                  'date':item[1]['time_added'],
@@ -89,21 +98,26 @@ class Readitlater(BasicNewsRecipe):
 
     def preprocess_raw_html(self, raw_html, url):
         # get article and image urls from json object
-        json_obj = json.loads(raw_html)
-        self.images = {}
-        for image in json_obj['article']['images']:
-            self.images[image] = json_obj['article']['images'][image]['src']
-        title = '<h1>{title}</h1>'.format(title=json_obj['article']['title']) 
-        link = '<p>Original: <a href="{url}">{url}</a></p>'.format(url=json_obj['article']['resolvedUrl'])
-        return link + title + json_obj['article']['article'] + '<hr />'
+        if self.enhanced_version:
+            json_obj = json.loads(raw_html)
+            self.images = {}
+            for image in json_obj['article']['images']:
+                self.images[image] = json_obj['article']['images'][image]['src']
+            title = '<h1>{title}</h1>'.format(title=json_obj['article']['title']) 
+            link = '<p>Original: <a href="{url}">{url}</a></p>'.format(url=json_obj['article']['resolvedUrl'])
+            html = link + title + json_obj['article']['article']
+        else:
+            html = raw_html
+        return html + '<hr />'
 
     def preprocess_html(self, soup):
         # Insert images on RIL_IMG_# divs
-        for key, url in self.images.iteritems():
-            imgtag = Tag(soup, 'img')
-            imgtag['src'] = url
-            div = soup.find('div', attrs={'id':'RIL_IMG_' + key})
-            div.insert(0, imgtag)
+        if self.enhanced_version:
+            for key, url in self.images.iteritems():
+                imgtag = Tag(soup, 'img')
+                imgtag['src'] = url
+                div = soup.find('div', attrs={'id':'RIL_IMG_' + key})
+                div.insert(0, imgtag)
         return soup
 
     def cleanup(self):
@@ -120,7 +134,7 @@ class Readitlater(BasicNewsRecipe):
         return s
 
     def markAsRead(self, markList):
-        url = self.INDEX + 'v2/send'
+        url = self.API_INDEX + 'v2/send'
         values = {
             'username' : self.username,
             'password' : self.password,
