@@ -17,13 +17,26 @@ from lxml import etree
 from calibre import isbytestring, force_unicode
 from calibre.ebooks.mobi.utils import to_base
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
-        extract, XHTML)
+        extract, XHTML, urlnormalize)
+from calibre.ebooks.oeb.parse_utils import barename
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
 # References to record numbers in KF8 are stored as base-32 encoded integers,
 # with 4 digits
 to_ref = partial(to_base, base=32, min_num_digits=4)
+# References in links are stored with 10 digits
+to_href = partial(to_base, base=32, min_num_digits=10)
+
+# Tags to which kindlegen adds the aid attribute
+aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
+'bdo', 'blockquote', 'body', 'button', 'cite', 'code', 'dd', 'del', 'details',
+'dfn', 'div', 'dl', 'dt', 'em', 'fieldset', 'figcaption', 'figure', 'footer',
+'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'i', 'ins', 'kbd',
+'label', 'legend', 'li', 'map', 'mark', 'meter', 'nav', 'ol', 'output', 'p',
+'pre', 'progress', 'q', 'rp', 'rt', 'samp', 'section', 'select', 'small',
+'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
+'video'}
 
 class KF8Writer(object):
 
@@ -37,6 +50,8 @@ class KF8Writer(object):
         self.replace_resource_links()
         self.extract_css_into_flows()
         self.extract_svg_into_flows()
+        self.replace_internal_links_with_placeholders()
+        self.insert_aid_attributes()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
@@ -112,7 +127,6 @@ class KF8Writer(object):
 
         for item in self.oeb.spine:
             root = self.data(item)
-            if not hasattr(root, 'xpath'): continue
 
             for link in XPath('//h:link[@href]')(root):
                 href = item.abshref(link.get('href'))
@@ -143,7 +157,6 @@ class KF8Writer(object):
     def extract_svg_into_flows(self):
         for item in self.oeb.spine:
             root = self.data(item)
-            if not hasattr(root, 'xpath'): continue
 
             for svg in XPath('//svg:svg')(root):
                 raw = etree.tostring(svg, encoding=unicode, with_tail=False)
@@ -156,4 +169,38 @@ class KF8Writer(object):
                 p.insert(pos, img)
                 extract(svg)
 
+    def replace_internal_links_with_placeholders(self):
+        self.link_map = {}
+        count = 0
+        hrefs = {item.href for item in self.oeb.spine}
+        for item in self.oeb.spine:
+            root = self.data(item)
+
+            for a in XPath('//h:a[@href]')(root):
+                count += 1
+                ref = item.abshref(a.get('href'))
+                href, _, frag = ref.partition('#')
+                href = urlnormalize(href)
+                if href in hrefs:
+                    placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
+                    self.link_map[placeholder] = (href, frag)
+                    a.set('href', placeholder)
+
+    def insert_aid_attributes(self):
+        self.id_map = {}
+        for i, item in enumerate(self.oeb.spine):
+            root = self.data(item)
+            aidbase = i * int(1e6)
+            j = 0
+            for tag in root.iterdescendants(etree.Element):
+                id_ = tag.attrib.get('id', None)
+                if id_ is not None or barename(tag.tag).lower() in aid_able_tags:
+                    aid = aidbase + j
+                    tag.attrib['aid'] = to_base(aid, base=32)
+                    if tag.tag == XHTML('body'):
+                        self.id_map[(item.href, '')] = tag.attrib['aid']
+                    if id_ is not None:
+                        self.id_map[(item.href, id_)] = tag.attrib['aid']
+
+                    j += 1
 
