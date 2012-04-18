@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-13 06:30+0000\n"
-"PO-Revision-Date: 2012-04-16 09:18+0000\n"
-"Last-Translator: Davide Targa <Unknown>\n"
+"PO-Revision-Date: 2012-04-17 12:55+0000\n"
+"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-17 04:49+0000\n"
-"X-Generator: Launchpad (build 15099)\n"
+"X-Launchpad-Export-Date: 2012-04-18 04:40+0000\n"
+"X-Generator: Launchpad (build 15108)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -816,14 +816,14 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
-"Questo profilo è adatto all'iPad e a dispositivi simili con una risoluzione "
-"di 768x1024"
+"Pensato per l'iPad e per dispositivi simili con una risoluzione di 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
-"Adatto all'iPad 3 e a dispositivi simili con una risoluzione di 1536x2048"
+"Pensato per l'iPad 3 e per dispositivi simili con una risoluzione di "
+"1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1555,7 +1555,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:311
 msgid "Custom column name to retrieve page counts from"
 msgstr ""
-"Nome della colonna personalizzato da cui ricavare il numero delle pagine"
+"Nome personalizzato della colonna da cui ricavare il numero delle pagine"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:313
 msgid ""
@@ -5334,7 +5334,7 @@ msgstr "Generazione catalogo di %s in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
 msgid "Catalog generation complete, with warnings."
-msgstr "Generazione del catalogo completata con alcuni warning."
+msgstr "Generazione del catalogo completata con alcuni avvisi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
@@ -7921,7 +7921,7 @@ msgstr "Converti le immagini/testo fluttuante in immagini/testo statico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:187
 msgid "F&loats"
-msgstr "F&loats"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
@@ -11918,11 +11918,11 @@ msgstr "Ante&prima di {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"
-msgstr ""
+msgstr "Nessuna ricetta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "No custom recipes created."
-msgstr ""
+msgstr "Non è stata creata alcuna ricetta personalizzata."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
@@ -20509,7 +20509,7 @@ msgstr "lowercase(val) -- restituisce in minuscolo il valore del campo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:800
 msgid "titlecase(val) -- return value of the field in title case"
-msgstr ""
+msgstr "titlecase(val) -- restituisce il valore del campo in maiuscoletto"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:809
 msgid "capitalize(val) -- return value of the field capitalized"
@@ -20625,6 +20625,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() -- restituisce una stringa della data odierna. Questo valore è "
+"pensato per l'utilizzo in format_date o days_between, ma può essere "
+"manipolato come qualsiasi altra stringa. La data è espressa in formato ISO."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1065
 msgid ""
@@ -20633,6 +20636,10 @@ msgid ""
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
 msgstr ""
+"days_between(data1, data2) -- restituisce il numero di giorni tra data1 e "
+"data2. Il numero è positivo se data1 è maggiore di data2, altrimenti è "
+"negativo. Se data1 o data2 non sono date, la funzione restituisce la stringa "
+"vuota."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1087
 msgid ""
