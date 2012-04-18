@@ -22,15 +22,15 @@ class Berria(BasicNewsRecipe):
 
     keep_only_tags = [
                         dict(id='goiburua')
-                        ,dict(name='div', attrs={'class':'burukoak'})
-                        ,dict(name='div', attrs={'class':'testua' })
-                        ,dict(name='div', attrs={'class':'ber_ikus' })
+                        ,dict(name='div', attrs={'class':['ber_ikus']})
+                        ,dict(name='section', attrs={'class':'ber_ikus' })
                      ]
     remove_tags = [
                         dict(name='a', attrs={'class':'iruzkinak'})
+                        ,dict(name='div', attrs={'class':'laguntzaileak'})
                   ]
 
-    extra_css = '#goiburua{font-weight: bold} .zintiloa{font-size: small} .titularra{font-size: x-large} .sarrera{font-weight: bold}'
+    extra_css = '#goiburua{font-weight: bold} .zintiloa{font-size: small} .sarrera{color:#666} .titularra{font-size: x-large} .sarrera{font-weight: bold} .argazoin{color:#666; font-size: small}'
      
     feeds = [
               (u'Edizioa jarraia'  , u'http://berria.info/rss/ediziojarraia.xml')
