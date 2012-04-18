@@ -34,8 +34,10 @@ class Berria(BasicNewsRecipe):
      
     feeds = [
               (u'Edizioa jarraia'  , u'http://berria.info/rss/ediziojarraia.xml')
-             ,(u'Paperezko edizioa', u'http://berria.info/rss/berria.xml'       )
              ,(u'Iritzia'          , u'http://berria.info/rss/iritzia.xml'      )
+             ,(u'Euskal Herria'    , u'http://berria.info/rss/euskalherria.xml' )
+             ,(u'Ekonomia'          , u'http://berria.info/rss/ekonomia.xml'    )
+             ,(u'Mundua'          , u'http://berria.info/rss/mundua.xml'        )
              ,(u'Kirola'           , u'http://berria.info/rss/kirola.xml'       )
              ,(u'Plaza'            , u'http://berria.info/rss/plaza.xml'        )
             ]
