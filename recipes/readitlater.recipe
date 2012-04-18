@@ -32,7 +32,7 @@ class Readitlater(BasicNewsRecipe):
     use_embedded_content  = False
     needs_subscription    = True
     KEY                   = '8e0p5f19A74emL3a47goP87m69d4VF8b'
-    INDEX                 = 'https://readitlaterlist.com/'
+    INDEX                 = 'https://getpocket.com/'
     LOGIN                 = INDEX + u'/l'
 
     articles           = []
@@ -109,7 +109,6 @@ class Readitlater(BasicNewsRecipe):
     def cleanup(self):
         # From a list of urls, create a human-readable JSON string
         # suitable for passing to the ReadItLater SEND::READ method.
-    
         self.markAsRead(self.createMarkList(self.articles))
 
     def createMarkList(self, articles):
