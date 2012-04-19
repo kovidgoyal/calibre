@@ -119,7 +119,7 @@ class Pocket(BasicNewsRecipe):
         try:
             from calibre.ebooks import calibre_cover
             title = self.title if isinstance(self.title, unicode) else \
-                    self.title.decode(preferred_encoding, 'replace')
+                    self.title.decode('utf-8', 'replace')
             date = strftime(self.timefmt)
             time = strftime('[%I:%M %p]')
             img_data = calibre_cover(title, date, time)

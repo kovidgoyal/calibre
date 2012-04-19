@@ -78,7 +78,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         div.column-3 module-title {border: 1px solid #aaa}\
         div.article-box-fact div.subtitle, .article-box-fact.module-title, h2.subtitle {font-weight:bold}\
         div.article-box-fact div.subtitle, hr.merryhr, .article-box-fact.module-title {color: #24763b}'
-        
+
 
     preprocess_regexps = [
         (re.compile(r'<img[^>]+top-line[^>]+>', re.DOTALL|re.IGNORECASE),
@@ -198,7 +198,6 @@ class MerryProcess(BeautifulSoup):
                 if not part in allfacts:
                     self.myKiller.safeRemovePart(part, True)
         articlefacts = soup.find('div', {'class':'article-box-fact column'})
-        errorOccured=False
         if (articlefacts and not articlefacts==None):
           try:
             contenttag = soup.find('div', {'class':'article-body'})
@@ -208,10 +207,7 @@ class MerryProcess(BeautifulSoup):
             if foundrighttag == True:
                 contenttag.insert(0, allfactsparent)
           except:
-            errorOccured=True
-            mlog.addTrace()
-        else:
-            errorOccured=True
+              pass
         return soup
 
     def previousNextSibRemover(self, soup, previous=True, soupIsArray=False):
