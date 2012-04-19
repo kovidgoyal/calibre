@@ -7,6 +7,7 @@ class Gram_pl(BasicNewsRecipe):
     category       = 'games'
     language       = 'pl'
     oldest_article = 8
+    index='http://www.gram.pl'
     max_articles_per_feed = 100
     no_stylesheets= True
     extra_css = 'h2 {font-style: italic;  font-size:20px;} .picbox div {float: left;}'
@@ -52,4 +53,7 @@ class Gram_pl(BasicNewsRecipe):
         tag=soup.findAll(name='div', attrs={'class':'picbox'})
         for t in tag:
             t['style']='float: left;'
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
         return soup

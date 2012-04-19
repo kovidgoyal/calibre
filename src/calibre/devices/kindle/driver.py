@@ -325,6 +325,10 @@ class KINDLE2(KINDLE):
     OPT_APNX_ACCURATE  = 1
     OPT_APNX_CUST_COL  = 2
 
+    def formats_to_scan_for(self):
+        ans = USBMS.formats_to_scan_for(self) | {'azw3'}
+        return ans
+
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         # Read collections information
@@ -423,6 +427,8 @@ class KINDLE_FIRE(KINDLE2):
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
+    FORMATS = list(KINDLE2.FORMATS)
+    FORMATS.insert(0, 'azw3')
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]

@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1331729727(BasicNewsRecipe):
+    title          = u'Camera di Commercio di Bari'
+    oldest_article = 7
+    __author__      = 'faber1971'
+    description = 'News from the Chamber of Commerce of Bari'
+    language = 'it'
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    masthead_url            = 'http://www.ba.camcom.it/grafica/layout-bordo/logo_camcom_bari.png'
+    feeds          = [(u'Camera di Commercio di Bari', u'http://feed43.com/4715147488845101.xml')]
+
+__license__     = 'GPL v3'
+__copyright__   = '2012, faber1971'
+__version__     = 'v1.00'
+__date__        = '17, April 2012'

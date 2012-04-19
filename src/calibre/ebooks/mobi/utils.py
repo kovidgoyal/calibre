@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, string, imghdr, zlib
+import struct, string, imghdr, zlib, os
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
@@ -364,7 +364,7 @@ def count_set_bits(num):
         num >>= 1
     return ans
 
-def to_base(num, base=32):
+def to_base(num, base=32, min_num_digits=None):
     digits = string.digits + string.ascii_uppercase
     sign = 1 if num >= 0 else -1
     if num == 0: return '0'
@@ -373,6 +373,8 @@ def to_base(num, base=32):
     while num:
         ans.append(digits[(num % base)])
         num //= base
+    if min_num_digits is not None and len(ans) < min_num_digits:
+        ans.extend('0'*(min_num_digits - len(ans)))
     if sign < 0:
         ans.append('-')
     ans.reverse()
@@ -388,27 +390,8 @@ def mobify_image(data):
         data = im.export('gif')
     return data
 
-def read_zlib_header(header):
-    header = bytearray(header)
-    # See sec 2.2 of RFC 1950 for the zlib stream format
-    # http://www.ietf.org/rfc/rfc1950.txt
-    if (header[0]*256 + header[1])%31 != 0:
-        return None, 'Bad zlib header, FCHECK failed'
-
-    cmf = header[0] & 0b1111
-    cinfo = header[0] >> 4
-    if cmf != 8:
-        return None, 'Unknown zlib compression method: %d'%cmf
-    if cinfo > 7:
-        return None, 'Invalid CINFO field in zlib header: %d'%cinfo
-    fdict = (header[1]&0b10000)>>5
-    if fdict != 0:
-        return None, 'FDICT based zlib compression not supported'
-    wbits = cinfo + 8
-    return wbits, None
-
-
-def read_font_record(data, extent=1040): # {{{
+# Font records {{{
+def read_font_record(data, extent=1040):
     '''
     Return the font encoded in the MOBI FONT record represented by data.
     The return value in a dict with fields raw_data, font_data, err, ext,
@@ -466,15 +449,8 @@ def read_font_record(data, extent=1040): # {{{
 
     if flags & 0b1:
         # ZLIB compressed data
-        wbits, err = read_zlib_header(font_data[:2])
-        if err is not None:
-            ans['err'] = err
-            return ans
-        adler32, = struct.unpack_from(b'>I', font_data, len(font_data) - 4)
         try:
-            # remove two bytes of zlib header and 4 bytes of trailing checksum
-            # negative wbits indicates no standard gzip header
-            font_data = zlib.decompress(font_data[2:-4], -wbits, usize)
+            font_data = zlib.decompress(font_data)
         except Exception as e:
             ans['err'] = 'Failed to zlib decompress font data (%s)'%e
             return ans
@@ -483,23 +459,42 @@ def read_font_record(data, extent=1040): # {{{
             ans['err'] = 'Uncompressed font size mismatch'
             return ans
 
-        if False:
-            # For some reason these almost never match, probably Amazon has a
-            # buggy Adler32 implementation
-            sig = (zlib.adler32(font_data) & 0xffffffff)
-            if sig != adler32:
-                ans['err'] = ('Adler checksum did not match. Stored: %d '
-                        'Calculated: %d')%(adler32, sig)
-                return ans
-
     ans['font_data'] = font_data
     sig = font_data[:4]
     ans['ext'] = ('ttf' if sig in {b'\0\1\0\0', b'true', b'ttcf'}
                     else 'otf' if sig == b'OTTO' else 'dat')
 
     return ans
+
+def write_font_record(data, obfuscate=True, compress=True):
+    '''
+    Write the ttf/otf font represented by data into a font record. See
+    read_font_record() for details on the format of the record.
+    '''
+
+    flags = 0
+    key_len = 20
+    usize = len(data)
+    xor_key = b''
+    if compress:
+        flags |= 0b1
+        data = zlib.compress(data, 9)
+    if obfuscate:
+        flags |= 0b10
+        xor_key = os.urandom(key_len)
+        key = bytearray(xor_key)
+        data = bytearray(data)
+        for i in xrange(1040):
+            data[i] ^= key[i%key_len]
+        data = bytes(data)
+
+    key_start = struct.calcsize(b'>5L') + 4
+    data_start = key_start + len(xor_key)
+
+    header = b'FONT' + struct.pack(b'>5L', usize, flags, data_start,
+            len(xor_key), key_start)
+
+    return header + xor_key + data
+
 # }}}
-
-
-
 

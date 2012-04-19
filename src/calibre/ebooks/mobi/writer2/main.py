@@ -11,17 +11,15 @@ import re, random, time
 from cStringIO import StringIO
 from struct import pack
 
-from calibre.ebooks import normalize, generate_masthead
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.ebooks import normalize
 from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
-from calibre.ebooks.mobi.utils import (rescale_image, encint, mobify_image,
-        encode_trailing_data, align_block, detect_periodical)
+from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
+        align_block, detect_periodical)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
-from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 
 EXTH_CODES = {
     'creator': 100,
@@ -50,8 +48,10 @@ WRITE_UNCROSSABLE_BREAKS = False
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, opts, write_page_breaks_after_item=True):
+    def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True):
         self.opts = opts
+        self.resources = resources
+        self.kf8 = kf8
         self.write_page_breaks_after_item = write_page_breaks_after_item
         self.compression = UNCOMPRESSED if opts.dont_compress else PALMDOC
         self.prefer_author_sort = opts.prefer_author_sort
@@ -151,66 +151,14 @@ class MobiWriter(object):
     # Images {{{
 
     def generate_images(self):
-        oeb = self.oeb
-        oeb.logger.info('Serializing images...')
-        self.image_records = []
-        self.image_map = {}
-        self.masthead_offset = 0
-        index = 1
+        resources = self.resources
+        image_records = resources.records
+        self.image_map = resources.item_map
+        self.masthead_offset = resources.masthead_offset
+        self.cover_offset = resources.cover_offset
+        self.thumbnail_offset = resources.thumbnail_offset
 
-        mh_href = None
-        if 'masthead' in oeb.guide and oeb.guide['masthead'].href:
-            mh_href = oeb.guide['masthead'].href
-            self.image_records.append(None)
-            index += 1
-        elif self.is_periodical:
-            # Generate a default masthead
-            data = generate_masthead(unicode(self.oeb.metadata['title'][0]))
-            self.image_records.append(data)
-            index += 1
-
-        cover_href = self.cover_offset = self.thumbnail_offset = None
-        if (oeb.metadata.cover and
-                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
-            cover_id = unicode(oeb.metadata.cover[0])
-            item = oeb.manifest.ids[cover_id]
-            cover_href = item.href
-
-        for item in self.oeb.manifest.values():
-            if item.media_type not in OEB_RASTER_IMAGES: continue
-            try:
-                data = item.data
-                if self.opts.mobi_keep_original_images:
-                    data = mobify_image(data)
-                else:
-                    data = rescale_image(data)
-            except:
-                oeb.logger.warn('Bad image file %r' % item.href)
-                continue
-            else:
-                if mh_href and item.href == mh_href:
-                    self.image_records[0] = data
-                    continue
-
-                self.image_records.append(data)
-                self.image_map[item.href] = index
-                index += 1
-
-                if cover_href and item.href == cover_href:
-                    self.cover_offset = self.image_map[item.href] - 1
-                    try:
-                        data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
-                            maxsizeb=MAX_THUMB_SIZE)
-                    except:
-                        oeb.logger.warn('Failed to generate thumbnail')
-                    else:
-                        self.image_records.append(data)
-                        self.thumbnail_offset = index - 1
-                        index += 1
-            finally:
-                item.unload_data_from_memory()
-
-        if self.image_records and self.image_records[0] is None:
+        if image_records and image_records[0] is None:
             raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
@@ -317,9 +265,12 @@ class MobiWriter(object):
 
         exth = self.build_exth(bt)
         first_image_record = None
-        if self.image_records:
+        if self.resources:
+            used_images = self.serializer.used_images
+            if self.kf8 is not None:
+                used_images |= self.kf8.used_images
             first_image_record  = len(self.records)
-            self.records.extend(self.image_records)
+            self.resources.serialize(self.records, used_images)
         last_content_record = len(self.records) - 1
 
         # FCIS/FLIS (Seems to serve no purpose)

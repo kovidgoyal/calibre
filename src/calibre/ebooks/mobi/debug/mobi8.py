@@ -10,7 +10,9 @@ __docformat__ = 'restructuredtext en'
 import sys, os, imghdr, struct
 from itertools import izip
 
+from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.headers import TextRecord
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex)
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -42,6 +44,24 @@ class FDST(object):
 
         return '\n'.join(ans)
 
+class File(object):
+
+    def __init__(self, skel, skeleton, text, first_aid, sections):
+        self.name = 'part%04d'%skel.file_number
+        self.skeleton, self.text, self.first_aid = skeleton, text, first_aid
+        self.sections = sections
+
+    def dump(self, ddir):
+        with open(os.path.join(ddir, self.name + '.html'), 'wb') as f:
+            f.write(self.text)
+        base = os.path.join(ddir, self.name + '-parts')
+        os.mkdir(base)
+        with CurrentDir(base):
+            with open('skeleton.html', 'wb') as f:
+                f.write(self.skeleton)
+            for i, text in enumerate(self.sections):
+                with open('sect-%04d.html'%i, 'wb') as f:
+                    f.write(text)
 
 class MOBIFile(object):
 
@@ -65,6 +85,8 @@ class MOBIFile(object):
         self.header = self.mf.mobi8_header
         self.extract_resources()
         self.read_fdst()
+        self.read_indices()
+        self.build_files()
 
     def print_header(self, f=sys.stdout):
         print (str(self.mf.palmdb).encode('utf-8'), file=f)
@@ -84,6 +106,34 @@ class MOBIFile(object):
             self.fdst = FDST(self.mf.records[idx].raw)
             if self.fdst.num_sections != self.header.fdst_count:
                 raise ValueError('KF8 Header contains invalid FDST count')
+
+    def read_indices(self):
+        self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records,
+                self.header.encoding)
+        self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records,
+                self.header.encoding)
+        self.ncx_index = NCXIndex(self.header.primary_index_record,
+                self.mf.records, self.header.encoding)
+
+    def build_files(self):
+        text = self.raw_text
+        self.files = []
+        for skel in self.skel_index.records:
+            sects = [x for x in self.sect_index.records if x.file_number
+                    == skel.file_number]
+            skeleton = text[skel.start_position:skel.start_position+skel.length]
+            ftext = skeleton
+            first_aid = sects[0].toc_text
+            sections = []
+
+            for sect in sects:
+                start_pos = skel.start_position + skel.length + sect.start_pos
+                sect_text = text[start_pos:start_pos+sect.length]
+                insert_pos = sect.insert_pos - skel.start_position
+                ftext = ftext[:insert_pos] + sect_text + ftext[insert_pos:]
+                sections.append(sect_text)
+
+            self.files.append(File(skel, skeleton, ftext, first_aid, sections))
 
     def extract_resources(self):
         self.resource_map = []
@@ -131,7 +181,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files'):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -144,4 +194,16 @@ def inspect_mobi(mobi_file, ddir):
     if f.fdst:
         with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:
             fo.write(str(f.fdst).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
+        fo.write(str(f.skel_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'sect.record'), 'wb') as fo:
+        fo.write(str(f.sect_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
+        fo.write(str(f.ncx_index).encode('utf-8'))
+
+    for part in f.files:
+        part.dump(os.path.join(ddir, 'files'))
 

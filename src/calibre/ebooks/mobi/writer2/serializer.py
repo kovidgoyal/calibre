@@ -39,6 +39,7 @@ class Serializer(object):
         self.oeb = oeb
         # Map of image hrefs to image index in the MOBI file
         self.images = images
+        self.used_images = set()
         self.logger = oeb.logger
         self.is_periodical = is_periodical
         self.write_page_breaks_after_item = write_page_breaks_after_item
@@ -329,6 +330,7 @@ class Serializer(object):
                     href = urlnormalize(item.abshref(val))
                     if href in self.images:
                         index = self.images[href]
+                        self.used_images.add(href)
                         buf.write(b'recindex="%05d"' % index)
                         continue
                 buf.write(attr.encode('utf-8'))

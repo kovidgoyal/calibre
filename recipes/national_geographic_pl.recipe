@@ -9,8 +9,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class recipeMagic(BasicNewsRecipe):
     title                  = 'National Geographic PL'
     __author__             = 'Marcin Urban 2011'
+    __modified_by__        = 'fenuks'
     description            = 'legenda wśród magazynów z historią sięgającą 120 lat'
-    cover_url      	       = 'http://www.guj.pl/var/guj/storage/images/media/nasze_magazyny/national_geographic/logo/ng_logo/2606-1-pol-PL/ng_logo.jpg'
+    #cover_url      	       = 'http://www.guj.pl/var/guj/storage/images/media/nasze_magazyny/national_geographic/logo/ng_logo/2606-1-pol-PL/ng_logo.jpg'
     oldest_article         = 7
     max_articles_per_feed  = 100
     no_stylesheets         = True
@@ -42,11 +43,43 @@ class recipeMagic(BasicNewsRecipe):
                         ]
 
     remove_attributes = ['width','height']
+    feeds=[]
 
-    feeds          = [
-                      ('National Geographic PL', 'http://www.national-geographic.pl/rss/'),
-                    ]
+    def find_articles(self, url):
+        articles = []
+        soup=self.index_to_soup(url)
+        tag=soup.find(attrs={'class':'arl'})
+        art=tag.ul.findAll('li')
+        for i in art:
+            title=i.a['title']
+            url=i.a['href']
+            #date=soup.find(id='footer').ul.li.string[41:-1]
+            desc=i.div.p.string
+            articles.append({'title' : title,
+                   'url'   : url,
+                   'date'  : '',
+                   'description' : desc
+                    })
+        return articles
+
+    def parse_index(self):
+         feeds = []
+         feeds.append((u"Aktualności", self.find_articles('http://www.national-geographic.pl/aktualnosci/')))
+         feeds.append((u"Artykuły", self.find_articles('http://www.national-geographic.pl/artykuly/')))
+
+         return feeds
 
     def print_version(self, url):
-        return url.replace('artykuly0Cpokaz', 'drukuj-artykul')
+        if 'artykuly' in url:
+            return url.replace('artykuly/pokaz', 'drukuj-artykul')
+        elif 'aktualnosci' in url:
+            return url.replace('aktualnosci/pokaz', 'drukuj-artykul')  
+        else:
+            return url
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.national-geographic.pl/biezace-wydania/')
+        tag=soup.find(attrs={'class':'txt jus'})
+        self.cover_url=tag.img['src']
+        return getattr(self, 'cover_url', self.cover_url)
 

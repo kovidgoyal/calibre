@@ -28,7 +28,7 @@ class MOBIInput(InputFormatPlugin):
     name        = 'MOBI Input'
     author      = 'Kovid Goyal'
     description = 'Convert MOBI files (.mobi, .prc, .azw) to HTML'
-    file_types  = set(['mobi', 'prc', 'azw'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw3'])
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):

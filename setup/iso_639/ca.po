@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-12-14 19:48+0000\n"
-"Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
+"PO-Revision-Date: 2012-04-12 09:56+0000\n"
+"Last-Translator: Dídac Rios <didac@niorcs.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-12-15 05:18+0000\n"
-"X-Generator: Launchpad (build 14487)\n"
+"X-Launchpad-Export-Date: 2012-04-13 05:26+0000\n"
+"X-Generator: Launchpad (build 15070)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -9584,31 +9584,31 @@ msgstr ""
 
 #. name for hoi
 msgid "Holikachuk"
-msgstr ""
+msgstr "Holikachuk"
 
 #. name for hoj
 msgid "Hadothi"
-msgstr ""
+msgstr "Hadothi"
 
 #. name for hol
 msgid "Holu"
-msgstr ""
+msgstr "Holu"
 
 #. name for hom
 msgid "Homa"
-msgstr ""
+msgstr "Homa"
 
 #. name for hoo
 msgid "Holoholo"
-msgstr ""
+msgstr "Holoholo"
 
 #. name for hop
 msgid "Hopi"
-msgstr ""
+msgstr "Hopi"
 
 #. name for hor
 msgid "Horo"
-msgstr ""
+msgstr "Horo"
 
 #. name for hos
 msgid "Ho Chi Minh City Sign Language"
@@ -9616,15 +9616,15 @@ msgstr "Llenguatge de signes de la ciutat de Ho Chi Minh"
 
 #. name for hot
 msgid "Hote"
-msgstr ""
+msgstr "Hote"
 
 #. name for hov
 msgid "Hovongan"
-msgstr ""
+msgstr "Hovongan"
 
 #. name for how
 msgid "Honi"
-msgstr ""
+msgstr "Honi"
 
 #. name for hoy
 msgid "Holiya"
@@ -9636,7 +9636,7 @@ msgstr ""
 
 #. name for hpo
 msgid "Hpon"
-msgstr ""
+msgstr "Hpon"
 
 #. name for hps
 msgid "Hawai'i Pidgin Sign Language"
@@ -9644,35 +9644,35 @@ msgstr "Hawaià Pidgin; llenguatge de signes"
 
 #. name for hra
 msgid "Hrangkhol"
-msgstr ""
+msgstr "Hrangkhol"
 
 #. name for hre
 msgid "Hre"
-msgstr ""
+msgstr "Hre"
 
 #. name for hrk
 msgid "Haruku"
-msgstr ""
+msgstr "Haruku"
 
 #. name for hrm
 msgid "Miao; Horned"
-msgstr ""
+msgstr "Miao; Horned"
 
 #. name for hro
 msgid "Haroi"
-msgstr ""
+msgstr "Haroi"
 
 #. name for hrr
 msgid "Horuru"
-msgstr ""
+msgstr "Horuru"
 
 #. name for hrt
 msgid "Hértevin"
-msgstr ""
+msgstr "Hértevin"
 
 #. name for hru
 msgid "Hruso"
-msgstr ""
+msgstr "Hruso"
 
 #. name for hrv
 msgid "Croatian"
@@ -9680,11 +9680,11 @@ msgstr "Croat"
 
 #. name for hrx
 msgid "Hunsrik"
-msgstr ""
+msgstr "Hunsrik"
 
 #. name for hrz
 msgid "Harzani"
-msgstr ""
+msgstr "Harzani"
 
 #. name for hsb
 msgid "Sorbian; Upper"
@@ -9704,31 +9704,31 @@ msgstr "Xinès; Xiang"
 
 #. name for hss
 msgid "Harsusi"
-msgstr ""
+msgstr "Harsusi"
 
 #. name for hti
 msgid "Hoti"
-msgstr ""
+msgstr "Hoti"
 
 #. name for hto
 msgid "Huitoto; Minica"
-msgstr ""
+msgstr "Huitoto; Minica"
 
 #. name for hts
 msgid "Hadza"
-msgstr ""
+msgstr "Hadza"
 
 #. name for htu
 msgid "Hitu"
-msgstr ""
+msgstr "Hitu"
 
 #. name for htx
 msgid "Hittite; Middle"
-msgstr ""
+msgstr "Hittite; Middle"
 
 #. name for hub
 msgid "Huambisa"
-msgstr ""
+msgstr "Huambisa"
 
 #. name for huc
 msgid "=/Hua"
@@ -9736,27 +9736,27 @@ msgstr ""
 
 #. name for hud
 msgid "Huaulu"
-msgstr ""
+msgstr "Huaulu"
 
 #. name for hue
 msgid "Huave; San Francisco Del Mar"
-msgstr ""
+msgstr "Huave; San Francisco Del Mar"
 
 #. name for huf
 msgid "Humene"
-msgstr ""
+msgstr "Humene"
 
 #. name for hug
 msgid "Huachipaeri"
-msgstr ""
+msgstr "Huachipaeri"
 
 #. name for huh
 msgid "Huilliche"
-msgstr ""
+msgstr "Huilliche"
 
 #. name for hui
 msgid "Huli"
-msgstr ""
+msgstr "Huli"
 
 #. name for huj
 msgid "Miao; Northern Guiyang"
@@ -9764,15 +9764,15 @@ msgstr "Miao; Guiyang septentrional"
 
 #. name for huk
 msgid "Hulung"
-msgstr ""
+msgstr "Hulung"
 
 #. name for hul
 msgid "Hula"
-msgstr ""
+msgstr "Hula"
 
 #. name for hum
 msgid "Hungana"
-msgstr ""
+msgstr "Hungana"
 
 #. name for hun
 msgid "Hungarian"
@@ -9780,43 +9780,43 @@ msgstr "Hongarès"
 
 #. name for huo
 msgid "Hu"
-msgstr ""
+msgstr "Hu"
 
 #. name for hup
 msgid "Hupa"
-msgstr ""
+msgstr "Hupa"
 
 #. name for huq
 msgid "Tsat"
-msgstr ""
+msgstr "Tsat"
 
 #. name for hur
 msgid "Halkomelem"
-msgstr ""
+msgstr "Halkomelem"
 
 #. name for hus
 msgid "Huastec"
-msgstr ""
+msgstr "Huastec"
 
 #. name for hut
 msgid "Humla"
-msgstr ""
+msgstr "Humla"
 
 #. name for huu
 msgid "Huitoto; Murui"
-msgstr ""
+msgstr "Huitoto; Murui"
 
 #. name for huv
 msgid "Huave; San Mateo Del Mar"
-msgstr ""
+msgstr "Huave; San Mateo Del Mar"
 
 #. name for huw
 msgid "Hukumina"
-msgstr ""
+msgstr "Hukumina"
 
 #. name for hux
 msgid "Huitoto; Nüpode"
-msgstr ""
+msgstr "Huitoto; Nüpode"
 
 #. name for huy
 msgid "Hulaulá"

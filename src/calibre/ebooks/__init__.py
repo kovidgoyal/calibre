@@ -31,7 +31,7 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'epub', 'fb2', 'djv', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
                    'xps', 'oxps', 'azw4', 'book', 'zbf', 'pobi', 'docx', 'md',
-                   'textile', 'markdown', 'ibook', 'iba']
+                   'textile', 'markdown', 'ibook', 'iba', 'azw3']
 
 class HTMLRenderer(object):
 
@@ -93,6 +93,20 @@ def extract_calibre_cover(raw, base, log):
         if os.path.exists(img):
             return open(img, 'rb').read()
 
+    # Look for a simple cover, i.e. a body with no text and only one <img> tag
+    if matches is None:
+        body = soup.find('body')
+        if body is not None:
+            text = u''.join(map(unicode, body.findAll(text=True)))
+            if text.strip():
+                # Body has text, abort
+                return
+            images = body.findAll('img', src=True)
+            if 0 < len(images) < 2:
+                img = os.path.join(base, *images[0]['src'].split('/'))
+                if os.path.exists(img):
+                    return open(img, 'rb').read()
+
 def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
     raw = open(path_to_html, 'rb').read()
@@ -108,6 +122,7 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
             data = extract_calibre_cover(raw, os.path.dirname(path_to_html), log)
         except:
             pass
+
     if data is None:
         renderer = render_html(path_to_html, width, height)
         data = getattr(renderer, 'data', None)

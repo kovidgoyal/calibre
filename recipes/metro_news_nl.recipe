@@ -3,25 +3,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 from calibre.utils.magick import Image
 from BeautifulSoup import BeautifulSoup
-try:
-    from calibre_plugins.drMerry.debug import debuglogger as mlog
-    print 'drMerry debuglogger found, debug options can be used'
-    from calibre_plugins.drMerry.stats import statslogger as mstat
-    print 'drMerry stats tracker found, stat can be tracked'
-    mlog.setLoglevel(1) #-1 == no log; 0 for normal output
-    mstat.calculateStats(False) #track stats (to track stats loglevel must be > 0
-    KEEPSTATS = mstat.keepmystats()
-    SHOWDEBUG0 = mlog.showdebuglevel(0)
-    SHOWDEBUG1 = mlog.showdebuglevel(1)
-    SHOWDEBUG2 = mlog.showdebuglevel(2)
-except:
-    #print 'drMerry debuglogger not found, skipping debug options'
-    SHOWDEBUG0 = False
-    SHOWDEBUG1 = False
-    SHOWDEBUG2 = False
-    KEEPSTATS = False
-
-#print ('level0: %s\nlevel1: %s\nlevel2: %s' % (SHOWDEBUG0,SHOWDEBUG1,SHOWDEBUG2))
 
 ''' Version 1.2, updated cover image to match the changed website.
  added info date on title
@@ -43,6 +24,9 @@ except:
       extended timeout from 2 to 10
       changed oldest article from 10 to 1.2
       changed max articles from 15 to 25
+ Version 1.9.1 18-04-2012
+    removed some debug settings
+    updated code to match new metro-layout
 '''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
@@ -70,34 +54,40 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         'author_sort'    : 'Metro Nederland & calibre & DrMerry',
         'publisher'      : 'DrMerry/Metro Nederland'
     }
-    extra_css = 'body {padding:5px 0px; background:#fff;font-size: 13px;}\
-        #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {clear: both;margin-bottom: 10px;font-size:0.5em; color: #616262;}\
-        .article-box-fact.module-title {clear:both;padding: 8px 0;color: #24763b;font-family: arial, sans-serif;font-size: 14px;font-weight: bold;}\
-        h1.title {color: #000000;font-size: 44px;padding-bottom: 10px;font-weight: 300;} h2.subtitle {font-size: 13px;font-weight: 700;padding-bottom: 10px;}\
-        .article-body p{padding-bottom:10px;}div.column-1-3{margin-left: 19px;padding-right: 9px;}\
-        div.column-1-2 {display: inline;padding-right: 7px;}\
-        p.article-image-caption {font-size: 12px;font-weight: 300;color: #616262;margin-top: 5px;} \
-        p.article-image-caption .credits {font-style: italic;font-size: 10px;}\
-        div.article-image-caption {width: 246px;margin-bottom: 5px;margin-left: 10px;}\
-        div.article-image-caption-2column {margin-bottom: 10px;width: 373px;} div.article-image-caption-3column {}\
-        img {border:0px; padding:2px;} hr.merryhr {width:30%;  border-width:0px; color:green; margin-left:5px; background-color: green} div.column-3 {background-color:#eee; width:50%; margin:2px; float:right; padding:2px;} div.column-3 module-title {border: 1px solid #aaa} div.article-box-fact div.subtitle {font-weight:bold; color:green;}'
+    extra_css = 'body {padding:5px 0; background-color:#fff;font-size: 1em}\
+        #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {margin-bottom: 10px}\
+        #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name, p.article-image-caption .credits {font-size:0.5em}\
+        .article-box-fact.module-title, #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {clear:both}\
+        .article-box-fact.module-title {padding: 8px 0}\
+        h1.title {color: #000;font-size: 1.4em}\
+        .article-box-fact.module-title, h2.subtitle {font-size: 1.2em}\
+        h1.title, h2.subtitle, .article-body p{padding-bottom:10px}\
+        h1.title, p.article-image-caption {font-weight: 300}\
+        div.column-1-3{margin-left: 19px;padding-right: 9px}\
+        div.column-1-2 {display: inline;padding-right: 7px}\
+        p.article-image-caption {font-size: 0.6em;margin-top: 5px}\
+        p.article-image-caption, #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {color: #616262}\
+        p.article-image-caption .credits {font-style: italic}\
+        div.article-image-caption {width: 246px;margin: 5px}\
+        div.article-image-caption-2column {width: 373px}\
+        div.article-image-caption-2column, div.article-image-caption-3column {margin-bottom: 5px}\
+        img {border:0}\
+        img, div.column-3 {padding:2px}\
+        hr.merryhr {width:30%;  border-width:0; margin-left:5px; background-color: #24763b}\
+        div.column-3 {background-color:#eee; width:50%; margin:2px; float:right}\
+        div.column-3 module-title {border: 1px solid #aaa}\
+        div.article-box-fact div.subtitle, .article-box-fact.module-title, h2.subtitle {font-weight:bold}\
+        div.article-box-fact div.subtitle, hr.merryhr, .article-box-fact.module-title {color: #24763b}'
+
 
     preprocess_regexps = [
         (re.compile(r'<img[^>]+top-line[^>]+>', re.DOTALL|re.IGNORECASE),
         lambda match: '<hr class="merryhr" />'),
-        (re.compile(r'(<img[^>]+metronieuws\.nl/[^>]+/templates/[^>]+jpe?g[^>]+>|metronieuws\.nl/internal\-roxen\-unit\.gif)', re.DOTALL|re.IGNORECASE),
+        (re.compile(r'<img[^>]+(metronieuws\.nl/[^>]+/templates/[^>]+jpe?g|metronieuws\.nl/internal\-roxen\-unit\.gif)[^>]+>', re.DOTALL|re.IGNORECASE),
         lambda match: ''),
         ]
 
     def preprocess_html(self, soup):
-        if SHOWDEBUG0 == True:
-            mlog.setdefaults()
-            mlog.addTextAndTag(['Show debug = on with level'], [str(mlog.debuglevel)])
-            if KEEPSTATS == True:
-                mlog.addDebug('Stats will be calculated')
-            else:
-                mlog.addTextAndTag(['Stats won\'t be calculated\nTo be enabled, stats must be true, currently','and debug level must be 1 or higher, currently'],[mstat.dokeepmystats, mlog.debuglevel])
-            mlog.showDebug()
         myProcess = MerryProcess()
         myProcess.removeUnwantedTags(soup)
         return soup
@@ -105,18 +95,6 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     def postprocess_html(self, soup, first):
         myProcess = MerryProcess()
         myProcess.optimizeLayout(soup)
-        if SHOWDEBUG0 == True:
-            if KEEPSTATS == True:
-                statinfo = 'generated stats:'
-                statinfo += str(mstat.stats(mstat.statslist))
-                print statinfo
-                statinfo = 'generated stats (for removed tags):'
-                statinfo += str(mstat.stats(mstat.removedtagslist))
-                print statinfo
-            #show all Debug info we forgot to report
-            #Using print to be sure that this text will not be added at the end of the log.
-            print '\n!!!!!unreported messages:\n(should be empty)\n'
-            mlog.showDebug()
         return soup
 
     feeds = [
@@ -142,44 +120,24 @@ class MerryPreProcess():
         return soup
 
     def optimizePicture(self,soup):
-        if SHOWDEBUG0 == True:
-            mlog.addDebug('start image optimize')
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl = tag['src']
             img = Image()
             img.open(iurl)
             img.trim(0)
             img.save(iurl)
-        if SHOWDEBUG0 == True:
-            mlog.addDebug('Images optimized')
-            mlog.showDebug()
         return soup
 
 class MerryExtract():
     def safeRemovePart(self, killingSoup, soupIsArray):
         if killingSoup and not killingSoup == None:
-            if SHOWDEBUG2 == True:
-                mlog.addTextAndTag(['items to remove'],[killingSoup])
             try:
                 if soupIsArray == True:
                     for killer in killingSoup:
                         killer.extract()
                 else:
                     killingSoup.extract()
-                if SHOWDEBUG1 == True:
-                    mlog.addDebug('tag extracted')
-                    mlog.showDebug()
-                    if KEEPSTATS == True:
-                        try:
-                            mstat.addstat(mstat.removedtagslist,str(killingSoup.name))
-                        except:
-                            mstat.addstat(mstat.removedtagslist,'unknown')
             except:
-                if SHOWDEBUG1 == True:
-                    mlog.addDebug('tag extraction failed')
-                    mlog.showDebug()
-                    if KEEPSTATS == True:
-                        mstat.addstat(mstat.removedtagslist,'exception')
                 return False
         else:
             return False
@@ -230,60 +188,26 @@ class MerryProcess(BeautifulSoup):
 
     def optimizeLayout(self,soup):
         self.myPrepare.optimizePicture(soup)
-        if SHOWDEBUG0 == True:
-            mlog.addDebug('End of Optimize Layout')
-            mlog.showDebug()
         return soup
 
     def insertFacts(self, soup):
         allfacts = soup.findAll('div', {'class':re.compile('^article-box-fact.*$')})
-        if SHOWDEBUG0 == True:
-            mlog.addTextAndTag(['allfacts'],[allfacts])
-            mlog.showDebug()
         if allfacts and not allfacts == None:
             allfactsparent = soup.find('div', {'class':re.compile('^article-box-fact.*$')}).parent
-            if SHOWDEBUG0 == True:
-                mlog.addTextAndTag(['allfactsparent'],[allfactsparent])
-                mlog.showDebug()
             for part in allfactsparent:
                 if not part in allfacts:
-                    if SHOWDEBUG0 == True:
-                        mlog.addTextAndTag(['FOUND A non-fact'],[part])
-                        mlog.showDebug()
                     self.myKiller.safeRemovePart(part, True)
-            if SHOWDEBUG1 == True:
-                mlog.addTextAndTag(['New All Facts'],[allfacts])
-                mlog.showDebug()
         articlefacts = soup.find('div', {'class':'article-box-fact column'})
-        errorOccured=False
         if (articlefacts and not articlefacts==None):
           try:
             contenttag = soup.find('div', {'class':'article-body'})
-            if SHOWDEBUG0 == True:
-                mlog.addTextAndTag(['curcontag'],[contenttag])
-                mlog.showDebug()
             foundrighttag = False
             if contenttag and not contenttag == None:
                 foundrighttag = True
-            if SHOWDEBUG0 == True:
-                if errorOccured == False:
-                    mlog.addTextAndTag(['type','curcontag (in while)'],[type(contenttag),contenttag])
-                else:
-                    mlog.addDebug('Could not find right parent tag. Error Occured')
-                mlog.showDebug()
             if foundrighttag == True:
                 contenttag.insert(0, allfactsparent)
-                if SHOWDEBUG2 == True:
-                    mlog.addTextAndTag(['added parent'],[soup.prettify()])
-                    mlog.showDebug()
           except:
-            errorOccured=True
-            mlog.addTrace()
-        else:
-            errorOccured=True
-        if SHOWDEBUG0 == True and errorOccured == True:
-            mlog.addTextAndTag(['no articlefacts'],[articlefacts])
-            mlog.showDebug()
+              pass
         return soup
 
     def previousNextSibRemover(self, soup, previous=True, soupIsArray=False):
@@ -300,71 +224,38 @@ class MerryProcess(BeautifulSoup):
                     sibs = findsibsof.nextSiblingGenerator()
                 for sib in sibs:
                     self.myKiller.safeRemovePart(sib, True)
-        else:
-            if SHOWDEBUG1 == True:
-                mlog.addDebug('Not any sib found')
         return
 
     def removeUnwantedTags(self,soup):
-        if SHOWDEBUG1 == True:
-            mlog.addTextAndTag(['Len of Soup before RemoveTagsByName'],[len(str(soup))])
-            mlog.showDebug()
         self.removeTagsByName(soup)
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup before firstandlastpart: %s' % len(str(soup)))
-            mlog.showDebug()
         self.insertFacts(soup)
         self.removeFirstAndLastPart(soup)
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup before unwantedpart: %s' % len(str(soup)))
-            mlog.showDebug()
         self.removeUnwantedParts(soup)
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup before EmptyParts: %s' % len(str(soup)))
-            mlog.showDebug()
         self.removeEmptyTags(soup)
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup after EmptyParts: %s' % len(str(soup)))
-            mlog.showDebug()
         self.myReplacer.replaceATag(soup)
         return soup
 
     def removeUnwantedParts(self, soup):
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup before UnwantedID: %s' % len(str(soup)))
-            mlog.showDebug()
         self.removeUnwantedTagsByID(soup)
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup before Class: %s' % len(str(soup)))
-            mlog.showDebug()
         self.removeUnwantedTagsByClass(soup)
-        if SHOWDEBUG1 == True:
-            mlog.addDebug('Len of Soup before Style: %s' % len(str(soup)))
-            mlog.showDebug()
         self.removeUnwantedTagsByStyle(soup)
         return soup
 
     def removeUnwantedTagsByStyle(self,soup):
-        self.removeArrayOfTags(soup.findAll(attrs={'style' : re.compile("^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$")}))
-        if SHOWDEBUG0 == True:
-            mlog.addDebug('end remove by style')
+        self.removeArrayOfTags(soup.findAll(attrs={'style':re.compile("^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$")}))
+        self.removeArrayOfTags(soup.findAll(attrs={'title':'volledig scherm'}))
         return soup
 
     def removeArrayOfTags(self,souparray):
         return self.myKiller.safeRemovePart(souparray, True)
 
     def removeUnwantedTagsByClass(self,soup):
-        if SHOWDEBUG0 == True:
-            mlog.addDebug('start remove by class')
-        self.removeArrayOfTags(soup.findAll("div", { "class" :re.compile('^(promo.*?|article-tools-below-title|metroCommentFormWrap|ad|share-tools|tools|header-links|related-links|padding-top-15)$')}))
+        self.removeArrayOfTags(soup.findAll("div", { "class" :re.compile('^(promo.*?|share-tools-top|share-tools-bottom|article-tools-below-title|metroCommentFormWrap|ad|share-tools|tools|header-links|related-links|padding-top-15|footer-[a-zA-Z0-9]+)$')}))
         return soup
 
     def removeUnwantedTagsByID(self,soup):
-        defaultids = ['footer-extra',re.compile('^ad(\d+|adcomp.*?)?$'),'column-4-5','navigation','header',re.compile('^column-1-5-(top|bottom)$'),'footer','hidden_div','sidebar',re.compile('^article-\d$'),'comments','footer']
+        defaultids = ['footer-extra',re.compile('^ad(\d+|adcomp.*?)?$'),'column-4-5','navigation','header',re.compile('^column-1-5-(top|bottom)$'),'footer','hidden_div','sidebar',re.compile('^article-\d$'),'comments','footer','gallery-1']
         for removeid in defaultids:
-            if SHOWDEBUG1 == True:
-                mlog.addDebug('RemoveTagByID, tag: %s, Len of Soup: %s' % (str(removeid), len(str(soup))))
-                mlog.showDebug()
             self.removeArrayOfTags(soup.findAll(id=removeid))
         return soup
 
@@ -380,33 +271,12 @@ class MerryProcess(BeautifulSoup):
         return soup
 
     def removeEmptyTags(self,soup,run=0):
-        if SHOWDEBUG0 == True:
-            mlog.addDebug('starting removeEmptyTags')
-            if SHOWDEBUG1 == True:
-                run += 1
-                mlog.addDebug(run)
-                if SHOWDEBUG2 == True:
-                    mlog.addDebug(str(soup.prettify()))
-            mlog.showDebug()
         emptymatches = re.compile('^(&nbsp;|\s|\n|\r|\t)*$')
         emptytags = soup.findAll(lambda tag: tag.find(True) is None and (tag.string is None or tag.string.strip()=="" or tag.string.strip()==emptymatches) and not tag.isSelfClosing)
         if emptytags and not (emptytags == None or emptytags == []):
-            if SHOWDEBUG1 == True:
-                mlog.addDebug('tags found')
-                mlog.addDebug(str(emptytags))
             self.removeArrayOfTags(emptytags)
             #recursive in case removing empty tag creates new empty tag
             self.removeEmptyTags(soup, run=run)
-        else:
-            if SHOWDEBUG1 == True:
-                mlog.addDebug('no empty tags found')
-                mlog.showDebug()
-        if SHOWDEBUG0 == True:
-            if SHOWDEBUG2 == True:
-                mlog.addDebug('new soup:')
-                mlog.addDebug(str(soup.prettify()))
-            mlog.addDebug('RemoveEmptyTags Completed')
-            mlog.showDebug()
         return soup
 
     def removeFirstAndLastPart(self,soup):

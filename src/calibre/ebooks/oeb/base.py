@@ -357,7 +357,21 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
-
+def extract(elem):
+    """
+    Removes this element from the tree, including its children and
+    text.  The tail text is joined to the previous element or
+    parent.
+    """
+    parent = elem.getparent()
+    if parent is not None:
+        if elem.tail:
+            previous = elem.getprevious()
+            if previous is None:
+                parent.text = (parent.text or '') + elem.tail
+            else:
+                previous.tail = (previous.tail or '') + elem.tail
+        parent.remove(elem)
 
 class DummyHandler(logging.Handler):
 
