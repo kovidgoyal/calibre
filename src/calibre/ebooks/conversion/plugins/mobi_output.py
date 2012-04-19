@@ -172,6 +172,7 @@ class MOBIOutput(OutputFormatPlugin):
 
         kf8 = self.create_kf8(resources) if create_kf8 else None
 
+        self.log('Creating MOBI 6 output')
         self.write_mobi(input_plugin, output_path, kf8, resources)
 
     def create_kf8(self, resources):
