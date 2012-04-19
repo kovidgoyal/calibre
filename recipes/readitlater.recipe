@@ -1,24 +1,28 @@
-"""
+'''
 readitlaterlist.com
-"""
+'''
 __license__   = 'GPL v3'
 __copyright__ = '''
 2010, Darko Miletic <darko.miletic at gmail.com>
 2011, Przemyslaw Kryger <pkryger at gmail.com>
+2011, Keith Callenberg <keithcallenberg@gmail.com>
 2012, tBunnyMan <Wag That Tail At Me dot com>
+2012, Alayn Gortazar <zutoin at gmail dot com>
 '''
 
-from calibre import strftime
+from contextlib import closing
 from calibre.web.feeds.news import BasicNewsRecipe
-
+from calibre.ebooks.BeautifulSoup import Tag
+import json
+import urllib
+import urllib2
 
 class Readitlater(BasicNewsRecipe):
-    title                 = 'ReadItLater'
-    __author__            = 'Darko Miletic, Przemyslaw Kryger, Keith Callenberg, tBunnyMan'
-    description           = '''Personalized news feeds. Go to readitlaterlist.com to setup \
-                            up your news. This version displays pages of articles from \
-                            oldest to newest, with max & minimum counts, and marks articles \
-                            read after downloading.'''
+    title                 = 'Read It Later'
+    __author__            = 'Darko Miletic, Przemyslaw Kryger, Keith Callenberg, tBunnyMan, Alayn Gortazar'
+    description           = '''Personalized news feeds. Go to readitlaterlist.com to
+                               setup up your news. Fill in your account
+                               username, and optionally you can add your password.'''
     publisher             = 'readitlaterlist.com'
     category              = 'news, custom'
     oldest_article        = 7
@@ -27,82 +31,125 @@ class Readitlater(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     needs_subscription    = True
-    INDEX                 = u'http://readitlaterlist.com'
+    KEY                   = '8e0p5f19A74emL3a47goP87m69d4VF8b'
+    API_TEXT_INDEX             = 'https://text.readitlaterlist.com/'
+    API_INDEX             = 'https://readitlaterlist.com/'
+    INDEX                 = 'https://getpocket.com/'
     LOGIN                 = INDEX + u'/l'
-    readList              = []
+    enhanced_version      = True
 
+    articles              = []
+
+    feeds = [(u'Unread articles' , INDEX)]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        if self.username is not None:
-            br.open(self.LOGIN)
-            br.select_form(nr=0)
-            br['feed_id'] = self.username
-            if self.password is not None:
-                br['password'] = self.password
-            br.submit()
+        if self.enhanced_version:
+            if self.username is not None:
+                br.open(self.LOGIN)
+                br.select_form(nr=0)
+                br['feed_id'] = self.username
+                if self.password is not None:
+                    br['password'] = self.password
+                br.submit()
         return br
 
-    def get_feeds(self):
-        self.report_progress(0, ('Fetching list of pages...'))
-        lfeeds = []
-        i = 1
-        feedurl = self.INDEX + u'/unread/1'
-        while True:
-            title = u'Unread articles, page ' + str(i)
-            lfeeds.insert(0, (title, feedurl))
-            self.report_progress(0, ('Got ') + str(i) + (' pages'))
-            i += 1
-            soup = self.index_to_soup(feedurl)
-            ritem = soup.find('a', attrs={'id':'next', 'class':'active'})
-            if ritem is None:
-                break
-            feedurl = self.INDEX + ritem['href']
-        return lfeeds
+    def get_auth_params(self):
+        auth_params = 'apikey=' + self.KEY
+        if self.username is not None:
+            auth_params += '&username=' + self.username
+            if self.password is not None:
+                auth_params += '&password=' + self.password
+        return auth_params
 
     def parse_index(self):
-        totalfeeds = []
-        articlesToGrab = self.max_articles_per_feed
-        lfeeds = self.get_feeds()
-        for feedobj in lfeeds:
-            if articlesToGrab < 1:
-                break
-            feedtitle, feedurl = feedobj
-            self.report_progress(0, ('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
-            articles = []
-            soup = self.index_to_soup(feedurl)
-            ritem = soup.find('ul', attrs={'id':'list'})
-            for item in reversed(ritem.findAll('li')):
-                if articlesToGrab < 1:
-                    break
-                else:
-                    articlesToGrab -= 1
-                description = ''
-                atag = item.find('a', attrs={'class':'text'})
-                if atag and atag.has_key('href'):
-                    url         = self.INDEX + atag['href']
-                    title       = self.tag_to_string(item.div)
-                    date        = strftime(self.timefmt)
-                    articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
-                                    })
-                    readLink = item.find('a', attrs={'class':'check'})['href']
-                    self.readList.append(readLink)
-            totalfeeds.append((feedtitle, articles))
-        if len(self.readList) < self.minimum_articles:
-            raise Exception("Not enough articles in RIL! Change minimum_articles or add more.")
-        return totalfeeds
+        index = self.API_INDEX + 'v2/get?' + self.get_auth_params()
+        index += '&state=unread'
+        index += '&count=' + str(self.max_articles_per_feed)
 
-    def mark_as_read(self, markList):
-        br = self.get_browser()
-        for link in markList:
-            url = self.INDEX + link
-            response = br.open(url)
-            response
+        open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+        with closing(open_func(index)) as f:
+            results = f.read()
+        if not results:
+            raise RuntimeError('Could not fetch index!')
+
+        json_obj = json.loads(results)
+
+        if len(json_obj['list']) >= self.minimum_articles:
+            for item in json_obj['list'].iteritems():
+                # TODO: This URL should be modified by it's corresponding API call in a future.
+                #       Actually is not possible to get the Article View potential throught an API call (12/04/2012)
+                if self.enhanced_version:
+                    dataurl = self.INDEX + 'a/x/getArticle.php?itemId=' + item[1]['item_id']
+                else:
+                    dataurl = self.API_TEXT_INDEX + 'v2/text?' + self.get_auth_params()
+                    dataurl += '&url=' + item[1]['url']
+                self.articles.append({
+                                 'title':item[1]['title'],
+                                 'date':item[1]['time_added'],
+                                 'url':dataurl,
+                                 'description':item[1]['item_id'],
+                                 'real_url':item[1]['url']
+                            })
+        else:
+            raise Exception("Not enough articles in RIL! Change minimum_articles or add more.")
+
+        return [('Unread', self.articles)]
+
+    def preprocess_raw_html(self, raw_html, url):
+        # get article and image urls from json object
+        if self.enhanced_version:
+            json_obj = json.loads(raw_html)
+            self.images = {}
+            for image in json_obj['article']['images']:
+                self.images[image] = json_obj['article']['images'][image]['src']
+            title = '<h1>{title}</h1>'.format(title=json_obj['article']['title'])
+            link = '<p>Original: <a href="{url}">{url}</a></p>'.format(url=json_obj['article']['resolvedUrl'])
+            html = link + title + json_obj['article']['article']
+        else:
+            html = raw_html
+        return html + '<hr />'
+
+    def preprocess_html(self, soup):
+        # Insert images on RIL_IMG_# divs
+        if self.enhanced_version:
+            for key, url in self.images.iteritems():
+                imgtag = Tag(soup, 'img')
+                imgtag['src'] = url
+                div = soup.find('div', attrs={'id':'RIL_IMG_' + key})
+                div.insert(0, imgtag)
+        return soup
 
     def cleanup(self):
-        self.mark_as_read(self.readList)
+        # From a list of urls, create a human-readable JSON string
+        # suitable for passing to the ReadItLater SEND::READ method.
+        self.markAsRead(self.createMarkList(self.articles))
 
+    def createMarkList(self, articles):
+        urls = []
+        for article in self.articles:
+            urls.append(article['real_url'])
+        items = ['"%d": {"url": "%s"}' % (n,u) for n,u in enumerate(urls)]
+        s = '{\n %s\n}' % (',\n '.join(items),)
+        return s
+
+    def markAsRead(self, markList):
+        url = self.API_INDEX + 'v2/send'
+        values = {
+            'username' : self.username,
+            'password' : self.password,
+            'apikey' : self.KEY,
+            'read' : markList
+            }
+        data = urllib.urlencode(values)
+
+        try:
+            print 'Calling ReadItLater API...'
+            request = urllib2.Request(url,data)
+            response = urllib2.urlopen(request)
+            response.read()
+            print 'response =', response.code
+        except urllib2.HTTPError as e:
+            print 'The server could not fulfill the request: ', e
+        except urllib2.URLError as e:
+            print 'The call to ReadItLater API failed:', e
