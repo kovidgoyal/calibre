@@ -9,13 +9,16 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 from functools import partial
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+from io import BytesIO
+from struct import pack
 
 import cssutils
 from lxml import etree
 
 from calibre import isbytestring, force_unicode
-from calibre.ebooks.mobi.utils import to_base
+from calibre.ebooks.mobi.utils import create_text_record, to_base
+from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
         extract, XHTML, urlnormalize)
 from calibre.ebooks.oeb.parse_utils import barename
@@ -31,11 +34,14 @@ class KF8Writer(object):
 
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
+        self.compress = not self.opts.dont_compress
         self.log.info('Creating KF8 output')
         self.used_images = set()
         self.resources = resources
         self.dup_data()
         self.flows = [None] # First flow item is reserved for the text
+        self.records = []
+        self.fdst_table = []
 
         self.replace_resource_links()
         self.extract_css_into_flows()
@@ -43,6 +49,10 @@ class KF8Writer(object):
         self.replace_internal_links_with_placeholders()
         self.insert_aid_attributes()
         self.chunk_it_up()
+        # Dump the cloned data as it is no longer needed
+        del self._data_cache
+        self.create_text_records()
+        self.create_fdst_table()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
@@ -165,7 +175,7 @@ class KF8Writer(object):
         self.link_map = {}
         count = 0
         hrefs = {item.href for item in self.oeb.spine}
-        for i, item in enumerate(self.oeb.spine):
+        for item in self.oeb.spine:
             root = self.data(item)
 
             for a in XPath('//h:a[@href]')(root):
@@ -174,8 +184,7 @@ class KF8Writer(object):
                 href, _, frag = ref.partition('#')
                 href = urlnormalize(href)
                 if href in hrefs:
-                    placeholder = 'kindle:pos:fid:%04d:off:%s'%(i,
-                            to_href(count))
+                    placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
                     self.link_map[placeholder] = (href, frag)
                     a.set('href', placeholder)
 
@@ -191,9 +200,9 @@ class KF8Writer(object):
                     aid = aidbase + j
                     tag.attrib['aid'] = to_base(aid, base=32)
                     if tag.tag == XHTML('body'):
-                        self.id_map[(item.href, '')] = tag.attrib['aid']
+                        self.id_map[(item.href, '')] = (i, tag.attrib['aid'])
                     if id_ is not None:
-                        self.id_map[(item.href, id_)] = tag.attrib['aid']
+                        self.id_map[(item.href, id_)] = (i, tag.attrib['aid'])
 
                     j += 1
 
@@ -205,12 +214,47 @@ class KF8Writer(object):
             if aid is None:
                 aid = self.id_map.get((href, ''))
             placeholder_map[placeholder] = aid
-        chunker = Chunker(self.oeb, self.data, not self.opts.dont_compress,
-                placeholder_map)
+        chunker = Chunker(self.oeb, self.data, placeholder_map)
 
-        for x in ('skel_table', 'chunk_table', 'aid_offset_map', 'records',
-                'last_text_record_idx', 'first_non_text_record_idx',
-                'text_length'):
+        for x in ('skel_table', 'chunk_table', 'aid_offset_map'):
             setattr(self, x, getattr(chunker, x))
 
+        self.flows[0] = chunker.text
+
+    def create_text_records(self):
+        self.flows = [x.encode('utf-8') if isinstance(x, unicode) else x for x
+                in self.flows]
+        text = b''.join(self.flows)
+        self.text_length = len(text)
+        text = BytesIO(text)
+        nrecords = 0
+        records_size = 0
+
+        if self.compress:
+            self.oeb.logger.info('  Compressing markup content...')
+
+        while text.tell() < self.text_length:
+            data, overlap = create_text_record(text)
+            if self.compress:
+                data = compress_doc(data)
+
+            data += overlap
+            data += pack(b'>B', len(overlap))
+
+            self.records.append(data)
+            records_size += len(data)
+            nrecords += 1
+
+        self.last_text_record_idx = nrecords
+        self.first_non_text_record_idx = nrecords + 1
+        # Pad so that the next records starts at a 4 byte boundary
+        if records_size % 4 != 0:
+            self.records.append(b'\x00'*(records_size % 4))
+            self.first_non_text_record_idx += 1
+
+    def create_fdst_table(self):
+        FDST = namedtuple('Flow', 'start end')
+        for i, flow in enumerate(self.flows):
+            start = 0 if i == 0 else self.fdst_table[-1].end
+            self.fdst_table.append(FDST(start, start + len(flow)))
 

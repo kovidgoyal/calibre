@@ -9,16 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from collections import namedtuple
-from io import BytesIO
-from struct import pack
 from functools import partial
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.constants import ispy3
-from calibre.ebooks.mobi.utils import create_text_record, to_base
-from calibre.ebooks.compression.palmdoc import compress_doc
+from calibre.ebooks.mobi.utils import to_base
 
 CHUNK_SIZE = 8192
 
@@ -159,17 +156,16 @@ class Skeleton(object):
 
 class Chunker(object):
 
-    def __init__(self, oeb, data_func, compress, placeholder_map):
+    def __init__(self, oeb, data_func, placeholder_map):
         self.oeb, self.log = oeb, oeb.log
         self.data = data_func
-        self.compress = compress
         self.placeholder_map = placeholder_map
 
         self.skeletons = []
 
         # Set this to a list to enable dumping of the original and rebuilt
         # html files for debugging
-        self.orig_dumps = None
+        orig_dumps = None
 
         for i, item in enumerate(self.oeb.spine):
             root = self.remove_namespaces(self.data(item))
@@ -197,8 +193,8 @@ class Chunker(object):
             # for all chunks
             self.skeletons.append(Skeleton(i, item, root, chunks))
 
-        if self.orig_dumps:
-            self.dump()
+        if orig_dumps:
+            self.dump(orig_dumps)
 
         # Create the SKEL and Chunk tables
         self.skel_table = []
@@ -207,11 +203,7 @@ class Chunker(object):
 
         # Set internal links
         text = b''.join(x.raw_text for x in self.skeletons)
-        text = self.set_internal_links(text)
-
-        # Create text records
-        self.records = []
-        self.create_text_records(text)
+        self.text = self.set_internal_links(text)
 
     def remove_namespaces(self, root):
         lang = None
@@ -349,7 +341,12 @@ class Chunker(object):
         for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
             aid_map[match.group(1)] = match.start()
         self.aid_offset_map = aid_map
-        placeholder_map = {bytes(k):bytes(to_href(aid_map[v])) for k, v in
+
+        def to_placeholder(x):
+            file_number, aid = x
+            return bytes('%04d:%s'%(file_number, to_href(aid_map[aid])))
+
+        placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}
 
         # Now update the links
@@ -357,42 +354,14 @@ class Chunker(object):
             raw = match.group()
             pl = match.group(1)
             try:
-                return raw[:-10] + placeholder_map[pl]
+                return raw[:-15] + placeholder_map[pl]
             except KeyError:
                 pass
             return raw
 
         return re.sub(br'<[^>]+(kindle:pos:fid:\d{4}:\d{10})', sub, text)
 
-    def create_text_records(self, text):
-        self.text_length = len(text)
-        text = BytesIO(text)
-        nrecords = 0
-        records_size = 0
-
-        if self.compress:
-            self.oeb.logger.info('  Compressing markup content...')
-
-        while text.tell() < self.text_length:
-            data, overlap = create_text_record(text)
-            if self.compress:
-                data = compress_doc(data)
-
-            data += overlap
-            data += pack(b'>B', len(overlap))
-
-            self.records.append(data)
-            records_size += len(data)
-            nrecords += 1
-
-        self.last_text_record_idx = nrecords
-        self.first_non_text_record_idx = nrecords + 1
-        # Pad so that the next records starts at a 4 byte boundary
-        if records_size % 4 != 0:
-            self.records.append(b'\x00'*(records_size % 4))
-            self.first_non_text_record_idx += 1
-
-    def dump(self):
+    def dump(self, orig_dumps):
         import tempfile, shutil, os
         tdir = os.path.join(tempfile.gettempdir(), 'skeleton')
         self.log('Skeletons dumped to:', tdir)
@@ -402,10 +371,19 @@ class Chunker(object):
         rebuilt = os.path.join(tdir, 'rebuilt')
         for x in (orig, rebuilt):
             os.makedirs(x)
+        error = False
         for i, skeleton in enumerate(self.skeletons):
+            oraw, rraw = orig_dumps[i], skeleton.rebuild()
             with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
-                f.write(self.orig_dumps[i])
+                f.write(oraw)
             with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
-                f.write(skeleton.rebuild())
+                f.write(rraw)
+            if oraw != rraw:
+                error = True
+        if error:
+            raise ValueError('The before and after HTML differs. Run a diff '
+                    'tool on the orig and rebuilt directories')
+        else:
+            self.log('Skeleton HTML before and after is identical.')
 
 
