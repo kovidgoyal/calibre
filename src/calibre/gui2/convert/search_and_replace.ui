@@ -137,7 +137,7 @@
      <item>
       <widget class="QPushButton" name="sr_load">
        <property name="toolTip">
-        <string>Load a listof expression from a previously saved file</string>
+        <string>Load a list of expressions from a previously saved file</string>
        </property>
        <property name="text">
         <string>&amp;Load</string>
@@ -147,7 +147,7 @@
      <item>
       <widget class="QPushButton" name="sr_save">
        <property name="toolTip">
-        <string>Save this list of expression so that you can re-use it easily</string>
+        <string>Save this list of expressions so that you can re-use it easily</string>
        </property>
        <property name="text">
         <string>&amp;Save</string>
