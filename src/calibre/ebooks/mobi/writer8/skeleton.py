@@ -143,7 +143,7 @@ class Chunker(object):
 
         # Set this to a list to enable dumping of the original and rebuilt
         # html files for debugging
-        self.orig_dumps = []
+        self.orig_dumps = None
 
         for i, item in enumerate(self.oeb.spine):
             root = self.remove_namespaces(self.data(item))
