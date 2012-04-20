@@ -9,13 +9,21 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from collections import namedtuple
+from io import BytesIO
+from struct import pack
+from functools import partial
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.constants import ispy3
+from calibre.ebooks.mobi.utils import create_text_record, to_base
+from calibre.ebooks.compression.palmdoc import compress_doc
 
 CHUNK_SIZE = 8192
+
+# References in links are stored with 10 digits
+to_href = partial(to_base, base=32, min_num_digits=10)
 
 # Tags to which kindlegen adds the aid attribute
 aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
@@ -70,11 +78,15 @@ def tostring(raw, **kwargs):
 
 class Chunk(object):
 
-    def __init__(self, raw):
+    def __init__(self, raw, parent_tag):
         self.raw = raw
         self.starts_tags = []
         self.ends_tags = []
         self.insert_pos = None
+        self.parent_tag = parent_tag
+        self.parent_is_body = False
+        self.is_last_chunk = False
+        self.is_first_chunk = False
 
     def __len__(self):
         return len(self.raw)
@@ -86,6 +98,11 @@ class Chunk(object):
     def __repr__(self):
         return 'Chunk(len=%r insert_pos=%r starts_tags=%r ends_tags=%r)'%(
                 len(self.raw), self.insert_pos, self.starts_tags, self.ends_tags)
+
+    @property
+    def selector(self):
+        typ = 'S' if (self.is_last_chunk and not self.parent_is_body) else 'P'
+        return "%s-//*[@aid='%s']"%(typ, self.parent_tag)
 
     __str__ = __repr__
 
@@ -133,11 +150,20 @@ class Skeleton(object):
             ans = ans[:i] + chunk.raw + ans[i:]
         return ans
 
+    def __len__(self):
+        return len(self.skeleton) + sum([len(x.raw) for x in self.chunks])
+
+    @property
+    def raw_text(self):
+        return b''.join([self.skeleton] + [x.raw for x in self.chunks])
+
 class Chunker(object):
 
-    def __init__(self, oeb, data_func):
+    def __init__(self, oeb, data_func, compress, placeholder_map):
         self.oeb, self.log = oeb, oeb.log
         self.data = data_func
+        self.compress = compress
+        self.placeholder_map = placeholder_map
 
         self.skeletons = []
 
@@ -174,6 +200,19 @@ class Chunker(object):
         if self.orig_dumps:
             self.dump()
 
+        # Create the SKEL and Chunk tables
+        self.skel_table = []
+        self.chunk_table = []
+        self.create_tables()
+
+        # Set internal links
+        text = b''.join(x.raw_text for x in self.skeletons)
+        text = self.set_internal_links(text)
+
+        # Create text records
+        self.records = []
+        self.create_text_records(text)
+
     def remove_namespaces(self, root):
         lang = None
         for attr, val in root.attrib.iteritems():
@@ -206,15 +245,15 @@ class Chunker(object):
 
         return nroot
 
-
     def step_into_tag(self, tag, chunks):
         aid = tag.get('aid')
+        is_body = tag.tag == 'body'
 
         first_chunk_idx = len(chunks)
 
         # First handle any text
         if tag.text and tag.text.strip(): # Leave pure whitespace in the skel
-            chunks.extend(self.chunk_up_text(tag.text))
+            chunks.extend(self.chunk_up_text(tag.text, aid))
             tag.text = None
 
         # Now loop over children
@@ -224,15 +263,15 @@ class Chunker(object):
             if len(raw) > CHUNK_SIZE and child.get('aid', None):
                 self.step_into_tag(child, chunks)
                 if child.tail and child.tail.strip(): # Leave pure whitespace
-                    chunks.extend(self.chunk_up_text(child.tail))
+                    chunks.extend(self.chunk_up_text(child.tail, aid))
                     child.tail = None
             else:
                 if len(raw) > CHUNK_SIZE:
                     self.log.warn('Tag %s has no aid and a too large chunk'
                             ' size. Adding anyway.'%child.tag)
-                chunks.append(Chunk(raw))
+                chunks.append(Chunk(raw, aid))
                 if child.tail:
-                    chunks.extend(self.chunk_up_text(child.tail))
+                    chunks.extend(self.chunk_up_text(child.tail, aid))
                 tag.remove(child)
 
         if len(chunks) <= first_chunk_idx and chunks:
@@ -242,8 +281,15 @@ class Chunker(object):
         if chunks:
             chunks[first_chunk_idx].starts_tags.append(aid)
             chunks[-1].ends_tags.append(aid)
+            my_chunks = chunks[first_chunk_idx:]
+            if my_chunks:
+                my_chunks[0].is_first_chunk = True
+                my_chunks[-1].is_last_chunk = True
+                if is_body:
+                    for chunk in my_chunks:
+                        chunk.parent_is_body = True
 
-    def chunk_up_text(self, text):
+    def chunk_up_text(self, text, parent_tag):
         text = text.encode('utf-8')
         ans = []
 
@@ -259,7 +305,7 @@ class Chunker(object):
         while rest:
             start, rest = split_multibyte_text(rest)
             ans.append(b'<span class="AmznBigTextBlock">' + start + '</span>')
-        return [Chunk(x) for x in ans]
+        return [Chunk(x, parent_tag) for x in ans]
 
     def merge_small_chunks(self, chunks):
         ans = chunks[:1]
@@ -274,6 +320,77 @@ class Chunker(object):
             else:
                 prev.merge(chunk)
         return ans
+
+    def create_tables(self):
+        Skel = namedtuple('Skel',
+                'file_number name chunk_count start_pos length')
+        sp = 0
+        for s in self.skeletons:
+            s.start_pos = sp
+            sp += len(s)
+        self.skel_table = [Skel(s.file_number, 'SKEL%010d'%s.file_number,
+            len(s.chunks), s.start_pos, len(s.skeleton)) for x in self.skeletons]
+
+        Chunk = namedtuple('Chunk',
+            'insert_pos selector file_number sequence_number start_pos length')
+        num = cp = 0
+        for skel in self.skeletons:
+            cp = skel.start_pos
+            for chunk in skel.chunks:
+                self.chunk_table.append(
+                    Chunk(chunk.insert_pos + skel.start_pos, chunk.selector,
+                        skel.file_number, num, cp, len(chunk.raw)))
+                cp += len(chunk.raw)
+                num += 1
+
+    def set_internal_links(self, text):
+        # First find the start pos of all tags with aids
+        aid_map = {}
+        for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
+            aid_map[match.group(1)] = match.start()
+        self.aid_offset_map = aid_map
+        placeholder_map = {bytes(k):bytes(to_href(aid_map[v])) for k, v in
+                self.placeholder_map.iteritems()}
+
+        # Now update the links
+        def sub(match):
+            raw = match.group()
+            pl = match.group(1)
+            try:
+                return raw[:-10] + placeholder_map[pl]
+            except KeyError:
+                pass
+            return raw
+
+        return re.sub(br'<[^>]+(kindle:pos:fid:\d{4}:\d{10})', sub, text)
+
+    def create_text_records(self, text):
+        self.text_length = len(text)
+        text = BytesIO(text)
+        nrecords = 0
+        records_size = 0
+
+        if self.compress:
+            self.oeb.logger.info('  Compressing markup content...')
+
+        while text.tell() < self.text_length:
+            data, overlap = create_text_record(text)
+            if self.compress:
+                data = compress_doc(data)
+
+            data += overlap
+            data += pack(b'>B', len(overlap))
+
+            self.records.append(data)
+            records_size += len(data)
+            nrecords += 1
+
+        self.last_text_record_idx = nrecords
+        self.first_non_text_record_idx = nrecords + 1
+        # Pad so that the next records starts at a 4 byte boundary
+        if records_size % 4 != 0:
+            self.records.append(b'\x00'*(records_size % 4))
+            self.first_non_text_record_idx += 1
 
     def dump(self):
         import tempfile, shutil, os
@@ -290,4 +407,5 @@ class Chunker(object):
                 f.write(self.orig_dumps[i])
             with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
                 f.write(skeleton.rebuild())
+
 

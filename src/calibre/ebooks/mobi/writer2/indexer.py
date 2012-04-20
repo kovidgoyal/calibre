@@ -12,9 +12,8 @@ from struct import pack
 from cStringIO import StringIO
 from collections import OrderedDict, defaultdict
 
-from calibre.ebooks.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
-        encode_tbs, align_block, utf8_text)
+        encode_tbs, align_block, utf8_text, RECORD_SIZE)
 
 class CNCX(object): # {{{
 

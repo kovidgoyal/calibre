@@ -14,6 +14,7 @@ from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
+RECORD_SIZE = 0x1000 # 4096 (Text record size (uncompressed))
 
 def decode_string(raw, codec='utf-8', ordt_map=''):
     length, = struct.unpack(b'>B', raw[0])
@@ -497,4 +498,54 @@ def write_font_record(data, obfuscate=True, compress=True):
     return header + xor_key + data
 
 # }}}
+
+def create_text_record(text):
+    '''
+    Return a Palmdoc record of size RECORD_SIZE from the text file object.
+    In case the record ends in the middle of a multibyte character return
+    the overlap as well.
+
+    Returns data, overlap: where both are byte strings. overlap is the
+    extra bytes needed to complete the truncated multibyte character.
+    '''
+    opos = text.tell()
+    text.seek(0, 2)
+    # npos is the position of the next record
+    npos = min((opos + RECORD_SIZE, text.tell()))
+    # Number of bytes from the next record needed to complete the last
+    # character in this record
+    extra = 0
+
+    last = b''
+    while not last.decode('utf-8', 'ignore'):
+        # last contains no valid utf-8 characters
+        size = len(last) + 1
+        text.seek(npos - size)
+        last = text.read(size)
+
+    # last now has one valid utf-8 char and possibly some bytes that belong
+    # to a truncated char
+
+    try:
+        last.decode('utf-8', 'strict')
+    except UnicodeDecodeError:
+        # There are some truncated bytes in last
+        prev = len(last)
+        while True:
+            text.seek(npos - prev)
+            last = text.read(len(last) + 1)
+            try:
+                last.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+            else:
+                break
+        extra = len(last) - prev
+
+    text.seek(opos)
+    data = text.read(RECORD_SIZE)
+    overlap = text.read(extra)
+    text.seek(npos)
+
+    return data, overlap
 

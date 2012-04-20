@@ -19,15 +19,13 @@ from calibre.ebooks.mobi.utils import to_base
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
         extract, XHTML, urlnormalize)
 from calibre.ebooks.oeb.parse_utils import barename
-from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags
+from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
 # References to record numbers in KF8 are stored as base-32 encoded integers,
 # with 4 digits
 to_ref = partial(to_base, base=32, min_num_digits=4)
-# References in links are stored with 10 digits
-to_href = partial(to_base, base=32, min_num_digits=10)
 
 class KF8Writer(object):
 
@@ -167,7 +165,7 @@ class KF8Writer(object):
         self.link_map = {}
         count = 0
         hrefs = {item.href for item in self.oeb.spine}
-        for item in self.oeb.spine:
+        for i, item in enumerate(self.oeb.spine):
             root = self.data(item)
 
             for a in XPath('//h:a[@href]')(root):
@@ -176,7 +174,8 @@ class KF8Writer(object):
                 href, _, frag = ref.partition('#')
                 href = urlnormalize(href)
                 if href in hrefs:
-                    placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
+                    placeholder = 'kindle:pos:fid:%04d:off:%s'%(i,
+                            to_href(count))
                     self.link_map[placeholder] = (href, frag)
                     a.set('href', placeholder)
 
@@ -199,7 +198,19 @@ class KF8Writer(object):
                     j += 1
 
     def chunk_it_up(self):
-        chunker = Chunker(self.oeb, self.data)
-        chunker
+        placeholder_map = {}
+        for placeholder, x in self.link_map.iteritems():
+            href, frag = x
+            aid = self.id_map.get(x, None)
+            if aid is None:
+                aid = self.id_map.get((href, ''))
+            placeholder_map[placeholder] = aid
+        chunker = Chunker(self.oeb, self.data, not self.opts.dont_compress,
+                placeholder_map)
+
+        for x in ('skel_table', 'chunk_table', 'aid_offset_map', 'records',
+                'last_text_record_idx', 'first_non_text_record_idx',
+                'text_length'):
+            setattr(self, x, getattr(chunker, x))
 
 
