@@ -7,7 +7,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     #   cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/373529_38324934806_64930243_n.jpg'
     masthead_url = 'http://www.fhm.com/App_Resources/Images/Site/re-design/logo.gif'
     __author__ = 'Dave Asbury'
-    # last updated 17/3/12
+    # last updated 14/4/12
     language = 'en_GB'
     oldest_article = 28
     max_articles_per_feed = 12
@@ -28,7 +28,8 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     #]
     feeds          = [
-    (u'From the Homepage',u'http://feed43.com/8053226782885416.xml'),
+    (u'From the Homepage',u'http://feed43.com/0032328550253453.xml'),
+                           #http://feed43.com/8053226782885416.xml'),
     (u'Funny - The Very Best Of The Internet',u'http://feed43.com/4538510106331565.xml'),
                            (u'Upgrade',u'http://feed43.com/0877305847443234.xml'),
     #(u'The Final Countdown', u'http://feed43.com/3576106158530118.xml'),

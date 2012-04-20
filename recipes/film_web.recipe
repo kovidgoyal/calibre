@@ -7,6 +7,7 @@ class Filmweb_pl(BasicNewsRecipe):
     cover_url      = 'http://userlogos.org/files/logos/crudus/filmweb.png'
     category       = 'movies'
     language       = 'pl'
+    index='http://www.filmweb.pl'
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets= True
@@ -39,3 +40,9 @@ class Filmweb_pl(BasicNewsRecipe):
             self.log.warn(skip_tag)
             return self.index_to_soup(skip_tag['href'], raw=True)
         
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

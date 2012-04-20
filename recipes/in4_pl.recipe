@@ -8,6 +8,7 @@ class in4(BasicNewsRecipe):
     description   = u'Serwis Informacyjny - Aktualnosci, recenzje'
     category       = 'IT'
     language       = 'pl'
+    index='http://www.in4.pl/'
     #cover_url= 'http://www.in4.pl/recenzje/337/in4pl.jpg'
     no_stylesheets = True
     remove_empty_feeds = True
@@ -39,6 +40,7 @@ class in4(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
         return soup
-   
-        

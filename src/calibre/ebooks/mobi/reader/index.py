@@ -114,6 +114,7 @@ class CNCX(object): # {{{
 
     def __bool__(self):
         return bool(self.records)
+    __nonzero__ = __bool__
 
     def iteritems(self):
         return self.records.iteritems()

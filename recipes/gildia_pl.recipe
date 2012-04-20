@@ -9,6 +9,7 @@ class Gildia(BasicNewsRecipe):
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
+    remove_empty_feeds=True
     no_stylesheets=True
     remove_tags=[dict(name='div', attrs={'class':'backlink'}), dict(name='div', attrs={'class':'im_img'}), dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'})]
     keep_only_tags=dict(name='div', attrs={'class':'widetext'})
@@ -24,3 +25,16 @@ class Gildia(BasicNewsRecipe):
                     self.log.warn('odnosnik')
                     self.log.warn(link['href'])
                     return self.index_to_soup(link['href'], raw=True)
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                if '/gry/' in a['href']:
+                    a['href']='http://www.gry.gildia.pl' + a['href']
+                elif u'książk' in soup.title.string.lower() or u'komiks' in soup.title.string.lower():
+                    a['href']='http://www.literatura.gildia.pl' + a['href']
+                elif u'komiks' in soup.title.string.lower():
+                    a['href']='http://www.literatura.gildia.pl' + a['href']
+                else:
+                    a['href']='http://www.gildia.pl' + a['href']
+        return soup
