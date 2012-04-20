@@ -10,12 +10,19 @@ __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
 from struct import pack
+from io import BytesIO
 
-from calibre.ebooks.mobi.utils import CNCX
+from calibre.ebooks.mobi.utils import CNCX, encint
 
 TagMeta = namedtuple('TagMeta',
         'name number values_per_entry bitmask end_flag')
 EndTagTable = TagMeta('eof', 0, 0, 0, 1)
+
+# map of mask to number of shifts needed, works with 1 bit and two-bit wide masks
+# could also be extended to 4 bit wide ones as well
+mask_to_bit_shifts = { 1:0, 2:1, 3:0, 4:2, 8:3, 12:2, 16:4, 32:5, 48:4, 64:6,
+        128:7, 192: 6 }
+
 
 class Index(object):
 
@@ -32,6 +39,50 @@ class Index(object):
         # table length, control byte count
         header += pack(b'>II', 12+len(byts), cls.control_byte_count)
         return header + bytes(byts)
+
+    @classmethod
+    def calculate_control_bytes_for_each_entry(cls, entries):
+        control_bytes = []
+        for lead_text, tags in entries:
+            cbs = []
+            ans = 0
+            for (name, number, vpe, mask, endi) in cls.tag_types:
+                if endi == 1:
+                    cbs.append(ans)
+                    ans = 0
+                    continue
+                nvals = len(tags.get(name, ()))
+                nentries = nvals // vpe
+                shifts = mask_to_bit_shifts[mask]
+                ans |= mask & (nentries << shifts)
+            if len(cbs) != cls.control_byte_count:
+                raise ValueError('The entry %r is invalid'%[lead_text, tags])
+            control_bytes.append(cbs)
+        return control_bytes
+
+    def build_records(self):
+        self.control_bytes = self.calculate_control_bytes_for_each_entry(
+                self.entries)
+
+        self.rendered_entries = []
+        offset = 0
+        IndexEntry = namedtuple('IndexEntry', 'offset length raw')
+        for i, x in enumerate(self.entries):
+            control_bytes = self.control_bytes[i]
+            leading_text, tags = x
+            buf = BytesIO()
+            raw = bytearray(leading_text)
+            raw.insert(0, len(leading_text))
+            buf.write(bytes(raw))
+            buf.write(control_bytes)
+            for tag in self.tag_types:
+                values = tags.get(tag.name, None)
+                if values:
+                    for val in values:
+                        buf.write(encint(val))
+            raw = buf.getvalue()
+            self.rendered_entries.append(IndexEntry(offset, len(raw), raw))
+            offset += len(raw)
 
 class SkelIndex(Index):
 
@@ -73,6 +124,4 @@ class ChunkIndex(Index):
                     'geometry':(c.start_pos, c.length),
                     }) for s in chunk_table
         ]
-
-
 
