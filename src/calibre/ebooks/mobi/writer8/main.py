@@ -259,5 +259,3 @@ class KF8Writer(object):
             start = 0 if i == 0 else self.fdst_table[-1].end
             self.fdst_table.append(FDST(start, start + len(flow)))
 
-
-
