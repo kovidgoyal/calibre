@@ -322,7 +322,6 @@ class HeuristicProcessor(object):
         lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
-        dash = u"\x2d" # some ocrs doesn't convert dashes to hyphens
         line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
@@ -331,23 +330,19 @@ class HeuristicProcessor(object):
         unwrap_regex = lookahead+line_ending+blanklines+line_opening
         em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
         shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
-        dash_unwrap_regex = dash+line_ending+blanklines+line_opening
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
             shy_unwrap_regex = soft_hyphen+txt_line_wrap
-            dash_unwrap_regex = dash+txt_line_wrap
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
         shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
-        dash_unwrap = re.compile(u"%s" % dash_unwrap_regex, re.UNICODE)
 
         content = unwrap.sub(' ', content)
         content = em_en_unwrap.sub('', content)
         content = shy_unwrap.sub('', content)
-        content = dash_unwrap.sub('', content)
         return content
 
     def txt_process(self, match):
