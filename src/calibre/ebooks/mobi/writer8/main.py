@@ -175,7 +175,7 @@ class KF8Writer(object):
         self.link_map = {}
         count = 0
         hrefs = {item.href for item in self.oeb.spine}
-        for i, item in enumerate(self.oeb.spine):
+        for item in self.oeb.spine:
             root = self.data(item)
 
             for a in XPath('//h:a[@href]')(root):
@@ -184,8 +184,7 @@ class KF8Writer(object):
                 href, _, frag = ref.partition('#')
                 href = urlnormalize(href)
                 if href in hrefs:
-                    placeholder = 'kindle:pos:fid:%04d:off:%s'%(i,
-                            to_href(count))
+                    placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
                     self.link_map[placeholder] = (href, frag)
                     a.set('href', placeholder)
 
@@ -201,9 +200,9 @@ class KF8Writer(object):
                     aid = aidbase + j
                     tag.attrib['aid'] = to_base(aid, base=32)
                     if tag.tag == XHTML('body'):
-                        self.id_map[(item.href, '')] = tag.attrib['aid']
+                        self.id_map[(item.href, '')] = (i, tag.attrib['aid'])
                     if id_ is not None:
-                        self.id_map[(item.href, id_)] = tag.attrib['aid']
+                        self.id_map[(item.href, id_)] = (i, tag.attrib['aid'])
 
                     j += 1
 

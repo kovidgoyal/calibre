@@ -341,7 +341,12 @@ class Chunker(object):
         for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
             aid_map[match.group(1)] = match.start()
         self.aid_offset_map = aid_map
-        placeholder_map = {bytes(k):bytes(to_href(aid_map[v])) for k, v in
+
+        def to_placeholder(x):
+            file_number, aid = x
+            return bytes('%04d:%s'%(file_number, to_href(aid_map[aid])))
+
+        placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}
 
         # Now update the links
@@ -349,7 +354,7 @@ class Chunker(object):
             raw = match.group()
             pl = match.group(1)
             try:
-                return raw[:-10] + placeholder_map[pl]
+                return raw[:-15] + placeholder_map[pl]
             except KeyError:
                 pass
             return raw
