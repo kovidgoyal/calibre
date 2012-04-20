@@ -59,13 +59,14 @@ def tostring(raw, **kwargs):
     manually replace all hex entities with their unicode codepoints. '''
 
     xml_declaration = kwargs.pop('xml_declaration', False)
+    encoding = kwargs.pop('encoding', 'UTF-8')
     kwargs['encoding'] = unicode
     kwargs['xml_declaration'] = False
     ans = etree.tostring(raw, **kwargs)
     if xml_declaration:
-        ans = '<?xml version="1.0" encoding="UTF-8"?>\n' + ans
+        ans = '<?xml version="1.0" encoding="%s"?>\n'%encoding + ans
     return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:mychr(int(m.group(1), 16)),
-            ans).encode('utf-8')
+            ans).encode(encoding)
 
 class Chunk(object):
 
