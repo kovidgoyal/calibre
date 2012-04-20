@@ -165,7 +165,7 @@ class Chunker(object):
 
         # Set this to a list to enable dumping of the original and rebuilt
         # html files for debugging
-        self.orig_dumps = None
+        orig_dumps = None
 
         for i, item in enumerate(self.oeb.spine):
             root = self.remove_namespaces(self.data(item))
@@ -193,8 +193,8 @@ class Chunker(object):
             # for all chunks
             self.skeletons.append(Skeleton(i, item, root, chunks))
 
-        if self.orig_dumps:
-            self.dump()
+        if orig_dumps:
+            self.dump(orig_dumps)
 
         # Create the SKEL and Chunk tables
         self.skel_table = []
@@ -356,7 +356,7 @@ class Chunker(object):
 
         return re.sub(br'<[^>]+(kindle:pos:fid:\d{4}:\d{10})', sub, text)
 
-    def dump(self):
+    def dump(self, orig_dumps):
         import tempfile, shutil, os
         tdir = os.path.join(tempfile.gettempdir(), 'skeleton')
         self.log('Skeletons dumped to:', tdir)
@@ -368,7 +368,7 @@ class Chunker(object):
             os.makedirs(x)
         for i, skeleton in enumerate(self.skeletons):
             with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
-                f.write(self.orig_dumps[i])
+                f.write(orig_dumps[i])
             with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
                 f.write(skeleton.rebuild())
 
