@@ -316,10 +316,18 @@ class HeuristicProcessor(object):
         '''
         Unwraps lines based on line length and punctuation
         supports a range of html markup and text files
+        
+        the lookahead regex below is meant look for any non-full stop characters - punctuation
+        characters which can be used as a full stop should *not* be added below - e.g. ?!“”. etc
+        the reason for this is to prevent false positive wrapping.  False positives are more
+        difficult to detect than false negatives during a manual review of the doc
+        
+        This function intentionally leaves hyphenated content alone as that is handled by the 
+        dehyphenate routine in a separate step
         '''
-        # define the pieces of the regex
 
-        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
+        # define the pieces of the regex
+        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
         line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
