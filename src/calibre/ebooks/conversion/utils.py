@@ -323,7 +323,7 @@ class HeuristicProcessor(object):
         difficult to detect than false negatives during a manual review of the doc
         
         This function intentionally leaves hyphenated content alone as that is handled by the 
-        dehyphenate routine in a future step
+        dehyphenate routine in a separate step
         '''
 
         # define the pieces of the regex
