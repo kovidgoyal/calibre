@@ -65,7 +65,7 @@ def tostring(raw, **kwargs):
     if xml_declaration:
         ans = '<?xml version="1.0" encoding="UTF-8"?>\n' + ans
     return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:mychr(int(m.group(1), 16)),
-            ans)
+            ans).encode('utf-8')
 
 class Chunk(object):
 
