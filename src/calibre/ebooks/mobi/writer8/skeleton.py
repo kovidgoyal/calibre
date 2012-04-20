@@ -149,6 +149,7 @@ class Chunker(object):
             root = self.remove_namespaces(self.data(item))
             body = root.xpath('//body')[0]
             body.tail = '\n'
+
             if self.orig_dumps is not None:
                 self.orig_dumps.append(tostring(root, xml_declaration=True,
                     with_tail=True))
