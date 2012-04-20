@@ -371,10 +371,19 @@ class Chunker(object):
         rebuilt = os.path.join(tdir, 'rebuilt')
         for x in (orig, rebuilt):
             os.makedirs(x)
+        error = False
         for i, skeleton in enumerate(self.skeletons):
+            oraw, rraw = orig_dumps[i], skeleton.rebuild()
             with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
-                f.write(orig_dumps[i])
+                f.write(oraw)
             with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
-                f.write(skeleton.rebuild())
+                f.write(rraw)
+            if oraw != rraw:
+                error = True
+        if error:
+            raise ValueError('The before and after HTML differs. Run a diff '
+                    'tool on the orig and rebuilt directories')
+        else:
+            self.log('Skeleton HTML before and after is identical.')
 
 
