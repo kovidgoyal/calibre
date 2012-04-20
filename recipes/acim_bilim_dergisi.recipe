@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1334868409(BasicNewsRecipe):
+    title          = u'AÇIK BİLİM DERGİSİ'
+    description            =  ' Aylık çevrimiçi bilim dergisi'
+    __author__             = u'thomass'
+    oldest_article = 30
+    max_articles_per_feed = 300
+    auto_cleanup = True
+    encoding               = 'UTF-8'
+    publisher              = 'açık bilim'
+    category               = 'haber, bilim,TR,dergi'
+    language               = 'tr'
+    publication_type = 'magazine '
+    conversion_options = {
+                            'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
+    cover_img_url = 'http://www.acikbilim.com/wp-content/themes/Equilibrium/images/logodene.jpg'
+    masthead_url = 'http://www.acikbilim.com/wp-content/themes/Equilibrium/images/logodene.jpg'
+
+
+    feeds          = [(u'Tüm Yayınlar', u'http://www.acikbilim.com/feed')]
