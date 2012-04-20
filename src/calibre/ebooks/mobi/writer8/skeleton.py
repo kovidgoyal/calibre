@@ -9,16 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from collections import namedtuple
-from io import BytesIO
-from struct import pack
 from functools import partial
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.constants import ispy3
-from calibre.ebooks.mobi.utils import create_text_record, to_base
-from calibre.ebooks.compression.palmdoc import compress_doc
+from calibre.ebooks.mobi.utils import to_base
 
 CHUNK_SIZE = 8192
 
@@ -159,10 +156,9 @@ class Skeleton(object):
 
 class Chunker(object):
 
-    def __init__(self, oeb, data_func, compress, placeholder_map):
+    def __init__(self, oeb, data_func, placeholder_map):
         self.oeb, self.log = oeb, oeb.log
         self.data = data_func
-        self.compress = compress
         self.placeholder_map = placeholder_map
 
         self.skeletons = []
@@ -207,11 +203,7 @@ class Chunker(object):
 
         # Set internal links
         text = b''.join(x.raw_text for x in self.skeletons)
-        text = self.set_internal_links(text)
-
-        # Create text records
-        self.records = []
-        self.create_text_records(text)
+        self.text = self.set_internal_links(text)
 
     def remove_namespaces(self, root):
         lang = None
@@ -363,34 +355,6 @@ class Chunker(object):
             return raw
 
         return re.sub(br'<[^>]+(kindle:pos:fid:\d{4}:\d{10})', sub, text)
-
-    def create_text_records(self, text):
-        self.text_length = len(text)
-        text = BytesIO(text)
-        nrecords = 0
-        records_size = 0
-
-        if self.compress:
-            self.oeb.logger.info('  Compressing markup content...')
-
-        while text.tell() < self.text_length:
-            data, overlap = create_text_record(text)
-            if self.compress:
-                data = compress_doc(data)
-
-            data += overlap
-            data += pack(b'>B', len(overlap))
-
-            self.records.append(data)
-            records_size += len(data)
-            nrecords += 1
-
-        self.last_text_record_idx = nrecords
-        self.first_non_text_record_idx = nrecords + 1
-        # Pad so that the next records starts at a 4 byte boundary
-        if records_size % 4 != 0:
-            self.records.append(b'\x00'*(records_size % 4))
-            self.first_non_text_record_idx += 1
 
     def dump(self):
         import tempfile, shutil, os
