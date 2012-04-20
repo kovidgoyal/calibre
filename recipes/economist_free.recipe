@@ -22,8 +22,6 @@ class Economist(BasicNewsRecipe):
             ' perspective. Best downloaded on Friday mornings (GMT)')
     extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
     oldest_article = 7.0
-    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
-    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info',
@@ -36,27 +34,22 @@ class Economist(BasicNewsRecipe):
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
 
-    '''
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
-        br.open('http://www.economist.com')
-        req = mechanize.Request(
-                'http://www.economist.com/members/members.cfm?act=exec_login',
-                headers = {
-                    'Referer':'http://www.economist.com/',
-                    },
-                data=urllib.urlencode({
-                    'logging_in' : 'Y',
-                    'returnURL'  : '/',
-                    'email_address': self.username,
-                    'fakepword' : 'Password',
-                    'pword'     : self.password,
-                    'x'         : '0',
-                    'y'         : '0',
-                    }))
-        br.open(req).read()
-        return br
-    '''
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 1
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.economist.com/printedition/covers')
+        div = soup.find('div', attrs={'class':lambda x: x and
+            'print-cover-links' in x})
+        a = div.find('a', href=True)
+        url = a.get('href')
+        if url.startswith('/'):
+            url = 'http://www.economist.com' + url
+        soup = self.index_to_soup(url)
+        div = soup.find('div', attrs={'class':'cover-content'})
+        img = div.find('img', src=True)
+        return img.get('src')
 
     def parse_index(self):
         try:
@@ -86,32 +79,23 @@ class Economist(BasicNewsRecipe):
                 continue
             self.log('Found section: %s'%section_title)
             articles = []
-            for h5 in section.findAll('h5'):
-                article_title = self.tag_to_string(h5).strip()
-                if not article_title:
-                    continue
-                data = h5.findNextSibling(attrs={'class':'article'})
-                if data is None: continue
-                a = data.find('a', href=True)
-                if a is None: continue
-                url = a['href']
-                if url.startswith('/'): url = 'http://www.economist.com'+url
-                url += '/print'
-                article_title += ': %s'%self.tag_to_string(a).strip()
-                articles.append({'title':article_title, 'url':url,
-                    'description':'', 'date':''})
-            if not articles:
-                # We have last or first section
-                for art in section.findAll(attrs={'class':'article'}):
-                    a = art.find('a', href=True)
-                    if a is not None:
-                        url = a['href']
-                        if url.startswith('/'): url = 'http://www.economist.com'+url
-                        url += '/print'
-                        title = self.tag_to_string(a)
-                        if title:
-                            articles.append({'title':title, 'url':url,
-                            'description':'', 'date':''})
+            subsection = ''
+            for node in section.findAll(attrs={'class':'article'}):
+                subsec = node.findPreviousSibling('h5')
+                if subsec is not None:
+                    subsection = self.tag_to_string(subsec)
+                prefix = (subsection+': ') if subsection else ''
+                a = node.find('a', href=True)
+                if a is not None:
+                    url = a['href']
+                    if url.startswith('/'): url = 'http://www.economist.com'+url
+                    url += '/print'
+                    title = self.tag_to_string(a)
+                    if title:
+                        title = prefix + title
+                        self.log('\tFound article:', title)
+                        articles.append({'title':title, 'url':url,
+                        'description':'', 'date':''})
 
             if articles:
                 if section_title not in feeds:

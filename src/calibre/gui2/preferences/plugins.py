@@ -20,21 +20,31 @@ from calibre.gui2 import (NONE, error_dialog, info_dialog, choose_files,
         question_dialog, gprefs)
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
+from calibre.constants import iswindows
 
 class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
-    def __init__(self, *args):
-        QAbstractItemModel.__init__(self, *args)
+    def __init__(self, show_only_user_plugins=False):
+        QAbstractItemModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
+        self.show_only_user_plugins = show_only_user_plugins
         self.icon = QVariant(QIcon(I('plugins.png')))
         p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
         self.disabled_icon = QVariant(QIcon(p))
         self._p = p
         self.populate()
 
+    def toggle_shown_plugins(self, show_only_user_plugins):
+        self.show_only_user_plugins = show_only_user_plugins
+        self.populate()
+        self.reset()
+
     def populate(self):
         self._data = {}
         for plugin in initialized_plugins():
+            if (getattr(plugin, 'plugin_path', None) is None
+                    and self.show_only_user_plugins):
+                continue
             if plugin.type not in self._data:
                 self._data[plugin.type] = [plugin]
             else:
@@ -63,6 +73,7 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
             if p < 0:
                 if query in lower(self.categories[c]):
                     ans.add((c, p))
+                continue
             else:
                 try:
                     plugin = self._data[self.categories[c]][p]
@@ -208,7 +219,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
-        self._plugin_model = PluginModel()
+        self._plugin_model = PluginModel(self.user_installed_plugins.isChecked())
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
                 "QTreeView::item { padding-bottom: 10px;}")
@@ -225,6 +236,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.next_button.clicked.connect(self.find_next)
         self.previous_button.clicked.connect(self.find_previous)
         self.changed_signal.connect(self.reload_store_plugins)
+        self.user_installed_plugins.stateChanged.connect(self.show_user_installed_plugins)
+
+    def show_user_installed_plugins(self, state):
+        self._plugin_model.toggle_shown_plugins(self.user_installed_plugins.isChecked())
 
     def find(self, query):
         idx = self._plugin_model.find(query)
@@ -235,10 +250,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
-        self.plugin_view.scrollTo(idx)
         self.plugin_view.selectionModel().select(idx,
                 self.plugin_view.selectionModel().ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
+        self.plugin_view.setFocus(Qt.OtherFocusReason)
+        self.plugin_view.scrollTo(idx, self.plugin_view.EnsureVisible)
 
     def find_next(self, *args):
         idx = self.plugin_view.currentIndex()
@@ -271,8 +287,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
+        info = '' if iswindows else ' [.zip %s]'%_('files')
         path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
-                filters=[(_('Plugins') + ' (*.zip)', ['zip'])], all_files=False,
+                filters=[(_('Plugins') + info, ['zip'])], all_files=False,
                     select_only_single_file=True)
         if not path:
             return

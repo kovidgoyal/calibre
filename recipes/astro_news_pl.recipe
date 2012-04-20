@@ -1,0 +1,22 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class AstroNEWS(BasicNewsRecipe):
+    title          = u'AstroNEWS'
+    __author__        = 'fenuks'
+    description   = 'AstroNEWS- astronomy every day'
+    category       = 'astronomy, science'
+    language       = 'pl'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    #extra_css= 'table {text-align: left;}'
+    no_stylesheets=True
+    cover_url='http://news.astronet.pl/img/logo_news.jpg'
+    remove_tags=[dict(name='hr')]
+    feeds          = [(u'Wiadomości', u'http://news.astronet.pl/rss.cgi')]
+
+    def print_version(self, url):
+        return url.replace('astronet.pl/', 'astronet.pl/print.cgi?')
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(align=True):
+            del item['align']
+        return soup

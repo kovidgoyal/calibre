@@ -16,6 +16,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import Dispatcher
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.filenames import ascii_filename
 
 class EbookDownload(object):
 
@@ -45,6 +46,9 @@ class EbookDownload(object):
 
         if not filename:
             filename = get_download_filename(url, cookie_file)
+            filename, ext = os.path.splitext(filename)
+            filename = filename[:60] + ext
+            filename = ascii_filename(filename)
 
         br = browser()
         if cookie_file:
@@ -84,7 +88,7 @@ class EbookDownload(object):
 gui_ebook_download = EbookDownload()
 
 def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[]):
-    description = _('Downloading %s') % filename if filename else url
+    description = _('Downloading %s') % filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore')
     job = ThreadedJob('ebook_download', description, gui_ebook_download, (gui, cookie_file, url, filename, save_loc, add_to_lib, tags), {}, callback, max_concurrent_count=2, killable=False)
     job_manager.run_threaded_job(job)
 
@@ -96,7 +100,7 @@ class EbookDownloadMixin(object):
             if isinstance(tags, basestring):
                 tags = tags.split(',')
         start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags)
-        self.status_bar.show_message(_('Downloading') + ' ' + filename if filename else url, 3000)
+        self.status_bar.show_message(_('Downloading') + ' ' + filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore'), 3000)
 
     def downloaded_ebook(self, job):
         if job.failed:

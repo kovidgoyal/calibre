@@ -8,16 +8,12 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import os, re, tempfile
+import os, re
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
+from calibre.ptempfile import better_mktemp
 
 class ProcessTokens:
     """
@@ -36,7 +32,7 @@ class ProcessTokens:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.initiate_token_dict()
         ##self.initiate_token_actions()
         self.compile_expressions()
@@ -219,7 +215,27 @@ class ProcessTokens:
         'nosupersub'         :	('ci', 'no-su-supe', self.__no_sup_sub_func),
         'up'                 :	('ci', 'font-up___', self.divide_by_2),
         'v'                  :	('ci', 'hidden____', self.default_func),
-        #  table => tb
+        # underline
+        # can't see why it isn't a char info: 'ul'=>'ci'
+        'ul'                 :	('ci', 'underlined<continous', self.two_part_func),
+        'uld'                :	('ci', 'underlined<dotted', self.two_part_func),
+        'uldash'             :	('ci', 'underlined<dash', self.two_part_func),
+        'uldashd'            :	('ci', 'underlined<dash-dot', self.two_part_func),
+        'uldashdd'           :	('ci', 'underlined<dash-dot-dot', self.two_part_func),
+        'uldb'               :	('ci', 'underlined<double', self.two_part_func),
+        'ulhwave'            :	('ci', 'underlined<heavy-wave', self.two_part_func),
+        'ulldash'            :	('ci', 'underlined<long-dash', self.two_part_func),
+        'ulth'               :	('ci', 'underlined<thich', self.two_part_func),
+        'ulthd'              :	('ci', 'underlined<thick-dotted', self.two_part_func),
+        'ulthdash'           :	('ci', 'underlined<thick-dash', self.two_part_func),
+        'ulthdashd'          :	('ci', 'underlined<thick-dash-dot', self.two_part_func),
+        'ulthdashdd'         :	('ci', 'underlined<thick-dash-dot-dot', self.two_part_func),
+        'ulthldash'          :	('ci', 'underlined<thick-long-dash', self.two_part_func),
+        'ululdbwave'         :	('ci', 'underlined<double-wave', self.two_part_func),
+        'ulw'                :	('ci', 'underlined<word', self.two_part_func),
+        'ulwave'             :	('ci', 'underlined<wave', self.two_part_func),
+        'ulnone'             :	('ci', 'underlined<false', self.two_part_func),
+        # table => tb
         'trowd'              :	('tb', 'row-def___', self.default_func),
         'cell'               :	('tb', 'cell______', self.default_func),
         'row'                :	('tb', 'row_______', self.default_func),
@@ -279,25 +295,6 @@ class ProcessTokens:
         'paperh'             :	('pa', 'paper-hght', self.divide_by_20),
         # annotation => an
         'annotation'         :  ('an', 'annotation', self.default_func),
-        # underline
-        'ul'                 :	('ul', 'underlined<continous', self.two_part_func),
-        'uld'                :	('ul', 'underlined<dotted', self.two_part_func),
-        'uldash'             :	('ul', 'underlined<dash', self.two_part_func),
-        'uldashd'            :	('ul', 'underlined<dash-dot', self.two_part_func),
-        'uldashdd'           :	('ul', 'underlined<dash-dot-dot', self.two_part_func),
-        'uldb'               :	('ul', 'underlined<double', self.two_part_func),
-        'ulhwave'            :	('ul', 'underlined<heavy-wave', self.two_part_func),
-        'ulldash'            :	('ul', 'underlined<long-dash', self.two_part_func),
-        'ulth'               :	('ul', 'underlined<thich', self.two_part_func),
-        'ulthd'              :	('ul', 'underlined<thick-dotted', self.two_part_func),
-        'ulthdash'           :	('ul', 'underlined<thick-dash', self.two_part_func),
-        'ulthdashd'          :	('ul', 'underlined<thick-dash-dot', self.two_part_func),
-        'ulthdashdd'         :	('ul', 'underlined<thick-dash-dot-dot', self.two_part_func),
-        'ulthldash'          :	('ul', 'underlined<thick-long-dash', self.two_part_func),
-        'ululdbwave'         :	('ul', 'underlined<double-wave', self.two_part_func),
-        'ulw'                :	('ul', 'underlined<word', self.two_part_func),
-        'ulwave'             :	('ul', 'underlined<wave', self.two_part_func),
-        'ulnone'             :	('ul', 'underlined<false', self.two_part_func),
         # border => bd
         'trbrdrh'            :	('bd', 'bor-t-r-hi', self.default_func),
         'trbrdrv'            :	('bd', 'bor-t-r-vi', self.default_func),
@@ -762,7 +759,7 @@ class ProcessTokens:
     def process_cw(self, token):
         """Change the value of the control word by determining what dictionary
         it belongs to"""
-        special = [  '*', ':', '}', '{',   '~', '_', '-', ';' ]
+        special = [ '*', ':', '}', '{', '~', '_', '-', ';' ]
         ##if token != "{" or token != "}":
         token = token[1:] # strip off leading \
         token = token.replace(" ", "")
@@ -798,7 +795,7 @@ class ProcessTokens:
                             raise self.__exception_handler, msg
 
                     the_index = token.find('\\ ')
-                    if token is not None and  the_index > -1:
+                    if token is not None and the_index > -1:
                         msg = '\nInvalid RTF: token "\\ " not valid.\nError at line %d'\
                             % line_count
                         raise self.__exception_handler, msg

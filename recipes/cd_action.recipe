@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CD_Action(BasicNewsRecipe):
+    title          = u'CD-Action'
+    __author__        = 'fenuks'
+    description   = 'cdaction.pl - polish games magazine site'
+    category       = 'games'
+    language       = 'pl'
+    index='http://www.cdaction.pl'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    no_stylesheets= True
+    keep_only_tags= dict(id='news_content')
+    remove_tags_after= dict(name='div', attrs={'class':'tresc'})
+    feeds          = [(u'Newsy', u'http://www.cdaction.pl/rss_newsy.xml')]
+
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.cdaction.pl/magazyn/')
+        self.cover_url='http://www.cdaction.pl'+ soup.find(id='wspolnik').div.a['href']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

@@ -8,13 +8,16 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 from threading import Thread
+from contextlib import closing
 
 from PyQt4.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import error_dialog, Dispatcher, warning_dialog
+from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
+        info_dialog)
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import now
 
 class Worker(Thread): # {{{
 
@@ -28,6 +31,7 @@ class Worker(Thread): # {{{
         self.progress = progress
         self.done = done
         self.delete_after = delete_after
+        self.auto_merged_ids = {}
 
     def run(self):
         try:
@@ -51,10 +55,18 @@ class Worker(Thread): # {{{
 
     def doit(self):
         from calibre.library.database2 import LibraryDatabase2
-        newdb = LibraryDatabase2(self.loc)
+        newdb = LibraryDatabase2(self.loc, is_second_db=True)
+        with closing(newdb):
+            self._doit(newdb)
+        newdb.break_cycles()
+        del newdb
+
+    def _doit(self, newdb):
         for i, x in enumerate(self.ids):
             mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
                     cover_as_data=True)
+            if not gprefs['preserve_date_on_ctl']:
+                mi.timestamp = now()
             self.progress(i, mi.title)
             fmts = self.db.formats(x, index_is_id=True)
             if not fmts: fmts = []
@@ -65,14 +77,39 @@ class Worker(Thread): # {{{
                     as_path=True)
                 if p:
                     paths.append(p)
-            added = False
+            automerged = False
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
                 if identical_book_list: # books with same author and nearly same title exist in newdb
-                    added = True
+                    self.auto_merged_ids[x] = _('%(title)s by %(author)s')%\
+                    dict(title=mi.title, author=mi.format_field('authors')[1])
+                    automerged = True
+                    seen_fmts = set()
                     for identical_book in identical_book_list:
-                        self.add_formats(identical_book, paths, newdb, replace=False)
-            if not added:
+                        ib_fmts = newdb.formats(identical_book, index_is_id=True)
+                        if ib_fmts:
+                            seen_fmts |= set(ib_fmts.split(','))
+                        replace = gprefs['automerge'] == 'overwrite'
+                        self.add_formats(identical_book, paths, newdb,
+                                replace=replace)
+
+                    if gprefs['automerge'] == 'new record':
+                        incoming_fmts = \
+                            set([os.path.splitext(path)[-1].replace('.',
+                                '').upper() for path in paths])
+
+                        if incoming_fmts.intersection(seen_fmts):
+                            # There was at least one duplicate format
+                            # so create a new record and put the
+                            # incoming formats into it
+                            # We should arguably put only the duplicate
+                            # formats, but no real harm is done by having
+                            # all formats
+                            newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                                preserve_uuid=False)
+
+            if not automerged:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
                     apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                     preserve_uuid=self.delete_after)
@@ -85,6 +122,7 @@ class Worker(Thread): # {{{
                     os.remove(path)
                 except:
                     pass
+
 # }}}
 
 class CopyToLibraryAction(InterfaceAction):
@@ -93,7 +131,7 @@ class CopyToLibraryAction(InterfaceAction):
     action_spec = (_('Copy to library'), 'lt.png',
             _('Copy selected books to the specified library'), None)
     popup_type = QToolButton.InstantPopup
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True
 
@@ -141,7 +179,6 @@ class CopyToLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('No library'),
                     _('No library found at %s')%loc, show=True)
 
-
         self.pd = ProgressDialog(_('Copying'), min=0, max=len(ids)-1,
                 parent=self.gui, cancelable=False)
 
@@ -163,6 +200,15 @@ class CopyToLibraryAction(InterfaceAction):
             self.gui.status_bar.show_message(
                     _('Copied %(num)d books to %(loc)s') %
                     dict(num=len(ids), loc=loc), 2000)
+            if self.worker.auto_merged_ids:
+                books = '\n'.join(self.worker.auto_merged_ids.itervalues())
+                info_dialog(self.gui, _('Auto merged'),
+                        _('Some books were automatically merged into existing '
+                            'records in the target library. Click Show '
+                            'details to see which ones. This behavior is '
+                            'controlled by the Auto merge option in '
+                            'Preferences->Adding books.'), det_msg=books,
+                        show=True)
             if delete_after and self.worker.processed:
                 v = self.gui.library_view
                 ci = v.currentIndex()

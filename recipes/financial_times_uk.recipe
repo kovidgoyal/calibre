@@ -5,6 +5,7 @@ www.ft.com/uk-edition
 '''
 
 import datetime
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -22,8 +23,11 @@ class FinancialTimes(BasicNewsRecipe):
     needs_subscription    = True
     encoding              = 'utf8'
     publication_type      = 'newspaper'
+    articles_are_obfuscated = True
+    temp_files              = []
     masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
     LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
+    LOGIN2                = 'http://media.ft.com/h/subs3.html'
     INDEX                 = 'http://www.ft.com/uk-edition'
     PREFIX                = 'http://www.ft.com'
 
@@ -39,14 +43,19 @@ class FinancialTimes(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            br.open(self.LOGIN)
+            br.open(self.LOGIN2)
             br.select_form(name='loginForm')
             br['username'] = self.username
             br['password'] = self.password
             br.submit()
         return br
 
-    keep_only_tags = [dict(name='div', attrs={'class':['fullstory fullstoryHeader','fullstory fullstoryBody','ft-story-header','ft-story-body','index-detail']})]
+    keep_only_tags = [
+                        dict(name='div', attrs={'class':['fullstory fullstoryHeader', 'ft-story-header']})
+                       ,dict(name='div', attrs={'class':'standfirst'})
+                       ,dict(name='div', attrs={'id'   :'storyContent'})
+                       ,dict(name='div', attrs={'class':['ft-story-body','index-detail']})
+                     ]
     remove_tags = [
                       dict(name='div', attrs={'id':'floating-con'})
                      ,dict(name=['meta','iframe','base','object','embed','link'])
@@ -68,18 +77,23 @@ class FinancialTimes(BasicNewsRecipe):
 
     def get_artlinks(self, elem):
         articles = []
+        count = 0
         for item in elem.findAll('a',href=True):
+            count = count + 1
+            if self.test and count > 2:
+               return articles
             rawlink = item['href']
             if rawlink.startswith('http://'):
                url = rawlink
             else:
                url   = self.PREFIX + rawlink
+            urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
             title = self.tag_to_string(item)
             date = strftime(self.timefmt)
             articles.append({
                               'title'      :title
                              ,'date'       :date
-                             ,'url'        :url
+                             ,'url'        :urlverified
                              ,'description':''
                             })
         return articles
@@ -96,7 +110,11 @@ class FinancialTimes(BasicNewsRecipe):
         st = wide.find('h4',attrs={'class':'section-no-arrow'})
         if st:
            strest.insert(0,st)
+        count = 0
         for item in strest:
+            count = count + 1
+            if self.test and count > 2:
+               return feeds
             ftitle   = self.tag_to_string(item)
             self.report_progress(0, _('Fetching feed')+' %s...'%(ftitle))
             feedarts = self.get_artlinks(item.parent.ul)
@@ -135,4 +153,19 @@ class FinancialTimes(BasicNewsRecipe):
         if cdate.isoweekday() == 7:
            cdate -= datetime.timedelta(days=1)
         return cdate.strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_LON.pdf')
+
+    def get_obfuscated_article(self, url):
+        count = 0
+        while (count < 10):
+            try:
+                response = self.browser.open(url)
+                html = response.read()
+                count = 10
+            except:
+                print "Retrying download..."
+            count += 1        
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
         

@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_date, as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
 
 plugboard_any_device_value = 'any device'
@@ -111,12 +111,12 @@ def config(defaults=None):
                 'to supports unicode.'))
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('send_timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('to_lowercase', default=False,
             help=_('Convert paths to lowercase.'))
     x('replace_whitespace', default=False,
@@ -154,7 +154,7 @@ class Formatter(TemplateFormatter):
                     return self.composite_values[key]
                 self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
                 self.composite_values[key] = \
-                    self.vformat(b['display']['composite_template'], [], kwargs)
+                    self.evaluate(b['display']['composite_template'], [], kwargs)
                 return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
@@ -281,6 +281,11 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
     from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
+    if mi.pubdate:
+        mi.pubdate = as_local_time(mi.pubdate)
+    if mi.timestamp:
+        mi.timestamp = as_local_time(mi.timestamp)
+
     if opts.formats == 'all':
         asked_formats = available_formats
     else:
@@ -296,8 +301,8 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
             replace_whitespace=opts.replace_whitespace, safe_format=False)
     except Exception, e:
         raise ValueError(_('Failed to calculate path for '
-            'save to disk. Template: %s\n'
-            'Error: %s'%(opts.template, e)))
+            'save to disk. Template: %(templ)s\n'
+            'Error: %(err)s')%dict(templ=opts.template, err=e))
     if opts.single_dir:
         components = components[-1:]
     if not components:
@@ -353,6 +358,8 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
                     newmi.template_to_attribute(mi, cpb)
                 else:
                     newmi = mi
+                if cover:
+                    newmi.cover_data = ('jpg', cover)
                 set_metadata(stream, newmi, fmt)
             except:
                 if DEBUG:

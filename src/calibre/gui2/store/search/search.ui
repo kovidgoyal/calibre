@@ -14,7 +14,7 @@
    <string>Get Books</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/store.png</normaloff>:/images/store.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -82,8 +82,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>173</width>
-            <height>106</height>
+            <width>193</width>
+            <height>127</height>
            </rect>
           </property>
          </widget>
@@ -254,6 +254,19 @@
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>search_edit</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>results_view</tabstop>
+  <tabstop>store_list</tabstop>
+  <tabstop>select_all_stores</tabstop>
+  <tabstop>select_invert_stores</tabstop>
+  <tabstop>select_none_stores</tabstop>
+  <tabstop>configure</tabstop>
+  <tabstop>open_external</tabstop>
+  <tabstop>close</tabstop>
+  <tabstop>adv_search_button</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../../../resources/images.qrc"/>
  </resources>

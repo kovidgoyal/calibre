@@ -24,7 +24,7 @@ class ShareConnMenu(QMenu): # {{{
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -63,11 +63,15 @@ class ShareConnMenu(QMenu): # {{{
         if hasattr(parent, 'keyboard'):
             r = parent.keyboard.register_shortcut
             prefix = 'Share/Connect Menu '
+            gr = ConnectShareAction.action_spec[0]
             for attr in ('folder', 'bambook', 'itunes'):
                 if not (iswindows or isosx) and attr == 'itunes':
                     continue
                 ac = getattr(self, 'connect_to_%s_action'%attr)
-                r(prefix + attr, unicode(ac.text()), action=ac)
+                r(prefix + attr, unicode(ac.text()), action=ac,
+                        group=gr)
+            r(prefix+' content server', _('Start/stop content server'),
+                    action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
         text = _('Start Content Server')

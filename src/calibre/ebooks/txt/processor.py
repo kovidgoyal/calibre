@@ -12,10 +12,11 @@ import os, re
 
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.metadata.opf2 import OPFCreator
+
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 
-HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
+HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
 def clean_txt(txt):
     '''
@@ -27,7 +28,7 @@ def clean_txt(txt):
     # Strip whitespace from the end of the line. Also replace
     # all line breaks with \n.
     txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
-    
+
     # Replace whitespace at the beginning of the line with &nbsp;
     txt = re.sub('(?m)(?<=^)([ ]{2,}|\t+)(?=.)', '&nbsp;' * 4, txt)
 
@@ -74,7 +75,7 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     '''
     Converts plain text to html by putting all paragraphs in
     <p> tags. It condense and retains blank lines when necessary.
-    
+
     Requires paragraphs to be in single line format.
     '''
     txt = clean_txt(txt)
@@ -96,9 +97,11 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 
 def convert_markdown(txt, title='', disable_toc=False):
     from calibre.ebooks.markdown import markdown
+    extensions=['footnotes', 'tables']
+    if not disable_toc:
+        extensions.append('toc')
     md = markdown.Markdown(
-          extensions=['footnotes', 'tables', 'toc'],
-          extension_configs={"toc": {"disable_toc": disable_toc}},
+          extensions,
           safe_mode=False)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
@@ -212,7 +215,7 @@ def detect_paragraph_type(txt):
 def detect_formatting_type(txt):
     '''
     Tries to determine the formatting of the document.
-    
+
     markdown: Markdown formatting is used.
     textile: Textile formatting is used.
     heuristic: When none of the above formatting types are

@@ -6,6 +6,7 @@ Created on 15 May 2010
 import os
 
 from calibre.devices.usbms.driver import USBMS, BookList
+from calibre.ebooks import BOOK_EXTENSIONS
 
 # This class is added to the standard device plugin chain, so that it can
 # be configured. It has invalid vendor_id etc, so it will never match a
@@ -16,8 +17,8 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     description    = _('Use an arbitrary folder as a device.')
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = ['epub', 'fb2', 'mobi', 'azw', 'lrf', 'tcr', 'pmlz', 'lit',
-                   'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb', 'prc']
+    FORMATS     = list(BOOK_EXTENSIONS)
+
     VENDOR_ID   = [0xffff]
     PRODUCT_ID  = [0xffff]
     BCD         = [0xffff]
@@ -78,7 +79,7 @@ class FOLDER_DEVICE(USBMS):
             only_presence=False):
         return self.is_connected, self
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         self.current_library_uuid = library_uuid
         if not self._main_prefix:
             return False
@@ -96,3 +97,13 @@ class FOLDER_DEVICE(USBMS):
     @classmethod
     def settings(self):
         return FOLDER_DEVICE_FOR_CONFIG._config().parse()
+
+    @classmethod
+    def config_widget(cls):
+        return FOLDER_DEVICE_FOR_CONFIG.config_widget()
+
+    @classmethod
+    def save_settings(cls, config_widget):
+        return FOLDER_DEVICE_FOR_CONFIG.save_settings(config_widget)
+
+

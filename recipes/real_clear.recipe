@@ -1,0 +1,204 @@
+#  Test with "\Program Files\Calibre2\ebook-convert.exe" RealClear.recipe .epub --test -vv --debug-pipeline debug
+import re
+import time
+from urlparse import urlparse
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import NavigableString
+
+class RealClear(BasicNewsRecipe):
+    title           = u'Real Clear'
+    __author__      = 'TMcN'
+    description     = 'Real Clear Politics/Science/etc... aggregation of news\n'
+    cover_url       = 'http://www.realclearpolitics.com/dev/mt-static/images/logo.gif'
+    custom_title    = 'Real Clear - '+ time.strftime('%d %b %Y')
+    auto_cleanup    = True
+    encoding        = 'utf8'
+    language        = 'en'
+    needs_subscription = False
+    no_stylesheets  = True
+    oldest_article  = 7
+    remove_javascript = True
+    remove_tags     = [dict(name='img', attrs={})]
+    # Don't go down
+    recursions      = 0
+    max_articles_per_feed = 400
+    debugMessages = True
+
+    # Numeric parameter is type, controls whether we look for
+    feedsets = [
+                ["Politics",        "http://www.realclearpolitics.com/index.xml",   0],
+                ["Policy",           "http://www.realclearpolicy.com/index.xml", 0],
+                ["Science",         "http://www.realclearscience.com/index.xml",    0],
+                ["Tech",            "http://www.realcleartechnology.com/index.xml", 0],
+                # The feedburner is essentially the same as the top feed, politics.
+                # ["Politics Burner", "http://feeds.feedburner.com/realclearpolitics/qlMj", 1],
+                # ["Commentary",      "http://feeds.feedburner.com/Realclearpolitics-Articles", 1],
+                ["Markets Home",    "http://www.realclearmarkets.com/index.xml", 0],
+                ["Markets",         "http://www.realclearmarkets.com/articles/index.xml", 0],
+                ["World",           "http://www.realclearworld.com/index.xml", 0],
+                ["World Blog",           "http://www.realclearworld.com/blog/index.xml", 2]
+            ]
+    # Hints to extractPrintURL.
+    # First column is the URL snippet.  Then the string to search for as text, and the attributes to look for above it.  Start with attributes and drill down.
+    phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
+
+    printhints = [  ["realclear",           "",                            '' , 'printpage'],
+                    ["billoreilly.com",     "Print this entry",            'a', ''],
+                    ["billoreilly.com",     "Print This Article",          'a', ''],
+                    ["politico.com",        "Print",                       'a', 'share-print'],
+                    ["nationalreview.com",  ">Print<",                     'a', ''],
+                    ["reason.com",          "",                       'a', 'printer']
+                    # The following are not supported due to JavaScripting, and would require obfuscated_article to handle
+                    # forbes,
+                    # usatoday - just prints with all current crap anyhow
+
+            ]
+     # RCP - look for a strange compound.  See http://www.realclearpolitics.com/articles/2012/01/24/in_speech_obama_to_call_for_fairness_--_and_four_more_years_112879.html
+     # The print link isn't obvious, and only the end is needed (the -full append.)  SO maybe try that first?s
+     # http://www.realclearpolitics.com/printpage/?url=http://www.realclearpolitics.com/articles/2012/01/24/in_speech_obama_to_call_for_fairness_--_and_four_more_years_112879-full.html
+     # Single page articles don't have a _full; e.g. http://www.realclearpolitics.com/articles/2012/01/25/obamas_green_robber_barons_112897.html
+     # Use the FULL PRINTPAGE URL; it formats it better too!
+     #
+     # NYT - try single page...
+     # Need special code - is it one page or several?  Which URL?
+     # from  http://www.nytimes.com/2012/01/22/business/apple-america-and-a-squeezed-middle-class.html?_r=1
+     # to    http://www.nytimes.com/2012/01/22/business/apple-america-and-a-squeezed-middle-class.html?_r=1&pagewanted=all
+     # which is at link rel="canonical"   and at        <meta property="og:url"    or look for "Single Page"
+
+    # Returns the best-guess print url.
+    # The second parameter (pageURL) is returned if nothing is found.
+    def extractPrintURL(self, pageURL):
+        tagURL = pageURL
+        baseParse = urlparse(pageURL)
+        baseURL = baseParse[0]+"://"+baseParse[1]
+        hintsCount =len(self.printhints)
+        for x in range(0,hintsCount):
+            if pageURL.find(self.printhints[x][0])== -1 :
+                continue
+            print("Trying "+self.printhints[x][0])
+            # Only retrieve the soup if we have a match to check for the printed article with.
+            soup = self.index_to_soup(pageURL)
+            if soup is None:
+                return pageURL
+            if  len(self.printhints[x][self.phHrefSearch])>0 and len(self.printhints[x][self.phLinkText]) == 0:
+                # e.g. RealClear
+                if self.debugMessages == True :
+                    print("Search by href: "+self.printhints[x][self.phHrefSearch])
+                printFind = soup.find(href=re.compile(self.printhints[x][self.phHrefSearch]))
+            elif len(self.printhints[x][3])>0 and len(self.printhints[x][1]) == 0:
+                if self.debugMessages == True :
+                    print("Search 1: "+self.printhints[x][2]+" Attributes: ")
+                    print(self.printhints[x][3])
+                printFind = soup.find(self.printhints[x][2], attrs=self.printhints[x][3])
+            elif  len(self.printhints[x][3])>0 :
+                if self.debugMessages == True :
+                    print("search2")
+                printFind = soup.find(self.printhints[x][2], attrs=self.printhints[x][3], text=self.printhints[x][1])
+            else :
+                if self.debugMessages == True:
+                    print("Default Search: "+self.printhints[x][2]+" Text: "+self.printhints[x][1])
+                printFind = soup.find(self.printhints[x][2], text=self.printhints[x][1])
+            if printFind is None:
+                if self.debugMessages == True :
+                    print("Not Found")
+                    # print(soup)
+                    print("end soup\n\n");
+                continue
+
+            print(printFind)
+            if isinstance(printFind, NavigableString)==False:
+                if printFind['href'] is not None:
+                    print("Check "+printFind['href']+" for base of "+baseURL)
+                    if printFind['href'].find("http")!=0 :
+                        return baseURL+printFind['href']
+                    return printFind['href']
+            tag = printFind.parent
+            print(tag)
+            if tag['href'] is None:
+                if self.debugMessages == True :
+                    print("Not in parent, trying skip-up")
+                if tag.parent['href'] is None:
+                    if self.debugMessages == True :
+                        print("Not in skip either, aborting")
+                    continue;
+                return tag.parent['href']
+            return tag['href']
+        return tagURL
+
+    def get_browser(self):
+        if self.debugMessages == True :
+            print("In get_browser")
+        br = BasicNewsRecipe.get_browser()
+        return br
+
+    def parseRSS(self, index) :
+        if self.debugMessages == True :
+            print("\n\nStarting "+self.feedsets[index][0])
+        articleList = []
+        soup = self.index_to_soup(self.feedsets[index][1])
+        for div in soup.findAll("item"):
+            title = div.find("title").contents[0]
+            urlEl = div.find("originalLink")
+            if urlEl is None or len(urlEl.contents)==0 :
+                urlEl = div.find("originallink")
+            if urlEl is None or len(urlEl.contents)==0 :
+                urlEl = div.find("link")
+            if urlEl is None or len(urlEl.contents)==0 :
+                urlEl = div.find("guid")
+            if urlEl is None or title is None  or len(urlEl.contents)==0 :
+                print("Error in feed "+ self.feedsets[index][0])
+                print(div)
+                continue
+            print(title)
+            print(urlEl)
+            url = urlEl.contents[0].encode("utf-8")
+            description = div.find("description")
+            if description is not None and description.contents is not None and len(description.contents)>0:
+                description = description.contents[0]
+            else :
+                description="None"
+            pubDateEl = div.find("pubDate")
+            if pubDateEl is None :
+                pubDateEl = div.find("pubdate")
+            if pubDateEl is None :
+                pubDate = time.strftime('%a, %d %b')
+            else :
+                pubDate = pubDateEl.contents[0]
+            if self.debugMessages == True :
+                print("Article");
+                print(title)
+                print(description)
+                print(pubDate)
+                print(url)
+            url = self.extractPrintURL(url)
+            print(url)
+            #url +=re.sub(r'\?.*', '', div['href'])
+            pubdate = time.strftime('%a, %d %b')
+            articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
+        return articleList
+
+    # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
+    # returns a list of tuple ('feed title', list of articles)
+    # {
+    # 'title'       : article title,
+    # 'url'         : URL of print version,
+    # 'date'        : The publication date of the article as a string,
+    # 'description' : A summary of the article
+    # 'content'     : The full article (can be an empty string). This is used by FullContentProfile
+    # }
+    # this is used instead of BasicNewsRecipe.parse_feeds().
+    def parse_index(self):
+        # Parse the page into Python Soup
+
+        #articleList = []
+        ans = []
+        feedsCount = len(self.feedsets)
+        for x in range(0,feedsCount): # should be ,4
+            feedarticles = self.parseRSS(x)
+            if feedarticles is not None:
+                ans.append((self.feedsets[x][0], feedarticles))
+        if self.debugMessages == True :
+            print(ans)
+        return ans
+
+

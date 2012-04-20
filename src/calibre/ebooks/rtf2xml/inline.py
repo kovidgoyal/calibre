@@ -1,6 +1,7 @@
-import sys, os, tempfile
+import sys, os
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
 
 """
 States.
@@ -37,7 +38,7 @@ class Inline:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
 
     def __initiate_values(self):
         """
@@ -411,7 +412,7 @@ class Inline:
                     self.__set_list_func(line)
                     action = self.__state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('No matching state in module inline_for_lists.py\n')
+                        sys.stderr.write('No matching state in module inline.py\n')
                         sys.stderr.write(self.__state + '\n')
                     action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)

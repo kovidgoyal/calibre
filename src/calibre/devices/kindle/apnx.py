@@ -9,9 +9,8 @@ Generates and writes an APNX page mapping file.
 '''
 
 import struct
-import uuid
 
-from calibre.ebooks.mobi.reader import MobiReader
+from calibre.ebooks.mobi.reader.mobi6 import MobiReader
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.logging import default_log
 
@@ -20,7 +19,12 @@ class APNXBuilder(object):
     Create an APNX file using a pseudo page mapping.
     '''
 
-    def write_apnx(self, mobi_file_path, apnx_path, accurate=True):
+    def write_apnx(self, mobi_file_path, apnx_path, accurate=True, page_count=0):
+        '''
+        If you want a fixed number of pages (such as from a custom column) then
+        pass in a value to page_count, otherwise a count will be estimated
+        using either the fast or accurate algorithm.
+        '''
         # Check that this is really a MOBI file.
         with open(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
@@ -29,16 +33,19 @@ class APNXBuilder(object):
 
         # Get the pages depending on the chosen parser
         pages = []
-        if accurate:
-            try:
-                pages = self.get_pages_accurate(mobi_file_path)
-            except:
-                # Fall back to the fast parser if we can't
-                # use the accurate one. Typically this is
-                # due to the file having DRM.
-                pages = self.get_pages_fast(mobi_file_path)
+        if page_count:
+            pages = self.get_pages_exact(mobi_file_path, page_count)
         else:
-            pages = self.get_pages_fast(mobi_file_path)
+            if accurate:
+                try:
+                    pages = self.get_pages_accurate(mobi_file_path)
+                except:
+                    # Fall back to the fast parser if we can't
+                    # use the accurate one. Typically this is
+                    # due to the file having DRM.
+                    pages = self.get_pages_fast(mobi_file_path)
+            else:
+                pages = self.get_pages_fast(mobi_file_path)
 
         if not pages:
             raise Exception(_('Could not generate page mapping.'))
@@ -51,6 +58,7 @@ class APNXBuilder(object):
             apnxf.write(apnx)
 
     def generate_apnx(self, pages):
+        import uuid
         apnx = ''
 
         content_vals = {
@@ -76,6 +84,31 @@ class APNXBuilder(object):
             apnx += struct.pack('>I', page)
 
         return apnx
+
+    def get_pages_exact(self, mobi_file_path, page_count):
+        '''
+        Given a specified page count (such as from a custom column),
+        create our array of pages for the apnx file by dividing by
+        the content size of the book.
+        '''
+        pages = []
+        count = 0
+
+        with open(mobi_file_path, 'rb') as mf:
+            phead = PdbHeaderReader(mf)
+            r0 = phead.section_data(0)
+            text_length = struct.unpack('>I', r0[4:8])[0]
+
+        chars_per_page = int(text_length / page_count)
+        while count < text_length:
+            pages.append(count)
+            count += chars_per_page
+
+        if len(pages) > page_count:
+            # Rounding created extra page entries
+            pages = pages[:page_count]
+
+        return pages
 
     def get_pages_fast(self, mobi_file_path):
         '''

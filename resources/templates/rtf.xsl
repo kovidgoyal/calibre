@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:rtf="http://rtf2xml.sourceforge.net/"
     xmlns:c="calibre"
     extension-element-prefixes="c"
@@ -63,11 +63,16 @@
     </xsl:template>
 
     <xsl:template name = "para">
-        <xsl:if test = "normalize-space(.) or child::*">
-            <xsl:element name = "p">
-                <xsl:call-template name = "para-content"/>
-            </xsl:element>
-        </xsl:if>
+        <xsl:element name = "p">
+            <xsl:choose>
+                <xsl:when test = "normalize-space(.) or child::*">
+                    <xsl:call-template name = "para-content"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>&#160;</xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template name = "para_off">
@@ -98,7 +103,7 @@
                     <xsl:apply-templates/>
                </emph>
             </xsl:when>
-            <xsl:when test = "@underlined">
+            <xsl:when test = "@underlined and @underlined != 'false'">
                <emph rend = "paragraph-emph-underlined">
                     <xsl:apply-templates/>
                </emph>
@@ -149,7 +154,7 @@
     <xsl:template match="rtf:doc-information" mode="header">
           <link rel="stylesheet" type="text/css" href="styles.css"/>
           <xsl:if test="not(rtf:title)">
-              <title>unamed</title>
+              <title>unnamed</title>
           </xsl:if>
         <xsl:apply-templates/>
     </xsl:template>
@@ -220,7 +225,7 @@
     </xsl:template>
 
     <xsl:template name="parse-styles-attrs">
-        <!--<xsl:text>position:relative;</xsl:text>-->
+        <!--<xsl:text>position:relative;</xsl:text>
         <xsl:if test="@space-before">
             <xsl:text>padding-top:</xsl:text>
             <xsl:value-of select="@space-before"/>
@@ -230,7 +235,7 @@
             <xsl:text>padding-bottom:</xsl:text>
             <xsl:value-of select="@space-after"/>
             <xsl:text>pt;</xsl:text>
-        </xsl:if>
+        </xsl:if>-->
         <xsl:if test="@left-indent">
             <xsl:text>padding-left:</xsl:text>
             <xsl:value-of select="@left-indent"/>
@@ -256,15 +261,15 @@
             <xsl:value-of select="'italic'"/>
             <xsl:text>;</xsl:text>
         </xsl:if>
-        <xsl:if test="@underline and @underline != 'false'">
+        <xsl:if test="@underlined and @underlined != 'false'">
             <xsl:text>text-decoration:underline</xsl:text>
             <xsl:text>;</xsl:text>
         </xsl:if>
-        <xsl:if test="@line-spacing">
+        <!--<xsl:if test="@line-spacing">
             <xsl:text>line-height:</xsl:text>
             <xsl:value-of select="@line-spacing"/>
             <xsl:text>pt;</xsl:text>
-        </xsl:if>
+        </xsl:if>-->
         <xsl:if test="(@align = 'just')">
             <xsl:text>text-align: justify;</xsl:text>
         </xsl:if>
@@ -314,7 +319,6 @@
                     </xsl:attribute>
                     <xsl:apply-templates/>
                 </xsl:element>
-
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -447,7 +451,17 @@
     <xsl:template match = "rtf:field[@type='hyperlink']">
         <xsl:element name ="a">
             <xsl:attribute name = "href">
-               <xsl:value-of select = "@link"/>
+                <xsl:if test = "not(contains(@link, '/'))">#</xsl:if>
+                <xsl:value-of select = "@link"/>
+            </xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+	
+    <xsl:template match = "rtf:field[@type='bookmark-start']">
+        <xsl:element name ="a">
+            <xsl:attribute name = "id">
+               <xsl:value-of select = "@number"/>
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>

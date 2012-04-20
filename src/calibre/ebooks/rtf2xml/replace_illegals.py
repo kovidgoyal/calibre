@@ -8,17 +8,13 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile
+import os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.ptempfile import better_mktemp
 
 class ReplaceIllegals:
     """
@@ -32,7 +28,7 @@ class ReplaceIllegals:
         self.__file = in_file
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
 
     def replace_illegals(self):
         """

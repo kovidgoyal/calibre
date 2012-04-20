@@ -1,0 +1,18 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class Astronomia_pl(BasicNewsRecipe):
+    title          = u'Astronomia.pl'
+    __author__        = 'fenuks'
+    description   = 'Astronomia - polish astronomy site'
+    masthead_url      = 'http://www.astronomia.pl/grafika/logo.gif'
+    cover_url      = 'http://www.astronomia.pl/grafika/logo.gif'
+    category       = 'astronomy, science'
+    language       = 'pl'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    extra_css='#h2 {font-size: 18px;}'
+    no_stylesheets=True
+    preprocess_regexps = [(re.compile(ur'<b>Przeczytaj także:.*?</BODY>', re.DOTALL), lambda match: '</BODY>') ]
+    remove_tags_before=dict(name='div', attrs={'id':'a1'})
+    keep_only_tags=[dict(name='div', attrs={'id':['a1', 'h2']})]
+    feeds          = [(u'Wiadomości z astronomii i astronautyki', u'http://www.astronomia.pl/rss/')]

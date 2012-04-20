@@ -11,7 +11,7 @@ class NextMatchAction(InterfaceAction):
     name = 'Move to next highlighted book'
     action_spec = (_('Move to next match'), 'arrow-down.png',
             _('Move to next highlighted match'), [_('N'), _('F3')])
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
     def genesis(self):

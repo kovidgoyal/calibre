@@ -55,6 +55,7 @@ E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
 FEED    = E.feed
 TITLE   = E.title
 ID      = E.id
+ICON    = E.icon
 
 def UPDATED(dt, *args, **kwargs):
     return E.updated(dt.strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
@@ -111,8 +112,11 @@ def html_to_lxml(raw):
             for a in remove:
                 del x.attrib[a]
         raw = etree.tostring(root, encoding=None)
-        return etree.fromstring(raw)
-
+        try:
+            return etree.fromstring(raw)
+        except:
+            from calibre.ebooks.oeb.parse_utils import _html4_parse
+            return _html4_parse(raw)
 
 def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
                   ignore_count=False, add_kind=False):
@@ -239,6 +243,7 @@ class Feed(object): # {{{
                     TITLE(title),
                     AUTHOR(__appname__, uri='http://calibre-ebook.com'),
                     ID(id_),
+                    ICON('/favicon.png'),
                     UPDATED(updated),
                     SEARCH_LINK(self.base_href),
                     START_LINK(href=self.base_href)

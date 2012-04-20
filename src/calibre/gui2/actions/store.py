@@ -29,7 +29,7 @@ class StoreAction(InterfaceAction):
                 ('book', _('book'))]:
             func = getattr(self, 'search_%s'%('author_title' if x == 'book'
                 else x))
-            ac = cm(x, _('Search for this %s'%t), triggered=func)
+            ac = cm(x, _('Search for this %s')%t, triggered=func)
             setattr(self, 'action_search_by_'+x, ac)
         self.store_menu.addSeparator()
         self.store_list_menu = self.store_menu.addMenu(_('Stores'))

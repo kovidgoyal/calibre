@@ -18,6 +18,7 @@ function do_hyphenation(lang) {
                                 window.py_bridge.debug(e);
                             }
         });
+    // console.log(lang);
     Hyphenator.hyphenate(document.body, lang);
 }
 

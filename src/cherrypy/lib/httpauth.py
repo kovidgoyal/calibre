@@ -1,10 +1,9 @@
 """
-httpauth modules defines functions to implement HTTP Digest Authentication (RFC 2617).
+This module defines functions to implement HTTP Digest Authentication (:rfc:`2617`).
 This has full compliance with 'Digest' and 'Basic' authentication methods. In
 'Digest' it supports both MD5 and MD5-sess algorithms.
 
 Usage:
-
     First use 'doAuth' to request the client authentication for a
     certain resource. You should send an httplib.UNAUTHORIZED response to the
     client so he knows he has to authenticate itself.
@@ -59,33 +58,26 @@ __all__ = ("digestAuth", "basicAuth", "doAuth", "checkResponse",
            "calculateNonce", "SUPPORTED_QOP")
 
 ################################################################################
-
-try:
-    # Python 2.5+
-    from hashlib import md5
-except ImportError:
-    from md5 import new as md5
-
 import time
-import base64
-import urllib2
+from cherrypy._cpcompat import base64_decode, ntob, md5
+from cherrypy._cpcompat import parse_http_list, parse_keqv_list
 
 MD5 = "MD5"
 MD5_SESS = "MD5-sess"
 AUTH = "auth"
 AUTH_INT = "auth-int"
 
-SUPPORTED_ALGORITHM = ('md5', MD5, MD5_SESS)
+SUPPORTED_ALGORITHM = ('md5', MD5, MD5_SESS) # Changed by Kovid
 SUPPORTED_QOP = (AUTH, AUTH_INT)
 
 ################################################################################
 # doAuth
 #
 DIGEST_AUTH_ENCODERS = {
-    MD5: lambda val: md5(val).hexdigest(),
-    'md5': lambda val:md5(val).hexdigest(),
-    MD5_SESS: lambda val: md5(val).hexdigest(),
-#    SHA: lambda val: sha(val).hexdigest(),
+    MD5: lambda val: md5(ntob(val)).hexdigest(),
+    'md5': lambda val:md5(val).hexdigest(), # Added by Kovid
+    MD5_SESS: lambda val: md5(ntob(val)).hexdigest(),
+#    SHA: lambda val: sha.new(ntob(val)).hexdigest (),
 }
 
 def calculateNonce (realm, algorithm = MD5):
@@ -137,32 +129,32 @@ def doAuth (realm):
 #
 def _parseDigestAuthorization (auth_params):
     # Convert the auth params to a dict
-    items = urllib2.parse_http_list (auth_params)
-    params = urllib2.parse_keqv_list (items)
+    items = parse_http_list(auth_params)
+    params = parse_keqv_list(items)
 
     # Now validate the params
 
     # Check for required parameters
     required = ["username", "realm", "nonce", "uri", "response"]
     for k in required:
-        if not params.has_key(k):
+        if k not in params:
             return None
 
     # If qop is sent then cnonce and nc MUST be present
-    if params.has_key("qop") and not (params.has_key("cnonce") \
-                                      and params.has_key("nc")):
+    if "qop" in params and not ("cnonce" in params \
+                                      and "nc" in params):
         return None
 
     # If qop is not sent, neither cnonce nor nc can be present
-    if (params.has_key("cnonce") or params.has_key("nc")) and \
-       not params.has_key("qop"):
+    if ("cnonce" in params or "nc" in params) and \
+       "qop" not in params:
         return None
 
     return params
 
 
 def _parseBasicAuthorization (auth_params):
-    username, password = base64.decodestring (auth_params).split (":", 1)
+    username, password = base64_decode(auth_params).split(":", 1)
     return {"username": username, "password": password}
 
 AUTH_SCHEMES = {
@@ -225,7 +217,7 @@ def _A1(params, password):
     algorithm = params.get ("algorithm", MD5)
     H = DIGEST_AUTH_ENCODERS[algorithm]
 
-    if algorithm in (MD5, 'md5'):
+    if algorithm in (MD5, 'md5'): # Changed by Kovid
         # If the "algorithm" directive's value is "MD5" or is
         # unspecified, then A1 is:
         # A1 = unq(username-value) ":" unq(realm-value) ":" passwd
@@ -343,19 +335,18 @@ def checkResponse (auth_map, password, method = "GET", encrypt=None, **kwargs):
     other arguments that each implementation might need.
 
     If the response is of type 'Basic' then the function has the following
-    signature:
+    signature::
 
-    checkBasicResponse (auth_map, password) -> bool
+        checkBasicResponse (auth_map, password) -> bool
 
     If the response is of type 'Digest' then the function has the following
-    signature:
+    signature::
 
-    checkDigestResponse (auth_map, password, method = 'GET', A1 = None) -> bool
+        checkDigestResponse (auth_map, password, method = 'GET', A1 = None) -> bool
 
     The 'A1' argument is only used in MD5_SESS algorithm based responses.
     Check md5SessionKey() for more info.
     """
-    global AUTH_RESPONSES
     checker = AUTH_RESPONSES[auth_map["auth_scheme"]]
     return checker (auth_map, password, method=method, encrypt=encrypt, **kwargs)
 

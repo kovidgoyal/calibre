@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+class BasicUserRecipe1318619832(BasicNewsRecipe):
+    title          = u'OmgUbuntu'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Omg Ubuntu', u'http://feeds.feedburner.com/d0od')]
+
+    def get_masthead_url(self):
+        masthead = 'http://cdn.omgubuntu.co.uk/wp-content/themes/omgubuntu/images/logo.png'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead

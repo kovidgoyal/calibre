@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for Sanda's Bambook
 '''
 
-import time, os, hashlib
+import time, os, hashlib, shutil
 from itertools import cycle
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -31,7 +31,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
     ip = None
 
-    FORMATS = [ "snb" ]
+    FORMATS = [ "snb", "pdf" ]
     USER_CAN_ADD_NEW_FORMATS = False
     VENDOR_ID = 0x230b
     PRODUCT_ID = 0x0001
@@ -59,9 +59,9 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
-        self.open(None)
+        self.open(None, None)
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         # Make sure the Bambook library is ready
         if not is_bambook_lib_ready():
             raise OpenFeedback(_("Unable to connect to Bambook, you need to install Bambook library first."))
@@ -267,14 +267,59 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
             for (i, f) in enumerate(files):
                 self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
                 if not hasattr(f, 'read'):
-                    if self.bambook.VerifySNB(f):
-                        guid = self.bambook.SendFile(f, self.get_guid(metadata[i].uuid))
-                        if guid:
-                            paths.append(guid)
-                        else:
-                            print "Send fail"
+                    # Handle PDF File
+                    if f[-3:].upper() == "PDF":
+                        # Package the PDF file
+                        with TemporaryDirectory() as tdir:
+                            snbcdir = os.path.join(tdir, 'snbc')
+                            snbfdir = os.path.join(tdir, 'snbf')
+                            os.mkdir(snbcdir)
+                            os.mkdir(snbfdir)
+
+                            tmpfile = open(os.path.join(snbfdir, 'book.snbf'), 'wb')
+                            tmpfile.write('''<book-snbf version="1.0">
+  <head>
+    <name><![CDATA[''' + metadata[i].title + ''']]></name>
+    <author><![CDATA[''' + ' '.join(metadata[i].authors) + ''']]></author>
+    <language>ZH-CN</language>
+    <rights/>
+    <publisher>calibre</publisher>
+    <generator>''' + __appname__ + ' ' + __version__ + '''</generator>
+    <created/>
+    <abstract></abstract>
+    <cover/>
+  </head>
+</book-snbf>
+''')
+                            tmpfile.close()
+                            tmpfile = open(os.path.join(snbfdir, 'toc.snbf'), 'wb')
+                            tmpfile.write('''<toc-snbf>
+  <head>
+    <chapters>1</chapters>
+  </head>
+  <body>
+    <chapter src="pdf1.pdf"><![CDATA[''' + metadata[i].title + ''']]></chapter>
+  </body>
+</toc-snbf>
+''');
+                            tmpfile.close()
+                            pdf_name = os.path.join(snbcdir, "pdf1.pdf")
+                            shutil.copyfile(f, pdf_name)
+
+                            with TemporaryFile('.snb') as snbfile:
+                                if self.bambook.PackageSNB(snbfile, tdir) and self.bambook.VerifySNB(snbfile):
+                                    guid = self.bambook.SendFile(snbfile, self.get_guid(metadata[i].uuid))
+
+                    elif f[-3:].upper() == 'SNB':
+                        if self.bambook.VerifySNB(f):
+                            guid = self.bambook.SendFile(f, self.get_guid(metadata[i].uuid))
                     else:
                         print "book invalid"
+                    if guid:
+                        paths.append(guid)
+                    else:
+                        print "Send fail"
+
         ret = zip(paths, cycle([on_card]))
         self.report_progress(1.0, _('Transferring books to device...'))
         return ret

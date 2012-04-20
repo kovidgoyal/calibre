@@ -5,11 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import sys
 
 from PyQt4.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
-    QAction, Qt, QTextBrowser, QDialogButtonBox, QVBoxLayout)
+    QAction, Qt, QTextBrowser, QDialogButtonBox, QVBoxLayout, QGridLayout,
+    QLabel, QPlainTextEdit, QTextDocument)
 
-from calibre.constants import __version__
+from calibre.constants import __version__, isfrozen
 from calibre.gui2.dialogs.message_box_ui import Ui_Dialog
 
 class MessageBox(QDialog, Ui_Dialog): # {{{
@@ -44,6 +46,7 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
         self.msg.setText(msg)
         self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
+        self.toggle_checkbox.setVisible(False)
 
         if show_copy_button:
             self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
@@ -157,7 +160,7 @@ class ProceedNotification(MessageBox): # {{{
 
     def __init__(self, callback, payload, html_log, log_viewer_title, title, msg,
             det_msg='', show_copy_button=False, parent=None,
-            cancel_callback=None):
+            cancel_callback=None, log_is_file=False):
         '''
         A non modal popup that notifies the user that a background task has
         been completed.
@@ -169,17 +172,19 @@ class ProceedNotification(MessageBox): # {{{
         :param payload: Arbitrary object, passed to callback
         :param html_log: An HTML or plain text log
         :param log_viewer_title: The title for the log viewer window
-        :param title: The title fo rthis popup
+        :param title: The title for this popup
         :param msg: The msg to display
         :param det_msg: Detailed message
+        :param log_is_file: If True the html_log parameter is interpreted as
+        the path to a file on disk containing the log encoded with utf-8
         '''
         MessageBox.__init__(self, MessageBox.QUESTION, title, msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 parent=parent)
         self.payload = payload
         self.html_log = html_log
+        self.log_is_file = log_is_file
         self.log_viewer_title = log_viewer_title
-        self.finished.connect(self.do_proceed, type=Qt.QueuedConnection)
 
         self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
@@ -190,22 +195,29 @@ class ProceedNotification(MessageBox): # {{{
         _proceed_memory.append(self)
 
     def show_log(self):
-        self.log_viewer = ViewLog(self.log_viewer_title, self.html_log,
+        log = self.html_log
+        if self.log_is_file:
+            with open(log, 'rb') as f:
+                log = f.read().decode('utf-8')
+        self.log_viewer = ViewLog(self.log_viewer_title, log,
                 parent=self)
 
     def do_proceed(self, result):
-        try:
-            if result == self.Accepted:
-                self.callback(self.payload)
-            elif self.cancel_callback is not None:
-                self.cancel_callback(self.payload)
-        finally:
-            # Ensure this notification is garbage collected
-            self.callback = self.cancel_callback = None
-            self.setParent(None)
-            self.finished.disconnect()
-            self.vlb.clicked.disconnect()
-            _proceed_memory.remove(self)
+        from calibre.gui2.ui import get_gui
+        func = (self.callback if result == self.Accepted else
+                self.cancel_callback)
+        gui = get_gui()
+        gui.proceed_requested.emit(func, self.payload)
+        # Ensure this notification is garbage collected
+        self.vlb.clicked.disconnect()
+        self.callback = self.cancel_callback = self.payload = None
+        self.setParent(None)
+        _proceed_memory.remove(self)
+
+    def done(self, r):
+        self.do_proceed(r)
+        return MessageBox.done(self, r)
+
 # }}}
 
 class ErrorNotification(MessageBox): # {{{
@@ -248,9 +260,96 @@ class ErrorNotification(MessageBox): # {{{
         _proceed_memory.remove(self)
 # }}}
 
+class JobError(QDialog): # {{{
+
+    WIDTH = 600
+
+    def __init__(self, gui):
+        QDialog.__init__(self, gui)
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.gui = gui
+        self.queue = []
+
+        self._layout = l = QGridLayout()
+        self.setLayout(l)
+        self.icon = QIcon(I('dialog_error.png'))
+        self.setWindowIcon(self.icon)
+        self.icon_label = QLabel()
+        self.icon_label.setPixmap(self.icon.pixmap(128, 128))
+        self.icon_label.setMaximumSize(QSize(128, 128))
+        self.msg_label = QLabel('<p>&nbsp;')
+        self.msg_label.setWordWrap(True)
+        self.msg_label.setTextFormat(Qt.RichText)
+        self.det_msg = QPlainTextEdit(self)
+        self.det_msg.setVisible(False)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Close, parent=self)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
+                self.bb.ActionRole)
+        self.ctc_button.clicked.connect(self.copy_to_clipboard)
+        self.show_det_msg = _('Show &details')
+        self.hide_det_msg = _('Hide &details')
+        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
+        self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
+        self.det_msg_toggle.setToolTip(
+                _('Show detailed information about this error'))
+
+        l.addWidget(self.icon_label, 0, 0, 1, 1)
+        l.addWidget(self.msg_label,  0, 1, 1, 1, Qt.AlignLeft|Qt.AlignTop)
+        l.addWidget(self.det_msg, 1, 0, 1, 2)
+
+        l.addWidget(self.bb, 2, 0, 1, 2, Qt.AlignRight|Qt.AlignBottom)
+
+        self.setModal(False)
+        self.base_height = max(200, self.sizeHint().height() + 20)
+        self.do_resize()
+
+    def copy_to_clipboard(self, *args):
+        d = QTextDocument()
+        d.setHtml(self.msg_label.text())
+        QApplication.clipboard().setText(
+                u'calibre, version %s (%s, isfrozen: %s)\n%s: %s\n\n%s' %
+                (__version__, sys.platform, isfrozen,
+                    unicode(self.windowTitle()), unicode(d.toPlainText()),
+                    unicode(self.det_msg.toPlainText())))
+        if hasattr(self, 'ctc_button'):
+            self.ctc_button.setText(_('Copied'))
+
+    def toggle_det_msg(self, *args):
+        vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
+        self.det_msg_toggle.setText(self.show_det_msg if vis else
+                self.hide_det_msg)
+        self.det_msg.setVisible(not vis)
+        self.do_resize()
+
+    def do_resize(self):
+        h = self.base_height
+        if self.det_msg.isVisible():
+            h += 250
+        self.resize(QSize(self.WIDTH, h))
+
+    def showEvent(self, ev):
+        ret = QDialog.showEvent(self, ev)
+        self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
+        return ret
+
+# }}}
+
 if __name__ == '__main__':
     app = QApplication([])
-    from calibre.gui2 import question_dialog
-    print question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
-            det_msg='det '*1000,
-            show_copy_button=True)
+    from calibre.gui2.preferences import init_gui
+    gui = init_gui()
+    d = JobError(gui)
+    d.show()
+    app.exec_()
+    gui.shutdown()
+
+# if __name__ == '__main__':
+#     app = QApplication([])
+#     from calibre.gui2 import question_dialog
+#     print question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
+#             det_msg='det '*1000,
+#             show_copy_button=True)
+

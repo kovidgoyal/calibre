@@ -15,9 +15,11 @@ from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks import unit_convert
-from calibre.ebooks.txt.unsmarten import unsmarten
+from calibre.ebooks.textile.unsmarten import unsmarten
 
 class TextileMLizer(OEB2HTML):
+
+    MAX_EM = 10
 
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to Textile formatted TXT...')
@@ -43,7 +45,8 @@ class TextileMLizer(OEB2HTML):
         self.style_smallcap = False
 
         txt = self.mlize_spine(oeb_book)
-        txt = unsmarten(txt)
+        if self.opts.unsmarten_punctuation:
+            txt = unsmarten(txt)
 
         # Do some tidying up
         txt = self.tidy_up(txt)
@@ -82,7 +85,7 @@ class TextileMLizer(OEB2HTML):
             for i in self.our_ids:
                 if i not in self.our_links:
                     text = re.sub(r'%?\('+i+'\)\xa0?%?', r'', text)
-                    
+
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, ['\*', '_', '\*'])
         # escape the super/sub-scripts if needed
@@ -103,7 +106,7 @@ class TextileMLizer(OEB2HTML):
         #correct blockcode paras
         text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)
         #correct blockquote paras
-        text = re.sub(r'\nbq\.\n?\np.*\. ', r'\nbq. ', text)
+        text = re.sub(r'\nbq\.\n?\np.*?\. ', r'\nbq. ', text)
 
         #reduce blank lines
         text = re.sub(r'\n{3}', r'\n\np. \n\n', text)
@@ -175,7 +178,7 @@ class TextileMLizer(OEB2HTML):
         if 'margin-left' in style.cssdict() and style['margin-left'] != 'auto':
             left_margin_pts = unit_convert(style['margin-left'], style.width, style.fontSize, stylizer.profile.dpi)
         left = left_margin_pts + left_padding_pts
-        emleft = int(round(left / stylizer.profile.fbase))
+        emleft = min(int(round(left / stylizer.profile.fbase)), self.MAX_EM)
         if emleft >= 1:
             txt += '(' * emleft
         right_padding_pts = 0
@@ -185,10 +188,10 @@ class TextileMLizer(OEB2HTML):
         if 'margin-right' in style.cssdict() and style['margin-right'] != 'auto':
             right_margin_pts = unit_convert(style['margin-right'], style.width, style.fontSize, stylizer.profile.dpi)
         right = right_margin_pts + right_padding_pts
-        emright = int(round(right / stylizer.profile.fbase))
+        emright = min(int(round(right / stylizer.profile.fbase)), self.MAX_EM)
         if emright >= 1:
             txt += ')' * emright
-            
+
         return txt
 
     def check_id_tag(self, attribs):
@@ -234,7 +237,7 @@ class TextileMLizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         # Ignore anything that is set to not be displayed.
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -242,10 +245,10 @@ class TextileMLizer(OEB2HTML):
 
         # Soft scene breaks.
         if 'margin-top' in style.cssdict() and style['margin-top'] != 'auto':
-            ems = int(round(float(style.marginTop) / style.fontSize) - 1)
+            ems = min(int(round(float(style.marginTop) / style.fontSize) - 1), self.MAX_EM)
             if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
-            
+
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div'):
             if tag == 'div':
                 tag = 'p'
@@ -431,7 +434,7 @@ class TextileMLizer(OEB2HTML):
                 'span', 'table', 'tr', 'td'):
             if not self.in_a_link:
                 text.append(self.check_styles(style))
-        
+
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             txt = elem.text
@@ -447,10 +450,10 @@ class TextileMLizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            if tag in ('pre', 'ul', 'ol', 'li', 'table'):
-                if tag == 'pre':
+            if t in ('pre', 'ul', 'ol', 'li', 'table'):
+                if t == 'pre':
                     self.in_pre = False
-                elif tag in ('ul', 'ol'):
+                elif t in ('ul', 'ol'):
                     if self.list: self.list.pop()
                     if not self.list: text.append('\n')
             else:
@@ -475,7 +478,7 @@ class TextileMLizer(OEB2HTML):
 
         # Soft scene breaks.
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':
-            ems = int(round((float(style.marginBottom) / style.fontSize) - 1))
+            ems = min(int(round((float(style.marginBottom) / style.fontSize) - 1)), self.MAX_EM)
             if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
 

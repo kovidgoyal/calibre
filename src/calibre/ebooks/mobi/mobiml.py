@@ -10,7 +10,7 @@ import copy
 import re
 from lxml import etree
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEB_DOCS, urlnormalize
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.utils.magick.draw import identify_data
@@ -30,6 +30,8 @@ CONTENT_TAGS = set(['img', 'hr', 'br'])
 
 NOT_VTAGS = HEADER_TAGS | NESTABLE_TAGS | TABLE_TAGS | SPECIAL_TAGS | \
     CONTENT_TAGS
+LEAF_TAGS = set(['base', 'basefont', 'frame', 'link', 'meta', 'area', 'br',
+'col', 'hr', 'img', 'input', 'param'])
 PAGE_BREAKS = set(['always', 'left', 'right'])
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -107,25 +109,7 @@ class MobiMLizer(object):
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
-        self.remove_html_cover()
         self.mobimlize_spine()
-
-    def remove_html_cover(self):
-        oeb = self.oeb
-        if not oeb.metadata.cover \
-           or 'cover' not in oeb.guide:
-            return
-        href = oeb.guide['cover'].href
-        del oeb.guide['cover']
-        item = oeb.manifest.hrefs[href]
-        if item.spine_position is not None:
-            self.log.warn('Found an HTML cover,', item.href, 'removing it.',
-                    'If you find some content missing from the output MOBI, it '
-                    'is because you misidentified the HTML cover in the input '
-                    'document')
-            oeb.spine.remove(item)
-            if item.media_type in OEB_DOCS:
-                self.oeb.manifest.remove(item)
 
     def mobimlize_spine(self):
         'Iterate over the spine and convert it to MOBIML'
@@ -138,6 +122,7 @@ class MobiMLizer(object):
             self.mobimlize_elem(body, stylizer, BlockState(nbody),
                                 [FormatState()])
             item.data = nroot
+            #print etree.tostring(nroot)
 
     def mobimlize_font(self, ptsize):
         return self.fnums[self.fmap[ptsize]]
@@ -233,9 +218,29 @@ class MobiMLizer(object):
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'
         if istate.ids:
-            last = bstate.body[-1]
-            for id in istate.ids:
-                last.addprevious(etree.Element(XHTML('a'), attrib={'id': id}))
+            for id_ in istate.ids:
+                anchor = etree.Element(XHTML('a'), attrib={'id': id_})
+                if tag == 'li':
+                    try:
+                        last = bstate.body[-1][-1]
+                    except:
+                        break
+                    last.insert(0, anchor)
+                    anchor.tail = last.text
+                    last.text = None
+                else:
+                    last = bstate.body[-1]
+                    # We use append instead of addprevious so that inline
+                    # anchors in large blocks point to the correct place. See
+                    # https://bugs.launchpad.net/calibre/+bug/899831
+                    # This could potentially break if inserting an anchor at
+                    # this point in the markup is illegal, but I cannot think
+                    # of such a case offhand.
+                    if barename(last.tag) in LEAF_TAGS:
+                        last.addprevious(anchor)
+                    else:
+                        last.append(anchor)
+
             istate.ids.clear()
         if not text:
             return
@@ -302,12 +307,18 @@ class MobiMLizer(object):
                 elem.text = None
                 elem.set('id', id_)
                 elem.tail = tail
+                elem.tag = XHTML('a')
             else:
                 return
         tag = barename(elem.tag)
         istate = copy.copy(istates[-1])
         istate.rendered = False
         istate.list_num = 0
+        if tag == 'ol' and 'start' in elem.attrib:
+            try:
+                istate.list_num = int(elem.attrib['start'])-1
+            except:
+                pass
         istates.append(istate)
         left = 0
         display = style['display']
@@ -360,11 +371,13 @@ class MobiMLizer(object):
         istate.preserve = (style['white-space'] in ('pre', 'pre-wrap'))
         istate.bgcolor  = style['background-color']
         istate.fgcolor  = style['color']
-        istate.strikethrough = style['text-decoration'] == 'line-through'
-        istate.underline = style['text-decoration'] == 'underline'
-        if 'monospace' in style['font-family']:
+        istate.strikethrough = style.effective_text_decoration == 'line-through'
+        istate.underline = style.effective_text_decoration == 'underline'
+        ff = style['font-family'].lower() if style['font-family'] else ''
+        if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
-        elif 'sans-serif' in style['font-family']:
+        elif ('sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or
+                'arial' in ff or 'helvetica' in ff):
             istate.family = 'sans-serif'
         else:
             istate.family = 'serif'
@@ -442,7 +455,7 @@ class MobiMLizer(object):
         if tag in TABLE_TAGS and self.ignore_tables:
             tag = 'span' if tag == 'td' else 'div'
 
-        if tag == 'table':
+        if tag in ('table', 'td', 'tr'):
             col = style.backgroundColor
             if col:
                 elem.set('bgcolor', col)
@@ -510,7 +523,11 @@ class MobiMLizer(object):
             old_mim = self.opts.mobi_ignore_margins
             self.opts.mobi_ignore_margins = False
 
-        if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
+        if (text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS or (
+            # We have an id but no text and no children, the id should still
+            # be added.
+            istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and
+            len(elem)==0)):
             self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
             self.mobimlize_elem(child, stylizer, bstate, istates)
@@ -533,7 +550,11 @@ class MobiMLizer(object):
         if isblock:
             para = bstate.para
             if para is not None and para.text == u'\xa0' and len(para) < 1:
-                para.getparent().replace(para, etree.Element(XHTML('br')))
+                if style.height > 2:
+                    para.getparent().replace(para, etree.Element(XHTML('br')))
+                else:
+                    # This is too small to be rendered effectively, drop it
+                    para.getparent().remove(para)
             bstate.para = None
             bstate.istate = None
             vmargin = asfloat(style['margin-bottom'])

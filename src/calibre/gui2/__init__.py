@@ -6,7 +6,7 @@ from threading import RLock
 from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
-                    QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
+                    QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings,
                     QIcon, QApplication, QDialog, QUrl, QFont)
 
@@ -87,6 +87,7 @@ gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
+gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
         ('title', False), ('authors', True), ('formats', True),
@@ -94,14 +95,21 @@ gprefs.defaults['book_display_fields'] = [
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False),
+        ('last_modified', False), ('size', False), ('languages', False),
         ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
-
+gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['cb_fullscreen'] = False
+gprefs.defaults['worker_max_time'] = 0
+gprefs.defaults['show_files_after_save'] = True
+gprefs.defaults['auto_add_path'] = None
+gprefs.defaults['auto_add_check_for_duplicates'] = False
+gprefs.defaults['blocked_auto_formats'] = []
+gprefs.defaults['auto_add_auto_convert'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
-UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
+UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
 
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
@@ -129,7 +137,7 @@ def _config(): # {{{
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB'],
+        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB', 'HTMLZ'],
               help=_('Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
@@ -139,7 +147,7 @@ def _config(): # {{{
     c.add_opt('upload_news_to_device', default=True,
               help=_('Upload downloaded news to device'))
     c.add_opt('delete_news_from_library_on_upload', default=False,
-              help=_('Delete books from library after uploading to device'))
+              help=_('Delete news books from library after uploading to device'))
     c.add_opt('separate_cover_flow', default=False,
               help=_('Show the cover flow in a separate window instead of in the main calibre window'))
     c.add_opt('disable_tray_notification', default=False,
@@ -169,7 +177,13 @@ def _config(): # {{{
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('plugin_search_history', default=[],
-        help='Search history for the recipe scheduler')
+        help='Search history for the plugin preferences')
+    c.add_opt('shortcuts_search_history', default=[],
+        help='Search history for the keyboard preferences')
+    c.add_opt('jobs_search_history', default=[],
+        help='Search history for the keyboard preferences')
+    c.add_opt('tweaks_search_history', default=[],
+        help='Search history for tweaks')
     c.add_opt('worker_limit', default=6,
             help=_(
         'Maximum number of simultaneous conversion/news download jobs. '
@@ -183,7 +197,9 @@ def _config(): # {{{
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
-            help=_('The layout of the user interface'), default='wide')
+            help=_('The layout of the user interface. Wide has the '
+                'book details panel on the right and narrow has '
+                'it at the bottom.'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
@@ -246,7 +262,8 @@ def extension(path):
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.WARNING, 'WARNING: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.WARNING, _('WARNING:')+ ' ' +
+            title, msg, det_msg, parent=parent,
             show_copy_button=show_copy_button)
     if show:
         return d.exec_()
@@ -255,18 +272,42 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.ERROR, 'ERROR: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.ERROR, _('ERROR:')+ ' ' +
+            title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d
 
 def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
-        default_yes=True):
+        default_yes=True,
+        # Skippable dialogs
+        # Set skip_dialog_name to a unique name for this dialog
+        # Set skip_dialog_msg to a message displayed to the user
+        skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
+        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True):
     from calibre.gui2.dialogs.message_box import MessageBox
+
+    auto_skip = set(gprefs.get('questions_to_auto_skip', []))
+    if (skip_dialog_name is not None and skip_dialog_name in auto_skip):
+        return bool(skip_dialog_skipped_value)
+
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button, default_yes=default_yes)
-    return d.exec_() == d.Accepted
+
+    if skip_dialog_name is not None and skip_dialog_msg:
+        tc = d.toggle_checkbox
+        tc.setVisible(True)
+        tc.setText(skip_dialog_msg)
+        tc.setChecked(bool(skip_dialog_skip_precheck))
+
+    ret = d.exec_() == d.Accepted
+
+    if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
+        auto_skip.add(skip_dialog_name)
+        gprefs.set('questions_to_auto_skip', list(auto_skip))
+
+    return ret
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
@@ -416,6 +457,7 @@ class FileIconProvider(QFileIconProvider):
              'mobi'    : 'mobi',
              'mbp'     : 'zero',
              'azw1'    : 'mobi',
+             'azw4'    : 'pdf',
              'tpz'     : 'mobi',
              'tan'     : 'zero',
              'epub'    : 'epub',
@@ -425,6 +467,8 @@ class FileIconProvider(QFileIconProvider):
              'snb'     : 'snb',
              'djv'     : 'djvu',
              'djvu'    : 'djvu',
+             'xps'     : 'xps',
+             'oxps'    : 'xps',
              }
 
     def __init__(self):
@@ -597,6 +641,26 @@ def choose_files(window, name, title,
         return fd.get_files()
     return None
 
+def choose_save_file(window, name, title, filters=[], all_files=True):
+    '''
+    Ask user to choose a file to save to. Can be a non-existent file.
+    :param filters: list of allowable extensions. Each element of the list
+                     must be a 2-tuple with first element a string describing
+                     the type of files to be filtered and second element a list
+                     of extensions.
+    :param all_files: If True add All files to filters.
+    '''
+    mode = QFileDialog.AnyFile
+    fd = FileDialog(title=title, name=name, filters=filters,
+                    parent=window, add_all_files_filter=all_files, mode=mode)
+    fd.setParent(None)
+    ans = None
+    if fd.accepted:
+        ans = fd.get_files()
+        if ans:
+            ans = ans[0]
+    return ans
+
 def choose_images(window, name, title, select_only_single_file=True):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
     fd = FileDialog(title=title, name=name,
@@ -741,20 +805,46 @@ def open_local_file(path):
         url = QUrl.fromLocalFile(path)
         open_url(url)
 
-def is_ok_to_use_qt():
+def must_use_qt():
     global gui_thread, _store_app
     if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
-        return False
+        raise RuntimeError('X server required. If you are running on a'
+                ' headless machine, use xvfb')
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])
     if gui_thread is None:
         gui_thread = QThread.currentThread()
-    return gui_thread is QThread.currentThread()
+    if gui_thread is not QThread.currentThread():
+        raise RuntimeError('Cannot use Qt in non GUI thread')
+
+def is_ok_to_use_qt():
+    try:
+        must_use_qt()
+    except RuntimeError:
+        return False
+    return True
 
 def is_gui_thread():
     global gui_thread
     return gui_thread is QThread.currentThread()
 
+_rating_font = None
+def rating_font():
+    global _rating_font
+    if _rating_font is None:
+        from PyQt4.Qt import QFontDatabase
+        _rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
+        fontid = QFontDatabase.addApplicationFont(
+                #P('fonts/liberation/LiberationSerif-Regular.ttf')
+                P('fonts/calibreSymbols.otf')
+                )
+        if fontid > -1:
+            try:
+                _rating_font = unicode(list(
+                    QFontDatabase.applicationFontFamilies(fontid))[0])
+            except:
+                pass
+    return _rating_font
 
 def find_forms(srcdir):
     base = os.path.join(srcdir, 'calibre', 'gui2')

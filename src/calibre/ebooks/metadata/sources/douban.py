@@ -12,14 +12,10 @@ from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
 
-from lxml import etree
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.chardet import xml_to_unicode
-from calibre.utils.date import parse_date, utcnow
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre import as_unicode
 
 NAMESPACES = {
@@ -28,22 +24,6 @@ NAMESPACES = {
               'db': 'http://www.douban.com/xmlns/',
               'gd': 'http://schemas.google.com/g/2005'
             }
-XPath = partial(etree.XPath, namespaces=NAMESPACES)
-total_results  = XPath('//openSearch:totalResults')
-start_index    = XPath('//openSearch:startIndex')
-items_per_page = XPath('//openSearch:itemsPerPage')
-entry          = XPath('//atom:entry')
-entry_id       = XPath('descendant::atom:id')
-title          = XPath('descendant::atom:title')
-description    = XPath('descendant::atom:summary')
-publisher      = XPath("descendant::db:attribute[@name='publisher']")
-isbn           = XPath("descendant::db:attribute[@name='isbn13']")
-date           = XPath("descendant::db:attribute[@name='pubdate']")
-creator        = XPath("descendant::db:attribute[@name='author']")
-booktag        = XPath("descendant::db:tag/attribute::name")
-rating         = XPath("descendant::gd:rating/attribute::average")
-cover_url      = XPath("descendant::atom:link[@rel='image']/attribute::href")
-
 def get_details(browser, url, timeout): # {{{
     try:
         if Douban.DOUBAN_API_KEY and Douban.DOUBAN_API_KEY != '':
@@ -61,6 +41,25 @@ def get_details(browser, url, timeout): # {{{
 # }}}
 
 def to_metadata(browser, log, entry_, timeout): # {{{
+    from lxml import etree
+    from calibre.ebooks.chardet import xml_to_unicode
+    from calibre.utils.date import parse_date, utcnow
+    from calibre.utils.cleantext import clean_ascii_chars
+
+    XPath = partial(etree.XPath, namespaces=NAMESPACES)
+    entry          = XPath('//atom:entry')
+    entry_id       = XPath('descendant::atom:id')
+    title          = XPath('descendant::atom:title')
+    description    = XPath('descendant::atom:summary')
+    publisher      = XPath("descendant::db:attribute[@name='publisher']")
+    isbn           = XPath("descendant::db:attribute[@name='isbn13']")
+    date           = XPath("descendant::db:attribute[@name='pubdate']")
+    creator        = XPath("descendant::db:attribute[@name='author']")
+    booktag        = XPath("descendant::db:tag/attribute::name")
+    rating         = XPath("descendant::gd:rating/attribute::average")
+    cover_url      = XPath("descendant::atom:link[@rel='image']/attribute::href")
+
+
     def get_text(extra, x):
         try:
             ans = x(extra)
@@ -275,6 +274,7 @@ class Douban(Source):
 
     def get_all_details(self, br, log, entries, abort, # {{{
             result_queue, timeout):
+        from lxml import etree
         for relevance, i in enumerate(entries):
             try:
                 ans = to_metadata(br, log, i, timeout)
@@ -298,6 +298,13 @@ class Douban(Source):
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
+        from lxml import etree
+        from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.utils.cleantext import clean_ascii_chars
+
+        XPath = partial(etree.XPath, namespaces=NAMESPACES)
+        entry          = XPath('//atom:entry')
+
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if not query:

@@ -11,7 +11,11 @@ from cookielib import CookieJar
 from mechanize import Browser as B
 
 class Browser(B):
-    'A cloneable mechanize browser'
+    '''
+    A cloneable mechanize browser. Useful for multithreading. The idea is that
+    each thread has a browser clone. Every clone uses the same thread safe
+    cookie jar. All clones share the same browser configuration.
+    '''
 
     def __init__(self):
         self._clone_actions = {}
@@ -27,6 +31,10 @@ class Browser(B):
     def set_cookiejar(self, *args, **kwargs):
         B.set_cookiejar(self, *args, **kwargs)
         self._clone_actions['set_cookiejar'] = ('set_cookiejar', args, kwargs)
+
+    @property
+    def cookiejar(self):
+        return self._clone_actions['set_cookiejar'][1][0]
 
     def set_handle_redirect(self, *args, **kwargs):
         B.set_handle_redirect(self, *args, **kwargs)

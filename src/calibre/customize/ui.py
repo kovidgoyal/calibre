@@ -92,7 +92,7 @@ def restore_plugin_state_to_default(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Overdrive', 'Douban Books',
+    'Overdrive', 'Douban Books', 'OZON.ru',
 ])
 
 def is_disabled(plugin):
@@ -447,11 +447,14 @@ def plugin_for_catalog_format(fmt):
 
 # }}}
 
-def device_plugins(): # {{{
+def device_plugins(include_disabled=False): # {{{
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
-            if not is_disabled(plugin):
+            if include_disabled or not is_disabled(plugin):
                 if platform in plugin.supported_platforms:
+                    if getattr(plugin, 'plugin_needs_delayed_initialization',
+                            False):
+                        plugin.do_delayed_plugin_initialization()
                     yield plugin
 # }}}
 
@@ -496,7 +499,7 @@ def initialize_plugin(plugin, path_to_zip_file):
 def has_external_plugins():
     return bool(config['plugins'])
 
-def initialize_plugins():
+def initialize_plugins(perf=False):
     global _initialized_plugins
     _initialized_plugins = []
     conflicts = [name for name in config['plugins'] if name in
@@ -504,6 +507,11 @@ def initialize_plugins():
     for p in conflicts:
         remove_plugin(p)
     external_plugins = config['plugins']
+    ostdout, ostderr = sys.stdout, sys.stderr
+    if perf:
+        from collections import defaultdict
+        import time
+        times = defaultdict(lambda:0)
     for zfp in list(external_plugins) + builtin_plugins:
         try:
             if not isinstance(zfp, type):
@@ -516,12 +524,22 @@ def initialize_plugins():
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
             except PluginNotFound:
                 continue
+            if perf:
+                st = time.time()
             plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
+            if perf:
+                times[plugin.name] = time.time() - st
             _initialized_plugins.append(plugin)
         except:
             print 'Failed to initialize plugin:', repr(zfp)
             if DEBUG:
                 traceback.print_exc()
+    # Prevent a custom plugin from overriding stdout/stderr as this breaks
+    # ipython
+    sys.stdout, sys.stderr = ostdout, ostderr
+    if perf:
+        for x in sorted(times, key=lambda x:times[x]):
+            print ('%50s: %.3f'%(x, times[x]))
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()

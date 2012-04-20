@@ -17,10 +17,10 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
 class FakeAction(object):
 
-    def __init__(self, name, icon, tooltip=None,
+    def __init__(self, name, gui_name, icon, tooltip=None,
             dont_add_to=frozenset([]), dont_remove_from=frozenset([])):
         self.name = name
-        self.action_spec = (name, icon, tooltip, None)
+        self.action_spec = (gui_name, icon, tooltip, None)
         self.dont_remove_from = dont_remove_from
         self.dont_add_to = dont_add_to
 
@@ -28,17 +28,18 @@ class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
-            return FakeAction(name, 'donate.png',
+            return FakeAction('Donate', _('Donate'), 'donate.png',
                     dont_add_to=frozenset(['context-menu',
                         'context-menu-device']))
         if name == 'Location Manager':
-            return FakeAction(name, None,
+            return FakeAction('Location Manager', _('Location Manager'), 'reader.png',
                     _('Switch between library and device views'),
                     dont_add_to=frozenset(['menubar', 'toolbar',
                         'toolbar-child', 'context-menu',
                         'context-menu-device']))
         if name is None:
-            return FakeAction('--- '+_('Separator')+' ---', None,
+            return FakeAction('--- '+('Separator')+' ---',
+                    '--- '+_('Separator')+' ---', None,
                     dont_add_to=frozenset(['menubar', 'menubar-device']))
         try:
             return gui.iactions[name]
@@ -231,6 +232,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.models = {}
+        self.what.addItem(_('Click to choose toolbar or menu to customize'),
+                'blank')
         for key, text in self.LOCATIONS:
             self.what.addItem(text, key)
             all_model = AllModel(key, gui)
@@ -247,8 +250,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def what_changed(self, idx):
         key = unicode(self.what.itemData(idx).toString())
-        self.all_actions.setModel(self.models[key][0])
-        self.current_actions.setModel(self.models[key][1])
+        if key == 'blank':
+            self.actions_widget.setVisible(False)
+            self.spacer_widget.setVisible(True)
+        else:
+            self.actions_widget.setVisible(True)
+            self.spacer_widget.setVisible(False)
+            self.all_actions.setModel(self.models[key][0])
+            self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
         x = self.all_actions.selectionModel().selectedIndexes()
@@ -306,7 +315,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not pref_in_toolbar and not pref_in_menubar:
             self.models['menubar'][1].add(['Preferences'])
         if not lm_in_toolbar and not lm_in_menubar:
-            self.models['menubar-device'][1].add(['Location Manager'])
+            m = self.models['toolbar-device'][1]
+            m.add(['Location Manager'])
+            m.move(m.index(m.rowCount(None)-1), 5-m.rowCount(None))
 
         # Save data.
         for am, cm in self.models.values():

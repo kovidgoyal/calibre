@@ -15,6 +15,7 @@ from PyQt4.QtWebKit import QWebView, QWebPage
 from calibre import USER_AGENT, get_proxies, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.filenames import ascii_filename
 
 class NPWebView(QWebView):
 
@@ -67,6 +68,7 @@ class NPWebView(QWebView):
 
         filename = get_download_filename(url, cf)
         ext = os.path.splitext(filename)[1][1:].lower()
+        filename = ascii_filename(filename[:60] + '.' + ext)
         if ext not in BOOK_EXTENSIONS:
             if ext == 'acsm':
                 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -87,6 +89,7 @@ class NPWebView(QWebView):
                 os.path.join(home, filename),
                 '*.*')
             if name:
+                name = unicode(name)
                 self.gui.download_ebook(url, cf, name, name, False)
         else:
             self.gui.download_ebook(url, cf, filename, tags=self.tags)

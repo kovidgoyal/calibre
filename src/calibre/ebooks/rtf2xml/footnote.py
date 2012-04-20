@@ -8,16 +8,12 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile
+import os
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
 
 class Footnote:
     """
@@ -35,7 +31,7 @@ class Footnote:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__found_a_footnote = 0
 
     def __first_line_func(self, line):
@@ -119,7 +115,7 @@ class Footnote:
         bottom of the main file.
         """
         self.__initiate_sep_values()
-        self.__footnote_holder = tempfile.mktemp()
+        self.__footnote_holder = better_mktemp()
         with open(self.__file) as read_obj:
             with open(self.__write_to, 'w') as self.__write_obj:
                 with open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
@@ -248,7 +244,7 @@ class Footnote:
         """
         if not self.__found_a_footnote:
             return
-        self.__write_to2 = tempfile.mktemp()
+        self.__write_to2 = better_mktemp()
         self.__state = 'body'
         self.__get_footnotes()
         self.__join_from_temp()

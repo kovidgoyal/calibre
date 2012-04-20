@@ -152,6 +152,12 @@ def get_func(name):
 
 def main():
     if iswindows:
+        if '--multiprocessing-fork' in sys.argv:
+            # We are using the multiprocessing module on windows to launch a
+            # worker process
+            from multiprocessing import freeze_support
+            freeze_support()
+            return 0
         # Close open file descriptors inherited from parent
         # On Unix this is done by the subprocess module
         os.closerange(3, 256)
@@ -161,12 +167,16 @@ def main():
         # so launch the gui as usual
         from calibre.gui2.main import main as gui_main
         return gui_main(['calibre'])
-    if 'CALIBRE_LAUNCH_INTERPRETER' in os.environ:
-        from calibre.utils.pyconsole.interpreter import main
-        return main()
+    csw = os.environ.get('CALIBRE_SIMPLE_WORKER', None)
+    if csw:
+        mod, _, func = csw.partition(':')
+        mod = importlib.import_module(mod)
+        func = getattr(mod, func)
+        func()
+        return
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
-    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
+    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
     with closing(Client(address, authkey=key)) as conn:
         name, args, kwargs, desc = conn.recv()
         if desc:

@@ -1,4 +1,4 @@
-import re
+import re, urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TimesOfIndia(BasicNewsRecipe):
@@ -9,11 +9,18 @@ class TimesOfIndia(BasicNewsRecipe):
     max_articles_per_feed = 25
 
     no_stylesheets = True
-    keep_only_tags = [{'class':['maintable12', 'prttabl']}]
+    remove_attributes = ['style']
+    keep_only_tags = [
+            {'class':re.compile(r'maintable12|prttabl')},
+            {'id':['mod-article-header',
+                'mod-a-body-after-first-para', 'mod-a-body-first-para']},
+            ]
     remove_tags = [
-            dict(style=lambda x: x and 'float' in x),
-            {'class':['prvnxtbg', 'footbdrin', 'bcclftr']},
-    ]
+            {'class':re.compile('tabsintbgshow|prvnxtbg')},
+            {'id':['fbrecommend', 'relmaindiv', 'shretxt', 'fbrecos', 'twtdiv',
+                'gpls', 'auim']},
+            {'class':['twitter-share-button', 'cmtmn']},
+            ]
 
     feeds          = [
 ('Top Stories',
@@ -41,26 +48,27 @@ class TimesOfIndia(BasicNewsRecipe):
 ]
 
     def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        if '/0Ltimesofindia' in url:
-            url = url.partition('/0L')[-1]
-            url = url.replace('0B', '.').replace('0N', '.com').replace('0C',
-                    '/').replace('0E', '-')
-            url = 'http://' + url.rpartition('/')[0]
-            match = re.search(r'/([0-9a-zA-Z]+?)\.cms', url)
-            if match is not None:
-                num = match.group(1)
-                num = re.sub(r'[^0-9]', '', num)
-                return ('http://timesofindia.indiatimes.com/articleshow/%s.cms?prtpage=1' %
-                    num)
-        else:
-            cms = re.search(r'/(\d+)\.cms', url)
-            if cms is not None:
-                return ('http://timesofindia.indiatimes.com/articleshow/%s.cms?prtpage=1' %
-                    cms.group(1))
+        try:
+            s = article.summary
+            return urllib.unquote(
+                re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
+        except:
+            pass
+        link = article.get('link', None)
+        if link and link.split('/')[-1]=="story01.htm":
+            link=link.split('/')[-2]
+            encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
+                    '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://'}
+            for k, v in encoding.iteritems():
+                link = link.replace(k, v)
+            return link
 
-        return url
+    def print_version(self, url):
+        return url + '?prtpage=1'
 
-
-    def preprocess_html(self, soup):
+    def preprocess_html(self, soup, *args):
+        byl = soup.find(attrs={'class':'byline'})
+        if byl is not None:
+            for l in byl.findAll('label'):
+                l.extract()
         return soup

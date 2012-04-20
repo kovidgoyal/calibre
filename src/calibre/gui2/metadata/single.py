@@ -7,24 +7,29 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, errno
 from functools import partial
+from datetime import datetime
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu)
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu, QShortcut)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
 from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, IdentifiersEdit,
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit,
-    BuddyLabel, DateEdit, PubdateEdit)
+    BuddyLabel, DateEdit, PubdateEdit, LanguagesEdit)
 from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.localization import canonicalize_lang
+from calibre.utils.date import local_tz
+
+BASE_TITLE = _('Edit Metadata')
 
 class MetadataSingleDialogBase(ResizableDialog):
 
@@ -42,6 +47,16 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def setupUi(self, *args): # {{{
         self.resize(990, 650)
+
+        self.download_shortcut = QShortcut(self)
+        self.download_shortcut.setKey(QKeySequence('Ctrl+D',
+            QKeySequence.PortableText))
+        p = self.parent()
+        if hasattr(p, 'keyboard'):
+            kname = u'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
+            sc = p.keyboard.keys_map.get(kname, None)
+            if sc:
+                self.download_shortcut.setKey(sc[0])
 
         self.button_box = QDialogButtonBox(
                 QDialogButtonBox.Ok|QDialogButtonBox.Cancel, Qt.Horizontal,
@@ -77,7 +92,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ll.addSpacing(10)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
-        self.setWindowTitle(_('Edit Metadata'))
+        self.setWindowTitle(BASE_TITLE)
 
         self.create_basic_metadata_widgets()
 
@@ -94,6 +109,9 @@ class MetadataSingleDialogBase(ResizableDialog):
     def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
 
+        self.languages = LanguagesEdit(self)
+        self.basic_metadata_widgets.append(self.languages)
+
         self.title = TitleEdit(self)
         self.title.textChanged.connect(self.update_window_title)
         self.deduce_title_sort_button = QToolButton(self)
@@ -104,7 +122,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.deduce_title_sort_button.setWhatsThis(
                 self.deduce_title_sort_button.toolTip())
         self.title_sort = TitleSortEdit(self, self.title,
-                self.deduce_title_sort_button)
+                self.deduce_title_sort_button, self.languages)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
         self.deduce_author_sort_button = b = QToolButton(self)
@@ -118,10 +136,15 @@ class MetadataSingleDialogBase(ResizableDialog):
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
         ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
+        ac4 = m.addAction(QIcon(I('next.png')),
+                _('Copy author to author sort'))
+        ac5 = m.addAction(QIcon(I('previous.png')),
+                _('Copy author sort to author'))
+
         b.setMenu(m)
         self.authors = AuthorsEdit(self, ac3)
         self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
-                ac2)
+                ac2, ac4, ac5)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)
@@ -138,15 +161,18 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
         self.series = SeriesEdit(self)
-        self.remove_unused_series_button = QToolButton(self)
-        self.remove_unused_series_button.setToolTip(
-               _('Remove unused series (Series that have no books)') )
-        self.remove_unused_series_button.clicked.connect(self.remove_unused_series)
+        self.clear_series_button = QToolButton(self)
+        self.clear_series_button.setToolTip(
+               _('Clear series') )
+        self.clear_series_button.clicked.connect(self.series.clear)
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
         self.formats_manager = FormatsManager(self, self.copy_fmt)
-        self.basic_metadata_widgets.append(self.formats_manager)
+        # We want formats changes to be committed before title/author, as
+        # otherwise we could have data loss if the title/author changed and the
+        # user was trying to add an extra file from the old books directory.
+        self.basic_metadata_widgets.insert(0, self.formats_manager)
         self.formats_manager.metadata_from_format_button.clicked.connect(
                 self.metadata_from_format)
         self.formats_manager.cover_from_format_button.clicked.connect(
@@ -172,6 +198,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.append(self.identifiers)
         self.clear_identifiers_button = QToolButton(self)
         self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
+        self.clear_identifiers_button.setToolTip(_('Clear Ids'))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
         self.paste_isbn_button = QToolButton(self)
         self.paste_isbn_button.setToolTip('<p>' +
@@ -190,6 +217,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.fetch_metadata_button = QPushButton(
                 _('&Download metadata'), self)
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
+        self.download_shortcut.activated.connect(self.fetch_metadata_button.click)
         font = self.fmb_font = QFont()
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
@@ -258,14 +286,16 @@ class MetadataSingleDialogBase(ResizableDialog):
         # Commented out as it doesn't play nice with Next, Prev buttons
         #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
 
-
     # Miscellaneous interaction methods {{{
     def update_window_title(self, *args):
         title = self.title.current_val
         if len(title) > 50:
             title = title[:50] + u'\u2026'
-        self.setWindowTitle(_('Edit Metadata') + ' - ' +
-                title)
+        self.setWindowTitle(BASE_TITLE + ' - ' +
+                title + ' - ' +
+                _(' [%(num)d of %(tot)d]')%dict(num=
+                    self.current_row+1,
+                tot=len(self.row_list)))
 
     def swap_title_author(self, *args):
         title = self.title.current_val
@@ -273,17 +303,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.authors.current_val = string_to_authors(title)
         self.title_sort.auto_generate()
         self.author_sort.auto_generate()
-
-    def remove_unused_series(self, *args):
-        self.db.remove_unused_series()
-        idx = self.series.current_val
-        self.series.clear()
-        self.series.initialize(self.db, self.book_id)
-        if idx:
-            for i in range(self.series.count()):
-                if unicode(self.series.itemText(i)) == idx:
-                    self.series.setCurrentIndex(i)
-                    break
 
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
@@ -350,7 +369,13 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('series') and mi.series.strip():
             self.series.current_val = mi.series
             if mi.series_index is not None:
+                self.series_index.reset_original()
                 self.series_index.current_val = float(mi.series_index)
+        if not mi.is_null('languages'):
+            langs = [canonicalize_lang(x) for x in mi.languages]
+            langs = [x for x in langs if x is not None]
+            if langs:
+                self.languages.current_val = langs
         if mi.comments and mi.comments.strip():
             self.comments.current_val = mi.comments
 
@@ -366,6 +391,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 if ':' not in f:
                     setattr(mi, f, getattr(dummy, f))
             if mi is not None:
+                pd = mi.pubdate
+                if pd is not None:
+                    # Put the downloaded published date into the local timezone
+                    # as we discard time info and the date is timezone
+                    # invariant. This prevents the as_local_timezone() call in
+                    # update_from_mi from changing the pubdate
+                    mi.pubdate = datetime(pd.year, pd.month, pd.day,
+                            tzinfo=local_tz)
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
@@ -400,8 +433,8 @@ class MetadataSingleDialogBase(ResizableDialog):
                     return False
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh',
                         set([]))
-            except IOError as err:
-                if err.errno == 13: # Permission denied
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'
                     error_dialog(self, _('Permission denied'),
@@ -548,7 +581,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         sto(self.title_sort, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
         sto(self.author_sort, self.series)
-        create_row(2, self.series, self.remove_unused_series_button,
+        create_row(2, self.series, self.clear_series_button,
                 self.series_index, icon='trash.png')
         sto(self.series_index, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
@@ -610,11 +643,13 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         create_row2(5, self.pubdate, self.pubdate.clear_button)
         sto(self.pubdate.clear_button, self.publisher)
         create_row2(6, self.publisher)
+        sto(self.publisher, self.languages)
+        create_row2(7, self.languages)
         self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
-        l.addItem(self.tabs[0].spc_two, 8, 0, 1, 3)
-        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 2)
-        l.addWidget(self.config_metadata_button, 9, 2, 1, 1)
+        l.addItem(self.tabs[0].spc_two, 9, 0, 1, 3)
+        l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
+        l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
@@ -700,7 +735,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
-        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -711,22 +746,23 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    span=2, icon='auto_author_sort.png')
         create_row(3, self.author_sort, self.series)
         create_row(4, self.series, self.series_index,
-                   button=self.remove_unused_series_button, icon='trash.png')
+                   button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.tags_editor_button)
         create_row(7, self.rating, self.pubdate)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
-        create_row(9, self.publisher, self.timestamp)
-        create_row(10, self.timestamp, self.identifiers,
+        create_row(9, self.publisher, self.languages)
+        create_row(10, self.languages, self.timestamp)
+        create_row(11, self.timestamp, self.identifiers,
                    button=self.timestamp.clear_button, icon='trash.png')
-        create_row(11, self.identifiers, self.comments,
+        create_row(12, self.identifiers, self.comments,
                    button=self.clear_identifiers_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
         sto(self.manage_authors_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
-                   12, 1, 1 ,1)
+                   13, 1, 1 ,1)
 
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
@@ -835,7 +871,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
-        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -846,22 +882,23 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    span=2, icon='auto_author_sort.png')
         create_row(3, self.author_sort, self.series)
         create_row(4, self.series, self.series_index,
-                   button=self.remove_unused_series_button, icon='trash.png')
+                   button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.tags_editor_button)
         create_row(7, self.rating, self.pubdate)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
-        create_row(9, self.publisher, self.timestamp)
-        create_row(10, self.timestamp, self.identifiers,
+        create_row(9, self.publisher, self.languages)
+        create_row(10, self.languages, self.timestamp)
+        create_row(11, self.timestamp, self.identifiers,
                    button=self.timestamp.clear_button, icon='trash.png')
-        create_row(11, self.identifiers, self.comments,
+        create_row(12, self.identifiers, self.comments,
                    button=self.clear_identifiers_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
         sto(self.manage_authors_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
-                   12, 1, 1 ,1)
+                   13, 1, 1 ,1)
 
         # Custom metadata in col 1
         w = getattr(self, 'custom_metadata_widgets_parent', None)

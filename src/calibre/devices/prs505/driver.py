@@ -19,14 +19,15 @@ class PRS505(USBMS):
 
     name           = 'SONY Device Interface'
     gui_name       = 'SONY Reader'
-    description    = _('Communicate with all the Sony eBook readers.')
+    description    = _('Communicate with Sony eBook readers older than the'
+            ' PRST1.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
     booklist_class = CollectionsBookList
 
 
-    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
+    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt', 'zbf']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
@@ -56,6 +57,8 @@ class PRS505(USBMS):
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
+    NUKE_COMMENTS = _('Comments have been removed as the SONY reader'
+            ' chokes on them')
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
     SCAN_FROM_ROOT = False
@@ -204,8 +207,11 @@ class PRS505(USBMS):
         c = self.initialize_XML_cache()
         blists = {}
         for i in c.paths:
-            if booklists[i] is not None:
-                blists[i] = booklists[i]
+            try:
+                if booklists[i] is not None:
+                    blists[i] = booklists[i]
+            except IndexError:
+                pass
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.strip() for x in
@@ -291,6 +297,8 @@ class PRS505(USBMS):
             thumbnail_dir = os.path.join(thumbnail_dir, relpath)
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
-            with open(os.path.join(thumbnail_dir, 'main_thumbnail.jpg'), 'wb') as f:
+            cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
+            with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+            debug_print('Cover uploaded to: %r'%cpath)
 

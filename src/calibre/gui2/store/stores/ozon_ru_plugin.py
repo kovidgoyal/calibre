@@ -50,6 +50,7 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         search_url = self.shop_url + '/webservice/webservice.asmx/SearchWebService?'\
                     'searchText=%s&searchContext=ebook' % urllib2.quote(query)
+        xp_template = 'normalize-space(./*[local-name() = "{0}"]/text())'
                     
         counter = max_results
         br = browser()
@@ -60,17 +61,14 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
                 counter -= 1
-                        
-                xp_template = 'normalize-space(./*[local-name() = "{0}"]/text())'
-                
+
                 s = SearchResult()
                 s.detail_item = data.xpath(xp_template.format('ID'))
                 s.title = data.xpath(xp_template.format('Name'))
                 s.author = data.xpath(xp_template.format('Author'))
                 s.price = data.xpath(xp_template.format('Price'))
                 s.cover_url = data.xpath(xp_template.format('Picture'))
-                if re.match("^\d+?\.\d+?$", s.price):
-                    s.price = u'{:.2F} руб.'.format(float(s.price))
+                s.price = format_price_in_RUR(s.price)
                 yield s
 
     def get_details(self, search_result, timeout=60):
@@ -79,16 +77,19 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
 
         result = False
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            raw = xml_to_unicode(f.read(), verbose=True)[0]
+            doc = html.fromstring(raw)
             
             # example where we are going to find formats
-            # <div class="box">
-            # ...
-            #     <b>Доступные&nbsp;форматы:</b>
-            #     <div class="vertpadd">.epub, .fb2, .pdf, .pdf, .txt</div>
-            # ...
+            # <div class="l">
+            #     <p>            
+            #         Доступно:
+            #    </p>
             # </div>
-            xpt = u'normalize-space(//div[@class="box"]//*[contains(normalize-space(text()), "Доступные форматы:")][1]/following-sibling::div[1]/text())'
+            # <div class="l">
+            #     <p>.epub, .fb2.zip, .pdf</p>
+            # </div>
+            xpt = u'normalize-space(//div[contains(@id, "saleBlock")]//*[contains(normalize-space(text()), "Доступ")]/ancestor-or-self::div[1]/following-sibling::div[1]/*[1])'
             formats = doc.xpath(xpt)
             if formats:
                 result = True
@@ -97,7 +98,22 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
                 # unfortunately no direct links to download books (only buy link)
                 # search_result.downloads['BF2'] = self.shop_url + '/order/digitalorder.aspx?id=' + + urllib2.quote(search_result.detail_item)
         return result
-    
+
+def format_price_in_RUR(price):
+    '''
+    Try to format price according ru locale: '12 212,34 руб.'
+    @param price: price in format like 25.99
+    @return: formatted price if possible otherwise original value
+    @rtype: unicode
+    '''
+    if price and re.match("^\d*?\.\d*?$", price):
+        try:
+            price = u'{:,.2F} руб.'.format(float(price))
+            price = price.replace(',', ' ').replace('.', ',', 1)
+        except:
+            pass
+    return price
+
 def _parse_ebook_formats(formatsStr):
     '''
     Creates a list with displayable names of the formats

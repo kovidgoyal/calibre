@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
 from calibre import CurrentDir, walk
 from calibre.constants import isosx
+from calibre.utils.localization import lang_as_iso639_1
 
 class EPubException(Exception):
     pass
@@ -128,9 +129,59 @@ class OCFDirReader(OCFReader):
     def open(self, path, *args, **kwargs):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
-def get_cover(opf, opf_path, stream, reader=None):
+def render_cover(opf, opf_path, zf, reader=None):
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
+
+    cpage = opf.first_spine_item()
+    if not cpage:
+        return
+    if reader is not None and reader.encryption_meta.is_encrypted(cpage):
+        return
+
+    with TemporaryDirectory('_epub_meta') as tdir:
+        with CurrentDir(tdir):
+            zf.extractall()
+            opf_path = opf_path.replace('/', os.sep)
+            cpage = os.path.join(tdir, os.path.dirname(opf_path), cpage)
+            if not os.path.exists(cpage):
+                return
+
+            if isosx:
+                # On OS X trying to render a HTML cover which uses embedded
+                # fonts more than once in the same process causes a crash in Qt
+                # so be safe and remove the fonts as well as any @font-face
+                # rules
+                for f in walk('.'):
+                    if os.path.splitext(f)[1].lower() in ('.ttf', '.otf'):
+                        os.remove(f)
+                ffpat = re.compile(br'@font-face.*?{.*?}',
+                        re.DOTALL|re.IGNORECASE)
+                with open(cpage, 'r+b') as f:
+                    raw = f.read()
+                    f.truncate(0)
+                    f.seek(0)
+                    raw = ffpat.sub(b'', raw)
+                    f.write(raw)
+                from calibre.ebooks.chardet import xml_to_unicode
+                raw = xml_to_unicode(raw,
+                        strip_encoding_pats=True, resolve_entities=True)[0]
+                from lxml import html
+                for link in html.fromstring(raw).xpath('//link'):
+                    href = link.get('href', '')
+                    if href:
+                        path = os.path.join(os.path.dirname(cpage), href)
+                        if os.path.exists(path):
+                            with open(path, 'r+b') as f:
+                                raw = f.read()
+                                f.truncate(0)
+                                f.seek(0)
+                                raw = ffpat.sub(b'', raw)
+                                f.write(raw)
+
+            return render_html_svg_workaround(cpage, default_log)
+
+def get_cover(opf, opf_path, stream, reader=None):
     raster_cover = opf.raster_cover
     stream.seek(0)
     zf = ZipFile(stream)
@@ -151,27 +202,7 @@ def get_cover(opf, opf_path, stream, reader=None):
             zf.close()
             return data
 
-    cpage = opf.first_spine_item()
-    if not cpage:
-        return
-    if reader is not None and reader.encryption_meta.is_encrypted(cpage):
-        return
-
-    with TemporaryDirectory('_epub_meta') as tdir:
-        with CurrentDir(tdir):
-            zf.extractall()
-            if isosx:
-                # On OS X trying to render an HTML cover which uses embedded
-                # fonts more than once in the same process causes a crash in Qt
-                # so be safe and remove the fonts.
-                for f in walk('.'):
-                    if os.path.splitext(f)[1].lower() in ('.ttf', '.otf'):
-                        os.remove(f)
-            opf_path = opf_path.replace('/', os.sep)
-            cpage = os.path.join(tdir, os.path.dirname(opf_path), cpage)
-            if not os.path.exists(cpage):
-                return
-            return render_html_svg_workaround(cpage, default_log)
+    return render_cover(opf, opf_path, zf, reader=reader)
 
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`Metadata` object """
@@ -231,6 +262,15 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
 
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
+    if mi.languages:
+        langs = []
+        for lc in mi.languages:
+            lc2 = lang_as_iso639_1(lc)
+            if lc2: lc = lc2
+            langs.append(lc)
+        mi.languages = langs
+
+
     reader.opf.smart_update(mi)
     if apply_null:
         if not getattr(mi, 'series', None):

@@ -7,15 +7,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct
+import struct, string, imghdr, zlib, os
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
+RECORD_SIZE = 0x1000 # 4096 (Text record size (uncompressed))
 
-def decode_hex_number(raw):
+def decode_string(raw, codec='utf-8', ordt_map=''):
+    length, = struct.unpack(b'>B', raw[0])
+    raw = raw[1:1+length]
+    consumed = length+1
+    if ordt_map:
+        return ''.join(ordt_map[ord(x)] for x in raw), consumed
+    return raw.decode(codec), consumed
+
+def decode_hex_number(raw, codec='utf-8'):
     '''
     Return a variable length number encoded using hexadecimal encoding. These
     numbers have the first byte which tells the number of bytes that follow.
@@ -25,12 +34,15 @@ def decode_hex_number(raw):
     :param raw: Raw binary data as a bytestring
 
     :return: The number and the number of bytes from raw that the number
-    occupies
+    occupies.
     '''
-    length, = struct.unpack(b'>B', raw[0])
-    raw = raw[1:1+length]
-    consumed = length+1
+    raw, consumed = decode_string(raw, codec=codec)
     return int(raw, 16), consumed
+
+def encode_string(raw):
+    ans = bytearray(bytes(raw))
+    ans.insert(0, len(ans))
+    return bytes(ans)
 
 def encode_number_as_hex(num):
     '''
@@ -44,9 +56,7 @@ def encode_number_as_hex(num):
     nlen = len(num)
     if nlen % 2 != 0:
         num = b'0'+num
-    ans = bytearray(num)
-    ans.insert(0, len(num))
-    return bytes(ans)
+    return encode_string(num)
 
 def encint(value, forward=True):
     '''
@@ -124,12 +134,18 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     to JPEG. Ensure the resultant image has a byte size less than
     maxsizeb.
 
-    If dimen is not None, generate a thumbnail of width=dimen, height=dimen
+    If dimen is not None, generate a thumbnail of
+    width=dimen, height=dimen or width, height = dimen (depending on the type
+    of dimen)
 
     Returns the image as a bytestring
     '''
     if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen,
+        if hasattr(dimen, '__len__'):
+            width, height = dimen
+        else:
+            width = height = dimen
+        data = thumbnail(data, width=width, height=height,
                 compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
@@ -314,6 +330,8 @@ def detect_periodical(toc, log=None):
     Detect if the TOC object toc contains a periodical that conforms to the
     structure required by kindlegen to generate a periodical.
     '''
+    if toc.count() < 1 or not toc[0].klass == 'periodical':
+        return False
     for node in toc.iterdescendants():
         if node.depth() == 1 and node.klass != 'article':
             if log is not None:
@@ -338,4 +356,196 @@ def detect_periodical(toc, log=None):
             return False
     return True
 
+def count_set_bits(num):
+    if num < 0:
+        num = -num
+    ans = 0
+    while num > 0:
+        ans += (num & 0b1)
+        num >>= 1
+    return ans
+
+def to_base(num, base=32, min_num_digits=None):
+    digits = string.digits + string.ascii_uppercase
+    sign = 1 if num >= 0 else -1
+    if num == 0: return '0'
+    num *= sign
+    ans = []
+    while num:
+        ans.append(digits[(num % base)])
+        num //= base
+    if min_num_digits is not None and len(ans) < min_num_digits:
+        ans.extend('0'*(min_num_digits - len(ans)))
+    if sign < 0:
+        ans.append('-')
+    ans.reverse()
+    return ''.join(ans)
+
+def mobify_image(data):
+    'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
+    what = imghdr.what(None, data)
+
+    if what == 'png':
+        im = Image()
+        im.load(data)
+        data = im.export('gif')
+    return data
+
+# Font records {{{
+def read_font_record(data, extent=1040):
+    '''
+    Return the font encoded in the MOBI FONT record represented by data.
+    The return value in a dict with fields raw_data, font_data, err, ext,
+    headers.
+
+    :param extent: The number of obfuscated bytes. So far I have only
+    encountered files with 1040 obfuscated bytes. If you encounter an
+    obfuscated record for which this function fails, try different extent
+    values (easily automated).
+
+    raw_data is the raw data in the font record
+    font_data is the decoded font_data or None if an error occurred
+    err is not None if some error occurred
+    ext is the font type (ttf for TrueType, dat for unknown and failed if an
+    error occurred)
+    headers is the list of decoded headers from the font record or None if
+    decoding failed
+    '''
+    # Format:
+    # bytes  0 -  3:  'FONT'
+    # bytes  4 -  7:  Uncompressed size
+    # bytes  8 - 11:  flags
+    #                   bit 1 - zlib compression
+    #                   bit 2 - XOR obfuscated
+    # bytes 12 - 15:  offset to start of compressed data
+    # bytes 16 - 19:  length of XOR string
+    # bytes 19 - 23:  offset to start of XOR data
+    # The zlib compressed data begins with 2 bytes of header and
+    # has 4 bytes of checksum at the end
+    ans = {'raw_data':data, 'font_data':None, 'err':None, 'ext':'failed',
+            'headers':None, 'encrypted':False}
+
+    try:
+        usize, flags, dstart, xor_len, xor_start = struct.unpack_from(
+                b'>LLLLL', data, 4)
+    except:
+        ans['err'] = 'Failed to read font record header fields'
+        return ans
+    font_data = data[dstart:]
+    ans['headers'] = {'usize':usize, 'flags':bin(flags), 'xor_len':xor_len,
+            'xor_start':xor_start, 'dstart':dstart}
+
+    if flags & 0b10:
+        # De-obfuscate the data
+        key = bytearray(data[xor_start:xor_start+xor_len])
+        buf = bytearray(font_data)
+        extent = len(font_data) if extent is None else extent
+        extent = min(extent, len(font_data))
+
+        for n in xrange(extent):
+            buf[n] ^= key[n%xor_len] # XOR of buf and key
+
+        font_data = bytes(buf)
+        ans['encrypted'] = True
+
+    if flags & 0b1:
+        # ZLIB compressed data
+        try:
+            font_data = zlib.decompress(font_data)
+        except Exception as e:
+            ans['err'] = 'Failed to zlib decompress font data (%s)'%e
+            return ans
+
+        if len(font_data) != usize:
+            ans['err'] = 'Uncompressed font size mismatch'
+            return ans
+
+    ans['font_data'] = font_data
+    sig = font_data[:4]
+    ans['ext'] = ('ttf' if sig in {b'\0\1\0\0', b'true', b'ttcf'}
+                    else 'otf' if sig == b'OTTO' else 'dat')
+
+    return ans
+
+def write_font_record(data, obfuscate=True, compress=True):
+    '''
+    Write the ttf/otf font represented by data into a font record. See
+    read_font_record() for details on the format of the record.
+    '''
+
+    flags = 0
+    key_len = 20
+    usize = len(data)
+    xor_key = b''
+    if compress:
+        flags |= 0b1
+        data = zlib.compress(data, 9)
+    if obfuscate:
+        flags |= 0b10
+        xor_key = os.urandom(key_len)
+        key = bytearray(xor_key)
+        data = bytearray(data)
+        for i in xrange(1040):
+            data[i] ^= key[i%key_len]
+        data = bytes(data)
+
+    key_start = struct.calcsize(b'>5L') + 4
+    data_start = key_start + len(xor_key)
+
+    header = b'FONT' + struct.pack(b'>5L', usize, flags, data_start,
+            len(xor_key), key_start)
+
+    return header + xor_key + data
+
+# }}}
+
+def create_text_record(text):
+    '''
+    Return a Palmdoc record of size RECORD_SIZE from the text file object.
+    In case the record ends in the middle of a multibyte character return
+    the overlap as well.
+
+    Returns data, overlap: where both are byte strings. overlap is the
+    extra bytes needed to complete the truncated multibyte character.
+    '''
+    opos = text.tell()
+    text.seek(0, 2)
+    # npos is the position of the next record
+    npos = min((opos + RECORD_SIZE, text.tell()))
+    # Number of bytes from the next record needed to complete the last
+    # character in this record
+    extra = 0
+
+    last = b''
+    while not last.decode('utf-8', 'ignore'):
+        # last contains no valid utf-8 characters
+        size = len(last) + 1
+        text.seek(npos - size)
+        last = text.read(size)
+
+    # last now has one valid utf-8 char and possibly some bytes that belong
+    # to a truncated char
+
+    try:
+        last.decode('utf-8', 'strict')
+    except UnicodeDecodeError:
+        # There are some truncated bytes in last
+        prev = len(last)
+        while True:
+            text.seek(npos - prev)
+            last = text.read(len(last) + 1)
+            try:
+                last.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+            else:
+                break
+        extra = len(last) - prev
+
+    text.seek(opos)
+    data = text.read(RECORD_SIZE)
+    overlap = text.read(extra)
+    text.seek(npos)
+
+    return data, overlap
 

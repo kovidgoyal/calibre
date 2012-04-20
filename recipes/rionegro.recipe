@@ -1,0 +1,65 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.rionegro.com.ar
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RioNegro(BasicNewsRecipe):
+    title                 = 'Diario Rio Negro'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias desde la Patagonia Argentina y el resto del mundo'
+    publisher             = 'Editorial Rio Negro SA.'
+    category              = 'news, politics, Argentina'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.rionegro.com.ar/diario/imagenes/logorn.gif'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{display:block}
+                               h1 {font-size: 0.89em; color: red}
+                               h2 {font-family: Georgia,"Times New Roman",Times,serif; font-size: 1.8em}
+                               h3 {font-family: Georgia,"Times New Roman",Times,serif; border-bottom: 2px solid gray}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                     dict(name=['meta','link','iframe','object','embed'])
+                    ,dict(name='div', attrs={'class':'logo'})
+                  ]
+    keep_only_tags=[dict(attrs={'class':'nota'})]
+    remove_attributes=['lang']
+
+
+    feeds = [
+              (u'Argentina'        , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9532')
+             ,(u'El Mundo'         , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9533')
+             ,(u'Carta de lectores', u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9538')
+             ,(u'Columnistas'      , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9539')
+             ,(u'Domingo a Domingo', u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9541')
+             ,(u'Editorial'        , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9542')
+             ,(u'Deportes'         , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9522')
+             ,(u'Espectaculos'     , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9523')
+             ,(u'Sociedad'         , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9574')
+             ,(u'Policiales'       , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9525')
+             ,(u'Municipales'      , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9862')
+             ,(u'Region'           , u'http://www.rionegro.com.ar/diario/funciones/xml/rss.aspx?idcat=9701')
+            ]
+
+    def print_version(self, url):
+        idart_raw = url.rpartition('idart=')[2]
+        idart = idart_raw.rpartition('&')[0]
+        return 'http://www.rionegro.com.ar/diario/rn/print.aspx?idArt=' + idart + '&tipo=2'

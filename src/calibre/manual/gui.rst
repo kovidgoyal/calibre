@@ -30,7 +30,8 @@ Actions
     :alt: The Actions Toolbar
     :align: center
 
-The actions toolbar provides convenient shortcuts to commonly used actions. Most of the action buttons have little arrows next to them. By clicking the arrows, you can perform variations on the default action. Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
+The actions toolbar provides convenient shortcuts to commonly used actions. If you right-click the buttons, you can perform variations on the default action.
+Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
 
 .. contents::
     :depth: 1
@@ -43,7 +44,7 @@ Add books
 .. |adbi| image:: images/add_books.png
     :class: float-right-img
 
-|adbi| The :guilabel:`Add books` action has six variations accessed by the clicking the down arrow on the right side of the button.
+|adbi| The :guilabel:`Add books` action has six variations accessed by doing a right-click on the button.
 
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
@@ -70,9 +71,9 @@ Edit metadata
 .. |emii| image:: images/edit_meta_information.png
     :class: float-right-img
 
-|emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by clicking the down arrow on the right side of the button.
+|emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by doing a right-click on the button.
 
-    1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book. 
+    1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book.
     2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     4. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
@@ -93,7 +94,7 @@ you will have to find tools to liberate your books yourself and then use |app| t
 
 For most people, conversion should be a simple one-click affair. If you want to learn more about the conversion process, see :ref:`conversion`.
 
-The :guilabel:`Convert books` action has three variations, accessed by the arrow next to the button.
+The :guilabel:`Convert books` action has three variations, accessed by doing a right-click on the button.
 
     1. **Convert individually**: Allows you to specify conversion options to customize the conversion of each selected ebook.
 
@@ -116,8 +117,7 @@ View
 
 |vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a built-in viewer for many ebook formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
-Preferences->Behavior. If a book has more than one format, you can view a particular format by clicking the down arrow
-on the right of the :guilabel:`View` button.
+Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button.
 
 
 .. _send_to_device:
@@ -127,7 +127,7 @@ Send to device
 .. |stdi| image:: images/send_to_device.png
     :class: float-right-img
 
-|stdi| The :guilabel:`Send to device` action has eight variations, accessed by clicking the down arrow on the right of the button.
+|stdi| The :guilabel:`Send to device` action has eight variations, accessed by doing a right-click on the button.
 
     1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
     2. **Send to card (A)**: The selected books are transferred to the storage card (A) on the ebook reader.
@@ -152,7 +152,7 @@ Fetch news
 
 The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
 
-The :guilabel:`Fetch news` action has three variations, accessed by clicking the down arrow on the right of the button.
+The :guilabel:`Fetch news` action has three variations, accessed by doing a right-click on the button.
 
     1. **Schedule news download**: Allows you to schedule the download of of your selected news sources from a list of hundreds available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
     2. **Add a custom news source**: Allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating Python-based code for the task. For more information see :ref:`news`.
@@ -175,7 +175,7 @@ Library
     5. **<library name>**: Actions 5, 6 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
     6. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
 
-.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your |app| library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, |app| automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore Library action under Library Maintenance described above, you can have |app| rebuild the metadata.db file from the individual OPF files for you. 
+.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your |app| library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, |app| automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore Library action under Library Maintenance described above, you can have |app| rebuild the metadata.db file from the individual OPF files for you.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on the book and selecting the action :guilabel:`Copy to library`.
 
@@ -197,7 +197,7 @@ Save to disk
 .. |svdi| image:: images/save_to_disk.png
     :class: float-right-img
 
-|svdi| The :guilabel:`Save to disk` action has five variations, accessed by the arrow next to the button.
+|svdi| The :guilabel:`Save to disk` action has five variations, accessed by doing a right-click on the button.
 
 .. _save_to_disk_multiple:
 
@@ -231,11 +231,11 @@ Connect/Share
 
 |csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up you |app| library for access via a web browser or email.
 
-    The :guilabel:`Connect/Share` action has four variations, accessed by clicking the down arrow on the right of the button.
+    The :guilabel:`Connect/Share` action has four variations, accessed by doing a right-click on the button.
 
     1. **Connect to folder**: Allows you to connect to any folder on your computer as though it were a device and use all the facilities |app| has for devices with that folder. Useful if your device cannot be supported by |app| but is available as a USB disk.
 
-    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can use iTunes to make them available to your various iDevices. This is useful if you would rather not have |app| send books to your iDevice directly.
+    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can use iTunes to make them available to your various iDevices.
 
     3. **Start Content Server**: Starts |app|'s built-in web server.  When started, your |app| library will be accessible via a web browser from the Internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
 
@@ -248,7 +248,7 @@ Remove books
 .. |rbi| image:: images/remove_books.png
     :class: float-right-img
 
-|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by clicking the down arrow on the right side of the button.
+|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by doing a right-click on the button.
 
     1. **Remove selected books**: Allows you to **permanently** remove all books that are selected in the book list.
 
@@ -272,7 +272,7 @@ Preferences
 .. |cbi| image:: images/preferences.png
     :class: float-right-img
 
-|cbi| The :guilabel:`Preferences` action allows you to change the way various aspects of |app| work. It has four variations, accessed by clicking the down arrow on the right of the button.
+|cbi| The :guilabel:`Preferences` action allows you to change the way various aspects of |app| work. It has four variations, accessed by doing a right-click on the button.
 
     1. **Preferences**: Allows you to change the way various aspects of |app| work. Clicking the button also performs this action.
     2. **Run welcome wizard**: Allows you to start the Welcome Wizard which appeared the first time you started |app|.
@@ -338,9 +338,9 @@ Two other kinds of searches are available: equality search and search using `reg
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
 indicated by prefixing the search string with a tilde (~). Any `python-compatible regular expression <http://docs.python.org/library/re.html>`_ can
-be used. Note that backslashes used to escape special characters in reqular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors. 
+be used. Note that backslashes used to escape special characters in reqular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors.
 
-Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
+Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
 
 Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
 for the tag ``Science Fiction`` you would need to search for ``tag:"=science fiction"``. If you search for
@@ -351,7 +351,7 @@ You can build advanced search queries easily using the :guilabel:`Advanced Searc
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
-comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
+comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available, when searching the calibre library view. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
 
 The syntax for searching for dates is::
 
@@ -362,8 +362,9 @@ The syntax for searching for dates is::
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
-strings ``yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
-to a date some number of days ago. For example::
+strings ``yesterday`` and ``thismonth`` (or the translated equivalent in the current language) also work.
+In addition, the string ``daysago`` (also translated) can be used to compare to a date some number of days ago.
+For example::
 
     date:>10daysago
     date:<=45daysago
@@ -399,7 +400,7 @@ You can search for the absence or presence of a field using the special "true" a
 Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``blank`` will find all books
 with undefined values in the column. Searching for ``true`` will find all books that do not have undefined
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
-Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
+Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column. Note that the words ``yes``, ``no``, ``blank``, ``empty``, ``checked`` and ``unchecked`` are translated; you must use the current language's equivalent word. The words ``true`` and ``false`` and the special values ``_yes`` and ``_no`` are not translated.
 
 Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.B.C`, but not the tag `A`.
 

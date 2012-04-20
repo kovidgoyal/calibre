@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Sanda library wrapper
 '''
 
-import ctypes, uuid, hashlib, os, sys
+import ctypes, hashlib, os, sys
 from threading import Event, Lock
 from calibre.constants import iswindows
 from calibre import load_library
@@ -350,6 +350,7 @@ class Bambook:
         return None
 
     def SendFile(self, fileName, guid = None):
+        import uuid
         if self.handle:
             taskID = job.NewJob()
             if guid:

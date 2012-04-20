@@ -305,7 +305,8 @@ class ISBNMerge(object):
                     ans.pubdate = r.pubdate
                     break
             if getattr(ans.pubdate, 'year', None) == min_year:
-                min_date = datetime(min_year, ans.pubdate.month, ans.pubdate.day)
+                min_date = datetime(min_year, ans.pubdate.month, ans.pubdate.day,
+                                    tzinfo=utc_tz)
             else:
                 min_date = datetime(min_year, 1, 2, tzinfo=utc_tz)
             ans.pubdate = min_date
@@ -481,9 +482,10 @@ def identify(log, abort, # {{{
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
     log('Merging results from different sources and finding earliest',
-            'publication dates')
+            'publication dates from the xisbn service')
     start_time = time.time()
     results = merge_identify_results(results, log)
+
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 

@@ -4,10 +4,9 @@
  * License: GNU GPL v3
  */
 
-
-
 var reference_old_bgcol = "transparent";
 var reference_prefix = "1.";
+var reference_last_highlighted_para = null;
 
 function show_reference_panel(ref) {
     panel = $("#calibre_reference_panel");
@@ -24,6 +23,7 @@ function toggle_reference(e) {
     p = $(this);
     if (e.type == "mouseenter") {
         reference_old_bgcol = p.css("background-color");
+        reference_last_highlighted_para = p;
         p.css({backgroundColor:"beige"});
         var i = 0;
         var paras = $("p");
@@ -34,6 +34,7 @@ function toggle_reference(e) {
     } else {
         p.css({backgroundColor:reference_old_bgcol});
         panel = $("#calibre_reference_panel").hide();
+        reference_last_highlighted_para = null;
     }
     return false;
 }
@@ -44,6 +45,10 @@ function enter_reference_mode() {
 
 function leave_reference_mode() {
     $("p").unbind("mouseenter mouseleave", toggle_reference);
+    panel = $("#calibre_reference_panel");
+    if (panel.length > 0) panel.hide();
+    if (reference_last_highlighted_para != null) 
+        reference_last_highlighted_para.css({backgroundColor:reference_old_bgcol});
 }
 
 function goto_reference(ref) {

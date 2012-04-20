@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import SIGNAL, QVariant
+from PyQt4.Qt import SIGNAL, QVariant, Qt
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -18,17 +18,28 @@ class LookAndFeelWidget(Widget, Ui_Form):
     HELP  = _('Control the look and feel of the output')
     COMMIT_NAME = 'look_and_feel'
 
+    FILTER_CSS = {
+            'fonts': {'font-family'},
+            'margins': {'margin', 'margin-left', 'margin-right', 'margin-top',
+                'margin-bottom'},
+            'padding':  {'padding', 'padding-left', 'padding-right', 'padding-top',
+                'padding-bottom'},
+            'floats': {'float'},
+            'colors': {'color', 'background', 'background-color'},
+    }
+
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
                 ['change_justification', 'extra_css', 'base_font_size',
                     'font_size_mapping', 'line_height', 'minimum_line_height',
-                    'linearize_tables', 'smarten_punctuation',
+                    'smarten_punctuation', 'unsmarten_punctuation',
                     'disable_font_rescaling', 'insert_blank_line',
                     'remove_paragraph_spacing',
                     'remove_paragraph_spacing_indent_size',
                     'insert_blank_line_size',
-                    'input_encoding',
-                    'asciiize', 'keep_ligatures']
+                    'input_encoding', 'filter_css',
+                    'asciiize', 'keep_ligatures',
+                    'linearize_tables']
                 )
         for val, text in [
                 ('original', _('Original')),
@@ -44,11 +55,26 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 self.font_key_wizard)
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
+        self.opt_smarten_punctuation.stateChanged.connect(
+                lambda state: state != Qt.Unchecked and
+                self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
+        self.opt_unsmarten_punctuation.stateChanged.connect(
+                lambda state: state != Qt.Unchecked and
+                self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
             ans = unicode(g.itemData(g.currentIndex()).toString())
             return ans
+        if g is self.opt_filter_css:
+            ans = set()
+            for key, item in self.FILTER_CSS.iteritems():
+                w = getattr(self, 'filter_css_%s'%key)
+                if w.isChecked():
+                    ans = ans.union(item)
+            ans = ans.union(set([x.strip().lower() for x in
+                unicode(self.filter_css_others.text()).split(',')]))
+            return ','.join(ans) if ans else None
         return Widget.get_value_handler(self, g)
 
     def set_value_handler(self, g, val):
@@ -59,6 +85,27 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     g.setCurrentIndex(i)
                     break
             return True
+        if g is self.opt_filter_css:
+            if not val: val = ''
+            items = frozenset([x.strip().lower() for x in val.split(',')])
+            for key, vals in self.FILTER_CSS.iteritems():
+                w = getattr(self, 'filter_css_%s'%key)
+                if not vals - items:
+                    items = items - vals
+                    w.setChecked(True)
+                else:
+                    w.setChecked(False)
+            self.filter_css_others.setText(', '.join(items))
+            return True
+
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        if gui_obj is self.opt_filter_css:
+            for key in self.FILTER_CSS:
+                w = getattr(self, 'filter_css_%s'%key)
+                w.stateChanged.connect(slot)
+            self.filter_css_others.textChanged.connect(slot)
+            return
+        raise NotImplementedError()
 
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser

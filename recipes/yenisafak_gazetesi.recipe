@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Bugun (BasicNewsRecipe):
+
+    title                  = u'Yenişafak Gazetesi'
+    __author__             = u'thomass'
+    oldest_article         = 2
+    max_articles_per_feed  =100
+    no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'ISO 8859-9' #'UTF-8'
+    publisher              = 'thomass'
+    category               = 'news, haberler,TR,gazete'
+    language               = 'tr'
+    publication_type = 'newspaper '
+    #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    conversion_options = {
+                            'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
+    cover_img_url = 'http://yenisafak.com.tr/resim/logo.gif'
+    masthead_url = 'http://yenisafak.com.tr/resim/logo.gif'
+
+    keep_only_tags      = [dict(name='div', attrs={'id':[ 'ctghaberdetay2010']}) ]
+    extra_css              = ' h1{font-size:20px;font-weight: bold}h2{font-size: small;font-weight: bold}div{font-size: small}   '#h1{ font-size:10%;font-weight: bold} '#ctl00_ortayer_haberBaslik{ 'font-size:10%;font-weight: bold'}
+
+    #keep_only_tags      = [dict(name='div', attrs={'id':[ 'news-detail-content']}), dict(name='td', attrs={'class':['columnist-detail','columnist_head']})  ]
+    remove_tags = [ dict(name='div', attrs={'id':['yasaluyari2010','divhaberdetayilisik2010']}),dict(name='font', attrs={'class':['haberdetaytarih']})]#,'news-detail-gallery','news-detail-news-bottom-social']}),dict(name='div', attrs={'class':['radioEmbedBg','radyoProgramAdi']}),dict(name='a', attrs={'class':['webkit-html-attribute-value webkit-html-external-link']}),dict(name='table', attrs={'id':['yaziYorumTablosu']}),dict(name='img', attrs={'src':['http://medya.zaman.com.tr/pics/paylas.gif','http://medya.zaman.com.tr/extentions/zaman.com.tr/img/columnist/ma-16.png']})]
+
+
+    #remove_attributes = ['width','height']
+    remove_empty_feeds= True
+
+    feeds          = [
+                      ( u'SonDakika', u'http://yenisafak.com.tr/rss/?xml=anasayfa'),
+                      ( u'Gündem', u'http://yenisafak.com.tr/rss/?xml=gundem'),
+                      ( u'Politika', u'http://yenisafak.com.tr/rss/?xml=politika'),
+                      ( u'Ekonomi', u'http://yenisafak.com.tr/rss/?xml=ekonomi'),
+                      ( u'Dünya', u'http://yenisafak.com.tr/rss/?xml=dunya'),
+                      ( u'Aktüel', u'http://yenisafak.com.tr/rss/?xml=aktuel'),
+                      ( u'Eğitim', u'http://yenisafak.com.tr/rss/?xml=egitim'),
+                      ( u'Spor', u'http://yenisafak.com.tr/rss/?xml=spor'),
+                      ( u'Yazarlar', u'http://yenisafak.com.tr/rss/?xml=yazarlar'),
+                      ( u'Televizyon', u'http://yenisafak.com.tr/rss/?xml=televizyon'),
+                      ( u'Sağlık', u'http://yenisafak.com.tr/rss/?xml=saglik'),
+                      ( u'Yurt Haberler', u'http://yenisafak.com.tr/rss/?xml=yurthaberler'),
+                      ( u'Bilişim', u'http://yenisafak.com.tr/rss/?xml=bilisim'),
+                      ( u'Diziler', u'http://yenisafak.com.tr/rss/?xml=diziler'),
+                      ( u'Kültür-Sanat', u'http://yenisafak.com.tr/rss/?xml=kultursanat'),
+                      ( u'Röportaj', u'http://yenisafak.com.tr/rss/?xml=roportaj'),
+                      ( u'Sinema', u'http://yenisafak.com.tr/rss/?xml=sinema'),
+                      ( u'Yorum', u'http://yenisafak.com.tr/rss/?xml=yorum'),
+                      ( u' Yeni Şafak Pazar', u'http://yenisafak.com.tr/rss/?xml=pazar'),
+                      ( u'Yeni Şafak Kitap', u'http://yenisafak.com.tr/rss/?xml=kitap'),
+                      ( u'Yeni Şafak English', u'http://yenisafak.com.tr/rss/?xml=english'),
+
+                    
+
+                        ]

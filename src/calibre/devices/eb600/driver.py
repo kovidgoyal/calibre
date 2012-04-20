@@ -95,11 +95,11 @@ class POCKETBOOK360(EB600):
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
-    VENDOR_NAME = ['PHILIPS', '__POCKET']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE']
+    VENDOR_NAME = ['PHILIPS', '__POCKET', 'POCKETBO']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE',
+            'OK_POCKET_611_61']
 
-    OSX_MAIN_MEM   = 'Philips Mass Storge Media'
-    OSX_CARD_A_MEM = 'Philips Mass Storge Media'
+    OSX_MAIN_MEM = OSX_CARD_A_MEM = 'Philips Mass Storge Media'
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
 
     @classmethod
@@ -173,8 +173,9 @@ class INVESBOOK(EB600):
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'pdf', 'rtf', 'txt']
     BCD         = [0x110, 0x323]
 
-    VENDOR_NAME = ['INVES_E6', 'INVES-WI']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK']
+    VENDOR_NAME = ['INVES_E6', 'INVES-WI', 'POCKETBO']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK',
+            'OK_POCKET_611_61']
 
 class BOOQ(EB600):
     name = 'Booq Device Interface'
@@ -284,4 +285,22 @@ class POCKETBOOK701(USBMS):
             drives['main'] = carda
             drives['carda'] = main
         return drives
+
+class PI2(EB600):
+
+    name           = 'Infibeam Pi2 Device Interface'
+    gui_name       = 'Infibeam Pi2'
+    author         = 'Michael Scalet'
+    description    = _('Communicate with the Infibeam Pi2 reader.')
+    version        = (1,0,1)
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'htm', 'doc', 'pdf', 'rtf',
+            'txt']
+
+    VENDOR_NAME      = 'INFIBEAM'
+    WINDOWS_MAIN_MEM = 'INFIBEAM_PI'
+    WINDOWS_CARD_A_MEM = 'INFIBEAM_PI'
+
+    DELETE_EXTS = ['.rec']
 

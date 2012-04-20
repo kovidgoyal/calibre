@@ -7,14 +7,14 @@ import re, os, inspect
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QDate, QCompleter
+                     QDateTime, QCompleter
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
+from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
     gprefs, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic, JSONConfig
@@ -23,6 +23,8 @@ from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
+from calibre.ptempfile import SpooledTemporaryFile
+from calibre.db import SPOOL_SIZE
 
 def get_cover_data(stream, ext): # {{{
     from calibre.ebooks.metadata.meta import get_metadata
@@ -134,11 +136,12 @@ class MyBlockingBusy(QDialog): # {{{
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate, adddate, do_title_sort = self.args
+            pubdate, adddate, do_title_sort, languages, clear_languages, \
+            restore_original = self.args
 
 
-        # first loop: do author and title. These will commit at the end of each
-        # operation, because each operation modifies the file system. We want to
+        # first loop: All changes that modify the filesystem and commit
+        # immediately. We want to
         # try hard to keep the DB and the file system in sync, even in the face
         # of exceptions or forced exits.
         if self.current_phase == 1:
@@ -161,7 +164,14 @@ class MyBlockingBusy(QDialog): # {{{
                 self.db.set_title(id, titlecase(title), notify=False)
             if do_title_sort:
                 title = self.db.title(id, index_is_id=True)
-                self.db.set_title_sort(id, title_sort(title), notify=False)
+                if languages:
+                    lang = languages[0]
+                else:
+                    lang = self.db.languages(id, index_is_id=True)
+                    if lang:
+                        lang = lang.partition(',')[0]
+                self.db.set_title_sort(id, title_sort(title, lang=lang),
+                        notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
             if cover_action == 'remove':
@@ -196,6 +206,27 @@ class MyBlockingBusy(QDialog): # {{{
                     if covers:
                         self.db.set_cover(id, covers[-1][0])
                     covers = []
+
+            if do_remove_format:
+                self.db.remove_format(id, remove_format, index_is_id=True,
+                        notify=False, commit=True)
+
+            if restore_original:
+                formats = self.db.formats(id, index_is_id=True)
+                formats = formats.split(',') if formats else []
+                originals = [x.upper() for x in formats if
+                        x.upper().startswith('ORIGINAL_')]
+                for ofmt in originals:
+                    fmt = ofmt.replace('ORIGINAL_', '')
+                    with SpooledTemporaryFile(SPOOL_SIZE) as stream:
+                        self.db.copy_format_to(id, ofmt, stream,
+                                index_is_id=True)
+                        stream.seek(0)
+                        self.db.add_format(id, fmt, stream, index_is_id=True,
+                                notify=False)
+                    self.db.remove_format(id, ofmt, index_is_id=True,
+                            notify=False, commit=True)
+
         elif self.current_phase == 2:
             # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
@@ -233,11 +264,14 @@ class MyBlockingBusy(QDialog): # {{{
                 num = next if do_autonumber and series else 1.0
                 self.db.set_series_index(id, num, notify=False, commit=False)
 
-            if do_remove_format:
-                self.db.remove_format(id, remove_format, index_is_id=True, notify=False, commit=False)
-
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE', commit=False)
+
+            if clear_languages:
+                self.db.set_languages(id, [], notify=False, commit=False)
+            elif languages:
+                self.db.set_languages(id, languages, notify=False, commit=False)
+
         elif self.current_phase == 3:
             # both of these are fast enough to just do them all
             for w in self.cc_widgets:
@@ -300,18 +334,21 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
-        self.pubdate.setMinimumDate(UNDEFINED_QDATE)
+        self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
-        self.pubdate.dateChanged.connect(self.do_apply_pubdate)
-        self.adddate.setDate(QDate.currentDate())
-        self.adddate.setMinimumDate(UNDEFINED_QDATE)
+        self.pubdate.dateTimeChanged.connect(self.do_apply_pubdate)
+        self.adddate.setDateTime(QDateTime.currentDateTime())
+        self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
+        adddate_format = tweaks['gui_timestamp_display_format']
+        if adddate_format is not None:
+            self.adddate.setDisplayFormat(adddate_format)
         self.adddate.setSpecialValueText(_('Undefined'))
         self.clear_adddate_button.clicked.connect(self.clear_adddate)
-        self.adddate.dateChanged.connect(self.do_apply_adddate)
+        self.adddate.dateTimeChanged.connect(self.do_apply_adddate)
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -329,6 +366,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.languages.init_langs(self.db)
+        self.languages.setEditText('')
+        self.authors.setFocus(Qt.OtherFocusReason)
         self.exec_()
 
     def save_state(self, *args):
@@ -339,19 +379,20 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.apply_pubdate.setChecked(True)
 
     def clear_pubdate(self, *args):
-        self.pubdate.setDate(UNDEFINED_QDATE)
+        self.pubdate.setDateTime(UNDEFINED_QDATETIME)
 
     def do_apply_adddate(self, *args):
         self.apply_adddate.setChecked(True)
 
     def clear_adddate(self, *args):
-        self.adddate.setDate(UNDEFINED_QDATE)
+        self.adddate.setDateTime(UNDEFINED_QDATETIME)
 
     def button_clicked(self, which):
         if which == self.button_box.button(QDialogButtonBox.Apply):
             self.do_again = True
             self.accept()
 
+    # S&R {{{
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
@@ -526,6 +567,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = [v.replace('|', ',') for v in val]
         else:
             val = []
+        if not val:
+            val = ['']
         return val
 
     def s_r_display_bounds_changed(self, i):
@@ -700,6 +743,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         else:
             flags = re.I
 
+        flags |= re.UNICODE
+
         try:
             if self.search_mode.currentIndex() == 0:
                 self.s_r_obj = re.compile(re.escape(unicode(self.search_for.text())), flags)
@@ -796,6 +841,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             # permanent. Make sure it really is.
             self.db.commit()
             self.model.refresh_ids(list(books_to_refresh))
+    # }}}
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -919,11 +965,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
         do_title_sort = self.update_title_sort.isChecked()
+        clear_languages = self.clear_languages.isChecked()
+        restore_original = self.restore_original.isChecked()
+        languages = self.languages.lang_codes
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
-            pubdate = qt_to_dt(self.pubdate.date())
+            pubdate = qt_to_dt(self.pubdate.dateTime())
         if self.apply_adddate.isChecked():
-            adddate = qt_to_dt(self.adddate.date())
+            adddate = qt_to_dt(self.adddate.dateTime())
 
         cover_action = None
         if self.cover_remove.isChecked():
@@ -937,7 +986,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
-                pubdate, adddate, do_title_sort)
+                pubdate, adddate, do_title_sort, languages, clear_languages,
+                restore_original)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,

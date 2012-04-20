@@ -1,0 +1,87 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Nowa_Fantastyka(BasicNewsRecipe):
+    title          = u'Nowa Fantastyka'
+    oldest_article = 7
+    __author__        = 'fenuks'
+    __modified_by__   = 'zaslav'
+    language       = 'pl'
+    encoding='latin2'
+    description ='site for fantasy readers'
+    category='fantasy'
+    masthead_url='http://farm5.static.flickr.com/4133/4956658792_7ba7fbf562.jpg'
+    #extra_css='.tytul {font-size: 20px;}' #not working
+    max_articles_per_feed = 100
+    INDEX='http://www.fantastyka.pl/'
+    no_stylesheets=True
+    needs_subscription = 'optional'
+    remove_tags_before=dict(attrs={'class':'naglowek2'})
+    #remove_tags_after=dict(name='span', attrs={'class':'naglowek-oceny'})
+    remove_tags_after=dict(name='form', attrs={'name':'form1'})
+    remove_tags=[dict(attrs={'class':['avatar2', 'belka-margin', 'naglowek2']}), dict(name='span', attrs={'class':'alert-oceny'}), dict(name='img', attrs={'src':['obrazki/sledz1.png', 'obrazki/print.gif', 'obrazki/mlnf.gif']}), dict(name='b', text='Dodaj komentarz'),dict(name='a', attrs={'href':'http://www.fantastyka.pl/10,1727.html'}), dict(name='form')]
+    preprocess_regexps = [
+    (re.compile(r'\<table .*?\>'), lambda match: ''),
+    (re.compile(r'\<td.*?\>'), lambda match: ''),
+    (re.compile(r'\<center\>'), lambda match: '')]
+
+
+
+
+    def find_articles(self, url):
+        articles = []
+        soup=self.index_to_soup(url)
+        tag=soup.find(attrs={'class':'belka1-tlo-m'})
+        art=tag.findAll(name='a', attrs={'class':'a-box'})
+        for i in art:
+            title=i.string
+            url=self.INDEX+i['href']
+            #date=soup.find(id='footer').ul.li.string[41:-1]
+            articles.append({'title' : title,
+                   'url'   : url,
+                   'date'  : '',
+                   'description' : ''
+                    })
+        return articles
+
+    def parse_index(self):
+         feeds = []
+         feeds.append((u"Opowiadania", self.find_articles('http://www.fantastyka.pl/3.html')))
+         feeds.append((u"Publicystyka", self.find_articles('http://www.fantastyka.pl/6.html')))
+         feeds.append((u"Hype Park", self.find_articles('http://www.fantastyka.pl/9.html')))
+
+         return feeds
+
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.e-kiosk.pl/nowa_fantastyka')
+        self.cover_url='http://www.e-kiosk.pl' + soup.find(name='a', attrs={'class':'img'})['href']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.fantastyka.pl/')
+            br.select_form(nr=0)
+            br['login']   = self.username
+            br['pass'] = self.password
+            br.submit()
+        return br
+
+    def preprocess_html(self, soup):        
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll(font=True):
+            del item['font']
+        for item in soup.findAll(align=True):
+            del item['align']
+        for item in soup.findAll(name='tr'):
+            item.name='div'
+        title=soup.find(attrs={'class':'tytul'})
+        if title:
+            title['style']='font-size: 20px; font-weight: bold;'
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.INDEX + a['href']
+        return soup

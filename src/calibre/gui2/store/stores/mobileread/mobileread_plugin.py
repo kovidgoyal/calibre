@@ -21,13 +21,14 @@ from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdate
 from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
-    
-    def genesis(self):
+
+    def __init__(self, *args, **kwargs):
+        StorePlugin.__init__(self, *args, **kwargs)
         self.lock = Lock()
-    
+
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://www.mobileread.com/'
-        
+
         if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item if detail_item else url))
         else:
@@ -45,32 +46,36 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list()
 
+        if not books:
+            return
+
         sf = SearchFilter(books)
-        matches = sf.parse(query)
+        matches = sf.parse(query.decode('utf-8', 'replace'))
 
         for book in matches:
             book.price = '$0.00'
             book.drm = SearchResult.DRM_UNLOCKED
             yield book
 
-    def update_cache(self, parent=None, timeout=10, force=False, suppress_progress=False):
+    def update_cache(self, parent=None, timeout=10, force=False,
+            suppress_progress=False):
         if self.lock.acquire(False):
             try:
                 update_thread = CacheUpdateThread(self.config, self.seralize_books, timeout)
                 if not suppress_progress:
                     progress = CacheProgressDialog(parent)
                     progress.set_message(_('Updating MobileRead book cache...'))
-            
+
                     update_thread.total_changed.connect(progress.set_total)
                     update_thread.update_progress.connect(progress.set_progress)
                     update_thread.update_details.connect(progress.set_details)
                     progress.rejected.connect(update_thread.abort)
-            
+
                     progress.open()
                     update_thread.start()
                     while update_thread.is_alive() and not progress.canceled:
                         QCoreApplication.processEvents()
-            
+
                     if progress.isVisible():
                         progress.accept()
                     return not progress.canceled
@@ -81,7 +86,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
 
     def get_book_list(self):
         return self.deseralize_books(self.config.get('book_list', []))
-    
+
     def seralize_books(self, books):
         sbooks = []
         for b in books:
@@ -92,7 +97,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             data['formats'] = b.formats
             sbooks.append(data)
         return sbooks
-    
+
     def deseralize_books(self, sbooks):
         books = []
         for s in sbooks:

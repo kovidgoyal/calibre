@@ -9,14 +9,20 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
+import os, cStringIO, imghdr
 from struct import pack, unpack
 from cStringIO import StringIO
 
 from calibre.ebooks import normalize
-from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
+from calibre.ebooks.mobi import MobiError, MAX_THUMB_DIMEN
+from calibre.ebooks.mobi.utils import rescale_image
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.date import now as nowf
+
+def is_image(ss):
+    if ss is None:
+        return False
+    return imghdr.what(None, ss[:200]) is not None
 
 class StreamSlicer(object):
 
@@ -78,7 +84,7 @@ class StreamSlicer(object):
         stream = self._stream
         base = self.start
         stream.seek(base)
-        self._stream.truncate(base)
+        stream.truncate()
         for block in data_blocks:
             stream.write(block)
 
@@ -160,11 +166,10 @@ class MetadataUpdater(object):
             if id == 106:
                 self.timestamp = content
             elif id == 201:
-                rindex, = self.cover_rindex, = unpack('>i', content)
-                if rindex > 0 :
-                    self.cover_record = self.record(rindex + image_base)
+                rindex, = self.cover_rindex, = unpack('>I', content)
+                self.cover_record = self.record(rindex + image_base)
             elif id == 202:
-                rindex, = self.thumbnail_rindex, = unpack('>i', content)
+                rindex, = self.thumbnail_rindex, = unpack('>I', content)
                 if rindex > 0 :
                     self.thumbnail_record = self.record(rindex + image_base)
 
@@ -330,9 +335,11 @@ class MetadataUpdater(object):
             prefs = load_defaults('mobi_output')
             pas = prefs.get('prefer_author_sort', False)
             kindle_pdoc = prefs.get('personal_doc', None)
+            share_not_sync = prefs.get('share_not_sync', False)
         except:
             pas = False
             kindle_pdoc = None
+            share_not_sync = False
         if mi.author_sort and pas:
             authors = mi.author_sort
             update_exth_record((100, normalize(authors).encode(self.codec, 'replace')))
@@ -358,7 +365,7 @@ class MetadataUpdater(object):
 
             if kindle_pdoc and kindle_pdoc in mi.tags:
                 added_501 = True
-                update_exth_record((501, str('PDOC')))
+                update_exth_record((501, b'PDOC'))
 
         if mi.pubdate:
             update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))
@@ -376,7 +383,7 @@ class MetadataUpdater(object):
         # Add a 113 record if not present to allow Amazon syncing
         if (113 not in self.original_exth_records and
                 self.original_exth_records.get(501, None) == 'EBOK' and
-                not added_501):
+                not added_501 and not share_not_sync):
             from uuid import uuid4
             update_exth_record((113, str(uuid4())))
         if 503 in self.original_exth_records:
@@ -413,17 +420,17 @@ class MetadataUpdater(object):
             except:
                 pass
             else:
-                if self.cover_record is not None:
+                if is_image(self.cover_record):
                     size = len(self.cover_record)
                     cover = rescale_image(data, size)
                     if len(cover) <= size:
-                        cover += '\0' * (size - len(cover))
+                        cover += b'\0' * (size - len(cover))
                         self.cover_record[:] = cover
-                if self.thumbnail_record is not None:
+                if is_image(self.thumbnail_record):
                     size = len(self.thumbnail_record)
                     thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
                     if len(thumbnail) <= size:
-                        thumbnail += '\0' * (size - len(thumbnail))
+                        thumbnail += b'\0' * (size - len(thumbnail))
                         self.thumbnail_record[:] = thumbnail
                 return
 
@@ -431,3 +438,75 @@ def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
     mu.update(mi)
     return
+
+def get_metadata(stream):
+    from calibre.ebooks.metadata import MetaInformation
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre.ebooks.mobi.reader.headers import MetadataHeader
+    from calibre.ebooks.mobi.reader.mobi6 import MobiReader
+    from calibre import CurrentDir
+
+    try:
+        from PIL import Image as PILImage
+        PILImage
+    except ImportError:
+        import Image as PILImage
+
+
+    stream.seek(0)
+    try:
+        raw = stream.read(3)
+    except:
+        raw = ''
+    stream.seek(0)
+    if raw == b'TPZ':
+        from calibre.ebooks.metadata.topaz import get_metadata
+        return get_metadata(stream)
+    from calibre.utils.logging import Log
+    log = Log()
+    try:
+        mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
+    except:
+        mi = MetaInformation(_('Unknown'), [_('Unknown')])
+    mh = MetadataHeader(stream, log)
+    if mh.title and mh.title != _('Unknown'):
+        mi.title = mh.title
+
+    if mh.exth is not None:
+        if mh.exth.mi is not None:
+            mi = mh.exth.mi
+    else:
+        size = 1024**3
+        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+            pos = stream.tell()
+            stream.seek(0, 2)
+            size = stream.tell()
+            stream.seek(pos)
+        if size < 4*1024*1024:
+            with TemporaryDirectory('_mobi_meta_reader') as tdir:
+                with CurrentDir(tdir):
+                    mr = MobiReader(stream, log)
+                    parse_cache = {}
+                    mr.extract_content(tdir, parse_cache)
+                    if mr.embedded_mi is not None:
+                        mi = mr.embedded_mi
+    if hasattr(mh.exth, 'cover_offset'):
+        cover_index = mh.first_image_index + mh.exth.cover_offset
+        data  = mh.section_data(int(cover_index))
+    else:
+        try:
+            data  = mh.section_data(mh.first_image_index)
+        except:
+            data = ''
+    buf = cStringIO.StringIO(data)
+    try:
+        im = PILImage.open(buf)
+    except:
+        log.exception('Failed to read MOBI cover')
+    else:
+        obuf = cStringIO.StringIO()
+        im.convert('RGB').save(obuf, format='JPEG')
+        mi.cover_data = ('jpg', obuf.getvalue())
+    return mi
+
+

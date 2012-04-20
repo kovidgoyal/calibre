@@ -1,18 +1,18 @@
+# -*- coding: utf-8 -*-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pescanik.net
 '''
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class Pescanik(BasicNewsRecipe):
-    title                 = 'Pescanik'
+    title                 = 'Peščanik'
     __author__            = 'Darko Miletic'
-    description           = 'Pescanik'
-    publisher             = 'Pescanik'
+    description           = 'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'
+    publisher             = 'Peščanik'
     category              = 'news, politics, Serbia'
     oldest_article        = 10
     max_articles_per_feed = 100
@@ -20,8 +20,13 @@ class Pescanik(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf-8'
     language              = 'sr'
-    publication_type      = 'newsportal'    
-    extra_css             = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Arial,"Lucida Grande",Tahoma,Verdana,sans1,sans-serif} .contentheading{font-size: x-large; font-weight: bold} .small{font-size: small} .createdate{font-size: x-small; font-weight: bold} '
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://pescanik.net/wp-content/uploads/2011/10/logo1.png'
+    extra_css             = """
+                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                               body{font-family: Verdana,Arial,Tahoma,sans1,sans-serif}
+                               #BlogTitle{font-size: xx-large; font-weight: bold}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -32,29 +37,12 @@ class Pescanik(BasicNewsRecipe):
 
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    
-    remove_attributes = ['valign','colspan','width','height','align','alt']
-    
-    remove_tags = [dict(name=['object','link','meta','script'])]
-
-    keep_only_tags = [
-                         dict(attrs={'class':['contentheading','small','createdate']})
-                        ,dict(name='td', attrs={'valign':'top','colspan':'2'})                        
-                     ]
-                  
-    feeds       = [(u'Pescanik Online', u'http://www.pescanik.net/index.php?option=com_rd_rss&id=12')]
+    remove_tags = [dict(name=['object','link','meta','script','iframe','embed'])]
+    keep_only_tags = [dict(attrs={'id':['BlogTitle','BlogDate','BlogContent']})]
+    feeds       = [
+                    (u'Autori' , u'http://pescanik.net/category/autori/feed/'),
+                    (u'Prevodi', u'http://pescanik.net/category/prevodi/feed/')
+                  ]
 
     def print_version(self, url):
-        nurl = url.replace('/index.php','/index2.php')
-        return nurl + '&pop=1&page=0'
-
-    def preprocess_html(self, soup):
-        st = soup.findAll('td')
-        for it in st:
-            it.name='p'
-        for pt in soup.findAll('img'):
-            brtag = Tag(soup,'br')
-            brtag2 = Tag(soup,'br')
-            pt.append(brtag)
-            pt.append(brtag2)
-        return soup
+        return url + 'print/'

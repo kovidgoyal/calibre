@@ -1,35 +1,43 @@
 #!/usr/bin/env  python
-__license__   = 'GPL v3'
-__author__    = 'Gerardo Diez'
-__copyright__ = 'Gerardo Diez<gerardo.diez.garcia@gmail.com>'
-description   = 'Main daily newspaper from Spain - v1.00 (05, Enero 2011)'
-__docformat__ = 'restructuredtext en'
+__license__     = 'GPL v3'
+__copyright__   = '5, January 2011 Gerardo Diez<gerardo.diez.garcia@gmail.com> & desUBIKado'
+__author__      = 'desUBIKado, based on an earlier version by Gerardo Diez'
+__version__     = 'v1.01'
+__date__        = '13, November 2011'
 
 '''
-expansion.es
+[url]http://www.expansion.com/[/url]
 '''
+
+import time
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-class Publico(BasicNewsRecipe):
-    title               =u'Expansion.com'
-    __author__      ='Gerardo Diez'
-    publisher       =u'Unidad Editorial Información Económica, S.L.'
-    category                ='finances, catalunya'
-    oldest_article      =1
+
+class expansion_spanish(BasicNewsRecipe):
+    __author__      ='Gerardo Diez & desUBIKado'
+    description     ='Financial news from Spain'
+    title           =u'Expansion'
+    publisher       =u'Unidad Editorial Internet, S.L.'
+    category        ='news, finances, Spain'
+    oldest_article  = 2
+    simultaneous_downloads = 10
     max_articles_per_feed   =100
-    simultaneous_downloads  =10
-    cover_url       =u'http://estaticos01.expansion.com/iconos/v2.x/v2.0/cabeceras/logo_expansion.png'
-    timefmt         ='[%A, %d %B, %Y]'
-    encoding        ='latin'
+    timefmt         = '[%a, %d %b, %Y]'
+    encoding        ='iso-8859-15'
     language        ='es'
-    remove_javascript   =True
-    no_stylesheets      =True
+    use_embedded_content  = False
+    remove_javascript     = True
+    no_stylesheets        = True
+    remove_empty_feeds    = True
+
     keep_only_tags      =dict(name='div', attrs={'class':['noticia primer_elemento']})
+
     remove_tags         =[
-                dict(name='div', attrs={'class':['compartir', 'metadata_desarrollo_noticia', 'relacionadas', 'mas_info','publicidad publicidad_textlink', 'ampliarfoto']}),
-                dict(name='ul', attrs={'class':['bolos_desarrollo_noticia']}),
+                dict(name='div', attrs={'class':['compartir', 'metadata_desarrollo_noticia', 'relacionadas', 'mas_info','publicidad publicidad_textlink', 'ampliarfoto','tit_relacionadas','interact','paginacion estirar','sumario derecha']}),
+                dict(name='ul', attrs={'class':['bolos_desarrollo_noticia','not_logged']}),
                 dict(name='span', attrs={'class':['comentarios']}),
                 dict(name='p', attrs={'class':['cintillo_comentarios', 'cintillo_comentarios formulario']}),
-                dict(name='div', attrs={'id':['comentarios_lectores_listado']})
+                dict(name='div', attrs={'id':['comentarios_lectores_listado','comentar']})
                             ]
     feeds               =[
                 (u'Portada', u'http://estaticos.expansion.com/rss/portada.xml'),
@@ -38,42 +46,112 @@ class Publico(BasicNewsRecipe):
                 (u'Euribor', u'http://estaticos.expansion.com/rss/mercadoseuribor.xml'),
                 (u'Materias Primas', u'http://estaticos.expansion.com/rss/mercadosmateriasprimas.xml'),
                 (u'Renta Fija', u'http://estaticos.expansion.com/rss/mercadosrentafija.xml'),
-
                 (u'Portada: Mi Dinero', u'http://estaticos.expansion.com/rss/midinero.xml'),
                 (u'Hipotecas', u'http://estaticos.expansion.com/rss/midinerohipotecas.xml'),
-                (u'Créditos', u'http://estaticos.expansion.com/rss/midinerocreditos.xml'),
+                (u'Cr\xe9ditos', u'http://estaticos.expansion.com/rss/midinerocreditos.xml'),
                 (u'Pensiones', u'http://estaticos.expansion.com/rss/midineropensiones.xml'),
-                (u'Fondos de Inversión', u'http://estaticos.expansion.com/rss/midinerofondos.xml'),
+                (u'Fondos de Inversi\xf3n', u'http://estaticos.expansion.com/rss/midinerofondos.xml'),
                 (u'Motor', u'http://estaticos.expansion.com/rss/midineromotor.xml'),
-
                 (u'Portada: Empresas', u'http://estaticos.expansion.com/rss/empresas.xml'),
                 (u'Banca', u'http://estaticos.expansion.com/rss/empresasbanca.xml'),
                 (u'TMT', u'http://estaticos.expansion.com/rss/empresastmt.xml'),
-                (u'Energía', u'http://estaticos.expansion.com/rss/empresasenergia.xml'),
-                (u'Inmobiliario y Construcción', u'http://estaticos.expansion.com/rss/empresasinmobiliario.xml'),
+                (u'Energ\xeda', u'http://estaticos.expansion.com/rss/empresasenergia.xml'),
+                (u'Inmobiliario y Construcci\xf3n', u'http://estaticos.expansion.com/rss/empresasinmobiliario.xml'),
                 (u'Transporte y Turismo', u'http://estaticos.expansion.com/rss/empresastransporte.xml'),
-                (u'Automoción e Industria', u'http://estaticos.expansion.com/rss/empresasauto-industria.xml'),
-                (u'Distribución', u'http://estaticos.expansion.com/rss/empresasdistribucion.xml'),
-                (u'Deporte y Negocio', u' http://estaticos.expansion.com/rss/empresasdeporte.xml'),
+                (u'Automoci\xf3n e Industria', u'http://estaticos.expansion.com/rss/empresasauto-industria.xml'),
+                (u'Distribuci\xf3n', u'http://estaticos.expansion.com/rss/empresasdistribucion.xml'),
+                (u'Deporte y Negocio', u' [url]http://estaticos.expansion.com/rss/empresasdeporte.xml[/url]'),
                 (u'Mi Negocio', u'http://estaticos.expansion.com/rss/empresasminegocio.xml'),
                 (u'Interiores', u'http://estaticos.expansion.com/rss/empresasinteriores.xml'),
                 (u'Digitech', u'http://estaticos.expansion.com/rss/empresasdigitech.xml'),
-
-                (u'Portada: Economía y Política', u'http://estaticos.expansion.com/rss/economiapolitica.xml'),
-                (u'Política', u'http://estaticos.expansion.com/rss/economia.xml'),
+                (u'Portada: Econom\xeda y Pol\xedtica', u'http://estaticos.expansion.com/rss/economiapolitica.xml'),
+                (u'Pol\xedtica', u'http://estaticos.expansion.com/rss/economia.xml'),
                 (u'Portada: Sociedad', u'http://estaticos.expansion.com/rss/entorno.xml'),
-
-                (u'Portada: Opinión', u'http://estaticos.expansion.com/rss/opinion.xml'),
+                (u'Portada: Opini\xf3n', u'http://estaticos.expansion.com/rss/opinion.xml'),
                 (u'Llaves y editoriales', u'http://estaticos.expansion.com/rss/opinioneditorialyllaves.xml'),
                 (u'Tribunas', u'http://estaticos.expansion.com/rss/opiniontribunas.xml'),
-
-                (u'Portada: Jurídico', u'http://estaticos.expansion.com/rss/juridico.xml'),
+                (u'Portada: Jur\xeddico', u'http://estaticos.expansion.com/rss/juridico.xml'),
                 (u'Entrevistas', u'http://estaticos.expansion.com/rss/juridicoentrevistas.xml'),
-                (u'Opinión', u'http://estaticos.expansion.com/rss/juridicoopinion.xml'),
+                (u'Opini\xf3n', u'http://estaticos.expansion.com/rss/juridicoopinion.xml'),
                 (u'Sentencias', u'http://estaticos.expansion.com/rss/juridicosentencias.xml'),
-
                 (u'Mujer', u'http://estaticos.expansion.com/rss/mujer-empresa.xml'),
-                (u'Catalu&ntilde;a', u'http://estaticos.expansion.com/rss/catalunya.xml'),
-                (u'Función pública', u'http://estaticos.expansion.com/rss/funcion-publica.xml')
+                (u'Catalu\xf1a', u'http://estaticos.expansion.com/rss/catalunya.xml'),
+                (u'Funci\xf3n p\xfablica', u'http://estaticos.expansion.com/rss/funcion-publica.xml')
                 ]
 
+    # Obtener la imagen de portada
+
+    def get_cover_url(self):
+       cover = None
+       st = time.localtime()
+       year = str(st.tm_year)
+       month = "%.2d" % st.tm_mon
+       day = "%.2d" % st.tm_mday
+		#[url]http://img5.kiosko.net/2011/11/14/es/expansion.750.jpg[/url]
+       cover='http://img5.kiosko.net/'+ year + '/' +  month + '/' + day +'/es/expansion.750.jpg'
+       br = BasicNewsRecipe.get_browser()
+       try:
+           br.open(cover)
+       except:
+           self.log("\nPortada no disponible")
+           cover ='http://www.aproahp.org/enlaces/images/diario_expansion.gif'
+       return cover
+
+
+
+    # Para que no salte la publicidad al recuperar la noticia, y que siempre se recupere
+    # la página web, mando la variable "t" con la hora "linux" o "epoch" actual
+    # haciendole creer al sitio web que justo se acaba de ver la publicidad
+
+    def print_version(self, url):
+           st = time.time()
+           segundos = str(int(st))
+           parametros = '.html?t=' + segundos
+           return url.replace('.html', parametros)
+
+
+
+    _processed_links = []
+
+    def get_article_url(self, article):
+
+       # Para obtener la url original del artículo a partir de la de "feedsportal"
+
+       link = article.get('link', None)
+       if link is None:
+           return article
+       if link.split('/')[-1]=="story01.htm":
+           link=link.split('/')[-2]
+           a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']
+           b=['.' ,'/' ,'?' ,'-' ,'=' ,'&' ,'.com','www.','0']
+           for i in range(0,len(a)):
+              link=link.replace(a[i],b[i])
+           link="http://"+link
+
+       # Eliminar artículos duplicados en otros feeds
+
+       if not (link in self._processed_links):
+            self._processed_links.append(link)
+       else:
+            link = None
+
+       return link
+
+
+
+    # Un poco de css para mejorar la presentación de las noticias
+
+    extra_css = '''
+                    .entradilla {font-family:Arial,Helvetica,sans-serif; font-weight:bold; font-style:italic; font-size:16px;}
+                    .fecha_publicacion,.autor {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:14px;}
+                '''
+
+
+
+    # Para presentar la imagen de los videos incrustados
+
+    preprocess_regexps = [
+                           (re.compile(r'var imagen', re.DOTALL|re.IGNORECASE), lambda match: '--></script><img src'),
+                           (re.compile(r'.jpg";', re.DOTALL|re.IGNORECASE), lambda match: '.jpg">'),
+                           (re.compile(r'var id_reproductor', re.DOTALL|re.IGNORECASE), lambda match: '<script language="Javascript" type="text/javascript"><!--'),
+                         ]

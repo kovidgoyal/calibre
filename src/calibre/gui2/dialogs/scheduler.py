@@ -11,9 +11,9 @@ from datetime import timedelta
 import calendar, textwrap
 from collections import OrderedDict
 
-from PyQt4.Qt import QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, \
-        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout, \
-        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox
+from PyQt4.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
+        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout,
+        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox)
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2 import config as gconf, error_dialog
@@ -193,6 +193,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
         self.count_label.setText(
+            # NOTE: Number of news sources
             _('%s news sources') %
                 self.recipe_model.showing_count)
 
@@ -213,6 +214,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
 
         self.recipes.setModel(self.recipe_model)
         self.detail_box.setVisible(False)
+        self.download_button = self.buttonBox.addButton(_('&Download now'),
+                self.buttonBox.ActionRole)
+        self.download_button.setIcon(QIcon(I('arrow-down.png')))
         self.download_button.setVisible(False)
         self.recipes.currentChanged = self.current_changed
         for b, c in self.SCHEDULE_TYPES.iteritems():
@@ -313,6 +317,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                     return False
             if un or pw:
                 self.recipe_model.set_account_info(urn, un, pw)
+            else:
+                self.recipe_model.clear_account_info(urn)
 
         if self.schedule.isChecked():
             schedule_type, schedule = \
@@ -370,7 +376,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         '''%dict(title=recipe.get('title'), cb=_('Created by: '),
             author=recipe.get('author', _('Unknown')),
             description=recipe.get('description', '')))
-
+        self.download_button.setToolTip(
+                _('Download %s now')%recipe.get('title'))
         scheduled = schedule_info is not None
         self.schedule.setChecked(scheduled)
         self.toggle_schedule_info()
@@ -418,6 +425,13 @@ class Scheduler(QObject):
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
         self._parent = parent
+        self.no_internet_msg = _('Cannot download news as no internet connection '
+                'is active')
+        self.no_internet_dialog = d = error_dialog(self._parent,
+                self.no_internet_msg, _('No internet connection'),
+                show_copy_button=False)
+        d.setModal(False)
+
         self.recipe_model = RecipeModel()
         self.db = db
         self.lock = QMutex(QMutex.Recursive)
@@ -433,7 +447,7 @@ class Scheduler(QObject):
         self.news_menu.addAction(self.cac)
         self.news_menu.addSeparator()
         self.all_action = self.news_menu.addAction(
-                _('Download all scheduled new sources'),
+                _('Download all scheduled news sources'),
                 self.download_all_scheduled)
 
         self.timer = QTimer(self)
@@ -450,7 +464,7 @@ class Scheduler(QObject):
             delta = timedelta(days=self.oldest)
             try:
                 ids = list(self.db.tags_older_than(_('News'),
-                    delta))
+                    delta, must_have_authors=['calibre']))
             except:
                 # Happens if library is being switched
                 ids = []
@@ -522,7 +536,6 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
 
-
     def download_clicked(self, urn):
         if urn is not None:
             return self.download(urn)
@@ -533,18 +546,25 @@ class Scheduler(QObject):
     def download_all_scheduled(self):
         self.download_clicked(None)
 
-    def download(self, urn):
-        self.lock.lock()
+    def has_internet_connection(self):
         if not internet_connected():
             if not self.internet_connection_failed:
                 self.internet_connection_failed = True
-                d = error_dialog(self._parent, _('No internet connection'),
-                        _('Cannot download news as no internet connection '
-                            'is active'))
-                d.setModal(False)
-                d.show()
+                if self._parent.is_minimized_to_tray:
+                    self._parent.status_bar.show_message(self.no_internet_msg,
+                            5000)
+                elif not self.no_internet_dialog.isVisible():
+                    self.no_internet_dialog.show()
             return False
         self.internet_connection_failed = False
+        if self.no_internet_dialog.isVisible():
+            self.no_internet_dialog.hide()
+        return True
+
+    def download(self, urn):
+        self.lock.lock()
+        if not self.has_internet_connection():
+            return False
         doit = urn not in self.download_queue
         self.lock.unlock()
         if doit:
@@ -554,7 +574,9 @@ class Scheduler(QObject):
     def check(self):
         recipes = self.recipe_model.get_to_be_downloaded_recipes()
         for urn in recipes:
-            self.download(urn)
+            if not self.download(urn):
+                # No internet connection, we will try again in a minute
+                break
 
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt

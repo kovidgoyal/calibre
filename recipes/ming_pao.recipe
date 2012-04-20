@@ -4,18 +4,41 @@ __copyright__ = '2010-2011, Eddie Lau'
 # Region - Hong Kong, Vancouver, Toronto
 __Region__ = 'Hong Kong'
 # Users of Kindle 3 with limited system-level CJK support
-# please replace the following "True" with "False".
+# please replace the following "True" with "False". (Default: True)
 __MakePeriodical__ = True
-# Turn below to true if your device supports display of CJK titles
+# Turn below to True if your device supports display of CJK titles (Default: False)
 __UseChineseTitle__ = False
-# Set it to False if you want to skip images
+# Set it to False if you want to skip images (Default: True)
 __KeepImages__ = True
-# (HK only) Turn below to true if you wish to use life.mingpao.com as the main article source
+# Set it to True if you want to include a summary in Kindle's article view (Default: False)
+__IncludeSummary__ = False
+# Set it to True if you want thumbnail images in Kindle's article view (Default: True)
+__IncludeThumbnails__ = True
+# (HK only) Turn below to True if you wish to use life.mingpao.com as the main article source (Default: True)
 __UseLife__ = True
+# (HK only) It is to disable premium content (Default: False)
+__InclPremium__ = False
+# (HK only) Turn below to True if you wish to parse articles in news.mingpao.com with their printer-friendly formats (Default: True)
+__ParsePFF__ = True
+# (HK only) Turn below to True if you wish hi-res images (Default: False)
+__HiResImg__ = False
+# Override the date returned by the program if specifying a YYYYMMDD below
+__Date__ = ''
 
 
 '''
 Change Log:
+2011/12/18: update the overridden create_odf(.) routine with the one from Calibre version 0.8.31. Move __UseChineseTitle__ usage away
+            from create_odf(.). Optional support of text_summary and thumbnail images in Kindle's article view. Start new day
+            download of Hong Kong Mingpao at 4.30am. Set the actual publication date shown on kindle device.
+2011/12/01: take care of situation that in txt source parsing, the article content does start with special character u'\u3010'
+2011/10/21: fix a bug that hi-res img is unavailable in pages parsed from source txt
+2011/10/19: fix a bug in txt source parsing
+2011/10/17: disable fetching of premium content, also improved txt source parsing
+2011/10/04: option to get hi-res photos for the articles
+2011/09/21: fetching "column" section is made optional.
+2011/09/18: parse "column" section stuff from source text file directly.
+2011/09/07: disable "column" section as it is no longer offered free.
 2011/06/26: add fetching Vancouver and Toronto versions of the paper, also provide captions for images using life.mingpao fetch source
             provide options to remove all images in the file
 2011/05/12: switch the main parse source to life.mingpao.com, which has more photos on the article pages
@@ -37,30 +60,38 @@ Change Log:
 2010/10/31: skip repeated articles in section pages
 '''
 
-import os, datetime, re
+from calibre.utils.date import now as nowf
+import os, datetime, re, mechanize
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
+from calibre.utils.localization import canonicalize_lang
 
 # MAIN CLASS
 class MPRecipe(BasicNewsRecipe):
     if __Region__ == 'Hong Kong':
-        title       = 'Ming Pao - Hong Kong'
+        if __UseChineseTitle__ == True:
+            title = u'\u660e\u5831 (\u9999\u6e2f)'
+        else:
+            title   = 'Ming Pao - Hong Kong'
         description = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
         category    = 'Chinese, News, Hong Kong'
-        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;}'
+        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} font>b {font-size:200%; font-weight:bold;} div[class=heading] {font-size:200%; font-weight:bold;} div[class=images] {font-size:50%;}'
         masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
         keep_only_tags = [dict(name='h1'),
                           dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
                           dict(name='font', attrs={'color':['AA0000']}), # for column articles title
+                          dict(attrs={'class':['heading']}),  # for heading from txt
                           dict(attrs={'id':['newscontent']}), # entertainment and column page content
                           dict(attrs={'id':['newscontent01','newscontent02']}),
+                          dict(attrs={'class':['content']}),  # for content from txt
                           dict(attrs={'class':['photo']}),
                           dict(name='table', attrs={'width':['100%'], 'border':['0'], 'cellspacing':['5'], 'cellpadding':['0']}),  # content in printed version of life.mingpao.com
-                          dict(name='img', attrs={'width':['180'], 'alt':['按圖放大']}) # images for source from life.mingpao.com
+                          dict(name='img', attrs={'width':['180'], 'alt':['????']}), # images for source from life.mingpao.com
+                          dict(attrs={'class':['images']})   # for images from txt
                           ]
         if __KeepImages__:
             remove_tags = [dict(name='style'),
@@ -90,7 +121,10 @@ class MPRecipe(BasicNewsRecipe):
                               lambda match: "</b>")
                              ]
     elif __Region__ == 'Vancouver':
-        title       = 'Ming Pao - Vancouver'
+        if __UseChineseTitle__ == True:
+            title   = u'\u660e\u5831 (\u6eab\u54e5\u83ef)'
+        else:
+            title   = 'Ming Pao - Vancouver'
         description = 'Vancouver Chinese Newspaper (http://www.mingpaovan.com)'
         category    = 'Chinese, News, Vancouver'
         extra_css   = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} b>font {font-size:200%; font-weight:bold;}'
@@ -108,7 +142,10 @@ class MPRecipe(BasicNewsRecipe):
                               lambda match: ''),
                              ]
     elif __Region__ == 'Toronto':
-        title       = 'Ming Pao - Toronto'
+        if __UseChineseTitle__ == True:
+            title   = u'\u660e\u5831 (\u591a\u502b\u591a)'
+        else:
+            title   = 'Ming Pao - Toronto'
         description = 'Toronto Chinese Newspaper (http://www.mingpaotor.com)'
         category    = 'Chinese, News, Toronto'
         extra_css   = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} b>font {font-size:200%; font-weight:bold;}'
@@ -139,49 +176,12 @@ class MPRecipe(BasicNewsRecipe):
     conversion_options = {'linearize_tables':True}
     timefmt = ''
 
-    def image_url_processor(cls, baseurl, url):
-        # trick: break the url at the first occurance of digit, add an additional
-        # '_' at the front
-        # not working, may need to move this to preprocess_html() method
-#        minIdx = 10000
-#        i0 = url.find('0')
-#        if i0 >= 0 and i0 < minIdx:
-#           minIdx = i0
-#        i1 = url.find('1')
-#        if i1 >= 0 and i1 < minIdx:
-#           minIdx = i1
-#        i2 = url.find('2')
-#        if i2 >= 0 and i2 < minIdx:
-#           minIdx = i2
-#        i3 = url.find('3')
-#        if i3 >= 0 and i0 < minIdx:
-#           minIdx = i3
-#        i4 = url.find('4')
-#        if i4 >= 0 and i4 < minIdx:
-#           minIdx = i4
-#        i5 = url.find('5')
-#        if i5 >= 0 and i5 < minIdx:
-#           minIdx = i5
-#        i6 = url.find('6')
-#        if i6 >= 0 and i6 < minIdx:
-#           minIdx = i6
-#        i7 = url.find('7')
-#        if i7 >= 0 and i7 < minIdx:
-#           minIdx = i7
-#        i8 = url.find('8')
-#        if i8 >= 0 and i8 < minIdx:
-#           minIdx = i8
-#        i9 = url.find('9')
-#        if i9 >= 0 and i9 < minIdx:
-#           minIdx = i9
-        return url
-
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
         if __Region__ == 'Hong Kong':
-            # convert UTC to local hk time - at HKT 5.30am, all news are available
-            dt_local = dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(5.5/24)
-            # dt_local = dt_utc.astimezone(pytz.timezone('Asia/Hong_Kong')) - datetime.timedelta(5.5/24)
+            # convert UTC to local hk time - at HKT 4.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(4.5/24)
+            # dt_local = dt_utc.astimezone(pytz.timezone('Asia/Hong_Kong')) - datetime.timedelta(4.5/24)
         elif __Region__ == 'Vancouver':
             # convert UTC to local Vancouver time - at PST time 5.30am, all news are available
             dt_local = dt_utc + datetime.timedelta(-8.0/24) - datetime.timedelta(5.5/24)
@@ -193,13 +193,34 @@ class MPRecipe(BasicNewsRecipe):
         return dt_local
 
     def get_fetchdate(self):
-        return self.get_dtlocal().strftime("%Y%m%d")
+        if __Date__ <> '':
+            return __Date__
+        else:
+            return self.get_dtlocal().strftime("%Y%m%d")
 
     def get_fetchformatteddate(self):
-        return self.get_dtlocal().strftime("%Y-%m-%d")
+        if __Date__ <> '':
+            return __Date__[0:4]+'-'+__Date__[4:6]+'-'+__Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%Y-%m-%d")
+
+    def get_fetchyear(self):
+        if __Date__ <> '':
+            return __Date__[0:4]
+        else:
+            return self.get_dtlocal().strftime("%Y")
+
+    def get_fetchmonth(self):
+        if __Date__ <> '':
+            return __Date__[4:6]
+        else:
+            return self.get_dtlocal().strftime("%m")
 
     def get_fetchday(self):
-        return self.get_dtlocal().strftime("%d")
+        if __Date__ <> '':
+            return __Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%d")
 
     def get_cover_url(self):
         if __Region__ == 'Hong Kong':
@@ -230,11 +251,22 @@ class MPRecipe(BasicNewsRecipe):
                                            (u'\u570b\u969b World', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalta', 'nal'),
                                            (u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal'),
                                            (u'\u9ad4\u80b2 Sport', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalsp', 'nal'),
-                                           (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal'),
-                                           (u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')]:
-                    articles = self.parse_section2(url, keystr)
+                                           (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal')
+                                          ]:
+                    if __InclPremium__ == True:
+                        articles = self.parse_section2_txt(url, keystr)
+                    else:
+                        articles = self.parse_section2(url, keystr)
                     if articles:
                         feeds.append((title, articles))
+
+                if __InclPremium__ == True:
+                    # parse column section articles directly from .txt files
+                    for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
+                                              ]:
+                        articles = self.parse_section2_txt(url, keystr)
+                        if articles:
+                            feeds.append((title, articles))
 
                 for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
                                    (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
@@ -244,15 +276,16 @@ class MPRecipe(BasicNewsRecipe):
             else:
                 for title, url in [(u'\u8981\u805e Headline', 'http://news.mingpao.com/' + dateStr + '/gaindex.htm'),
                                    (u'\u6e2f\u805e Local', 'http://news.mingpao.com/' + dateStr + '/gbindex.htm'),
-                                   (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm')]:
+                                   (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm'),
+                                   (u'\u793e\u8a55/\u7b46\u9663 Editorial', 'http://news.mingpao.com/' + dateStr + '/mrindex.htm')]:
                     articles = self.parse_section(url)
                     if articles:
                         feeds.append((title, articles))
 
                 # special- editorial
-                ed_articles = self.parse_ed_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr')
-                if ed_articles:
-                    feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
+                #ed_articles = self.parse_ed_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr')
+                #if ed_articles:
+                #    feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
 
                 for title, url in [(u'\u8ad6\u58c7 Forum', 'http://news.mingpao.com/' + dateStr + '/faindex.htm'),
                                    (u'\u4e2d\u570b China', 'http://news.mingpao.com/' + dateStr + '/caindex.htm'),
@@ -263,20 +296,39 @@ class MPRecipe(BasicNewsRecipe):
 
                 # special - finance
                 #fin_articles = self.parse_fin_section('http://www.mpfinance.com/htm/Finance/' + dateStr + '/News/ea,eb,ecindex.htm')
-                fin_articles = self.parse_fin_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea')
-                if fin_articles:
-                    feeds.append((u'\u7d93\u6fdf Finance', fin_articles))
+                #fin_articles = self.parse_fin_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea')
+                #if fin_articles:
+                #    feeds.append((u'\u7d93\u6fdf Finance', fin_articles))
 
-                for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
-                                   (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
-                    articles = self.parse_section(url)
+                for title, url, keystr in [(u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal')]:
+                    articles = self.parse_section2_txt(url, keystr)
                     if articles:
                         feeds.append((title, articles))
 
+                #for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
+                #                   (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
+                #    articles = self.parse_section(url)
+                #    if articles:
+                #        feeds.append((title, articles))
+
                 # special - entertainment
-                ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
-                if ent_articles:
-                    feeds.append((u'\u5f71\u8996 Film/TV', ent_articles))
+                #ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
+                #if ent_articles:
+                #    feeds.append((u'\u5f71\u8996 Film/TV', ent_articles))
+
+                for title, url, keystr in [(u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal')
+                                          ]:
+                    articles = self.parse_section2_txt(url, keystr)
+                    if articles:
+                        feeds.append((title, articles))
+
+                if __InclPremium__ == True:
+                    # parse column section articles directly from .txt files
+                    for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
+                                              ]:
+                        articles = self.parse_section2_txt(url, keystr)
+                        if articles:
+                            feeds.append((title, articles))
 
                 for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
                                    (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
@@ -284,11 +336,6 @@ class MPRecipe(BasicNewsRecipe):
                     if articles:
                         feeds.append((title, articles))
 
-
-                # special- columns
-                col_articles = self.parse_col_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn')
-                if col_articles:
-                    feeds.append((u'\u5c08\u6b04 Columns', col_articles))
         elif __Region__ == 'Vancouver':
             for title, url in [(u'\u8981\u805e Headline', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VAindex.htm'),
                                (u'\u52a0\u570b Canada', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VBindex.htm'),
@@ -332,6 +379,16 @@ class MPRecipe(BasicNewsRecipe):
             title = self.tag_to_string(a)
             url = a.get('href', False)
             url = 'http://news.mingpao.com/' + dateStr + '/' +url
+            # replace the url to the print-friendly version
+            if __ParsePFF__ == True:
+                if url.rfind('Redirect') <> -1 and __InclPremium__ == True:
+                    url = re.sub(dateStr + '.*' + dateStr, dateStr, url)
+                    url = re.sub('%2F.*%2F', '/', url)
+                    title = title.replace(u'\u6536\u8cbb\u5167\u5bb9', '')
+                    url = url.replace('%2Etxt', '_print.htm')
+                    url = url.replace('%5F', '_')
+                else:
+                    url = url.replace('.htm', '_print.htm')
             if url not in included_urls and url.rfind('Redirect') == -1:
                 current_articles.append({'title': title, 'url': url, 'description':'', 'date':''})
                 included_urls.append(url)
@@ -340,6 +397,8 @@ class MPRecipe(BasicNewsRecipe):
 
     # parse from life.mingpao.com
     def parse_section2(self, url, keystr):
+        br = mechanize.Browser()
+        br.set_handle_redirect(False)
         self.get_fetchdate()
         soup = self.index_to_soup(url)
         a = soup.findAll('a', href=True)
@@ -350,7 +409,29 @@ class MPRecipe(BasicNewsRecipe):
             title = self.tag_to_string(i)
             url = 'http://life.mingpao.com/cfm/' + i.get('href', False)
             if (url not in included_urls) and (not url.rfind('.txt') == -1) and (not url.rfind(keystr) == -1):
-                url = url.replace('dailynews3.cfm', 'dailynews3a.cfm')  # use printed version of the article
+                try:
+                    br.open_novisit(url)
+                    url = url.replace('dailynews3.cfm', 'dailynews3a.cfm')  # use printed version of the article
+                    current_articles.append({'title': title, 'url': url, 'description': ''})
+                    included_urls.append(url)
+                except:
+				    print 'skipping a premium article'
+        current_articles.reverse()
+        return current_articles
+
+    # parse from text file of life.mingpao.com
+    def parse_section2_txt(self, url, keystr):
+        self.get_fetchdate()
+        soup = self.index_to_soup(url)
+        a = soup.findAll('a', href=True)
+        a.reverse()
+        current_articles = []
+        included_urls = []
+        for i in a:
+            title = self.tag_to_string(i)
+            url = 'http://life.mingpao.com/cfm/' + i.get('href', False)
+            if (url not in included_urls) and (not url.rfind('.txt') == -1) and (not url.rfind(keystr) == -1):
+                url = url.replace('cfm/dailynews3.cfm?File=', 'ftp/Life3/')  # use printed version of the article
                 current_articles.append({'title': title, 'url': url, 'description': ''})
                 included_urls.append(url)
         current_articles.reverse()
@@ -438,6 +519,162 @@ class MPRecipe(BasicNewsRecipe):
         current_articles.reverse()
         return current_articles
 
+    # preprocess those .txt and javascript based files
+    def preprocess_raw_html(self, raw_html, url):
+        new_html = raw_html
+        if url.rfind('ftp') <> -1 or url.rfind('_print.htm') <> -1:
+            if url.rfind('_print.htm') <> -1:
+                # javascript based file
+                splitter = re.compile(r'\n')
+                new_raw_html = '<html><head><title>Untitled</title></head>'
+                new_raw_html = new_raw_html + '<body>'
+                for item in splitter.split(raw_html):
+                    if item.startswith('var heading1 ='):
+                        heading = item.replace('var heading1 = \'', '')
+                        heading = heading.replace('\'', '')
+                        heading = heading.replace(';', '')
+                        new_raw_html = new_raw_html + '<div class="heading">' + heading
+                    if item.startswith('var heading2 ='):
+                        heading = item.replace('var heading2 = \'', '')
+                        heading = heading.replace('\'', '')
+                        heading = heading.replace(';', '')
+                        if heading <> '':
+                            new_raw_html = new_raw_html + '<br>' + heading + '</div>'
+                        else:
+                            new_raw_html = new_raw_html + '</div>'
+                    if item.startswith('var content ='):
+                        content = item.replace("var content = ", '')
+                        content = content.replace('\'', '')
+                        content = content.replace(';', '')
+                        new_raw_html = new_raw_html + '<div class="content">' + content + '</div>'
+                    if item.startswith('var photocontent ='):
+                        photo = item.replace('var photocontent = \'', '')
+                        photo = photo.replace('\'', '')
+                        photo = photo.replace(';', '')
+                        photo = photo.replace('<tr>', '')
+                        photo = photo.replace('<td>', '')
+                        photo = photo.replace('</tr>', '')
+                        photo = photo.replace('</td>', '<br>')
+                        photo = photo.replace('class="photo"', '')
+                        new_raw_html = new_raw_html + '<div class="images">' + photo + '</div>'
+                new_html = new_raw_html + '</body></html>'
+            else:
+                # .txt based file
+                splitter = re.compile(r'\n') # Match non-digits
+                new_raw_html = '<html><head><title>Untitled</title></head><body><div class="images">'
+                next_is_img_txt = False
+                title_started = False
+                title_break_reached = False
+                met_article_start_char = False
+                for item in splitter.split(raw_html):
+                    item = item.strip()
+                    # if title already reached but break between title and content not yet found, record title_break_reached
+                    if title_started == True and title_break_reached == False and item == '':
+                        title_break_reached = True
+                    # if title reached and title_break_reached and met_article_start_char == False and item is not empty
+                    # start content
+                    elif title_started == True and title_break_reached == True and met_article_start_char == False:
+                        if item <> '':
+                            met_article_start_char = True
+                            new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
+                    #if item.startswith(u'\u3010'):
+                    #    met_article_start_char = True
+                    #    new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
+                    else:
+                        if next_is_img_txt == False:
+                            if item.startswith("=@"):
+                                print 'skip movie link'
+                            elif item.startswith("=?"):
+                                next_is_img_txt = True
+                                new_raw_html += '<img src="' + str(item)[2:].strip() + '.gif" /><p>\n'
+                            elif item.startswith('=='):
+                                next_is_img_txt = True
+                                if False:
+                                    # TODO: check existence of .gif first
+                                    newimg = '_' + item[2:].strip() + '.jpg'
+                                    new_raw_html += '<img src="' + newimg + '" /><p>\n'
+                                else:
+                                    new_raw_html += '<img src="' + str(item)[2:].strip() + '.jpg" /><p>\n'
+                            elif item.startswith('='):
+                                next_is_img_txt = True
+                                if False:
+                                    # TODO: check existence of .gif first
+                                    newimg = '_' + item[1:].strip() + '.jpg'
+                                    new_raw_html += '<img src="' + newimg + '" /><p>\n'
+                                else:
+                                    new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
+                            else:
+                                if next_is_img_txt == False and met_article_start_char == False:
+                                    if item <> '':
+                                        if title_started == False:
+                                            #print 'Title started at ', item
+                                            new_raw_html = new_raw_html + '</div><div class="heading">' + item + '\n'
+                                            title_started = True
+                                        else:
+                                            new_raw_html = new_raw_html + item + '\n'
+                                else:
+                                    new_raw_html = new_raw_html + item + '<p>\n'
+                        else:
+                            next_is_img_txt = False
+                            new_raw_html = new_raw_html + item + '\n'
+                new_html = new_raw_html + '</div></body></html>'
+        #raw_html = raw_html.replace(u'<p>\u3010', u'\u3010')
+        if __HiResImg__ == True:
+            # TODO: add a _ in front of an image url
+            if url.rfind('news.mingpao.com') > -1:
+                imglist =  re.findall('src="?.*?jpg"', new_html)
+                br = mechanize.Browser()
+                br.set_handle_redirect(False)
+                for img in imglist:
+                    gifimg = img.replace('jpg"', 'gif"')
+                    try:
+                        br.open_novisit(url + "/../" + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        # find the location of the first _
+                        pos = img.find('_')
+                        if pos > -1:
+                            # if found, insert _ after the first _
+                            newimg = img[0:pos] + '_' + img[pos:]
+                            new_html = new_html.replace(img, newimg)
+                        else:
+                            # if not found, insert _ after "
+                            new_html = new_html.replace(img[1:], '"_' + img[1:])
+            elif url.rfind('life.mingpao.com') > -1:
+                imglist = re.findall('src=\'?.*?jpg\'', new_html)
+                br = mechanize.Browser()
+                br.set_handle_redirect(False)
+                #print 'Img list: ', imglist, '\n'
+                for img in imglist:
+                    #print 'Found img: ', img
+                    gifimg = img.replace('jpg\'', 'gif\'')
+                    try:
+                        gifurl = re.sub(r'dailynews.*txt', '', url)
+                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        pos = img.rfind('/')
+                        newimg = img[0:pos+1] + '_' + img[pos+1:]
+                        new_html = new_html.replace(img, newimg)
+                # repeat with src quoted by double quotes, for text parsed from src txt
+                imglist = re.findall('src="?.*?jpg"', new_html)
+                for img in imglist:
+                    #print 'Found img: ', img
+                    gifimg = img.replace('jpg"', 'gif"')
+                    try:
+                        #print 'url', url
+                        pos = url.rfind('/')
+                        gifurl = url[:pos+1]
+                        #print 'try it:', gifurl + gifimg[5:len(gifimg)-1]
+                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        pos = img.find('"')
+                        newimg = img[0:pos+1] + '_' + img[pos+1:]
+                        #print 'Use hi-res img', newimg
+                        new_html = new_html.replace(img, newimg)
+        return new_html
+
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
@@ -447,77 +684,153 @@ class MPRecipe(BasicNewsRecipe):
             del item['absmiddle']
         return soup
 
+    def populate_article_metadata(self, article, soup, first):
+        # thumbnails shouldn't be available if using hi-res images
+        if __IncludeThumbnails__ and __HiResImg__ == False and first and hasattr(self, 'add_toc_thumbnail'):
+            img = soup.find('img')
+            if img is not None:
+                self.add_toc_thumbnail(article, img['src'])
+
+        try:
+            if __IncludeSummary__ and len(article.text_summary.strip()) == 0:
+                # look for content
+                articlebodies = soup.findAll('div',attrs={'id':'newscontent'})
+                if not articlebodies:
+                    articlebodies = soup.findAll('div',attrs={'id':'newscontent01'})
+                if not articlebodies:
+                    articlebodies = soup.findAll('div',attrs={'class':'content'})
+                if not articlebodies:
+                    articlebodies = soup.findAll('div', attrs={'id':'font'})
+                if articlebodies:
+                    for articlebody in articlebodies:
+                        if articlebody:
+                            # the text may or may not be enclosed in <p></p> tag
+                            paras = articlebody.findAll('p')
+                            if not paras:
+                            	paras = articlebody
+                            textFound = False
+                            for p in paras:
+                                if not textFound:
+                                    summary_candidate = self.tag_to_string(p).strip()
+                                    summary_candidate = summary_candidate.replace(u'\u3010\u660e\u5831\u5c08\u8a0a\u3011', '', 1)
+                                    if len(summary_candidate) > 0:
+                                        article.summary = article.text_summary = summary_candidate
+                                        textFound = True
+            else:
+                # display a simple text
+                #article.summary = article.text_summary = u'\u66f4\u591a......'
+                # display word counts
+                counts = 0
+                articlebodies = soup.findAll('div',attrs={'id':'newscontent'})
+                if not articlebodies:
+                    articlebodies = soup.findAll('div',attrs={'id':'newscontent01'})
+                if not articlebodies:
+                    articlebodies = soup.findAll('div',attrs={'class':'content'})
+                if not articlebodies:
+                    articlebodies = soup.findAll('div', attrs={'id':'font'})
+                if articlebodies:
+                    for articlebody in articlebodies:
+                        # the text may or may not be enclosed in <p></p> tag
+                        paras = articlebody.findAll('p')
+                        if not paras:
+                            paras = articlebody
+                        for p in paras:
+                            summary_candidate = self.tag_to_string(p).strip()
+                            counts += len(summary_candidate)
+                    article.summary = article.text_summary = u'\uff08' + str(counts) + u'\u5b57\uff09'
+        except:
+            self.log("Error creating article descriptions")
+            return
+
+    # override from the one in version 0.8.31
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        if __UseChineseTitle__ == True:
-            if __Region__ == 'Hong Kong':
-                title = u'\u660e\u5831 (\u9999\u6e2f)'
-            elif __Region__ == 'Vancouver':
-                title = u'\u660e\u5831 (\u6eab\u54e5\u83ef)'
-            elif __Region__ == 'Toronto':
-                title = u'\u660e\u5831 (\u591a\u502b\u591a)'
-        else:
-            title = self.short_title()
-        # if not generating a periodical, force date to apply in title
-        if __MakePeriodical__ == False:
+        title = self.short_title()
+        # change 1: allow our own flag to tell if a periodical is to be generated
+        # also use customed date instead of current time
+        if __MakePeriodical__ == False or self.output_profile.periodical_date_in_title:
             title = title + ' ' + self.get_fetchformatteddate()
-        if True:
-            mi = MetaInformation(title, [self.publisher])
-            mi.publisher = self.publisher
-            mi.author_sort = self.publisher
-            if __MakePeriodical__ == True:
-                mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
-            else:
-                mi.publication_type = self.publication_type+':'+self.short_title()
-            #mi.timestamp = nowf()
-            mi.timestamp = self.get_dtlocal()
-            mi.comments = self.description
-            if not isinstance(mi.comments, unicode):
-                mi.comments = mi.comments.decode('utf-8', 'replace')
-            #mi.pubdate = nowf()
-            mi.pubdate = self.get_dtlocal()
-            opf_path = os.path.join(dir, 'index.opf')
-            ncx_path = os.path.join(dir, 'index.ncx')
-            opf = OPFCreator(dir, mi)
-            # Add mastheadImage entry to <guide> section
-            mp = getattr(self, 'masthead_path', None)
-            if mp is not None and os.access(mp, os.R_OK):
-                from calibre.ebooks.metadata.opf2 import Guide
-                ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
-                ref.type = 'masthead'
-                ref.title = 'Masthead Image'
-                opf.guide.append(ref)
+        # end of change 1
+        # change 2: __appname__ replaced by newspaper publisher
+        __appname__ = self.publisher
+        mi = MetaInformation(title, [__appname__])
+        mi.publisher = __appname__
+        mi.author_sort = __appname__
+        # change 3: use __MakePeriodical__ flag to tell if a periodical should be generated
+        if __MakePeriodical__ == True:
+            mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+        else:
+            mi.publication_type = self.publication_type+':'+self.short_title()
+        #mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+        # change 4: in the following, all the nowf() are changed to adjusted time
+        # This one doesn't matter
+        mi.timestamp = nowf()
+        # change 5: skip listing the articles
+        #article_titles, aseen = [], set()
+        #for f in feeds:
+        #    for a in f:
+        #        if a.title and a.title not in aseen:
+        #            aseen.add(a.title)
+        #            article_titles.append(force_unicode(a.title, 'utf-8'))
 
-            manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
-            manifest.append(os.path.join(dir, 'index.html'))
-            manifest.append(os.path.join(dir, 'index.ncx'))
+        #mi.comments = self.description
+        #if not isinstance(mi.comments, unicode):
+        #    mi.comments = mi.comments.decode('utf-8', 'replace')
+        #mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
+        #        '\n\n'.join(article_titles))
 
-            # Get cover
-            cpath = getattr(self, 'cover_path', None)
-            if cpath is None:
-                pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
-                if self.default_cover(pf):
-                    cpath =  pf.name
-            if cpath is not None and os.access(cpath, os.R_OK):
-                opf.cover = cpath
-                manifest.append(cpath)
+        language = canonicalize_lang(self.language)
+        if language is not None:
+            mi.language = language
+        # This one affects the pub date shown in kindle title
+        #mi.pubdate = nowf()
+        # now appears to need the time field to be > 12.00noon as well
+        mi.pubdate = datetime.datetime(int(self.get_fetchyear()), int(self.get_fetchmonth()), int(self.get_fetchday()), 12, 30, 0)
+        opf_path = os.path.join(dir, 'index.opf')
+        ncx_path = os.path.join(dir, 'index.ncx')
 
-            # Get masthead
-            mpath = getattr(self, 'masthead_path', None)
-            if mpath is not None and os.access(mpath, os.R_OK):
-                manifest.append(mpath)
+        opf = OPFCreator(dir, mi)
+        # Add mastheadImage entry to <guide> section
+        mp = getattr(self, 'masthead_path', None)
+        if mp is not None and os.access(mp, os.R_OK):
+            from calibre.ebooks.metadata.opf2 import Guide
+            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref.type = 'masthead'
+            ref.title = 'Masthead Image'
+            opf.guide.append(ref)
 
-            opf.create_manifest_from_files_in(manifest)
-            for mani in opf.manifest:
-                if mani.path.endswith('.ncx'):
-                    mani.id = 'ncx'
-                if mani.path.endswith('mastheadImage.jpg'):
-                    mani.id = 'masthead-image'
-            entries = ['index.html']
-            toc = TOC(base_path=dir)
-            self.play_order_counter = 0
-            self.play_order_map = {}
+        manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
+        manifest.append(os.path.join(dir, 'index.html'))
+        manifest.append(os.path.join(dir, 'index.ncx'))
+
+        # Get cover
+        cpath = getattr(self, 'cover_path', None)
+        if cpath is None:
+            pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
+            if self.default_cover(pf):
+                cpath =  pf.name
+        if cpath is not None and os.access(cpath, os.R_OK):
+            opf.cover = cpath
+            manifest.append(cpath)
+
+        # Get masthead
+        mpath = getattr(self, 'masthead_path', None)
+        if mpath is not None and os.access(mpath, os.R_OK):
+            manifest.append(mpath)
+
+        opf.create_manifest_from_files_in(manifest)
+        for mani in opf.manifest:
+            if mani.path.endswith('.ncx'):
+                mani.id = 'ncx'
+            if mani.path.endswith('mastheadImage.jpg'):
+                mani.id = 'masthead-image'
+
+        entries = ['index.html']
+        toc = TOC(base_path=dir)
+        self.play_order_counter = 0
+        self.play_order_map = {}
+
 
         def feed_index(num, parent):
             f = feeds[num]
@@ -532,13 +845,16 @@ class MPRecipe(BasicNewsRecipe):
                         desc = None
                     else:
                         desc = self.description_limiter(desc)
+                    tt = a.toc_thumbnail if a.toc_thumbnail else None
                     entries.append('%sindex.html'%adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
-                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
-                                    play_order=po, author=auth, description=desc)
+                    parent.add_item('%sindex.html'%adir, None,
+                            a.title if a.title else _('Untitled Article'),
+                            play_order=po, author=auth,
+                            description=desc, toc_thumbnail=tt)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -555,7 +871,7 @@ class MPRecipe(BasicNewsRecipe):
                             prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
                             templ = self.navbar.generate(True, num, j, len(f),
                                             not self.has_single_feed,
-                                            a.orig_url, self.publisher, prefix=prefix,
+                                            a.orig_url, __appname__, prefix=prefix,
                                             center=self.center_navbar)
                             elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                             body.insert(len(body.contents), elem)
@@ -578,7 +894,7 @@ class MPRecipe(BasicNewsRecipe):
                 if not desc:
                     desc = None
                 feed_index(i, toc.add_item('feed_%d/index.html'%i, None,
-                           f.title, play_order=po, description=desc, author=auth))
+                    f.title, play_order=po, description=desc, author=auth))
 
         else:
             entries.append('feed_%d/index.html'%0)
@@ -591,4 +907,5 @@ class MPRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
+
 

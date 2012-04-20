@@ -188,7 +188,7 @@ except:
 # chardet library auto-detects character encodings
 # Download from http://chardet.feedparser.org/
 try:
-    import calibre.ebooks.chardet as chardet # Changed by Kovid
+    import chardet
     if _debug:
         import chardet.constants
         chardet.constants._debug = 1

@@ -2,20 +2,20 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2010, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
-import sqlite3 as sqlite
+import os, time, calendar
 from contextlib import closing
-
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
+from calibre.devices.kobo.bookmark import Bookmark
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.devices.usbms.books import CollectionsBookList
+from calibre.ptempfile import PersistentTemporaryFile
 
 class KOBO(USBMS):
 
@@ -23,7 +23,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 10)
+    version = (1, 0, 12)
 
     dbversion = 0
     fwversion = 0
@@ -38,7 +38,7 @@ class KOBO(USBMS):
     CAN_SET_METADATA = ['collections']
 
     VENDOR_ID   = [0x2237]
-    PRODUCT_ID  = [0x4161, 0x4163]
+    PRODUCT_ID  = [0x4161, 0x4163, 0x4165]
     BCD         = [0x0110, 0x0323, 0x0326]
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
@@ -46,18 +46,50 @@ class KOBO(USBMS):
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
+    SUPPORTS_ANNOTATIONS = True
 
     VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
-                    'Read, Closed, Im_Reading ' +\
+                    'Read, Closed, Im_Reading. ' +\
             _('Create tags for automatic management'),
-    ]
+            _('Upload covers for books (newer readers)') +
+            ':::'+_('Normally, the KOBO readers get the cover image from the'
+                ' ebook file itself. With this option, calibre will send a '
+                'separate cover image to the reader, useful if you '
+                'have modified the cover.'),
+            _('Upload Black and White Covers'),
+            _('Show expired books') +
+            ':::'+_('A bug in an earlier version left non kepubs book records'
+                ' in the database.  With this option Calibre will show the '
+                'expired records and allow you to delete them with '
+                'the new delete logic.'),
+            _('Show Previews') +
+            ':::'+_('Kobo previews are included on the Touch and some other versions'
+                ' by default they are no longer displayed as there is no good reason to '
+                'see them.  Enable if you wish to see/delete them.'),
+            _('Show Recommendations') +
+            ':::'+_('Kobo now shows recommendations on the device.  In some case these have '
+                'files but in other cases they are just pointers to the web site to buy. '
+                'Enable if you wish to see/delete them.'),
+            ]
 
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+            ', '.join(['tags']),
+            True,
+            True,
+            True,
+            False,
+            False
+            ]
 
-    OPT_COLLECTIONS = 0
+    OPT_COLLECTIONS    = 0
+    OPT_UPLOAD_COVERS  = 1
+    OPT_UPLOAD_GRAYSCALE_COVERS  = 2
+    OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
+    OPT_SHOW_PREVIEWS = 4
+    OPT_SHOW_RECOMMENDATIONS = 5
 
     def initialize(self):
         USBMS.initialize(self)
@@ -93,6 +125,7 @@ class KOBO(USBMS):
 
         if self.fwversion != '1.0' and self.fwversion != '1.4':
             self.has_kepubs = True
+        debug_print('Version of driver: ', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
 
         self.booklist_class.rebuild_collections = self.rebuild_collections
@@ -138,6 +171,8 @@ class KOBO(USBMS):
                 # Label Previews
                 if accessibility == 6:
                     playlist_map[lpath].append('Preview')
+                elif accessibility == 4:
+                    playlist_map[lpath].append('Recommendation')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -193,6 +228,7 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
+        import sqlite3 as sqlite
         with closing(sqlite.connect(
             self.normalize_path(self._main_prefix +
                 '.kobo/KoboReader.sqlite'))) as connection:
@@ -216,28 +252,42 @@ class KOBO(USBMS):
             self.dbversion = result[0]
 
             debug_print("Database Version: ", self.dbversion)
-            if self.dbversion >= 16:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+
+            opts = self.settings()
+            if self.dbversion >= 33:
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, IsDownloaded from content where ' \
+                    'BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')', \
+                    previews=' and Accessibility <> 6' \
+                    if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '', \
+                    recomendations=' and IsDownloaded in (\'true\', 1)' \
+                    if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else '')
+            elif self.dbversion >= 16 and self.dbversion < 33:
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, "1" as IsDownloaded from content where ' \
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 16 and self.dbversion >= 14:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where ' \
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 14 and self.dbversion >= 8:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where ' \
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             else:
                 query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
+                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where BookID is Null'
 
             try:
                 cursor.execute (query)
             except Exception as e:
                 err = str(e)
                 if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
-                        'Accessibility' in err):
+                        'Accessibility' in err or 'IsDownloaded' in err):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
@@ -248,7 +298,7 @@ class KOBO(USBMS):
             changed = False
             for i, row in enumerate(cursor):
             #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
-                if row[3].startswith("file:///usr/local/Kobo/help/"):
+                if not hasattr(row[3], 'startswith') or row[3].startswith("file:///usr/local/Kobo/help/"):
                     # These are internal to the Kobo device and do not exist
                     continue
                 path = self.path_from_contentid(row[3], row[5], row[4], oncard)
@@ -293,6 +343,7 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
+        import sqlite3 as sqlite
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
         with closing(sqlite.connect(self.normalize_path(self._main_prefix +
             '.kobo/KoboReader.sqlite'))) as connection:
@@ -327,21 +378,23 @@ class KOBO(USBMS):
             # Kobo does not delete the Book row (ie the row where the BookID is Null)
             # The next server sync should remove the row
             cursor.execute('delete from content where BookID = ?', t)
-            try:
-                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
-                    'where BookID is Null and ContentID =?',t)
-            except Exception as e:
-                if 'no such column' not in str(e):
-                    raise
+            if ContentType == 6:
                 try:
-                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
                         'where BookID is Null and ContentID =?',t)
                 except Exception as e:
                     if 'no such column' not in str(e):
                         raise
-                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
-                        'where BookID is Null and ContentID =?',t)
-
+                    try:
+                        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                            'where BookID is Null and ContentID =?',t)
+                    except Exception as e:
+                        if 'no such column' not in str(e):
+                            raise
+                        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
+                            'where BookID is Null and ContentID =?',t)
+            else:
+                cursor.execute('delete from content where BookID is Null and ContentID =?',t)
 
             connection.commit()
 
@@ -358,7 +411,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed', ' - N3_FULL.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -593,7 +646,7 @@ class KOBO(USBMS):
             raise
         else:
             connection.commit()
-            debug_print('    Commit: Reset ReadStatus list')
+            # debug_print('    Commit: Reset ReadStatus list')
 
         cursor.close()
 
@@ -616,7 +669,7 @@ class KOBO(USBMS):
             raise
         else:
             connection.commit()
-            debug_print('    Commit: Setting ReadStatus List')
+            # debug_print('    Commit: Setting ReadStatus List')
         cursor.close()
 
     def reset_favouritesindex(self, connection, oncard):
@@ -635,7 +688,7 @@ class KOBO(USBMS):
                 raise
         else:
             connection.commit()
-            debug_print('    Commit: Reset FavouritesIndex list')
+            # debug_print('    Commit: Reset FavouritesIndex list')
 
     def set_favouritesindex(self, connection, ContentID):
         cursor = connection.cursor()
@@ -650,9 +703,18 @@ class KOBO(USBMS):
                 raise
         else:
             connection.commit()
-            debug_print('    Commit: Set FavouritesIndex')
+            # debug_print('    Commit: Set FavouritesIndex')
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        # Only process categories in this list
+        supportedcategories = {
+            "Im_Reading":1,
+            "Read":2,
+            "Closed":3,
+            "Shortlist":4,
+            # "Preview":99, # Unsupported as we don't want to change it
+        }
+
         # Define lists for the ReadStatus
         readstatuslist = {
             "Im_Reading":1,
@@ -662,6 +724,7 @@ class KOBO(USBMS):
 
         accessibilitylist = {
             "Preview":6,
+            "Recommendation":4,
        }
 #        debug_print('Starting update_device_database_collections', collections_attributes)
 
@@ -676,6 +739,8 @@ class KOBO(USBMS):
         # Needs to be outside books collection as in the case of removing
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
+
+        import sqlite3 as sqlite
         with closing(sqlite.connect(self.normalize_path(self._main_prefix +
             '.kobo/KoboReader.sqlite'))) as connection:
 
@@ -692,9 +757,10 @@ class KOBO(USBMS):
 
                 # Process any collections that exist
                 for category, books in collections.items():
-                        debug_print("Category: ", category, " id = ", readstatuslist.get(category))
+                    if category in supportedcategories:
+                        # debug_print("Category: ", category, " id = ", readstatuslist.get(category))
                         for book in books:
-                            debug_print('    Title:', book.title, 'category: ', category)
+                            # debug_print('    Title:', book.title, 'category: ', category)
                             if category not in book.device_collections:
                                 book.device_collections.append(category)
 
@@ -728,9 +794,12 @@ class KOBO(USBMS):
 
         blists = {}
         for i in paths:
-            if booklists[i] is not None:
-               #debug_print('Booklist: ', i)
-               blists[i] = booklists[i]
+            try:
+                if booklists[i] is not None:
+                    #debug_print('Booklist: ', i)
+                    blists[i] = booklists[i]
+            except IndexError:
+                pass
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.lower().strip() for x in
@@ -753,3 +822,309 @@ class KOBO(USBMS):
         collections_attributes = []
         self.update_device_database_collections(booklist, collections_attributes, oncard)
 
+    def upload_cover(self, path, filename, metadata, filepath):
+        '''
+        Upload book cover to the device. Default implementation does nothing.
+
+        :param path: The full path to the directory where the associated book is located.
+        :param filename: The name of the book file without the extension.
+        :param metadata: metadata belonging to the book. Use metadata.thumbnail
+                         for cover
+        :param filepath: The full path to the ebook file
+
+        '''
+
+        opts = self.settings()
+        if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
+            # Building thumbnails disabled
+            debug_print('KOBO: not uploading cover')
+            return
+
+        if not opts.extra_customization[self.OPT_UPLOAD_GRAYSCALE_COVERS]:
+            uploadgrayscale = False
+        else:
+            uploadgrayscale = True
+
+        debug_print('KOBO: uploading cover')
+        try:
+            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale)
+        except:
+            debug_print('FAILED to upload cover', filepath)
+
+    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale):
+        from calibre.utils.magick.draw import save_cover_data_to
+        if metadata.cover:
+            cover = self.normalize_path(metadata.cover.replace('/', os.sep))
+
+            if os.path.exists(cover):
+                # Get ContentID for Selected Book
+                extension =  os.path.splitext(filepath)[1]
+                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
+                ContentID = self.contentid_from_path(filepath, ContentType)
+
+                import sqlite3 as sqlite
+                with closing(sqlite.connect(self.normalize_path(self._main_prefix +
+                    '.kobo/KoboReader.sqlite'))) as connection:
+
+                    # return bytestrings if the content cannot the decoded as unicode
+                    connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+
+                    cursor = connection.cursor()
+                    t = (ContentID,)
+                    cursor.execute('select ImageId from Content where BookID is Null and ContentID = ?', t)
+                    result = cursor.fetchone()
+                    if result is None:
+                        debug_print("No rows exist in the database - cannot upload")
+                        return
+                    else:
+                        ImageID = result[0]
+#                        debug_print("ImageId: ", result[0])
+
+                    cursor.close()
+
+                if ImageID != None:
+                    path_prefix = '.kobo/images/'
+                    path = self._main_prefix + path_prefix + ImageID
+
+                    file_endings = {' - iPhoneThumbnail.parsed':(103,150),
+                            ' - bbMediumGridList.parsed':(93,135),
+                            ' - NickelBookCover.parsed':(500,725),
+                            ' - N3_LIBRARY_FULL.parsed':(355,530),
+                            ' - N3_LIBRARY_GRID.parsed':(149,233),
+                            ' - N3_LIBRARY_LIST.parsed':(60,90),
+                            ' - N3_FULL.parsed':(600,800),
+                            ' - N3_SOCIAL_CURRENTREAD.parsed':(120,186)}
+
+                    for ending, resize in file_endings.items():
+                        fpath = path + ending
+                        fpath = self.normalize_path(fpath.replace('/', os.sep))
+
+                        if os.path.exists(fpath):
+                            with open(cover, 'rb') as f:
+                                data = f.read()
+
+                            # Return the data resized and in Grayscale if
+                            # required
+                            data = save_cover_data_to(data, 'dummy.jpg',
+                                    grayscale=uploadgrayscale,
+                                    resize_to=resize, return_data=True)
+
+                            with open(fpath, 'wb') as f:
+                                f.write(data)
+
+                else:
+                    debug_print("ImageID could not be retreived from the database")
+
+    def prepare_addable_books(self, paths):
+        '''
+        The Kobo supports an encrypted epub refered to as a kepub
+        Unfortunately Kobo decided to put the files on the device
+        with no file extension.  I just hope that decision causes
+        them as much grief as it does me :-)
+
+        This has to make a temporary copy of the book files with a
+        epub extension to allow Calibre's normal processing to
+        deal with the file appropriately
+        '''
+        for idx, path in enumerate(paths):
+            if path.find('kepub') >= 0:
+                with closing(open(path)) as r:
+                    tf = PersistentTemporaryFile(suffix='.epub')
+                    tf.write(r.read())
+                    paths[idx] = tf.name
+        return paths
+
+    def create_annotations_path(self, mdata, device_path=None):
+        if device_path:
+            return device_path
+        return USBMS.create_annotations_path(self, mdata)
+
+    def get_annotations(self, path_map):
+        EPUB_FORMATS = [u'epub']
+        epub_formats = set(EPUB_FORMATS)
+
+        def get_storage():
+            storage = []
+            if self._main_prefix:
+                storage.append(os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN))
+            if self._card_a_prefix:
+                storage.append(os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A))
+            if self._card_b_prefix:
+                storage.append(os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B))
+            return storage
+
+        def resolve_bookmark_paths(storage, path_map):
+            pop_list = []
+            book_ext = {}
+            for id in path_map:
+                file_fmts = set()
+                for fmt in path_map[id]['fmts']:
+                    file_fmts.add(fmt)
+                bookmark_extension = None
+                if file_fmts.intersection(epub_formats):
+                    book_extension = list(file_fmts.intersection(epub_formats))[0]
+                    bookmark_extension = 'epub'
+
+                if bookmark_extension:
+                    for vol in storage:
+                        bkmk_path = path_map[id]['path']
+                        bkmk_path = bkmk_path
+                        if os.path.exists(bkmk_path):
+                            path_map[id] = bkmk_path
+                            book_ext[id] = book_extension
+                            break
+                    else:
+                        pop_list.append(id)
+                else:
+                    pop_list.append(id)
+
+            # Remove non-existent bookmark templates
+            for id in pop_list:
+                path_map.pop(id)
+            return path_map, book_ext
+
+        storage = get_storage()
+        path_map, book_ext = resolve_bookmark_paths(storage, path_map)
+
+        bookmarked_books = {}
+        for id in path_map:
+            extension =  os.path.splitext(path_map[id])[1]
+            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
+            ContentID = self.contentid_from_path(path_map[id], ContentType)
+
+            bookmark_ext = extension
+
+            db_path = self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
+            myBookmark = Bookmark(db_path, ContentID, path_map[id], id, book_ext[id], bookmark_ext)
+            bookmarked_books[id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
+
+        # This returns as job.result in gui2.ui.annotations_fetched(self,job)
+        return bookmarked_books
+
+    def generate_annotation_html(self, bookmark):
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+        # Returns <div class="user_annotations"> ... </div>
+        #last_read_location = bookmark.last_read_location
+        #timestamp = bookmark.timestamp
+        percent_read = bookmark.percent_read
+        debug_print("Date: ",  bookmark.last_read)
+        if bookmark.last_read is not None:
+            try:
+                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
+            except:
+                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+        else:
+            #self.datetime = time.gmtime()
+            last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+
+        # debug_print("Percent read: ", percent_read)
+        ka_soup = BeautifulSoup()
+        dtc = 0
+        divTag = Tag(ka_soup,'div')
+        divTag['class'] = 'user_annotations'
+
+        # Add the last-read location
+        spanTag = Tag(ka_soup, 'span')
+        spanTag['style'] = 'font-weight:normal'
+        if bookmark.book_format == 'epub':
+            spanTag.insert(0,NavigableString(
+                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % \
+                            dict(time=last_read,
+                            #loc=last_read_location,
+                            pr=percent_read)))
+        else:
+            spanTag.insert(0,NavigableString(
+                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % \
+                            dict(time=last_read,
+                            #loc=last_read_location,
+                            pr=percent_read)))
+
+        divTag.insert(dtc, spanTag)
+        dtc += 1
+        divTag.insert(dtc, Tag(ka_soup,'br'))
+        dtc += 1
+
+        if bookmark.user_notes:
+            user_notes = bookmark.user_notes
+            annotations = []
+
+            # Add the annotations sorted by location
+            for location in sorted(user_notes):
+                if user_notes[location]['type'] == 'Bookmark':
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                annotation=user_notes[location]['annotation'] if user_notes[location]['annotation'] is not None else ""))
+                elif user_notes[location]['type'] == 'Highlight':
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                text=user_notes[location]['text']))
+                elif user_notes[location]['type'] == 'Annotation':
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                text=user_notes[location]['text'],
+                                annotation=user_notes[location]['annotation']))
+                else:
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                text=user_notes[location]['text'], \
+                                annotation=user_notes[location]['annotation']))
+
+            for annotation in annotations:
+                divTag.insert(dtc, annotation)
+                dtc += 1
+
+        ka_soup.insert(0,divTag)
+        return ka_soup
+
+    def add_annotation_to_library(self, db, db_id, annotation):
+        from calibre.ebooks.BeautifulSoup import Tag
+        bm = annotation
+        ignore_tags = set(['Catalog', 'Clippings'])
+
+        if bm.type == 'kobo_bookmark':
+            mi = db.get_metadata(db_id, index_is_id=True)
+            user_notes_soup = self.generate_annotation_html(bm.value)
+            if mi.comments:
+                a_offset = mi.comments.find('<div class="user_annotations">')
+                ad_offset = mi.comments.find('<hr class="annotations_divider" />')
+
+                if a_offset >= 0:
+                    mi.comments = mi.comments[:a_offset]
+                if ad_offset >= 0:
+                    mi.comments = mi.comments[:ad_offset]
+                if set(mi.tags).intersection(ignore_tags):
+                    return
+                if mi.comments:
+                    hrTag = Tag(user_notes_soup,'hr')
+                    hrTag['class'] = 'annotations_divider'
+                    user_notes_soup.insert(0, hrTag)
+
+                mi.comments += unicode(user_notes_soup.prettify())
+            else:
+                mi.comments = unicode(user_notes_soup.prettify())
+            # Update library comments
+            db.set_comment(db_id, mi.comments)
+
+            # Add bookmark file to db_id
+            db.add_format_with_hooks(db_id, bm.value.bookmark_extension,
+                                            bm.value.path, index_is_id=True)

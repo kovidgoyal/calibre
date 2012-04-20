@@ -1,0 +1,64 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class Adventure_zone(BasicNewsRecipe):
+    title          = u'Adventure Zone'
+    __author__        = 'fenuks'
+    description   = 'Adventure zone - adventure games from A to Z'
+    category       = 'games'
+    language       = 'pl'
+    no_stylesheets = True
+    oldest_article = 20
+    max_articles_per_feed = 100
+    index='http://www.adventure-zone.info/fusion/'
+    use_embedded_content=False
+    preprocess_regexps     = [(re.compile(r"<td class='capmain'>Komentarze</td>", re.IGNORECASE), lambda m: '')]
+    remove_tags_before= dict(name='td', attrs={'class':'main-bg'})
+    remove_tags= [dict(name='img', attrs={'alt':'Drukuj'})]
+    remove_tags_after= dict(id='comments')
+    extra_css              = '.main-bg{text-align: left;}  td.capmain{ font-size: 22px; }'
+    feeds          = [(u'Nowinki', u'http://www.adventure-zone.info/fusion/feeds/news.php')]
+
+    def parse_feeds (self): 
+      feeds = BasicNewsRecipe.parse_feeds(self) 
+      soup=self.index_to_soup(u'http://www.adventure-zone.info/fusion/feeds/news.php')
+      tag=soup.find(name='channel')
+      titles=[]
+      for r in tag.findAll(name='image'):
+          r.extract()
+      art=tag.findAll(name='item')
+      for i in art:
+            titles.append(i.title.string)
+      for feed in feeds:
+        for article in feed.articles[:]:
+            article.title=titles[feed.articles.index(article)]
+      return feeds
+
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.adventure-zone.info/fusion/news.php')
+        cover=soup.find(id='box_OstatninumerAZ')
+        self.cover_url='http://www.adventure-zone.info/fusion/'+ cover.center.a.img['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
+
+    def skip_ad_pages(self, soup):
+        skip_tag = soup.body.find(name='td', attrs={'class':'main-bg'})
+        skip_tag = skip_tag.findAll(name='a')
+        for r in skip_tag:
+           if r.strong:
+                 word=r.strong.string.lower()
+                 if word and (('zapowied' in word) or ('recenzj' in word)  or ('solucj' in word) or ('poradnik' in word)):
+                   return self.index_to_soup('http://www.adventure-zone.info/fusion/print.php?type=A&item'+r['href'][r['href'].find('article_id')+7:], raw=True)
+
+    def preprocess_html(self, soup):
+        footer=soup.find(attrs={'class':'news-footer middle-border'})
+        if footer and len(footer('a'))>=2:
+            footer('a')[1].extract()
+        for item in soup.findAll(style=True):
+            del item['style']
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup
+           
+            

@@ -30,7 +30,6 @@ Environment variables
     * ``CALIBRE_OVERRIDE_DATABASE_PATH`` - allows you to specify the full path to metadata.db. Using this variable you can have metadata.db be in a location other than the library folder. Useful if your library folder is on a networked drive that does not support file locking.
     * ``CALIBRE_DEVELOP_FROM`` - Used to run from a calibre development environment. See :ref:`develop`.
     * ``CALIBRE_OVERRIDE_LANG`` - Used to force the language used by the interface (ISO 639 language code)
-    * ``CALIBRE_DISABLE_UDISKS`` - Used to disable the use of udisks for mounting/ejecting. Set it to 1 to use calibre-mount-helper instead.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
@@ -48,7 +47,7 @@ Overriding icons, templates, etcetera
 
 |app| allows you to override the static resources, like icons, templates, javascript, etc. with customized versions that you like.
 All static resources are stored in the resources sub-folder of the calibre install location. On Windows, this is usually
-:file:`C:\Program Files\Calibre2\resources`. On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if you are using the binary installer
+:file:`C:/Program Files/Calibre2/resources`. On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if you are using the binary installer
 from the calibre website it will be :file:`/opt/calibre/resources`. These paths can change depending on where you choose to install |app|. 
 
 You should not change the files in this resources folder, as your changes will get overwritten the next time you update |app|. Instead, go to

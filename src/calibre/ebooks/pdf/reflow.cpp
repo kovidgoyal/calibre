@@ -625,7 +625,8 @@ static string get_link_dest(LinkAction *link, PDFDoc *doc) {
   return oss.str();
 }
 
-void XMLOutputDev::process_link(Link* link){
+void XMLOutputDev::process_link(AnnotLink* link){
+
   double _x1, _y1, _x2, _y2;
   int x1, y1, x2, y2;
   

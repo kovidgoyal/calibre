@@ -68,8 +68,8 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     output = args[2]
-    if output.startswith('.') and (output != '.' and not
-            output.startswith('..')):
+    if (output.startswith('.') and output[:2] not in {'..', '.'} and '/' not in
+            output and '\\' not in output):
         output = os.path.splitext(os.path.basename(input))[0]+output
     output = os.path.abspath(output)
 
@@ -134,13 +134,14 @@ def add_pipeline_options(parser, plumber):
                       'font_size_mapping',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
-                      'extra_css', 'smarten_punctuation',
+                      'extra_css', 'filter_css',
+                      'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
                       'insert_blank_line', 'insert_blank_line_size',
                       'remove_paragraph_spacing',
                       'remove_paragraph_spacing_indent_size',
-                      'asciiize',
+                      'asciiize', 'keep_ligatures',
                   ]
                   ),
 
@@ -155,9 +156,10 @@ def add_pipeline_options(parser, plumber):
               'SEARCH AND REPLACE' : (
                  _('Modify the document text and structure using user defined patterns.'),
                  [
-                      'sr1_search', 'sr1_replace',
-                      'sr2_search', 'sr2_replace',
-                      'sr3_search', 'sr3_replace',
+                     'sr1_search', 'sr1_replace',
+                     'sr2_search', 'sr2_replace',
+                     'sr3_search', 'sr3_replace',
+                     'search_replace',
                  ]
               ),
 
@@ -209,6 +211,7 @@ def add_pipeline_options(parser, plumber):
             rec = plumber.get_option_by_name(name)
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
+
 
 def option_parser():
     parser = OptionParser(usage=USAGE)
@@ -270,6 +273,34 @@ def abspath(x):
         return x
     return os.path.abspath(os.path.expanduser(x))
 
+def read_sr_patterns(path, log=None):
+    import json, re, codecs
+    pats = []
+    with codecs.open(path, 'r', 'utf-8') as f:
+        pat = None
+        for line in f.readlines():
+            if line.endswith(u'\n'):
+                line = line[:-1]
+
+            if pat is None:
+                if not line.strip():
+                    continue
+                try:
+                    re.compile(line)
+                except:
+                    msg = u'Invalid regular expression: %r from file: %r'%(
+                            line, path)
+                    if log is not None:
+                        log.error(msg)
+                        raise SystemExit(1)
+                    else:
+                        raise ValueError(msg)
+                pat = line
+            else:
+                pats.append((pat, line))
+                pat = None
+    return json.dumps(pats)
+
 def main(args=sys.argv):
     log = Log()
     parser, plumber = create_option_parser(args, log)
@@ -277,6 +308,9 @@ def main(args=sys.argv):
     for x in ('read_metadata_from_opf', 'cover'):
         if getattr(opts, x, None) is not None:
             setattr(opts, x, abspath(getattr(opts, x)))
+    if opts.search_replace:
+        opts.search_replace = read_sr_patterns(opts.search_replace, log)
+
     recommendations = [(n.dest, getattr(opts, n.dest),
                         OptionRecommendation.HIGH) \
                                         for n in parser.options_iter()

@@ -12,6 +12,7 @@ class SeattleTimes(BasicNewsRecipe):
     title                 = 'The Seattle Times'
     __author__            = 'Darko Miletic'
     description           = 'News from Seattle and USA'
+    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/WA_ST.jpg'
     publisher             = 'The Seattle Times'
     category              = 'news, politics, USA'
     oldest_article        = 2
@@ -20,6 +21,8 @@ class SeattleTimes(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     language = 'en'
+    auto_cleanup          = True
+    auto_cleanup_keep     = '//div[@id="PhotoContainer"]'
 
     feeds              = [
                           (u'Top Stories',
@@ -69,24 +72,4 @@ class SeattleTimes(BasicNewsRecipe):
                               u'http://seattletimes.nwsource.com/rss/mostreadarticles.xml'),
                          ]
 
-    keep_only_tags = [dict(id='content')]
-    remove_tags        = [
-                             dict(name=['object','link','script']),
-                            {'class':['permission', 'note', 'bottomtools',
-                                'homedelivery']},
-                            dict(id=["rightcolumn", 'footer', 'adbottom']),
-                         ]
-
-    def print_version(self, url):
-        return url
-        start_url, sep, rest_url = url.rpartition('_')
-        rurl, rsep, article_id = start_url.rpartition('/')
-        return u'http://seattletimes.nwsource.com/cgi-bin/PrintStory.pl?document_id=' + article_id
-
-    def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="en-US"/>'
-        soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
 

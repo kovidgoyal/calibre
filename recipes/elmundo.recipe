@@ -4,7 +4,8 @@ __copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 elmundo.es
 '''
-
+import re
+import time
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElMundo(BasicNewsRecipe):
@@ -18,12 +19,15 @@ class ElMundo(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'iso8859_15'
-    language              = 'es_ES'
+    remove_javascript     = True
+    remove_empty_feeds    = True
+    language              = 'es'
     masthead_url          = 'http://estaticos03.elmundo.es/elmundo/iconos/v4.x/v4.01/bg_h1.png'
     publication_type      = 'newspaper'
     extra_css             = """
                                body{font-family: Arial,Helvetica,sans-serif}
                                .metadata_noticia{font-size: small}
+                               .pestana_GDP{font-size: small; font-weight:bold}
                                h1,h2,h3,h4,h5,h6,.subtitulo {color: #3F5974}
                                .hora{color: red}
                                .update{color: gray}
@@ -41,22 +45,43 @@ class ElMundo(BasicNewsRecipe):
     remove_tags_after  = dict(name='div' , attrs={'id':['desarrollo_noticia','tamano']})
     remove_attributes  = ['lang','border']
     remove_tags = [
-                     dict(name='div', attrs={'class':['herramientas','publicidad_google']})
-                    ,dict(name='div', attrs={'id':'modulo_multimedia' })
+                     dict(name='div', attrs={'class':['herramientas','publicidad_google','comenta','col col-2b','apoyos','no-te-pierdas']})
+                    ,dict(name='div', attrs={'class':['publicidad publicidad_cuerpo_noticia','comentarios_nav','mensaje_privado','interact']})
+                    ,dict(name='div', attrs={'class':['num_comentarios estirar']})
+                    ,dict(name='span', attrs={'class':['links_comentar']})
+                    ,dict(name='div', attrs={'id':['comentar']})
                     ,dict(name='ul', attrs={'class':'herramientas' })
                     ,dict(name=['object','link','embed','iframe','base','meta'])
                   ]
 
     feeds = [
-              (u'Portada'         , u'http://estaticos.elmundo.es/elmundo/rss/portada.xml'       )
+              (u'Portada'         , u'http://estaticos.elmundo.es/elmundo/rss/portada.xml'       )                                      
              ,(u'Deportes'        , u'http://estaticos.elmundo.es/elmundodeporte/rss/portada.xml')
-             ,(u'Economia'        , u'http://estaticos.elmundo.es/elmundo/rss/economia.xml'      )
-             ,(u'Espana'          , u'http://estaticos.elmundo.es/elmundo/rss/espana.xml'        )
+             ,(u'Econom\xeda'     , u'http://estaticos.elmundo.es/elmundo/rss/economia.xml'      )
+             ,(u'Espa\xf1a'       , u'http://estaticos.elmundo.es/elmundo/rss/espana.xml'        )
              ,(u'Internacional'   , u'http://estaticos.elmundo.es/elmundo/rss/internacional.xml' )
              ,(u'Cultura'         , u'http://estaticos.elmundo.es/elmundo/rss/cultura.xml'       )
-             ,(u'Ciencia/Ecologia', u'http://estaticos.elmundo.es/elmundo/rss/ciencia.xml'       )
-             ,(u'Comunicacion'    , u'http://estaticos.elmundo.es/elmundo/rss/comunicacion.xml'  )
-             ,(u'Television'      , u'http://estaticos.elmundo.es/elmundo/rss/television.xml'    )
+             ,(u'Ciencia/Ecolog\xeda', u'http://estaticos.elmundo.es/elmundo/rss/ciencia.xml'    )
+             ,(u'Comunicaci\xf3n' , u'http://estaticos.elmundo.es/elmundo/rss/comunicacion.xml'  )
+             ,(u'Televisi\xf3n'   , u'http://estaticos.elmundo.es/elmundo/rss/television.xml'    )
+
+             ,(u'Salud'           , u'http://estaticos.elmundo.es/elmundosalud/rss/portada.xml'  )
+             ,(u'Solidaridad'     , u'http://estaticos.elmundo.es/elmundo/rss/solidaridad.xml'   )
+             ,(u'Su vivienda'     , u'http://estaticos.elmundo.es/elmundo/rss/suvivienda.xml'    )             
+             ,(u'Motor'           , u'http://estaticos.elmundo.es/elmundomotor/rss/portada.xml'  )             
+             
+             ,(u'Madrid'          , u'http://estaticos.elmundo.es/elmundo/rss/madrid.xml'        )
+             ,(u'Barcelona'       , u'http://estaticos.elmundo.es/elmundo/rss/barcelona.xml'     )
+             ,(u'Pa\xeds Vasco'   , u'http://estaticos.elmundo.es/elmundo/rss/paisvasco.xml'     )	     
+             ,(u'Baleares'        , u'http://estaticos.elmundo.es/elmundo/rss/baleares.xml'      )
+	     ,(u'Castilla y Le\xf3n' , u'http://estaticos.elmundo.es/elmundo/rss/castillayleon.xml' )	     
+	     ,(u'Valladolid'      , u'http://estaticos.elmundo.es/elmundo/rss/valladolid.xml'    )
+	     ,(u'Valencia'        , u'http://estaticos.elmundo.es/elmundo/rss/valencia.xml'      )
+	     ,(u'Alicante'        , u'http://estaticos.elmundo.es/elmundo/rss/alicante.xml'      )
+	     ,(u'Castell\xf3n'    , u'http://estaticos.elmundo.es/elmundo/rss/castellon.xml'     )	
+	     ,(u'Andaluc\xeda'    , u'http://estaticos.elmundo.es/elmundo/rss/andalucia.xml'     )
+	     ,(u'Sevilla'         , u'http://estaticos.elmundo.es/elmundo/rss/andalucia_sevilla.xml'  )
+	     ,(u'M\xe1laga'       , u'http://estaticos.elmundo.es/elmundo/rss/andalucia_malaga.xml'   )
             ]
 
     def preprocess_html(self, soup):
@@ -67,3 +92,34 @@ class ElMundo(BasicNewsRecipe):
     def get_article_url(self, article):
         return article.get('guid',  None)
 
+
+    preprocess_regexps = [     
+                           # Para presentar la imagen de los videos incrustados                           
+
+                           (re.compile(r'var imagen', re.DOTALL|re.IGNORECASE), lambda match: '--></script><img src'),
+                           (re.compile(r'.jpg";', re.DOTALL|re.IGNORECASE), lambda match: '.jpg">'),
+                           (re.compile(r'var video=', re.DOTALL|re.IGNORECASE), lambda match: '<script language="Javascript" type="text/javascript"><!--'),
+
+                           # Para que no salga la numeración de comentarios: 1, 2, 3 ...
+
+                           (re.compile(r'<ol>\n<li style="z-index:', re.DOTALL|re.IGNORECASE), lambda match: '<ul><li style="z-index:'),
+                           (re.compile(r'</ol>\n<div class="num_comentarios estirar">', re.DOTALL|re.IGNORECASE), lambda match: '</ul><div class="num_comentarios estirar">'),
+                         ]
+
+    # Obtener la imagen de portada
+
+    def get_cover_url(self):
+       cover = None
+       st = time.localtime()
+       year = str(st.tm_year)
+       month = "%.2d" % st.tm_mon
+       day = "%.2d" % st.tm_mday
+		#http://img.kiosko.net/2011/11/19/es/elmundo.750.jpg
+       cover='http://img.kiosko.net/'+ year + '/' +  month + '/' + day +'/es/elmundo.750.jpg'
+       br = BasicNewsRecipe.get_browser()
+       try:
+           br.open(cover)
+       except:
+           self.log("\nPortada no disponible")
+           cover ='http://estaticos03.elmundo.es/elmundo/iconos/v4.x/v4.01/bg_h1.png'
+       return cover 

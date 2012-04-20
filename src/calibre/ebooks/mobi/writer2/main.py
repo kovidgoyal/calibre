@@ -11,15 +11,14 @@ import re, random, time
 from cStringIO import StringIO
 from struct import pack
 
-from calibre.ebooks import normalize, generate_masthead
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.ebooks import normalize
 from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
-from calibre.ebooks.mobi.utils import (rescale_image, encint,
-        encode_trailing_data, align_block, detect_periodical)
+from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
+from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
+        align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
@@ -46,14 +45,13 @@ EXTH_CODES = {
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
 
-MAX_THUMB_SIZE = 16 * 1024
-MAX_THUMB_DIMEN = (180, 240)
-
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, opts, write_page_breaks_after_item=True):
+    def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True):
         self.opts = opts
+        self.resources = resources
+        self.kf8 = kf8
         self.write_page_breaks_after_item = write_page_breaks_after_item
         self.compression = UNCOMPRESSED if opts.dont_compress else PALMDOC
         self.prefer_author_sort = opts.prefer_author_sort
@@ -61,6 +59,13 @@ class MobiWriter(object):
 
     def __call__(self, oeb, path_or_stream):
         self.log = oeb.log
+        pt = None
+        if oeb.metadata.publication_type:
+            x = unicode(oeb.metadata.publication_type[0]).split(':')
+            if len(x) > 1:
+                pt = x[1].lower()
+        self.publication_type = pt
+
         if hasattr(path_or_stream, 'write'):
             return self.dump_stream(oeb, path_or_stream)
         with open(path_or_stream, 'w+b') as stream:
@@ -97,6 +102,9 @@ class MobiWriter(object):
     # Indexing {{{
     def generate_index(self):
         self.primary_index_record_idx = None
+        if self.oeb.toc.count() < 1:
+            self.log.warn('No TOC, MOBI index not generated')
+            return
         try:
             self.indexer = Indexer(self.serializer, self.last_text_record_idx,
                     len(self.records[self.last_text_record_idx]),
@@ -143,60 +151,22 @@ class MobiWriter(object):
     # Images {{{
 
     def generate_images(self):
-        oeb = self.oeb
-        oeb.logger.info('Serializing images...')
-        self.image_records = []
-        self.image_map = {}
+        resources = self.resources
+        image_records = resources.records
+        self.image_map = resources.item_map
+        self.masthead_offset = resources.masthead_offset
+        self.cover_offset = resources.cover_offset
+        self.thumbnail_offset = resources.thumbnail_offset
 
-        mh_href = self.masthead_offset = None
-        if 'masthead' in oeb.guide:
-            mh_href = oeb.guide['masthead'].href
-        elif self.is_periodical:
-            # Generate a default masthead
-            data = generate_masthead(unicode(self.oeb.metadata('title')[0]))
-            self.image_records.append(data)
-            self.masthead_offset = 0
-
-        cover_href = self.cover_offset = self.thumbnail_offset = None
-        if (oeb.metadata.cover and
-                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
-            cover_id = unicode(oeb.metadata.cover[0])
-            item = oeb.manifest.ids[cover_id]
-            cover_href = item.href
-
-        for item in self.oeb.manifest.values():
-            if item.media_type not in OEB_RASTER_IMAGES: continue
-            try:
-                data = rescale_image(item.data)
-            except:
-                oeb.logger.warn('Bad image file %r' % item.href)
-                continue
-            else:
-                self.image_map[item.href] = len(self.image_records)
-                self.image_records.append(data)
-
-                if item.href == mh_href:
-                    self.masthead_offset = len(self.image_records) - 1
-                elif item.href == cover_href:
-                    self.cover_offset = len(self.image_records) - 1
-                    try:
-                        data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
-                            maxsizeb=MAX_THUMB_SIZE)
-                    except:
-                        oeb.logger.warn('Failed to generate thumbnail')
-                    else:
-                        self.image_records.append(data)
-                        self.thumbnail_offset = len(self.image_records) - 1
-            finally:
-                item.unload_data_from_memory()
+        if image_records and image_records[0] is None:
+            raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
 
-    # Text {{{
-
-    def generate_text(self):
+    def generate_text(self): # {{{
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map,
+                self.is_periodical,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
@@ -208,7 +178,7 @@ class MobiWriter(object):
             self.oeb.logger.info('  Compressing markup content...')
 
         while text.tell() < self.text_length:
-            data, overlap = self.read_text_record(text)
+            data, overlap = create_text_record(text)
             if self.compression == PALMDOC:
                 data = compress_doc(data)
 
@@ -225,66 +195,29 @@ class MobiWriter(object):
         if records_size % 4 != 0:
             self.records.append(b'\x00'*(records_size % 4))
             self.first_non_text_record_idx += 1
-
-    def read_text_record(self, text):
-        '''
-        Return a Palmdoc record of size RECORD_SIZE from the text file object.
-        In case the record ends in the middle of a multibyte character return
-        the overlap as well.
-
-        Returns data, overlap: where both are byte strings. overlap is the
-        extra bytes needed to complete the truncated multibyte character.
-        '''
-        opos = text.tell()
-        text.seek(0, 2)
-        # npos is the position of the next record
-        npos = min((opos + RECORD_SIZE, text.tell()))
-        # Number of bytes from the next record needed to complete the last
-        # character in this record
-        extra = 0
-
-        last = b''
-        while not last.decode('utf-8', 'ignore'):
-            # last contains no valid utf-8 characters
-            size = len(last) + 1
-            text.seek(npos - size)
-            last = text.read(size)
-
-        # last now has one valid utf-8 char and possibly some bytes that belong
-        # to a truncated char
-
-        try:
-            last.decode('utf-8', 'strict')
-        except UnicodeDecodeError:
-            # There are some truncated bytes in last
-            prev = len(last)
-            while True:
-                text.seek(npos - prev)
-                last = text.read(len(last) + 1)
-                try:
-                    last.decode('utf-8')
-                except UnicodeDecodeError:
-                    pass
-                else:
-                    break
-            extra = len(last) - prev
-
-        text.seek(opos)
-        data = text.read(RECORD_SIZE)
-        overlap = text.read(extra)
-        text.seek(npos)
-
-        return data, overlap
-
     # }}}
 
     def generate_record0(self): #  MOBI header {{{
         metadata = self.oeb.metadata
-        exth = self.build_exth()
+        bt = 0x002
+        if self.primary_index_record_idx is not None:
+            if False and self.indexer.is_flat_periodical:
+                # Disabled as setting this to 0x102 causes the Kindle to not
+                # auto archive the issues
+                bt = 0x102
+            elif self.indexer.is_periodical:
+                # If you change this, remember to change the cdetype in the EXTH
+                # header as well
+                bt = 0x103 if self.indexer.is_flat_periodical else 0x101
+
+        exth = self.build_exth(bt)
         first_image_record = None
-        if self.image_records:
+        if self.resources:
+            used_images = self.serializer.used_images
+            if self.kf8 is not None:
+                used_images |= self.kf8.used_images
             first_image_record  = len(self.records)
-            self.records.extend(self.image_records)
+            self.resources.serialize(self.records, used_images)
         last_content_record = len(self.records) - 1
 
         # FCIS/FLIS (Seems to serve no purpose)
@@ -328,15 +261,6 @@ class MobiWriter(object):
         # 0xC - 0xF   : Text encoding (65001 is utf-8)
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
-
-        bt = 0x002
-        if self.primary_index_record_idx is not None:
-            if self.indexer.is_flat_periodical:
-                bt = 0x102
-            elif self.indexer.is_periodical:
-                # If you change this, remember to change the cdetype in the EXTH
-                # header as well
-                bt = 0x103
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -455,7 +379,7 @@ class MobiWriter(object):
         self.records[0] = align_block(record0)
     # }}}
 
-    def build_exth(self): # EXTH Header {{{
+    def build_exth(self, mobi_doctype): # EXTH Header {{{
         oeb = self.oeb
         exth = StringIO()
         nrecs = 0
@@ -465,12 +389,15 @@ class MobiWriter(object):
             items = oeb.metadata[term]
             if term == 'creator':
                 if self.prefer_author_sort:
-                    creators = [normalize(unicode(c.file_as or c)) for c in items]
+                    creators = [normalize(unicode(c.file_as or c)) for c in
+                            items][:1]
                 else:
                     creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]
             for item in items:
-                data = self.COLLAPSE_RE.sub(' ', normalize(unicode(item)))
+                data = normalize(unicode(item))
+                if term != 'description':
+                    data = self.COLLAPSE_RE.sub(' ', data)
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]
@@ -505,20 +432,23 @@ class MobiWriter(object):
 
         if isinstance(uuid, unicode):
             uuid = uuid.encode('utf-8')
-        exth.write(pack(b'>II', 113, len(uuid) + 8))
-        exth.write(uuid)
-        nrecs += 1
+        if not self.opts.share_not_sync:
+            exth.write(pack(b'>II', 113, len(uuid) + 8))
+            exth.write(uuid)
+            nrecs += 1
 
         # Write cdetype
-        if self.is_periodical:
-            # If you set the book type header field to 0x101 use NWPR here if
-            # you use 0x103 use MAGZ
-            data = b'MAGZ'
+        if not self.is_periodical:
+            if not self.opts.share_not_sync:
+                exth.write(pack(b'>II', 501, 12))
+                exth.write(b'EBOK')
+                nrecs += 1
         else:
-            data = b'EBOK'
-        exth.write(pack(b'>II', 501, len(data)+8))
-        exth.write(data)
-        nrecs += 1
+            ids = {0x101:b'NWPR', 0x103:b'MAGZ'}.get(mobi_doctype, None)
+            if ids:
+                exth.write(pack(b'>II', 501, 12))
+                exth.write(ids)
+                nrecs += 1
 
         # Add a publication date entry
         if oeb.metadata['date']:
@@ -575,7 +505,7 @@ class MobiWriter(object):
         Write the PalmDB header
         '''
         title = ascii_filename(unicode(self.oeb.metadata.title[0])).replace(
-                ' ', '_')
+                ' ', '_')[:31]
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
         nrecords = len(self.records)

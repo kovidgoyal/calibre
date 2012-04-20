@@ -1,0 +1,26 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1329123365(BasicNewsRecipe):
+    title          = u'Novinite.bg'
+    __author__ = 'M3 Web'
+    description = 'Real time provider of the latest news from Bulgaria and the world'
+    category = 'Business, Politics, Society, Sports, Crime, Lifestyle, World, Health'
+    oldest_article = 7
+    max_articles_per_feed = 6
+    language  = 'bg'
+    encoding = 'windows-1251'
+    no_stylesheets        = True
+    remove_javascript = True
+    keep_only_tags    = [dict(name='div', attrs={'id':'content'})]
+    remove_tags = [dict(name='div', attrs={'id':'text_options'})]
+    remove_tags = [dict(name='div', attrs={'id':'social_shares_top'})]
+    remove_tags_after  = dict(id='textsize')
+    feeds          = [(u'Business', u'http://novinite.bg/rss.php?category_id=1'),
+(u'Politics', u'http://novinite.bg/rss.php?category_id=2'),
+(u'Society', u'http://novinite.bg/rss.php?category_id=3'),
+(u'Sport', u'http://novinite.bg/rss.php?category_id=4'),
+(u'Crime', u'http://novinite.bg/rss.php?category_id=5'),
+(u'Lifestyle', u'http://novinite.bg/rss.php?category_id=6'),
+(u'Health', u'http://novinite.bg/rss.php?category_id=7'),
+(u'Other', u'http://novinite.bg/rss.php?category_id=10'),
+(u'World', u'http://novinite.bg/rss.php?category_id=9')]

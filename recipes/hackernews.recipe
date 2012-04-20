@@ -1,0 +1,135 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+'''
+Hacker News
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+from urlparse import urlparse
+import re
+
+class HNWithCommentsLink(BasicNewsRecipe):
+    title                 = 'HN With Comments Link'
+    __author__            = 'Tom Scholl & David Kerschner'
+    description           = u'Hacker News, run by Y Combinator. Anything that good hackers would find interesting, with a focus on programming and startups.'
+    publisher             = 'Y Combinator'
+    category              = 'news, programming, it, technology'
+    masthead_url          = 'http://img585.imageshack.us/img585/5011/hnle.png'
+    cover_url             = 'http://img585.imageshack.us/img585/5011/hnle.png'
+    delay                 = 1
+    max_articles_per_feed = 30
+    use_embedded_content  = False
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    language              = 'en'
+    requires_version      = (0,8,16)
+
+    feeds = [
+                (u'Hacker News', 'http://news.ycombinator.com/rss')
+            ]
+
+    temp_files = []
+    articles_are_obfuscated = True
+
+    def get_readable_content(self, url):
+        self.log('get_readable_content(' + url + ')')
+        br = self.get_browser()
+        f = br.open(url)
+        html = f.read()
+        f.close()
+
+        return self.extract_readable_article(html, url)
+
+    def get_hn_content(self, url):
+        self.log('get_hn_content(' + url + ')')
+        soup = self.index_to_soup(url)
+        main = soup.find('tr').findNextSiblings('tr', limit=2)[1].td
+
+        title = self.tag_to_string(main.find('td', 'title'))
+        link = main.find('td', 'title').find('a')['href']
+        if link.startswith('item?'):
+            link = 'http://news.ycombinator.com/' + link
+        readable_link = link.rpartition('http://')[2].rpartition('https://')[2]
+        subtext = self.tag_to_string(main.find('td', 'subtext'))
+
+        title_content_td = main.find('td', 'title').findParent('tr').findNextSiblings('tr', limit=3)[2].findAll('td', limit=2)[1]
+        title_content = u''
+        if not title_content_td.find('form'):
+            title_content_td.name ='div'
+            title_content = title_content_td.prettify()
+
+        comments = u''
+        for td in main.findAll('td', 'default'):
+            comhead = td.find('span', 'comhead')
+            if comhead:
+                com_title = u'<h4>' + self.tag_to_string(comhead).replace(' | link', '') + u'</h4>'
+                comhead.parent.extract()
+                br = td.find('br')
+                if br:
+                    br.extract()
+                reply = td.find('a', attrs = {'href' : re.compile('^reply?')})
+                if reply:
+                    reply.parent.extract()
+                td.name = 'div'
+                indent_width = (int(td.parent.find('td').img['width']) * 2) / 3
+                td['style'] = 'padding-left: ' + str(indent_width) + 'px'
+                comments = comments + com_title + td.prettify()
+
+        body = u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link + u'</a><br/><strong>' + subtext +  u'</strong></p>' + title_content + u'<br/>'
+        body = body + comments
+        return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
+
+    def parse_feeds(self):
+        a = super(HNWithCommentsLink, self).parse_feeds()
+        self.hn_articles = a[0].articles
+        return a
+
+    def get_obfuscated_article(self, url):
+        if url.startswith('http://news.ycombinator.com'):
+            content = self.get_hn_content(url)
+        else:
+            # TODO: use content-type header instead of url
+            is_image = False
+            for ext in ['.jpg', '.png', '.svg', '.gif', '.jpeg', '.tiff', '.bmp',]:
+                if url.endswith(ext):
+                    is_image = True
+                    break
+
+            if is_image:
+                self.log('using image_content (' + url + ')')
+                content = u'<html><body><img src="' + url + u'"></body></html>'
+            else:
+                content = self.get_readable_content(url)
+
+            article = 0
+            for a in self.hn_articles:
+                if a.url == url:
+                    article = a
+
+        content = re.sub(r'</body>\s*</html>\s*$', '', content) + article.summary + '</body></html>'
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(content)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+    def is_link_wanted(self, url, tag):
+        if url.endswith('.pdf'):
+            return False
+        return True
+
+    def prettyify_url(self, url):
+        return urlparse(url).hostname
+
+    def populate_article_metadata(self, article, soup, first):
+        article.text_summary = self.prettyify_url(article.url)
+        article.summary = article.text_summary
+
+#    def parse_index(self):
+#        feeds = []
+#        feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'http://news.ycombinator.com/item?id=2935944'}]))
+#        return feeds
+
+
+

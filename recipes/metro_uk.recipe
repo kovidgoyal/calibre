@@ -1,34 +1,30 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
     description = 'News as provide by The Metro -UK'
-
+    #timefmt = ''
     __author__ = 'Dave Asbury'
-    no_stylesheets = True
+    cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
+    #no_stylesheets = True
     oldest_article = 1
-    max_articles_per_feed = 25
+    max_articles_per_feed = 10
     remove_empty_feeds = True
     remove_javascript     = True
+    auto_cleanup = True
 
-    preprocess_regexps = [(re.compile(r'Tweet'), lambda  a : '')]
 
     language = 'en_GB'
-
-
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
-
-    extra_css = 'h2 {font: sans-serif medium;}'
     keep_only_tags = [
-	dict(name='h1'),dict(name='h2', attrs={'class':'h2'}),
-                    dict(attrs={'class':['img-cnt figure']}),
-    	dict(attrs={'class':['art-img']}),
 
-                    dict(name='div', attrs={'class':'art-lft'})
     ]
-    remove_tags    = [dict(name='div', attrs={'class':[ 'news m12 clrd clr-b p5t shareBtm', 'commentForm', 'metroCommentInnerWrap',
-                             'art-rgt','pluck-app pluck-comm','news m12 clrd clr-l p5t', 'flt-r' ]}),
-	dict(attrs={'class':[ 'metroCommentFormWrap','commentText','commentsNav','avatar','submDateAndTime']})
-	          ]
+    remove_tags    = [
+
+                               ]
+
+
     feeds          = [
         (u'News', u'http://www.metro.co.uk/rss/news/'), (u'Money', u'http://www.metro.co.uk/rss/money/'), (u'Sport', u'http://www.metro.co.uk/rss/sport/'), (u'Film', u'http://www.metro.co.uk/rss/metrolife/film/'), (u'Music', u'http://www.metro.co.uk/rss/metrolife/music/'), (u'TV', u'http://www.metro.co.uk/rss/tv/'), (u'Showbiz', u'http://www.metro.co.uk/rss/showbiz/'), (u'Weird News', u'http://www.metro.co.uk/rss/weird/'), (u'Travel', u'http://www.metro.co.uk/rss/travel/'), (u'Lifestyle', u'http://www.metro.co.uk/rss/lifestyle/'), (u'Books', u'http://www.metro.co.uk/rss/lifestyle/books/'), (u'Food', u'http://www.metro.co.uk/rss/lifestyle/restaurants/')]
+    extra_css  = '''
+	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
+                	 '''

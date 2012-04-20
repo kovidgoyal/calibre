@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
-from calibre.utils.localization import get_lang
+from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import tweaks
@@ -36,7 +36,7 @@ class Resource(object): # {{{
     :method:`href`
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
         self.orig = href_or_path
         self._href = None
         self._basedir = basedir
@@ -81,7 +81,7 @@ class Resource(object): # {{{
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwd()
+                basedir = os.getcwdu()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
@@ -515,6 +515,7 @@ class OPF(object): # {{{
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
     uuid_id_path    = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "uuid", "i") or re:match(@scheme, "uuid", "i"))]')
+    languages_path  = XPath('descendant::*[local-name()="language"]')
 
     manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
     manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]')
@@ -523,7 +524,6 @@ class OPF(object): # {{{
 
     title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
     publisher       = MetadataField('publisher')
-    language        = MetadataField('language')
     comments        = MetadataField('description')
     category        = MetadataField('type')
     rights          = MetadataField('rights')
@@ -535,7 +535,7 @@ class OPF(object): # {{{
         series_index    = MetadataField('series_index', is_dc=False,
                                         formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
-    rating          = MetadataField('rating', is_dc=False, formatter=int)
+    rating          = MetadataField('rating', is_dc=False, formatter=float)
     pubdate         = MetadataField('date', formatter=parse_date,
                                     renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
@@ -883,6 +883,8 @@ class OPF(object): # {{{
                     val = etree.tostring(x, with_tail=False, encoding=unicode,
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
+                        if typ == 'isbn' and val.lower().startswith('urn:isbn:'):
+                            val = val[len('urn:isbn:'):]
                         identifiers[typ] = val
                     found_scheme = True
                     break
@@ -929,6 +931,44 @@ class OPF(object): # {{{
 
         return property(fget=fget, fset=fset)
 
+
+    @dynamic_property
+    def language(self):
+
+        def fget(self):
+            ans = self.languages
+            if ans:
+                return ans[0]
+
+        def fset(self, val):
+            self.languages = [val]
+
+        return property(fget=fget, fset=fset)
+
+
+    @dynamic_property
+    def languages(self):
+
+        def fget(self):
+            ans = []
+            for match in self.languages_path(self.metadata):
+                t = self.get_text(match)
+                if t and t.strip():
+                    l = canonicalize_lang(t.strip())
+                    if l:
+                        ans.append(l)
+            return ans
+
+        def fset(self, val):
+            matches = self.languages_path(self.metadata)
+            for x in matches:
+                x.getparent().remove(x)
+
+            for lang in val:
+                l = self.create_metadata_element('language')
+                self.set_text(l, unicode(lang))
+
+        return property(fget=fget, fset=fset)
 
 
     @dynamic_property
@@ -981,6 +1021,11 @@ class OPF(object): # {{{
                     mt = item.get('media-type', '')
                     if 'xml' not in mt:
                         return item.get('href', None)
+            for item in self.itermanifest():
+                if item.get('href', None) == cover_id:
+                    mt = item.get('media-type', '')
+                    if mt.startswith('image/'):
+                        return item.get('href', None)
 
     @dynamic_property
     def cover(self):
@@ -989,7 +1034,7 @@ class OPF(object): # {{{
             if self.guide is not None:
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                     for item in self.guide:
-                        if item.type.lower() == t:
+                        if item.type and item.type.lower() == t:
                             return item.path
             try:
                 return self.guess_cover()
@@ -1038,6 +1083,15 @@ class OPF(object): # {{{
         return elem
 
     def render(self, encoding='utf-8'):
+        for meta in self.raster_cover_path(self.metadata):
+            # Ensure that the name attribute occurs before the content
+            # attribute. Needed for Nooks.
+            a = meta.attrib
+            c = a.get('content', None)
+            if c is not None:
+                del a['content']
+                a['content'] = c
+
         self.write_user_metadata()
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith('<?xml '):
@@ -1052,9 +1106,9 @@ class OPF(object): # {{{
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
-        lang = getattr(mi, 'language', None)
-        if lang and lang != 'und':
-            self.language = lang
+        langs = getattr(mi, 'languages', [])
+        if langs and langs != ['und']:
+            self.languages = langs
         temp = self.to_book_metadata()
         temp.smart_update(mi, replace_metadata=replace_metadata)
         self._user_metadata_ = temp.get_all_user_metadata(True)
@@ -1096,7 +1150,8 @@ class OPFCreator(Metadata):
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
-    def create_manifest_from_files_in(self, files_and_dirs):
+    def create_manifest_from_files_in(self, files_and_dirs,
+            exclude=lambda x:False):
         entries = []
 
         def dodir(dir):
@@ -1104,7 +1159,7 @@ class OPFCreator(Metadata):
                 root, files = spec[0], spec[-1]
                 for name in files:
                     path = os.path.join(root, name)
-                    if os.path.isfile(path):
+                    if os.path.isfile(path) and not exclude(path):
                         entries.append((path, None))
 
         for i in files_and_dirs:
@@ -1202,10 +1257,11 @@ class OPFCreator(Metadata):
             dc_attrs={'id':__appname__+'_id'}))
         if getattr(self, 'pubdate', None) is not None:
             a(DC_ELEM('date', self.pubdate.isoformat()))
-        lang = self.language
-        if not lang or lang.lower() == 'und':
-            lang = get_lang().replace('_', '-')
-        a(DC_ELEM('language', lang))
+        langs = self.languages
+        if not langs or langs == ['und']:
+            langs = [get_lang().replace('_', '-').partition('-')[0]]
+        for lang in langs:
+            a(DC_ELEM('language', lang))
         if self.comments:
             a(DC_ELEM('description', self.comments))
         if self.publisher:
@@ -1273,7 +1329,7 @@ class OPFCreator(Metadata):
             ncx_stream.flush()
 
 
-def metadata_to_opf(mi, as_string=True):
+def metadata_to_opf(mi, as_string=True, default_lang=None):
     from lxml import etree
     import textwrap
     from calibre.ebooks.oeb.base import OPF, DC
@@ -1288,8 +1344,10 @@ def metadata_to_opf(mi, as_string=True):
         mi.book_producer = __appname__ + ' (%s) '%__version__ + \
             '[http://calibre-ebook.com]'
 
-    if not mi.language:
-        mi.language = 'UND'
+    if not mi.languages:
+        lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang
+                is None else default_lang)
+        mi.languages = [lang]
 
     root = etree.fromstring(textwrap.dedent(
     '''
@@ -1339,8 +1397,10 @@ def metadata_to_opf(mi, as_string=True):
         factory(DC('identifier'), val, scheme=icu_upper(key))
     if mi.rights:
         factory(DC('rights'), mi.rights)
-    factory(DC('language'), mi.language if mi.language and mi.language.lower()
-            != 'und' else get_lang().replace('_', '-'))
+    for lang in mi.languages:
+        if not lang or lang.lower() == 'und':
+            continue
+        factory(DC('language'), lang)
     if mi.tags:
         for tag in mi.tags:
             factory(DC('subject'), tag)
@@ -1439,7 +1499,7 @@ class OPFTest(unittest.TestCase):
 </package>
 '''
         )
-        self.opf = OPF(self.stream, os.getcwd())
+        self.opf = OPF(self.stream, os.getcwdu())
 
     def testReading(self, opf=None):
         if opf is None:
@@ -1470,11 +1530,11 @@ class OPFTest(unittest.TestCase):
         self.opf.render()
 
     def testCreator(self):
-        opf = OPFCreator(os.getcwd(), self.opf)
+        opf = OPFCreator(os.getcwdu(), self.opf)
         buf = cStringIO.StringIO()
         opf.render(buf)
         raw = buf.getvalue()
-        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
+        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwdu()))
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
@@ -1499,7 +1559,7 @@ def test_user_metadata():
         }
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)
-    opfc = OPFCreator(os.getcwd(), other=mi)
+    opfc = OPFCreator(os.getcwdu(), other=mi)
     out = StringIO()
     opfc.render(out)
     raw2 = out.getvalue()

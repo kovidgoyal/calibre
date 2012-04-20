@@ -138,15 +138,10 @@ class LinuxFreeze(Command):
 
     def compile_mount_helper(self):
         self.info('Compiling mount helper...')
-        self.regain_privileges()
         dest = self.j(self.bin_dir, 'calibre-mount-helper')
         subprocess.check_call(['gcc', '-Wall', '-pedantic',
             self.j(self.SRC, 'calibre', 'devices',
                 'linux_mount_helper.c'), '-o', dest])
-        os.chown(dest, 0, 0)
-        os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
-                stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IRGRP|stat.S_IROTH)
-        self.drop_privileges()
 
     def copy_python(self):
         self.info('Copying python...')
@@ -290,9 +285,10 @@ class LinuxFreeze(Command):
 
                 launcher = textwrap.dedent('''\
                 #!/bin/sh
-                path=`readlink -e $0`
+                path=`readlink -f $0`
                 base=`dirname $path`
                 lib=$base/lib
+                export QT_ACCESSIBILITY=0 # qt-at-spi causes crashes and performance issues in various distros, so disable it
                 export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
                 export MAGICK_HOME=$base
                 export MAGICK_CONFIGURE_PATH=$lib/{1}/config

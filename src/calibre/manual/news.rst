@@ -276,6 +276,7 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
 
 If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
+.. note:: On OS X, the ebook-convert command will not be available by default. Go to Preferences->Miscellaneous and click the install command line tools button to make it available.
 
 .. seealso::
 
@@ -294,7 +295,7 @@ To learn more about writing advanced recipes using some of the facilities, avail
     `BasicNewsRecipe <http://bazaar.launchpad.net/~kovid/calibre/trunk/annotate/head:/src/calibre/web/feeds/news.py>`_
         The source code of ``BasicNewsRecipe``
 
-    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/src/calibre/web/feeds/recipes/>`_
+    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/recipes/>`_
         The source code for the built-in recipes that come with |app|
 
     `The calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_

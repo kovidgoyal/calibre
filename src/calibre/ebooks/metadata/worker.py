@@ -33,7 +33,7 @@ def serialize_metadata_for(formats, tdir, id_):
     if not mi.application_id:
         mi.application_id = '__calibre_dummy__'
     with open(os.path.join(tdir, '%s.opf'%id_), 'wb') as f:
-        f.write(metadata_to_opf(mi))
+        f.write(metadata_to_opf(mi, default_lang='und'))
     if cdata:
         with open(os.path.join(tdir, str(id_)), 'wb') as f:
             f.write(cdata)
@@ -249,6 +249,7 @@ class SaveWorker(Thread):
             recs[pref.name] = getattr(self.opts, pref.name)
 
         plugboards = self.db.prefs.get('plugboards', {})
+        template_functions = self.db.prefs.get('user_template_functions', [])
 
         for i, task in enumerate(tasks):
             tids = [x[-1] for x in task]
@@ -260,7 +261,7 @@ class SaveWorker(Thread):
             job = ParallelJob('save_book',
                     'Save books (%d of %d)'%(i, len(tasks)),
                     lambda x,y:x,
-                    args=[tids, dpath, plugboards, self.path, recs])
+                    args=[tids, dpath, plugboards, template_functions, self.path, recs])
             jobs.add(job)
             server.add_job(job)
 
@@ -312,9 +313,12 @@ class SaveWorker(Thread):
                 break
 
 
-def save_book(ids, dpath, plugboards, path, recs, notification=lambda x,y:x):
+def save_book(ids, dpath, plugboards, template_functions, path, recs,
+              notification=lambda x,y:x):
     from calibre.library.save_to_disk import config, save_serialized_to_disk
     from calibre.customize.ui import apply_null_metadata
+    from calibre.utils.formatter_functions import load_user_template_functions
+    load_user_template_functions(template_functions)
     opts = config().parse()
     for name in recs:
         setattr(opts, name, recs[name])

@@ -22,17 +22,31 @@ class CNN(BasicNewsRecipe):
     #match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
     max_articles_per_feed = 25
 
+    extra_css = '''
+                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    .cnn_story_author, .cnn_stryathrtmp {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .cnn_strycaptiontxt, .cnnArticleGalleryPhotoContainer {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .cnn_strycbftrtxt, .cnnEditorialNote {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .cnn_strycntntlft {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
+
     preprocess_regexps = [
         (re.compile(r'<!--\[if.*if\]-->', re.DOTALL), lambda m: ''),
         (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
         (re.compile(r'<style.*?</style>', re.DOTALL), lambda m: ''),
     ]
 
-    keep_only_tags = [dict(id='cnnContentContainer')]
+    keep_only_tags = [dict(id=['cnnContentContainer', 'storycontent'])]
     remove_tags = [
             {'class':['cnn_strybtntools', 'cnn_strylftcntnt',
                 'cnn_strybtntools', 'cnn_strybtntoolsbttm', 'cnn_strybtmcntnt',
-                'cnn_strycntntrgt']},
+                'cnn_strycntntrgt', 'hed_side', 'foot', 'cnn_strylftcntnt cnn_strylftcexpbx']},
+            {'class':['cnn_html_media_title_new', 'cnn_html_media_title_new cnn_html_media_title_none',
+                'cnnArticleGalleryCaptionControlText', 'articleGalleryNavContainer']},
+            {'id':['articleGalleryNav00JumpPrev', 'articleGalleryNav00Prev',
+                'articleGalleryNav00Next', 'articleGalleryNav00JumpNext']},
+            {'style':['display:none']},
+            dict(id=['ie_column']),
     ]
 
 
@@ -57,3 +71,12 @@ class CNN(BasicNewsRecipe):
         ans = BasicNewsRecipe.get_article_url(self, article)
         return ans.partition('?')[0]
 
+    def get_masthead_url(self):
+        masthead = 'http://i.cdn.turner.com/cnn/.element/img/3.0/global/header/intl/hdr-globe-central.gif'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead

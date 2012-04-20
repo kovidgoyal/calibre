@@ -84,7 +84,7 @@ class PDNOVEL(USBMS):
     FORMATS = ['epub', 'pdf']
 
     VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0xb004]
+    PRODUCT_ID  = [0xb004, 0xa004]
     BCD         = [0x224]
 
     VENDOR_NAME = 'ANDROID'
@@ -209,8 +209,8 @@ class ALURATEK_COLOR(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
 
-    VENDOR_NAME = 'USB_2.0'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB_FLASH_DRIVER'
+    VENDOR_NAME = ['USB_2.0', 'EZREADER']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.']
 
 class TREKSTOR(USBMS):
 
@@ -224,7 +224,7 @@ class TREKSTOR(USBMS):
     FORMATS     = ['epub', 'txt', 'pdf']
 
     VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041, 0x0042,
+    PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e,
             0x003e # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
             ]
     BCD         = [0x0002]
@@ -233,7 +233,7 @@ class TREKSTOR(USBMS):
 
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M']
+            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0']
 
 class EEEREADER(USBMS):
 
@@ -252,8 +252,8 @@ class EEEREADER(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Book'
 
-    VENDOR_NAME = 'LINUX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+    VENDOR_NAME = ['LINUX', 'ASUS']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'EEE_NOTE']
 
 class ADAM(USBMS):
 
@@ -376,4 +376,32 @@ class COBY(USBMS):
         if for_upload:
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
+
+class EX124G(USBMS):
+
+    name = 'Motorola Ex124G device interface'
+    gui_name = 'Ex124G'
+    description = _('Communicate with the Ex124G')
+
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['mobi', 'prc', 'azw']
+
+    VENDOR_ID   = [0x0e8d]
+    PRODUCT_ID  = [0x0002]
+    BCD         = [0x0100]
+    VENDOR_NAME = 'MOTOROLA'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '_PHONE'
+
+    EBOOK_DIR_MAIN = 'eBooks'
+
+    SUPPORTS_SUB_DIRS = False
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return 'eBooks'
+        return self.EBOOK_DIR_CARD_A
+
 

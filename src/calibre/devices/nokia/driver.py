@@ -76,7 +76,7 @@ class E52(USBMS):
     supported_platforms = ['windows', 'linux', 'osx']
 
     VENDOR_ID = [0x421]
-    PRODUCT_ID = [0x1CD, 0x273]
+    PRODUCT_ID = [0x1CD, 0x273, 0x00aa]
     BCD = [0x100]
 
 
@@ -86,5 +86,5 @@ class E52(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     VENDOR_NAME = 'NOKIA'
-    WINDOWS_MAIN_MEM = 'S60'
+    WINDOWS_MAIN_MEM = ['S60', 'E71']
 

@@ -12,9 +12,11 @@ from datetime import timedelta
 from threading import Thread
 
 from calibre.utils.config import tweaks, prefs
-from calibre.utils.date import parse_date, now, UNDEFINED_DATE
+from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
+from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc,
+        get_lang)
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
@@ -170,11 +172,14 @@ def force_to_bool(val):
 
 class CacheRow(list): # {{{
 
-    def __init__(self, db, composites, val):
+    def __init__(self, db, composites, val, series_col, series_sort_col):
         self.db = db
         self._composites = composites
         list.__init__(self, val)
         self._must_do = len(composites) > 0
+        self._series_col = series_col
+        self._series_sort_col = series_sort_col
+        self._series_sort = None
 
     def __getitem__(self, col):
         if self._must_do:
@@ -189,12 +194,19 @@ class CacheRow(list): # {{{
             elif col in self._composites:
                 is_comp = True
             if is_comp:
-                id = list.__getitem__(self, 0)
+                id_ = list.__getitem__(self, 0)
                 self._must_do = False
-                mi = self.db.get_metadata(id, index_is_id=True,
+                mi = self.db.get_metadata(id_, index_is_id=True,
                                           get_user_categories=False)
                 for c in self._composites:
                     self[c] =  mi.get(self._composites[c])
+        if col == self._series_sort_col and self._series_sort is None:
+            if self[self._series_col]:
+                self._series_sort = title_sort(self[self._series_col])
+                self[self._series_sort_col] = self._series_sort
+            else:
+                self._series_sort = ''
+                self[self._series_sort_col] = ''
         return list.__getitem__(self, col)
 
     def __getslice__(self, i, j):
@@ -214,11 +226,18 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
+        l = get_lang()
+        asciize_author_names = l and l.lower() in ('en', 'eng')
+        if not asciize_author_names:
+            self.ascii_name = lambda x: False
         self.db_prefs = db_prefs
         self.composites = {}
+        self.udc = get_udc()
         for key in field_metadata:
             if field_metadata[key]['datatype'] == 'composite':
                 self.composites[field_metadata[key]['rec_index']] = key
+        self.series_col = field_metadata['series']['rec_index']
+        self.series_sort_col = field_metadata['series_sort']['rec_index']
         self._data = []
         self._map = self._map_filtered = []
         self.first_sort = True
@@ -259,6 +278,15 @@ class ResultCache(SearchQueryParser): # {{{
             yield x[idx]
 
     # Search functions {{{
+
+    def ascii_name(self, name):
+        try:
+            ans = self.udc.decode(name)
+            if ans == name:
+                ans = False
+        except:
+            ans = False
+        return ans
 
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
@@ -721,11 +749,19 @@ class ResultCache(SearchQueryParser): # {{{
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
                     if matchkind == REGEXP_MATCH:
-                        q = query.replace(',', r'\|');
+                        q = query.replace(',', r'\|')
                     else:
-                        q = query.replace(',', '|');
+                        q = query.replace(',', '|')
+                elif loc == db_col['languages']:
+                    q = canonicalize_lang(query)
+                    if q is None:
+                        lm = lang_map()
+                        rm = {v.lower():k for k,v in lm.iteritems()}
+                        q = rm.get(query, query)
                 else:
                     q = query
+
+                au_loc = self.FIELD_MAP['authors']
 
                 for id_ in candidates:
                     item = self._data[id_]
@@ -769,6 +805,9 @@ class ResultCache(SearchQueryParser): # {{{
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
                             vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
+                            if loc == au_loc:
+                                vals += filter(None, map(self.ascii_name,
+                                    vals))
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):
@@ -891,9 +930,11 @@ class ResultCache(SearchQueryParser): # {{{
         for id in ids:
             try:
                 self._data[id] = CacheRow(db, self.composites,
-                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
+                        self.series_col, self.series_sort_col)
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(self.marked_ids_dict.get(id, None))
+                self._data[id].append(None)
             except IndexError:
                 return None
         try:
@@ -908,9 +949,11 @@ class ResultCache(SearchQueryParser): # {{{
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
             self._data[id] = CacheRow(db, self.composites,
-                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
+                        self.series_col, self.series_sort_col)
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(self.marked_ids_dict.get(id, None))
+            self._data[id].append(None) # Series sort column
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -929,14 +972,19 @@ class ResultCache(SearchQueryParser): # {{{
                 item.refresh_composites()
 
     def refresh(self, db, field=None, ascending=True):
+        # reinitialize the template cache in case a composite column has changed
+        db.initialize_template_cache()
+
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = CacheRow(db, self.composites, r)
+            self._data[r[0]] = CacheRow(db, self.composites, r,
+                                        self.series_col, self.series_sort_col)
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                item.append(None)
+                # Temp mark and series_sort columns
+                item.extend((None, None))
 
         marked_col = self.FIELD_MAP['marked']
         for id_,val in self.marked_ids_dict.iteritems():
@@ -964,7 +1012,14 @@ class ResultCache(SearchQueryParser): # {{{
     def sort(self, field, ascending, subsort=False):
         self.multisort([(field, ascending)])
 
-    def multisort(self, fields=[], subsort=False):
+    def multisort(self, fields=[], subsort=False, only_ids=None):
+        '''
+        fields is a list of 2-tuple, each tuple is of the form
+        (field_name, is_ascending)
+
+        If only_ids is a list of ids, this function will sort that list instead
+        of the internal mapping of ids.
+        '''
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
         keys = self.field_metadata.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
@@ -974,13 +1029,15 @@ class ResultCache(SearchQueryParser): # {{{
             fields = [('timestamp', False)]
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data, self.db_prefs)
-        self._map.sort(key=keyg)
+        if only_ids is None:
+            self._map.sort(key=keyg)
 
-        tmap = list(itertools.repeat(False, len(self._data)))
-        for x in self._map_filtered:
-            tmap[x] = True
-        self._map_filtered = [x for x in self._map if tmap[x]]
-
+            tmap = list(itertools.repeat(False, len(self._data)))
+            for x in self._map_filtered:
+                tmap[x] = True
+            self._map_filtered = [x for x in self._map if tmap[x]]
+        else:
+            only_ids.sort(key=keyg)
 
 class SortKey(object):
 
@@ -1043,7 +1100,17 @@ class SortKeyGenerator(object):
             if dt == 'datetime':
                 if val is None:
                     val = UNDEFINED_DATE
-
+                if tweaks['sort_dates_using_visible_fields']:
+                    format = None
+                    if name == 'timestamp':
+                        format = tweaks['gui_timestamp_display_format']
+                    elif name == 'pubdate':
+                        format = tweaks['gui_pubdate_display_format']
+                    elif name == 'last_modified':
+                        format = tweaks['gui_last_modified_display_format']
+                    elif fm['is_custom']:
+                        format = fm['display'].get('date_format', None)
+                    val = clean_date_for_sort(val, format)
             elif dt == 'series':
                 if val is None:
                     val = ('', 1)

@@ -43,6 +43,9 @@ class Widget(QWidget):
     ICON  = I('config.png')
     HELP  = ''
     COMMIT_NAME = None
+    # If True, leading and trailing spaces are removed from line and text edit
+    # fields
+    STRIP_TEXT_FIELDS = True
 
     changed_signal = pyqtSignal()
     set_help = pyqtSignal(object)
@@ -76,7 +79,6 @@ class Widget(QWidget):
             specifics.merge_recommendations(get_option, OptionRecommendation.HIGH,
                     self._options, only_existing=True)
             defaults.update(specifics)
-
 
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
@@ -124,7 +126,6 @@ class Widget(QWidget):
             if name in getattr(recs, 'disabled_options', []):
                 gui_opt.setDisabled(True)
 
-
     def get_value(self, g):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
@@ -136,7 +137,9 @@ class Widget(QWidget):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit)):
             func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = unicode(func).strip()
+            ans = unicode(func)
+            if self.STRIP_TEXT_FIELDS:
+                ans = ans.strip()
             if not ans:
                 ans = None
             return ans
@@ -230,22 +233,26 @@ class Widget(QWidget):
                 pass
 
     def setup_help(self, help_provider):
-        w = textwrap.TextWrapper(80)
         for name in self._options:
             g = getattr(self, 'opt_'+name, None)
             if g is None:
                 continue
             help = help_provider(name)
             if not help: continue
+            if self.setup_help_handler(g, help): continue
             g._help = help
-            htext = u'<div>%s</div>'%prepare_string_for_xml(
-                    '\n'.join(w.wrap(help)))
-            g.setToolTip(htext)
-            g.setWhatsThis(htext)
-            g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
+            self.setup_widget_help(g)
+
+    def setup_widget_help(self, g):
+        w = textwrap.TextWrapper(80)
+        htext = u'<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
+        g.setToolTip(htext)
+        g.setWhatsThis(htext)
+        g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
 
     def set_value_handler(self, g, val):
+        'Return True iff you handle setting the value for g'
         return False
 
     def post_set_value(self, g, val):
@@ -256,6 +263,9 @@ class Widget(QWidget):
 
     def post_get_value(self, g):
         pass
+
+    def setup_help_handler(self, g, help):
+        return False
 
     def break_cycles(self):
         self.db = None

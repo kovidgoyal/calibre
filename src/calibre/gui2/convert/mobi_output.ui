@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
+    <width>588</width>
     <height>342</height>
    </rect>
   </property>
@@ -14,47 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&amp;Title for Table of Contents:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_toc_title</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="opt_toc_title"/>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_rescale_images">
-     <property name="text">
-      <string>Rescale images for &amp;Palm devices</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_prefer_author_sort">
-     <property name="text">
-      <string>Use author &amp;sort for author</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QCheckBox" name="opt_dont_compress">
-     <property name="text">
-      <string>Disable compression of the file contents</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_no_inline_toc">
-     <property name="text">
-      <string>Do not add Table of Contents to book</string>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -74,6 +33,13 @@
          <widget class="QLineEdit" name="opt_personal_doc"/>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_share_not_sync">
+        <property name="text">
+         <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">
@@ -115,6 +81,47 @@
     <widget class="QCheckBox" name="opt_mobi_ignore_margins">
      <property name="text">
       <string>Ignore &amp;margins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_prefer_author_sort">
+     <property name="text">
+      <string>Use author &amp;sort for author</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&amp;Title for Table of Contents:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_toc_title</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="opt_toc_title"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="opt_dont_compress">
+     <property name="text">
+      <string>Disable compression of the file contents</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="opt_no_inline_toc">
+     <property name="text">
+      <string>Do not add Table of Contents to book</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_mobi_keep_original_images">
+     <property name="text">
+      <string>Do not convert all images to &amp;JPEG (may result in images not working in older viewers)</string>
      </property>
     </widget>
    </item>

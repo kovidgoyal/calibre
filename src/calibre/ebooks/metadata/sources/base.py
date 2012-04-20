@@ -12,10 +12,9 @@ from future_builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
-from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import capitalize, lower
+from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
 
 msprefs = JSONConfig('metadata_sources/global.json')
@@ -34,6 +33,7 @@ msprefs.defaults['fewer_tags'] = True
 msprefs.defaults['cover_priorities'] = {'Google':2}
 
 def create_log(ostream=None):
+    from calibre.utils.logging import ThreadSafeLog, FileStream
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
     log.outputs = [FileStream(ostream)]
     return log
@@ -112,15 +112,44 @@ def get_cached_cover_urls(mi):
         if url:
             yield (p, url)
 
+def dump_caches():
+    from calibre.customize.ui import metadata_plugins
+    return {p.name:p.dump_caches() for p in metadata_plugins(['identify'])}
+
+def load_caches(dump):
+    from calibre.customize.ui import metadata_plugins
+    plugins = list(metadata_plugins(['identify']))
+    for p in plugins:
+        cache = dump.get(p.name, None)
+        if cache:
+            p.load_caches(cache)
+
 def cap_author_token(token):
     lt = lower(token)
     if lt in ('von', 'de', 'el', 'van', 'le'):
         return lt
-    if re.match(r'([a-z]\.){2,}$', lt) is not None:
+    # no digits no spez. characters
+    if re.match(r'([^\d\W]\.){2,}$', lt, re.UNICODE) is not None:
         # Normalize tokens of the form J.K. to J. K.
         parts = token.split('.')
         return '. '.join(map(capitalize, parts)).strip()
-    return capitalize(token)
+    scots_name = None
+    for x in ('mc', 'mac'):
+        if (token.lower().startswith(x) and len(token) > len(x) and
+                (
+                    token[len(x)] == upper(token[len(x)]) or
+                    lt == token
+                )):
+            scots_name = len(x)
+            break
+    ans = capitalize(token)
+    if scots_name is not None:
+        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name+1:]
+    for x in ('-', "'"):
+        idx = ans.find(x)
+        if idx > -1 and len(ans) > idx+2:
+            ans = ans[:idx+1] + upper(ans[idx+1]) + ans[idx+2:]
+    return ans
 
 def fixauthors(authors):
     if not authors:
@@ -195,6 +224,7 @@ class Source(Plugin):
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
+        self.running_a_test = False # Set to True when using identify_test()
         self._isbn_to_identifier_cache = {}
         self._identifier_to_cover_url_cache = {}
         self.cache_lock = threading.RLock()
@@ -236,9 +266,15 @@ class Source(Plugin):
     # Browser {{{
 
     @property
+    def user_agent(self):
+        # Pass in an index to random_user_agent() to test with a particular
+        # user agent
+        return random_user_agent()
+
+    @property
     def browser(self):
         if self._browser is None:
-            self._browser = browser(user_agent=random_user_agent())
+            self._browser = browser(user_agent=self.user_agent)
             if self.supports_gzip_transfer_encoding:
                 self._browser.set_handle_gzip(True)
         return self._browser.clone_browser()
@@ -269,6 +305,16 @@ class Source(Plugin):
         with self.cache_lock:
             return self._identifier_to_cover_url_cache.get(id_, None)
 
+    def dump_caches(self):
+        with self.cache_lock:
+            return {'isbn_to_identifier':self._isbn_to_identifier_cache.copy(),
+                    'identifier_to_cover':self._identifier_to_cover_url_cache.copy()}
+
+    def load_caches(self, dump):
+        with self.cache_lock:
+            self._isbn_to_identifier_cache.update(dump['isbn_to_identifier'])
+            self._identifier_to_cover_url_cache.update(dump['identifier_to_cover'])
+
     # }}}
 
     # Utility functions {{{
@@ -283,14 +329,15 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            remove_pat = re.compile(r'[,!@#$%^&*(){}`~"\s\[\]/]')
-            replace_pat = re.compile(r'[-+.:;]')
+            remove_pat = re.compile(r'[!@#$%^&*(){}`~"\s\[\]/]')
+            replace_pat = re.compile(r'[-+.:;,]')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
+                has_comma = ',' in au
                 au = replace_pat.sub(' ', au)
                 parts = au.split()
-                if ',' in au:
+                if has_comma:
                     # au probably in ln, fn form
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
@@ -325,7 +372,7 @@ class Source(Plugin):
                 # Remove single quotes not followed by 's'
                 (r"'(?!s)", ''),
                 # Replace other special chars with a space
-                (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
+                (r'''[:,;+!@$%^&*(){}.`~"\s\[\]/]''', ' '),
             ]]
 
             for pat, repl in title_patterns:

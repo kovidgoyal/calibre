@@ -7,31 +7,41 @@ __docformat__ = 'restructuredtext en'
 class PDBError(Exception):
     pass
 
+FORMAT_READERS = None
 
-from calibre.ebooks.pdb.ereader.reader import Reader as ereader_reader
-from calibre.ebooks.pdb.palmdoc.reader import Reader as palmdoc_reader
-from calibre.ebooks.pdb.ztxt.reader import Reader as ztxt_reader
-from calibre.ebooks.pdb.pdf.reader import Reader as pdf_reader
-from calibre.ebooks.pdb.plucker.reader import Reader as plucker_reader
+def _import_readers():
+    global FORMAT_READERS
+    from calibre.ebooks.pdb.ereader.reader import Reader as ereader_reader
+    from calibre.ebooks.pdb.palmdoc.reader import Reader as palmdoc_reader
+    from calibre.ebooks.pdb.ztxt.reader import Reader as ztxt_reader
+    from calibre.ebooks.pdb.pdf.reader import Reader as pdf_reader
+    from calibre.ebooks.pdb.plucker.reader import Reader as plucker_reader
+    from calibre.ebooks.pdb.haodoo.reader import Reader as haodoo_reader
 
-FORMAT_READERS = {
-    'PNPdPPrs': ereader_reader,
-    'PNRdPPrs': ereader_reader,
-    'zTXTGPlm': ztxt_reader,
-    'TEXtREAd': palmdoc_reader,
-    '.pdfADBE': pdf_reader,
-    'DataPlkr': plucker_reader,
-}
+    FORMAT_READERS = {
+        'PNPdPPrs': ereader_reader,
+        'PNRdPPrs': ereader_reader,
+        'zTXTGPlm': ztxt_reader,
+        'TEXtREAd': palmdoc_reader,
+        '.pdfADBE': pdf_reader,
+        'DataPlkr': plucker_reader,
+        'BOOKMTIT': haodoo_reader,
+        'BOOKMTIU': haodoo_reader,
+    }
 
-from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
-from calibre.ebooks.pdb.ztxt.writer import Writer as ztxt_writer
-from calibre.ebooks.pdb.ereader.writer import Writer as ereader_writer
+ALL_FORMAT_WRITERS = {'doc', 'ztxt', 'ereader'}
+FORMAT_WRITERS = None
+def _import_writers():
+    global FORMAT_WRITERS
+    from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
+    from calibre.ebooks.pdb.ztxt.writer import Writer as ztxt_writer
+    from calibre.ebooks.pdb.ereader.writer import Writer as ereader_writer
 
-FORMAT_WRITERS = {
-    'doc': palmdoc_writer,
-    'ztxt': ztxt_writer,
-    'ereader': ereader_writer,
-}
+    FORMAT_WRITERS = {
+        'doc': palmdoc_writer,
+        'ztxt': ztxt_writer,
+        'ereader': ereader_writer,
+    }
 
 IDENTITY_TO_NAME = {
     'PNPdPPrs': 'eReader',
@@ -40,6 +50,8 @@ IDENTITY_TO_NAME = {
     'TEXtREAd': 'PalmDOC',
     '.pdfADBE': 'Adobe Reader',
     'DataPlkr': 'Plucker',
+    'BOOKMTIT': 'Haodoo.net',
+    'BOOKMTIU': 'Haodoo.net',
 
     'BVokBDIC': 'BDicty',
     'DB99DBOS': 'DB (Database program)',
@@ -69,11 +81,17 @@ def get_reader(identity):
     '''
     Returns None if no reader is found for the identity.
     '''
+    global FORMAT_READERS
+    if FORMAT_READERS is None:
+        _import_readers()
     return FORMAT_READERS.get(identity, None)
 
 def get_writer(extension):
     '''
     Returns None if no writer is found for extension.
     '''
+    global FORMAT_WRITERS
+    if FORMAT_WRITERS is None:
+        _import_writers()
     return FORMAT_WRITERS.get(extension, None)
 

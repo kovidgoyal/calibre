@@ -465,13 +465,12 @@ class BrowseServer(object):
 
         if not cats and len(items) == 1:
             # Only one item in category, go directly to book list
-            prefix = '' if self.is_wsgi else self.opts.url_prefix
             html = get_category_items(category, items,
                     self.search_restriction_name, datatype,
                     self.opts.url_prefix)
             href = re.search(r'<a href="([^"]+)"', html)
             if href is not None:
-                raise cherrypy.HTTPRedirect(prefix+href.group(1))
+                raise cherrypy.HTTPRedirect(href.group(1))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
@@ -498,7 +497,9 @@ class BrowseServer(object):
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category, s), True),
+                        xml(u'/browse/category_group/%s/%s'%(
+                            hexlify(category.encode('utf-8')),
+                            hexlify(s.encode('utf-8'))), True),
                         self.opts.url_prefix)
                     for s, c in category_groups.items()]
             items = '\n\n'.join(items)
@@ -531,6 +532,13 @@ class BrowseServer(object):
             sort = None
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
+        try:
+            category = unhexlify(category)
+            if isbytestring(category):
+                category = category.decode('utf-8')
+        except:
+            raise cherrypy.HTTPError(404, 'invalid category')
+
         categories = self.categories_cache()
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')
@@ -538,7 +546,11 @@ class BrowseServer(object):
         category_meta = self.db.field_metadata
         datatype = category_meta[category]['datatype']
 
-        if not group:
+        try:
+            group = unhexlify(group)
+            if isbytestring(group):
+                group = group.decode('utf-8')
+        except:
             raise cherrypy.HTTPError(404, 'invalid group')
 
         items = categories[category]
@@ -665,10 +677,15 @@ class BrowseServer(object):
         args = {'id':id_, 'mi':mi,
                 }
         ccache = self.categories_cache() if add_category_links else {}
+        ftitle = fauthors = ''
         for key in mi.all_field_keys():
             val = mi.format_field(key)[1]
             if not val:
                 val = ''
+            if key == 'title':
+                ftitle = xml(val, True)
+            elif key == 'authors':
+                fauthors = xml(val, True)
             if add_category_links:
                 added_key = False
                 fm = mi.metadata_for_field(key)
@@ -690,8 +707,8 @@ class BrowseServer(object):
                         for tag in dbtags:
                             tval = ('<a title="Browse books by {3}: {0}"'
                             ' href="{1}" class="details_category_link">{2}</a>')
-                            href='/browse/matches/%s/%s' % \
-                            (quote(tag.category), quote(str(tag.id)))
+                            href='%s/browse/matches/%s/%s' % \
+                            (self.opts.url_prefix, quote(tag.category), quote(str(tag.id)))
                             vals.append(tval.format(xml(tag.name, True),
                                 xml(href, True),
                                 xml(val if len(dbtags) == 1 else tag.name),
@@ -706,8 +723,8 @@ class BrowseServer(object):
                     args[key] = xml(val, True)
             else:
                 args[key] = xml(val, True)
-        fname = quote(ascii_filename(args['title']) + ' - ' +
-                ascii_filename(args['authors']))
+        fname = quote(ascii_filename(ftitle) + ' - ' +
+                ascii_filename(fauthors))
         return args, fmt, fmts, fname
 
     @Endpoint(mimetype='application/json; charset=utf-8')
@@ -808,7 +825,7 @@ class BrowseServer(object):
                     continue
                 if m['datatype'] == 'rating':
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
-                            render_rating(mi.rating/2.0, self.opts.url_prefix,
+                            render_rating(mi.get(field)/2.0, self.opts.url_prefix,
                                     prefix=m['name'])[0]
                 else:
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
@@ -869,7 +886,7 @@ class BrowseServer(object):
                 suffix=_('in search')+': '+xml(query))
         return self.browse_template(sort, category=False, initial_search=query).format(
                 title=_('Matching books'),
-                script='booklist();', main=html)
+                script='search_result();', main=html)
 
     # }}}
 

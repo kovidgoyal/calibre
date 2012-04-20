@@ -6,12 +6,12 @@ Created on 4 Jun 2010
 
 from base64 import b64encode, b64decode
 import json, traceback
+from datetime import datetime, time
 
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.date import parse_date, isoformat, UNDEFINED_DATE
-from calibre.utils.magick import Image
+from calibre.utils.date import parse_date, isoformat, UNDEFINED_DATE, local_tz
 from calibre import isbytestring
 
 # Translate datetimes to and from strings. The string form is the datetime in
@@ -22,7 +22,13 @@ def string_to_datetime(src):
     return parse_date(src)
 
 def datetime_to_string(dateval):
-    if dateval is None or dateval == UNDEFINED_DATE:
+    if dateval is None:
+        return "None"
+    if not isinstance(dateval, datetime):
+        dateval = datetime.combine(dateval, time())
+    if hasattr(dateval, 'tzinfo') and dateval.tzinfo is None:
+        dateval = dateval.replace(tzinfo=local_tz)
+    if dateval <= UNDEFINED_DATE:
         return "None"
     return isoformat(dateval)
 
@@ -30,6 +36,8 @@ def encode_thumbnail(thumbnail):
     '''
     Encode the image part of a thumbnail, then return the 3 part tuple
     '''
+    from calibre.utils.magick import Image
+
     if thumbnail is None:
         return None
     if not isinstance(thumbnail, (tuple, list)):
@@ -100,6 +108,8 @@ def decode_is_multiple(fm):
             else:
                 im = {'cache_to_list': '|', 'ui_to_list': ',',
                       'list_to_ui': ', '}
+        elif im is None:
+            im = {}
         fm['is_multiple'] = im
 
 class JsonCodec(object):

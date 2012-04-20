@@ -1,0 +1,31 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class OCLab(BasicNewsRecipe):
+    title          = u'OCLab.pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Portal OCLab.pl jest miejscem przyjaznym pasjonatom sprzętu komputerowego, w szczególności overclockerom, które będzie służyć im za aktualną bazę wiedzy o podkręcaniu komputera, źródło aktualnych informacji z rynku oraz opinii na temat sprzętu komputerowego.'
+    category       = 'IT'
+    language       = 'pl'
+    cover_url= 'http://www.idealforum.ru/attachment.php?attachmentid=7963&d=1316008118'
+    no_stylesheets = True
+    keep_only_tags=[dict(id='main')]
+    remove_tags_after= dict(attrs={'class':'single-postmetadata'})
+    remove_tags=[dict(attrs={'class':['single-postmetadata', 'pagebar']})]
+    feeds          = [(u'Wpisy', u'http://oclab.pl/feed/')]
+
+
+    def append_page(self, soup, appendtag):
+        tag=soup.find(attrs={'class':'contentjumpddl'})
+        if tag:
+            nexturl=tag.findAll('option')
+            for nextpage in nexturl[1:-1]:
+               soup2 = self.index_to_soup(nextpage['value'])
+               pagetext = soup2.find(attrs={'class':'single-entry'})
+               pos = len(appendtag.contents)
+               appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':'post-nav-bottom-list'}):
+                r.extract()
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

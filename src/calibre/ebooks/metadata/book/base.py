@@ -9,15 +9,18 @@ import copy, traceback
 
 from calibre import prints
 from calibre.constants import DEBUG
-from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
-from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
-from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
-from calibre.ebooks.metadata.book import TOP_LEVEL_IDENTIFIERS
-from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
+from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
+        SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
+        TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
+
+# Special sets used to optimize the performance of getting and setting
+# attributes on Metadata objects
+SIMPLE_GET = frozenset(STANDARD_METADATA_FIELDS - TOP_LEVEL_IDENTIFIERS)
+SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
@@ -32,6 +35,7 @@ NULL_VALUES = {
                 'device_collections': [],
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
+                'author_sort'  : _('Unknown'),
                 'title'        : _('Unknown'),
                 'user_categories' : {},
                 'author_link_map' : {},
@@ -45,9 +49,9 @@ class SafeFormat(TemplateFormatter):
     def get_value(self, orig_key, args, kwargs):
         if not orig_key:
             return ''
-        orig_key = orig_key.lower()
-        key = orig_key
-        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
+        key = orig_key = orig_key.lower()
+        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and \
+                key not in ALL_METADATA_FIELDS:
             key = field_metadata.search_term_to_field_key(key)
             if key is None or (self.book and
                                 key not in self.book.all_field_keys()):
@@ -59,9 +63,8 @@ class SafeFormat(TemplateFormatter):
             b = self.book.get_user_metadata(key, False)
         except:
             b = None
-        if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
-            v = ''
-        elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
+        if b and ((b['datatype'] == 'int' and self.book.get(key, 0) == 0) or
+                  (b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0)):
             v = ''
         else:
             v = self.book.format_field(key, series_with_index=False)[1]
@@ -95,13 +98,14 @@ class Metadata(object):
     becomes a reserved field name.
     '''
 
-    def __init__(self, title, authors=(_('Unknown'),), other=None):
+    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None):
         '''
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
         @param other: None or a metadata object
         '''
         _data = copy.deepcopy(NULL_VALUES)
+        _data.pop('language')
         object.__setattr__(self, '_data', _data)
         if other is not None:
             self.smart_update(other)
@@ -113,6 +117,7 @@ class Metadata(object):
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
         self.formatter = SafeFormat()
+        self.template_cache = template_cache
 
     def is_null(self, field):
         '''
@@ -134,10 +139,15 @@ class Metadata(object):
 
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
+        if field in SIMPLE_GET:
+            return _data.get(field, None)
         if field in TOP_LEVEL_IDENTIFIERS:
             return _data.get('identifiers').get(field, None)
-        if field in STANDARD_METADATA_FIELDS:
-            return _data.get(field, None)
+        if field == 'language':
+            try:
+                return _data.get('languages', [])[0]
+            except:
+                return NULL_VALUES['language']
         try:
             return object.__getattribute__(self, field)
         except AttributeError:
@@ -153,7 +163,8 @@ class Metadata(object):
                                             d['display']['composite_template'],
                                             self,
                                             _('TEMPLATE ERROR'),
-                                            self).strip()
+                                            self, column_name=field,
+                                            template_cache=self.template_cache).strip()
             return val
         if field.startswith('#') and field.endswith('_index'):
             try:
@@ -165,7 +176,11 @@ class Metadata(object):
 
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
-        if field in TOP_LEVEL_IDENTIFIERS:
+        if field in SIMPLE_SET:
+            if val is None:
+                val = copy.copy(NULL_VALUES.get(field, None))
+            _data[field] = val
+        elif field in TOP_LEVEL_IDENTIFIERS:
             field, val = self._clean_identifier(field, val)
             identifiers = _data['identifiers']
             identifiers.pop(field, None)
@@ -175,10 +190,11 @@ class Metadata(object):
             if not val:
                 val = copy.copy(NULL_VALUES.get('identifiers', None))
             self.set_identifiers(val)
-        elif field in STANDARD_METADATA_FIELDS:
-            if val is None:
-                val = copy.copy(NULL_VALUES.get(field, None))
-            _data[field] = val
+        elif field == 'language':
+            langs = []
+            if val and val.lower() != 'und':
+                langs = [val]
+            _data['languages'] = langs
         elif field in _data['user_metadata'].iterkeys():
             _data['user_metadata'][field]['#value#'] = val
             _data['user_metadata'][field]['#extra#'] = extra
@@ -391,9 +407,19 @@ class Metadata(object):
         '''
         if metadata is None:
             traceback.print_stack()
-        else:
-            for key in metadata:
-                self.set_user_metadata(key, metadata[key])
+            return
+
+        um = {}
+        for key, meta in metadata.iteritems():
+            m = meta.copy()
+            if '#value#' not in m:
+                if m['datatype'] == 'text' and m['is_multiple']:
+                    m['#value#'] = []
+                else:
+                    m['#value#'] = None
+            um[key] = m
+        _data = object.__getattribute__(self, '_data')
+        _data['user_metadata'].update(um)
 
     def set_user_metadata(self, field, metadata):
         '''
@@ -407,9 +433,11 @@ class Metadata(object):
             if metadata is None:
                 traceback.print_stack()
                 return
-            m = {}
-            for k in metadata:
-                m[k] = copy.copy(metadata[k])
+            m = dict(metadata)
+            # Copying the elements should not be necessary. The objects referenced
+            # in the dict should not change. Of course, they can be replaced.
+            # for k,v in metadata.iteritems():
+            #     m[k] = copy.copy(v)
             if '#value#' not in m:
                 if m['datatype'] == 'text' and m['is_multiple']:
                     m['#value#'] = []
@@ -524,7 +552,13 @@ class Metadata(object):
                         if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
-                            lstags = [t.lower() for t in self_tags]
+                            try:
+                                lstags = [t.lower() for t in self_tags]
+                            except TypeError:
+                                # Happens if x is not a text, is_multiple field
+                                # on self
+                                lstags = []
+                                self_tags = []
                             ot, st = map(frozenset, (lotags, lstags))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
@@ -553,9 +587,9 @@ class Metadata(object):
                 for attr in TOP_LEVEL_IDENTIFIERS:
                     copy_not_none(self, other, attr)
 
-        other_lang = getattr(other, 'language', None)
-        if other_lang and other_lang.lower() != 'und':
-            self.language = other_lang
+        other_lang = getattr(other, 'languages', [])
+        if other_lang and other_lang != ['und']:
+            self.languages = list(other_lang)
         if not getattr(self, 'series', None):
             self.series_index = None
 
@@ -635,7 +669,7 @@ class Metadata(object):
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
-                res = res/2.0
+                res = u'%.2g'%(res/2.0)
             elif datatype in ['int', 'float']:
                 try:
                     fmt = cmeta['display'].get('number_format', None)
@@ -675,7 +709,7 @@ class Metadata(object):
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
-                res = res/2.0
+                res = u'%.2g'%(res/2.0)
             elif key == 'size':
                 res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
@@ -697,7 +731,8 @@ class Metadata(object):
             fmt('Title sort', self.title_sort)
         if self.authors:
             fmt('Author(s)',  authors_to_string(self.authors) + \
-               ((' [' + self.author_sort + ']') if self.author_sort else ''))
+               ((' [' + self.author_sort + ']')
+                if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
@@ -706,10 +741,11 @@ class Metadata(object):
             fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
             fmt('Series', self.series + ' #%s'%self.format_series_index())
-        if not self.is_null('language'):
-            fmt('Language', self.language)
+        if not self.is_null('languages'):
+            fmt('Languages', ', '.join(self.languages))
         if self.rating is not None:
-            fmt('Rating', self.rating)
+            fmt('Rating', (u'%.2g'%(float(self.rating)/2.0)) if self.rating
+                    else u'')
         if self.timestamp is not None:
             fmt('Timestamp', isoformat(self.timestamp))
         if self.pubdate is not None:
@@ -743,7 +779,7 @@ class Metadata(object):
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
             ans += [(_('Series'), unicode(self.series) + ' #%s'%self.format_series_index())]
-        ans += [(_('Language'), unicode(self.language))]
+        ans += [(_('Languages'), u', '.join(self.languages))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
         if self.pubdate is not None:

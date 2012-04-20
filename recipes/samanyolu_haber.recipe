@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class SHaber (BasicNewsRecipe):
+
+    title               = u'Samanyolu Haber'
+    __author__            = u'thomass'
+    description            =  ' Samanyolu Haber Sitesinden günlük haberler '
+    oldest_article         =2
+    max_articles_per_feed  =100
+    no_stylesheets         = True
+    auto_cleanup = True
+    #delay                  = 1
+    #use_embedded_content   = False
+    encoding               = 'utf-8'
+    publisher              = 'thomass'
+    category               = 'güncel, haber, türkçe'
+    language               = 'tr'
+    publication_type = 'newspaper'
+
+    conversion_options = {
+                            'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                                                    }
+    extra_css              = '  .Haber-Baslik-Yazisi {font-weight: bold; font-size: 9px} .Haber-Ozet-Yazisi{ font-family:sans-serif;font-weight: normal;font-size: 11px } #Haber{ font-family:sans-serif;font-weight: normal;font-size: 9px }.KirmiziText{ font-weight: normal;font-size: 5px }' #.story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    
+   #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    #keep_only_tags    = [dict(name='div', attrs={'class':['Haber-Baslik-Yazisi','Haber-Ozet-Yazisi']}),dict(name='div', attrs={'id':['ctl00_ContentPlaceHolder1_imagenew','Haber']})]#,dict(name='h6', attrs={'class':['KirmiziText',]}) dict(name='div', attrs={'id':['Haber']}),dict(name='div', attrs={'id':['gallery']})]
+    #remove_tags  = [dict(name='div', attrs={'class':['Haber-Baslik-Yazisi']})]#attrs={'src':[ 'http://medya.aksiyon.com.tr/aksiyon/images/logo/logo.bmp','/aksiyon/images/template/green/baslik0.gif','mobile/home.jpg']}) ],dict(name='h1', attrs={'class':['H1-Haber-DetayBasligi']}),dict(name='h4', attrs={'class':['BrownText']}) ,
+
+    cover_img_url = 'http://www.samanyoluhaber.com/include/logo.png'
+    masthead_url = 'http://www.samanyoluhaber.com/include/logo.png'
+    remove_empty_feeds= True
+    #remove_attributes = ['width','height']
+
+    feeds          = [
+                      ( u'Son Dakika', u'http://podcast.samanyoluhaber.com/sondakika.rss'),
+                      ( u'Gündem', u'http://podcast.samanyoluhaber.com/gundem.rss'),
+                      ( u'Politika ', u'http://podcast.samanyoluhaber.com/politika.rss'),
+                      ( u'Ekonomi', u'http://podcast.samanyoluhaber.com/ekonomi.rss'),
+                      ( u'Dünya', u'http://podcast.samanyoluhaber.com/dunya.rss'),
+                      ( u'Spor ', u'http://podcast.samanyoluhaber.com/spor.rss'),
+                      ( u'Sağlık', u'http://podcast.samanyoluhaber.com/saglik.rss'),
+                      ( u'Kültür', u'http://podcast.samanyoluhaber.com/kultur.rss'),
+                      #( u'Teknoloji ', u'http://podcast.samanyoluhaber.com/teknoloji.rss'),
+                      ( u'Eğitim', u'http://podcast.samanyoluhaber.com/egitim.rss'),
+                      ( u'Ramazan', u'http://podcast.samanyoluhaber.com/ramazan.rss'),
+                      ( u'Yazarlar ', u'http://podcast.samanyoluhaber.com/yazarlar.rss'),
+                     
+
+
+                        ]
+    def preprocess_html(self, soup):
+         for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+         return soup
+   # def print_version(self, url):
+    # return url.replace('http://www.aksiyon.com.tr/aksiyon/newsDetail_getNewsById.action?load=detay&', 'http://www.aksiyon.com.tr/aksiyon/mobile_detailn.action?')
+

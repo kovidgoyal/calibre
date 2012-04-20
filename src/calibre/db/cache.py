@@ -13,7 +13,9 @@ from functools import wraps, partial
 
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
-from calibre.ebooks.book.base import Metadata
+from calibre.db.tables import VirtualTable
+from calibre.db.lazy import FormatMetadata, FormatsList
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import now
 
 def api(f):
@@ -47,6 +49,7 @@ class Cache(object):
         self.read_lock, self.write_lock = create_locks()
         self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
+        self.formatter_template_cache = {}
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -88,7 +91,7 @@ class Cache(object):
             return self.backend.format_abspath(book_id, fmt, name, path)
 
     def _get_metadata(self, book_id, get_user_categories=True): # {{{
-        mi = Metadata(None)
+        mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
         aut_list = [self._author_data(i) for i in author_ids]
         aum = []
@@ -121,13 +124,13 @@ class Cache(object):
                 default_value=n)
         formats = self._field_for('formats', book_id)
         mi.format_metadata = {}
+        mi.languages = list(self._field_for('languages', book_id))
         if not formats:
-            formats = None
+            good_formats = None
         else:
-            for f in formats:
-                mi.format_metadata[f] = self._format_metadata(book_id, f)
-            formats = ','.join(formats)
-        mi.formats = formats
+            mi.format_metadata = FormatMetadata(self, id, formats)
+            good_formats = FormatsList(formats, mi.format_metadata)
+        mi.formats = good_formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
                 default_value=False) else ''
         mi.tags = list(self._field_for('tags', book_id, default_value=()))
@@ -140,20 +143,23 @@ class Cache(object):
             default_value={}))
         mi.application_id = book_id
         mi.id = book_id
-        composites = {}
+        composites = []
         for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
             if meta['datatype'] == 'composite':
                 composites.append(key)
             else:
-                mi.set(key, val=self._field_for(meta['label'], book_id),
-                        extra=self._field_for(meta['label']+'_index', book_id))
-        for c in composites:
+                val = self._field_for(key, book_id)
+                if isinstance(val, tuple):
+                    val = list(val)
+                extra = self._field_for(key+'_index', book_id)
+                mi.set(key, val=val, extra=extra)
+        for key in composites:
             mi.set(key, val=self._composite_for(key, book_id, mi))
 
         user_cat_vals = {}
         if get_user_categories:
-            user_cats = self.prefs['user_categories']
+            user_cats = self.backend.prefs['user_categories']
             for ucat in user_cats:
                 res = []
                 for name,cat,ign in user_cats[ucat]:
@@ -184,7 +190,8 @@ class Cache(object):
                 if table.metadata['datatype'] == 'composite':
                     self.composites.add(field)
 
-            self.fields['ondevice'] = create_field('ondevice', None)
+            self.fields['ondevice'] = create_field('ondevice',
+                    VirtualTable('ondevice'))
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -193,13 +200,32 @@ class Cache(object):
         ``book_id``. If no such book exists or it has no defined value for the
         field ``name`` or no such field exists, then ``default_value`` is returned.
 
-        The returned value for is_multiple fields are always tuples.
+        default_value is not used for title, title_sort, authors, author_sort
+        and series_index. This is because these always have values in the db.
+        default_value is used for all custom columns.
+
+        The returned value for is_multiple fields are always tuples, even when
+        no values are found (in other words, default_value is ignored). The
+        exception is identifiers for which the returned value is always a dict.
+
+        WARNING: For is_multiple fields this method returns tuples, the old
+        interface generally returned lists.
+
+        WARNING: For is_multiple fields the order of items is always in link
+        order (order in which they were entered), whereas the old db had them
+        in random order for fields other than author.
         '''
         if self.composites and name in self.composites:
             return self.composite_for(name, book_id,
                     default_value=default_value)
         try:
-            return self.fields[name].for_book(book_id, default_value=default_value)
+            field = self.fields[name]
+        except KeyError:
+            return default_value
+        if field.is_multiple:
+            default_value = {} if name == 'identifiers' else ()
+        try:
+            return field.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
             return default_value
 
@@ -247,7 +273,7 @@ class Cache(object):
         '''
         Frozen set of all known book ids.
         '''
-        return frozenset(self.fields['uuid'].iter_book_ids())
+        return frozenset(self.fields['uuid'])
 
     @read_api
     def all_field_ids(self, name):
@@ -340,17 +366,38 @@ class Cache(object):
                     as_path=as_path)
 
     @read_api
-    def multisort(self, fields):
-        all_book_ids = frozenset(self._all_book_ids())
+    def multisort(self, fields, ids_to_sort=None):
+        '''
+        Return a list of sorted book ids. If ids_to_sort is None, all book ids
+        are returned.
+
+        fields must be a list of 2-tuples of the form (field_name,
+        ascending=True or False). The most significant field is the first
+        2-tuple.
+        '''
+        all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
+                else ids_to_sort)
         get_metadata = partial(self._get_metadata, get_user_categories=False)
 
-        sort_keys = tuple(self.fields[field[0]].sort_keys_for_books(get_metadata,
-            all_book_ids) for field in fields)
+        fm = {'title':'sort', 'authors':'author_sort'}
+
+        def sort_key(field):
+            'Handle series type fields'
+            ans = self.fields[fm.get(field, field)].sort_keys_for_books(get_metadata,
+                                                        all_book_ids)
+            idx = field + '_index'
+            if idx in self.fields:
+                idx_ans = self.fields[idx].sort_keys_for_books(get_metadata,
+                    all_book_ids)
+                ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
+            return ans
+
+        sort_keys = tuple(sort_key(field[0]) for field in fields)
 
         if len(sort_keys) == 1:
             sk = sort_keys[0]
             return sorted(all_book_ids, key=lambda i:sk[i], reverse=not
-                    fields[1])
+                    fields[0][1])
         else:
             return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
 

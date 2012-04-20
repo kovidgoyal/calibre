@@ -50,7 +50,7 @@ class Moscowtimes(BasicNewsRecipe):
                        dict(name='div', attrs={'class':['photo_nav','phototext']})
                       ,dict(name=['iframe','meta','base','link','embed','object'])
                      ]
-                     
+
     def preprocess_html(self, soup):
         for lnk in soup.findAll('a'):
             if lnk.string is not None:
@@ -58,13 +58,13 @@ class Moscowtimes(BasicNewsRecipe):
                lnk.replaceWith(ind)
         return soup
 
-    def print_version(self, url):        
+    def print_version(self, url):
         return url.replace('.themoscowtimes.com/','.themoscowtimes.com/print/')
 
     def get_cover_url(self):
         cover_url = None
         href =  'http://www.themoscowtimes.com/pdf/'
-        soup = self.index_to_soup(href)        
+        soup = self.index_to_soup(href)
         div = soup.find('div',attrs={'class':'left'})
         if div:
             a = div.find('a')

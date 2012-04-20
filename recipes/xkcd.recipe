@@ -1,6 +1,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
+'''
+Changelog:
+2011-09-24
+Changed cover (drMerry)
+'''
 '''
 Fetch xkcd.
 '''
@@ -9,14 +13,15 @@ import time, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class XkcdCom(BasicNewsRecipe):
+    cover_url = 'http://imgs.xkcd.com/s/9be30a7.png'
     title = 'xkcd'
     description = 'A webcomic of romance and math humor.'
-    __author__ = 'Martin Pitt'
+    __author__ = 'Martin Pitt updated by DrMerry.'
     language = 'en'
 
     use_embedded_content   = False
     oldest_article = 60
-    keep_only_tags = [dict(id='middleContent')]
+    keep_only_tags = [dict(id='middleContainer')]
     remove_tags = [dict(name='ul'), dict(name='h3'), dict(name='br')]
     no_stylesheets = True
     # turn image bubblehelp into a paragraph

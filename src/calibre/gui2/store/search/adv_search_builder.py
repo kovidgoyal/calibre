@@ -45,6 +45,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.author_box.setText('')
         self.price_box.setText('')
         self.format_box.setText('')
+        self.drm_combo.setCurrentIndex(0)
         self.download_combo.setCurrentIndex(0)
         self.affiliate_combo.setCurrentIndex(0)
 
@@ -120,10 +121,13 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         format = unicode(self.format_box.text()).strip()
         if format:
             ans.append('format:"' + self.mc + format + '"')
-        download = unicode(self.download_combo.currentText()).strip()
+        drm = '' if self.drm_combo.currentIndex() == 0 else 'true' if self.drm_combo.currentIndex() == 1 else 'false' 
+        if drm:
+            ans.append('drm:' + drm)
+        download = '' if self.download_combo.currentIndex() == 0 else 'true' if self.download_combo.currentIndex() == 1 else 'false'
         if download:
             ans.append('download:' + download)
-        affiliate = unicode(self.affiliate_combo.currentText()).strip()
+        affiliate = '' if self.affiliate_combo.currentIndex() == 0 else 'true' if self.affiliate_combo.currentIndex() == 1 else 'false'
         if affiliate:
             ans.append('affiliate:' + affiliate)  
         if ans:

@@ -8,16 +8,12 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile, re
+import sys, os, re
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
 
 class Info:
     """
@@ -43,7 +39,7 @@ class Info:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
 
     def __initiate_values(self):
         """
@@ -70,18 +66,18 @@ class Info:
         'cw<di<doc-notes_'  : (self.__found_tag_with_text_func, 'doc-notes'),
         'cw<di<subject___'  : (self.__found_tag_with_text_func, 'subject'),
         'cw<di<linkbase__'  : (self.__found_tag_with_text_func, 'hyperlink-base'),
-        
+
         'cw<di<create-tim'  : (self.__found_tag_with_tokens_func, 'creation-time'),
         'cw<di<revis-time'  : (self.__found_tag_with_tokens_func, 'revision-time'),
-        'cw<di<edit-time_'  : (self.__found_tag_with_tokens_func, 'editing-time'),
         'cw<di<print-time'  : (self.__found_tag_with_tokens_func, 'printing-time'),
         'cw<di<backuptime'  : (self.__found_tag_with_tokens_func, 'backup-time'),
-        
+
         'cw<di<num-of-wor'  : (self.__single_field_func, 'number-of-words'),
         'cw<di<num-of-chr'  : (self.__single_field_func, 'number-of-characters'),
         'cw<di<numofchrws'  : (self.__single_field_func, 'number-of-characters-without-space'),
         'cw<di<num-of-pag'  : (self.__single_field_func, 'number-of-pages'),
         'cw<di<version___'  : (self.__single_field_func, 'version'),
+        'cw<di<edit-time_'  : (self.__single_field_func, 'editing-time'),
         'cw<di<intern-ver'  : (self.__single_field_func, 'internal-version-number'),
         'cw<di<internalID'  : (self.__single_field_func, 'internal-id-number'),
         }

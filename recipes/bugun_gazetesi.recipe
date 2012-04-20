@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Bugun (BasicNewsRecipe):
+
+    title                  = u'BUGÜN Gazetesi'
+    __author__             = u'thomass'
+    oldest_article         = 2
+    max_articles_per_feed  =100
+    #no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'UTF-8'
+    publisher              = 'thomass'
+    category               = 'news, haberler,TR,gazete'
+    language               = 'tr'
+    publication_type = 'newspaper '
+    extra_css              = ' div{font-size: small} h2{font-size: small;font-weight: bold} #ctl00_ortayer_haberBaslik{font-size:20px;font-weight: bold} '#h1{ font-size:10%;font-weight: bold} '#ctl00_ortayer_haberBaslik{ 'font-size:10%;font-weight: bold'}
+    #introduction{} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    conversion_options = {
+                            'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
+    cover_img_url = 'http://www.bugun.com.tr/images/bugunLogo2011.png'
+    masthead_url = 'http://www.bugun.com.tr/images/bugunLogo2011.png'
+
+    keep_only_tags      = [dict(name='h1', attrs={'class':[ 'haberBaslik']}),dict(name='h2', attrs={'class':[ 'haberOzet']}), dict(name='div', attrs={'class':['haberGriDivvvv']}), dict(name='div', attrs={'id':[ 'haberTextDiv']}), ]
+
+    #keep_only_tags      = [dict(name='div', attrs={'id':[ 'news-detail-content']}), dict(name='td', attrs={'class':['columnist-detail','columnist_head']})  ]
+    #remove_tags = [ dict(name='div', attrs={'id':['news-detail-news-text-font-size','news-detail-gallery','news-detail-news-bottom-social']}),dict(name='div', attrs={'class':['radioEmbedBg','radyoProgramAdi']}),dict(name='a', attrs={'class':['webkit-html-attribute-value webkit-html-external-link']}),dict(name='table', attrs={'id':['yaziYorumTablosu']}),dict(name='img', attrs={'src':['http://medya.zaman.com.tr/pics/paylas.gif','http://medya.zaman.com.tr/extentions/zaman.com.tr/img/columnist/ma-16.png']})]
+
+
+    #remove_attributes = ['width','height']
+    remove_empty_feeds= True
+
+    feeds          = [
+                      ( u'Son Dakika', u'http://www.bugun.com.tr/haberler.xml'),
+                     ( u'Yazarlar', u'http://www.bugun.com.tr/rss/yazarlar.xml'),
+                     ( u'Gündem', u'http://www.bugun.com.tr/rss/gundem.xml'),
+                     ( u'Ekonomi', u'http://www.bugun.com.tr/rss/ekonomi.xml'),
+                     ( u'Spor', u'http://www.bugun.com.tr/rss/spor.xml'),
+                     ( u'Magazin', u'http://www.bugun.com.tr/rss/magazin.xml'),
+                     ( u'Teknoloji', u'http://www.bugun.com.tr/rss/teknoloji.xml'),
+                     ( u'Yaşam', u'http://www.bugun.com.tr/rss/yasam.xml'),
+                     ( u'Medya', u'http://www.bugun.com.tr/rss/medya.xml'),
+                     ( u'Dünya', u'http://www.bugun.com.tr/rss/dunya.xml'),
+                     ( u'Politika', u'http://www.bugun.com.tr/rss/politika.xml'),
+                     ( u'Sağlık', u'http://www.bugun.com.tr/rss/saglik.xml'),
+                     ( u'Tarifler', u'http://www.bugun.com.tr/rss/yemek-tarifi.xml'),
+
+
+
+
+                        ]

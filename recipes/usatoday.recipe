@@ -10,26 +10,29 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class USAToday(BasicNewsRecipe):
 
-    title = 'USA Today'
-    __author__ = 'Kovid Goyal'
-    oldest_article = 1
-    timefmt  = ''
-    max_articles_per_feed = 20
-    language = 'en'
-    no_stylesheets = True
-    extra_css = '.headline      {text-align:    left;}\n    \
-                 .byline        {font-family:   monospace;  \
-                                 text-align:    left;       \
-                                 margin-bottom: 1em;}\n     \
-                 .image         {text-align:    center;}\n  \
-                 .caption       {text-align:    center;     \
-                                 font-size:     smaller;    \
-                                 font-style:    italic}\n   \
-                 .credit        {text-align:    right;      \
-                                 margin-bottom: 0em;        \
-                                 font-size:     smaller;}\n \
-                 .articleBody   {text-align:    left;}\n    '
-    #simultaneous_downloads = 1
+    title                  = 'USA Today'
+    __author__             = 'Kovid Goyal'
+    description            = 'newspaper'
+    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/USAT.jpg'
+    encoding               = 'utf-8'
+    publisher              = 'usatoday.com'
+    category               = 'news, usa'
+    language               = 'en'
+
+    use_embedded_content   = False
+    timefmt                = ' [%d %b %Y]'
+    max_articles_per_feed  = 15
+    no_stylesheets         = True
+    remove_empty_feeds     = True
+    filterDuplicates       = True
+
+    extra_css = '''
+                    h1, h2 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    #post-attributes, .info, .clear {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    #post-body, #content {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
+
+
     feeds =  [
                 ('Top Headlines', 'http://rssfeeds.usatoday.com/usatoday-NewsTopStories'),
                 ('Tech Headlines', 'http://rssfeeds.usatoday.com/usatoday-TechTopStories'),
@@ -42,28 +45,10 @@ class USAToday(BasicNewsRecipe):
                 ('Sport Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomSports-TopStories'),
                 ('Weather Headlines', 'http://rssfeeds.usatoday.com/usatoday-WeatherTopStories'),
                 ('Most Popular', 'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles'),
-                ('Offbeat News', 'http://rssfeeds.usatoday.com/UsatodaycomOffbeat-TopStories'),
+                ('Offbeat News', 'http://rssfeeds.usatoday.com/UsatodaycomOffbeat-TopStories')
                 ]
-    keep_only_tags = [dict(attrs={'class':'story'})]
-    remove_tags = [
-            dict(attrs={'class':[
-                                'share',
-                                'reprints',
-                                'inline-h3',
-                                'info-extras',
-                                'ppy-outer',
-                                'ppy-caption',
-                                'comments',
-                                'jump',
-                                'pagetools',
-                                'post-attributes',
-                                'tags',
-                                'bottom-tools',
-                                'sponsoredlinks',
-                                ]}),
-            dict(id=['pluck']),
-                  ]
 
+    auto_cleanup = True
 
     def get_masthead_url(self):
         masthead = 'http://i.usatoday.net/mobile/_common/_images/565x73_usat_mobile.gif'

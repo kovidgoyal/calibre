@@ -22,6 +22,9 @@ class Template(object):
 
     IS_HTML = True
 
+    def __init__(self, lang=None):
+        self.html_lang = lang
+
     def generate(self, *args, **kwargs):
         if not kwargs.has_key('style'):
             kwargs['style'] = ''
@@ -100,6 +103,8 @@ class IndexTemplate(Template):
                 ul,
                 CLASS('calibre_rescale_100'))
         self.root = HTML(head, BODY(div))
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
 
 class FeedTemplate(Template):
 
@@ -174,6 +179,9 @@ class FeedTemplate(Template):
         div.append(ul)
         div.append(self.get_navbar(f, feeds, top=False))
         self.root = HTML(head, body)
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
+
 
 class NavBarTemplate(Template):
 
@@ -262,6 +270,9 @@ class TouchscreenIndexTemplate(Template):
                 DIV(CLASS('divider')),
                 toc)
         self.root = HTML(head, BODY(div))
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
+
 
 class TouchscreenFeedTemplate(Template):
 
@@ -341,11 +352,9 @@ class TouchscreenFeedTemplate(Template):
             d.append(BR())
             div.append(d)
 
-        toc = TABLE(CLASS('toc'),width="100%",border="0",cellpadding="3px")
         for i, article in enumerate(feed.articles):
             if not getattr(article, 'downloaded', False):
                 continue
-            tr = TR()
 
             div_td = DIV(CLASS('article_summary'),
                     A(article.title, CLASS('summary_headline','calibre_rescale_120',
@@ -356,13 +365,13 @@ class TouchscreenFeedTemplate(Template):
             if article.summary:
                 div_td.append(DIV(cutoff(article.text_summary),
                     CLASS('summary_text', 'calibre_rescale_100')))
-            tr.append(TD(div_td))
-            toc.append(tr)
+            div.append(div_td)
 
-        div.append(toc)
-        div.append(BR())
         div.append(bottom_navbar)
         self.root = HTML(head, body)
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
+
 
 class TouchscreenNavBarTemplate(Template):
 

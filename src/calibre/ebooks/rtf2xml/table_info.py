@@ -8,15 +8,12 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import os,  tempfile
+import os
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 # note to self. This is the first module in which I use tempfile. A good idea?
 """
 """
@@ -47,7 +44,7 @@ class TableInfo:
         self.__copy = copy
         self.__table_data = table_data
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
             # self.__write_to = 'table_info.data'
     def insert_info(self):
         """

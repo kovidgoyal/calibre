@@ -151,7 +151,7 @@ class UpdateMixin(object):
             plt = u''
             if has_plugin_updates:
                 plt = _(' (%d plugin updates)')%plugin_updates
-            msg = (u'<span style="color:red; font-weight: bold">%s: '
+            msg = (u'<span style="color:green; font-weight: bold">%s: '
                     u'<a href="update:%s">%s%s</a></span>') % (
                         _('Update found'), version, calibre_version, plt)
         else:

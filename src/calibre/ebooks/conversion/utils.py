@@ -157,7 +157,7 @@ class HeuristicProcessor(object):
 
         ITALICIZE_STYLE_PATS = [
             ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_',
-            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*>]+)/',
+            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
             ur'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
             ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
             ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
@@ -172,8 +172,11 @@ class HeuristicProcessor(object):
         for word in ITALICIZE_WORDS:
             html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
+        def sub(mo):
+            return '<i>%s</i>'%mo.group('words')
+
         for pat in ITALICIZE_STYLE_PATS:
-            html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
+            html = re.sub(pat, sub, html)
 
         return html
 
@@ -315,9 +318,11 @@ class HeuristicProcessor(object):
         supports a range of html markup and text files
         '''
         # define the pieces of the regex
-        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðßě,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
+
+        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
+        dash = u"\x2d" # some ocrs doesn't convert dashes to hyphens
         line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
@@ -326,19 +331,23 @@ class HeuristicProcessor(object):
         unwrap_regex = lookahead+line_ending+blanklines+line_opening
         em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
         shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
+        dash_unwrap_regex = dash+line_ending+blanklines+line_opening
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
             shy_unwrap_regex = soft_hyphen+txt_line_wrap
+            dash_unwrap_regex = dash+txt_line_wrap
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
         shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
+        dash_unwrap = re.compile(u"%s" % dash_unwrap_regex, re.UNICODE)
 
         content = unwrap.sub(' ', content)
         content = em_en_unwrap.sub('', content)
         content = shy_unwrap.sub('', content)
+        content = dash_unwrap.sub('', content)
         return content
 
     def txt_process(self, match):
@@ -528,11 +537,17 @@ class HeuristicProcessor(object):
         if re.findall('(<|>)', replacement_break):
             if re.match('^<hr', replacement_break):
                 if replacement_break.find('width') != -1:
-                    width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
-                    replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
-                    divpercent = (100 - width) / 2
-                    hr_open = re.sub('45', str(divpercent), hr_open)
-                    scene_break = hr_open+replacement_break+'</div>'
+                    try:
+                        width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                    except:
+                        scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+                        self.log.warn('Invalid replacement scene break'
+                                ' expression, using default')
+                    else:
+                        replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
+                        divpercent = (100 - width) / 2
+                        hr_open = re.sub('45', str(divpercent), hr_open)
+                        scene_break = hr_open+replacement_break+'</div>'
                 else:
                     scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
             elif re.match('^<img', replacement_break):
@@ -774,6 +789,7 @@ class HeuristicProcessor(object):
         # Multiple sequential blank paragraphs are merged with appropriate margins
         # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
+            self.log.debug('Formatting scene breaks')
             html = re.sub('(?i)<div[^>]*>\s*<br(\s?/)?>\s*</div>', '<p></p>', html)
             html = self.detect_scene_breaks(html)
             html = self.detect_whitespace(html)

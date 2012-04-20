@@ -323,7 +323,7 @@ remove all non-breaking-space entities, or may include false positive matches re
     tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
     choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
     tags can used, but |app| does not provide the ability to add the image during conversion, this must be done after the fact using 
-    the 'Tweak Epub' feature, or Sigil.
+    the 'Tweak Book' feature, or Sigil.
         
         Example image tag (place the image within an 'Images' folder inside the epub after conversion):
             <img style="width:10%" src="../Images/scenebreak.png" />
@@ -565,7 +565,9 @@ Convert Microsoft Word documents
 |app| does not directly convert .doc/.docx files from Microsoft Word. However, in Word, you can save the document
 as HTML and then convert the resulting HTML file with |app|. When saving as HTML, be sure to use the
 "Save as Web Page, Filtered" option as this will produce clean HTML that will convert well. Note that Word
-produces really messy HTML, converting it can take a long time, so be patient.
+produces really messy HTML, converting it can take a long time, so be patient. Another alternative is to
+use the free OpenOffice. Open your .doc file in OpenOffice and save it in OpenOffice's format .odt. |app| can
+directly convert .odt files.
 
 There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
 generating the Table of Contents much simpler. It is called BookCreator and is available for free

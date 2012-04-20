@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, traceback
+import re, traceback, os
 
 from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
                         QListWidgetItem, QTextCharFormat, QApplication,
@@ -15,7 +15,9 @@ from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
                         QMenu, QStringListModel, QCompleter, QStringList,
                         QTimer, QRect, QFontDatabase, QGraphicsView)
 
-from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
+from calibre.constants import iswindows
+from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
+        warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -96,13 +98,21 @@ class FilenamePattern(QWidget, Ui_Form): # {{{
 
     def do_test(self):
         from calibre.ebooks.metadata.meta import metadata_from_filename
+        fname = unicode(self.filename.text())
+        ext = os.path.splitext(fname)[1][1:].lower()
+        if ext not in BOOK_EXTENSIONS:
+            return warning_dialog(self, _('Test name invalid'),
+                    _('The name <b>%r</b> does not appear to end with a'
+                        ' file extension. The name must end with a file '
+                        ' extension like .epub or .mobi')%fname, show=True)
+
         try:
             pat = self.pattern()
         except Exception as err:
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
-        mi = metadata_from_filename(unicode(self.filename.text()), pat)
+        mi = metadata_from_filename(fname, pat)
         if mi.title:
             self.title.setText(mi.title)
         else:
@@ -356,7 +366,7 @@ class FontFamilyModel(QAbstractListModel): # {{{
         self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
-        self.font = QFont('sansserif')
+        self.font = QFont('Verdana' if iswindows else 'sansserif')
 
     def rowCount(self, *args):
         return len(self.families)
@@ -651,7 +661,8 @@ class HistoryLineEdit(QComboBox): # {{{
 
     def focusOutEvent(self, e):
         QComboBox.focusOutEvent(self, e)
-        self.lost_focus.emit()
+        if not (self.hasFocus() or self.view().hasFocus()):
+            self.lost_focus.emit()
 
 # }}}
 

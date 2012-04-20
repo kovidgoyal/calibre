@@ -108,6 +108,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
 
     def show_recipe_files(self, *args):
         bdir = os.path.dirname(custom_recipes.file_path)
+        if not os.path.exists(bdir):
+            return error_dialog(self, _('No recipes'),
+                    _('No custom recipes created.'), show=True)
         open_local_file(bdir)
 
     def break_cycles(self):
@@ -219,6 +222,7 @@ class %(classname)s(%(base_class)s):
     title          = %(title)s
     oldest_article = %(oldest_article)d
     max_articles_per_feed = %(max_articles)d
+    auto_cleanup = True
 
     feeds          = %(feeds)s
 '''%dict(classname=classname, title=repr(title),

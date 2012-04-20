@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re
+import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
 
@@ -289,10 +289,17 @@ class CSSPreProcessor(object):
         data = self.MS_PAT.sub(self.ms_sub, data)
         if not add_namespace:
             return data
+
+        # Remove comments as the following namespace logic will break if there
+        # are commented lines before the first @import or @charset rule. Since
+        # the conversion will remove all stylesheets anyway, we don't lose
+        # anything
+        data = re.sub(ur'/\*.*?\*/', u'', data, flags=re.DOTALL)
+
         ans, namespaced = [], False
         for line in data.splitlines():
             ll = line.lstrip()
-            if not (namespaced or ll.startswith('@import') or
+            if not (namespaced or ll.startswith('@import') or not ll or
                         ll.startswith('@charset')):
                 ans.append(XHTML_CSS_NAMESPACE.strip())
                 namespaced = True
@@ -343,6 +350,7 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ò'),
                   (re.compile(u'`\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ù'),
                   (re.compile(u'`\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ù'),
+
                   # ` with letter before
                   (re.compile(u'a\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'à'),
                   (re.compile(u'A\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'À'),
@@ -364,10 +372,14 @@ class HTMLPreProcessor(object):
                   (re.compile(u'´\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'É'),
                   (re.compile(u'´\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'í'),
                   (re.compile(u'´\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Í'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*l', re.UNICODE), lambda match: u'ĺ'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*L', re.UNICODE), lambda match: u'Ĺ'),
                   (re.compile(u'´\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ó'),
                   (re.compile(u'´\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ó'),
                   (re.compile(u'´\s*(<br.*?>)*\s*n', re.UNICODE), lambda match: u'ń'),
                   (re.compile(u'´\s*(<br.*?>)*\s*N', re.UNICODE), lambda match: u'Ń'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*r', re.UNICODE), lambda match: u'ŕ'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*R', re.UNICODE), lambda match: u'Ŕ'),
                   (re.compile(u'´\s*(<br.*?>)*\s*s', re.UNICODE), lambda match: u'ś'),
                   (re.compile(u'´\s*(<br.*?>)*\s*S', re.UNICODE), lambda match: u'Ś'),
                   (re.compile(u'´\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ú'),
@@ -400,6 +412,30 @@ class HTMLPreProcessor(object):
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
+
+                  # ˇ
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'č'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Č'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*d', re.UNICODE), lambda match: u'ď'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*D', re.UNICODE), lambda match: u'Ď'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ě'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ě'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*l', re.UNICODE), lambda match: u'ľ'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*L', re.UNICODE), lambda match: u'Ľ'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*n', re.UNICODE), lambda match: u'ň'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*N', re.UNICODE), lambda match: u'Ň'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*r', re.UNICODE), lambda match: u'ř'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*R', re.UNICODE), lambda match: u'Ř'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*s', re.UNICODE), lambda match: u'š'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*S', re.UNICODE), lambda match: u'Š'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*t', re.UNICODE), lambda match: u'ť'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*T', re.UNICODE), lambda match: u'Ť'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ž'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ž'),
+
+                  # °
+                  (re.compile(u'°\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ů'),
+                  (re.compile(u'°\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ů'),
 
                   # If pdf printed from a browser then the header/footer has a reliable pattern
                   (re.compile(r'((?<=</a>)\s*file:/{2,4}[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
@@ -479,18 +515,31 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
-        for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
+        # Function for processing search and replace
+        def do_search_replace(search_pattern, replace_txt):
+            try:
+                search_re = re.compile(search_pattern)
+                if not replace_txt:
+                    replace_txt = ''
+                rules.insert(0, (search_re, replace_txt))
+            except Exception as e:
+                self.log.error('Failed to parse %r regexp because %s' %
+                        (search, as_unicode(e)))
+
+        # search / replace using the sr?_search / sr?_replace options
+        for i in range(1, 4):
+            search, replace = 'sr%d_search'%i, 'sr%d_replace'%i
             search_pattern = getattr(self.extra_opts, search, '')
+            replace_txt = getattr(self.extra_opts, replace, '')
             if search_pattern:
-                try:
-                    search_re = re.compile(search_pattern)
-                    replace_txt = getattr(self.extra_opts, replace, '')
-                    if not replace_txt:
-                        replace_txt = ''
-                    rules.insert(0, (search_re, replace_txt))
-                except Exception as e:
-                    self.log.error('Failed to parse %r regexp because %s' %
-                            (search, as_unicode(e)))
+                do_search_replace(search_pattern, replace_txt)
+
+        # multi-search / replace using the search_replace option
+        search_replace = getattr(self.extra_opts, 'search_replace', None)
+        if search_replace:
+            search_replace = json.loads(search_replace)
+            for search_pattern, replace_txt in search_replace:
+                do_search_replace(search_pattern, replace_txt)
 
         end_rules = []
         # delete soft hyphens - moved here so it's executed after header/footer removal
@@ -510,7 +559,7 @@ class HTMLPreProcessor(object):
                 end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðßě,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:

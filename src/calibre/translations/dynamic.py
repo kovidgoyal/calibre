@@ -7,7 +7,8 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import cStringIO
 from gettext import GNUTranslations
-from calibre.utils.localization import get_lc_messages_path, ZipFile
+from calibre.utils.localization import get_lc_messages_path
+from zipfile import ZipFile
 
 __all__ = ['translate']
 

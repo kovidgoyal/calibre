@@ -7,9 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os
+import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
+from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
@@ -21,7 +21,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
         string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE,
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
 from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
         UNDEFINED_DATE)
@@ -33,7 +33,9 @@ from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
+from calibre.gui2.languages import LanguagesEdit as LE
+from calibre.db import SPOOL_SIZE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -41,8 +43,6 @@ def save_dialog(parent, title, msg, det_msg=''):
     d.setText(msg)
     d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
     return d.exec_()
-
-
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -97,7 +97,7 @@ class TitleEdit(EnLineEdit):
                 getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
                         commit=False)
         except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == 13: # Permission denied
+            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
@@ -138,9 +138,10 @@ class TitleSortEdit(TitleEdit):
             ' For example, The Exorcist might be sorted as Exorcist, The.')
     LABEL = _('Title &sort:')
 
-    def __init__(self, parent, title_edit, autogen_button):
+    def __init__(self, parent, title_edit, autogen_button, languages_edit):
         TitleEdit.__init__(self, parent)
         self.title_edit = title_edit
+        self.languages_edit = languages_edit
 
         base = self.TOOLTIP
         ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
@@ -157,10 +158,20 @@ class TitleSortEdit(TitleEdit):
 
         self.autogen_button = autogen_button
         autogen_button.clicked.connect(self.auto_generate)
+        languages_edit.editTextChanged.connect(self.update_state)
+        languages_edit.currentIndexChanged.connect(self.update_state)
         self.update_state()
 
+    @property
+    def book_lang(self):
+        try:
+            book_lang = self.languages_edit.lang_codes[0]
+        except:
+            book_lang = None
+        return book_lang
+
     def update_state(self, *args):
-        ts = title_sort(self.title_edit.current_val)
+        ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         normal = ts == self.current_val
         if normal:
             col = 'rgb(0, 255, 0, 20%)'
@@ -173,7 +184,8 @@ class TitleSortEdit(TitleEdit):
         self.setWhatsThis(tt)
 
     def auto_generate(self, *args):
-        self.current_val = title_sort(self.title_edit.current_val)
+        self.current_val = title_sort(self.title_edit.current_val,
+                lang=self.book_lang)
 
     def break_cycles(self):
         try:
@@ -261,7 +273,7 @@ class AuthorsEdit(MultiCompleteComboBox):
             self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
                 allow_case_change=True)
         except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == 13: # Permission denied
+            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
@@ -307,7 +319,7 @@ class AuthorSortEdit(EnLineEdit):
     LABEL = _('Author s&ort:')
 
     def __init__(self, parent, authors_edit, autogen_button, db,
-            copy_a_to_as_action, copy_as_to_a_action):
+            copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -332,6 +344,8 @@ class AuthorSortEdit(EnLineEdit):
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
+        a_to_as.triggered.connect(self.author_to_sort)
+        as_to_a.triggered.connect(self.sort_to_author)
         self.update_state()
 
     @dynamic_property
@@ -388,9 +402,20 @@ class AuthorSortEdit(EnLineEdit):
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
-        au = re.sub(r'\s+et al\.$', '', au)
+        au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.current_val = self.db.author_sort_from_authors(authors)
+
+    def author_to_sort(self, *args):
+        au = unicode(self.authors_edit.text())
+        au = re.sub(r'\s+et al\.$', '', au).strip()
+        if au:
+            self.current_val = au
+
+    def sort_to_author(self, *args):
+        aus = self.current_val
+        if aus:
+            self.authors_edit.current_val = [aus]
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
@@ -547,6 +572,9 @@ class SeriesIndexEdit(QDoubleSpinBox):
             except:
                 import traceback
                 traceback.print_exc()
+
+    def reset_original(self):
+        self.original_series_name = self.series_edit.current_val
 
     def break_cycles(self):
         try:
@@ -717,8 +745,12 @@ class FormatsManager(QWidget):
             else:
                 old_extensions.add(ext)
         for ext in new_extensions:
-            db.add_format(id_, ext, open(paths[ext], 'rb'), notify=False,
-                    index_is_id=True)
+            with SpooledTemporaryFile(SPOOL_SIZE) as spool:
+                with open(paths[ext], 'rb') as f:
+                    shutil.copyfileobj(f, spool)
+                spool.seek(0)
+                db.add_format(id_, ext, spool, notify=False,
+                        index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
         db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
             else [])])
@@ -1133,6 +1165,44 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
 # }}}
 
+class LanguagesEdit(LE): # {{{
+
+    LABEL = _('&Languages:')
+    TOOLTIP = _('A comma separated list of languages for this book')
+
+    def __init__(self, *args, **kwargs):
+        LE.__init__(self, *args, **kwargs)
+        self.setToolTip(self.TOOLTIP)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self): return self.lang_codes
+        def fset(self, val): self.lang_codes = val
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        self.init_langs(db)
+        lc = []
+        langs = db.languages(id_, index_is_id=True)
+        if langs:
+            lc = [x.strip() for x in langs.split(',')]
+        self.current_val = self.original_val = lc
+
+    def commit(self, db, id_):
+        bad = self.validate()
+        if bad:
+            error_dialog(self, _('Unknown language'),
+                    ngettext('The language %s is not recognized',
+                        'The languages %s are not recognized', len(bad))%(
+                            ', '.join(bad)),
+                    show=True)
+            return False
+        cv = self.current_val
+        if cv != self.original_val:
+            db.set_languages(id_, cv)
+        return True
+# }}}
+
 class IdentifiersEdit(QLineEdit): # {{{
     LABEL = _('I&ds:')
     BASE_TT = _('Edit the identifiers for this book. '
@@ -1175,7 +1245,9 @@ class IdentifiersEdit(QLineEdit): # {{{
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
-            self.setText(txt.strip())
+            # Use clear + insert instead of setText so that undo works
+            self.clear()
+            self.insert(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
@@ -1267,7 +1339,7 @@ class ISBNDialog(QDialog) : # {{{
         self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
     def text(self):
-        return unicode(self.line_edit.text())
+        return check_isbn(unicode(self.line_edit.text()))
 
 # }}}
 
@@ -1320,25 +1392,24 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
 
 # }}}
 
-class DateEdit(QDateEdit): # {{{
+class DateEdit(QDateTimeEdit): # {{{
 
     TOOLTIP = ''
     LABEL = _('&Date:')
-    FMT = 'd MMM yyyy'
+    FMT = 'dd MMM yyyy hh:mm:ss'
     ATTR = 'timestamp'
+    TWEAK = 'gui_timestamp_display_format'
 
     def __init__(self, parent):
-        QDateEdit.__init__(self, parent)
+        QDateTimeEdit.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
-        fmt = self.FMT
+        fmt = tweaks[self.TWEAK]
         if fmt is None:
-            fmt = tweaks['gui_pubdate_display_format']
-            if fmt is None:
-                fmt = 'MMM yyyy'
+            fmt = self.FMT
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
-        self.setMinimumDate(UNDEFINED_QDATE)
+        self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
@@ -1351,12 +1422,13 @@ class DateEdit(QDateEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return qt_to_dt(self.date(), as_utc=False)
+            return qt_to_dt(self.dateTime(), as_utc=False)
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
-            val = as_local_time(val)
-            self.setDate(QDate(val.year, val.month, val.day))
+            else:
+                val = as_local_time(val)
+            self.setDateTime(val)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1372,11 +1444,12 @@ class DateEdit(QDateEdit): # {{{
     @property
     def changed(self):
         o, c = self.original_val, self.current_val
-        return o.year != c.year or o.month != c.month or o.day != c.day
+        return o != c
 
 class PubdateEdit(DateEdit):
     LABEL = _('Publishe&d:')
-    FMT = None
+    FMT = 'MMM yyyy'
     ATTR = 'pubdate'
+    TWEAK = 'gui_pubdate_display_format'
 
 # }}}

@@ -8,9 +8,15 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from PyQt4.Qt import QToolButton, QAction, QIcon, QObject, QMenu
+from PyQt4.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
+        QKeySequence)
 
+from calibre import prints
 from calibre.gui2 import Dispatcher
+from calibre.gui2.keyboard import NameConflict
+
+def menu_action_unique_name(plugin, unique_name):
+    return u'%s : menu action : %s'%(plugin.unique_name, unique_name)
 
 class InterfaceAction(QObject):
 
@@ -63,7 +69,10 @@ class InterfaceAction(QObject):
 
     #: Of the form: (text, icon_path, tooltip, keyboard shortcut)
     #: icon, tooltip and keyboard shortcut can be None
-    #: shortcut must be a translated string if not None
+    #: shortcut must be a string, None or tuple of shortcuts.
+    #: If None, a keyboard shortcut corresponding to the action is not
+    #: registered. If you pass an empty tuple, then the shortcut is registered
+    #: with no default key binding.
     action_spec = ('text', 'icon', None, None)
 
     #: If True, a menu is automatically created and added to self.qaction
@@ -108,9 +117,12 @@ class InterfaceAction(QObject):
 
     @property
     def unique_name(self):
-        return u'%s(%s)'%(self.__class__.__name__, self.name)
+        bn = self.__class__.__name__
+        if getattr(self.interface_action_base_plugin, 'name'):
+            bn = self.interface_action_base_plugin.name
+        return u'Interface Action: %s (%s)'%(bn, self.name)
 
-    def create_action(self, spec=None, attr='qaction'):
+    def create_action(self, spec=None, attr='qaction', shortcut_name=None):
         if spec is None:
             spec = self.action_spec
         text, icon, tooltip, shortcut = spec
@@ -129,7 +141,6 @@ class InterfaceAction(QObject):
             a.setToolTip(text)
             a.setStatusTip(text)
             a.setWhatsThis(text)
-        keys = ()
         shortcut_action = action
         desc = tooltip if tooltip else None
         if attr == 'qaction':
@@ -137,10 +148,25 @@ class InterfaceAction(QObject):
         if shortcut is not None:
             keys = ((shortcut,) if isinstance(shortcut, basestring) else
                     tuple(shortcut))
+            if shortcut_name is None and spec[0]:
+                shortcut_name = unicode(spec[0])
 
-        self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
-                unicode(shortcut_action.text()), default_keys=keys,
-                action=shortcut_action, description=desc)
+            if shortcut_name and self.action_spec[0] and not (
+                    attr == 'qaction' and self.popup_type == QToolButton.InstantPopup):
+                try:
+                    self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
+                        shortcut_name, default_keys=keys,
+                        action=shortcut_action, description=desc,
+                        group=self.action_spec[0])
+                except NameConflict as e:
+                    try:
+                        prints(unicode(e))
+                    except:
+                        pass
+                    shortcut_action.setShortcuts([QKeySequence(key,
+                        QKeySequence.PortableText) for key in keys])
+
+
         if attr is not None:
             setattr(self, attr, action)
         if attr == 'qaction' and self.action_add_menu:
@@ -151,7 +177,36 @@ class InterfaceAction(QObject):
         return action
 
     def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
-            description=None, triggered=None):
+            description=None, triggered=None, shortcut_name=None):
+        '''
+        Convenience method to easily add actions to a QMenu.
+        Returns the created QAction, This action has one extra attribute
+        calibre_shortcut_unique_name which if not None refers to the unique
+        name under which this action is registered with the keyboard manager.
+
+        :param menu: The QMenu the newly created action will be added to
+        :param unique_name: A unique name for this action, this must be
+            globally unique, so make it as descriptive as possible. If in doubt add
+            a uuid to it.
+        :param text: The text of the action.
+        :param icon: Either a QIcon or a file name. The file name is passed to
+            the I() builtin, so you do not need to pass the full path to the images
+            directory.
+        :param shortcut: A string, a list of strings, None or False. If False,
+            no keyboard shortcut is registered for this action. If None, a keyboard
+            shortcut with no default keybinding is registered. String and list of
+            strings register a shortcut with default keybinding as specified.
+        :param description: A description for this action. Used to set
+            tooltips.
+        :param triggered: A callable which is connected to the triggered signal
+            of the created action.
+        :param shortcut_name: The test displayed to the user when customizing
+            the keyboard shortcuts for this action. By default it is set to the
+            value of ``text``.
+
+        '''
+        if shortcut_name is None:
+            shortcut_name = unicode(text)
         ac = menu.addAction(text)
         if icon is not None:
             if not isinstance(icon, QIcon):
@@ -161,15 +216,17 @@ class InterfaceAction(QObject):
         if shortcut is not None and shortcut is not False:
             keys = ((shortcut,) if isinstance(shortcut, basestring) else
                     tuple(shortcut))
-        unique_name = '%s : menu action : %s'%(self.unique_name, unique_name)
+        unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:
             ac.setToolTip(description)
             ac.setStatusTip(description)
             ac.setWhatsThis(description)
+
+        ac.calibre_shortcut_unique_name = unique_name
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(unique_name,
-                unicode(text), default_keys=keys,
-                action=ac, description=description)
+                shortcut_name, default_keys=keys,
+                action=ac, description=description, group=self.action_spec[0])
         if triggered is not None:
             ac.triggered.connect(triggered)
         return ac

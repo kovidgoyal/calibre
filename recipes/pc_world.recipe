@@ -51,14 +51,13 @@ class pcWorld(BasicNewsRecipe):
     keep_only_tags     = [
                             dict(name='div', attrs={'class':'article'})
                         ]
-
     remove_tags        = [
                             dict(name='div', attrs={'class':['toolBar','mac_tags','toolBar  btmTools','recommend longRecommend','recommend shortRecommend','textAds']}),
                             dict(name='div', attrs={'id':['sidebar','comments','mac_tags']}),
-                            dict(name='ul', attrs={'class':'tools'}),
-                            dict(name='li', attrs={'class':'sub'})
+                            dict(name='ul', attrs={'class':['tools', 'tools clearfix']}),
+                            dict(name='li', attrs={'class':'sub'}),
+                            dict(name='p', attrs={'id':'userDesire'})
                         ]
-
     feeds          = [
                        (u'PCWorld Headlines', u'http://feeds.pcworld.com/pcworld/latestnews'),
                        (u'How-To', u'http://feeds.pcworld.com/pcworld/update/howto'),

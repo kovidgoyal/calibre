@@ -63,7 +63,7 @@ You create the custom column in the usual way, using Preferences -> Add your own
 .. image:: images/sg_cc.jpg
     :align: center
 
-Then after restarting |app|, you must tell |app| that the column is to be treated as a hierarchy. Go to Preferences -> Look and Feel and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press Apply, and you are done with setting up.
+Then after restarting |app|, you must tell |app| that the column is to be treated as a hierarchy. Go to Preferences -> Look and Feel -> Tag Browser and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press Apply, and you are done with setting up.
 
 .. image:: images/sg_pref.jpg
     :align: center

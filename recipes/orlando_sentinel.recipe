@@ -1,3 +1,4 @@
+import urllib, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1279258912(BasicNewsRecipe):
@@ -27,12 +28,30 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
     encoding               = 'utf-8'
     conversion_options = {'linearize_tables':True}
     masthead_url = 'http://www.orlandosentinel.com/media/graphic/2009-07/46844851.gif'
-    keep_only_tags = [
-                              dict(name='div', attrs={'class':'story'})
-                               ]
-    remove_tags = [
-                  dict(name='div', attrs={'class':['articlerail','tools','comment-group','clearfix']}),
-                         ]
-    remove_tags_after = [
-                  dict(name='p', attrs={'class':'copyright'}),
-                         ]
+
+    auto_cleanup = True
+
+    def get_article_url(self, article):
+        ans = None
+        try:
+            s = article.summary
+            ans = urllib.unquote(
+                re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
+        except:
+            pass
+        if ans is None:
+            link = article.get('feedburner_origlink', None)
+            if link and link.split('/')[-1]=="story01.htm":
+                link=link.split('/')[-2]
+                encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
+                        '0D': '?', '0E': '-', '0N': '.com', '0L': 'http:',
+                        '0S':'//'}
+                for k, v in encoding.iteritems():
+                    link = link.replace(k, v)
+                ans = link
+            elif link:
+                ans = link
+        if ans is not None:
+            return ans.replace('?track=rss', '')
+
+

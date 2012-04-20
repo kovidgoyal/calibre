@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat, shlex
+import sys, os, textwrap, subprocess, shutil, tempfile, atexit, shlex, glob
 
 from setup import (Command, islinux, isbsd, basenames, modules, functions,
         __appname__, __version__)
@@ -55,7 +55,7 @@ class Develop(Command):
     short_description = 'Setup a development environment for calibre'
     MODE = 0755
 
-    sub_commands = ['build', 'resources', 'gui']
+    sub_commands = ['build', 'resources', 'iso639', 'gui',]
 
     def add_postinstall_options(self, parser):
         parser.add_option('--make-errors-fatal', action='store_true', default=False,
@@ -156,9 +156,6 @@ class Develop(Command):
             self.warn('Failed to compile mount helper. Auto mounting of',
                 ' devices will not work')
 
-        if not isbsd and os.geteuid() != 0:
-            return self.warn('Must be run as root to compile mount helper. Auto '
-                    'mounting of devices will not work.')
         src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
         dest = os.path.join(self.staging_bindir, 'calibre-mount-helper')
         self.info('Installing mount helper to '+ dest)
@@ -168,10 +165,6 @@ class Develop(Command):
         ret = p.wait()
         if ret != 0:
             return warn()
-        if not isbsd:
-            os.chown(dest, 0, 0)
-            os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
-                    stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
         self.manifest.append(dest)
         return dest
 
@@ -287,8 +280,7 @@ class Install(Develop):
 class Sdist(Command):
 
     description = 'Create a source distribution'
-    DEST = os.path.join('dist', '%s-%s.tar.gz'%(__appname__, __version__))
-
+    DEST = os.path.join('dist', '%s-%s.tar.xz'%(__appname__, __version__))
 
     def run(self, opts):
         if not self.e(self.d(self.DEST)):
@@ -301,13 +293,14 @@ class Sdist(Command):
         for x in open('.bzrignore').readlines():
             if not x.startswith('resources/'): continue
             p = x.strip().replace('/', os.sep)
-            d = self.j(tdir, os.path.dirname(p))
-            if not self.e(d):
-                os.makedirs(d)
-            if os.path.isdir(p):
-                shutil.copytree(p, self.j(tdir, p))
-            else:
-                shutil.copy2(p, d)
+            for p in glob.glob(p):
+                d = self.j(tdir, os.path.dirname(p))
+                if not self.e(d):
+                    os.makedirs(d)
+                if os.path.isdir(p):
+                    shutil.copytree(p, self.j(tdir, p))
+                else:
+                    shutil.copy2(p, d)
         for x in os.walk(os.path.join(self.SRC, 'calibre')):
             for f in x[-1]:
                 if not f.endswith('_ui.py'): continue
@@ -317,7 +310,7 @@ class Sdist(Command):
                 shutil.copy2(f, dest)
 
         self.info('\tCreating tarfile...')
-        subprocess.check_call(['tar', '-czf', self.a(self.DEST),
+        subprocess.check_call(['tar', '-cJf', self.a(self.DEST),
             'calibre'], cwd=self.d(tdir))
 
     def clean(self):

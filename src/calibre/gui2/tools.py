@@ -25,7 +25,7 @@ from calibre.ebooks.conversion.config import GuiRecommendations, \
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
-        out_format=None):
+        out_format=None, show_no_format_warning=True):
     changed = False
     jobs = []
     bad = []
@@ -91,7 +91,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
         except NoSupportedInputFormats:
             bad.append(book_id)
 
-    if bad != []:
+    if bad and show_no_format_warning:
         res = []
         for id in bad:
             title = db.title(id, True)
@@ -112,7 +112,10 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     if total == 0:
         return None, None, None
 
-    d = BulkConfig(parent, db, out_format)
+    has_saved_settings = db.has_conversion_options(book_ids)
+
+    d = BulkConfig(parent, db, out_format,
+            has_saved_settings=has_saved_settings)
     if d.exec_() != QDialog.Accepted:
         return None
 
@@ -238,12 +241,6 @@ def fetch_scheduled_recipe(arg): # {{{
     if 'output_profile' in ps:
         recs.append(('output_profile', ps['output_profile'],
             OptionRecommendation.HIGH))
-        # Disabled since apparently some people use
-        # K4PC and, surprise, surprise, it doesn't support
-        # indexed MOBIs.
-        #if ps['output_profile'] == 'kindle':
-        #    recs.append(('no_inline_toc', True,
-        #        OptionRecommendation.HIGH))
 
     lf = load_defaults('look_and_feel')
     if lf.get('base_font_size', 0.0) != 0.0:

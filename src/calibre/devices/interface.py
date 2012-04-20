@@ -62,7 +62,7 @@ class DevicePlugin(Plugin):
     #: Icon for this device
     icon = I('reader.png')
 
-    # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
+    # Encapsulates an annotation fetched from the device
     UserAnnotation = namedtuple('Annotation','type, value')
 
     #: GUI displays this as a message if not None. Useful if opening can take a
@@ -73,6 +73,12 @@ class DevicePlugin(Plugin):
     #: and therefore cannot be viewed/saved/added to library
     #: For example: ``frozenset(['kobo'])``
     VIRTUAL_BOOK_EXTENSIONS = frozenset([])
+
+    #: Whether to nuke comments in the copy of the book sent to the device. If
+    #: not None this should be short string that the comments will be replaced
+    #: by.
+    NUKE_COMMENTS = None
+
 
     @classmethod
     def get_gui_name(cls):
@@ -127,8 +133,14 @@ class DevicePlugin(Plugin):
                        if debug:
                            self.print_usb_device_info(device_id)
                        if only_presence or self.can_handle_windows(device_id, debug=debug):
-                           return True
-        return False
+                           try:
+                               bcd = int(device_id.rpartition(
+                                   'rev_')[-1].replace(':', 'a'), 16)
+                           except:
+                               bcd = None
+                           return True, (vendor_id, product_id, bcd, None,
+                                   None, None)
+        return False, None
 
     def test_bcd(self, bcdDevice, bcd):
         if bcd is None or len(bcd) == 0:
@@ -148,7 +160,7 @@ class DevicePlugin(Plugin):
         '''
         if iswindows:
             return self.is_usb_connected_windows(devices_on_system,
-                    debug=debug, only_presence=only_presence), None
+                    debug=debug, only_presence=only_presence)
 
         vendors_on_system = set([x[0] for x in devices_on_system])
         vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]
@@ -211,14 +223,14 @@ class DevicePlugin(Plugin):
         '''
         Unix version of :meth:`can_handle_windows`
 
-        :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
+        :param device_info: Is a tuple of (vid, pid, bcd, manufacturer, product,
                             serial number)
 
         '''
 
         return True
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -232,6 +244,17 @@ class DevicePlugin(Plugin):
 
         This method can raise an OpenFeedback exception to display a message to
         the user.
+
+        :param connected_device: The device that we are trying to open. It is
+            a tuple of (vendor id, product id, bcd, manufacturer name, product
+            name, device serial number). However, some devices have no serial
+            number and on windows only the first three fields are present, the
+            rest are None.
+
+        :param library_uuid: The UUID of the current calibre library. Can be
+            None if there is no library (for example when used from the command
+            line).
+
         '''
         raise NotImplementedError()
 
@@ -250,6 +273,8 @@ class DevicePlugin(Plugin):
 
     def set_progress_reporter(self, report_progress):
         '''
+        Set a function to report progress information.
+
         :param report_progress: Function that is called with a % progress
                                 (number between 0 and 100) for various tasks
                                 If it is called with -1 that means that the
@@ -408,7 +433,8 @@ class DevicePlugin(Plugin):
     @classmethod
     def config_widget(cls):
         '''
-        Should return a QWidget. The QWidget contains the settings for the device interface
+        Should return a QWidget. The QWidget contains the settings for the
+        device interface
         '''
         raise NotImplementedError()
 
@@ -423,8 +449,9 @@ class DevicePlugin(Plugin):
     @classmethod
     def settings(cls):
         '''
-        Should return an opts object. The opts object should have at least one attribute
-        `format_map` which is an ordered list of formats for the device.
+        Should return an opts object. The opts object should have at least one
+        attribute `format_map` which is an ordered list of formats for the
+        device.
         '''
         raise NotImplementedError()
 
@@ -455,6 +482,13 @@ class DevicePlugin(Plugin):
         Non-disk devices will ignore this request.
         '''
         pass
+
+    def prepare_addable_books(self, paths):
+        '''
+        Given a list of paths, returns another list of paths. These paths
+        point to addable versions of the books.
+        '''
+        return paths
 
 class BookList(list):
     '''

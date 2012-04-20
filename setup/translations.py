@@ -7,7 +7,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, tempfile, shutil, subprocess, glob, re, time, textwrap
-from distutils import sysconfig
 from functools import partial
 
 from setup import Command, __appname__, __version__
@@ -142,19 +141,19 @@ class Translations(POT): # {{{
                 os.makedirs(base)
             self.info('\tCompiling translations for', locale)
             subprocess.check_call(['msgfmt', '-o', dest, f])
-            if locale in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds', 'te', 'yi'):
-                continue
-            pycountry = self.j(sysconfig.get_python_lib(), 'pycountry',
-                    'locales', locale, 'LC_MESSAGES')
-            if os.path.exists(pycountry):
-                iso639 = self.j(pycountry, 'iso639.mo')
-                dest = self.j(self.d(dest), self.b(iso639))
-                if self.newer(dest, iso639) and os.path.exists(iso639):
+            iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
+            iso639 = self.j(self.d(self.SRC), 'setup', 'iso_639',
+                    '%s.po'%iscpo)
+
+            if os.path.exists(iso639):
+                dest = self.j(self.d(dest), 'iso639.mo')
+                if self.newer(dest, iso639):
                     self.info('\tCopying ISO 639 translations')
-                    shutil.copy2(iso639, dest)
-            else:
-                self.warn('No ISO 639 translations for locale:', locale,
-                '\nDo you have pycountry installed?')
+                    subprocess.check_call(['msgfmt', '-o', dest, iso639])
+            elif locale not in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc',
+                    'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku',
+                    'fr_CA'):
+                self.warn('No ISO 639 translations for locale:', locale)
 
         self.write_stats()
         self.freeze_locales()
@@ -206,39 +205,45 @@ class Translations(POT): # {{{
             for x in (i, j, d):
                 if os.path.exists(x):
                     os.remove(x)
+        zf = self.DEST + '.zip'
+        if os.path.exists(zf):
+            os.remove(zf)
+
 # }}}
 
-class GetTranslations(Translations):
+class GetTranslations(Translations): # {{{
 
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
 
-    @classmethod
-    def modified_translations(cls):
-        raw = subprocess.Popen(['bzr', 'status'],
+    @property
+    def modified_translations(self):
+        raw = subprocess.Popen(['bzr', 'status', '-S', self.PATH],
                 stdout=subprocess.PIPE).stdout.read().strip()
+        ans = []
         for line in raw.splitlines():
             line = line.strip()
-            if line.startswith(cls.PATH) and line.endswith('.po'):
-                yield line
+            if line.startswith('M') and line.endswith('.po'):
+                ans.append(line.split()[-1])
+        return ans
 
     def run(self, opts):
-        if len(list(self.modified_translations())) == 0:
+        if not self.modified_translations:
             subprocess.check_call(['bzr', 'merge', self.BRANCH])
-        if len(list(self.modified_translations())) == 0:
-            print 'No updated translations available'
-        else:
-            subprocess.check_call(['bzr', 'commit', '-m',
-                'IGN:Updated translations', self.PATH])
         self.check_for_errors()
 
-    @classmethod
-    def check_for_errors(cls):
+        if self.modified_translations:
+            subprocess.check_call(['bzr', 'commit', '-m',
+                'IGN:Updated translations'])
+        else:
+            print('No updated translations available')
+
+    def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
         if os.path.exists(errors):
             shutil.rmtree(errors)
         os.mkdir(errors)
-        pofilter = ('pofilter', '-i', cls.PATH, '-o', errors,
+        pofilter = ('pofilter', '-i', self.PATH, '-o', errors,
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
                 #'-t', 'xmltags',
                 #'-t', 'brackets',
@@ -251,59 +256,80 @@ class GetTranslations(Translations):
                 '-t', 'printf')
         subprocess.check_call(pofilter)
         errfiles = glob.glob(errors+os.sep+'*.po')
-        subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
-        for f in errfiles:
-            with open(f, 'r+b') as f:
-                raw = f.read()
-                raw = re.sub(r'# \(pofilter\).*', '', raw)
-                f.seek(0)
-                f.truncate()
-                f.write(raw)
+        if errfiles:
+            subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
+            for f in errfiles:
+                with open(f, 'r+b') as f:
+                    raw = f.read()
+                    raw = re.sub(r'# \(pofilter\).*', '', raw)
+                    f.seek(0)
+                    f.truncate()
+                    f.write(raw)
 
-        subprocess.check_call(['pomerge', '-t', cls.PATH, '-i', errors, '-o',
-            cls.PATH])
-        if len(list(cls.modified_translations())) > 0:
-            subprocess.call(['bzr', 'diff', cls.PATH])
-            yes = raw_input('Merge corrections? [y/n]: ').strip()
-            if yes in ['', 'y']:
-                subprocess.check_call(['bzr', 'commit', '-m',
-                    'IGN:Translation corrections', cls.PATH])
+            subprocess.check_call(['pomerge', '-t', self.PATH, '-i', errors, '-o',
+                self.PATH])
+            return True
+        return False
 
+# }}}
 
-class ISO639(Command):
+class ISO639(Command): # {{{
 
     description = 'Compile translations for ISO 639 codes'
-    XML = '/usr/lib/python2.7/site-packages/pycountry/databases/iso639.xml'
+    DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
+            'iso639.pickle')
 
     def run(self, opts):
-        src = self.XML
+        src = self.j(self.d(self.SRC), 'setup', 'iso_639')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
-        dest = self.j(self.d(self.SRC), 'resources', 'localization',
-                'iso639.pickle')
-        if not self.newer(dest, src):
+        dest = self.DEST
+        if not self.newer(dest, [src, __file__]):
             self.info('Pickled code is up to date')
             return
         self.info('Pickling ISO-639 codes to', dest)
         from lxml import etree
-        root = etree.fromstring(open(src, 'rb').read())
+        root = etree.fromstring(open(self.j(src, 'iso_639_3.xml'), 'rb').read())
         by_2 = {}
         by_3b = {}
         by_3t = {}
-        codes2, codes3t, codes3b = set([]), set([]), set([])
-        for x in root.xpath('//iso_639_entry'):
+        m2to3 = {}
+        m3to2 = {}
+        m3bto3t = {}
+        nm = {}
+        codes2, codes3t, codes3b = set(), set(), set()
+        for x in root.xpath('//iso_639_3_entry'):
+            two = x.get('part1_code', None)
+            threet = x.get('id')
+            threeb = x.get('part2_code', None)
+            if threeb is None:
+                # Only recognize langauges in ISO-639-2
+                continue
             name = x.get('name')
-            two = x.get('iso_639_1_code', None)
+
             if two is not None:
                 by_2[two] = name
                 codes2.add(two)
-            by_3b[x.get('iso_639_2B_code')] = name
-            by_3t[x.get('iso_639_2T_code')] = name
-            codes3b.add(x.get('iso_639_2B_code'))
-            codes3t.add(x.get('iso_639_2T_code'))
+                m2to3[two] = threet
+                m3to2[threeb] = m3to2[threet] = two
+            by_3b[threeb] = name
+            by_3t[threet] = name
+            if threeb != threet:
+                m3bto3t[threeb] = threet
+            codes3b.add(threeb)
+            codes3t.add(threet)
+            base_name = name.lower()
+            nm[base_name] = threet
 
         from cPickle import dump
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
-                'codes3b':codes3b, 'codes3t':codes3t}
+                'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
+                '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
         dump(x, open(dest, 'wb'), -1)
+
+    def clean(self):
+        if os.path.exists(self.DEST):
+            os.remove(self.DEST)
+
+# }}}
 

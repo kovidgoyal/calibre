@@ -41,8 +41,11 @@ class ContentServer(object):
         connect('root', '/', self.index)
         connect('old', '/old', self.old)
         connect('get', '/get/{what}/{id}', self.get,
-                conditions=dict(method=["GET", "HEAD"]))
+                conditions=dict(method=["GET", "HEAD"]),
+                android_workaround=True)
         connect('static', '/static/{name:.*?}', self.static,
+                conditions=dict(method=["GET", "HEAD"]))
+        connect('favicon', '/favicon.png', self.favicon,
                 conditions=dict(method=["GET", "HEAD"]))
 
     # Utility methods {{{
@@ -92,6 +95,8 @@ class ContentServer(object):
             return self.get_cover(id)
         if what == 'opf':
             return self.get_metadata_as_opf(id)
+        if what == 'json':
+            raise cherrypy.InternalRedirect('/ajax/book/%d'%id)
         return self.get_format(id, what)
 
     def static(self, name):
@@ -124,6 +129,13 @@ class ContentServer(object):
         if path.endswith('.css'):
             ans = ans.replace('/static/', self.opts.url_prefix + '/static/')
         return ans
+
+    def favicon(self):
+        data = I('lt.png', data=True)
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(
+                self.build_time)
+        return data
 
     def index(self, **kwargs):
         'The / URL'
@@ -195,11 +207,23 @@ class ContentServer(object):
 
     def get_format(self, id, format):
         format = format.upper()
+        fm = self.db.format_metadata(id, format, allow_cache=False)
+        if not fm:
+            raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
+        mi = newmi = self.db.get_metadata(id, index_is_id=True)
+
+        cherrypy.response.headers['Last-Modified'] = \
+            self.last_modified(max(fm['mtime'], mi.last_modified))
+
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
                 mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
-        mi = self.db.get_metadata(id, index_is_id=True)
+        mt = guess_type('dummy.'+format.lower())[0]
+        if mt is None:
+            mt = 'application/octet-stream'
+        cherrypy.response.headers['Content-Type'] = mt
+
         if format == 'EPUB':
             # Get the original metadata
 
@@ -211,27 +235,26 @@ class ContentServer(object):
                 # Transform the metadata via the plugboard
                 newmi = mi.deepcopy_metadata()
                 newmi.template_to_attribute(mi, cpb)
-            else:
-                newmi = mi
 
+        if format in ('MOBI', 'EPUB'):
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
-            set_metadata(fmt, newmi, 'epub')
+            set_metadata(fmt, newmi, format.lower())
             fmt.seek(0)
 
-        mt = guess_type('dummy.'+format.lower())[0]
-        if mt is None:
-            mt = 'application/octet-stream'
-        au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
-        title = mi.title if mi.title else _('Unknown')
+        fmt.seek(0, 2)
+        cherrypy.response.headers['Content-Length'] = fmt.tell()
+        fmt.seek(0)
+
+        au = authors_to_string(newmi.authors if newmi.authors else
+                [_('Unknown')])
+        title = newmi.title if newmi.title else _('Unknown')
         fname = u'%s - %s_%s.%s'%(title[:30], au[:30], id, format.lower())
         fname = ascii_filename(fname).replace('"', '_')
-        cherrypy.response.headers['Content-Type'] = mt
         cherrypy.response.headers['Content-Disposition'] = \
                 b'attachment; filename="%s"'%fname
+        cherrypy.response.body = fmt
         cherrypy.response.timeout = 3600
-        cherrypy.response.headers['Last-Modified'] = \
-            self.last_modified(self.db.format_last_modified(id, format))
         return fmt
     # }}}
 

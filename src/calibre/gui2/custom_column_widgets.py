@@ -7,15 +7,16 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
-        QDate, QGroupBox, QVBoxLayout, QSizePolicy, \
+from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit, \
+        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
-        QPushButton
+        QPushButton, QMessageBox, QToolButton
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.gui2.comments_editor import Editor as CommentsEditor
-from calibre.gui2 import UNDEFINED_QDATE, error_dialog
+from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
+from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
@@ -87,7 +88,7 @@ class Int(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100, 100000000)
+        w.setRange(-1000000, 100000000)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
 
@@ -110,7 +111,7 @@ class Float(Int):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100., float(100000000))
+        w.setRange(-1000000., float(100000000))
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
@@ -142,27 +143,27 @@ class Rating(Int):
             val *= 2
         return val
 
-class DateEdit(QDateEdit):
+class DateTimeEdit(QDateTimeEdit):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
-        QDateEdit.focusInEvent(self, x)
+        QDateTimeEdit.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
-        QDateEdit.focusOutEvent(self, x)
+        QDateTimeEdit.focusOutEvent(self, x)
 
     def set_to_today(self):
-        self.setDate(now())
+        self.setDateTime(now())
 
     def set_to_clear(self):
-        self.setDate(UNDEFINED_QDATE)
+        self.setDateTime(UNDEFINED_QDATETIME)
 
 class DateTime(Base):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.widgets = [QLabel('&'+cm['name']+':', parent), DateEdit(parent)]
+        self.widgets = [QLabel('&'+cm['name']+':', parent), DateTimeEdit(parent)]
         self.widgets.append(QLabel(''))
         w = QWidget(parent)
         self.widgets.append(w)
@@ -179,24 +180,24 @@ class DateTime(Base):
         w = self.widgets[1]
         format = cm['display'].get('date_format','')
         if not format:
-            format = 'dd MMM yyyy'
+            format = 'dd MMM yyyy hh:mm'
         w.setDisplayFormat(format)
         w.setCalendarPopup(True)
-        w.setMinimumDate(UNDEFINED_QDATE)
+        w.setMinimumDateTime(UNDEFINED_QDATETIME)
         w.setSpecialValueText(_('Undefined'))
         self.today_button.clicked.connect(w.set_to_today)
         self.clear_button.clicked.connect(w.set_to_clear)
 
     def setter(self, val):
         if val is None:
-            val = self.widgets[1].minimumDate()
+            val = self.widgets[1].minimumDateTime()
         else:
-            val = QDate(val.year, val.month, val.day)
-        self.widgets[1].setDate(val)
+            val = QDateTime(val)
+        self.widgets[1].setDateTime(val)
 
     def getter(self):
-        val = self.widgets[1].date()
-        if val == UNDEFINED_QDATE:
+        val = self.widgets[1].dateTime()
+        if val <= UNDEFINED_QDATETIME:
             val = None
         else:
             val = qt_to_dt(val)
@@ -226,21 +227,71 @@ class Comments(Base):
             val = None
         return val
 
+class MultipleWidget(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        layout = QHBoxLayout()
+        layout.setSpacing(5)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.tags_box = MultiCompleteLineEdit(parent)
+        layout.addWidget(self.tags_box, stretch=1000)
+        self.editor_button = QToolButton(self)
+        self.editor_button.setToolTip(_('Open Item Editor'))
+        self.editor_button.setIcon(QIcon(I('chapters.png')))
+        layout.addWidget(self.editor_button)
+        self.setLayout(layout)
+
+    def get_editor_button(self):
+        return self.editor_button
+
+    def update_items_cache(self, values):
+        self.tags_box.update_items_cache(values)
+
+    def clear(self):
+        self.tags_box.clear()
+
+    def setEditText(self):
+        self.tags_box.setEditText()
+
+    def addItem(self, itm):
+        self.tags_box.addItem(itm)
+
+    def set_separator(self, sep):
+        self.tags_box.set_separator(sep)
+
+    def set_add_separator(self, sep):
+        self.tags_box.set_add_separator(sep)
+
+    def set_space_before_sep(self, v):
+        self.tags_box.set_space_before_sep(v)
+
+    def setSizePolicy(self, v1, v2):
+        self.tags_box.setSizePolicy(v1, v2)
+
+    def setText(self, v):
+        self.tags_box.setText(v)
+
+    def text(self):
+        return self.tags_box.text()
+
 class Text(Base):
 
     def setup_ui(self, parent):
         self.sep = self.col_metadata['multiple_seps']
-        values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(key=sort_key)
+        self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
+                                                       prefer_custom=True)
+        self.parent = parent
 
         if self.col_metadata['is_multiple']:
-            w = MultiCompleteLineEdit(parent)
+            w = MultipleWidget(parent)
             w.set_separator(self.sep['ui_to_list'])
             if self.sep['ui_to_list'] == '&':
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
-            w.update_items_cache(values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            w.get_editor_button().clicked.connect(self.edit)
         else:
             w = MultiCompleteComboBox(parent)
             w.set_separator(None)
@@ -249,16 +300,22 @@ class Text(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
 
     def initialize(self, book_id):
+        values = list(self.db.all_custom(num=self.col_id))
+        values.sort(key=sort_key)
+        self.book_id = book_id
+        self.widgets[1].clear()
+        self.widgets[1].update_items_cache(values)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        if isinstance(val, list):
+            val.sort(key=sort_key)
         self.initial_val = val
         val = self.normalize_db_val(val)
-        self.widgets[1].update_items_cache(self.all_values)
 
         if self.col_metadata['is_multiple']:
             self.setter(val)
         else:
             idx = None
-            for i, c in enumerate(self.all_values):
+            for i, c in enumerate(values):
                 if c == val:
                     idx = i
                 self.widgets[1].addItem(c)
@@ -284,11 +341,34 @@ class Text(Base):
             val = None
         return val
 
+    def _save_dialog(self, parent, title, msg, det_msg=''):
+        d = QMessageBox(parent)
+        d.setWindowTitle(title)
+        d.setText(msg)
+        d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        return d.exec_()
+
+    def edit(self):
+        if self.getter() != self.initial_val:
+            d = self._save_dialog(self.parent, _('Values changed'),
+                    _('You have changed the values. In order to use this '
+                       'editor, you must either discard or apply these '
+                       'changes. Apply changes?'))
+            if d == QMessageBox.Cancel:
+                return
+            if d == QMessageBox.Yes:
+                self.commit(self.book_id)
+                self.db.commit()
+                self.initial_val = self.getter()
+            else:
+                self.setter(self.initial_val)
+        d = TagEditor(self.parent, self.db, self.book_id, self.key)
+        if d.exec_() == TagEditor.Accepted:
+            self.setter(d.tags)
+
 class Series(Base):
 
     def setup_ui(self, parent):
-        values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(key=sort_key)
         w = MultiCompleteComboBox(parent)
         w.set_separator(None)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
@@ -300,12 +380,13 @@ class Series(Base):
         w = QDoubleSpinBox(parent)
         w.setRange(-100., float(100000000))
         w.setDecimals(2)
-        w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
         self.idx_widget=w
         self.widgets.append(w)
 
     def initialize(self, book_id):
+        values = list(self.db.all_custom(num=self.col_id))
+        values.sort(key=sort_key)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
         if s_index is None:
@@ -315,11 +396,12 @@ class Series(Base):
         self.initial_val = val
         val = self.normalize_db_val(val)
         idx = None
-        for i, c in enumerate(self.all_values):
+        self.name_widget.clear()
+        for i, c in enumerate(values):
             if c == val:
                 idx = i
             self.name_widget.addItem(c)
-        self.name_widget.update_items_cache(self.all_values)
+        self.name_widget.update_items_cache(values)
         self.name_widget.setEditText('')
         if idx is not None:
             self.widgets[1].setCurrentIndex(idx)
@@ -401,70 +483,106 @@ widgets = {
         'enumeration': Enumeration
 }
 
-def field_sort_key(y, x=None):
-    m1 = x[y]
-    n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
+def field_sort_key(y, fm=None):
+    m1 = fm[y]
+    name = icu_lower(m1['name'])
+    n1 = 'zzzzz' + name if m1['datatype'] == 'comments' else name
     return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
-    def widget_factory(type, col):
+    def widget_factory(typ, key):
         if bulk:
-            w = bulk_widgets[type](db, col, parent)
+            w = bulk_widgets[typ](db, key, parent)
         else:
-            w = widgets[type](db, col, parent)
+            w = widgets[typ](db, key, parent)
         if book_id is not None:
             w.initialize(book_id)
         return w
-    x = db.custom_column_num_map
-    cols = list(x)
-    cols.sort(key=partial(field_sort_key, x=x))
-    count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
+    fm = db.field_metadata
 
-    layout.setColumnStretch(1, 10)
+    # Get list of all non-composite custom fields. We must make widgets for these
+    fields = fm.custom_field_keys(include_composites=False)
+    cols_to_display = fields
+    cols_to_display.sort(key=partial(field_sort_key, fm=fm))
+
+    # This will contain the fields in the order to display them
+    cols = []
+
+    # The fields named here must be first in the widget list
+    tweak_cols = tweaks['metadata_edit_custom_column_order']
+    comments_in_tweak = 0
+    for key in (tweak_cols or ()):
+        # Add the key if it really exists in the database
+        if key in cols_to_display:
+            cols.append(key)
+            if fm[key]['datatype'] == 'comments':
+                comments_in_tweak += 1
+
+    # Add all the remaining fields
+    comments_not_in_tweak = 0
+    for key in cols_to_display:
+        if key not in cols:
+            cols.append(key)
+            if fm[key]['datatype'] == 'comments':
+                comments_not_in_tweak += 1
+
+    count = len(cols)
+    layout_rows_for_comments = 9
     if two_column:
-        turnover_point = (count_non_comment+1)/2
-        layout.setColumnStretch(3, 10)
+        turnover_point = ((count-comments_not_in_tweak+1) +
+                          comments_in_tweak*(layout_rows_for_comments-1))/2
     else:
         # Avoid problems with multi-line widgets
-        turnover_point = count_non_comment + 1000
+        turnover_point = count + 1000
     ans = []
-    column = row = comments_row = 0
-    for col in cols:
-        if not x[col]['editable']:
+    column = row = base_row = max_row = 0
+    for key in cols:
+        if not fm[key]['is_editable']:
+            continue # this almost never happens
+        dt = fm[key]['datatype']
+        if dt == 'composite' or (bulk and dt == 'comments'):
             continue
-        dt = x[col]['datatype']
-        if dt == 'composite':
-            continue
-        if dt == 'comments':
-            continue
-        w = widget_factory(dt, col)
+        w = widget_factory(dt, fm[key]['colnum'])
         ans.append(w)
+        if two_column and dt == 'comments':
+            # Here for compatibility with old layout. Comments always started
+            # in the left column
+            comments_in_tweak -= 1
+            # no special processing if the comment field was named in the tweak
+            if comments_in_tweak < 0 and comments_not_in_tweak > 0:
+                # Force a turnover, adding comments widgets below max_row.
+                # Save the row to return to if we turn over again
+                column = 0
+                row = max_row
+                base_row = row
+                turnover_point = row + (comments_not_in_tweak * layout_rows_for_comments)/2
+                comments_not_in_tweak = 0
+
+        l = QGridLayout()
+        if dt == 'comments':
+            layout.addLayout(l, row, column, layout_rows_for_comments, 1)
+            layout.setColumnStretch(column, 100)
+            row += layout_rows_for_comments
+        else:
+            layout.addLayout(l, row, column, 1, 1)
+            layout.setColumnStretch(column, 100)
+            row += 1
         for c in range(0, len(w.widgets), 2):
-            w.widgets[c].setWordWrap(True)
-            w.widgets[c].setBuddy(w.widgets[c+1])
-            layout.addWidget(w.widgets[c], row, column)
-            layout.addWidget(w.widgets[c+1], row, column+1)
-            row += 1
-        comments_row = max(comments_row, row)
-        if row >= turnover_point:
-            column += 2
-            turnover_point = count_non_comment + 1000
-            row = 0
-    if not bulk: # Add the comments fields
-        row = comments_row
-        column = 0
-        for col in cols:
-            dt = x[col]['datatype']
             if dt != 'comments':
-                continue
-            w = widget_factory(dt, col)
-            ans.append(w)
-            layout.addWidget(w.widgets[0], row, column, 1, 2)
-            if two_column and column == 0:
-                column = 2
-                continue
-            column = 0
-            row += 1
+                w.widgets[c].setWordWrap(True)
+                w.widgets[c].setBuddy(w.widgets[c+1])
+                l.addWidget(w.widgets[c], c, 0)
+                l.addWidget(w.widgets[c+1], c, 1)
+                l.setColumnStretch(1, 10000)
+            else:
+                l.addWidget(w.widgets[0], 0, 0, 1, 2)
+        l.addItem(QSpacerItem(0, 0, vPolicy=QSizePolicy.Expanding), c, 0, 1, 1)
+        max_row = max(max_row, row)
+        if row >= turnover_point:
+            column = 1
+            turnover_point = count + 1000
+            row = base_row
+
     items = []
     if len(ans) > 0:
         items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,
@@ -538,9 +656,9 @@ class BulkBase(Base):
         if hasattr(self.main_widget, 'valueChanged'):
             # spinbox widgets
             self.main_widget.valueChanged.connect(self.a_c_checkbox_changed)
-        if hasattr(self.main_widget, 'dateChanged'):
+        if hasattr(self.main_widget, 'dateTimeChanged'):
             # dateEdit widgets
-            self.main_widget.dateChanged.connect(self.a_c_checkbox_changed)
+            self.main_widget.dateTimeChanged.connect(self.a_c_checkbox_changed)
 
     def a_c_checkbox_changed(self):
         if not self.ignore_change_signals:
@@ -605,7 +723,7 @@ class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QSpinBox)
-        self.main_widget.setRange(-100, 100000000)
+        self.main_widget.setRange(-1000000, 100000000)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
 
@@ -627,7 +745,7 @@ class BulkFloat(BulkInt):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QDoubleSpinBox)
-        self.main_widget.setRange(-100., float(100000000))
+        self.main_widget.setRange(-1000000., float(100000000))
         self.main_widget.setDecimals(2)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
@@ -659,7 +777,7 @@ class BulkDateTime(BulkBase):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.make_widgets(parent, DateEdit)
+        self.make_widgets(parent, DateTimeEdit)
         self.widgets.append(QLabel(''))
         w = QWidget(parent)
         self.widgets.append(w)
@@ -679,22 +797,22 @@ class BulkDateTime(BulkBase):
             format = 'dd MMM yyyy'
         w.setDisplayFormat(format)
         w.setCalendarPopup(True)
-        w.setMinimumDate(UNDEFINED_QDATE)
+        w.setMinimumDateTime(UNDEFINED_QDATETIME)
         w.setSpecialValueText(_('Undefined'))
         self.today_button.clicked.connect(w.set_to_today)
         self.clear_button.clicked.connect(w.set_to_clear)
 
     def setter(self, val):
         if val is None:
-            val = self.main_widget.minimumDate()
+            val = self.main_widget.minimumDateTime()
         else:
-            val = QDate(val.year, val.month, val.day)
-        self.main_widget.setDate(val)
+            val = QDateTime(val)
+        self.main_widget.setDateTime(val)
         self.ignore_change_signals = False
 
     def getter(self):
-        val = self.main_widget.date()
-        if val == UNDEFINED_QDATE:
+        val = self.main_widget.dateTime()
+        if val <= UNDEFINED_QDATETIME:
             val = None
         else:
             val = qt_to_dt(val)

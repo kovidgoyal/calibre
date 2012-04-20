@@ -22,7 +22,6 @@ from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.sources.base import msprefs
 
 def get_filters():
     return [
@@ -33,11 +32,12 @@ def get_filters():
             (_('LIT Books'), ['lit']),
             (_('MOBI Books'), ['mobi', 'prc', 'azw']),
             (_('Topaz books'), ['tpz','azw1']),
-            (_('Text books'), ['txt', 'rtf']),
-            (_('PDF Books'), ['pdf']),
+            (_('Text books'), ['txt', 'text', 'rtf']),
+            (_('PDF Books'), ['pdf', 'azw4']),
             (_('SNB Books'), ['snb']),
             (_('Comics'), ['cbz', 'cbr', 'cbc']),
             (_('Archives'), ['zip', 'rar']),
+            (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
     ]
 
 
@@ -70,6 +70,9 @@ class AddAction(InterfaceAction):
         self.add_menu.addSeparator()
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut=_('Shift+A'))
+        self.add_menu.addSeparator()
+        ma('add-config', _('Control the adding of books'),
+                triggered=self.add_config)
 
         self.qaction.triggered.connect(self.add_books)
 
@@ -77,6 +80,11 @@ class AddAction(InterfaceAction):
         enabled = loc == 'library'
         for action in list(self.add_menu.actions())[1:]:
             action.setEnabled(enabled)
+
+    def add_config(self):
+        self.gui.iactions['Preferences'].do_config(
+            initial_plugin=('Import/Export', 'Adding'),
+            close_after_initial=True)
 
     def add_formats(self, *args):
         if self.gui.stack.currentIndex() != 0:
@@ -92,7 +100,7 @@ class AddAction(InterfaceAction):
                 _('Are you sure'),
             _('Are you sure you want to add the same'
                 ' files to all %d books? If the format'
-                'already exists for a book, it will be replaced.')%len(ids)):
+                ' already exists for a book, it will be replaced.')%len(ids)):
                 return
 
         books = choose_files(self.gui, 'add formats dialog dir',
@@ -181,17 +189,9 @@ class AddAction(InterfaceAction):
             except IndexError:
                 self.gui.library_view.model().books_added(self.isbn_add_dialog.value)
                 self.isbn_add_dialog.accept()
-                orig = msprefs['ignore_fields']
-                new = list(orig)
-                for x in ('title', 'authors'):
-                    if x in new:
-                        new.remove(x)
-                msprefs['ignore_fields'] = new
-                try:
-                    self.gui.iactions['Edit Metadata'].download_metadata(
-                        ids=self.add_by_isbn_ids)
-                finally:
-                    msprefs['ignore_fields'] = orig
+                self.gui.iactions['Edit Metadata'].download_metadata(
+                    ids=self.add_by_isbn_ids, ensure_fields=frozenset(['title',
+                        'authors']))
                 return
 
 
@@ -397,6 +397,7 @@ class AddAction(InterfaceAction):
             d = error_dialog(self.gui, _('Add to library'), _('No book files found'))
             d.exec_()
             return
+        paths = self.gui.device_manager.device.prepare_addable_books(paths)
         from calibre.gui2.add import Adder
         self.__adder_func = partial(self._add_from_device_adder, on_card=None,
                                                     model=view.model())

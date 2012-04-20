@@ -208,6 +208,7 @@ OptionRecommendation(name='level1_toc',
             'should be added to the Table of Contents at level one. If '
             'this is specified, it takes precedence over other forms '
             'of auto-detection.'
+            ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
 
@@ -216,6 +217,7 @@ OptionRecommendation(name='level2_toc',
             help=_('XPath expression that specifies all tags that should be '
             'added to the Table of Contents at level two. Each entry is added '
             'under the previous level one entry.'
+            ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
 
@@ -224,6 +226,7 @@ OptionRecommendation(name='level3_toc',
             help=_('XPath expression that specifies all tags that should be '
                 'added to the Table of Contents at level three. Each entry '
                 'is added under the previous level two entry.'
+            ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
 
@@ -276,11 +279,11 @@ OptionRecommendation(name='duplicate_links_in_toc',
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
-              r"re:test(., 'chapter|book|section|part|prologue|epilogue\s+', 'i')) or @class "
+              r"re:test(., '\s*((chapter|book|section|part)\s+)|((prolog|prologue|epilogue)(\s+|$))', 'i')) or @class "
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
-                '"chapter","book","section" or "part" as chapter titles as '
+                '"chapter","book","section", "prologue", "epilogue", or "part" as chapter titles as '
                 'well as any tags that have class="chapter". The expression '
                 'used must evaluate to a list of elements. To disable chapter '
                 'detection, use the expression "/". See the XPath Tutorial '
@@ -306,6 +309,16 @@ OptionRecommendation(name='extra_css',
                 'This CSS will be appended to the style rules from '
                 'the source file, so it can be used to override those '
                 'rules.')
+        ),
+
+OptionRecommendation(name='filter_css',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('A comma separated list of CSS properties that '
+                'will be removed from all CSS style rules. This is useful '
+                'if the presence of some style information prevents it '
+                'from being overridden on your device. '
+                'For example: '
+                'font-family,color,margin-left,margin-right')
         ),
 
 OptionRecommendation(name='page_breaks_before',
@@ -368,7 +381,9 @@ OptionRecommendation(name='remove_paragraph_spacing_indent_size',
         recommended_value=1.5, level=OptionRecommendation.LOW,
         help=_('When calibre removes blank lines between paragraphs, it automatically '
             'sets a paragraph indent, to ensure that paragraphs can be easily '
-            'distinguished. This option controls the width of that indent (in em).')
+            'distinguished. This option controls the width of that indent (in em). '
+            'If you set this value negative, then the indent specified in the input '
+            'document is used, that is, calibre does not change the indentation.')
         ),
 
 OptionRecommendation(name='prefer_metadata_cover',
@@ -394,8 +409,9 @@ OptionRecommendation(name='insert_blank_line_size',
 OptionRecommendation(name='remove_first_image',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Remove the first image from the input ebook. Useful if the '
-        'first image in the source file is a cover and you are specifying '
-        'an external cover.'
+        'input document has a cover image that is not identified as a cover. '
+        'In this case, if you set a cover in calibre, the output document will '
+        'end up with two cover images if you do not specify this option.'
             )
         ),
 
@@ -412,6 +428,13 @@ OptionRecommendation(name='smarten_punctuation',
         help=_('Convert plain quotes, dashes and ellipsis to their '
             'typographically correct equivalents. For details, see '
             'http://daringfireball.net/projects/smartypants'
+            )
+        ),
+
+OptionRecommendation(name='unsmarten_punctuation',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Convert fancy quotes, dashes and ellipsis to their '
+               'plain equivalents.'
             )
         ),
 
@@ -603,6 +626,14 @@ OptionRecommendation(name='sr3_search',
 OptionRecommendation(name='sr3_replace',
     recommended_value='', level=OptionRecommendation.LOW,
     help=_('Replacement to replace the text found with sr3-search.')),
+
+OptionRecommendation(name='search_replace',
+    recommended_value=None, level=OptionRecommendation.LOW, help=_(
+        'Path to a file containing search and replace regular expressions. '
+        'The file must contain alternating lines of regular expression '
+        'followed by replacement pattern (which can be an empty line). '
+        'The regular expression must be in the python regex syntax and '
+        'the file must be UTF-8 encoded.')),
 ]
         # }}}
 
@@ -683,9 +714,12 @@ OptionRecommendation(name='sr3_replace',
     def unarchive(self, path, tdir):
         extract(path, tdir)
         files = list(walk(tdir))
+        files = [f if isinstance(f, unicode) else f.decode(filesystem_encoding)
+                for f in files]
         from calibre.customize.ui import available_input_formats
-        fmts = available_input_formats()
-        for x in ('htm', 'html', 'xhtm', 'xhtml'): fmts.remove(x)
+        fmts = set(available_input_formats())
+        fmts -= {'htm', 'html', 'xhtm', 'xhtml'}
+        fmts -= set(ARCHIVE_FMTS)
 
         for ext in fmts:
             for f in files:
@@ -984,7 +1018,11 @@ OptionRecommendation(name='sr3_replace',
         if fkey is None:
             fkey = self.opts.dest.fkey
         else:
-            fkey = map(float, fkey.split(','))
+            try:
+                fkey = map(float, fkey.split(','))
+            except:
+                self.log.error('Invalid font size key: %r ignoring'%fkey)
+                fkey = self.opts.dest.fkey
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
         Jacket()(self.oeb, self.opts, self.user_metadata)
@@ -1013,6 +1051,10 @@ OptionRecommendation(name='sr3_replace',
                 self.output_plugin.file_type not in ('mobi', 'lrf'):
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
+
+        if self.opts.unsmarten_punctuation:
+            from calibre.ebooks.oeb.transforms.unsmarten import UnsmartenPunctuation
+            UnsmartenPunctuation()(self.oeb, self.opts)
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

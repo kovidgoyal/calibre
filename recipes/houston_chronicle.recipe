@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-import string, pprint
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class HoustonChronicle(BasicNewsRecipe):
@@ -13,53 +11,29 @@ class HoustonChronicle(BasicNewsRecipe):
     language       = 'en'
     timefmt        = ' [%a, %d %b, %Y]'
     no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style']
 
-    keep_only_tags = [
-                        dict(id=['story-head', 'story'])
-                     ]
+    oldest_article = 2.0
 
-    remove_tags    = [
-                        dict(id=['share-module', 'resource-box',
-                        'resource-box-header'])
-                     ]
+    keep_only_tags = {'class':lambda x: x and ('hst-articletitle' in x or
+        'hst-articletext' in x or 'hst-galleryitem' in x)}
+    remove_attributes = ['xmlns']
 
-    extra_css      = '''
-                        h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
-                        h2{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#666666;}
-                        h3{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#000000;}
-                        h4{font-family :Arial,Helvetica,sans-serif; font-size: x-small;}
-                        p{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
-                        #story-head h1{font-family :Arial,Helvetica,sans-serif; font-size: xx-large;}
-                        #story-head h2{font-family :Arial,Helvetica,sans-serif; font-size: small; color:#000000;}
-                        #story-head h3{font-family :Arial,Helvetica,sans-serif; font-size: xx-small;}
-                        #story-head h4{font-family :Arial,Helvetica,sans-serif; font-size: xx-small;}
-                        #story{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;}
-                        #Text-TextSubhed BoldCond PoynterAgateZero h3{color:#444444;font-family :Arial,Helvetica,sans-serif; font-size:small;}
-                        .p260x p{font-family :Arial,Helvetica,serif; font-size:x-small;font-style:italic;}
-                        .p260x h6{color:#777777;font-family :Arial,Helvetica,sans-serif; font-size:xx-small;}
-                     '''
-
-
-    def parse_index(self):
-        categories = ['news', 'sports', 'business', 'entertainment', 'life',
-                'travel']
-        feeds = []
-        for cat in categories:
-            articles = []
-            soup = self.index_to_soup('http://www.chron.com/%s/'%cat)
-            for elem in soup.findAll(comptype='story', storyid=True):
-                a = elem.find('a', href=True)
-                if a is None: continue
-                url = a['href']
-                if not url.startswith('http://'):
-                    url = 'http://www.chron.com'+url
-                articles.append({'title':self.tag_to_string(a), 'url':url,
-                    'description':'', 'date':''})
-                pprint.pprint(articles[-1])
-            if articles:
-                feeds.append((string.capwords(cat), articles))
-        return feeds
-
-
+    feeds = [
+            ('News', "http://www.chron.com/rss/feed/News-270.php"),
+            ('Sports',
+                'http://www.chron.com/sports/headlines/collectionRss/Sports-Headlines-Staff-Stories-10767.php'),
+            ('Neighborhood',
+                'http://www.chron.com/rss/feed/Neighborhood-305.php'),
+            ('Business', 'http://www.chron.com/rss/feed/Business-287.php'),
+            ('Entertainment',
+                'http://www.chron.com/rss/feed/Entertainment-293.php'),
+            ('Editorials',
+                'http://www.chron.com/opinion/editorials/collectionRss/Opinion-Editorials-Headline-List-10567.php'),
+            ('Life', 'http://www.chron.com/rss/feed/Life-297.php'),
+            ('Science & Tech',
+                'http://www.chron.com/rss/feed/AP-Technology-and-Science-266.php'),
+        ]
 
 

@@ -8,15 +8,12 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 class Header:
     """
     Two public methods are available. The first separates all of the headers
@@ -33,7 +30,7 @@ class Header:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__found_a_header = 0
     def __in_header_func(self, line):
         """
@@ -115,7 +112,7 @@ class Header:
         self.__initiate_sep_values()
         read_obj = open(self.__file)
         self.__write_obj = open(self.__write_to, 'w')
-        self.__header_holder = tempfile.mktemp()
+        self.__header_holder = better_mktemp()
         self.__write_to_head_obj = open(self.__header_holder, 'w')
         line_to_read = 1
         while line_to_read:
@@ -251,7 +248,7 @@ class Header:
         """
         if not self.__found_a_header:
             return
-        self.__write_to2 = tempfile.mktemp()
+        self.__write_to2 = better_mktemp()
         self.__state = 'body'
         self.__get_headers()
         self.__join_from_temp()

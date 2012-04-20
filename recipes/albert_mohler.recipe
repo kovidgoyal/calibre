@@ -1,0 +1,18 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Peter Grungi <p dot grungi at gmail dot com>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AlbertMohlersBlog(BasicNewsRecipe):
+    title          = u'Albert Mohler\'s Blog'
+    __author__ = 'Peter Grungi'
+    language = 'en'
+    oldest_article = 90
+    max_articles_per_feed = 10
+    auto_cleanup = True
+    cover_url = 'http://www.albertmohler.com/wp-content/themes/albert-mohler-v5/img/logo-am-lg.gif'
+    publisher = 'Albert Mohler'
+    language = 'en'
+    author = 'Albert Mohler'
+
+    feeds          = [(u'Albert Mohler\'s Blog', u'http://feeds.feedburner.com/AlbertMohlersBlog?format=xml')]

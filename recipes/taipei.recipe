@@ -1,0 +1,30 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TN(BasicNewsRecipe):
+    title          = u'Taipei Times'
+    language       = 'en_CN'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+    auto_cleanup_keep = '//*[@class="main_ipic"]'
+
+    feeds          = [
+('Editorials',
+ 'http://www.taipeitimes.com/xml/editorials.rss'),
+('Taiwan',
+ 'http://www.taipeitimes.com/xml/taiwan.rss'),
+('Features',
+ 'http://www.taipeitimes.com/xml/feat.rss'),
+('Business',
+ 'http://www.taipeitimes.com/xml/biz.rss'),
+('World',
+ 'http://www.taipeitimes.com/xml/world.rss'),
+('Sports',
+ 'http://www.taipeitimes.com/xml/sport.rss'),
+]
+
+

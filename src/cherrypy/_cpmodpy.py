@@ -56,12 +56,12 @@ Then restart apache2 and access http://127.0.0.1:8080
 """
 
 import logging
-import StringIO
+import sys
 
 import cherrypy
+from cherrypy._cpcompat import BytesIO, copyitems, ntob
 from cherrypy._cperror import format_exc, bare_error
-from cherrypy.lib import http
-
+from cherrypy.lib import httputil
 
 
 # ------------------------------ Request-handling
@@ -71,17 +71,18 @@ from cherrypy.lib import http
 def setup(req):
     from mod_python import apache
     
-    # Run any setup function defined by a "PythonOption cherrypy.setup" directive.
+    # Run any setup functions defined by a "PythonOption cherrypy.setup" directive.
     options = req.get_options()
     if 'cherrypy.setup' in options:
-        atoms = options['cherrypy.setup'].split('::', 1)
-        if len(atoms) == 1:
-            mod = __import__(atoms[0], globals(), locals())
-        else:
-            modname, fname = atoms
-            mod = __import__(modname, globals(), locals(), [fname])
-            func = getattr(mod, fname)
-            func()
+        for function in options['cherrypy.setup'].split():
+            atoms = function.split('::', 1)
+            if len(atoms) == 1:
+                mod = __import__(atoms[0], globals(), locals())
+            else:
+                modname, fname = atoms
+                mod = __import__(modname, globals(), locals(), [fname])
+                func = getattr(mod, fname)
+                func()
     
     cherrypy.config.update({'log.screen': False,
                             "tools.ignore_headers.on": True,
@@ -141,9 +142,9 @@ def handler(req):
         
         # Obtain a Request object from CherryPy
         local = req.connection.local_addr
-        local = http.Host(local[0], local[1], req.connection.local_host or "")
+        local = httputil.Host(local[0], local[1], req.connection.local_host or "")
         remote = req.connection.remote_addr
-        remote = http.Host(remote[0], remote[1], req.connection.remote_host or "")
+        remote = httputil.Host(remote[0], remote[1], req.connection.remote_host or "")
         
         scheme = req.parsed_uri[0] or 'http'
         req.get_basic_auth_pw()
@@ -183,7 +184,7 @@ def handler(req):
             path = req.uri
             qs = req.args or ""
             reqproto = req.protocol
-            headers = req.headers_in.items()
+            headers = copyitems(req.headers_in)
             rfile = _ReadOnlyRequest(req)
             prev = None
             
@@ -202,7 +203,8 @@ def handler(req):
                     try:
                         request.run(method, path, qs, reqproto, headers, rfile)
                         break
-                    except cherrypy.InternalRedirect, ir:
+                    except cherrypy.InternalRedirect:
+                        ir = sys.exc_info()[1]
                         app.release_serving()
                         prev = request
                         
@@ -220,9 +222,9 @@ def handler(req):
                         method = "GET"
                         path = ir.path
                         qs = ir.query_string
-                        rfile = StringIO.StringIO()
+                        rfile = BytesIO()
                 
-                send_response(req, response.status, response.header_list,
+                send_response(req, response.output_status, response.header_list,
                               response.body, response.stream)
             finally:
                 app.release_serving()
@@ -264,13 +266,25 @@ def send_response(req, status, headers, body, stream=False):
 
 import os
 import re
+try:
+    import subprocess
+    def popen(fullcmd):
+        p = subprocess.Popen(fullcmd, shell=True,
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             close_fds=True)
+        return p.stdout
+except ImportError:
+    def popen(fullcmd):
+        pipein, pipeout = os.popen4(fullcmd)
+        return pipeout
 
 
 def read_process(cmd, args=""):
-    pipein, pipeout = os.popen4("%s %s" % (cmd, args))
+    fullcmd = "%s %s" % (cmd, args)
+    pipeout = popen(fullcmd)
     try:
         firstline = pipeout.readline()
-        if (re.search(r"(not recognized|No such file|not found)", firstline,
+        if (re.search(ntob("(not recognized|No such file|not found)"), firstline,
                       re.IGNORECASE)):
             raise IOError('%s must be on your system path.' % cmd)
         output = firstline + pipeout.read()

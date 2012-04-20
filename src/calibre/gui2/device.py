@@ -7,7 +7,8 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
-                     Qt, pyqtSignal, QDialog, QObject)
+                     Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
+                     QDialogButtonBox)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins)
@@ -87,7 +88,7 @@ class DeviceJob(BaseJob): # {{{
             self.failed = True
             ex = as_unicode(err)
             self._details = ex + '\n\n' + \
-                traceback.format_exc()
+                force_unicode(traceback.format_exc())
             self.exception = err
         finally:
             self.job_done()
@@ -162,7 +163,7 @@ class DeviceManager(Thread): # {{{
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
-                dev.open(self.current_library_uuid)
+                dev.open(detected_device, self.current_library_uuid)
             except OpenFeedback as e:
                 if dev not in self.ejected_devices:
                     self.open_feedback_msg(dev.get_gui_name(), e)
@@ -206,6 +207,12 @@ class DeviceManager(Thread): # {{{
                 self.scanner.is_device_connected(self.connected_device,
                         only_presence=True)
             if not connected:
+                if DEBUG:
+                    # Allow the device subsystem to output debugging info about
+                    # why it thinks the device is not connected. Used, for e.g.
+                    # in the can_handle() method of the T1 driver
+                    self.scanner.is_device_connected(self.connected_device,
+                            only_presence=True, debug=True)
                 self.connected_device_removed()
         else:
             possibly_connected_devices = []
@@ -391,6 +398,10 @@ class DeviceManager(Thread): # {{{
                                     newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi
+                                nuke_comments = getattr(self.connected_device,
+                                        'NUKE_COMMENTS', None)
+                                if nuke_comments is not None:
+                                    mi.comments = nuke_comments
                                 set_metadata(stream, newmi, stream_type=ext)
                         except:
                             if DEBUG:
@@ -679,7 +690,7 @@ class DeviceMixin(object): # {{{
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
-                det_msg=autos
+                det_msg=autos, skip_dialog_name='auto_convert_before_send'
         )
 
     def set_default_thumbnail(self, height):
@@ -707,6 +718,31 @@ class DeviceMixin(object): # {{{
     # disconnect from both folder and itunes devices
     def disconnect_mounted_device(self):
         self.device_manager.umount_device()
+
+    def configure_connected_device(self):
+        if not self.device_manager.is_device_connected: return
+        if self.job_manager.has_device_jobs(queued_also=True):
+            return error_dialog(self, _('Running jobs'),
+                    _('Cannot configure the device while there are running'
+                        ' device jobs.'), show=True)
+        dev = self.device_manager.connected_device
+        cw = dev.config_widget()
+        d = QDialog(self)
+        d.setWindowTitle(_('Configure %s')%dev.get_gui_name())
+        d.setWindowIcon(QIcon(I('config.png')))
+        l = QVBoxLayout(d)
+        d.setLayout(l)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        l.addWidget(cw)
+        l.addWidget(bb)
+        if d.exec_() == d.Accepted:
+            dev.save_settings(cw)
+            warning_dialog(self, _('Disconnect device'),
+                    _('Disconnect and re-connect the %s for your changes to'
+                        ' be applied.')%dev.get_gui_name(), show=True,
+                    show_copy_button=False)
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -747,7 +783,7 @@ class DeviceMixin(object): # {{{
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
-                             'and or reboot.')).show()
+                             'or reboot.')).show()
                 return
         except:
             pass
@@ -846,15 +882,16 @@ class DeviceMixin(object): # {{{
         self.refresh_ondevice()
         device_signals.device_metadata_available.emit()
 
-    def refresh_ondevice(self, reset_only = False):
+    def refresh_ondevice(self, reset_only=False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
         '''
-        self.book_on_device(None, reset=True)
-        if reset_only:
-            return
-        self.library_view.model().refresh_ondevice()
+        with self.library_view.preserve_state():
+            self.book_on_device(None, reset=True)
+            if reset_only:
+                return
+            self.library_view.model().refresh_ondevice()
 
     # }}}
 
@@ -884,7 +921,6 @@ class DeviceMixin(object): # {{{
         # if set_books_in_library did not.
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
-        self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice(reset_only=False)
@@ -1315,9 +1351,7 @@ class DeviceMixin(object): # {{{
         # If it does not, then do it here.
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
-        with self.library_view.preserve_selected_books:
-            self.book_on_device(None, reset=True)
-            self.refresh_ondevice()
+        self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view

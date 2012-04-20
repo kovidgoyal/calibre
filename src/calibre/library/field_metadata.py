@@ -17,7 +17,7 @@ class TagsIcons(dict):
 
     category_icons = ['authors', 'series', 'formats', 'publisher', 'rating',
                       'news',    'tags',   'custom:', 'user:',     'search',
-                      'identifiers',       'gst']
+                      'identifiers', 'languages', 'gst']
     def __init__(self, icon_dict):
         for a in self.category_icons:
             if a not in icon_dict:
@@ -37,6 +37,7 @@ category_icon_map = {
                     'search'     : 'search.png',
                     'identifiers': 'identifiers.png',
                     'gst'        : 'catalog.png',
+                    'languages'  : 'languages.png',
             }
 
 
@@ -114,6 +115,21 @@ class FieldMetadata(dict):
                            'is_custom':False,
                            'is_category':True,
                            'is_csp': False}),
+            ('languages', {'table':'languages',
+                           'column':'lang_code',
+                           'link_column':'lang_code',
+                           'category_sort':'lang_code',
+                           'datatype':'text',
+                           'is_multiple':{'cache_to_list': ',',
+                                          'ui_to_list': ',',
+                                          'list_to_ui': ', '},
+                           'kind':'field',
+                           'name':_('Languages'),
+                           'search_terms':['languages', 'language'],
+                           'is_custom':False,
+                           'is_category':True,
+                           'is_csp': False}),
+
             ('series',    {'table':'series',
                            'column':'name',
                            'link_column':'series',
@@ -157,7 +173,7 @@ class FieldMetadata(dict):
                            'datatype':'rating',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Ratings'),
+                           'name':_('Rating'),
                            'search_terms':['rating'],
                            'is_custom':False,
                            'is_category':True,
@@ -311,6 +327,16 @@ class FieldMetadata(dict):
                              'is_custom':False,
                              'is_category':False,
                            'is_csp': False}),
+            ('series_sort',  {'table':None,
+                           'column':None,
+                           'datatype':'text',
+                           'is_multiple':{},
+                           'kind':'field',
+                           'name':_('Series Sort'),
+                           'search_terms':['series_sort'],
+                           'is_custom':False,
+                           'is_category':False,
+                           'is_csp': False}),
             ('sort',      {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -372,6 +398,7 @@ class FieldMetadata(dict):
     def __init__(self):
         self._field_metadata = copy.deepcopy(self._field_metadata_prototype)
         self._tb_cats = OrderedDict()
+        self._tb_custom_fields = {}
         self._search_term_map = {}
         self.custom_label_to_key_map = {}
         for k,v in self._field_metadata:
@@ -461,10 +488,8 @@ class FieldMetadata(dict):
             yield (key, self._tb_cats[key])
 
     def custom_iteritems(self):
-        for key in self._tb_cats:
-            fm = self._tb_cats[key]
-            if fm['is_custom']:
-                yield (key, self._tb_cats[key])
+        for key, meta in self._tb_custom_fields.iteritems():
+            yield (key, meta)
 
     def items(self):
         return list(self.iteritems())
@@ -500,6 +525,8 @@ class FieldMetadata(dict):
         return l
 
     def custom_field_metadata(self, include_composites=True):
+        if include_composites:
+            return self._tb_custom_fields
         l = {}
         for k in self.custom_field_keys(include_composites):
             l[k] = self._tb_cats[k]
@@ -521,6 +548,7 @@ class FieldMetadata(dict):
                              'is_custom':True,     'is_category':is_category,
                              'link_column':'value','category_sort':'value',
                              'is_csp' : is_csp,     'is_editable': is_editable,}
+        self._tb_custom_fields[key] = self._tb_cats[key]
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
         if datatype == 'series':
@@ -619,9 +647,7 @@ class FieldMetadata(dict):
                 self._search_term_map[t] = key
 
     def search_term_to_field_key(self, term):
-        if term in self._search_term_map:
-            return  self._search_term_map[term]
-        return term
+        return self._search_term_map.get(term, term)
 
     def searchable_fields(self):
         return [k for k in self._tb_cats.keys()

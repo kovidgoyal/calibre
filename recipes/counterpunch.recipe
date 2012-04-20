@@ -1,40 +1,10 @@
-import re
-from lxml.html import parse
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Counterpunch(BasicNewsRecipe):
-    '''
-    Parses counterpunch.com for articles
-    '''
-    title = 'Counterpunch'
-    description = 'Daily political opinion from www.Counterpunch.com'
-    language = 'en'
-    __author__ = 'O. Emmerson'
-    keep_only_tags = [dict(name='td', attrs={'width': '522'})]
-    max_articles_per_feed = 10
+    title          = u'Counterpunch'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
 
-    def parse_index(self):
-        feeds = []
-        title, url = 'Counterpunch', 'http://www.counterpunch.com'
-        articles = self.parse_page(url)
-        if articles:
-            feeds.append((title, articles))
-        return feeds
-
-    def parse_page(self, url):
-        parsed_page = parse(url).getroot()
-        articles = []
-        unwanted_text = re.compile('Website\ of\ the|I\ urge\ you|Subscribe\ now|DONATE|\@asis\.com|donation\ button|click\ over\ to\ our')
-        parsed_articles = [a for a in parsed_page.cssselect("html>body>table tr>td>p[class='style2']") if not unwanted_text.search(a.text_content())]
-        for art in parsed_articles:
-            try:
-                author = art.text
-                title = art.cssselect("a")[0].text + ' by {0}'.format(author)
-                art_url = 'http://www.counterpunch.com/' + art.cssselect("a")[0].attrib['href']
-                articles.append({'title': title, 'url': art_url})
-            except Exception as e:
-                e
-                #print('Handler Error: ', e, 'title :', a.text_content())
-                pass
-        return articles
+    feeds          = [(u'Counterpunch', u'http://www.counterpunch.org/category/article/feed/')]
 

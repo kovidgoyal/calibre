@@ -5,9 +5,10 @@ __license__   = 'GPL v3'
 
 import os, shutil
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
-            QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem, \
-            QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit
+from PyQt4.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel,
+            QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem,
+            QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit,
+            QSplitter, QWidget)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -149,11 +150,15 @@ class CheckLibraryDialog(QDialog):
         self.setWindowIcon(QIcon(I('debug.png')))
 
         self._tl = QHBoxLayout()
-        self._layout = QVBoxLayout()
         self.setLayout(self._tl)
-        self._tl.addLayout(self._layout)
+        self.splitter = QSplitter(self)
+        self.left = QWidget(self)
+        self.splitter.addWidget(self.left)
         self.helpw = QTextEdit(self)
-        self._tl.addWidget(self.helpw)
+        self.splitter.addWidget(self.helpw)
+        self._tl.addWidget(self.splitter)
+        self._layout = QVBoxLayout()
+        self.left.setLayout(self._layout)
         self.helpw.setReadOnly(True)
         self.helpw.setText(_('''\
         <h1>Help</h1>
@@ -229,14 +234,14 @@ class CheckLibraryDialog(QDialog):
         self.copy_button = QPushButton(_('Copy &to clipboard'))
         self.copy_button.setDefault(False)
         self.copy_button.clicked.connect(self.copy_to_clipboard)
-        self.ok_button = QPushButton('&Done')
+        self.ok_button = QPushButton(_('&Done'))
         self.ok_button.setDefault(True)
         self.ok_button.clicked.connect(self.accept)
-        self.delete_button = QPushButton('Delete &marked')
+        self.delete_button = QPushButton(_('Delete &marked'))
         self.delete_button.setToolTip(_('Delete marked files (checked subitems)'))
         self.delete_button.setDefault(False)
         self.delete_button.clicked.connect(self.delete_marked)
-        self.fix_button = QPushButton('&Fix marked')
+        self.fix_button = QPushButton(_('&Fix marked'))
         self.fix_button.setDefault(False)
         self.fix_button.setEnabled(False)
         self.fix_button.setToolTip(_('Fix marked sections (checked fixable items)'))
@@ -310,7 +315,7 @@ class CheckLibraryDialog(QDialog):
 
             tl = Item()
             tl.setText(0, h)
-            if fixable:
+            if fixable and list:
                 tl.setText(1, _('(fixable)'))
                 tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
                 tl.setCheckState(1, False)

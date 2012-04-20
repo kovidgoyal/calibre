@@ -5,11 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time, \
-    glob, stat
+import os, subprocess, hashlib, shutil, glob, stat, sys, time
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile
+
+if __name__ == '__main__':
+    d = os.path.dirname
+    sys.path.insert(0, d(d(os.path.abspath(__file__))))
 
 from setup import Command, __version__, installer_name, __appname__
 
@@ -19,18 +22,19 @@ BETAS = DOWNLOADS +'/betas'
 USER_MANUAL = '/var/www/localhost/htdocs/'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
-MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
-
+STAGING_HOST = '67.207.135.179'
+STAGING_USER = 'root'
+STAGING_DIR = '/root/staging'
 
 def installers():
     installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
     installers.append(installer_name('tar.bz2', is64bit=True))
-    installers.insert(0, 'dist/%s-%s.tar.gz'%(__appname__, __version__))
+    installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
     installers.append('dist/%s-portable-%s.zip'%(__appname__, __version__))
     return installers
 
 def installer_description(fname):
-    if fname.endswith('.tar.gz'):
+    if fname.endswith('.tar.xz'):
         return 'Source code'
     if fname.endswith('.tar.bz2'):
         bits = '32' if 'i686' in fname else '64'
@@ -47,10 +51,10 @@ class ReUpload(Command): # {{{
 
     description = 'Re-uplaod any installers present in dist/'
 
-    sub_commands = ['upload_to_google_code', 'upload_to_sourceforge']
+    sub_commands = ['upload_installers']
 
     def pre_sub_commands(self, opts):
-        opts.re_upload = True
+        opts.replace = True
 
     def run(self, opts):
         for x in installers():
@@ -58,289 +62,97 @@ class ReUpload(Command): # {{{
                 os.remove(x)
 # }}}
 
-class UploadToGoogleCode(Command): # {{{
+# Data {{{
+def get_google_data():
+    with open(os.path.expanduser('~/work/kde/conf/googlecodecalibre'), 'rb') as f:
+        gc_password, ga_un, pw = f.read().strip().split('|')
 
-    USERNAME = 'kovidgoyal'
-    # Password can be gotten by going to
-    # http://code.google.com/hosting/settings
-    # while logged into gmail
-    PASSWORD_FILE = os.path.expanduser('~/.googlecodecalibre')
-    OFFLINEIMAP   = os.path.expanduser('~/work/kde/conf/offlineimap/rc')
-    GPATHS = '/var/www/status.calibre-ebook.com/googlepaths'
-    UPLOAD_HOST = 'calibre-ebook.googlecode.com'
-    FILES_LIST = 'http://code.google.com/p/calibre-ebook/downloads/list'
+    return {
+        'username':ga_un, 'password':pw, 'gc_password':gc_password,
+        'path_map_server':'root@kovidgoyal.net',
+        'path_map_location':'/var/www/status.calibre-ebook.com/googlepaths',
+        # If you change this remember to change it in the
+        # status.calibre-ebook.com server as well
+        'project':'calibre-ebook'
+    }
 
-    def add_options(self, parser):
-        parser.add_option('--re-upload', default=False, action='store_true',
-                help='Re-upload all installers currently in dist/')
+def get_sourceforge_data():
+    return {'username':'kovidgoyal', 'project':'calibre'}
 
-    def re_upload(self):
-        fnames = set([os.path.basename(x) for x in installers() if not
-                x.endswith('.tar.gz') and os.path.exists(x)])
-        existing = set(self.old_files.keys()).intersection(fnames)
-        br = self.login_to_gmail()
-        for x in fnames:
-            src = os.path.join('dist', x)
-            if not os.access(src, os.R_OK):
-                continue
-            if x in existing:
-                self.info('Deleting', x)
-                br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%x)
-                br.select_form(predicate=lambda y: 'delete.do' in y.action)
-                br.form.find_control(name='delete')
-                br.submit(name='delete')
-            self.upload_one(src)
+def send_data(loc):
+    subprocess.check_call(['rsync', '--inplace', '--delete', '-r', '-z', '-h', '--progress', '-e', 'ssh -x',
+        loc+'/', '%s@%s:%s'%(STAGING_USER, STAGING_HOST, STAGING_DIR)])
 
-    def upload_one(self, fname):
-        self.info('Uploading', fname)
-        typ = 'Type-' + ('Source' if fname.endswith('.gz') else 'Archive' if
-                fname.endswith('.zip') else 'Installer')
-        ext = os.path.splitext(fname)[1][1:]
-        op  = 'OpSys-'+{'msi':'Windows','zip':'Windows',
-                'dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
-        desc = installer_description(fname)
-        start = time.time()
-        path = self.upload(os.path.abspath(fname), desc,
-                labels=[typ, op, 'Featured'])
-        self.info('\tUploaded to:', path, 'in', int(time.time() - start),
-                'seconds')
-        return path
+def gc_cmdline(ver, gdata):
+    return [__appname__, ver, 'fmap', 'googlecode',
+                gdata['project'], gdata['username'], gdata['password'],
+                gdata['gc_password'], '--path-map-server',
+                gdata['path_map_server'], '--path-map-location',
+                gdata['path_map_location']]
 
-    def run(self, opts):
-        self.opts = opts
-        self.password = open(self.PASSWORD_FILE).read().strip()
-        self.paths = {}
-        self.old_files = self.get_files_hosted_by_google_code()
+def sf_cmdline(ver, sdata):
+    return [__appname__, ver, 'fmap', 'sourceforge', sdata['project'],
+            sdata['username']]
 
-        if opts.re_upload:
-            return self.re_upload()
-
-        for fname in installers():
-            path = self.upload_one(fname)
-            self.paths[os.path.basename(fname)] = path
-        self.info('Updating path map')
-        self.info(repr(self.paths))
-        raw = subprocess.Popen(['ssh', 'divok', 'cat', self.GPATHS],
-                stdout=subprocess.PIPE).stdout.read()
-        paths = eval(raw)
-        paths.update(self.paths)
-        rem = [x for x in paths if __version__ not in x]
-        for x in rem: paths.pop(x)
-        raw = ['%r : %r,'%(k, v) for k, v in paths.items()]
-        raw = '{\n\n%s\n\n}\n'%('\n'.join(raw))
-        t = NamedTemporaryFile()
-        t.write(raw)
-        t.flush()
-        check_call(['scp', t.name, 'divok:'+self.GPATHS])
-        self.br = self.login_to_gmail()
-        self.delete_old_files()
-        #if len(self.get_files_hosted_by_google_code()) > len(installers()):
-        #    self.warn('Some old files were not deleted from Google Code')
-
-    def login_to_gmail(self):
-        import mechanize
-        self.info('Logging into Gmail')
-        raw = open(self.OFFLINEIMAP).read()
-        pw = re.search(r'(?s)remoteuser = .*@gmail.com.*?remotepass = (\S+)',
-                raw).group(1).strip()
-        br = mechanize.Browser()
-        br.open('http://gmail.com')
-        br.select_form(nr=0)
-        br.form['Email'] = self.USERNAME
-        br.form['Passwd'] = pw
-        br.submit()
-        return br
-
-    def get_files_hosted_by_google_code(self):
-        import urllib2
-        from lxml import html
-        self.info('Getting existing files in google code')
-        raw = urllib2.urlopen(self.FILES_LIST).read()
-        root = html.fromstring(raw)
-        ans = {}
-        for a in root.xpath('//td[@class="vt id col_0"]/a[@href]'):
-            ans[a.text.strip()] = a.get('href')
-        return ans
-
-    def delete_old_files(self):
-        self.info('Deleting old files from Google Code...')
-        for fname in self.old_files:
-            ext = fname.rpartition('.')[-1]
-            if ext in ('flv', 'mp4', 'ogg', 'avi'):
-                continue
-            self.info('\tDeleting', fname)
-            self.br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%fname)
-            self.br.select_form(predicate=lambda x: 'delete.do' in x.action)
-            self.br.form.find_control(name='delete')
-            self.br.submit(name='delete')
-
-    def encode_upload_request(self, fields, file_path):
-        BOUNDARY = '----------Googlecode_boundary_reindeer_flotilla'
-        CRLF = '\r\n'
-
-        body = []
-
-        # Add the metadata about the upload first
-        for key, value in fields:
-            body.extend(
-            ['--' + BOUNDARY,
-            'Content-Disposition: form-data; name="%s"' % key,
-            '',
-            value,
-            ])
-
-        # Now add the file itself
-        file_name = os.path.basename(file_path)
-        f = open(file_path, 'rb')
-        file_content = f.read()
-        f.close()
-
-        body.extend(
-            ['--' + BOUNDARY,
-            'Content-Disposition: form-data; name="filename"; filename="%s"'
-            % file_name,
-            # The upload server determines the mime-type, no need to set it.
-            'Content-Type: application/octet-stream',
-            '',
-            file_content,
-            ])
-
-        # Finalize the form body
-        body.extend(['--' + BOUNDARY + '--', ''])
-
-        return 'multipart/form-data; boundary=%s' % BOUNDARY, CRLF.join(body)
-
-    def upload(self, fname, desc, labels=[], retry=0):
-        form_fields = [('summary', desc)]
-        form_fields.extend([('label', l.strip()) for l in labels])
-
-        content_type, body = self.encode_upload_request(form_fields, fname)
-        upload_uri = '/files'
-        auth_token = base64.b64encode('%s:%s'% (self.USERNAME, self.password))
-        headers = {
-            'Authorization': 'Basic %s' % auth_token,
-            'User-Agent': 'Calibre googlecode.com uploader v0.1.0',
-            'Content-Type': content_type,
-            }
-
-        server = httplib.HTTPSConnection(self.UPLOAD_HOST)
-        server.request('POST', upload_uri, body, headers)
-        resp = server.getresponse()
-        server.close()
-
-        if resp.status == 201:
-            return resp.getheader('Location')
-
-        print 'Failed to upload with code %d and reason: %s'%(resp.status,
-                resp.reason)
-        if retry < 1:
-            print 'Retrying in 5 seconds....'
-            time.sleep(5)
-            return self.upload(fname, desc, labels=labels, retry=retry+1)
-        raise Exception('Failed to upload '+fname)
-
-# }}}
-
-class UploadToSourceForge(Command): # {{{
-
-    description = 'Upload release files to sourceforge'
-
-    USERNAME = 'kovidgoyal'
-    PROJECT  = 'calibre'
-    BASE     = '/home/frs/project/c/ca/'+PROJECT
-
-    @property
-    def rdir(self):
-        return self.BASE+'/'+__version__
-
-    def upload_installers(self):
-        for x in installers():
-            if not os.path.exists(x): continue
-            start = time.time()
-            self.info('Uploading', x)
-            check_call(['rsync', '-v', '-e', 'ssh -x', x,
-                '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
-                    self.rdir+'/')])
-            print 'Uploaded in', int(time.time() - start), 'seconds'
-            print ('\n')
-
-    def run(self, opts):
-        self.opts = opts
-        self.upload_installers()
+def run_remote_upload(args):
+    print 'Running remotely:', ' '.join(args)
+    subprocess.check_call(['ssh', '-x', '%s@%s'%(STAGING_USER, STAGING_HOST),
+        'cd', STAGING_DIR, '&&', 'python', 'hosting.py']+args)
 
 # }}}
 
 class UploadInstallers(Command): # {{{
-    description = 'Upload any installers present in dist/ to mobileread'
-    def curl_list_dir(self, url=MOBILEREAD, listonly=1):
-        import pycurl
-        c = pycurl.Curl()
-        c.setopt(pycurl.URL, url)
-        c.setopt(c.FTP_USE_EPSV, 1)
-        c.setopt(c.NETRC, c.NETRC_REQUIRED)
-        c.setopt(c.FTPLISTONLY, listonly)
-        c.setopt(c.FTP_CREATE_MISSING_DIRS, 1)
-        b = cStringIO.StringIO()
-        c.setopt(c.WRITEFUNCTION, b.write)
-        c.perform()
-        c.close()
-        return b.getvalue().split() if listonly else b.getvalue().splitlines()
 
-    def curl_delete_file(self, path, url=MOBILEREAD):
-        import pycurl
-        c = pycurl.Curl()
-        c.setopt(pycurl.URL, url)
-        c.setopt(c.FTP_USE_EPSV, 1)
-        c.setopt(c.NETRC, c.NETRC_REQUIRED)
-        self.info('Deleting file %s on %s'%(path, url))
-        c.setopt(c.QUOTE, ['dele '+ path])
-        c.perform()
-        c.close()
-
-
-    def curl_upload_file(self, stream, url):
-        import pycurl
-        c = pycurl.Curl()
-        c.setopt(pycurl.URL, url)
-        c.setopt(pycurl.UPLOAD, 1)
-        c.setopt(c.NETRC, c.NETRC_REQUIRED)
-        c.setopt(pycurl.READFUNCTION, stream.read)
-        stream.seek(0, 2)
-        c.setopt(pycurl.INFILESIZE_LARGE, stream.tell())
-        stream.seek(0)
-        c.setopt(c.NOPROGRESS, 0)
-        c.setopt(c.FTP_CREATE_MISSING_DIRS, 1)
-        self.info('Uploading file %s to url %s' % (getattr(stream, 'name', ''),
-            url))
-        try:
-            c.perform()
-            c.close()
-        except:
-            pass
-        files = self.curl_list_dir(listonly=0)
-        for line in files:
-            line = line.split()
-            if url.endswith(line[-1]):
-                size = long(line[4])
-                stream.seek(0,2)
-                if size != stream.tell():
-                    raise RuntimeError('curl failed to upload %s correctly'%getattr(stream, 'name', ''))
-
-    def upload_installer(self, name):
-        if not os.path.exists(name):
-            return
-        bname = os.path.basename(name)
-        pat = re.compile(bname.replace(__version__, r'\d+\.\d+\.\d+'))
-        for f in self.curl_list_dir():
-            if pat.search(f):
-                self.curl_delete_file('/calibre/'+f)
-        self.curl_upload_file(open(name, 'rb'), MOBILEREAD+os.path.basename(name))
+    def add_options(self, parser):
+        parser.add_option('--replace', default=False, action='store_true', help=
+                'Replace existing installers, when uploading to google')
 
     def run(self, opts):
-        self.info('Uploading installers...')
-        installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
-        installers.append(installer_name('tar.bz2', is64bit=True))
-        map(self.upload_installer, installers)
+        all_possible = set(installers())
+        available = set(glob.glob('dist/*'))
+        files = {x:installer_description(x) for x in
+                all_possible.intersection(available)}
+        tdir = mkdtemp()
+        try:
+            self.upload_to_staging(tdir, files)
+            self.upload_to_sourceforge()
+            self.upload_to_google(opts.replace)
+        finally:
+            shutil.rmtree(tdir, ignore_errors=True)
+
+    def upload_to_staging(self, tdir, files):
+        os.mkdir(tdir+'/dist')
+        hosting = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            'hosting.py')
+        shutil.copyfile(hosting, os.path.join(tdir, 'hosting.py'))
+
+        for f in files:
+            shutil.copyfile(f, os.path.join(tdir, f))
+
+        with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
+            for f, desc in files.iteritems():
+                fo.write('%s: %s\n'%(f, desc))
+
+        while True:
+            try:
+                send_data(tdir)
+            except:
+                print('\nUpload to staging failed, retrying in a minute')
+                time.sleep(60)
+            else:
+                break
+
+    def upload_to_google(self, replace):
+        gdata = get_google_data()
+        args = gc_cmdline(__version__, gdata)
+        if replace:
+            args = ['--replace'] + args
+        run_remote_upload(args)
+
+    def upload_to_sourceforge(self):
+        sdata = get_sourceforge_data()
+        args = sf_cmdline(__version__, sdata)
+        run_remote_upload(args)
 # }}}
 
 class UploadUserManual(Command): # {{{
@@ -369,7 +181,8 @@ class UploadUserManual(Command): # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
+        check_call(' '.join(['rsync', '-z', '-r', '--progress',
+            'src/calibre/manual/.build/html/',
                     'bugs:%s'%USER_MANUAL]), shell=True)
 # }}}
 
@@ -398,11 +211,11 @@ class UploadToServer(Command): # {{{
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
-        check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
-        #check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
-        check_call('gpg --armor --detach-sign dist/calibre-*.tar.gz',
+        check_call('ssh divok rm -f %s/calibre-\*.tar.xz'%DOWNLOADS, shell=True)
+        #check_call('scp dist/calibre-*.tar.xz divok:%s/'%DOWNLOADS, shell=True)
+        check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz',
                 shell=True)
-        check_call('scp dist/calibre-*.tar.gz.asc divok:%s/signatures/'%DOWNLOADS,
+        check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,
                 shell=True)
         check_call('ssh divok bzr update /usr/local/calibre',
                    shell=True)
@@ -425,4 +238,61 @@ class UploadToServer(Command): # {{{
         shutil.rmtree(tdir)
 # }}}
 
+# Testing {{{
+
+def write_files(fmap):
+    for f in fmap:
+        with open(f, 'wb') as f:
+            f.write(os.urandom(100))
+            f.write(b'a'*1000000)
+    with open('fmap', 'wb') as fo:
+        for f, desc in fmap.iteritems():
+            fo.write('%s: %s\n'%(f, desc))
+
+def setup_installers():
+    ver = '0.0.1'
+    files = {x.replace(__version__, ver):installer_description(x) for x in installers()}
+    tdir = mkdtemp()
+    os.chdir(tdir)
+    return tdir, files, ver
+
+def test_google_uploader():
+    gdata = get_google_data()
+    gdata['project'] = 'calibre-hosting-uploader'
+    gdata['path_map_location'] += '-test'
+    hosting = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        'hosting.py')
+
+    tdir, files, ver = setup_installers()
+    try:
+        os.mkdir('dist')
+        write_files(files)
+        shutil.copyfile(hosting, 'hosting.py')
+        send_data(tdir)
+        args = gc_cmdline(ver, gdata)
+
+        print ('Doing initial upload')
+        run_remote_upload(args)
+        raw_input('Press Enter to proceed:')
+
+        print ('\nDoing re-upload')
+        run_remote_upload(['--replace']+args)
+        raw_input('Press Enter to proceed:')
+
+        nv = ver + '.1'
+        files = {x.replace(__version__, nv):installer_description(x) for x in installers()}
+        write_files(files)
+        send_data(tdir)
+        args[1] = nv
+        print ('\nDoing update upload')
+        run_remote_upload(args)
+        print ('\nDont forget to delete any remaining files in the %s project'%
+                gdata['project'])
+
+    finally:
+        shutil.rmtree(tdir)
+# }}}
+
+if __name__ == '__main__':
+    test_google_uploader()
 

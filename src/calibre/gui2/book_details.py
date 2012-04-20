@@ -20,10 +20,12 @@ from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
-        gprefs)
+        gprefs, rating_font)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
+from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.config import tweaks
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -37,14 +39,24 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
                 ans = unicode(col.name())
         return ans
 
-    f = QFontInfo(QApplication.font(widget)).pixelSize()
+    fi = QFontInfo(QApplication.font(widget))
+    f = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
+    fam = unicode(fi.family()).strip().replace('"', '')
+    if not fam:
+        fam = 'sans-serif'
+
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
     templ = u'''\
     <html>
         <head>
         <style type="text/css">
-            body, td {background-color: transparent; font-size: %dpx; color: %s }
+            body, td {
+                background-color: transparent;
+                font-size: %dpx;
+                font-family: "%s",sans-serif;
+                color: %s
+            }
         </style>
         <style type="text/css">
             %s
@@ -54,9 +66,12 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
         %%s
         </body>
     <html>
-    '''%(f, c, css)
+    '''%(f, fam, c, css)
+    fm = getattr(mi, 'field_metadata', field_metadata)
+    fl = dict(get_field_list(fm))
+    show_comments = (all_fields or fl.get('comments', True))
     comments = u''
-    if mi.comments:
+    if mi.comments and show_comments:
         comments = comments_to_html(force_unicode(mi.comments))
     right_pane = u'<div id="comments" class="comments">%s</div>'%comments
 
@@ -75,7 +90,8 @@ def get_field_list(fm, use_defaults=False):
     for field in fm.displayable_field_keys():
         if field not in names:
             fieldlist.append((field, True))
-    return fieldlist
+    available = frozenset(fm.displayable_field_keys())
+    return [(f, d) for f, d in fieldlist if f in available]
 
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = []
@@ -84,6 +100,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 
     for field, display in get_field_list(fm):
         metadata = fm.get(field, None)
+        if field == 'sort':
+            field = 'title_sort'
         if all_fields:
             display = True
         if (not display or not metadata or mi.is_null(field) or
@@ -99,6 +117,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = force_unicode(val)
                 ans.append((field,
                     u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+        elif metadata['datatype'] == 'rating':
+            val = getattr(mi, field)
+            if val:
+                val = val/2.0
+                ans.append((field,
+                    u'<td class="title">%s</td><td class="rating" '
+                    'style=\'font-family:"%s"\'>%s</td>'%(
+                        name, rating_font(), u'\u2605'*int(val))))
         elif metadata['datatype'] == 'composite' and \
                             metadata['display'].get('contains_html', False):
             val = getattr(mi, field)
@@ -152,6 +178,12 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                     authors.append(aut)
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
                 u' & '.join(authors))))
+        elif field == 'languages':
+            if not mi.languages:
+                continue
+            names = filter(None, map(calibre_langcode_to_name, mi.languages))
+            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
+                u', '.join(names))))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
@@ -195,6 +227,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 class CoverView(QWidget): # {{{
 
     cover_changed = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
@@ -280,10 +313,12 @@ class CoverView(QWidget): # {{{
         cm = QMenu(self)
         paste = cm.addAction(_('Paste Cover'))
         copy = cm.addAction(_('Copy Cover'))
+        remove = cm.addAction(_('Remove Cover'))
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
+        remove.triggered.connect(self.remove_cover)
         cm.exec_(ev.globalPos())
 
     def copy_to_clipboard(self):
@@ -306,6 +341,25 @@ class CoverView(QWidget): # {{{
                 self.cover_changed.emit(id_,
                     pixmap_to_data(pmap))
 
+    def remove_cover(self):
+        id_ = self.data.get('id', None)
+        self.pixmap = self.default_pixmap
+        self.do_layout()
+        self.update()
+        if id_ is not None:
+            self.cover_removed.emit(id_)
+
+    def update_tooltip(self, current_path):
+        try:
+            sz = self.pixmap.size()
+        except:
+            sz = QSize(0, 0)
+        self.setToolTip(
+            '<p>'+_('Double-click to open Book Details window') +
+            '<br><br>' + _('Path') + ': ' + current_path +
+            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
+                width=sz.width(), height=sz.height())
+        )
 
     # }}}
 
@@ -448,6 +502,7 @@ class BookDetails(QWidget): # {{{
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
@@ -505,6 +560,7 @@ class BookDetails(QWidget): # {{{
 
         self.cover_view = CoverView(vertical, self)
         self.cover_view.cover_changed.connect(self.cover_changed.emit)
+        self.cover_view.cover_removed.connect(self.cover_removed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
         self._layout.addWidget(self.book_info)
@@ -540,16 +596,7 @@ class BookDetails(QWidget): # {{{
 
     def update_layout(self):
         self._layout.do_layout(self.rect())
-        try:
-            sz = self.cover_view.pixmap.size()
-        except:
-            sz = QSize(0, 0)
-        self.setToolTip(
-            '<p>'+_('Double-click to open Book Details window') +
-            '<br><br>' + _('Path') + ': ' + self.current_path +
-            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
-                width=sz.width(), height=sz.height())
-        )
+        self.cover_view.update_tooltip(self.current_path)
 
     def reset_info(self):
         self.show_data(Metadata(_('Unknown')))

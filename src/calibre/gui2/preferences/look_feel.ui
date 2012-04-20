@@ -259,9 +259,9 @@
           <widget class="QLineEdit" name="opt_default_author_link">
            <property name="toolTip">
             <string>&lt;p&gt;Enter a template to be used to create a link for
-an author in the books information dialog. This template will 
-be used when no link has been provided for the author using 
-Manage Authors. You can use the values {author} and 
+an author in the books information dialog. This template will
+be used when no link has been provided for the author using
+Manage Authors. You can use the values {author} and
 {author_sort}, and any template function.</string>
            </property>
           </widget>
@@ -334,14 +334,35 @@ if you never want subcategories</string>
         <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
          <property name="toolTip">
           <string>If a Tag Browser category has more than this number of items, it is divided
-up into sub-categories. If the partition method is set to disable, this value is ignored.</string>
+up into subcategories. If the partition method is set to disable, this value is ignored.</string>
          </property>
          <property name="maximum">
           <number>10000</number>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="5">
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_8111">
+         <property name="text">
+          <string>Categories not to partition:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tag_browser_dont_collapse</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3" colspan="2">
+        <widget class="MultiCompleteLineEdit" name="opt_tag_browser_dont_collapse">
+         <property name="toolTip">
+          <string>A comma-separated list of categories that are not to
+be partitioned even if the number of items is larger than
+the value shown above. This option can be used to
+avoid collapsing hierarchical categories that have only
+a few top-level elements.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="5">
         <widget class="QCheckBox" name="opt_show_avg_rating">
          <property name="text">
           <string>Show &amp;average ratings in the tags browser</string>
@@ -351,7 +372,7 @@ up into sub-categories. If the partition method is set to disable, this value is
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_81">
          <property name="text">
           <string>Categories with &amp;hierarchical items:</string>
@@ -361,7 +382,7 @@ up into sub-categories. If the partition method is set to disable, this value is
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="5">
+       <item row="4" column="0" colspan="5">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -374,10 +395,10 @@ up into sub-categories. If the partition method is set to disable, this value is
          </property>
         </spacer>
        </item>
-       <item row="2" column="2" colspan="3">
+       <item row="3" column="2" colspan="3">
         <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
          <property name="toolTip">
-          <string>A comma-separated list of columns in which items containing
+          <string>A comma-separated list of categories in which items containing
 periods are displayed in the tag browser trees. For example, if
 this box contains 'tags' then tags of the form 'Mystery.English'
 and 'Mystery.Thriller' will be displayed with English and Thriller
@@ -417,7 +438,7 @@ then the tags will be displayed each on their own line.</string>
        <item row="1" column="1">
         <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -429,6 +450,26 @@ then the tags will be displayed each on their own line.</string>
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_cb_fullscreen">
+         <property name="text">
+          <string>When showing cover browser in separate window, show it &amp;fullscreen</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="fs_help_msg">
+         <property name="styleSheet">
+          <string notr="true">margin-left: 1.5em</string>
+         </property>
+         <property name="text">
+          <string>You can press the %s keys to toggle full screen mode.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

@@ -10,7 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, re, time, json, uuid, functools
+import os, re, time, json, functools, shutil
 from itertools import cycle
 
 from calibre.constants import numeric_version
@@ -58,6 +58,7 @@ class USBMS(CLI, Device):
     SCAN_FROM_ROOT = False
 
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
@@ -127,6 +128,9 @@ class USBMS(CLI, Device):
         elif location_code == 'B':
             self._update_driveinfo_file(self._card_b_prefix, location_code, name)
 
+    def formats_to_scan_for(self):
+        return set(self.settings().format_map) | set(self.FORMATS)
+
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -165,7 +169,7 @@ class USBMS(CLI, Device):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        all_formats = set(self.settings().format_map) | set(self.FORMATS)
+        all_formats = self.formats_to_scan_for()
 
         def update_booklist(filename, path, prefix):
             changed = False
@@ -202,7 +206,7 @@ class USBMS(CLI, Device):
             debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
-            if self.SUPPORTS_SUB_DIRS:
+            if self.SUPPORTS_SUB_DIRS or self.SUPPORTS_SUB_DIRS_FOR_SCAN:
                 # build a list of files to check, so we can accurately report progress
                 flist = []
                 for path, dirs, files in os.walk(ebook_dir):
@@ -258,10 +262,10 @@ class USBMS(CLI, Device):
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
-            paths.append(filepath)
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
-            self.put_file(infile, filepath, replace_file=True)
+            filepath = self.put_file(infile, filepath, replace_file=True)
+            paths.append(filepath)
             try:
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0],
@@ -339,10 +343,13 @@ class USBMS(CLI, Device):
 
                 filepath = os.path.splitext(path)[0]
                 for ext in self.DELETE_EXTS:
-                    if os.path.exists(filepath + ext):
-                        os.unlink(filepath + ext)
-                    if os.path.exists(path + ext):
-                        os.unlink(path + ext)
+                    for x in (filepath, path):
+                        x += ext
+                        if os.path.exists(x):
+                            if os.path.isdir(x):
+                                shutil.rmtree(x, ignore_errors=True)
+                            else:
+                                os.unlink(x)
 
                 if self.SUPPORTS_SUB_DIRS:
                     try:
@@ -398,19 +405,23 @@ class USBMS(CLI, Device):
     def build_template_regexp(cls):
         def replfunc(match, seen=None):
             v = match.group(1)
-            if v in ['title', 'series', 'series_index', 'isbn']:
+            if v in ['authors', 'author_sort']:
+                v = 'author'
+            if v in ('title', 'series', 'series_index', 'isbn', 'author'):
                 if v not in seen:
-                    seen |= set([v])
+                    seen.add(v)
                     return '(?P<' + v + '>.+?)'
-            elif v in ['authors', 'author_sort']:
-                if v not in seen:
-                    seen |= set([v])
-                    return '(?P<author>.+?)'
             return '(.+?)'
         s = set()
         f = functools.partial(replfunc, seen=s)
-        template = cls.save_template().rpartition('/')[2]
-        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        template = None
+        try:
+            template = cls.save_template().rpartition('/')[2]
+            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        except:
+            prints(u'Failed to parse template: %r'%template)
+            template = u'{title} - {authors}'
+            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
     @classmethod
     def path_to_unicode(cls, path):

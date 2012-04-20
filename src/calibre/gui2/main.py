@@ -4,16 +4,15 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time, socket, traceback
 from functools import partial
 
-from PyQt4.Qt import QCoreApplication, QIcon, QObject, QTimer, \
-        QThread, pyqtSignal, Qt, QProgressDialog, QString, QPixmap, \
-        QSplashScreen, QApplication
+from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
+        QPixmap, QSplashScreen, QApplication)
 
-from calibre import prints, plugins
-from calibre.constants import iswindows, __appname__, isosx, DEBUG, \
-        filesystem_encoding
-from calibre.utils.ipc import ADDRESS, RC
-from calibre.gui2 import ORG_NAME, APP_UID, initialize_file_icon_provider, \
-    Application, choose_dir, error_dialog, question_dialog, gprefs
+from calibre import prints, plugins, force_unicode
+from calibre.constants import (iswindows, __appname__, isosx, DEBUG,
+        filesystem_encoding)
+from calibre.utils.ipc import gui_socket_address, RC
+from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
+    Application, choose_dir, error_dialog, question_dialog, gprefs)
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.utils.config import prefs, dynamic
 from calibre.library.database2 import LibraryDatabase2
@@ -110,36 +109,9 @@ def get_library_path(parent=None):
                 default_dir=get_default_library_path())
     return library_path
 
-class DBRepair(QThread):
-
-    repair_done = pyqtSignal(object, object)
-    progress = pyqtSignal(object, object)
-
-    def __init__(self, library_path, parent, pd):
-        QThread.__init__(self, parent)
-        self.library_path = library_path
-        self.pd = pd
-        self.progress.connect(self._callback, type=Qt.QueuedConnection)
-
-    def _callback(self, num, is_length):
-        if is_length:
-            self.pd.setRange(0, num-1)
-            num = 0
-        self.pd.setValue(num)
-
-    def callback(self, num, is_length):
-        self.progress.emit(num, is_length)
-
-    def run(self):
-        from calibre.debug import reinit_db
-        try:
-            reinit_db(os.path.join(self.library_path, 'metadata.db'),
-                    self.callback)
-            db = LibraryDatabase2(self.library_path)
-            tb = None
-        except:
-            db, tb = None, traceback.format_exc()
-        self.repair_done.emit(db, tb)
+def repair_library(library_path):
+    from calibre.gui2.dialogs.restore_library import repair_library_at
+    return repair_library_at(library_path)
 
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
@@ -162,15 +134,21 @@ class GuiRunner(QObject):
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
-            self.splash_screen.finish(main)
         main.initialize(self.library_path, db, self.listener, self.actions)
+        if self.splash_screen is not None:
+            self.splash_screen.finish(main)
         if DEBUG:
-            prints('Started up in', time.time() - self.startup_time)
+            prints('Started up in %.2f seconds'%(time.time() -
+                self.startup_time), 'with', len(db.data), 'books')
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
-            p = os.path.abspath(self.args[1])
-            add_filesystem_book(p)
+            files = [os.path.abspath(p) for p in self.args[1:] if not
+                    os.path.isdir(p)]
+            if len(files) < len(sys.argv[1:]):
+                prints('Ignoring directories passed as command line arguments')
+            if files:
+                add_filesystem_book(files)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 
@@ -180,9 +158,6 @@ class GuiRunner(QObject):
         raise SystemExit(1)
 
     def initialize_db_stage2(self, db, tb):
-        repair_pd = getattr(self, 'repair_pd', None)
-        if repair_pd is not None:
-            repair_pd.cancel()
 
         if db is None and tb is not None:
             # DB Repair failed
@@ -215,23 +190,16 @@ class GuiRunner(QObject):
             db = LibraryDatabase2(self.library_path)
         except (sqlite.Error, DatabaseException):
             repair = question_dialog(self.splash_screen, _('Corrupted database'),
-                    _('Your calibre database appears to be corrupted. Do '
-                    'you want calibre to try and repair it automatically? '
-                    'If you say No, a new empty calibre library will be created.'),
+                    _('The library database at %s appears to be corrupted. Do '
+                    'you want calibre to try and rebuild it automatically? '
+                    'The rebuild may not be completely successful. '
+                    'If you say No, a new empty calibre library will be created.')
+                    % force_unicode(self.library_path, filesystem_encoding),
                     det_msg=traceback.format_exc()
                     )
             if repair:
-                self.repair_pd = QProgressDialog(_('Repairing database. This '
-                    'can take a very long time for a large collection'), QString(),
-                    0, 0)
-                self.repair_pd.setWindowModality(Qt.WindowModal)
-                self.repair_pd.show()
-
-                self.repair = DBRepair(self.library_path, self, self.repair_pd)
-                self.repair.repair_done.connect(self.initialize_db_stage2,
-                        type=Qt.QueuedConnection)
-                self.repair.start()
-                return
+                if repair_library(self.library_path):
+                    db = LibraryDatabase2(self.library_path)
         except:
             error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. Will start with '
@@ -336,7 +304,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         if iswindows:
             what = _('try rebooting your computer.')
         else:
-            what = _('try deleting the file')+': '+ADDRESS
+            what = _('try deleting the file')+': '+ gui_socket_address()
 
     info = base%(where, msg, what)
     error_dialog(None, _('Cannot Start ')+__appname__,
@@ -377,13 +345,14 @@ def main(args=sys.argv):
         return 0
     if si:
         try:
-            listener = Listener(address=ADDRESS)
+            listener = Listener(address=gui_socket_address())
         except socket.error:
             if iswindows:
                 cant_start()
-            os.remove(ADDRESS)
+            if os.path.exists(gui_socket_address()):
+                os.remove(gui_socket_address())
             try:
-                listener = Listener(address=ADDRESS)
+                listener = Listener(address=gui_socket_address())
             except socket.error:
                 cant_start()
             else:
@@ -394,7 +363,7 @@ def main(args=sys.argv):
                     gui_debug=gui_debug)
     otherinstance = False
     try:
-        listener = Listener(address=ADDRESS)
+        listener = Listener(address=gui_socket_address())
     except socket.error: # Good si is correct (on UNIX)
         otherinstance = True
     else:

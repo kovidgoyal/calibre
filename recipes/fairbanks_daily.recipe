@@ -1,0 +1,113 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FairbanksDailyNewsminer(BasicNewsRecipe):
+    title          = u'Fairbanks Daily News-miner'
+    __author__ = 'Roger'
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    description = 'The voice of interior Alaska since 1903'
+    publisher   = 'http://www.newsminer.com/'
+    category    = 'news, Alaska, Fairbanks'
+    language    = 'en'
+
+    # Make article titles, author and date bold, italic or small font.
+    # http://assets.matchbin.com/sites/635/stylesheets/newsminer.com.css
+    # (signature_line contains date, views, comments)
+    extra_css = '''
+                    .story_item_headline { font-size: medium; font-weight: bold; }
+                    .story_item_author { font-size: small; font-style:italic; }
+                    .signature_line { font-size: small; }
+                '''
+
+    remove_javascript = True
+    use_embedded_content = False
+    no_stylesheets = True
+    language = 'en'
+    encoding = 'utf8'
+    conversion_options = {'linearize_tables':True}
+
+    # TODO: The News-miner cover image seems a bit small.  Can this be enlarged by 10-30%?
+    masthead_url = 'http://d2uh5w9wm14i0w.cloudfront.net/sites/635/assets/top_masthead_-_menu_pic.jpg'
+
+
+    # In order to omit seeing number of views, number of posts and the pipe
+    # symbol for divider after the title and date of the article, a regex or
+    # manual processing is needed to get just the "story_item_date updated"
+    # (which contains the date).  Everything else on this line is pretty much not needed.
+    #
+    # Currently, you will see  the following:
+    # | Aug 24, 2011 | 654 views | 6 | |
+    # (ie. 6 comments)
+    #
+    # HTML line containing story_item_date:
+    # <div class="signature_line"><span title="2011-08-22T23:37:14Z" class="story_item_date updated">Aug 22, 2011</span>&nbsp;|&nbsp;2370&nbsp;views&nbsp;|&nbsp;52&nbsp;<a href="/pages/full_story/push?article-Officials+tout+new+South+Cushman+homeless+living+facility%20&id=15183753#comments_15183753"><img alt="52 comments" class="dont_touch_me" src="http://d2uh5w9wm14i0w.cloudfront.net/images/comments-icon.gif" title="52 comments" /></a>&nbsp;|&nbsp;<span id="number_recommendations_15183753" class="number_recommendations">9</span>&nbsp;<a href="#1" id="recommend_link_15183753" onclick="Element.remove('recommend_link_15183753'); new Ajax.Request('/community/content/recommend/15183753', {asynchronous:true, evalScripts:true}); return false;"><img alt="9 recommendations" class="dont_touch_me" src="http://d2uh5w9wm14i0w.cloudfront.net/images/thumbs-up-icon.gif" title="9 recommendations" /></a>&nbsp;|&nbsp;<a href="#1" onclick="$j.facebox({ajax: '/community/content/email_friend_pane/15183753'}); return false;"><span style="position: relative;"><img alt="email to a friend" class="dont_touch_me" src="http://d2uh5w9wm14i0w.cloudfront.net/images/email-this.gif" title="email to a friend" /></span></a>&nbsp;|&nbsp;<span><a href="/printer_friendly/15183753" target="_blank"><img alt="print" class="dont_touch_me" src="http://d2uh5w9wm14i0w.cloudfront.net/images/print_icon.gif" title="print" /></a></span><span id="email_content_message_15183753" class="signature_email_message"></span></div>
+
+    # The following was suggested, but it looks like I also need to define self & soup
+    # (as well as bring in extra soup depends?)
+    #date = self.tag_to_string(soup.find('span', attrs={'class':'story_item_date updated'}))
+
+    #preprocess_regexps = [(re.compile(r'<span[^>]*addthis_separator*>'), lambda match: '') ]
+    #preprocess_regexps = [(re.compile(r'span class="addthis_separator">|</span>'), lambda match: '') ]
+
+    #preprocess_regexps = [
+    #           (re.compile(r'<start>.*?<end>', re.IGNORECASE | re.DOTALL), lambda match : ''),
+    #               ]
+
+    #def get_browser(self):
+    #def preprocess_html(soup, first_fetch):
+    #    date = self.tag_to_string(soup.find('span', attrs={'class':'story_item_date updated'}))
+    #    return
+
+    #preprocess_regexps = [(re.compile(r'&nbsp;|.*?', re.DOTALL), lambda m: '')]
+
+
+    keep_only_tags = [
+                        #dict(name='div', attrs={'class':'hnews hentry item'}),
+                        dict(name='div', attrs={'class':'story_item_headline entry-title'}),
+                        #dict(name='div', attrs={'class':'story_item_author'}),
+                        #dict(name='span', attrs={'class':'story_item_date updated'}),
+                        #dict(name='div', attrs={'class':'story_item_author'}),
+                        dict(name='div', attrs={'class':'full_story'})
+                     ]
+
+    remove_tags = [
+                    # Try getting rid of some signature_line (date line) stuff
+                    #dict(name='img', attrs={'alt'}),
+                    dict(name='img', attrs={'class':'dont_touch_me'}),
+                    dict(name='span', attrs={'class':'number_recommendations'}),
+                    #dict(name='div', attrs={'class':'signature_line'}),
+
+                    # Removes div within <!-- AddThis Button BEGIN --> <!-- AddThis Button END -->
+                    dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'}),
+
+                    dict(name='div', attrs={'class':'related_content'}),
+                    dict(name='div', attrs={'id':'comments_container'})
+                  ]
+
+
+    # Comment-out or uncomment any of the following RSS feeds according to your
+    # liking.
+    #
+    # TODO: Some random bits of text might be trailing the last page (or TOC on
+    # MOBI files), these are bits of public posts and comments and need to also
+    # be removed.
+    #
+    feeds = [
+        (u'Alaska News', u'http://newsminer.com/rss/rss_feeds/alaska_news?content_type=article&tags=alaska_news&page_name=rss_feeds&instance=alaska_news'),
+        (u'Local News', u'http://newsminer.com/rss/rss_feeds/local_news?content_type=article&tags=local_news&page_name=rss_feeds&offset=0&instance=local_news'),
+        (u'Business', u'http://newsminer.com/rss/rss_feeds/business_news?content_type=article&tags=business_news&page_name=rss_feeds&instance=business_news'),
+        (u'Politics', u'http://newsminer.com/rss/rss_feeds/politics_news?content_type=article&tags=politics_news&page_name=rss_feeds&instance=politics_news'),
+        (u'Sports', u'http://newsminer.com/rss/rss_feeds/sports_news?content_type=article&tags=sports_news&page_name=rss_feeds&instance=sports_news'),
+        (u'Latitude 65 feed', u'http://newsminer.com/rss/rss_feeds/latitude_65?content_type=article&tags=latitude_65&page_name=rss_feeds&offset=0&instance=latitude_65'),
+        #(u'Sundays', u'http://newsminer.com/rss/rss_feeds/Sundays?content_type=article&tags=alaska_science_forum+scott_mccrea+interior_gardening+in_the_bush+judy_ferguson+book_reviews+theresa_bakker+judith_kleinfeld+interior_scrapbook+nuggets_comics+freeze_frame&page_name=rss_feeds&tag_inclusion=or&instance=Sundays'),
+        (u'Outdoors', u'http://newsminer.com/rss/rss_feeds/Outdoors?content_type=article&tags=outdoors&page_name=rss_feeds&instance=Outdoors'),
+        #(u'Fairbanks Grizzlies', u'http://newsminer.com/rss/rss_feeds/fairbanks_grizzlies?content_type=article&tags=fairbanks_grizzlies&page_name=rss_feeds&instance=fairbanks_grizzlies'),
+        #(u'Newsminer', u'http://newsminer.com/rss/rss_feeds/Newsminer?content_type=article&tags=ted_stevens_bullets+ted_stevens+sports_news+business_news+fairbanks_grizzlies+dermot_cole_column+outdoors+alaska_science_forum+scott_mccrea+interior_gardening+in_the_bush+judy_ferguson+book_reviews+theresa_bakker+judith_kleinfeld+interior_scrapbook+nuggets_comics+freeze_frame&page_name=rss_feeds&tag_inclusion=or&instance=Newsminer'),
+        (u'Opinion', u'http://newsminer.com/rss/rss_feeds/Opinion?content_type=article&tags=editorials&page_name=rss_feeds&instance=Opinion'),
+        (u'Youth', u'http://newsminer.com/rss/rss_feeds/Youth?content_type=article&tags=youth&page_name=rss_feeds&instance=Youth'),
+        #(u'Dermot Cole Blog', u'http://newsminer.com/rss/rss_feeds/dermot_cole_blog+rss?content_type=blog+entry&sort_by=posted_on&user_ids=3015275&page_name=blogs_dermot_cole&limit=10&instance=dermot_cole_blog+rss'),
+        (u'Dermot Cole Column', u'http://newsminer.com/rss/rss_feeds/Dermot_Cole_column?content_type=article&tags=dermot_cole_column&page_name=rss_feeds&instance=Dermot_Cole_column'),
+        #(u'Sarah Palin', u'http://newsminer.com/rss/rss_feeds/sarah_palin?content_type=article&tags=palin_in_the_news+palin_on_the_issues&page_name=rss_feeds&tag_inclusion=or&instance=sarah_palin')
+             ]
+

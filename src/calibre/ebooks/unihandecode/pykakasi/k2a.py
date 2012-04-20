@@ -19,10 +19,6 @@
 # * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # * GNU General Public License for more details.
 # *
-# * You should have received a copy of the GNU General Public License
-# * along with KAKASI, see the file COPYING.  If not, write to the Free
-# * Software Foundation Inc., 59 Temple Place - Suite 330, Boston, MA
-# * 02111-1307, USA.
 # */
 
 from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
@@ -46,5 +42,5 @@ class K2a (object):
                 if max_len < x:
                     max_len = x
                     Hstr = self.kanwa.kanadict[text[:x]]
-        return (Hstr, max_len) 
+        return (Hstr, max_len)
 

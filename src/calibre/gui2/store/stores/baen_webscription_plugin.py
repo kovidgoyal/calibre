@@ -24,7 +24,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
     
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.webscription.net/'
+        url = 'http://www.baenebooks.com/'
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -40,19 +40,19 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.webscription.net/searchadv.aspx?IsSubmit=true&SearchTerm=' + urllib2.quote(query)
+        url = 'http://www.baenebooks.com/searchadv.aspx?IsSubmit=true&SearchTerm=' + urllib2.quote(query)
         
         br = browser()
         
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//table/tr/td/img[@src="skins/Skin_1/images/matchingproducts.gif"]/..//tr'):
+            for data in doc.xpath('//table//table//table//table//tr'):
                 if counter <= 0:
                     break
                 
                 id = ''.join(data.xpath('./td[1]/a/@href'))
-                if not id:
+                if not id or not id.startswith('p-'):
                     continue
                 
                 title = ''.join(data.xpath('./td[1]/a/text()'))
@@ -61,7 +61,7 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''
                 price = ''
                 
-                with closing(br.open('http://www.webscription.net/' + id.strip(), timeout=timeout/4)) as nf:
+                with closing(br.open('http://www.baenebooks.com/' + id.strip(), timeout=timeout/4)) as nf:
                     idata = html.fromstring(nf.read())
                     author = ''.join(idata.xpath('//span[@class="ProductNameText"]/../b/text()'))
                     author = author.split('by ')[-1]
@@ -74,7 +74,7 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
                     if mo:
                         pnum = mo.group('num')
                     if pnum:
-                        cover_url = 'http://www.webscription.net/' + ''.join(idata.xpath('//img[@id="ProductPic%s"]/@src' % pnum))
+                        cover_url = 'http://www.baenebooks.com/' + ''.join(idata.xpath('//img[@id="ProductPic%s"]/@src' % pnum))
                 
                 counter -= 1
                 

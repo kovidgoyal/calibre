@@ -10,12 +10,20 @@ import os, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath, guess_type, remove_bracketed_text
+from calibre import relpath, guess_type, remove_bracketed_text, prints
 
 from calibre.utils.config import tweaks
 
-_author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
+try:
+    _author_pat = re.compile(tweaks['authors_split_regex'])
+except:
+    prints ('Author split regexp:', tweaks['authors_split_regex'],
+            'is invalid, using default')
+    _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
+
 def string_to_authors(raw):
+    if not raw:
+        return []
     raw = raw.replace('&&', u'\uffff')
     raw = _author_pat.sub('&', raw)
     authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
@@ -36,25 +44,50 @@ def author_to_author_sort(author, method=None):
         return author
     if method is None:
         method = tweaks['author_sort_copy_method']
+
+    ltoks = frozenset(x.lower() for x in tokens)
+    copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
+    if ltoks.intersection(copy_words):
+        method = u'copy'
+
     if method == u'copy':
         return author
+
+    prefixes = set([x.lower() for x in tweaks['author_name_prefixes']])
+    prefixes |= set([x+u'.' for x in prefixes])
+    while True:
+        if not tokens:
+            return author
+        tok = tokens[0].lower()
+        if tok in prefixes:
+            tokens = tokens[1:]
+        else:
+            break
+
     suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
     suffixes |= set([x+u'.' for x in suffixes])
 
-    last = tokens[-1].lower()
-    suffix = None
-    if last in suffixes:
-        suffix = tokens[-1]
-        tokens = tokens[:-1]
+    suffix = u''
+    while True:
+        if not tokens:
+            return author
+        last = tokens[-1].lower()
+        if last in suffixes:
+            suffix = tokens[-1] + ' ' + suffix
+            tokens = tokens[:-1]
+        else:
+            break
+    suffix = suffix.strip()
 
     if method == u'comma' and u',' in u''.join(tokens):
         return author
 
     atokens = tokens[-1:] + tokens[:-1]
+    num_toks = len(atokens)
     if suffix:
         atokens.append(suffix)
 
-    if method != u'nocomma' and len(atokens) > 1:
+    if method != u'nocomma' and num_toks > 1:
         atokens[0] += u','
 
     return u' '.join(atokens)
@@ -62,18 +95,37 @@ def author_to_author_sort(author, method=None):
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
-try:
-    _title_pat = re.compile(tweaks.get('title_sort_articles',
-                                       r'^(A|The|An)\s+'), re.IGNORECASE)
-except:
-    print 'Error in title sort pattern'
-    import traceback
-    traceback.print_exc()
-    _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+_title_pats = {}
+def get_title_sort_pat(lang=None):
+    ans = _title_pats.get(lang, None)
+    if ans is not None:
+        return ans
+    q = lang
+    from calibre.utils.localization import canonicalize_lang, get_lang
+    if lang is None:
+        q = tweaks['default_language_for_title_sort']
+        if q is None:
+            q = get_lang()
+    q = canonicalize_lang(q) if q else q
+    data = tweaks['per_language_title_sort_articles']
+    ans = data.get(q, None)
+    try:
+        ans = frozenset(ans) if ans else frozenset(data['eng'])
+    except:
+        ans = frozenset((r'A\s+', r'The\s+', r'An\s+'))
+    ans = '|'.join(ans)
+    ans = '^(%s)'%ans
+    try:
+        ans = re.compile(ans, re.IGNORECASE)
+    except:
+        ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
+    _title_pats[lang] = ans
+    return ans
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = u'\'"'+u''.join(unichr(x) for x in
+        range(0x2018, 0x201e)+[0x2032, 0x2033])
 
-def title_sort(title, order=None):
+def title_sort(title, order=None, lang=None):
     if order is None:
         order = tweaks['title_series_sorting']
     title = title.strip()
@@ -81,10 +133,16 @@ def title_sort(title, order=None):
         return title
     if title and title[0] in _ignore_starts:
         title = title[1:]
-    match = _title_pat.search(title)
+    match = get_title_sort_pat(lang).search(title)
     if match:
-        prep = match.group(1)
-        title = title[len(prep):] + ', ' + prep
+        try:
+            prep = match.group(1)
+        except IndexError:
+            pass
+        else:
+            title = title[len(prep):] + ', ' + prep
+            if title[0] in _ignore_starts:
+                title = title[1:]
     return title.strip()
 
 coding = zip(
@@ -129,7 +187,7 @@ class Resource(object):
 
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -172,7 +230,7 @@ class Resource(object):
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwd()
+                basedir = os.getcwdu()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment

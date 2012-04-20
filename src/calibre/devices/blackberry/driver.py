@@ -28,3 +28,26 @@ class BLACKBERRY(USBMS):
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
+
+class PLAYBOOK(USBMS):
+
+    name           = 'Blackberry Playbook Interface'
+    gui_name       = 'Playbook'
+    description    = _('Communicate with the Blackberry playbook.')
+    author         = _('Kovid Goyal')
+    supported_platforms = ['windows', 'linux', 'osx']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub']
+
+    VENDOR_ID   = [0x0fca]
+    PRODUCT_ID  = [0x8010]
+    BCD         = [0x1]
+
+    VENDOR_NAME = 'GENERIC-'
+    WINDOWS_MAIN_MEM = 'MULTI-CARD'
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'Blackberry'
+
+    EBOOK_DIR_MAIN = 'media/books'
+    SUPPORTS_SUB_DIRS = True

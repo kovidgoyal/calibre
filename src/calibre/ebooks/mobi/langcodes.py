@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 from struct import pack
+from calibre.utils.localization import lang_as_iso639_1
 
 lang_codes = {
         }
@@ -314,7 +315,8 @@ def iana2mobi(icode):
         subtags = list(icode.split('-'))
         while len(subtags) > 0:
             lang = subtags.pop(0).lower()
-            if lang in IANA_MOBI:
+            lang = lang_as_iso639_1(lang)
+            if lang and lang in IANA_MOBI:
                 langdict = IANA_MOBI[lang]
                 break
 

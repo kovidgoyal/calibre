@@ -45,7 +45,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 "keyword"))
         TemplateHighlighter.Rules.append((QRegExp(
                 "|".join([r"\b%s\b" % builtin for builtin in
-                          formatter_functions.get_builtins()])),
+                          formatter_functions().get_builtins()])),
                 "builtin"))
 
         TemplateHighlighter.Rules.append((QRegExp(
@@ -207,10 +207,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             cols = sorted([k for k in displayable_columns(fm)])
             self.colored_field.addItems(cols)
             self.colored_field.setCurrentIndex(self.colored_field.findText(color_field))
+            colors = QColor.colorNames()
+            colors.sort()
+            self.color_name.addItems(colors)
         else:
             self.colored_field.setVisible(False)
             self.colored_field_label.setVisible(False)
-
+            self.color_chooser_label.setVisible(False)
+            self.color_name.setVisible(False)
+            self.color_copy_button.setVisible(False)
         if mi:
             self.mi = mi
         else:
@@ -235,6 +240,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.textbox.setPlainText(text)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
+        self.color_copy_button.clicked.connect(self.color_to_clipboard)
 
         try:
             with open(P('template-functions.json'), 'rb') as f:
@@ -242,8 +248,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         except:
             self.builtin_source_dict = {}
 
-        self.funcs = formatter_functions.get_functions()
-        self.builtins = formatter_functions.get_builtins()
+        self.funcs = formatter_functions().get_functions()
+        self.builtins = formatter_functions().get_builtins()
 
         func_names = sorted(self.funcs)
         self.function.clear()
@@ -262,6 +268,11 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.template_func_reference.setText(
                 '<a href="http://manual.calibre-ebook.com/template_ref.html">'
                 '%s</a>'%tt)
+
+    def color_to_clipboard(self):
+        app = QApplication.instance()
+        c = app.clipboard()
+        c.setText(unicode(self.color_name.currentText()))
 
     def textbox_changed(self):
         cur_text = unicode(self.textbox.toPlainText())
