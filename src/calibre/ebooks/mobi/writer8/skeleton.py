@@ -13,6 +13,7 @@ from collections import namedtuple
 from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML_NS
+from calibre.constants import ispy3
 
 CHUNK_SIZE = 8192
 
@@ -48,6 +49,24 @@ def node_from_path(root, path):
         parent = parent[idx]
     return parent
 
+mychr = chr if ispy3 else unichr
+
+def tostring(raw, **kwargs):
+    ''' lxml *sometimes* represents non-ascii characters as hex entities in
+    attribute values. I can't figure out exactly what circumstances cause it.
+    It seems to happen when serializing a part of a larger tree. Since we need
+    serialization to be the same when serializing full and partial trees, we
+    manually replace all hex entities with their unicode codepoints. '''
+
+    xml_declaration = kwargs.pop('xml_declaration', False)
+    kwargs['encoding'] = unicode
+    kwargs['xml_declaration'] = False
+    ans = etree.tostring(raw, **kwargs)
+    if xml_declaration:
+        ans = '<?xml version="1.0" encoding="UTF-8"?>\n' + ans
+    return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:mychr(int(m.group(1), 16)),
+            ans)
+
 class Chunk(object):
 
     def __init__(self, raw):
@@ -63,6 +82,12 @@ class Chunk(object):
         self.raw += chunk.raw
         self.ends_tags = chunk.ends_tags
 
+    def __repr__(self):
+        return 'Chunk(len=%r insert_pos=%r starts_tags=%r ends_tags=%r)'%(
+                len(self.raw), self.insert_pos, self.starts_tags, self.ends_tags)
+
+    __str__ = __repr__
+
 class Skeleton(object):
 
     def __init__(self, file_number, item, root, chunks):
@@ -76,8 +101,8 @@ class Skeleton(object):
         self.calculate_insert_positions()
 
     def render(self, root):
-        raw = etree.tostring(root, encoding='UTF-8', xml_declaration=True)
-        raw = raw.replace('<html', '<html xmlns="%s"'%XHTML_NS, 1)
+        raw = tostring(root, xml_declaration=True)
+        raw = raw.replace(b'<html', bytes('<html xmlns="%s"'%XHTML_NS), 1)
         return raw
 
     def calculate_metrics(self, root):
@@ -85,8 +110,7 @@ class Skeleton(object):
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
-            raw = etree.tostring(tag, encoding='UTF-8', with_tail=True,
-                    xml_declaration=False)
+            raw = tostring(tag, with_tail=True)
             start_length = len(raw.partition(b'>')[0]) + len(text) + 1
             end_length = len(raw.rpartition(b'<')[-1]) + 1
             self.metrics[tag.get('aid')] = Metric(start_length, end_length)
@@ -101,6 +125,13 @@ class Skeleton(object):
             for tag in chunk.ends_tags:
                 pos += self.metrics[tag].end
 
+    def rebuild(self):
+        ans = self.skeleton
+        for chunk in self.chunks:
+            i = chunk.insert_pos
+            ans = ans[:i] + chunk.raw + ans[i:]
+        return ans
+
 class Chunker(object):
 
     def __init__(self, oeb, data_func):
@@ -109,10 +140,20 @@ class Chunker(object):
 
         self.skeletons = []
 
+        # Set this to a list to enable dumping of the original and rebuilt
+        # html files for debugging
+        self.orig_dumps = []
+
         for i, item in enumerate(self.oeb.spine):
             root = self.remove_namespaces(self.data(item))
             body = root.xpath('//body')[0]
             body.tail = '\n'
+            if self.orig_dumps is not None:
+                self.orig_dumps.append(tostring(root, xml_declaration=True,
+                    with_tail=True))
+                self.orig_dumps[-1] = close_self_closing_tags(
+                        self.orig_dumps[-1].replace(b'<html',
+                        bytes('<html xmlns="%s"'%XHTML_NS), 1))
 
             # First pass: break up document into rendered strings of length no
             # more than CHUNK_SIZE
@@ -127,6 +168,9 @@ class Chunker(object):
             # Third pass: Create the skeleton and calculate the insert position
             # for all chunks
             self.skeletons.append(Skeleton(i, item, root, chunks))
+
+        if self.orig_dumps:
+            self.dump()
 
     def remove_namespaces(self, root):
         lang = None
@@ -173,8 +217,7 @@ class Chunker(object):
 
         # Now loop over children
         for child in list(tag):
-            raw = etree.tostring(child, encoding='UTF-8',
-                    xml_declaration=False, with_tail=False)
+            raw = tostring(child, with_tail=False)
             raw = close_self_closing_tags(raw)
             if len(raw) > CHUNK_SIZE and child.get('aid', None):
                 self.step_into_tag(child, chunks)
@@ -229,4 +272,20 @@ class Chunker(object):
             else:
                 prev.merge(chunk)
         return ans
+
+    def dump(self):
+        import tempfile, shutil, os
+        tdir = os.path.join(tempfile.gettempdir(), 'skeleton')
+        self.log('Skeletons dumped to:', tdir)
+        if os.path.exists(tdir):
+            shutil.rmtree(tdir)
+        orig = os.path.join(tdir, 'orig')
+        rebuilt = os.path.join(tdir, 'rebuilt')
+        for x in (orig, rebuilt):
+            os.makedirs(x)
+        for i, skeleton in enumerate(self.skeletons):
+            with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
+                f.write(self.orig_dumps[i])
+            with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
+                f.write(skeleton.rebuild())
 
