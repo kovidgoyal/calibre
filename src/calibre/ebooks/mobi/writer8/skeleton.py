@@ -336,7 +336,9 @@ class Chunker(object):
                 num += 1
 
     def set_internal_links(self, text):
-        # A kindle pos:fid link contains two base 32 numbers of the form
+        ''' Update the internal link placeholders to point to the correct
+        location, based on the chunk table.'''
+        # A kindle:pos:fid link contains two base 32 numbers of the form
         # XXXX:YYYYYYYYYY
         # The first number is an index into the chunk table and the second is
         # an offset from the start of the chunk to the start of the tag pointed
