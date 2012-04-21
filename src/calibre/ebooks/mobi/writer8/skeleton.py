@@ -172,11 +172,11 @@ class Chunker(object):
             body = root.xpath('//body')[0]
             body.tail = '\n'
 
-            if self.orig_dumps is not None:
-                self.orig_dumps.append(tostring(root, xml_declaration=True,
+            if orig_dumps is not None:
+                orig_dumps.append(tostring(root, xml_declaration=True,
                     with_tail=True))
-                self.orig_dumps[-1] = close_self_closing_tags(
-                        self.orig_dumps[-1].replace(b'<html',
+                orig_dumps[-1] = close_self_closing_tags(
+                        orig_dumps[-1].replace(b'<html',
                         bytes('<html xmlns="%s"'%XHTML_NS), 1))
 
             # First pass: break up document into rendered strings of length no
@@ -336,15 +336,35 @@ class Chunker(object):
                 num += 1
 
     def set_internal_links(self, text):
-        # First find the start pos of all tags with aids
-        aid_map = {}
+        # A kindle pos:fid link contains two base 32 numbers of the form
+        # XXXX:YYYYYYYYYY
+        # The first number is an index into the chunk table and the second is
+        # an offset from the start of the chunk to the start of the tag pointed
+        # to by the link.
+        aid_map = {} # Map of aid to (pos, fid)
         for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
-            aid_map[match.group(1)] = match.start()
+            offset = match.start()
+            pos_fid = None
+            for chunk in self.chunk_table:
+                if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos)
+                    break
+                if chunk.insert_pos > offset:
+                    # This aid is in the skeleton, not in a chunk, so we use
+                    # the chunk immediately after
+                    pos_fid = (chunk.sequence_number, 0)
+                    break
+            if pos_fid is None:
+                raise ValueError('Could not find chunk for aid: %r'%
+                        match.group(1))
+            aid_map[match.group(1)] = (to_base(chunk.sequence_number,
+                                            base=32, min_num_digits=4),
+                                    to_href(offset-chunk.insert_pos))
+
         self.aid_offset_map = aid_map
 
-        def to_placeholder(x):
-            file_number, aid = x
-            return bytes('%04d:%s'%(file_number, to_href(aid_map[aid])))
+        def to_placeholder(aid):
+            return bytes(':'.join(aid_map[aid]))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}
@@ -359,7 +379,7 @@ class Chunker(object):
                 pass
             return raw
 
-        return re.sub(br'<[^>]+(kindle:pos:fid:\d{4}:\d{10})', sub, text)
+        return re.sub(br'<[^>]+(kindle:pos:fid:0000:\d{10})', sub, text)
 
     def dump(self, orig_dumps):
         import tempfile, shutil, os

@@ -200,9 +200,9 @@ class KF8Writer(object):
                     aid = aidbase + j
                     tag.attrib['aid'] = to_base(aid, base=32)
                     if tag.tag == XHTML('body'):
-                        self.id_map[(item.href, '')] = (i, tag.attrib['aid'])
+                        self.id_map[(item.href, '')] = tag.attrib['aid']
                     if id_ is not None:
-                        self.id_map[(item.href, id_)] = (i, tag.attrib['aid'])
+                        self.id_map[(item.href, id_)] = tag.attrib['aid']
 
                     j += 1
 
