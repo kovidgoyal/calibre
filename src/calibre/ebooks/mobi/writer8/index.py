@@ -12,7 +12,8 @@ from collections import namedtuple
 from struct import pack
 from io import BytesIO
 
-from calibre.ebooks.mobi.utils import CNCX, encint
+from calibre.ebooks.mobi.utils import CNCX, encint, align_block
+from calibre.ebooks.mobi.writer8.header import Header
 
 TagMeta = namedtuple('TagMeta',
         'name number values_per_entry bitmask end_flag')
@@ -23,12 +24,78 @@ EndTagTable = TagMeta('eof', 0, 0, 0, 1)
 mask_to_bit_shifts = { 1:0, 2:1, 3:0, 4:2, 8:3, 12:2, 16:4, 32:5, 48:4, 64:6,
         128:7, 192: 6 }
 
+class IndexHeader(Header): # {{{
 
-class Index(object):
+    HEADER_NAME = b'INDX'
+    ALIGN_BLOCK = True
+    HEADER_LENGTH = 192
+
+    DEFINITION = '''
+    # 4 - 8: Header Length
+    header_length = {header_length}
+
+    # 8 - 16: Unknown
+    unknown1 = zeroes(8)
+
+    # 16 - 20: Index type: 0 - normal 2 - inflection
+    type = 2
+
+    # 20 - 24: IDXT offset (filled in later)
+    idxt_offset
+
+    # 24 - 28: Number of index records
+    num_of_records = 1
+
+    # 28 - 32: Index encoding (65001 = utf-8)
+    encoding = 65001
+
+    # 32 - 36: Unknown
+    unknown2 = NULL
+
+    # 36 - 40: Number of Index entries
+    num_of_entries = DYN
+
+    # 40 - 44: ORDT offset
+    ordt_offset
+
+    # 44 - 48: LIGT offset
+    ligt_offset
+
+    # 48 - 52: Number of ORDT/LIGT? entries
+    num_of_ordt_entries
+
+    # 52 - 56: Number of CNCX records
+    num_of_cncx = DYN
+
+    # 56 - 180: Unknown
+    unknown3 = zeroes(124)
+
+    # 180 - 184: TAGX offset
+    tagx_offset = {header_length}
+
+    # 184 - 192: Unknown
+    unknown4 = zeroes(8)
+
+    # TAGX
+    tagx = DYN
+
+    # Last Index entry
+    last_index = DYN
+
+    # IDXT
+    idxt = DYN
+    '''.format(header_length=HEADER_LENGTH)
+
+    POSITIONS = {'idxt_offset':'idxt'}
+# }}}
+
+class Index(object): # {{{
 
     control_byte_count = 1
     cncx = CNCX()
     tag_types = (EndTagTable,)
+
+    HEADER_LENGTH = IndexHeader.HEADER_LENGTH
 
     @classmethod
     def generate_tagx(cls):
@@ -60,17 +127,18 @@ class Index(object):
             control_bytes.append(cbs)
         return control_bytes
 
-    def build_records(self):
+    def __call__(self):
         self.control_bytes = self.calculate_control_bytes_for_each_entry(
                 self.entries)
 
-        self.rendered_entries = []
+        rendered_entries = []
         offset = 0
+        index, idxt, buf = BytesIO(), BytesIO(), BytesIO()
         IndexEntry = namedtuple('IndexEntry', 'offset length raw')
         for i, x in enumerate(self.entries):
             control_bytes = self.control_bytes[i]
             leading_text, tags = x
-            buf = BytesIO()
+            buf.truncate(0)
             raw = bytearray(leading_text)
             raw.insert(0, len(leading_text))
             buf.write(bytes(raw))
@@ -81,8 +149,53 @@ class Index(object):
                     for val in values:
                         buf.write(encint(val))
             raw = buf.getvalue()
-            self.rendered_entries.append(IndexEntry(offset, len(raw), raw))
+            rendered_entries.append(IndexEntry(offset, len(raw), raw))
+            idxt.write(pack(b'>H', self.HEADER_LENGTH+offset))
             offset += len(raw)
+            index.write(raw)
+
+        index_block = align_block(index.getvalue())
+        idxt_block = align_block(b'IDXT' + idxt.getvalue())
+        body = index_block + idxt_block
+        if len(body) + self.HEADER_LENGTH >= 0x10000:
+            raise ValueError('Index has too many entries, calibre does not'
+                    ' support generating multiple index records at this'
+                    ' time.')
+
+        header = b'INDX'
+        buf.truncate(0)
+        buf.write(pack(b'>I', self.HEADER_LENGTH))
+        buf.write(b'\0'*4) # Unknown
+        buf.write(pack(b'>I', 1)) # Header type? Or index record number?
+        buf.write(b'\0'*4) # Unknown
+
+        # IDXT block offset
+        buf.write(pack(b'>I', self.HEADER_LENGTH + len(index_block)))
+
+        # Number of index entries
+        buf.write(pack(b'>I', len(rendered_entries)))
+
+        buf.write(b'\xff'*8) # Unknown
+
+        buf.write(b'\0'*156) # Unknown
+
+        header += buf.getvalue()
+        index_record = header + body
+
+        tagx = self.generate_tagx()
+        idxt = (b'IDXT' + pack(b'>H', IndexHeader.HEADER_LENGTH + len(tagx)) +
+                b'\0')
+        header = {
+                'num_of_entries': len(rendered_entries),
+                'num_of_cncx': len(self.cncx),
+                'tagx':tagx,
+                'idxt':idxt
+        }
+        header = IndexHeader()(**header)
+        self.records = [header, index_record]
+        self.records.extend(self.cncx.records)
+        return self.records
+# }}}
 
 class SkelIndex(Index):
 

@@ -583,7 +583,9 @@ class CNCX(object): # {{{
             self.strings[key] = offset
             offset += len(raw)
 
-        self.records.append(align_block(buf.getvalue()))
+        val = buf.getvalue()
+        if val:
+            self.records.append(align_block(val))
 
     def __getitem__(self, string):
         return self.strings[string]
@@ -591,6 +593,9 @@ class CNCX(object): # {{{
     def __bool__(self):
         return bool(self.records)
     __nonzero__ = __bool__
+
+    def __len__(self):
+        return len(self.records)
 
 # }}}
 
