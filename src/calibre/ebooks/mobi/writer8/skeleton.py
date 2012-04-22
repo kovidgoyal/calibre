@@ -321,7 +321,7 @@ class Chunker(object):
             s.start_pos = sp
             sp += len(s)
         self.skel_table = [Skel(s.file_number, 'SKEL%010d'%s.file_number,
-            len(s.chunks), s.start_pos, len(s.skeleton)) for x in self.skeletons]
+            len(s.chunks), s.start_pos, len(s.skeleton)) for s in self.skeletons]
 
         Chunk = namedtuple('Chunk',
             'insert_pos selector file_number sequence_number start_pos length')
