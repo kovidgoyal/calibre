@@ -169,12 +169,12 @@ class KF8Writer(object):
 
             for svg in XPath('//svg:svg')(root):
                 raw = etree.tostring(svg, encoding=unicode, with_tail=False)
+                idx = len(self.flows)
                 self.flows.append(raw)
                 p = svg.getparent()
                 pos = p.index(svg)
                 img = etree.Element(XHTML('img'),
-                        src="kindle:flow:%s?mime=image/svg+xml"%to_ref(
-                            len(self.flows)))
+                        src="kindle:flow:%s?mime=image/svg+xml"%to_ref(idx))
                 p.insert(pos, img)
                 extract(svg)
 
