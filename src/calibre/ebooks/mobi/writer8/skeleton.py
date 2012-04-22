@@ -366,7 +366,7 @@ class Chunker(object):
         def to_placeholder(aid):
             pos, fid = aid_map[aid]
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
-            return bytes(':'.join((pos, fid)))
+            return bytes(':off:'.join((pos, fid)))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}
@@ -376,12 +376,12 @@ class Chunker(object):
             raw = match.group()
             pl = match.group(1)
             try:
-                return raw[:-15] + placeholder_map[pl]
+                return raw[:-19] + placeholder_map[pl]
             except KeyError:
                 pass
             return raw
 
-        return re.sub(br'<[^>]+(kindle:pos:fid:0000:\d{10})', sub, text)
+        return re.sub(br'<[^>]+(kindle:pos:fid:0000:off:[0-9A-Za-z]{10})', sub, text)
 
     def dump(self, orig_dumps):
         import tempfile, shutil, os

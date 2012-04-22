@@ -369,7 +369,7 @@ def count_set_bits(num):
 def to_base(num, base=32, min_num_digits=None):
     digits = string.digits + string.ascii_uppercase
     sign = 1 if num >= 0 else -1
-    if num == 0: return '0'
+    if num == 0: return ('0' if min_num_digits is None else '0'*min_num_digits)
     num *= sign
     ans = []
     while num:
