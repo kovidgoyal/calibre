@@ -500,14 +500,14 @@ class Indexer(object): # {{{
 
         # Write offsets to index entries as an IDXT block
         idxt_block = b'IDXT'
-        buf.truncate(0)
+        buf.seek(0), buf.truncate(0)
         for offset in offsets:
             buf.write(pack(b'>H', header_length+offset))
         idxt_block = align_block(idxt_block + buf.getvalue())
         body = index_block + idxt_block
 
         header = b'INDX'
-        buf.truncate(0)
+        buf.seek(0), buf.truncate(0)
         buf.write(pack(b'>I', header_length))
         buf.write(b'\0'*4) # Unknown
         buf.write(pack(b'>I', 1)) # Header type? Or index record number?

@@ -577,7 +577,7 @@ class CNCX(object): # {{{
                 pad = 0xfbf8 - buf.tell()
                 buf.write(b'\0' * pad)
                 self.records.append(buf.getvalue())
-                buf.truncate(0)
+                buf.seek(0), buf.truncate(0)
                 offset = len(self.records) * 0x10000
             buf.write(raw)
             self.strings[key] = offset
