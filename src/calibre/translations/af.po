@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-20 17:05+0000\n"
+"PO-Revision-Date: 2012-04-21 11:15+0000\n"
 "Last-Translator: Gideon Wentink <Unknown>\n"
 "Language-Team: Afrikaans <af@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-21 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-04-22 04:42+0000\n"
 "X-Generator: Launchpad (build 15120)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -468,7 +468,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:252
 msgid "Add your own columns"
-msgstr ""
+msgstr "Voeg u eie kolomme by"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:945
 msgid "Add/remove your own columns to the calibre book list"
@@ -476,7 +476,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:950
 msgid "Toolbar"
-msgstr ""
+msgstr "Nutsbalk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:956
 msgid ""
@@ -486,11 +486,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
 msgid "Searching"
-msgstr ""
+msgstr "Besig om te soek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:968
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Pas die manier waarop die soek van boeke in calibre wark aan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:973
 msgid "Input Options"
@@ -500,7 +500,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:986
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
 msgid "Conversion"
-msgstr ""
+msgstr "Omskakeling"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:979
 msgid "Set conversion options specific to each input format"
@@ -508,7 +508,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:984
 msgid "Common Options"
-msgstr ""
+msgstr "Algemene opsies"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:990
 msgid "Set conversion options common to all formats"
@@ -531,15 +531,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1032
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1044
 msgid "Import/Export"
-msgstr ""
+msgstr "Invoer/Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1012
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Beheer hoe calibre lêers se metadata lees wanneer boeke toegevoeg word"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1018
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Besig om boeke op skyf te berg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1024
 msgid ""
@@ -549,23 +550,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Besig om boeke na toestel te stuur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1036
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "Beheer hoe calibre lêers na u eboekleser oordra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1042
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Metadataskakelbord"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1048
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Verander metadatavelde voordat geberg/gestuur word"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
 msgid "Template Functions"
-msgstr ""
+msgstr "Sjabloonfunksies"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
@@ -573,15 +574,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1136
 msgid "Advanced"
-msgstr ""
+msgstr "Gevorderd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1059
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Skep u eie sjabloonfunksies"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Deel boeke per e-pos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
@@ -597,7 +598,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1076
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Deel oor die net"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1082
 msgid ""
@@ -616,7 +617,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
 msgid "Plugins"
-msgstr ""
+msgstr "Inproppe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -632,16 +633,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1123
 msgid "Keyboard"
-msgstr ""
+msgstr "Sleutelbord"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Maak die sleutelbordkortpaaie wat deur calibre gebruik word pas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Allerlei"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1140
 msgid "Miscellaneous advanced configuration"
@@ -649,7 +650,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr ""
+msgstr "Omskakelingsinset"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -661,7 +662,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:238
 msgid "Conversion Output"
-msgstr ""
+msgstr "Omskakelingsuitset"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:252
 msgid ""
@@ -672,11 +673,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:268
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Skakel eboeke om na die %s-formaat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
-msgstr ""
+msgstr "Insetprofiel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:51
 msgid ""
@@ -689,74 +690,75 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Hierdie profiel is bedoel vir die SONY PRS-reeks.  Die 500/505/600/700 ens."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die SONY PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:88
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:548
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:559
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Mobipocket-boeke."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:572
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Hanlin V3 en sy klone."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:584
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Hanlin V5 en sy klone."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:592
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Cybook G3."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:147
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:606
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:159
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:619
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:171
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:679
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:183
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:692
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:706
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:720
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid "Output profile"
-msgstr ""
+msgstr "Uitsetprofiel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:234
 msgid ""
@@ -769,72 +771,81 @@ msgstr ""
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
+"Bedoel vir die iPad en soortgelyke toestelle met ’n resolusie van 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"Bedoel vir die iPad 3 en soortgelyke toestelle met ’n resolusie van 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr ""
+"Bedoel vir generiese tablettoestelle, grootte van beelde word nie aangepas "
+"nie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:455
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Bedoel vir die Samsung Galaxy en soortgelyke tablettoestelle met ’n "
+"resolusie van 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:481
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:512
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Geskik vir gebruik met enige e-ink-toestel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Geskik vir gebruik met enige grootskerm e-ink-toestel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die 5-duim JetBook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
+"Hierdie profiel is bedoel vir die SONY PRS-reeks.  Die 500/505/700 ens. in "
+"landskapmodus.  Meestal bruikbaar vir strokiesprente."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:645
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:732
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die B&N Nooke Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:743
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Hierdie profiel is bedoel vir die Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:758
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
 msgstr ""
+"Hierdie profiel is bedoel vir die PocketBook Pro 900 reeks van toestelle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr ""
+msgstr "Geïnstalleerde inproppe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -846,11 +857,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr ""
+msgstr "Afgeskakelde inproppe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Geaktiveerde inproppe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:496
 #, python-format
@@ -881,15 +892,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:570
 msgid "List all installed plugins"
-msgstr ""
+msgstr "Toon alle geïnstalleerde inproppe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:572
 msgid "Enable the named plugin"
-msgstr ""
+msgstr "Aktiveer die genoemde inprop"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:574
 msgid "Disable the named plugin"
-msgstr ""
+msgstr "Skakel die genoemde inprop af"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:272
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:281
@@ -910,12 +921,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:837
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:860
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
 msgid "Main"
-msgstr ""
+msgstr "Hoof"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
@@ -931,11 +942,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:155
 msgid "Debug log"
-msgstr ""
+msgstr "Ontfoutlogboek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
-msgstr ""
+msgstr "Kommunikeer met Android-fone"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:168
 msgid ""
@@ -945,11 +956,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:259
 msgid "Communicate with S60 phones."
-msgstr ""
+msgstr "Kommunikeer met S60-fone"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:278
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Kommunikeer met WebOS-tablette."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -962,18 +973,28 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Indien u nie will hê calibre moet u Apple iToestel herken wanneer dit aan "
+"die rekenaar verbind is nie, klik<b>Deaktiveer Apple-drywer</b>.</p><p>Om "
+"boeke na u iToestel oor te dra, klik <b>Deaktiveer Apple-drywer</b> en "
+"gebruik dan die ‘Verbind met iTunes’-metode wat voorgestel word in die <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iToestelle Gereelde Vrae</a>, deur gebruik te maak van die "
+"<em>Verbind/Deel</em>|<em>Verbind met iTunes</em> "
+"keuselysitem.</p><p>Inskakeling van die Apple-drywer vir direkte verbinding "
+"met iToestelle is ’n gevorderde gebruikersmodus wat nie ondersteun word "
+"nie</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Deaktiveer Apple-drywer"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:81
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Aktiveer Apple-drywer"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Gebruik Reeks as Kategorie in iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
@@ -1004,15 +1025,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:191
 msgid "Apple device"
-msgstr ""
+msgstr "Apple-toestel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:193
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Kommunikeer met iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:207
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple-toestel bespeur, laai tans iTunes, wag asb. …"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:209
 msgid ""
@@ -1047,7 +1068,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3252
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
-msgstr ""
+msgstr "Klaar"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:695
 msgid ""
@@ -1055,12 +1076,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Sommige boeke nie gevind in iTunes-databasis.\n"
+"Skrap boeke d.m.v. die iBooks-toep.\n"
+"Klik ‘Toon Detail’ vir ’n lys."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1062
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Sommige dekbladkuns kom nie omgeskakel word nie.\n"
+"Klik ‘Toon Detail’ vir ’n lys."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2726
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:102
@@ -1080,7 +1106,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3162
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
-msgstr ""
+msgstr "Nuus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2727
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
@@ -1088,15 +1114,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3118
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3136
 msgid "Catalog"
-msgstr ""
+msgstr "Katalogus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3095
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Kommunikeer met iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Kommunikeer met die Sanda Bambook eBoek-leser"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1116,6 +1142,8 @@ msgstr ""
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Kan nie verbinding maak met Bambook nie, u moet eers die Bambook-biblioteek "
+"installeer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1126,7 +1154,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1150,7 +1178,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:277
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:279
 msgid "Transferring books to device..."
-msgstr ""
+msgstr "Dra boeke na toestel oor…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:330
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
@@ -1159,7 +1187,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:301
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:332
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "Voeg boeke toe tot toestel se metadatalys…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:352
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
@@ -1170,7 +1198,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:338
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:359
 msgid "Removing books from device..."
-msgstr ""
+msgstr "Verwyder boeke van toestel…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
@@ -1184,19 +1212,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:442
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:401
 msgid "Sending metadata to device..."
-msgstr ""
+msgstr "Stuur metadata na toestel…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK is nog nie geïnstalleer nie."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
+msgstr "Kommunikeer met Binatone Readme eBoek-leser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr ""
+msgstr "Kommunikeer met die Blackberry-slimfoon."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
@@ -1204,7 +1232,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr ""
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."

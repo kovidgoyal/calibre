@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-20 22:46+0000\n"
+"PO-Revision-Date: 2012-04-21 14:29+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-21 04:46+0000\n"
+"X-Launchpad-Export-Date: 2012-04-22 04:42+0000\n"
 "X-Generator: Launchpad (build 15120)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -8544,6 +8544,8 @@ msgid ""
 "The list of search/replace definitions that will be applied to this "
 "conversion."
 msgstr ""
+"Die Liste der Suchen/Ersetzen Definitionen, die zur Umwandlung angewendet "
+"wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:111
 msgid "Search/Replace Definition Edit"
@@ -8557,6 +8559,8 @@ msgstr "&Ersetzungstext"
 msgid ""
 "Add the current expression to the list of expressions that will be applied"
 msgstr ""
+"Fügt den aktuellen Ausdruck zu der Liste der Ausdrücke hinzu, die angewendet "
+"werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:114
 msgid "&Add"
@@ -16133,6 +16137,9 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
+"<p>Die Authentifizierung wird nicht von allen Gerätebrowsern unterstützt. "
+"Durch das entfernen des Passwort können Probleme beim Downloaden von Dateien "
+"aus dem Inhaltscenter behoben werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
@@ -18020,7 +18027,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:534
 msgid "The location pointed to by this item does not exist."
-msgstr ""
+msgstr "Der Speicherort, auf den das Objekt verweist, existiert nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "Choose ebook"
@@ -18752,6 +18759,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Erstellt ein Eintrag in der Datei, wenn das BibTeX Format für Einträge "
+"ausgewählt ist.\n"
+"Boolescher Wert: True, False\n"
+"Standard: '%default'\n"
+"Gilt für: BIBTEX Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:76
 #, python-format
@@ -20453,6 +20465,10 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
+"Wählt Spalten aus, um sie ohne Präfix zu durchsuchen. Zum Beispiel kann nach "
+"Rot gesucht werden, anstatt title:Rot. Geben Sie das Such/Wortfelder durch "
+"ein Komma getrennt ein. Nur wirksam, wenn Sie oben die Option Suche "
+"begrenzen ausgewählt haben."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -21845,7 +21861,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Control order of categories in the tag browser"
-msgstr ""
+msgstr "Reihenfolge der Kategorien im Tag Browser verwalten"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -22188,6 +22204,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:387
 msgid "Specify which font to use when generating a default cover or masthead"
 msgstr ""
+"Festlegen, welche Schrift beim Generieren eines Standard-Covers oder "
+"Impressum verwendet wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:388
 msgid ""

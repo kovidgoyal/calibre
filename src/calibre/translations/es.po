@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-13 15:35+0000\n"
+"PO-Revision-Date: 2012-04-21 08:33+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-21 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-04-22 04:43+0000\n"
 "X-Generator: Launchpad (build 15120)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
@@ -3838,6 +3838,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Ruta a un fichero que contiene expresiones regulares de búsqueda y "
+"sustitución. El fichero debe contener líneas alternas de expresiones "
+"regulares seguidas por patrones de sustitución (que pueden ser líneas en "
+"blanco). La expresión regular debe ajustarse a la sintaxis de expresiones "
+"regulares de python y el fichero debe estar codificado como UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:741
 msgid "Could not find an ebook inside the archive"
@@ -8389,11 +8394,13 @@ msgstr "No se pudo abrir el fichero, puede que esté abierto en otro programa"
 msgid ""
 "Failed to generate markup for testing. Click \"Show Details\" to learn more."
 msgstr ""
+"No se pudo generar el marcado para la prueba. Pulse en «Mostrar detalles» "
+"para más información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
 msgid "Failed to generate preview"
-msgstr ""
+msgstr "No se pudo generar la vista previa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:191
 msgid "Open book"
@@ -8463,37 +8470,39 @@ msgstr "Bu&scar expresiones regulares"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "Texto de sustitución"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "Expresión regular de búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:100
 msgid "Load Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Cargar fichero de definiciones de búsqueda y sustitución de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:119
 msgid "Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Fichero de definiciones de búsqueda y sustitución de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:110
 msgid "Failed to read"
-msgstr ""
+msgstr "Fallo de lectura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:111
 #, python-format
 msgid "Failed to load patterns from %s, click Show details to learn more."
 msgstr ""
+"No se pudieron cargar los patrones de %s. Pulse en «Mostrar detalles» para "
+"más información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:117
 msgid "Save Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Guardar fichero de definiciones de búsqueda y sustitución de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:168
 msgid "Unused Search & Replace definition"
-msgstr ""
+msgstr "Definición de búsqueda y sustitución no usada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:169
 msgid ""
@@ -8501,6 +8510,9 @@ msgid ""
 "of definitions. Do you wish to continue with the conversion (the definition "
 "will not be used)?"
 msgstr ""
+"La definición de búsqueda y sustitución que se está modificando no ha sido "
+"añadida a la lista de definiciones. ¿Desea continuar con la conversión (no "
+"se usará la definición)?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:112
@@ -8518,10 +8530,12 @@ msgid ""
 "The list of search/replace definitions that will be applied to this "
 "conversion."
 msgstr ""
+"La lista de definiciones de búsqueda y sustitución que se usará en esta "
+"conversión."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:111
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "Modificar definiciones de búsqueda y sustitución"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:112
 msgid "&Replacement Text"
@@ -8530,15 +8544,15 @@ msgstr "&Texto de sustitución"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:113
 msgid ""
 "Add the current expression to the list of expressions that will be applied"
-msgstr ""
+msgstr "Añadir la expresión actual a la lista de expresiones que se usarán"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:114
 msgid "&Add"
-msgstr ""
+msgstr "&Añadir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:115
 msgid "Edit the currently selected expression"
-msgstr ""
+msgstr "Modificar la expresión seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
@@ -8547,7 +8561,7 @@ msgstr "&Cambiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:117
 msgid "Remove the currently selected expression"
-msgstr ""
+msgstr "Eliminar la expresión seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:886
@@ -8556,15 +8570,15 @@ msgstr "&Eliminar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:119
 msgid "Load a listof expression from a previously saved file"
-msgstr ""
+msgstr "Cargar una lista de expresiones de un fichero guardado previamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:120
 msgid "&Load"
-msgstr ""
+msgstr "&Cargar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:121
 msgid "Save this list of expression so that you can re-use it easily"
-msgstr ""
+msgstr "Guardar esta lista de expresiones para volver a usarla fácilmente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
@@ -8581,6 +8595,12 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p>Buscar y sustituir utiliza <i>expresiones regulares</i>. Consulte el <a "
+"href=\"http://manual.calibre-ebook.com/regexp.html\">Cursillo de expresiones "
+"regulares</a> para aprender las bases de su funcionamiento. Al pulsar en los "
+"botones de asistente de más abajo podrá comprobar sus expresiones regulares "
+"con el documento de entrada actual. Cuando esté satisfecho con una "
+"expresión, pulse el botón «Añadir» para añadirla a la lista de expresiones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"

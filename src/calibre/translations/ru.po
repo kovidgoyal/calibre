@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-16 23:05+0000\n"
+"PO-Revision-Date: 2012-04-21 19:51+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-21 04:53+0000\n"
+"X-Launchpad-Export-Date: 2012-04-22 04:42+0000\n"
 "X-Generator: Launchpad (build 15120)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -11442,7 +11442,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Название категории просмотра: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -14173,6 +14173,8 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
+"Названия поиска не могут заканчиваться _index, потому что эти названия "
+"зарезервированы для индексации колонки серий."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:238
 msgid "No column heading was provided"
@@ -15076,7 +15078,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:286
 msgid "The destination field cannot be blank"
-msgstr ""
+msgstr "Поле назначения не может быть пустым"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:114
 msgid ""
@@ -15136,11 +15138,11 @@ msgstr "Имеющиеся связи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
-msgstr ""
+msgstr "Исходный шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:127
 msgid "Destination field"
-msgstr ""
+msgstr "Поле назначения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
@@ -15761,6 +15763,8 @@ msgid ""
 "Argument count should be -1 or greater than zero. Setting it to zero means "
 "that this function cannot be used in single function mode."
 msgstr ""
+"Число аргументов должно быть -1 или больше нуля. Установка в ноль означает, "
+"что эта функция не может быть использована отдельно от других, сама по себе."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
@@ -15780,7 +15784,7 @@ msgstr "Введите имя создаваемой функции"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "Количество аргументов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
@@ -17297,11 +17301,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
 msgid "&Lookup in dictionary"
-msgstr ""
+msgstr "Найти в словаре"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:490
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "Найти ещё"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:495
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:147
@@ -17429,7 +17433,7 @@ msgstr "Очистить список последных открытых кни
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:426
 #, python-format
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Соединение с dict.org для поиска: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:533
 msgid "No such location"
@@ -19841,6 +19845,11 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(строка, начало, конец) -- извлекает подстроку ограниченную заданными "
+"номерами символов. Первый символ строки имеет номер ноль. Если конец "
+"отриццательный, то символы будут отсчитываться с конца строки. Если конец "
+"равен нулю, то это означает последний символ строки. Например, "
+"substr('12345', 1, 0) вернёт '2345', и substr('12345', 1, -1) вернёт '234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:300
 msgid ""
@@ -20000,6 +20009,11 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, index, separator) -- interpret the value as a list of items "
+"separated by `separator`, returning the `index`th item. The first item is "
+"number zero. The last item can be returned using `list_item(-1,separator)`. "
+"If the item is not in the list, then the empty value is returned. The "
+"separator has the same meaning as in the count function."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:573
 msgid ""
