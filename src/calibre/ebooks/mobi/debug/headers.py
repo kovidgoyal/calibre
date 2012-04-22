@@ -295,19 +295,17 @@ class MOBIHeader(object): # {{{
         self.datp_record_count, = struct.unpack(b'>I', self.raw[124:128])
         self.exth_flags, = struct.unpack(b'>I', self.raw[128:132])
         self.has_exth = bool(self.exth_flags & 0x40)
-        self.has_drm_data = self.length >= 174 and len(self.raw) >= 180
+        self.has_drm_data = self.length >= 174 and len(self.raw) >= 184
         if self.has_drm_data:
-            self.unknown3 = self.raw[132:164]
-            self.drm_offset, = struct.unpack(b'>I', self.raw[164:168])
-            self.drm_count, = struct.unpack(b'>I', self.raw[168:172])
-            self.drm_size, = struct.unpack(b'>I', self.raw[172:176])
-            self.drm_flags = bin(struct.unpack(b'>I', self.raw[176:180])[0])
+            self.unknown3 = self.raw[132:168]
+            self.drm_offset, self.drm_count, self.drm_size, self.drm_flags = \
+                    struct.unpack(b'>4I', self.raw[168:184])
         self.has_extra_data_flags = self.length >= 232 and len(self.raw) >= 232+16
         self.has_fcis_flis = False
         self.has_multibytes = self.has_indexing_bytes = self.has_uncrossable_breaks = False
         self.extra_data_flags = 0
         if self.has_extra_data_flags:
-            self.unknown4 = self.raw[180:192]
+            self.unknown4 = self.raw[184:192]
             self.fdst_idx, self.fdst_count = struct.unpack_from(b'>LL',
                     self.raw, 192)
             if self.fdst_count <= 1:

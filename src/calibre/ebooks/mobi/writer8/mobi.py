@@ -120,7 +120,7 @@ class MOBIHeader(Header): # {{{
     unknown = zeroes(36)
 
     # 168: DRM
-    drm_offset
+    drm_offset = NULL
     drm_count
     drm_size
     drm_flags
