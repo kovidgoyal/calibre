@@ -381,7 +381,8 @@ class Chunker(object):
                 pass
             return raw
 
-        return re.sub(br'<[^>]+(kindle:pos:fid:0000:off:[0-9A-Za-z]{10})', sub, text)
+        return re.sub(br'<[^>]+(kindle:pos:fid:0000:off:[0-9A-Za-z]{10})', sub,
+                text)
 
     def dump(self, orig_dumps):
         import tempfile, shutil, os
