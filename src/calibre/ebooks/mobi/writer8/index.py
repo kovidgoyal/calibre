@@ -182,7 +182,7 @@ class Index(object): # {{{
         if len(body) + self.HEADER_LENGTH >= 0x10000:
             raise too_large
         header = b'INDX'
-        buf.truncate(0)
+        buf.seek(0), buf.truncate(0)
         buf.write(pack(b'>I', self.HEADER_LENGTH))
         buf.write(b'\0'*4) # Unknown
         buf.write(pack(b'>I', 1)) # Header type? Or index record number?

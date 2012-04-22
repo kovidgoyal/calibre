@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, random, time
+import random, time
 from cStringIO import StringIO
 from struct import pack
 
@@ -21,32 +21,10 @@ from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
         align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
 
-EXTH_CODES = {
-    'creator': 100,
-    'publisher': 101,
-    'description': 103,
-    'identifier': 104,
-    'subject': 105,
-    'pubdate': 106,
-    'review': 107,
-    'contributor': 108,
-    'rights': 109,
-    'type': 111,
-    'source': 112,
-    'versionnumber': 114,
-    'startreading': 116,
-    'coveroffset': 201,
-    'thumboffset': 202,
-    'hasfakecover': 203,
-    'lastupdatetime': 502,
-    'title': 503,
-    }
-
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
 
 class MobiWriter(object):
-    COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
     def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True):
         self.opts = opts
@@ -210,7 +188,15 @@ class MobiWriter(object):
                 # header as well
                 bt = 0x103 if self.indexer.is_flat_periodical else 0x101
 
-        exth = self.build_exth(bt)
+        from calibre.ebooks.mobi.writer8.exth import build_exth
+        exth = build_exth(metadata,
+                prefer_author_sort=self.opts.prefer_author_sort,
+                is_periodical=self.is_periodical,
+                share_not_sync=self.opts.share_not_sync,
+                cover_offset=self.cover_offset,
+                thumbnail_offset=self.thumbnail_offset,
+                start_offset=self.serializer.start_offset, mobi_doctype=bt
+                )
         first_image_record = None
         if self.resources:
             used_images = self.serializer.used_images
@@ -377,127 +363,6 @@ class MobiWriter(object):
         # MOBI is submitted for publication
         record0 += (b'\0' * (1024*8))
         self.records[0] = align_block(record0)
-    # }}}
-
-    def build_exth(self, mobi_doctype): # EXTH Header {{{
-        oeb = self.oeb
-        exth = StringIO()
-        nrecs = 0
-        for term in oeb.metadata:
-            if term not in EXTH_CODES: continue
-            code = EXTH_CODES[term]
-            items = oeb.metadata[term]
-            if term == 'creator':
-                if self.prefer_author_sort:
-                    creators = [normalize(unicode(c.file_as or c)) for c in
-                            items][:1]
-                else:
-                    creators = [normalize(unicode(c)) for c in items]
-                items = ['; '.join(creators)]
-            for item in items:
-                data = normalize(unicode(item))
-                if term != 'description':
-                    data = self.COLLAPSE_RE.sub(' ', data)
-                if term == 'identifier':
-                    if data.lower().startswith('urn:isbn:'):
-                        data = data[9:]
-                    elif item.scheme.lower() == 'isbn':
-                        pass
-                    else:
-                        continue
-                data = data.encode('utf-8')
-                exth.write(pack(b'>II', code, len(data) + 8))
-                exth.write(data)
-                nrecs += 1
-            if term == 'rights' :
-                try:
-                    rights = normalize(unicode(oeb.metadata.rights[0])).encode('utf-8')
-                except:
-                    rights = b'Unknown'
-                exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
-                exth.write(rights)
-                nrecs += 1
-
-        # Write UUID as ASIN
-        uuid = None
-        from calibre.ebooks.oeb.base import OPF
-        for x in oeb.metadata['identifier']:
-            if (x.get(OPF('scheme'), None).lower() == 'uuid' or
-                    unicode(x).startswith('urn:uuid:')):
-                uuid = unicode(x).split(':')[-1]
-                break
-        if uuid is None:
-            from uuid import uuid4
-            uuid = str(uuid4())
-
-        if isinstance(uuid, unicode):
-            uuid = uuid.encode('utf-8')
-        if not self.opts.share_not_sync:
-            exth.write(pack(b'>II', 113, len(uuid) + 8))
-            exth.write(uuid)
-            nrecs += 1
-
-        # Write cdetype
-        if not self.is_periodical:
-            if not self.opts.share_not_sync:
-                exth.write(pack(b'>II', 501, 12))
-                exth.write(b'EBOK')
-                nrecs += 1
-        else:
-            ids = {0x101:b'NWPR', 0x103:b'MAGZ'}.get(mobi_doctype, None)
-            if ids:
-                exth.write(pack(b'>II', 501, 12))
-                exth.write(ids)
-                nrecs += 1
-
-        # Add a publication date entry
-        if oeb.metadata['date']:
-            datestr = str(oeb.metadata['date'][0])
-        elif oeb.metadata['timestamp']:
-            datestr = str(oeb.metadata['timestamp'][0])
-
-        if datestr is None:
-            raise ValueError("missing date or timestamp")
-
-        datestr = bytes(datestr)
-        exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
-        exth.write(datestr)
-        nrecs += 1
-        if self.is_periodical:
-            exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(datestr) + 8))
-            exth.write(datestr)
-            nrecs += 1
-
-        if self.is_periodical:
-            # Pretend to be amazon's super secret periodical generator
-            vals = {204:201, 205:2, 206:0, 207:101}
-        else:
-            # Pretend to be kindlegen 1.2
-            vals = {204:201, 205:1, 206:2, 207:33307}
-        for code, val in vals.iteritems():
-            exth.write(pack(b'>III', code, 12, val))
-            nrecs += 1
-
-        if self.cover_offset is not None:
-            exth.write(pack(b'>III', EXTH_CODES['coveroffset'], 12,
-                self.cover_offset))
-            exth.write(pack(b'>III', EXTH_CODES['hasfakecover'], 12, 0))
-            nrecs += 2
-        if self.thumbnail_offset is not None:
-            exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
-                self.thumbnail_offset))
-            nrecs += 1
-
-        if self.serializer.start_offset is not None:
-            exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
-                self.serializer.start_offset))
-            nrecs += 1
-
-        exth = exth.getvalue()
-        trail = len(exth) % 4
-        pad = b'\0' * (4 - trail) # Always pad w/ at least 1 byte
-        exth = [b'EXTH', pack(b'>II', len(exth) + 12, nrecs), exth, pad]
-        return b''.join(exth)
     # }}}
 
     def write_header(self): # PalmDB header {{{

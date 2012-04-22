@@ -26,6 +26,7 @@ from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
         ChunkIndex, GuideIndex)
+from calibre.ebooks.mobi.writer8.mobi import KF8Book
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -42,7 +43,7 @@ class KF8Writer(object):
         self.used_images = set()
         self.resources = resources
         self.flows = [None] # First flow item is reserved for the text
-        self.records = []
+        self.records = [None] # Placeholder for zeroth record
 
         self.log('\tGenerating KF8 markup...')
         self.dup_data()
@@ -266,9 +267,10 @@ class KF8Writer(object):
             start = 0 if i == 0 else self.fdst_table[-1].end
             self.fdst_table.append(FDST(start, start + len(flow)))
             entries.extend(self.fdst_table[-1])
-        rec = (b'FDST' + pack(b'>LL', len(self.fdst_table), 12) +
+        rec = (b'FDST' + pack(b'>LL', 12, len(self.fdst_table)) +
                 pack(b'>%dL'%len(entries), *entries))
         self.fdst_records = [rec]
+        self.fdst_count = len(self.fdst_table)
 
     def create_indices(self):
         self.skel_records = SkelIndex(self.skel_table)()
@@ -346,4 +348,8 @@ class KF8Writer(object):
 
         if self.guide_table:
             self.guide_records = GuideIndex(self.guide_table)()
+
+def create_kf8_book(oeb, opts, resources):
+    writer = KF8Writer(oeb, opts, resources)
+    return KF8Book(writer)
 

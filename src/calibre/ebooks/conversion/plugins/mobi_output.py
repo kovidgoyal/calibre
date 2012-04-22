@@ -164,7 +164,8 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.mobi.writer2.resources import Resources
         self.log, self.opts, self.oeb = log, opts, oeb
 
-        create_kf8 = tweaks.get('create_kf8', False)
+        mobi_type = tweaks.get('test_mobi_output_type', 'old')
+        create_kf8 = mobi_type in ('new', 'both')
 
         self.remove_html_cover()
         resources = Resources(oeb, opts, self.is_periodical,
@@ -172,13 +173,17 @@ class MOBIOutput(OutputFormatPlugin):
         self.check_for_periodical()
 
         kf8 = self.create_kf8(resources) if create_kf8 else None
+        if mobi_type == 'new':
+            kf8.write(output_path)
+            self.extract_mobi(output_path, opts)
+            return
 
         self.log('Creating MOBI 6 output')
         self.write_mobi(input_plugin, output_path, kf8, resources)
 
     def create_kf8(self, resources):
-        from calibre.ebooks.mobi.writer8.main import KF8Writer
-        return KF8Writer(self.oeb, self.opts, resources)
+        from calibre.ebooks.mobi.writer8.main import create_kf8_book
+        return create_kf8_book(self.oeb, self.opts, resources)
 
     def write_mobi(self, input_plugin, output_path, kf8, resources):
         from calibre.ebooks.mobi.mobiml import MobiMLizer
@@ -209,7 +214,9 @@ class MOBIOutput(OutputFormatPlugin):
         writer = MobiWriter(opts, resources, kf8,
                         write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
+        self.extract_mobi(output_path, opts)
 
+    def extract_mobi(self, output_path, opts):
         if opts.extract_to is not None:
             from calibre.ebooks.mobi.debug.main import inspect_mobi
             ddir = opts.extract_to
