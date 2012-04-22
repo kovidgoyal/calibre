@@ -167,6 +167,15 @@ class KF8Writer(object):
                 link.set('href', 'kindle:flow:%s?mime=text/css'%idx)
 
     def extract_svg_into_flows(self):
+        images = {}
+
+        for item in self.oeb.manifest:
+            if item.media_type == SVG_MIME:
+                data = self.data(item)
+                images[item.href] = len(self.flows)
+                self.flows.append(etree.tostring(data, encoding='UTF=8',
+                    with_tail=True, xml_declaration=True))
+
         for item in self.oeb.spine:
             root = self.data(item)
 
@@ -180,6 +189,14 @@ class KF8Writer(object):
                         src="kindle:flow:%s?mime=image/svg+xml"%to_ref(idx))
                 p.insert(pos, img)
                 extract(svg)
+
+            for img in XPath('//h:img[@src]')(root):
+                src = img.get('src')
+                abshref = item.abshref(src)
+                idx = images.get(abshref, None)
+                if idx is not None:
+                    img.set('src', 'kindle:flow:%s?mime=image/svg+xml'%
+                            to_ref(idx))
 
     def replace_internal_links_with_placeholders(self):
         self.link_map = {}
