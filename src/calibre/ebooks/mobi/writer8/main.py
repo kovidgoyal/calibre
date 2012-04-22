@@ -130,8 +130,8 @@ class KF8Writer(object):
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
                 data = self.data(item).cssText
-                self.flows.append(force_unicode(data, 'utf-8'))
                 sheets[item.href] = len(self.flows)
+                self.flows.append(force_unicode(data, 'utf-8'))
 
         for item in self.oeb.spine:
             root = self.data(item)
@@ -158,8 +158,8 @@ class KF8Writer(object):
                 inlines[raw].append(repl)
 
         for raw, elems in inlines.iteritems():
-            self.flows.append(raw)
             idx = to_ref(len(self.flows))
+            self.flows.append(raw)
             for link in elems:
                 link.set('href', 'kindle:flow:%s?mime=text/css'%idx)
 
