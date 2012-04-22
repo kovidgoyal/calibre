@@ -599,4 +599,8 @@ class CNCX(object): # {{{
 
 # }}}
 
+def is_guide_ref_start(ref):
+    return (ref.title.lower() == 'start' or
+            (ref.type and ref.type.lower() in {'start',
+                    'other.start', 'text'}))
 

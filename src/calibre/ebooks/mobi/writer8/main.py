@@ -17,12 +17,15 @@ import cssutils
 from lxml import etree
 
 from calibre import isbytestring, force_unicode
-from calibre.ebooks.mobi.utils import create_text_record, to_base
+from calibre.ebooks.mobi.utils import (create_text_record, to_base,
+        is_guide_ref_start)
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
         extract, XHTML, urlnormalize)
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
+from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
+        ChunkIndex, GuideIndex)
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -38,11 +41,11 @@ class KF8Writer(object):
         self.log.info('Creating KF8 output')
         self.used_images = set()
         self.resources = resources
-        self.dup_data()
         self.flows = [None] # First flow item is reserved for the text
         self.records = []
-        self.fdst_table = []
 
+        self.log('\tGenerating KF8 markup...')
+        self.dup_data()
         self.replace_resource_links()
         self.extract_css_into_flows()
         self.extract_svg_into_flows()
@@ -52,7 +55,10 @@ class KF8Writer(object):
         # Dump the cloned data as it is no longer needed
         del self._data_cache
         self.create_text_records()
-        self.create_fdst_table()
+        self.log('\tCreating indices...')
+        self.create_fdst_records()
+        self.create_indices()
+        self.create_guide()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
@@ -231,7 +237,7 @@ class KF8Writer(object):
         records_size = 0
 
         if self.compress:
-            self.oeb.logger.info('  Compressing markup content...')
+            self.oeb.logger.info('\tCompressing markup...')
 
         while text.tell() < self.text_length:
             data, overlap = create_text_record(text)
@@ -252,9 +258,90 @@ class KF8Writer(object):
             self.records.append(b'\x00'*(records_size % 4))
             self.first_non_text_record_idx += 1
 
-    def create_fdst_table(self):
+    def create_fdst_records(self):
         FDST = namedtuple('Flow', 'start end')
+        entries = []
+        self.fdst_table = []
         for i, flow in enumerate(self.flows):
             start = 0 if i == 0 else self.fdst_table[-1].end
             self.fdst_table.append(FDST(start, start + len(flow)))
+            entries.extend(self.fdst_table[-1])
+        rec = (b'FDST' + pack(b'>LL', len(self.fdst_table), 12) +
+                pack(b'>%dL'%len(entries), *entries))
+        self.fdst_records = [rec]
+
+    def create_indices(self):
+        self.skel_records = SkelIndex(self.skel_table)()
+        self.chunk_records = ChunkIndex(self.chunk_table)()
+        self.ncx_records = []
+        toc = self.oeb.toc
+        max_depth = toc.depth()
+        entries = []
+        is_periodical = self.opts.mobi_periodical
+        if toc.count() < 2:
+            self.log.warn('Document has no ToC, MOBI will have no NCX index')
+            return
+
+        # Flatten the ToC into a depth first list
+        fl = toc.iter() if is_periodical else toc.iterdescendants()
+        for i, item in enumerate(fl):
+            entry = {'index':i, 'depth': max_depth - item.depth() - (0 if
+                is_periodical else 1), 'href':item.href, 'label':(item.title or
+                    _('Unknown'))}
+            entries.append(entry)
+            for child in item:
+                child.ncx_parent = entry
+            p = getattr(item, 'ncx_parent', None)
+            if p is not None:
+                entry['parent'] = p['index']
+            if is_periodical:
+                if item.author:
+                    entry['author'] = item.author
+                if item.description:
+                    entry['description'] = item.description
+
+        for entry in entries:
+            children = [e for e in entries if e.get('parent', -1) == entry['index']]
+            if children:
+                entry['first_child'] = children[0]['index']
+                entry['last_child'] = children[-1]['index']
+            href = entry.pop('href')
+            href, frag = href.partition('#')[0::2]
+            aid = self.id_map.get((href, frag), None)
+            if aid is None:
+                aid = self.id_map.get((href, ''), None)
+            if aid is None:
+                pos, fid = 0, 0
+            else:
+                pos, fid = self.aid_offset_map[aid]
+            chunk = self.chunk_table[pos]
+            offset = chunk.insert_pos + fid
+            length = chunk.length
+            entry['pos_fid'] = (pos, fid)
+            entry['offset'] = offset
+            entry['length'] = length
+
+        self.ncx_records = NCXIndex(entries)()
+
+    def create_guide(self):
+        self.start_offset = None
+        self.guide_table = []
+        self.guide_records = []
+        GuideRef = namedtuple('GuideRef', 'title type pos_fid')
+        for ref in self.oeb.guide:
+            ref = self.oeb.guide[ref]
+            href, frag = ref.href.partition('#')[0::2]
+            aid = self.id_map.get((href, frag), None)
+            if aid is None:
+                aid = self.id_map.get((href, ''))
+            if aid is None:
+                continue
+            pos, fid = self.aid_offset_map[aid]
+            if is_guide_ref_start(ref):
+                self.start_offset = pos
+            self.guide_table.append(GuideRef(ref.title or
+                _('Unknown'), ref.type, (pos, fid)))
+
+        if self.guide_table:
+            self.guide_records = GuideIndex(self.guide_table)()
 

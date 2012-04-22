@@ -359,14 +359,14 @@ class Chunker(object):
             if pos_fid is None:
                 raise ValueError('Could not find chunk for aid: %r'%
                         match.group(1))
-            aid_map[match.group(1)] = (to_base(chunk.sequence_number,
-                                            base=32, min_num_digits=4),
-                                    to_href(offset-chunk.insert_pos))
+            aid_map[match.group(1)] = pos_fid
 
         self.aid_offset_map = aid_map
 
         def to_placeholder(aid):
-            return bytes(':'.join(aid_map[aid]))
+            pos, fid = aid_map[aid]
+            pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
+            return bytes(':'.join((pos, fid)))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}

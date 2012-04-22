@@ -15,9 +15,10 @@ from io import BytesIO
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header
 
-TagMeta = namedtuple('TagMeta',
+TagMeta_ = namedtuple('TagMeta',
         'name number values_per_entry bitmask end_flag')
-EndTagTable = TagMeta('eof', 0, 0, 0, 1)
+TagMeta = lambda x:TagMeta_(*x)
+EndTagTable = TagMeta(('eof', 0, 0, 0, 1))
 
 # map of mask to number of shifts needed, works with 1 bit and two-bit wide masks
 # could also be extended to 4 bit wide ones as well
@@ -118,7 +119,10 @@ class Index(object): # {{{
                     cbs.append(ans)
                     ans = 0
                     continue
-                nvals = len(tags.get(name, ()))
+                try:
+                    nvals = len(tags.get(name, ()))
+                except TypeError:
+                    nvals = 1
                 nentries = nvals // vpe
                 shifts = mask_to_bit_shifts[mask]
                 ans |= mask & (nentries << shifts)
@@ -132,36 +136,51 @@ class Index(object): # {{{
                 self.entries)
 
         rendered_entries = []
-        offset = 0
         index, idxt, buf = BytesIO(), BytesIO(), BytesIO()
         IndexEntry = namedtuple('IndexEntry', 'offset length raw')
+        last_lead_text = b''
+        too_large = ValueError('Index has too many entries, calibre does not'
+                    ' support generating multiple index records at this'
+                    ' time.')
+
         for i, x in enumerate(self.entries):
             control_bytes = self.control_bytes[i]
             leading_text, tags = x
-            buf.truncate(0)
+            buf.seek(0), buf.truncate(0)
+            leading_text = (leading_text.encode('utf-8') if
+                    isinstance(leading_text, unicode) else leading_text)
             raw = bytearray(leading_text)
             raw.insert(0, len(leading_text))
             buf.write(bytes(raw))
-            buf.write(control_bytes)
+            buf.write(bytes(bytearray(control_bytes)))
             for tag in self.tag_types:
                 values = tags.get(tag.name, None)
+                if values is None: continue
+                try:
+                    len(values)
+                except TypeError:
+                    values = [values]
                 if values:
                     for val in values:
-                        buf.write(encint(val))
+                        try:
+                            buf.write(encint(val))
+                        except ValueError:
+                            raise ValueError('Invalid values for %r: %r'%(
+                                tag, values))
             raw = buf.getvalue()
+            offset = index.tell()
+            if offset + self.HEADER_LENGTH >= 0x10000:
+                raise too_large
             rendered_entries.append(IndexEntry(offset, len(raw), raw))
             idxt.write(pack(b'>H', self.HEADER_LENGTH+offset))
-            offset += len(raw)
             index.write(raw)
+            last_lead_text = leading_text
 
         index_block = align_block(index.getvalue())
         idxt_block = align_block(b'IDXT' + idxt.getvalue())
         body = index_block + idxt_block
         if len(body) + self.HEADER_LENGTH >= 0x10000:
-            raise ValueError('Index has too many entries, calibre does not'
-                    ' support generating multiple index records at this'
-                    ' time.')
-
+            raise too_large
         header = b'INDX'
         buf.truncate(0)
         buf.write(pack(b'>I', self.HEADER_LENGTH))
@@ -185,10 +204,15 @@ class Index(object): # {{{
         tagx = self.generate_tagx()
         idxt = (b'IDXT' + pack(b'>H', IndexHeader.HEADER_LENGTH + len(tagx)) +
                 b'\0')
+        # Last index
+        idx = bytes(bytearray([len(last_lead_text)])) + last_lead_text
+        idx += pack(b'>H', len(rendered_entries))
+
         header = {
                 'num_of_entries': len(rendered_entries),
                 'num_of_cncx': len(self.cncx),
                 'tagx':tagx,
+                'last_index':align_block(idx),
                 'idxt':idxt
         }
         header = IndexHeader()(**header)
@@ -235,6 +259,74 @@ class ChunkIndex(Index):
                     'file_number':c.file_number,
                     'sequence_number':c.sequence_number,
                     'geometry':(c.start_pos, c.length),
-                    }) for s in chunk_table
+                    }) for c in chunk_table
         ]
+
+class GuideIndex(Index):
+
+    tag_types = tuple(map(TagMeta, (
+        ('title',           1, 1, 1, 0),
+        ('pos_fid',         6, 2, 2, 0),
+        EndTagTable
+    )))
+
+    def __init__(self, guide_table):
+        self.cncx = CNCX(c.title for c in guide_table)
+
+        self.entries = [
+                (r.type, {
+
+                    'title':self.cncx[r.title],
+                    'pos_fid':r.pos_fid,
+                    }) for r in guide_table
+        ]
+
+
+class NCXIndex(Index):
+
+    control_byte_count = 2
+    tag_types = tuple(map(TagMeta, (
+        ('offset',             1, 1, 1, 0),
+        ('length',             2, 1, 2, 0),
+        ('label',              3, 1, 4, 0),
+        ('depth',              4, 1, 8, 0),
+        ('parent',             21, 1, 16, 0),
+        ('first_child',        22, 1, 32, 0),
+        ('last_child',         23, 1, 64, 0),
+        ('pos_fid',            6, 2, 128, 0),
+        EndTagTable,
+        ('image',              69, 1, 1, 0),
+        ('description',        70, 1, 2, 0),
+        ('author',             71, 1, 4, 0),
+        ('caption',            72, 1, 8, 0),
+        ('attribution',        73, 1, 16, 0),
+        EndTagTable
+    )))
+
+    def __init__(self, toc_table):
+        strings = []
+        for entry in toc_table:
+            strings.append(entry['label'])
+            aut = entry.get('author', None)
+            if aut:
+                strings.append(aut)
+            desc = entry.get('description', None)
+            if desc:
+                strings.append(desc)
+        self.cncx = CNCX(strings)
+
+        def to_entry(x):
+            ans = {}
+            for f in ('offset', 'length', 'depth', 'pos_fid', 'parent',
+                    'first_child', 'last_child'):
+                if f in x:
+                    ans[f] = x[f]
+            for f in ('label', 'description', 'author'):
+                if f in x:
+                    ans[f] = self.cncx[x[f]]
+            return ('%02x'%x['index'], ans)
+
+        self.entries = list(map(to_entry, toc_table))
+
+
 
