@@ -43,7 +43,10 @@ class MOBIHeader(Header): # {{{
     # 10: Text record size
     record_size = {record_size}
 
-    # 12: Unused
+    # 12: Encryption Type
+    encryption_type
+
+    # 14: Unused
     unused2
 
     # 16: Ident
@@ -65,8 +68,8 @@ class MOBIHeader(Header): # {{{
     # 36: File version
     file_version = {file_version}
 
-    # 40: Meta orth record (Chunk table index in KF8)
-    meta_orth_record = DYN
+    # 40: Meta orth record (used in dictionaries)
+    meta_orth_record = NULL
 
     # 44: Meta infl index
     meta_infl_index = NULL
@@ -107,24 +110,23 @@ class MOBIHeader(Header): # {{{
     huff_first_record
     huff_count
 
-    # 120: DATP records
-    datp_first_record
-    datp_count
+    # 120: Unknown (Maybe DATP related, maybe HUFF/CDIC related)
+    maybe_datp = zeroes(8)
 
     # 128: EXTH flags
     exth_flags = DYN
 
     # 132: Unknown
-    unknown = zeroes(32)
+    unknown = zeroes(36)
 
-    # 164: DRM
-    drm_offset = NULL
-    drm_count = NULL
+    # 168: DRM
+    drm_offset
+    drm_count
     drm_size
     drm_flags
 
-    # 180: Unknown
-    unknown2 = zeroes(12)
+    # 184: Unknown
+    unknown2 = zeroes(8)
 
     # 192: FDST
     fdst_record = DYN
@@ -171,7 +173,8 @@ class MOBIHeader(Header): # {{{
     padding = zeroes(8192)
     '''.format(record_size=RECORD_SIZE, file_version=FILE_VERSION)
 
-    SHORT_FIELDS = {'compression', 'last_text_record', 'record_size'}
+    SHORT_FIELDS = {'compression', 'last_text_record', 'record_size',
+            'encryption_type', 'unused2'}
     ALIGN = True
     POSITIONS = {'title_offset':'full_title'}
 
@@ -198,7 +201,7 @@ class KF8Book(object):
         self.text_length = writer.text_length
 
         # KF8 Indices
-        self.chunk_index = self.meta_orth_record = len(self.records)
+        self.chunk_index = len(self.records)
         self.records.extend(writer.chunk_records)
         self.skel_index = len(self.records)
         self.records.extend(writer.skel_records)
@@ -264,12 +267,11 @@ class KF8Book(object):
                 start_offset=self.start_offset, mobi_doctype=self.book_type)
 
         kwargs = {field:getattr(self, field) for field in
-                ('compression', 'text_length', 'last_text_record',
-                'book_type', 'meta_orth_record', 'first_non_text_record',
-                'title_length', 'language_code', 'first_resource_record',
-                'exth_flags', 'fdst_record', 'fdst_count', 'ncx_index',
-                'chunk_index', 'skel_index', 'guide_index', 'exth',
-                'full_title')}
+                ('compression', 'text_length', 'last_text_record', 'book_type',
+                    'first_non_text_record', 'title_length', 'language_code',
+                    'first_resource_record', 'exth_flags', 'fdst_record',
+                    'fdst_count', 'ncx_index', 'chunk_index', 'skel_index',
+                    'guide_index', 'exth', 'full_title')}
         return MOBIHeader()(**kwargs)
 
     def write(self, outpath):
