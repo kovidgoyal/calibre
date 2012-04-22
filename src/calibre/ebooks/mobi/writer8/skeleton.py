@@ -392,10 +392,15 @@ class Chunker(object):
             shutil.rmtree(tdir)
         orig = os.path.join(tdir, 'orig')
         rebuilt = os.path.join(tdir, 'rebuilt')
-        for x in (orig, rebuilt):
+        chunks = os.path.join(tdir, 'chunks')
+        for x in (orig, rebuilt, chunks):
             os.makedirs(x)
         error = False
         for i, skeleton in enumerate(self.skeletons):
+            for j, chunk in enumerate(skeleton.chunks):
+                with open(os.path.join(chunks, 'file-%d-chunk-%d.html'%(i, j)),
+                        'wb') as f:
+                    f.write(chunk.raw)
             oraw, rraw = orig_dumps[i], skeleton.rebuild()
             with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
                 f.write(oraw)
