@@ -337,7 +337,10 @@ class KF8Writer(object):
             if aid is None:
                 continue
             pos, fid = self.aid_offset_map[aid]
-            if is_guide_ref_start(ref):
+            if is_guide_ref_start(ref) and fid == 0:
+                # If fid != 0 then we cannot represent the start position as a
+                # single number in the EXTH header, so we do not write it to
+                # EXTH
                 self.start_offset = pos
             self.guide_table.append(GuideRef(ref.title or
                 _('Unknown'), ref.type, (pos, fid)))
