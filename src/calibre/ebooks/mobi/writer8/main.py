@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy
+import copy, logging
 from functools import partial
 from collections import defaultdict, namedtuple
 from io import BytesIO
@@ -65,6 +65,9 @@ class KF8Writer(object):
         ''' Duplicate data so that any changes we make to markup/CSS only
         affect KF8 output and not MOBI 6 output '''
         self._data_cache = {}
+        # Suppress cssutils logging output as it is duplicated anyway earlier
+        # in the pipeline
+        cssutils.log.setLevel(logging.CRITICAL)
         for item in self.oeb.manifest:
             if item.media_type in XML_DOCS:
                 self._data_cache[item.href] = copy.deepcopy(item.data)
