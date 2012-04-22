@@ -10,9 +10,11 @@ __copyright__ = '''
 2012, Alayn Gortazar <zutoin at gmail dot com>
 '''
 
+from operator import itemgetter 
 from contextlib import closing
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+from calibre import strftime
 import json
 import urllib
 import urllib2
@@ -31,16 +33,16 @@ class Readitlater(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     needs_subscription    = True
+    mark_as_read_after_dl = False
+    enhanced_version      = True
+    
     KEY                   = '8e0p5f19A74emL3a47goP87m69d4VF8b'
-    API_TEXT_INDEX             = 'https://text.readitlaterlist.com/'
+    API_TEXT_INDEX        = 'https://text.readitlaterlist.com/'
     API_INDEX             = 'https://readitlaterlist.com/'
     INDEX                 = 'https://getpocket.com/'
     LOGIN                 = INDEX + u'/l'
-    enhanced_version      = True
 
     articles              = []
-    
-    feeds = [(u'Unread articles' , INDEX)]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -63,9 +65,10 @@ class Readitlater(BasicNewsRecipe):
         return auth_params
 
     def parse_index(self):
-        index = self.API_INDEX + 'v2/get?' + self.get_auth_params()
+        index = self.API_INDEX + 'v3/get?' + self.get_auth_params()
         index += '&state=unread'
         index += '&count=' + str(self.max_articles_per_feed) 
+        index += '&sort=oldest' 
 
         open_func = getattr(self.browser, 'open_novisit', self.browser.open)
         with closing(open_func(index)) as f:
@@ -85,15 +88,17 @@ class Readitlater(BasicNewsRecipe):
                     dataurl = self.API_TEXT_INDEX + 'v2/text?' + self.get_auth_params()
                     dataurl += '&url=' + item[1]['url']
                 self.articles.append({
-                                 'title':item[1]['title'],
+                                 'title':item[1]['resolved_title'],
                                  'date':item[1]['time_added'],
                                  'url':dataurl,
                                  'description':item[1]['item_id'],
-                                 'real_url':item[1]['url']
+                                 'sort_id':int(item[1]['sort_id']),
+                                 'real_url':item[1]['given_url']
                             })
         else:
             raise Exception("Not enough articles in RIL! Change minimum_articles or add more.")
-
+        
+        self.articles = sorted(self.articles, key=itemgetter('sort_id'))
         return [('Unread', self.articles)]
 
     def preprocess_raw_html(self, raw_html, url):
@@ -123,7 +128,8 @@ class Readitlater(BasicNewsRecipe):
     def cleanup(self):
         # From a list of urls, create a human-readable JSON string
         # suitable for passing to the ReadItLater SEND::READ method.
-        self.markAsRead(self.createMarkList(self.articles))
+        if self.mark_as_read_after_dl:        
+            self.markAsRead(self.createMarkList(self.articles))
 
     def createMarkList(self, articles):
         urls = []
@@ -153,3 +159,22 @@ class Readitlater(BasicNewsRecipe):
             print 'The server could not fulfill the request: ', e
         except urllib2.URLError as e:
             print 'The call to ReadItLater API failed:', e
+
+    def default_cover(self, cover_file):
+        '''
+        Create a generic cover for recipes that don't have a cover
+        This override adds time to the cover
+        '''
+        try:
+            from calibre.ebooks import calibre_cover
+            title = self.title if isinstance(self.title, unicode) else \
+                    self.title.decode(preferred_encoding, 'replace')
+            date = strftime(self.timefmt)
+            time = strftime('[%I:%M %p]')
+            img_data = calibre_cover(title, date, time)
+            cover_file.write(img_data)
+            cover_file.flush()
+        except:
+            self.log.exception('Failed to generate default cover')
+            return False
+        return True
