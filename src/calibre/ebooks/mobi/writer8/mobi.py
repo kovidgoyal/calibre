@@ -220,8 +220,6 @@ class KF8Book(object):
         if resources.records:
             self.first_resource_record = len(self.records)
             self.records.extend(resources.records)
-
-        self.first_resource_record = len(self.records)
         self.num_of_resources = len(resources.records)
 
         # FDST
