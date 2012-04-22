@@ -325,9 +325,9 @@ class Chunker(object):
 
         Chunk = namedtuple('Chunk',
             'insert_pos selector file_number sequence_number start_pos length')
-        num = cp = 0
+        num = 0
         for skel in self.skeletons:
-            cp = skel.start_pos
+            cp = 0
             for chunk in skel.chunks:
                 self.chunk_table.append(
                     Chunk(chunk.insert_pos + skel.start_pos, chunk.selector,
