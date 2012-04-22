@@ -9,42 +9,56 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 from functools import partial
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+from io import BytesIO
+from struct import pack
 
 import cssutils
 from lxml import etree
 
 from calibre import isbytestring, force_unicode
-from calibre.ebooks.mobi.utils import to_base
+from calibre.ebooks.mobi.utils import (create_text_record, to_base,
+        is_guide_ref_start)
+from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
         extract, XHTML, urlnormalize)
 from calibre.ebooks.oeb.parse_utils import barename
-from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags
+from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
+from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
+        ChunkIndex, GuideIndex)
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
 # References to record numbers in KF8 are stored as base-32 encoded integers,
 # with 4 digits
 to_ref = partial(to_base, base=32, min_num_digits=4)
-# References in links are stored with 10 digits
-to_href = partial(to_base, base=32, min_num_digits=10)
 
 class KF8Writer(object):
 
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
+        self.compress = not self.opts.dont_compress
         self.log.info('Creating KF8 output')
         self.used_images = set()
         self.resources = resources
-        self.dup_data()
         self.flows = [None] # First flow item is reserved for the text
+        self.records = []
 
+        self.log('\tGenerating KF8 markup...')
+        self.dup_data()
         self.replace_resource_links()
         self.extract_css_into_flows()
         self.extract_svg_into_flows()
         self.replace_internal_links_with_placeholders()
         self.insert_aid_attributes()
         self.chunk_it_up()
+        # Dump the cloned data as it is no longer needed
+        del self._data_cache
+        self.create_text_records()
+        self.log('\tCreating indices...')
+        self.create_fdst_records()
+        self.create_indices()
+        self.create_guide()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
@@ -199,7 +213,137 @@ class KF8Writer(object):
                     j += 1
 
     def chunk_it_up(self):
-        chunker = Chunker(self.oeb, self.data)
-        chunker
+        placeholder_map = {}
+        for placeholder, x in self.link_map.iteritems():
+            href, frag = x
+            aid = self.id_map.get(x, None)
+            if aid is None:
+                aid = self.id_map.get((href, ''))
+            placeholder_map[placeholder] = aid
+        chunker = Chunker(self.oeb, self.data, placeholder_map)
 
+        for x in ('skel_table', 'chunk_table', 'aid_offset_map'):
+            setattr(self, x, getattr(chunker, x))
+
+        self.flows[0] = chunker.text
+
+    def create_text_records(self):
+        self.flows = [x.encode('utf-8') if isinstance(x, unicode) else x for x
+                in self.flows]
+        text = b''.join(self.flows)
+        self.text_length = len(text)
+        text = BytesIO(text)
+        nrecords = 0
+        records_size = 0
+
+        if self.compress:
+            self.oeb.logger.info('\tCompressing markup...')
+
+        while text.tell() < self.text_length:
+            data, overlap = create_text_record(text)
+            if self.compress:
+                data = compress_doc(data)
+
+            data += overlap
+            data += pack(b'>B', len(overlap))
+
+            self.records.append(data)
+            records_size += len(data)
+            nrecords += 1
+
+        self.last_text_record_idx = nrecords
+        self.first_non_text_record_idx = nrecords + 1
+        # Pad so that the next records starts at a 4 byte boundary
+        if records_size % 4 != 0:
+            self.records.append(b'\x00'*(records_size % 4))
+            self.first_non_text_record_idx += 1
+
+    def create_fdst_records(self):
+        FDST = namedtuple('Flow', 'start end')
+        entries = []
+        self.fdst_table = []
+        for i, flow in enumerate(self.flows):
+            start = 0 if i == 0 else self.fdst_table[-1].end
+            self.fdst_table.append(FDST(start, start + len(flow)))
+            entries.extend(self.fdst_table[-1])
+        rec = (b'FDST' + pack(b'>LL', len(self.fdst_table), 12) +
+                pack(b'>%dL'%len(entries), *entries))
+        self.fdst_records = [rec]
+
+    def create_indices(self):
+        self.skel_records = SkelIndex(self.skel_table)()
+        self.chunk_records = ChunkIndex(self.chunk_table)()
+        self.ncx_records = []
+        toc = self.oeb.toc
+        max_depth = toc.depth()
+        entries = []
+        is_periodical = self.opts.mobi_periodical
+        if toc.count() < 2:
+            self.log.warn('Document has no ToC, MOBI will have no NCX index')
+            return
+
+        # Flatten the ToC into a depth first list
+        fl = toc.iter() if is_periodical else toc.iterdescendants()
+        for i, item in enumerate(fl):
+            entry = {'index':i, 'depth': max_depth - item.depth() - (0 if
+                is_periodical else 1), 'href':item.href, 'label':(item.title or
+                    _('Unknown'))}
+            entries.append(entry)
+            for child in item:
+                child.ncx_parent = entry
+            p = getattr(item, 'ncx_parent', None)
+            if p is not None:
+                entry['parent'] = p['index']
+            if is_periodical:
+                if item.author:
+                    entry['author'] = item.author
+                if item.description:
+                    entry['description'] = item.description
+
+        for entry in entries:
+            children = [e for e in entries if e.get('parent', -1) == entry['index']]
+            if children:
+                entry['first_child'] = children[0]['index']
+                entry['last_child'] = children[-1]['index']
+            href = entry.pop('href')
+            href, frag = href.partition('#')[0::2]
+            aid = self.id_map.get((href, frag), None)
+            if aid is None:
+                aid = self.id_map.get((href, ''), None)
+            if aid is None:
+                pos, fid = 0, 0
+            else:
+                pos, fid = self.aid_offset_map[aid]
+            chunk = self.chunk_table[pos]
+            offset = chunk.insert_pos + fid
+            length = chunk.length
+            entry['pos_fid'] = (pos, fid)
+            entry['offset'] = offset
+            entry['length'] = length
+
+        self.ncx_records = NCXIndex(entries)()
+
+    def create_guide(self):
+        self.start_offset = None
+        self.guide_table = []
+        self.guide_records = []
+        GuideRef = namedtuple('GuideRef', 'title type pos_fid')
+        for ref in self.oeb.guide.values():
+            href, frag = ref.href.partition('#')[0::2]
+            aid = self.id_map.get((href, frag), None)
+            if aid is None:
+                aid = self.id_map.get((href, ''))
+            if aid is None:
+                continue
+            pos, fid = self.aid_offset_map[aid]
+            if is_guide_ref_start(ref) and fid == 0:
+                # If fid != 0 then we cannot represent the start position as a
+                # single number in the EXTH header, so we do not write it to
+                # EXTH
+                self.start_offset = pos
+            self.guide_table.append(GuideRef(ref.title or
+                _('Unknown'), ref.type, (pos, fid)))
+
+        if self.guide_table:
+            self.guide_records = GuideIndex(self.guide_table)()
 

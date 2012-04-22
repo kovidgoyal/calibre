@@ -12,6 +12,7 @@ import re
 from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
         namespace, prefixname, urlnormalize)
 from calibre.ebooks.mobi.mobiml import MBP_NS
+from calibre.ebooks.mobi.utils import is_guide_ref_start
 
 from collections import defaultdict
 from urlparse import urldefrag
@@ -161,9 +162,7 @@ class Serializer(object):
                 buf.write(b'title="')
                 self.serialize_text(ref.title, quot=True)
                 buf.write(b'" ')
-                if (ref.title.lower() == 'start' or
-                    (ref.type and ref.type.lower() in {'start',
-                        'other.start', 'text'})):
+                if is_guide_ref_start(ref):
                     self._start_href = ref.href
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not

@@ -17,7 +17,7 @@ from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
 
-Elem = namedtuple('Elem',
+Elem = namedtuple('Chunk',
     'insert_pos toc_text file_number sequence_number start_pos '
     'length')
 
@@ -110,7 +110,7 @@ class SECTIndex(Index):
              for i, text in enumerate(self.table.iterkeys()):
                 tag_map = self.table[text]
                 if set(tag_map.iterkeys()) != {2, 3, 4, 6}:
-                    raise ValueError('SECT Index has unknown tags: %s'%
+                    raise ValueError('Chunk Index has unknown tags: %s'%
                             (set(tag_map.iterkeys())-{2, 3, 4, 6}))
 
                 toc_text = self.cncx[tag_map[2][0]]

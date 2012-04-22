@@ -16,9 +16,9 @@ from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
+from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
-        align_block, detect_periodical)
+        align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
@@ -163,9 +163,7 @@ class MobiWriter(object):
 
     # }}}
 
-    # Text {{{
-
-    def generate_text(self):
+    def generate_text(self): # {{{
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map,
                 self.is_periodical,
@@ -180,7 +178,7 @@ class MobiWriter(object):
             self.oeb.logger.info('  Compressing markup content...')
 
         while text.tell() < self.text_length:
-            data, overlap = self.read_text_record(text)
+            data, overlap = create_text_record(text)
             if self.compression == PALMDOC:
                 data = compress_doc(data)
 
@@ -197,57 +195,6 @@ class MobiWriter(object):
         if records_size % 4 != 0:
             self.records.append(b'\x00'*(records_size % 4))
             self.first_non_text_record_idx += 1
-
-    def read_text_record(self, text):
-        '''
-        Return a Palmdoc record of size RECORD_SIZE from the text file object.
-        In case the record ends in the middle of a multibyte character return
-        the overlap as well.
-
-        Returns data, overlap: where both are byte strings. overlap is the
-        extra bytes needed to complete the truncated multibyte character.
-        '''
-        opos = text.tell()
-        text.seek(0, 2)
-        # npos is the position of the next record
-        npos = min((opos + RECORD_SIZE, text.tell()))
-        # Number of bytes from the next record needed to complete the last
-        # character in this record
-        extra = 0
-
-        last = b''
-        while not last.decode('utf-8', 'ignore'):
-            # last contains no valid utf-8 characters
-            size = len(last) + 1
-            text.seek(npos - size)
-            last = text.read(size)
-
-        # last now has one valid utf-8 char and possibly some bytes that belong
-        # to a truncated char
-
-        try:
-            last.decode('utf-8', 'strict')
-        except UnicodeDecodeError:
-            # There are some truncated bytes in last
-            prev = len(last)
-            while True:
-                text.seek(npos - prev)
-                last = text.read(len(last) + 1)
-                try:
-                    last.decode('utf-8')
-                except UnicodeDecodeError:
-                    pass
-                else:
-                    break
-            extra = len(last) - prev
-
-        text.seek(opos)
-        data = text.read(RECORD_SIZE)
-        overlap = text.read(extra)
-        text.seek(npos)
-
-        return data, overlap
-
     # }}}
 
     def generate_record0(self): #  MOBI header {{{

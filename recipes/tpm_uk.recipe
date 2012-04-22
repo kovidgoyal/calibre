@@ -11,6 +11,8 @@ class TPM_uk(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Title says it all'
     publisher             = "The Philosophers' Magazine"
+    recipe_disabled = ('This recipe has been disabled as the website has'
+            ' started providing articles only in PDF form')
     category              = 'philosophy, news'
     oldest_article        = 25
     max_articles_per_feed = 200

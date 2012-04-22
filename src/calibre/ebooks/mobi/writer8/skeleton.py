@@ -9,12 +9,18 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from collections import namedtuple
+from functools import partial
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML_NS
+from calibre.constants import ispy3
+from calibre.ebooks.mobi.utils import to_base
 
 CHUNK_SIZE = 8192
+
+# References in links are stored with 10 digits
+to_href = partial(to_base, base=32, min_num_digits=10)
 
 # Tags to which kindlegen adds the aid attribute
 aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
@@ -48,13 +54,36 @@ def node_from_path(root, path):
         parent = parent[idx]
     return parent
 
+mychr = chr if ispy3 else unichr
+
+def tostring(raw, **kwargs):
+    ''' lxml *sometimes* represents non-ascii characters as hex entities in
+    attribute values. I can't figure out exactly what circumstances cause it.
+    It seems to happen when serializing a part of a larger tree. Since we need
+    serialization to be the same when serializing full and partial trees, we
+    manually replace all hex entities with their unicode codepoints. '''
+
+    xml_declaration = kwargs.pop('xml_declaration', False)
+    encoding = kwargs.pop('encoding', 'UTF-8')
+    kwargs['encoding'] = unicode
+    kwargs['xml_declaration'] = False
+    ans = etree.tostring(raw, **kwargs)
+    if xml_declaration:
+        ans = '<?xml version="1.0" encoding="%s"?>\n'%encoding + ans
+    return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:mychr(int(m.group(1), 16)),
+            ans).encode(encoding)
+
 class Chunk(object):
 
-    def __init__(self, raw):
+    def __init__(self, raw, parent_tag):
         self.raw = raw
         self.starts_tags = []
         self.ends_tags = []
         self.insert_pos = None
+        self.parent_tag = parent_tag
+        self.parent_is_body = False
+        self.is_last_chunk = False
+        self.is_first_chunk = False
 
     def __len__(self):
         return len(self.raw)
@@ -62,6 +91,17 @@ class Chunk(object):
     def merge(self, chunk):
         self.raw += chunk.raw
         self.ends_tags = chunk.ends_tags
+
+    def __repr__(self):
+        return 'Chunk(len=%r insert_pos=%r starts_tags=%r ends_tags=%r)'%(
+                len(self.raw), self.insert_pos, self.starts_tags, self.ends_tags)
+
+    @property
+    def selector(self):
+        typ = 'S' if (self.is_last_chunk and not self.parent_is_body) else 'P'
+        return "%s-//*[@aid='%s']"%(typ, self.parent_tag)
+
+    __str__ = __repr__
 
 class Skeleton(object):
 
@@ -76,8 +116,8 @@ class Skeleton(object):
         self.calculate_insert_positions()
 
     def render(self, root):
-        raw = etree.tostring(root, encoding='UTF-8', xml_declaration=True)
-        raw = raw.replace('<html', '<html xmlns="%s"'%XHTML_NS, 1)
+        raw = tostring(root, xml_declaration=True)
+        raw = raw.replace(b'<html', bytes('<html xmlns="%s"'%XHTML_NS), 1)
         return raw
 
     def calculate_metrics(self, root):
@@ -85,8 +125,7 @@ class Skeleton(object):
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
-            raw = etree.tostring(tag, encoding='UTF-8', with_tail=True,
-                    xml_declaration=False)
+            raw = tostring(tag, with_tail=True)
             start_length = len(raw.partition(b'>')[0]) + len(text) + 1
             end_length = len(raw.rpartition(b'<')[-1]) + 1
             self.metrics[tag.get('aid')] = Metric(start_length, end_length)
@@ -101,18 +140,44 @@ class Skeleton(object):
             for tag in chunk.ends_tags:
                 pos += self.metrics[tag].end
 
+    def rebuild(self):
+        ans = self.skeleton
+        for chunk in self.chunks:
+            i = chunk.insert_pos
+            ans = ans[:i] + chunk.raw + ans[i:]
+        return ans
+
+    def __len__(self):
+        return len(self.skeleton) + sum([len(x.raw) for x in self.chunks])
+
+    @property
+    def raw_text(self):
+        return b''.join([self.skeleton] + [x.raw for x in self.chunks])
+
 class Chunker(object):
 
-    def __init__(self, oeb, data_func):
+    def __init__(self, oeb, data_func, placeholder_map):
         self.oeb, self.log = oeb, oeb.log
         self.data = data_func
+        self.placeholder_map = placeholder_map
 
         self.skeletons = []
+
+        # Set this to a list to enable dumping of the original and rebuilt
+        # html files for debugging
+        orig_dumps = None
 
         for i, item in enumerate(self.oeb.spine):
             root = self.remove_namespaces(self.data(item))
             body = root.xpath('//body')[0]
             body.tail = '\n'
+
+            if orig_dumps is not None:
+                orig_dumps.append(tostring(root, xml_declaration=True,
+                    with_tail=True))
+                orig_dumps[-1] = close_self_closing_tags(
+                        orig_dumps[-1].replace(b'<html',
+                        bytes('<html xmlns="%s"'%XHTML_NS), 1))
 
             # First pass: break up document into rendered strings of length no
             # more than CHUNK_SIZE
@@ -127,6 +192,18 @@ class Chunker(object):
             # Third pass: Create the skeleton and calculate the insert position
             # for all chunks
             self.skeletons.append(Skeleton(i, item, root, chunks))
+
+        if orig_dumps:
+            self.dump(orig_dumps)
+
+        # Create the SKEL and Chunk tables
+        self.skel_table = []
+        self.chunk_table = []
+        self.create_tables()
+
+        # Set internal links
+        text = b''.join(x.raw_text for x in self.skeletons)
+        self.text = self.set_internal_links(text)
 
     def remove_namespaces(self, root):
         lang = None
@@ -160,34 +237,33 @@ class Chunker(object):
 
         return nroot
 
-
     def step_into_tag(self, tag, chunks):
         aid = tag.get('aid')
+        is_body = tag.tag == 'body'
 
         first_chunk_idx = len(chunks)
 
         # First handle any text
         if tag.text and tag.text.strip(): # Leave pure whitespace in the skel
-            chunks.extend(self.chunk_up_text(tag.text))
+            chunks.extend(self.chunk_up_text(tag.text, aid))
             tag.text = None
 
         # Now loop over children
         for child in list(tag):
-            raw = etree.tostring(child, encoding='UTF-8',
-                    xml_declaration=False, with_tail=False)
+            raw = tostring(child, with_tail=False)
             raw = close_self_closing_tags(raw)
             if len(raw) > CHUNK_SIZE and child.get('aid', None):
                 self.step_into_tag(child, chunks)
                 if child.tail and child.tail.strip(): # Leave pure whitespace
-                    chunks.extend(self.chunk_up_text(child.tail))
+                    chunks.extend(self.chunk_up_text(child.tail, aid))
                     child.tail = None
             else:
                 if len(raw) > CHUNK_SIZE:
                     self.log.warn('Tag %s has no aid and a too large chunk'
                             ' size. Adding anyway.'%child.tag)
-                chunks.append(Chunk(raw))
+                chunks.append(Chunk(raw, aid))
                 if child.tail:
-                    chunks.extend(self.chunk_up_text(child.tail))
+                    chunks.extend(self.chunk_up_text(child.tail, aid))
                 tag.remove(child)
 
         if len(chunks) <= first_chunk_idx and chunks:
@@ -197,8 +273,15 @@ class Chunker(object):
         if chunks:
             chunks[first_chunk_idx].starts_tags.append(aid)
             chunks[-1].ends_tags.append(aid)
+            my_chunks = chunks[first_chunk_idx:]
+            if my_chunks:
+                my_chunks[0].is_first_chunk = True
+                my_chunks[-1].is_last_chunk = True
+                if is_body:
+                    for chunk in my_chunks:
+                        chunk.parent_is_body = True
 
-    def chunk_up_text(self, text):
+    def chunk_up_text(self, text, parent_tag):
         text = text.encode('utf-8')
         ans = []
 
@@ -214,7 +297,7 @@ class Chunker(object):
         while rest:
             start, rest = split_multibyte_text(rest)
             ans.append(b'<span class="AmznBigTextBlock">' + start + '</span>')
-        return [Chunk(x) for x in ans]
+        return [Chunk(x, parent_tag) for x in ans]
 
     def merge_small_chunks(self, chunks):
         ans = chunks[:1]
@@ -229,4 +312,100 @@ class Chunker(object):
             else:
                 prev.merge(chunk)
         return ans
+
+    def create_tables(self):
+        Skel = namedtuple('Skel',
+                'file_number name chunk_count start_pos length')
+        sp = 0
+        for s in self.skeletons:
+            s.start_pos = sp
+            sp += len(s)
+        self.skel_table = [Skel(s.file_number, 'SKEL%010d'%s.file_number,
+            len(s.chunks), s.start_pos, len(s.skeleton)) for x in self.skeletons]
+
+        Chunk = namedtuple('Chunk',
+            'insert_pos selector file_number sequence_number start_pos length')
+        num = cp = 0
+        for skel in self.skeletons:
+            cp = skel.start_pos
+            for chunk in skel.chunks:
+                self.chunk_table.append(
+                    Chunk(chunk.insert_pos + skel.start_pos, chunk.selector,
+                        skel.file_number, num, cp, len(chunk.raw)))
+                cp += len(chunk.raw)
+                num += 1
+
+    def set_internal_links(self, text):
+        ''' Update the internal link placeholders to point to the correct
+        location, based on the chunk table.'''
+        # A kindle:pos:fid link contains two base 32 numbers of the form
+        # XXXX:YYYYYYYYYY
+        # The first number is an index into the chunk table and the second is
+        # an offset from the start of the chunk to the start of the tag pointed
+        # to by the link.
+        aid_map = {} # Map of aid to (pos, fid)
+        for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
+            offset = match.start()
+            pos_fid = None
+            for chunk in self.chunk_table:
+                if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos)
+                    break
+                if chunk.insert_pos > offset:
+                    # This aid is in the skeleton, not in a chunk, so we use
+                    # the chunk immediately after
+                    pos_fid = (chunk.sequence_number, 0)
+                    break
+            if pos_fid is None:
+                raise ValueError('Could not find chunk for aid: %r'%
+                        match.group(1))
+            aid_map[match.group(1)] = pos_fid
+
+        self.aid_offset_map = aid_map
+
+        def to_placeholder(aid):
+            pos, fid = aid_map[aid]
+            pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
+            return bytes(':'.join((pos, fid)))
+
+        placeholder_map = {bytes(k):to_placeholder(v) for k, v in
+                self.placeholder_map.iteritems()}
+
+        # Now update the links
+        def sub(match):
+            raw = match.group()
+            pl = match.group(1)
+            try:
+                return raw[:-15] + placeholder_map[pl]
+            except KeyError:
+                pass
+            return raw
+
+        return re.sub(br'<[^>]+(kindle:pos:fid:0000:\d{10})', sub, text)
+
+    def dump(self, orig_dumps):
+        import tempfile, shutil, os
+        tdir = os.path.join(tempfile.gettempdir(), 'skeleton')
+        self.log('Skeletons dumped to:', tdir)
+        if os.path.exists(tdir):
+            shutil.rmtree(tdir)
+        orig = os.path.join(tdir, 'orig')
+        rebuilt = os.path.join(tdir, 'rebuilt')
+        for x in (orig, rebuilt):
+            os.makedirs(x)
+        error = False
+        for i, skeleton in enumerate(self.skeletons):
+            oraw, rraw = orig_dumps[i], skeleton.rebuild()
+            with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
+                f.write(oraw)
+            with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
+                f.write(rraw)
+            if oraw != rraw:
+                error = True
+        if error:
+            raise ValueError('The before and after HTML differs. Run a diff '
+                    'tool on the orig and rebuilt directories')
+        else:
+            self.log('Skeleton HTML before and after is identical.')
+
 

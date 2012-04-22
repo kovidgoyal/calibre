@@ -169,6 +169,7 @@ class MOBIOutput(OutputFormatPlugin):
         self.remove_html_cover()
         resources = Resources(oeb, opts, self.is_periodical,
                 add_fonts=create_kf8)
+        self.check_for_periodical()
 
         kf8 = self.create_kf8(resources) if create_kf8 else None
 
@@ -203,7 +204,6 @@ class MOBIOutput(OutputFormatPlugin):
             resources.add_extra_images()
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
-        self.check_for_periodical()
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
         from calibre.ebooks.mobi.writer2.main import MobiWriter
         writer = MobiWriter(opts, resources, kf8,

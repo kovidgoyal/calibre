@@ -198,7 +198,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
         fo.write(str(f.skel_index).encode('utf-8'))
 
-    with open(os.path.join(ddir, 'sect.record'), 'wb') as fo:
+    with open(os.path.join(ddir, 'chunks.record'), 'wb') as fo:
         fo.write(str(f.sect_index).encode('utf-8'))
 
     with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:

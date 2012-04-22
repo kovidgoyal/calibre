@@ -228,8 +228,8 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
             from calibre.ebooks.epub.fix.main import option_parser as fix_op
-            any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-                'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt', 'lrf', 'snb']
+            from calibre.ebooks import BOOK_EXTENSIONS
+            input_formats = sorted(all_input_formats())
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
                 'bash-completion')
             if os.path.exists(bc):
@@ -249,11 +249,11 @@ class PostInstall:
             self.info('Installing bash completion to', f)
             with open(f, 'wb') as f:
                 f.write('# calibre Bash Shell Completion\n')
-                f.write(opts_and_exts('calibre', guiop, any_formats))
+                f.write(opts_and_exts('calibre', guiop, BOOK_EXTENSIONS))
                 f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
                 f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
                 f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
-                f.write(opts_and_exts('ebook-viewer', viewer_op, any_formats))
+                f.write(opts_and_exts('ebook-viewer', viewer_op, input_formats))
                 f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
                 f.write(opts_and_words('calibre-smtp', smtp_op, []))
                 f.write(opts_and_words('calibre-server', serv_op, []))
