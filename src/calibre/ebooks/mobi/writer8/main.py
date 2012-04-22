@@ -328,8 +328,7 @@ class KF8Writer(object):
         self.guide_table = []
         self.guide_records = []
         GuideRef = namedtuple('GuideRef', 'title type pos_fid')
-        for ref in self.oeb.guide:
-            ref = self.oeb.guide[ref]
+        for ref in self.oeb.guide.values():
             href, frag = ref.href.partition('#')[0::2]
             aid = self.id_map.get((href, frag), None)
             if aid is None:
