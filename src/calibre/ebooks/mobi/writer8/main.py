@@ -173,7 +173,7 @@ class KF8Writer(object):
             if item.media_type == SVG_MIME:
                 data = self.data(item)
                 images[item.href] = len(self.flows)
-                self.flows.append(etree.tostring(data, encoding='UTF=8',
+                self.flows.append(etree.tostring(data, encoding='UTF-8',
                     with_tail=True, xml_declaration=True))
 
         for item in self.oeb.spine:

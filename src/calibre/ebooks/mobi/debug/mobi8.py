@@ -135,6 +135,13 @@ class MOBIFile(object):
 
             self.files.append(File(skel, skeleton, ftext, first_aid, sections))
 
+    def dump_flows(self, ddir):
+        for i, x in enumerate(self.fdst.sections):
+            start, end = x
+            raw = self.raw_text[start:end]
+            with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
+                f.write(raw)
+
     def extract_resources(self):
         self.resource_map = []
         known_types = {b'FLIS', b'FCIS', b'SRCS',
@@ -181,7 +188,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary', 'files'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows'):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -206,4 +213,7 @@ def inspect_mobi(mobi_file, ddir):
 
     for part in f.files:
         part.dump(os.path.join(ddir, 'files'))
+
+    f.dump_flows(os.path.join(ddir, 'flows'))
+
 
