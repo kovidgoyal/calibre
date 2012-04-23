@@ -12,7 +12,8 @@ from itertools import izip
 
 from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex)
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
+        GuideIndex)
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -114,6 +115,8 @@ class MOBIFile(object):
                 self.header.encoding)
         self.ncx_index = NCXIndex(self.header.primary_index_record,
                 self.mf.records, self.header.encoding)
+        self.guide_index = GuideIndex(self.header.oth_idx, self.mf.records,
+                self.header.encoding)
 
     def build_files(self):
         text = self.raw_text
@@ -210,6 +213,10 @@ def inspect_mobi(mobi_file, ddir):
 
     with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
         fo.write(str(f.ncx_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'guide.record'), 'wb') as fo:
+        fo.write(str(f.guide_index).encode('utf-8'))
+
 
     for part in f.files:
         part.dump(os.path.join(ddir, 'files'))
