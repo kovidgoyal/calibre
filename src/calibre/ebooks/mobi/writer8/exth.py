@@ -153,9 +153,14 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         nrecs += 1
 
     if start_offset is not None:
-        exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
-            start_offset))
-        nrecs += 1
+        try:
+            len(start_offset)
+        except TypeError:
+            start_offset = [start_offset]
+        for so in start_offset:
+            exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
+                so))
+            nrecs += 1
 
     if num_of_resources is not None:
         exth.write(pack(b'>III', EXTH_CODES['num_of_resources'], 12,
