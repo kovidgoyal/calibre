@@ -57,12 +57,26 @@ class PagePosition(object):
         return ans
 
     def __enter__(self):
-        self._cpos = self.current_pos
+        self.save()
 
     def __exit__(self, *args):
-        if isinstance(self._cpos, (int, float)):
-            self.document.scroll_fraction = self._cpos
-        else:
-            self.scroll_to_cfi(self._cpos)
+        self.restore()
+
+    def save(self):
+        self._cpos = self.current_pos
+
+    def restore(self):
+        if self._cpos is None: return
+        self.to_pos(self._cpos)
         self._cpos = None
+
+    def to_pos(self, pos):
+        if isinstance(pos, (int, float)):
+            self.document.scroll_fraction = pos
+        else:
+            self.scroll_to_cfi(pos)
+
+    def set_pos(self, pos):
+        self._cpos = pos
+
 

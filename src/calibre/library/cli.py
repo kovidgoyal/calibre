@@ -204,7 +204,8 @@ class DevNull(object):
         pass
 NULL = DevNull()
 
-def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
+def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
+        oauthors, oisbn, otags, oseries, oseries_index):
     orig = sys.stdout
     #sys.stdout = NULL
     try:
@@ -231,6 +232,11 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                 mi.title = os.path.splitext(os.path.basename(book))[0]
             if not mi.authors:
                 mi.authors = [_('Unknown')]
+            for x in ('title', 'authors', 'isbn', 'tags', 'series'):
+                val = locals()['o'+x]
+                if val: setattr(mi, x, val)
+            if oseries:
+                mi.series_index = oseries_index
 
             formats.append(format)
             metadata.append(mi)
@@ -302,39 +308,56 @@ the directory related options below.
     parser.add_option('-e', '--empty', action='store_true', default=False,
                     help=_('Add an empty book (a book with no formats)'))
     parser.add_option('-t', '--title', default=None,
-            help=_('Set the title of the added empty book'))
+            help=_('Set the title of the added book(s)'))
     parser.add_option('-a', '--authors', default=None,
-            help=_('Set the authors of the added empty book'))
+            help=_('Set the authors of the added book(s)'))
     parser.add_option('-i', '--isbn', default=None,
-            help=_('Set the ISBN of the added empty book'))
+            help=_('Set the ISBN of the added book(s)'))
+    parser.add_option('-T', '--tags', default=None,
+            help=_('Set the tags of the added book(s)'))
+    parser.add_option('-s', '--series', default=None,
+            help=_('Set the series of the added book(s)'))
+    parser.add_option('-S', '--series-index', default=1.0, type=float,
+            help=_('Set the series number of the added book(s)'))
+
 
     return parser
 
-def do_add_empty(db, title, authors, isbn):
-    from calibre.ebooks.metadata import MetaInformation, string_to_authors
+def do_add_empty(db, title, authors, isbn, tags, series, series_index):
+    from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(None)
     if title is not None:
         mi.title = title
     if authors:
-        mi.authors = string_to_authors(authors)
+        mi.authors = authors
     if isbn:
         mi.isbn = isbn
+    if tags:
+        mi.tags = tags
+    if series:
+        mi.series, mi.series_index = series, series_index
     db.import_book(mi, [])
     write_dirtied(db)
     send_message()
 
 def command_add(args, dbpath):
+    from calibre.ebooks.metadata import string_to_authors
     parser = add_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
+    aut = string_to_authors(opts.authors) if opts.authors else []
+    tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     if opts.empty:
-        do_add_empty(get_db(dbpath, opts), opts.title, opts.authors, opts.isbn)
+        do_add_empty(get_db(dbpath, opts), opts.title, aut, opts.isbn, tags,
+                opts.series, opts.series_index)
         return 0
     if len(args) < 2:
         parser.print_help()
         print
         print >>sys.stderr, _('You must specify at least one file to add')
         return 1
-    do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory, opts.recurse, opts.duplicates)
+    do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
+            opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
+            tags, opts.series, opts.series_index)
     return 0
 
 def do_remove(db, ids):

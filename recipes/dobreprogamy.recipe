@@ -11,6 +11,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     cover_url = 'http://userlogos.org/files/logos/Karmody/dobreprogramy_01.png'
     description = u'Aktualności i blogi z dobreprogramy.pl'
     encoding = 'utf-8'
+    index='http://www.dobreprogramy.pl/'
     no_stylesheets = True
     language       = 'pl'
     extra_css      = '.title {font-size:22px;}'
@@ -22,3 +23,10 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     #remove_tags = [dict(name='div', attrs={'class':['komentarze', 'block', 'portalInfo', 'menuBar', 'topBar']})]
     feeds = [(u'Aktualności', 'http://feeds.feedburner.com/dobreprogramy/Aktualnosci'),
                  ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]
+
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

@@ -26,6 +26,8 @@ from calibre.constants import filesystem_encoding
 TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace(\
         '__ar__', 'none').replace('__viewbox__', '0 0 600 800'
         ).replace('__width__', '600').replace('__height__', '800')
+BM_FIELD_SEP = u'*|!|?|*'
+BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
 
 def character_count(html):
     '''
@@ -215,6 +217,10 @@ class EbookIterator(object):
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
 
+        self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
+        if getattr(plumber.input_plugin, 'is_kf8', False):
+            self.book_format = 'KF8'
+
         self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
         if self.opf is None:
             self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
@@ -273,27 +279,62 @@ class EbookIterator(object):
 
     def parse_bookmarks(self, raw):
         for line in raw.splitlines():
+            bm = None
             if line.count('^') > 0:
                 tokens = line.rpartition('^')
                 title, ref = tokens[0], tokens[2]
-                self.bookmarks.append((title, ref))
+                try:
+                    spine, _, pos = ref.partition('#')
+                    spine = int(spine.strip())
+                except:
+                    continue
+                bm = {'type':'legacy', 'title':title, 'spine':spine, 'pos':pos}
+            elif BM_FIELD_SEP in line:
+                try:
+                    title, spine, pos = line.strip().split(BM_FIELD_SEP)
+                    spine = int(spine)
+                except:
+                    continue
+                # Unescape from serialization
+                pos = pos.replace(BM_LEGACY_ESC, u'^')
+                # Check for pos being a scroll fraction
+                try:
+                    pos = float(pos)
+                except:
+                    pass
+                bm = {'type':'cfi', 'title':title, 'pos':pos, 'spine':spine}
+
+            if bm:
+                self.bookmarks.append(bm)
 
     def serialize_bookmarks(self, bookmarks):
         dat = []
-        for title, bm in bookmarks:
-            dat.append(u'%s^%s'%(title, bm))
-        return (u'\n'.join(dat) +'\n').encode('utf-8')
+        for bm in bookmarks:
+            if bm['type'] == 'legacy':
+                rec = u'%s^%d#%s'%(bm['title'], bm['spine'], bm['pos'])
+            else:
+                pos = bm['pos']
+                if isinstance(pos, (int, float)):
+                    pos = unicode(pos)
+                else:
+                    pos = pos.replace(u'^', BM_LEGACY_ESC)
+                rec = BM_FIELD_SEP.join([bm['title'], unicode(bm['spine']), pos])
+            dat.append(rec)
+        return (u'\n'.join(dat) +u'\n')
 
     def read_bookmarks(self):
         self.bookmarks = []
         bmfile = os.path.join(self.base, 'META-INF', 'calibre_bookmarks.txt')
         raw = ''
         if os.path.exists(bmfile):
-            raw = open(bmfile, 'rb').read().decode('utf-8')
+            with open(bmfile, 'rb') as f:
+                raw = f.read()
         else:
             saved = self.config['bookmarks_'+self.pathtoebook]
             if saved:
                 raw = saved
+        if not isinstance(raw, unicode):
+            raw = raw.decode('utf-8')
         self.parse_bookmarks(raw)
 
     def save_bookmarks(self, bookmarks=None):
@@ -306,18 +347,15 @@ class EbookIterator(object):
                 zf = open(self.pathtoebook, 'r+b')
             except IOError:
                 return
-            safe_replace(zf, 'META-INF/calibre_bookmarks.txt', StringIO(dat),
+            safe_replace(zf, 'META-INF/calibre_bookmarks.txt',
+                    StringIO(dat.encode('utf-8')),
                     add_missing=True)
         else:
             self.config['bookmarks_'+self.pathtoebook] = dat
 
     def add_bookmark(self, bm):
-        dups = []
-        for x in self.bookmarks:
-            if x[0] == bm[0]:
-                dups.append(x)
-        for x in dups:
-            self.bookmarks.remove(x)
+        self.bookmarks = [x for x in self.bookmarks if x['title'] !=
+                bm['title']]
         self.bookmarks.append(bm)
         self.save_bookmarks()
 
@@ -329,3 +367,17 @@ class EbookIterator(object):
         for x in self.delete_on_exit:
             if os.path.exists(x):
                 os.remove(x)
+
+def get_preprocess_html(path_to_ebook, output):
+    from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+    iterator = EbookIterator(path_to_ebook)
+    iterator.__enter__(only_input_plugin=True)
+    preprocessor = HTMLPreProcessor(None, False)
+    with open(output, 'wb') as out:
+        for path in iterator.spine:
+            with open(path, 'rb') as f:
+                html = f.read().decode('utf-8', 'replace')
+            html = preprocessor(html, get_preprocess_html=True)
+            out.write(html.encode('utf-8'))
+            out.write(b'\n\n' + b'-'*80 + b'\n\n')
+

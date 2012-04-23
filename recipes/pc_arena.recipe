@@ -1,31 +1,32 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 class PC_Arena(BasicNewsRecipe):
     title          = u'PCArena'
-    oldest_article = 18300
+    oldest_article = 7
     max_articles_per_feed = 100
     __author__        = 'fenuks'
     description   = u'Najnowsze informacje z branży IT - testy, recenzje, aktualności, rankingi, wywiady. Twoje źródło informacji o sprzęcie komputerowym.'
     category       = 'IT'
     language       = 'pl'
-    masthead_url='http://pcarena.pl/public/design/frontend/images/logo.gif'
-    cover_url= 'http://pcarena.pl/public/design/frontend/images/logo.gif'
+    index='http://pcarena.pl'
+    masthead_url='http://pcarena.pl/pcarena/img/logo.png'
+    cover_url= 'http://pcarena.pl/pcarena/img/logo.png'
     no_stylesheets = True
-    keep_only_tags=[dict(attrs={'class':['artHeader', 'art']})]
-    remove_tags=[dict(attrs={'class':'pages'})]
-    feeds          = [(u'Newsy', u'http://pcarena.pl/misc/rss/news'), (u'Artyku\u0142y', u'http://pcarena.pl/misc/rss/articles')]
+    remove_empty_feeds=True
+    #keep_only_tags=[dict(attrs={'class':['artHeader', 'art']})]
+    #remove_tags=[dict(attrs={'class':'pages'})]
+    feeds          = [(u'Aktualności', u'http://pcarena.pl/aktualnosci/feeds.rss'), (u'Testy', u'http://pcarena.pl/testy/feeds.rss'), (u'Software', u'http://pcarena.pl/oprogramowanie/feeds.rss'), (u'Poradniki', u'http://pcarena.pl/poradniki/feeds.rss'), (u'Mobile', u'http://pcarena.pl/mobile/feeds.rss')]
+    
+    def print_version(self, url):
+        return url.replace('show', 'print')
 
-    def append_page(self, soup, appendtag):
-        tag=soup.find(name='div', attrs={'class':'pagNum'})
-        if tag:
-            nexturl=tag.findAll('a')
-            tag.extract()
-            for nextpage in nexturl[1:]:
-               nextpage= 'http://pcarena.pl' + nextpage['href']
-               soup2 = self.index_to_soup(nextpage)
-               pagetext = soup2.find(attrs={'class':'artBody'})
-               pos = len(appendtag.contents)
-               appendtag.insert(pos, pagetext)
+    def image_url_processor(self, baseurl, url):
+        if 'http' not in url:
+            return 'http://pcarena.pl' + url
+        else:
+            return url
 
     def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
         return soup

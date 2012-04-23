@@ -316,13 +316,20 @@ class HeuristicProcessor(object):
         '''
         Unwraps lines based on line length and punctuation
         supports a range of html markup and text files
+        
+        the lookahead regex below is meant look for any non-full stop characters - punctuation
+        characters which can be used as a full stop should *not* be added below - e.g. ?!“”. etc
+        the reason for this is to prevent false positive wrapping.  False positives are more
+        difficult to detect than false negatives during a manual review of the doc
+        
+        This function intentionally leaves hyphenated content alone as that is handled by the 
+        dehyphenate routine in a separate step
         '''
-        # define the pieces of the regex
 
-        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
+        # define the pieces of the regex
+        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
-        dash = u"\x2d" # some ocrs doesn't convert dashes to hyphens
         line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
@@ -331,23 +338,19 @@ class HeuristicProcessor(object):
         unwrap_regex = lookahead+line_ending+blanklines+line_opening
         em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
         shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
-        dash_unwrap_regex = dash+line_ending+blanklines+line_opening
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
             shy_unwrap_regex = soft_hyphen+txt_line_wrap
-            dash_unwrap_regex = dash+txt_line_wrap
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
         shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
-        dash_unwrap = re.compile(u"%s" % dash_unwrap_regex, re.UNICODE)
 
         content = unwrap.sub(' ', content)
         content = em_en_unwrap.sub('', content)
         content = shy_unwrap.sub('', content)
-        content = dash_unwrap.sub('', content)
         return content
 
     def txt_process(self, match):
@@ -460,27 +463,31 @@ class HeuristicProcessor(object):
         return html
 
     def detect_whitespace(self, html):
-        blanks_around_headings = re.compile(r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?(?P<heading><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)
+        blanks_around_headings = re.compile(r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?(?P<content><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)
+        blanks_around_scene_breaks = re.compile(r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?(?P<content><p class="scenebreak"[^>]*>.*?</p>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)
         blanks_n_nopunct = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE|re.DOTALL)
 
         def merge_header_whitespace(match):
             initblanks = match.group('initparas')
-            endblanks = match.group('initparas')
-            heading = match.group('heading')
+            endblanks = match.group('endparas')
+            content = match.group('content')
             top_margin = ''
             bottom_margin = ''
             if initblanks is not None:
                 top_margin = 'margin-top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
             if endblanks is not None:
-                bottom_margin = 'margin-bottom:'+str(len(self.single_blank.findall(initblanks)))+'em;'
+                bottom_margin = 'margin-bottom:'+str(len(self.single_blank.findall(endblanks)))+'em;'
 
             if initblanks == None and endblanks == None:
-                return heading
+                return content
+            elif content.find('scenebreak') != -1:
+                return content
             else:
-                heading = re.sub('(?i)<h(?P<hnum>\d+)[^>]*>', '\n\n<h'+'\g<hnum>'+' style="'+top_margin+bottom_margin+'">', heading)
-            return heading
+                content = re.sub('(?i)<h(?P<hnum>\d+)[^>]*>', '\n\n<h'+'\g<hnum>'+' style="'+top_margin+bottom_margin+'">', content)
+            return content
 
         html = blanks_around_headings.sub(merge_header_whitespace, html)
+        html = blanks_around_scene_breaks.sub(merge_header_whitespace, html)
 
         def markup_whitespaces(match):
             blanks = match.group(0)
@@ -515,6 +522,12 @@ class HeuristicProcessor(object):
             html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
         return html
 
+    def detect_scene_breaks(self, html):
+        scene_break_regex = self.line_open+'(?!('+self.common_in_text_beginnings+'|.*?'+self.common_in_text_endings+'<))(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
+        scene_breaks = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
+        html = scene_breaks.sub(self.scene_break_open+'\g<break>'+'</p>', html)
+        return html
+
     def markup_user_break(self, replacement_break):
         '''
         Takes string a user supplies and wraps it in markup that will be centered with
@@ -527,11 +540,17 @@ class HeuristicProcessor(object):
         if re.findall('(<|>)', replacement_break):
             if re.match('^<hr', replacement_break):
                 if replacement_break.find('width') != -1:
-                    width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
-                    replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
-                    divpercent = (100 - width) / 2
-                    hr_open = re.sub('45', str(divpercent), hr_open)
-                    scene_break = hr_open+replacement_break+'</div>'
+                    try:
+                        width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                    except:
+                        scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+                        self.log.warn('Invalid replacement scene break'
+                                ' expression, using default')
+                    else:
+                        replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
+                        divpercent = (100 - width) / 2
+                        hr_open = re.sub('45', str(divpercent), hr_open)
+                        scene_break = hr_open+replacement_break+'</div>'
                 else:
                     scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
             elif re.match('^<img', replacement_break):
@@ -775,25 +794,25 @@ class HeuristicProcessor(object):
         if getattr(self.extra_opts, 'format_scene_breaks', False):
             self.log.debug('Formatting scene breaks')
             html = re.sub('(?i)<div[^>]*>\s*<br(\s?/)?>\s*</div>', '<p></p>', html)
+            html = self.detect_scene_breaks(html)
             html = self.detect_whitespace(html)
             html = self.detect_soft_breaks(html)
             blanks_count = len(self.any_multi_blank.findall(html))
             if blanks_count >= 1:
                 html = self.merge_blanks(html, blanks_count)
-            scene_break_regex = self.line_open+'(?!('+self.common_in_text_beginnings+'|.*?'+self.common_in_text_endings+'<))(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
-            scene_break = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
+            detected_scene_break = re.compile(r'<p class="scenebreak"[^>]*>.*?</p>')
+            scene_break_count = len(detected_scene_break.findall(html))
             # If the user has enabled scene break replacement, then either softbreaks
             # or 'hard' scene breaks are replaced, depending on which is in use
             # Otherwise separator lines are centered, use a bit larger margin in this case
             replacement_break = getattr(self.extra_opts, 'replace_scene_breaks', None)
             if replacement_break:
                 replacement_break = self.markup_user_break(replacement_break)
-                if len(scene_break.findall(html)) >= 1:
-                    html = scene_break.sub(replacement_break, html)
+                if scene_break_count >= 1:
+                    html = detected_scene_break.sub(replacement_break, html)
+                    html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html)
                 else:
                     html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html)
-            else:
-                html = scene_break.sub(self.scene_break_open+'\g<break>'+'</p>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs so they render correctly

@@ -302,7 +302,7 @@ class TagsView(QTreeView): # {{{
                 self.hidden_categories.clear()
             self.db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
             if reset_filter_categories:
-                self._model.filter_categories_by = None
+                self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()
         except:
             return
@@ -488,11 +488,11 @@ class TagsView(QTreeView): # {{{
                         partial(self.context_menu_handler, action='defaults'))
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
-        da = m.addAction('Disable',
+        da = m.addAction(_('Disable'),
             partial(self.context_menu_handler, action='categorization', category='disable'))
-        fla = m.addAction('By first letter',
+        fla = m.addAction(_('By first letter'),
             partial(self.context_menu_handler, action='categorization', category='first letter'))
-        pa = m.addAction('Partition',
+        pa = m.addAction(_('Partition'),
             partial(self.context_menu_handler, action='categorization', category='partition'))
         if self.collapse_model == 'disable':
             da.setCheckable(True)

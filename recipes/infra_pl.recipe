@@ -8,6 +8,7 @@ class INFRA(BasicNewsRecipe):
     description   = u'Serwis Informacyjny INFRA - UFO, Zjawiska Paranormalne, Duchy, Tajemnice świata.'
     cover_url      = 'http://npn.nazwa.pl/templates/ja_teline_ii/images/logo.jpg'
     category       = 'UFO'
+    index='http://infra.org.pl'
     language       = 'pl'
     max_articles_per_feed = 100
     no_stylesheers=True
@@ -15,3 +16,11 @@ class INFRA(BasicNewsRecipe):
     remove_tags_after=dict(attrs={'class':'pagenav'})
     remove_tags=[dict(attrs={'class':'pagenav'})]
     feeds          = [(u'Najnowsze wiadomo\u015bci', u'http://www.infra.org.pl/index.php?option=com_rd_rss&id=1')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

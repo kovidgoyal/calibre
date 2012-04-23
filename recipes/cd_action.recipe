@@ -6,6 +6,7 @@ class CD_Action(BasicNewsRecipe):
     description   = 'cdaction.pl - polish games magazine site'
     category       = 'games'
     language       = 'pl'
+    index='http://www.cdaction.pl'
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets= True
@@ -18,3 +19,9 @@ class CD_Action(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.cdaction.pl/magazyn/')
         self.cover_url='http://www.cdaction.pl'+ soup.find(id='wspolnik').div.a['href']
         return getattr(self, 'cover_url', self.cover_url)
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

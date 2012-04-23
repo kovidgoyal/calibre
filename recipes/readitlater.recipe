@@ -1,5 +1,5 @@
 """
-readitlaterlist.com
+Pocket Calibre Recipe v1.0
 """
 __license__   = 'GPL v3'
 __copyright__ = '''
@@ -12,22 +12,23 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class Readitlater(BasicNewsRecipe):
-    title                 = 'ReadItLater'
+class Pocket(BasicNewsRecipe):
+    title                 = 'Pocket'
     __author__            = 'Darko Miletic, Przemyslaw Kryger, Keith Callenberg, tBunnyMan'
-    description           = '''Personalized news feeds. Go to readitlaterlist.com to setup \
-                            up your news. This version displays pages of articles from \
+    description           = '''Personalized news feeds. Go to getpocket.com to setup up \
+                            your news. This version displays pages of articles from \
                             oldest to newest, with max & minimum counts, and marks articles \
                             read after downloading.'''
-    publisher             = 'readitlaterlist.com'
+    publisher             = 'getpocket.com'
     category              = 'news, custom'
     oldest_article        = 7
     max_articles_per_feed = 50
-    minimum_articles      = 1
+    minimum_articles      = 10
+    mark_as_read_after_dl = True
     no_stylesheets        = True
     use_embedded_content  = False
     needs_subscription    = True
-    INDEX                 = u'http://readitlaterlist.com'
+    INDEX                 = u'http://getpocket.com'
     LOGIN                 = INDEX + u'/l'
     readList              = []
 
@@ -100,9 +101,31 @@ class Readitlater(BasicNewsRecipe):
         br = self.get_browser()
         for link in markList:
             url = self.INDEX + link
+            print 'Marking read: ', url
             response = br.open(url)
-            response
+            print response.info()
 
     def cleanup(self):
-        self.mark_as_read(self.readList)
+        if self.mark_as_read_after_dl:
+            self.mark_as_read(self.readList)
+        else:
+            pass
 
+    def default_cover(self, cover_file):
+        '''
+        Create a generic cover for recipes that don't have a cover
+        This override adds time to the cover
+        '''
+        try:
+            from calibre.ebooks import calibre_cover
+            title = self.title if isinstance(self.title, unicode) else \
+                    self.title.decode('utf-8', 'replace')
+            date = strftime(self.timefmt)
+            time = strftime('[%I:%M %p]')
+            img_data = calibre_cover(title, date, time)
+            cover_file.write(img_data)
+            cover_file.flush()
+        except:
+            self.log.exception('Failed to generate default cover')
+            return False
+        return True

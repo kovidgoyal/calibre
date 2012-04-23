@@ -34,4 +34,12 @@ class tanuki(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                if 'tanuki-anime' in soup.title.string.lower():
+                    a['href']='http://anime.tanuki.pl' + a['href']
+                elif 'tanuki-manga' in soup.title.string.lower():
+                    a['href']='http://manga.tanuki.pl' + a['href']
+                elif 'tanuki-czytelnia' in soup.title.string.lower():
+                    a['href']='http://czytelnia.tanuki.pl' + a['href']
         return soup

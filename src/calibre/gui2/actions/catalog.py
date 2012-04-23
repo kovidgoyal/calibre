@@ -13,6 +13,7 @@ from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
+from calibre import sanitize_file_name_unicode
 
 class GenerateCatalogAction(InterfaceAction):
 
@@ -67,8 +68,8 @@ class GenerateCatalogAction(InterfaceAction):
             # Subsequent strings are error messages
             dialog_title = job.result.pop(0)
             if re.match('warning:', job.result[0].lower()):
-                job.result.append("Catalog generation complete.")
-                warning_dialog(self.gui, dialog_title, '\n'.join(job.result), show=True)
+                msg = _("Catalog generation complete, with warnings.")
+                warning_dialog(self.gui, dialog_title, msg, det_msg='\n'.join(job.result), show=True)
             else:
                 job.result.append("Catalog generation terminated.")
                 error_dialog(self.gui, dialog_title,'\n'.join(job.result),show=True)
@@ -89,7 +90,8 @@ class GenerateCatalogAction(InterfaceAction):
                     _('Select destination for %(title)s.%(fmt)s') % dict(
                         title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
-                destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
+                destination = os.path.join(export_dir, '%s.%s' % (
+                    sanitize_file_name_unicode(job.catalog_title), job.fmt.lower()))
                 shutil.copyfile(job.catalog_file_path, destination)
 
 

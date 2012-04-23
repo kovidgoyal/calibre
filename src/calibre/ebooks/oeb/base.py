@@ -357,7 +357,21 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
-
+def extract(elem):
+    """
+    Removes this element from the tree, including its children and
+    text.  The tail text is joined to the previous element or
+    parent.
+    """
+    parent = elem.getparent()
+    if parent is not None:
+        if elem.tail:
+            previous = elem.getprevious()
+            if previous is None:
+                parent.text = (parent.text or '') + elem.tail
+            else:
+                previous.tail = (previous.tail or '') + elem.tail
+        parent.remove(elem)
 
 class DummyHandler(logging.Handler):
 
@@ -454,7 +468,14 @@ class DirContainer(object):
             path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars
             return False
-        return os.path.isfile(path)
+        try:
+            return os.path.isfile(path)
+        except UnicodeEncodeError:
+            # On linux, if LANG is unset, the os.stat call tries to encode the
+            # unicode path using ASCII
+            # To replicate try:
+            # LANG=en_US.ASCII python -c "import os; os.stat(u'Espa\xf1a')"
+            return os.path.isfile(path.encode(filesystem_encoding))
 
     def namelist(self):
         names = []

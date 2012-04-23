@@ -16,6 +16,7 @@ def _import_readers():
     from calibre.ebooks.pdb.ztxt.reader import Reader as ztxt_reader
     from calibre.ebooks.pdb.pdf.reader import Reader as pdf_reader
     from calibre.ebooks.pdb.plucker.reader import Reader as plucker_reader
+    from calibre.ebooks.pdb.haodoo.reader import Reader as haodoo_reader
 
     FORMAT_READERS = {
         'PNPdPPrs': ereader_reader,
@@ -24,6 +25,8 @@ def _import_readers():
         'TEXtREAd': palmdoc_reader,
         '.pdfADBE': pdf_reader,
         'DataPlkr': plucker_reader,
+        'BOOKMTIT': haodoo_reader,
+        'BOOKMTIU': haodoo_reader,
     }
 
 ALL_FORMAT_WRITERS = {'doc', 'ztxt', 'ereader'}
@@ -47,6 +50,8 @@ IDENTITY_TO_NAME = {
     'TEXtREAd': 'PalmDOC',
     '.pdfADBE': 'Adobe Reader',
     'DataPlkr': 'Plucker',
+    'BOOKMTIT': 'Haodoo.net',
+    'BOOKMTIU': 'Haodoo.net',
 
     'BVokBDIC': 'BDicty',
     'DB99DBOS': 'DB (Database program)',

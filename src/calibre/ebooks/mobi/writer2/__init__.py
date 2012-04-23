@@ -12,5 +12,4 @@ UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
 PALM_MAX_IMAGE_SIZE = 63 * 1024
-RECORD_SIZE = 0x1000 # 4096 (Text record size (uncompressed))
 

@@ -113,6 +113,7 @@ class Worker(Thread):
 class AutoAdder(QObject):
 
     metadata_read = pyqtSignal(object)
+    auto_convert = pyqtSignal(object)
 
     def __init__(self, path, parent):
         QObject.__init__(self, parent)
@@ -124,6 +125,8 @@ class AutoAdder(QObject):
             self.metadata_read.connect(self.add_to_db,
                     type=Qt.QueuedConnection)
             QTimer.singleShot(2000, self.initialize)
+            self.auto_convert.connect(self.do_auto_convert,
+                    type=Qt.QueuedConnection)
         elif path:
             prints(path,
                 'is not a valid directory to watch for new ebooks, ignoring')
@@ -163,6 +166,7 @@ class AutoAdder(QObject):
 
         needs_rescan = False
         duplicates = []
+        added_ids = set()
 
         for fname, tdir in data.iteritems():
             paths = [os.path.join(self.worker.path, fname)]
@@ -187,9 +191,12 @@ class AutoAdder(QObject):
                 continue
             mi = [OPF(open(mi, 'rb'), tdir,
                     populate_spine=False).to_book_metadata()]
-            dups, num = m.add_books(paths,
+            dups, ids = m.add_books(paths,
                     [os.path.splitext(fname)[1][1:].upper()], mi,
-                    add_duplicates=not gprefs['auto_add_check_for_duplicates'])
+                    add_duplicates=not gprefs['auto_add_check_for_duplicates'],
+                    return_ids=True)
+            added_ids |= set(ids)
+            num = len(ids)
             if dups:
                 path = dups[0][0]
                 with open(os.path.join(tdir, 'dup_cache.'+dups[1][0].lower()),
@@ -217,8 +224,10 @@ class AutoAdder(QObject):
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
                         '\n'.join(files)):
-             dups, num = m.add_books(paths, formats, metadata,
-                     add_duplicates=True)
+             dups, ids = m.add_books(paths, formats, metadata,
+                     add_duplicates=True, return_ids=True)
+             added_ids |= set(ids)
+             num = len(ids)
              count += num
 
         for tdir in data.itervalues():
@@ -226,6 +235,9 @@ class AutoAdder(QObject):
                 shutil.rmtree(tdir)
             except:
                 pass
+
+        if added_ids and gprefs['auto_add_auto_convert']:
+            self.auto_convert.emit(added_ids)
 
         if count > 0:
             m.books_added(count)
@@ -238,4 +250,7 @@ class AutoAdder(QObject):
         if needs_rescan:
             QTimer.singleShot(2000, self.dir_changed)
 
+    def do_auto_convert(self, added_ids):
+        gui = self.parent()
+        gui.iactions['Convert Books'].auto_convert_auto_add(added_ids)
 

@@ -233,22 +233,26 @@ class Widget(QWidget):
                 pass
 
     def setup_help(self, help_provider):
-        w = textwrap.TextWrapper(80)
         for name in self._options:
             g = getattr(self, 'opt_'+name, None)
             if g is None:
                 continue
             help = help_provider(name)
             if not help: continue
+            if self.setup_help_handler(g, help): continue
             g._help = help
-            htext = u'<div>%s</div>'%prepare_string_for_xml(
-                    '\n'.join(w.wrap(help)))
-            g.setToolTip(htext)
-            g.setWhatsThis(htext)
-            g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
+            self.setup_widget_help(g)
+
+    def setup_widget_help(self, g):
+        w = textwrap.TextWrapper(80)
+        htext = u'<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
+        g.setToolTip(htext)
+        g.setWhatsThis(htext)
+        g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
 
     def set_value_handler(self, g, val):
+        'Return True iff you handle setting the value for g'
         return False
 
     def post_set_value(self, g, val):
@@ -259,6 +263,9 @@ class Widget(QWidget):
 
     def post_get_value(self, g):
         pass
+
+    def setup_help_handler(self, g, help):
+        return False
 
     def break_cycles(self):
         self.db = None

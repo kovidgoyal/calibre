@@ -840,6 +840,15 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.categories[category] = tb_categories[category]['name']
         return data
 
+    def set_categories_filter(self, txt):
+        if txt:
+            self.filter_categories_by = icu_lower(txt)
+        else:
+            self.filter_categories_by = None
+
+    def get_categories_filter(self):
+        return self.filter_categories_by
+
     def refresh(self, data=None):
         '''
         Here to trap usages of refresh in the old architecture. Can eventually
@@ -1170,6 +1179,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         charclass = ''.join(letters_seen)
                         if k == 'author_sort':
                             expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                        elif k == 'series':
+                            expr = r'series_sort:"~^[%s]"'%(charclass)
                         else:
                             expr = r'%s:"~^[%s]"'%(k, charclass)
                         if node_searches[tag_item.tag.state] == 'true':

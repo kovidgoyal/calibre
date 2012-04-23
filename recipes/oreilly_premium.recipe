@@ -1,45 +1,69 @@
-# Talking Points is not grabbing everything.
-# The look is right, but only the last one added?
-import re
 import time
+import traceback
+# above for debugging via stack
 from calibre.web.feeds.recipes import BasicNewsRecipe
 # Allows the Python soup converter, which makes parsing easier.
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-# strip ads and graphics
-# Current Column lacks a title.
-# Talking Points Memo - shorten title - Remove year and Bill's name
+
+import os
+
+
+from calibre.web.feeds import feeds_from_index
+from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
+
+
+# To Do: strip ads and graphics, Current Column lacks a title.
 # The News letter archive https://www.billoreilly.com/newsletterarchive is covered by other entries.
 # Newsletters: Talking Points Memos covered by cat12
+# ./ebook-convert  --username xxx --password xxx
 
+# this is derived from BasicNewsRecipe, so it can only overload those.
+# Soome of what we need is otherwise in article, so we have more copy to do than otherwise.
 class OReillyPremium(BasicNewsRecipe):
     title           = u'OReilly Premium'
     __author__      = 'TMcN'
-    language = 'en'
     description     = 'Retrieves Premium and News Letter content from BillOReilly.com.  Requires a Bill OReilly Premium Membership.'
     cover_url       = 'http://images.billoreilly.com/images/headers/billgray_header.png'
+    custom_title    = 'Bill O\'Reilly Premium - '+ time.strftime('%d %b %Y')
+    title           = 'Bill O\'Reilly Premium'
     auto_cleanup    = True
+    conversion_options = {'linearize_tables': True}
     encoding        = 'utf8'
-    needs_subscription = True
+    language        = 'en'
     no_stylesheets  = True
-    oldest_article  = 20
+    needs_subscription = True
+    oldest_article  = 31
     remove_javascript = True
     remove_tags     = [dict(name='img', attrs={})]
     # Don't go down
     recursions      = 0
-    max_articles_per_feed = 2000
+    max_articles_per_feed = 20
 
     debugMessages   = True
 
     # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
     catList = [ ["TV Archives",         'https://www.billoreilly.com/show?action=tvShowArchive', 'a',    {'class':['showLinks','homeLinks']},                   []],
-                ["No Spin Archives",    'https://www.billoreilly.com/blog?categoryID=7',         True,   {'class':['blogBody'], 'style':['padding-top:10px;']}, []],
-                ["Daily Briefings",     'http://www.billoreilly.com/blog?categoryID=11',         True,   {'class':['defaultHeaderSmallLinks']},                 []],
-                ["Stratfor",            'http://www.billoreilly.com/blog?categoryID=5',          'a',    {'class':['blogLinks']},                               []],
-                ["Talking Points Memo", 'https://www.billoreilly.com/blog?categoryID=12',        'td',   {},                                                    []],
+                # ["No Spin Archives",    'https://www.billoreilly.com/blog?categoryID=7',         True,   {'class':['blogBody'], 'style':['padding-top:10px;']}, []],
+                # ["Daily Briefings",     'http://www.billoreilly.com/blog?categoryID=11',         True,   {'class':['defaultHeaderSmallLinks']},                 []],
+                # ["Stratfor",            'http://www.billoreilly.com/blog?categoryID=5',          'a',    {'class':['blogLinks']},                               []],
+                # ["Talking Points Memo", 'https://www.billoreilly.com/blog?categoryID=12',        'td',   {},                                                    []],
                 ["Current Column",      'https://www.billoreilly.com/currentcolumn',             'span', {'class':['defaultHeader']},                           []]
               ]
 
+    feeds          = [
+        (u'No Spin',        u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=7'),
+        (u'Daily Briefing', u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=11'),
+        (u'Talking Points', u'https://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=12'),
+        (u'Blog',           u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=0'),
+        (u'StratFor',       u'http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=5')
+    ]
+    # http://www.billoreilly.com/blog?action=blogArchive&rss=true&categoryID=8 is word for the day.
+
+    # Note: Talking Points is broken in the above model; the site changed to more Ajax-y.
+    # Now using RSS
+
     def get_browser(self):
+        print("In get_browser")
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
             br.open('https://www.billoreilly.com/pg/jsp/member/membersignin.jsp')
@@ -66,6 +90,7 @@ class OReillyPremium(BasicNewsRecipe):
     def stripBadChars(self, inString) :
         return inString.replace("\'", "")
 
+
     def parseGeneric(self, baseURL):
         # Does a generic parsing of the articles.  There are six categories (0-5)
         # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
@@ -73,6 +98,7 @@ class OReillyPremium(BasicNewsRecipe):
         fullReturn = []
         for i in range(len(self.catList)) :
             articleList = []
+            print("In "+self.catList[i][0]+", index: "+ str(i))
             soup = self.index_to_soup(self.catList[i][1])
             # Set defaults
             description = 'None'
@@ -81,14 +107,12 @@ class OReillyPremium(BasicNewsRecipe):
             # 3-5 create one.
             # So no for-div for 3-5
 
-            if i < 3 :
+            if i == 0 :
+                print("Starting TV Archives")
                 for div in soup.findAll(self.catList[i][2], self.catList[i][3]):
+                     print("Next DIV:")
                      print(div)
-                     if i == 1:
-                        a = div.find('a', href=True)
-                     else :
-                        a = div
-                     print(a)
+                     a = div
                      summary = div.find(True, attrs={'class':'summary'})
                      if summary:
                          description = self.tag_to_string(summary, use_alt=False)
@@ -96,81 +120,62 @@ class OReillyPremium(BasicNewsRecipe):
                          continue
                      # url = baseURL+re.sub(r'\?.*', '', a['href'])
                      url = baseURL+a['href']
-                     if i < 2 :
-                        url = self.extractPrintURL(baseURL, url, "Print this entry")
-                        title = self.tag_to_string(a, use_alt=True).strip()
-                     elif i == 2 :
-                        # Daily Briefs
-                        url = self.extractPrintURL(baseURL, url, "Print this entry")
-                        title =  div.contents[0]
-                     if self.debugMessages :
-                        print(title+" @ "+url)
+                     url = self.extractPrintURL(baseURL, url, "Print this entry")
+                     title = self.tag_to_string(a, use_alt=True).strip()
                      articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
 
-            elif i == 3 :   # Stratfor
-                a = soup.find('a', self.catList[i][3])
-                if a is None :
-                    continue
-                url = baseURL+a['href']
-                title = self.tag_to_string(a, use_alt=True).strip()
-                # Get Stratfor contents so we can get the real title.
-                stratSoup = self.index_to_soup(url)
-                title = stratSoup.html.head.title.string
-                stratIndex = title.find('Stratfor.com:', 0)
-                if (stratIndex > -1) :
-                    title = title[stratIndex+14:-1]
-                # Look for first blogBody  <td class="blogBody"
-                # Changed 12 Jan 2012 - new page format
-                #stratBlogTable = stratSoup.find('td', {'class':['blogBody']}).findParent('table')
-                #stratBody = stratSoup.find('td', {'class':['blogBody']})
-            elif i == 4 :      # Talking Points
-                topDate =  soup.find("td", "blogBody")
-                if not topDate :
-                    print("Failed to find date in Talking Points")
-                # This page has the contents in double-wrapped tables!
-                myTable = topDate.findParents('table')[0]
-                if myTable is not None:
-                    upOneTable = myTable.findParents('table')[0]
-                    if upOneTable is not None:
-                        upTwo = upOneTable.findParents('table')[0]
-                if upTwo is None:
-                    continue
-                # Now navigate rows of upTwo
-                if self.debugMessages :
-                    print("Entering rows")
-                for rows in upTwo.findChildren("tr", recursive=False):
-                    # Inside top level table, each row is an article
-                    rowTable = rows.find("table")
-                    articleTable = rowTable.find("table")
-                    # This looks wrong.
-                    articleTable = rows.find("tr")
-                    # The middle table is just for formatting the article buffer... but this means we can skip the inner table.
-                    blogDate = articleTable.find("a","blogDate").contents[0]
-                    # Skip to second blogBody for this.
-                    blogTitle = articleTable.findAll("td", "blogBody")[1].contents[0]
-                    blogURL = articleTable.find("a", "homeBlogReadMore bold")['href']
-                    url = baseURL+re.sub(r'\?.*', '', blogURL)
-                    title = blogDate+": "+self.stripBadChars(blogTitle.replace("Bill O'Reilly: ", ""))
-                    if self.debugMessages :
-                        print("Talking Points Memo title "+title+" at url: "+url)
-                    pubdate = time.strftime('%a, %d %b')
-                    articleList.append(dict(title=title, url=url, date=pubdate, description='None', content=''))
             else :       # Current Column
                 titleSpan = soup.find(self.catList[i][2], self.catList[i][3])
                 if titleSpan is None :
+                    print("No Current Column Title Span")
+                    print(soup)
                     continue
                 title = titleSpan.contents[0]
                 url = self.extractPrintURL(baseURL, self.catList[i][1], "Print This Article")
-            if i == 3 or i == 5 :
+            if i == 1 :
                  if self.debugMessages :
                     print(self.catList[i][0]+" Title:"+title+" at url: "+url)
                  summary = div.find(True, attrs={'class':'summary'})
-                 if summary:
+                 print("At Summary")
+                 print(summary)
+                 if summary is not None:
                      description = self.tag_to_string(summary, use_alt=False)
+                 print("At append")
                  articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
             self.catList[i][3] = articleList
             fullReturn.append((self.catList[i][0], articleList))
+            print("Returning")
+            # print fullReturn
         return fullReturn
+
+
+    # build_index() starts with:
+    #     try:
+    #        feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
+    #                                 max_articles_per_feed=self.max_articles_per_feed,
+    #                                 log=self.log)
+    #        self.report_progress(0, _('Got feeds from index page'))
+    #    except NotImplementedError:
+    #        feeds = self.parse_feeds()
+
+    # which in turn is from __init__.py
+    #def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
+    #    log=default_log):
+    #'''
+    #@param index: A parsed index as returned by L{BasicNewsRecipe.parse_index}.
+    #@return: A list of L{Feed} objects.
+    #@rtype: list
+    #'''
+    #feeds = []
+    #for title, articles in index:
+    #    pfeed = Feed(log=log)
+    #    pfeed.populate_from_preparsed_feed(title, articles, oldest_article=oldest_article,
+    #                                   max_articles_per_feed=max_articles_per_feed)
+    #    feeds.append(pfeed)
+    #           return feeds
+
+    #  use_embedded_content defaults to None, at which point if the content is > 2K, it is used as the article.
+
 
     # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
     # returns a list of tuple ('feed title', list of articles)
@@ -182,16 +187,148 @@ class OReillyPremium(BasicNewsRecipe):
     # 'content'     : The full article (can be an empty string). This is used by FullContentProfile
     # }
     # this is used instead of BasicNewsRecipe.parse_feeds().
+    # it is called by download
     def parse_index(self):
         # Parse the page into Python Soup
+        print("Entering recipe print_index from:")
+        traceback.print_stack()
+        print("web")
         baseURL = "https://www.billoreilly.com"
-        return self.parseGeneric(baseURL)
+        masterList = self.parseGeneric(baseURL)
+        #print(masterList)
+        return masterList
 
     def preprocess_html(self, soup):
+        print("In preprocess_html")
         refresh = soup.find('meta', {'http-equiv':'refresh'})
         if refresh is None:
             return soup
         content = refresh.get('content').partition('=')[2]
         raw = self.browser.open('https://www.billoreilly.com'+content).read()
         return BeautifulSoup(raw.decode('cp1252', 'replace'))
+
+    def build_index(self):
+        print("In OReilly build_index()\n\n")
+        feedsRSS = []
+        self.report_progress(0, ('Fetching feeds...'))
+        #try:
+        feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
+                                 max_articles_per_feed=self.max_articles_per_feed,
+                                 log=self.log)
+        self.report_progress(0, ('Got feeds from index page'))
+        #except NotImplementedError:
+        #    feeds = self.parse_feeds()
+        # Now add regular feeds.
+        feedsRSS = self.parse_feeds()
+        print ("feedsRSS is type "+feedsRSS.__class__.__name__)
+
+        for articles in feedsRSS:
+            print("articles is type "+articles.__class__.__name__)
+            print("Title:" + articles.title)
+            feeds.append(articles)
+        if not feeds:
+            raise ValueError('No articles found, aborting')
+
+        #feeds = FeedCollection(feeds)
+
+        self.report_progress(0, ('Trying to download cover...'))
+        self.download_cover()
+        self.report_progress(0, ('Generating masthead...'))
+        self.masthead_path = None
+
+        try:
+            murl = self.get_masthead_url()
+        except:
+            self.log.exception('Failed to get masthead url')
+            murl = None
+
+        if murl is not None:
+            # Try downloading the user-supplied masthead_url
+            # Failure sets self.masthead_path to None
+            self.download_masthead(murl)
+        if self.masthead_path is None:
+            self.log.info("Synthesizing mastheadImage")
+            self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
+            try:
+                self.default_masthead_image(self.masthead_path)
+            except:
+                self.log.exception('Failed to generate default masthead image')
+                self.masthead_path = None
+
+        if self.test:
+            feeds = feeds[:2]
+        self.has_single_feed = len(feeds) == 1
+
+        index = os.path.join(self.output_dir, 'index.html')
+
+        html = self.feeds2index(feeds)
+        with open(index, 'wb') as fi:
+            fi.write(html)
+
+        self.jobs = []
+
+        if self.reverse_article_order:
+            for feed in feeds:
+                if hasattr(feed, 'reverse'):
+                    feed.reverse()
+
+        self.feed_objects = feeds
+        for f, feed in enumerate(feeds):
+            feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            if not os.path.isdir(feed_dir):
+                os.makedirs(feed_dir)
+
+            for a, article in enumerate(feed):
+                if a >= self.max_articles_per_feed:
+                    break
+                art_dir = os.path.join(feed_dir, 'article_%d'%a)
+                if not os.path.isdir(art_dir):
+                    os.makedirs(art_dir)
+                try:
+                    url = self.print_version(article.url)
+                except NotImplementedError:
+                    url = article.url
+                except:
+                    self.log.exception('Failed to find print version for: '+article.url)
+                    url = None
+                if not url:
+                    continue
+                func, arg = (self.fetch_embedded_article, article) \
+                            if self.use_embedded_content or (self.use_embedded_content == None and feed.has_embedded_content()) \
+                            else \
+                            ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
+                              else self.fetch_article), url)
+                req = WorkRequest(func, (arg, art_dir, f, a, len(feed)),
+                                      {}, (f, a), self.article_downloaded,
+                                      self.error_in_article_download)
+                req.feed = feed
+                req.article = article
+                req.feed_dir = feed_dir
+                self.jobs.append(req)
+
+
+        self.jobs_done = 0
+        tp = ThreadPool(self.simultaneous_downloads)
+        for req in self.jobs:
+            tp.putRequest(req, block=True, timeout=0)
+
+
+        self.report_progress(0, ('Starting download [%d thread(s)]...')%self.simultaneous_downloads)
+        while True:
+            try:
+                tp.poll()
+                time.sleep(0.1)
+            except NoResultsPending:
+                break
+        for f, feed in enumerate(feeds):
+            print("Writing feeds for "+feed.title)
+            html = self.feed2index(f,feeds)
+            feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
+                fi.write(html)
+        self.create_opf(feeds)
+        self.report_progress(1, ('Feeds downloaded to %s')%index)
+
+        return index
+
 

@@ -11,7 +11,7 @@ import struct, re, os
 from calibre import replace_entities
 from calibre.utils.date import parse_date
 from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
 
 NULL_INDEX = 0xffffffff
@@ -75,10 +75,14 @@ class EXTHHeader(object): # {{{
                 self.mi.author_sort = au.strip()
         elif idx == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
+            if self.mi.publisher in {'Unknown', _('Unknown')}:
+                self.mi.publisher = None
         elif idx == 103:
             self.mi.comments  = content.decode(codec, 'ignore')
         elif idx == 104:
-            self.mi.isbn      = content.decode(codec, 'ignore').strip().replace('-', '')
+            raw = check_isbn(content.decode(codec, 'ignore').strip().replace('-', ''))
+            if raw:
+                self.mi.isbn = raw
         elif idx == 105:
             if not self.mi.tags:
                 self.mi.tags = []
@@ -92,12 +96,24 @@ class EXTHHeader(object): # {{{
                 pass
         elif idx == 108:
             self.mi.book_producer = content.decode(codec, 'ignore').strip()
+        elif idx == 112: # dc:source set in some EBSP amazon samples
+            try:
+                content = content.decode(codec).strip()
+                isig = 'urn:isbn:'
+                if content.lower().startswith(isig):
+                    raw = check_isbn(content[len(isig):])
+                    if raw and not self.mi.isbn:
+                        self.mi.isbn = raw
+            except:
+                pass
         elif idx == 113:
             pass # ASIN or UUID
         elif idx == 116:
             self.start_offset, = struct.unpack(b'>L', content)
         elif idx == 121:
             self.kf8_header, = struct.unpack(b'>L', content)
+            if self.kf8_header == NULL_INDEX:
+                self.kf8_header = None
         #else:
         #    print 'unhandled metadata record', idx, repr(content)
 # }}}
@@ -186,20 +202,16 @@ class BookHeader(object):
             if len(raw) >= 0xF8:
                 self.ncxidx, = struct.unpack_from(b'>L', raw, 0xF4)
 
-            if self.mobi_version >= 8:
-                self.skelidx, = struct.unpack_from('>L', raw, 0xFC)
-
-                # Index into <div> sections in raw_ml
-                self.dividx, = struct.unpack_from('>L', raw, 0xF8)
-
-                # Index into Other files
-                self.othidx, = struct.unpack_from('>L', raw, 0x104)
+            # Ancient PRC files from Baen can have random values for
+            # mobi_version, so be conservative
+            if self.mobi_version == 8 and len(raw) >= (0xF8 + 16):
+                self.dividx, self.skelidx, self.datpidx, self.othidx = \
+                        struct.unpack_from(b'>4L', raw, 0xF8)
 
                 # need to use the FDST record to find out how to properly
                 # unpack the raw_ml into pieces it is simply a table of start
                 # and end locations for each flow piece
-                self.fdstidx, = struct.unpack_from('>L', raw, 0xC0)
-                self.fdstcnt, = struct.unpack_from('>L', raw, 0xC4)
+                self.fdstidx, self.fdstcnt = struct.unpack_from(b'>2L', raw, 0xC0)
                 # if cnt is 1 or less, fdst section number can be garbage
                 if self.fdstcnt <= 1:
                     self.fdstidx = NULL_INDEX

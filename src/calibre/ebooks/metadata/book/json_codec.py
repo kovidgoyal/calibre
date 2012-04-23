@@ -108,6 +108,8 @@ def decode_is_multiple(fm):
             else:
                 im = {'cache_to_list': '|', 'ui_to_list': ',',
                       'list_to_ui': ', '}
+        elif im is None:
+            im = {}
         fm['is_multiple'] = im
 
 class JsonCodec(object):

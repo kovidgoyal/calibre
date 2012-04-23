@@ -7,22 +7,42 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os, time, shutil
 from functools import partial
-from itertools import izip
-from threading import Event
+from threading import Thread
 
 from PyQt4.Qt import (QIcon, QDialog,
         QDialogButtonBox, QLabel, QGridLayout, QPixmap, Qt)
 
 from calibre.gui2.threaded_jobs import ThreadedJob
-from calibre.ebooks.metadata.sources.identify import identify, msprefs
-from calibre.ebooks.metadata.sources.covers import download_cover
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.customize.ui import metadata_plugins
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.date import as_utc
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from calibre.ptempfile import (PersistentTemporaryDirectory,
+        PersistentTemporaryFile)
 
 # Start download {{{
+
+class Job(ThreadedJob):
+
+    ignore_html_details = True
+
+    def consolidate_log(self):
+        self.consolidated_log = self.log.plain_text
+        self.log = None
+
+    def read_consolidated_log(self):
+        return self.consolidated_log
+
+    @property
+    def details(self):
+        if self.consolidated_log is None:
+            return self.log.plain_text
+        return self.read_consolidated_log()
+
+    @property
+    def log_file(self):
+        return open(self.download_debug_log, 'rb')
+
 def show_config(gui, parent):
     from calibre.gui2.preferences import show_config_widget
     show_config_widget('Sharing', 'Metadata download', parent=parent,
@@ -104,19 +124,22 @@ def start_download(gui, ids, callback, ensure_fields=None):
     d.b.clicked.disconnect()
     if ret != d.Accepted:
         return
+    tf = PersistentTemporaryFile('_metadata_bulk.log')
+    tf.close()
 
-    for batch in split_jobs(ids):
-        job = ThreadedJob('metadata bulk download',
-            _('Download metadata for %d books')%len(batch),
-            download, (batch, gui.current_db, d.identify, d.covers,
-                ensure_fields), {}, callback)
-        gui.job_manager.run_threaded_job(job)
+    job = Job('metadata bulk download',
+        _('Download metadata for %d books')%len(ids),
+        download, (ids, tf.name, gui.current_db, d.identify, d.covers,
+            ensure_fields), {}, callback)
+    job.download_debug_log = tf.name
+    gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
 
 # }}}
 
 def get_job_details(job):
-    id_map, failed_ids, failed_covers, title_map, all_failed = job.result
+    (aborted, good_ids, tdir, log_file, failed_ids, failed_covers, title_map,
+            lm_map, all_failed) = job.result
     det_msg = []
     for i in failed_ids | failed_covers:
         title = title_map[i]
@@ -126,92 +149,118 @@ def get_job_details(job):
             title += (' ' + _('(Failed cover)'))
         det_msg.append(title)
     det_msg = '\n'.join(det_msg)
-    return id_map, failed_ids, failed_covers, all_failed, det_msg
+    return (aborted, good_ids, tdir, log_file, failed_ids, failed_covers,
+            all_failed, det_msg, lm_map)
 
-def merge_result(oldmi, newmi, ensure_fields=None):
-    dummy = Metadata(_('Unknown'))
-    for f in msprefs['ignore_fields']:
-        if ':' in f or (ensure_fields and f in ensure_fields):
-            continue
-        setattr(newmi, f, getattr(dummy, f))
-    fields = set()
-    for plugin in metadata_plugins(['identify']):
-        fields |= plugin.touched_fields
+class HeartBeat(object):
+    CHECK_INTERVAL = 300 # seconds
+    ''' Check that the file count in tdir changes every five minutes '''
 
-    def is_equal(x, y):
-        if hasattr(x, 'tzinfo'):
-            x = as_utc(x)
-        if hasattr(y, 'tzinfo'):
-            y = as_utc(y)
-        return x == y
+    def __init__(self, tdir):
+        self.tdir = tdir
+        self.last_count = len(os.listdir(self.tdir))
+        self.last_time = time.time()
 
-    for f in fields:
-        # Optimize so that set_metadata does not have to do extra work later
-        if not f.startswith('identifier:'):
-            if (not newmi.is_null(f) and is_equal(getattr(newmi, f),
-                    getattr(oldmi, f))):
-                setattr(newmi, f, getattr(dummy, f))
+    def __call__(self):
+        if time.time() - self.last_time > self.CHECK_INTERVAL:
+            c = len(os.listdir(self.tdir))
+            if c == self.last_count:
+                return False
+            self.last_count = c
+            self.last_time = time.time()
+        return True
 
-    newmi.last_modified = oldmi.last_modified
+class Notifier(Thread):
 
-    return newmi
+    def __init__(self, notifications, title_map, tdir, total):
+        Thread.__init__(self)
+        self.daemon = True
+        self.notifications, self.title_map = notifications, title_map
+        self.tdir, self.total = tdir, total
+        self.seen = set()
+        self.keep_going = True
 
-def download(ids, db, do_identify, covers, ensure_fields,
+    def run(self):
+        while self.keep_going:
+            try:
+                names = os.listdir(self.tdir)
+            except:
+                pass
+            else:
+                for x in names:
+                    if x.endswith('.log'):
+                        try:
+                            book_id = int(x.partition('.')[0])
+                        except:
+                            continue
+                        if book_id not in self.seen and book_id in self.title_map:
+                            self.seen.add(book_id)
+                            self.notifications.put((
+                                float(len(self.seen))/self.total,
+                                _('Processed %s')%self.title_map[book_id]))
+            time.sleep(1)
+
+def download(all_ids, tf, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):
-    ids = list(ids)
-    metadata = [db.get_metadata(i, index_is_id=True, get_user_categories=False)
-        for i in ids]
+    batch_size = 10
+    batches = split_jobs(all_ids, batch_size=batch_size)
+    tdir = PersistentTemporaryDirectory('_metadata_bulk')
+    heartbeat = HeartBeat(tdir)
+
     failed_ids = set()
     failed_covers = set()
     title_map = {}
-    ans = {}
-    count = 0
+    lm_map = {}
+    ans = set()
     all_failed = True
-    '''
-    # Test apply dialog
-    all_failed = do_identify = covers = False
-    '''
-    for i, mi in izip(ids, metadata):
-        if abort.is_set():
-            log.error('Aborting...')
-            break
-        title, authors, identifiers = mi.title, mi.authors, mi.identifiers
-        title_map[i] = title
-        if do_identify:
-            results = []
-            try:
-                results = identify(log, Event(), title=title, authors=authors,
-                    identifiers=identifiers)
-            except:
-                pass
-            if results:
-                all_failed = False
-                mi = merge_result(mi, results[0], ensure_fields=ensure_fields)
-                identifiers = mi.identifiers
-                if not mi.is_null('rating'):
-                    # set_metadata expects a rating out of 10
-                    mi.rating *= 2
-            else:
-                log.error('Failed to download metadata for', title)
-                failed_ids.add(i)
-                # We don't want set_metadata operating on anything but covers
-                mi = merge_result(mi, mi, ensure_fields=ensure_fields)
-        if covers:
-            cdata = download_cover(log, title=title, authors=authors,
-                    identifiers=identifiers)
-            if cdata is not None:
-                with PersistentTemporaryFile('.jpg', 'downloaded-cover-') as f:
-                    f.write(cdata[-1])
-                    mi.cover = f.name
-                all_failed = False
-            else:
-                failed_covers.add(i)
-        ans[i] = mi
-        count += 1
-        notifications.put((count/len(ids),
-            _('Downloaded %(num)d of %(tot)d')%dict(num=count, tot=len(ids))))
-    log('Download complete, with %d failures'%len(failed_ids))
-    return (ans, failed_ids, failed_covers, title_map, all_failed)
+    aborted = False
+    count = 0
+    notifier = Notifier(notifications, title_map, tdir, len(all_ids))
+    notifier.start()
 
+    try:
+        for ids in batches:
+            if abort.is_set():
+                log.error('Aborting...')
+                break
+            metadata = {i:db.get_metadata(i, index_is_id=True,
+                get_user_categories=False) for i in ids}
+            for i in ids:
+                title_map[i] = metadata[i].title
+                lm_map[i] = metadata[i].last_modified
+            metadata = {i:metadata_to_opf(mi, default_lang='und') for i, mi in
+                    metadata.iteritems()}
+            try:
+                ret = fork_job('calibre.ebooks.metadata.sources.worker', 'main',
+                        (do_identify, covers, metadata, ensure_fields, tdir),
+                        abort=abort, heartbeat=heartbeat, no_output=True)
+            except WorkerError as e:
+                if e.orig_tb:
+                    raise Exception('Failed to download metadata. Original '
+                            'traceback: \n\n'+e.orig_tb)
+                raise
+            count += batch_size
+
+            fids, fcovs, allf = ret['result']
+            if not allf:
+                all_failed = False
+            failed_ids = failed_ids.union(fids)
+            failed_covers = failed_covers.union(fcovs)
+            ans = ans.union(set(ids) - fids)
+            for book_id in ids:
+                lp = os.path.join(tdir, '%d.log'%book_id)
+                if os.path.exists(lp):
+                    with open(tf, 'ab') as dest, open(lp, 'rb') as src:
+                        dest.write(('\n'+'#'*20 + ' Log for %s '%title_map[book_id] +
+                            '#'*20+'\n').encode('utf-8'))
+                        shutil.copyfileobj(src, dest)
+
+        if abort.is_set():
+            aborted = True
+        log('Download complete, with %d failures'%len(failed_ids))
+        return (aborted, ans, tdir, tf, failed_ids, failed_covers, title_map,
+                lm_map, all_failed)
+    finally:
+        notifier.keep_going = False
 
 

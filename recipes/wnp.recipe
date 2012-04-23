@@ -1,5 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
+import re
 
 class AdvancedUserRecipe1312886443(BasicNewsRecipe):
     title          = u'WNP'
@@ -8,10 +8,11 @@ class AdvancedUserRecipe1312886443(BasicNewsRecipe):
     description   = u'Wirtualny Nowy Przemysł'
     category       = 'economy'
     language       = 'pl'
+    preprocess_regexps = [(re.compile(ur'Czytaj też:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Czytaj więcej:.*?</a>', re.DOTALL), lambda match: '')]
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets= True
-    keep_only_tags = dict(name='div', attrs={'id':'contentText'})
+    remove_tags=[dict(attrs={'class':'printF'})]
     feeds          = [(u'Wiadomości gospodarcze', u'http://www.wnp.pl/rss/serwis_rss.xml'),
                           (u'Serwis Energetyka - Gaz', u'http://www.wnp.pl/rss/serwis_rss_1.xml'),
           (u'Serwis Nafta - Chemia', u'http://www.wnp.pl/rss/serwis_rss_2.xml'),
@@ -19,3 +20,7 @@ class AdvancedUserRecipe1312886443(BasicNewsRecipe):
           (u'Serwis Górnictwo', u'http://www.wnp.pl/rss/serwis_rss_4.xml'),
           (u'Serwis Logistyka', u'http://www.wnp.pl/rss/serwis_rss_5.xml'),
           (u'Serwis IT', u'http://www.wnp.pl/rss/serwis_rss_6.xml')]
+
+
+    def print_version(self, url):
+        return 'http://wnp.pl/drukuj/' +url[url.find(',')+1:]

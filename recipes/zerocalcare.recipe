@@ -1,0 +1,18 @@
+__version__     = 'v1.0'
+__date__        = '7, April 2012'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1333705905(BasicNewsRecipe):
+    title          = u'Zerocalcare'
+    __author__      = 'faber1971'
+    description = 'Free Italian Comics'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    keep_only_tags = [
+                       dict(name='div', attrs={'class':'main entry-content group'})
+                     ]
+    masthead_url            = 'http://zerocalcare.it/wp-content/uploads/2011/11/zerocalcare-banner.jpg'
+    feeds          = [(u'Zerocalcare', u'http://feeds.feedburner.com/Zerocalcareit')]
