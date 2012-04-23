@@ -377,7 +377,7 @@ class KF8Writer(object):
                 _('Unknown'), ref.type, (pos, fid)))
 
         if self.guide_table:
-            self.guide_table.sort(key=lambda x:x.type)
+            self.guide_table.sort(key=lambda x:x.type) # Needed by the Kindle
             self.guide_records = GuideIndex(self.guide_table)()
 
 def create_kf8_book(oeb, opts, resources):
