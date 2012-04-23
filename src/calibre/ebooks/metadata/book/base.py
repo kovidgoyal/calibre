@@ -650,11 +650,7 @@ class Metadata(object):
             res = self.get(key, None)
             cmeta = self.get_user_metadata(key, make_copy=False)
             name = unicode(cmeta['name'])
-            if cmeta['datatype'] != 'composite' and (res is None or res == ''):
-                return (name, res, None, None)
-            orig_res = res
-            cmeta = self.get_user_metadata(key, make_copy=False)
-            if res is None or res == '':
+            if res in {None, ''}:
                 return (name, res, None, None)
             orig_res = res
             datatype = cmeta['datatype']
