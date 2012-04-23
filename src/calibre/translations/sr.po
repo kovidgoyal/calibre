@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-21 19:01+0000\n"
+"PO-Revision-Date: 2012-04-22 15:23+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-22 04:42+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-04-23 04:45+0000\n"
+"X-Generator: Launchpad (build 15135)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -10517,12 +10517,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:27
 msgid "Restoring database"
-msgstr ""
+msgstr "Враћање базе података"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "Стара база је сачуван као: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10534,7 +10534,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Враћање базе података је било успешно. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -10551,6 +10551,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:131
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
+"Враћање базе података није успело, кликните на  Прикажи детаље да бисте "
+"видели детаље"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
@@ -10595,7 +10597,7 @@ msgstr "Додај нову сачувану претрагу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "Преименуј тренутну претрагу у пољу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -10636,11 +10638,11 @@ msgstr "&Дани у месецу:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr ""
+msgstr "Зарезом одвојена листа за дане у месецу. на пример: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
-msgstr ""
+msgstr "Преузми &после:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:142
 msgid ""
@@ -10668,6 +10670,8 @@ msgstr "дана"
 msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
 msgstr ""
+"Напомена : Можете да подесите интервале мање од једног дана, тако што ћете "
+"уписати ручно вредност."
 
 #. NOTE: Number of news sources
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:197
@@ -10746,7 +10750,7 @@ msgstr "Додај сопствени извор вести."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:450
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Преузмите све планиране изворе вести"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Go"
@@ -11062,7 +11066,7 @@ msgstr "Име већ постоји"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:231
 msgid "That name is already used, perhaps with different case."
-msgstr ""
+msgstr "То име се већ користи, можда са различитим словима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:244
 msgid ""
@@ -11089,7 +11093,7 @@ msgstr "Избриши изабрану категорију етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:171
 msgid "Enter a category name, then use the add button or the rename button"
-msgstr ""
+msgstr "Унесите име категорије, а затим користите дугме додај или преименуј"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
@@ -11097,7 +11101,7 @@ msgstr "Додај нову категорију"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to what is in the box"
-msgstr ""
+msgstr "Преименуј тренутну категорију у пољу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -11191,7 +11195,7 @@ msgstr "Бројање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
-msgstr ""
+msgstr "Да ли је"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
@@ -11211,11 +11215,11 @@ msgstr "Није изабран стубац"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:313
 msgid "You must specify a column to be colored"
-msgstr ""
+msgstr "Морате навести колону да буде у боји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:316
 msgid "No template provided"
-msgstr ""
+msgstr "Омогући без шаблона"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:317
 msgid "The template box cannot be empty"
@@ -11228,11 +11232,11 @@ msgstr "Изабери боју ступца:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:111
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Умножи боју у оставу:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:112
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Умножи означену боју у оставу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:113
 msgid "Template value:"
@@ -11244,12 +11248,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:115
 msgid "Function &name:"
-msgstr ""
+msgstr "Назив &функције:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
 msgid "&Documentation:"
-msgstr ""
+msgstr "&Документација:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:117
 msgid "Python &code:"
@@ -11257,11 +11261,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:30
 msgid "Remove any template from the box"
-msgstr ""
+msgstr "Уклоните шаблон из оквира"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
-msgstr ""
+msgstr "Отвори уредник шаблона"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:424
@@ -11290,7 +11294,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:116
 msgid "Cannot preview"
-msgstr ""
+msgstr "Не можете да прикаже"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak {0}"
@@ -11330,7 +11334,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
-msgstr ""
+msgstr "&Преглед  {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"

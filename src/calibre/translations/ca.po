@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-13 19:02+0000\n"
+"PO-Revision-Date: 2012-04-22 07:10+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-21 04:43+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-04-23 04:44+0000\n"
+"X-Generator: Launchpad (build 15135)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2216,7 +2216,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"S'ha produït un error en processar el còmic: \n"
+"No s'ha pogut processar el còmic: \n"
 "\n"
 "%s"
 
@@ -3812,6 +3812,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Camí a un fitxer que conté expressions regulars de cerca i reemplaça. El "
+"fitxer ha de tenir línies alternes d'expressions regulars seguides per "
+"patrons de substitució (que poden ser una línia en blanc). L'expressió "
+"regular ha d'estar en sintaxi d'expressions regulars python i en fitxer ha "
+"d'estar codificat com a UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:741
 msgid "Could not find an ebook inside the archive"
@@ -5518,8 +5523,8 @@ msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
-"Ha fallat el canvi de nom de la biblioteca a %s. La causa més habitual és "
-"que un altre programa té obert un dels fitxers de la bibilioteca ."
+"No s'ha pogut canviar el nom de la biblioteca a %s. La causa més habitual és "
+"que un altre programa té obert un dels fitxers de la biblioteca ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:311
 msgid "Library removed"
@@ -8354,11 +8359,13 @@ msgstr "No es pot obrir el fitxer. El teniu obert amb un altre programa?"
 msgid ""
 "Failed to generate markup for testing. Click \"Show Details\" to learn more."
 msgstr ""
+"No s'ha pogut generar el marcat per a la proba. Per saber-ne més feu clic a "
+"«Mostra detalls»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
 msgid "Failed to generate preview"
-msgstr ""
+msgstr "No s'ha pogut generar la vista prèvia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:191
 msgid "Open book"
@@ -8428,37 +8435,39 @@ msgstr "Cerca expre&ssions regulars"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "Text de reemplaçament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "Expressió regular de cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:100
 msgid "Load Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Carrega el fitxer de definicions de cerca i reemplaça del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:119
 msgid "Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Fitxer de definicions de cerca i reemplaça del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:110
 msgid "Failed to read"
-msgstr ""
+msgstr "No s'ha pogut llegir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:111
 #, python-format
 msgid "Failed to load patterns from %s, click Show details to learn more."
 msgstr ""
+"No s'ha pogut carregar els patrons des de %s. Per saber-ne més feu clic a "
+"«Mostra detalls»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:117
 msgid "Save Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Desa el fitxer de definicions de cerca i reemplaça del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:168
 msgid "Unused Search & Replace definition"
-msgstr ""
+msgstr "Definició de cerca i reemplaça no utilitzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:169
 msgid ""
@@ -8466,6 +8475,9 @@ msgid ""
 "of definitions. Do you wish to continue with the conversion (the definition "
 "will not be used)?"
 msgstr ""
+"La definició de cerca i reemplaça que s'està editant no s'ha afegit a la "
+"llista de definicions. Voleu continuar amb la conversió (no s'utilitzarà la "
+"definició)?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:112
@@ -8483,10 +8495,12 @@ msgid ""
 "The list of search/replace definitions that will be applied to this "
 "conversion."
 msgstr ""
+"S'ha aplicarà la llista de definicions de cerca i reemplaça a aquesta "
+"conversió."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:111
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "Edita les definicions de cerca i reemplaça"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:112
 msgid "&Replacement Text"
@@ -8495,15 +8509,15 @@ msgstr "Te&xt de substitució"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:113
 msgid ""
 "Add the current expression to the list of expressions that will be applied"
-msgstr ""
+msgstr "Afegeix l'expressió actual a la llista d'expressions que s'aplicaran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:114
 msgid "&Add"
-msgstr ""
+msgstr "&Afegeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:115
 msgid "Edit the currently selected expression"
-msgstr ""
+msgstr "Edita l'expressió seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
@@ -8512,7 +8526,7 @@ msgstr "&Canvia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:117
 msgid "Remove the currently selected expression"
-msgstr ""
+msgstr "Suprimeix l'expressió seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:886
@@ -8521,15 +8535,16 @@ msgstr "Sup&rimeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:119
 msgid "Load a listof expression from a previously saved file"
-msgstr ""
+msgstr "Carrega una llista d'expressions des d'un fitxer desat prèviament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:120
 msgid "&Load"
-msgstr ""
+msgstr "&Carrega"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:121
 msgid "Save this list of expression so that you can re-use it easily"
 msgstr ""
+"Deseu aquesta llista d'expressions per tal de poder reutilitzar-la fàcilment"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
@@ -8546,6 +8561,13 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p>Cerca i reemplaça utilitza <i>expressions regulars</i>. Vegeu <a "
+"href=\"http://manual.calibre-ebook.com/regexp.html\">l'assistent "
+"d'expressions regulars</a> per començar amb les expressions regulars. A més, "
+"si feu clic al botó de l'assistent de més avall podreu comprovar les "
+"expressions regulars en el document d'entrada actual. Quan estigueu satisfet "
+"amb una expressió feu clic al botó «Afegeix» per afegir-la a la llista "
+"d'expressions."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"

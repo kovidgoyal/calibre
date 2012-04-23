@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-21 19:51+0000\n"
+"PO-Revision-Date: 2012-04-22 19:46+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-22 04:42+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-04-23 04:44+0000\n"
+"X-Generator: Launchpad (build 15135)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1478,12 +1478,12 @@ msgstr "%(time)s<br />Последняя прочитаная стр.: %(loc)d (
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:191
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Последнее место чтения: Положение %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:210
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Положение %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:219
 #, python-format
@@ -1659,6 +1659,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Глава %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Прогресс главы:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr "
+"/>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1064
 #, python-format
@@ -1667,6 +1670,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Глава %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Прогресс главы:</b> %(chapter_progress)s%%<br /><b>Выделено:</b> "
+"%(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1073
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1083
@@ -1676,6 +1682,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Глава %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Прогресс главы:</b> %(chapter_progress)s%%<br /><b>Выделено:</b> "
+"%(text)s<br /><b>Заметки:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -2567,6 +2576,10 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"Этот входной плагин перестраивает все исходные файлы в стандартную иерархию "
+"папки. Используйте эту опцию только если знаете что делаете, потому что это "
+"может привести к неприятным побочным эффектам в другой части преобразующего "
+"механизма."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:21
 msgid "CSS file used for the output instead of the default file"
@@ -2816,7 +2829,7 @@ msgid ""
 msgstr ""
 "Коэффициент для определения длины, при которой строка должна быть соединена. "
 "Допускаются десятичные значения между 0 и 1. Значение по умолчанию "
-"составляет 0,45, чуть ниже средней длины линии."
+"составляет 0,45, чуть ниже средней длины строки."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:26
 msgid "Use the new PDF conversion engine."
@@ -19752,7 +19765,7 @@ msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
-"cmp(x, y, lt, eq, gt) -- конвертирует x и y в числа, затем сравнивает ихs. "
+"cmp(x, y, lt, eq, gt) -- конвертирует x и y в числа, затем сравнивает их. "
 "Возвращает lt если x < y. Возвращает eq если x == y. Иначе возвращает gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:142
@@ -19805,6 +19818,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- оценивает x как шаблон. Оценка зависит от контекста - это "
+"значит что переменные не передаются между вызывающим объектом и шаблоном "
+"оценки. Так как символы { и } специальные, вы должны использовать [[ вместо "
+"{ и ]]  вместо }; они преобразуются автоматически. Например, шаблон "
+"('[[title_sort]]') будет преобразован в шаблон {title_sort} и будет "
+"возвращено его значение (title_sort - сортировочный заголовок)."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:230
 msgid ""
@@ -19818,6 +19837,8 @@ msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(идентификатор, значение) -- присваивает значение идентификатору и "
+"возвращает значение. Идентификатор должен быть идентификактором а выражением."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:255
 msgid ""
@@ -19825,16 +19846,21 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- выводит аргументы в стандартный вывод. Если вы "
+"запускаете calibre из командной строки (calibre-debug -g), вывод будет "
+"происходить впустую."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:267
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(название) -- возвращает поле метаданных с указанным названием"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:276
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(название) -- возвращает поле метаданных с указанным названием без "
+"применения форматирования."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:286
 msgid ""
@@ -19860,6 +19886,13 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(значение, шаблон1, поле1, шаблон2, поле2, ..., иначе_поле) -- как "
+"switch, за тем исключением что аргументы - это названия полей метаданных а "
+"не текст. Значение соответствующего поля извлекается и используется. "
+"Помните, что изза того, что составные столбцы тоже поля, вы можете "
+"использовать эту функцию в одном составном поле, что бы использовать данные "
+"другого составного поля. Это очень полезно при создании различных путей "
+"сохранения"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:315
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -19870,6 +19903,8 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(значение, текст если не пусто, текст если пусто) -- возвращает текст в "
+"зависимости от того пустое или нет значение поля"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:341
 msgid ""
@@ -19877,6 +19912,9 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(значение, шаблон, текст при совпадении, текст при несовпадении) -- "
+"проверяет поле на совпадения с регулярным выражением \"шаблон\" и возвращает "
+"текст в зависимости от результата."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:357
 msgid ""
@@ -19886,10 +19924,15 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(значение, шаблон1, значение1, шаблон2, значение2, ..., "
+"иначе_значение) -- для каждой пары \"шаблон, значение\" проверяет совпадение "
+"поля с регулярным выражением \"шаблон\" и если да, то возвращает "
+"\"значение\". Если нет совпадающих шаблонов, то возвращается значение "
+"\"иначе_значение\". Количество пар \"шаблон, значение\" не ограничено."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:365
 msgid "switch requires an odd number of arguments"
-msgstr "для переключателя нужно нечетное число аргументов"
+msgstr "switch требует нечётное число аргументов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:378
 msgid ""
@@ -19900,6 +19943,12 @@ msgid ""
 "string1 is longer than max. You can pass as many `prefix, string` pairs as "
 "you wish."
 msgstr ""
+"strcat_max(максимум, строка1, префикс2, строка2, ...) -- Возвращает строку "
+"сформированную из соединённых аргументов. Возвращаемое значение "
+"инициализируется строкой1. Пары \"префикс, строка\" добавляются в конец "
+"значения пока длина строки меньше \"максимума\". Строка1 возвращается даже "
+"если её длина больше максимума. Количество пар \"префикс, строка\" не "
+"ограничено."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:388
 msgid "strcat_max requires 2 or more arguments"
