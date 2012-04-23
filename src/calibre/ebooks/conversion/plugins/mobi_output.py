@@ -165,6 +165,8 @@ class MOBIOutput(OutputFormatPlugin):
         self.log, self.opts, self.oeb = log, opts, oeb
 
         mobi_type = tweaks.get('test_mobi_output_type', 'old')
+        if self.is_periodical:
+            mobi_type = 'old' # Amazon does not support KF8 periodicals
         create_kf8 = mobi_type in ('new', 'both')
 
         self.remove_html_cover()
