@@ -99,7 +99,7 @@ typedef unsigned short QRgb565;
 #define PFREAL_ONE (1 << PFREAL_SHIFT)
 #define PFREAL_HALF (PFREAL_ONE >> 1)
 
-#define TEXT_FLAGS (Qt::TextWordWrap|Qt::TextWrapAnywhere|Qt::TextHideMnemonic|Qt::AlignCenter)
+#define TEXT_FLAGS (Qt::TextWordWrap|Qt::TextHideMnemonic|Qt::AlignCenter)
 
 inline PFreal fmul(PFreal a, PFreal b)
 {
