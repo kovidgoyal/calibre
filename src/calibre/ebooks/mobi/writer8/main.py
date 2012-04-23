@@ -297,7 +297,6 @@ class KF8Writer(object):
         self.chunk_records = ChunkIndex(self.chunk_table)()
         self.ncx_records = []
         toc = self.oeb.toc
-        max_depth = toc.depth()
         entries = []
         is_periodical = self.opts.mobi_periodical
         if toc.count() < 2:
@@ -307,26 +306,37 @@ class KF8Writer(object):
         # Flatten the ToC into a depth first list
         fl = toc.iter() if is_periodical else toc.iterdescendants()
         for i, item in enumerate(fl):
-            entry = {'index':i, 'depth': max_depth - item.depth() - (0 if
-                is_periodical else 1), 'href':item.href, 'label':(item.title or
-                    _('Unknown'))}
-            entries.append(entry)
-            for child in item:
-                child.ncx_parent = entry
+            entry = {'id': id(item), 'index': i, 'href':item.href,
+                    'label':(item.title or _('Unknown')),
+                    'children':[]}
+            entry['depth'] = getattr(item, 'ncx_hlvl', 0)
             p = getattr(item, 'ncx_parent', None)
             if p is not None:
-                entry['parent'] = p['index']
+                entry['parent_id'] = p
+            for child in item:
+                child.ncx_parent = entry['id']
+                child.ncx_hlvl = entry['depth'] + 1
+                entry['children'].append(id(child))
             if is_periodical:
                 if item.author:
                     entry['author'] = item.author
                 if item.description:
                     entry['description'] = item.description
+            entries.append(entry)
+
+        # The Kindle requires entries to be sorted by (depth, playorder)
+        entries.sort(key=lambda entry: (entry['depth'], entry['index']))
+        for i, entry in enumerate(entries):
+            entry['index'] = i
+        id_to_index = {entry['id']:entry['index'] for entry in entries}
 
         for entry in entries:
-            children = [e for e in entries if e.get('parent', -1) == entry['index']]
+            children = entry.pop('children')
             if children:
-                entry['first_child'] = children[0]['index']
-                entry['last_child'] = children[-1]['index']
+                entry['first_child'] = id_to_index[children[0]]
+                entry['last_child'] = id_to_index[children[-1]]
+            if 'parent_id' in entry:
+                entry['parent'] = id_to_index[entry.pop('parent_id')]
             href = entry.pop('href')
             href, frag = href.partition('#')[0::2]
             aid = self.id_map.get((href, frag), None)
