@@ -380,7 +380,7 @@ class KF8Writer(object):
             self.guide_table.sort(key=lambda x:x.type) # Needed by the Kindle
             self.guide_records = GuideIndex(self.guide_table)()
 
-def create_kf8_book(oeb, opts, resources):
+def create_kf8_book(oeb, opts, resources, for_joint=False):
     writer = KF8Writer(oeb, opts, resources)
-    return KF8Book(writer)
+    return KF8Book(writer, for_joint=for_joint)
 

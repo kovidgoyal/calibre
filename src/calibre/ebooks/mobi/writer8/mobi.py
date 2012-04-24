@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
+import time, random
 from struct import pack
 
 from calibre.ebooks.mobi.utils import RECORD_SIZE, utf8_text
@@ -24,8 +24,6 @@ class MOBIHeader(Header): # {{{
     Represents the first record in a MOBI file, contains all the metadata about
     the file.
     '''
-
-    FILE_VERSION = 8
 
     DEFINITION = '''
     # 0: Compression
@@ -63,7 +61,7 @@ class MOBIHeader(Header): # {{{
     encoding = 65001
 
     # 32: UID
-    uid = random.randint(0, 0xffffffff)
+    uid = DYN
 
     # 36: File version
     file_version = {file_version}
@@ -154,7 +152,7 @@ class MOBIHeader(Header): # {{{
     # 0b1 - extra multibyte bytes after text records
     # 0b10 - TBS indexing data (only used in MOBI 6)
     # 0b100 - uncrossable breaks only used in MOBI 6
-    extra_data_flags = 1
+    extra_data_flags = DYN
 
     # 244: KF8 Indices
     ncx_index = DYN
@@ -171,12 +169,17 @@ class MOBIHeader(Header): # {{{
 
     # Padding to allow amazon's DTP service to add data
     padding = zeroes(8192)
-    '''.format(record_size=RECORD_SIZE, file_version=FILE_VERSION)
+    '''
 
     SHORT_FIELDS = {'compression', 'last_text_record', 'record_size',
             'encryption_type', 'unused2'}
     ALIGN = True
     POSITIONS = {'title_offset':'full_title'}
+
+    def __init__(self, file_version=8):
+        self.DEFINITION = self.DEFINITION.format(file_version=file_version,
+                record_size=RECORD_SIZE)
+        super(MOBIHeader, self).__init__()
 
     def format_value(self, name, val):
         if name == 'compression':
@@ -185,14 +188,20 @@ class MOBIHeader(Header): # {{{
 
 # }}}
 
-# Fields that need to be set in the MOBI Header are
+HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
+                    'first_non_text_record', 'title_length', 'language_code',
+                    'first_resource_record', 'exth_flags', 'fdst_record',
+                    'fdst_count', 'ncx_index', 'chunk_index', 'skel_index',
+                    'guide_index', 'exth', 'full_title', 'extra_data_flags',
+                    'uid'}
 
 class KF8Book(object):
 
-    def __init__(self, writer):
-        self.build_records(writer)
+    def __init__(self, writer, for_joint=False):
+        self.build_records(writer, for_joint)
+        self.used_images = writer.used_images
 
-    def build_records(self, writer):
+    def build_records(self, writer, for_joint):
         metadata = writer.oeb.metadata
         # The text records
         for x in ('last_text_record_idx', 'first_non_text_record_idx'):
@@ -222,8 +231,10 @@ class KF8Book(object):
         self.first_resource_record = NULL_INDEX
         if resources.records:
             self.first_resource_record = len(self.records)
-            self.records.extend(resources.records)
-        self.num_of_resources = len(resources.records)
+            before = len(self.records)
+            if not for_joint:
+                resources.serialize(self.records, writer.used_images)
+        self.num_of_resources = len(self.records) - before
 
         # FDST
         self.fdst_count = writer.fdst_count
@@ -233,12 +244,13 @@ class KF8Book(object):
         # EOF
         self.records.append(b'\xe9\x8e\r\n') # EOF record
 
-
         # Miscellaneous header fields
         self.compression = writer.compress
         self.book_type = 0x101 if writer.opts.mobi_periodical else 2
         self.full_title = utf8_text(unicode(metadata.title[0]))
         self.title_length = len(self.full_title)
+        self.extra_data_flags = 0b1
+        self.uid = random.randint(0, 0xffffffff)
 
         self.language_code = iana2mobi(str(metadata.language[0]))
         self.exth_flags = 0b1010000
@@ -248,14 +260,14 @@ class KF8Book(object):
         self.opts = writer.opts
         self.start_offset = writer.start_offset
         self.metadata = metadata
+        self.kuc = 0 if len(resources.records) > 0 else None
 
     @property
     def record0(self):
         ''' We generate the EXTH header and record0 dynamically, to allow other
-        code to customize various values after build_record() has been
+        code to customize various values after build_records() has been
         called'''
         opts = self.opts
-        kuc = 0 if self.num_of_resources > 0 else None
         self.exth = build_exth(self.metadata,
                 prefer_author_sort=opts.prefer_author_sort,
                 is_periodical=opts.mobi_periodical,
@@ -263,15 +275,10 @@ class KF8Book(object):
                 cover_offset=self.cover_offset,
                 thumbnail_offset=self.thumbnail_offset,
                 num_of_resources=self.num_of_resources,
-                kf8_unknown_count=kuc, be_kindlegen2=True,
+                kf8_unknown_count=self.kuc, be_kindlegen2=True,
                 start_offset=self.start_offset, mobi_doctype=self.book_type)
 
-        kwargs = {field:getattr(self, field) for field in
-                ('compression', 'text_length', 'last_text_record', 'book_type',
-                    'first_non_text_record', 'title_length', 'language_code',
-                    'first_resource_record', 'exth_flags', 'fdst_record',
-                    'fdst_count', 'ncx_index', 'chunk_index', 'skel_index',
-                    'guide_index', 'exth', 'full_title')}
+        kwargs = {field:getattr(self, field) for field in HEADER_FIELDS}
         return MOBIHeader()(**kwargs)
 
     def write(self, outpath):
