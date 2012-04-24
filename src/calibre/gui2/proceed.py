@@ -129,6 +129,25 @@ class ProceedQuestion(QDialog):
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False):
+        '''
+        A non modal popup that notifies the user that a background task has
+        been completed. This class guarantees that onlya single popup is
+        visible at any one time. Other requests are queued and displayed after
+        the user dismisses the current popup.
+
+        :param callback: A callable that is called with payload if the user
+        asks to proceed. Note that this is always called in the GUI thread.
+        :param cancel_callback: A callable that is called with the payload if
+        the users asks not to proceed.
+        :param payload: Arbitrary object, passed to callback
+        :param html_log: An HTML or plain text log
+        :param log_viewer_title: The title for the log viewer window
+        :param title: The title for this popup
+        :param msg: The msg to display
+        :param det_msg: Detailed message
+        :param log_is_file: If True the html_log parameter is interpreted as
+        the path to a file on disk containing the log encoded with utf-8
+        '''
         question = Question(payload, callback, cancel_callback, title, msg,
                 html_log, log_viewer_title, log_is_file, det_msg,
                 show_copy_button)
