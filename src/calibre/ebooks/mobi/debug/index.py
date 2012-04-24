@@ -21,6 +21,8 @@ Elem = namedtuple('Chunk',
     'insert_pos toc_text file_number sequence_number start_pos '
     'length')
 
+GuideRef = namedtuple('GuideRef', 'type title pos_fid')
+
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
 
@@ -123,6 +125,28 @@ class SECTIndex(Index):
                     tag_map[6][1]  # length
                     )
                 )
+
+class GuideIndex(Index):
+
+    def __init__(self, guideidx, records, codec):
+        super(GuideIndex, self).__init__(guideidx, records, codec)
+        self.records = []
+
+        if self.table is not None:
+             for i, text in enumerate(self.table.iterkeys()):
+                tag_map = self.table[text]
+                if set(tag_map.iterkeys()) not in ({1, 6}, {1, 2, 3}):
+                    raise ValueError('Guide Index has unknown tags: %s'%
+                            tag_map)
+
+                title = self.cncx[tag_map[1][0]]
+                self.records.append(GuideRef(
+                    text,
+                    title,
+                    tag_map[6] if 6 in tag_map else (tag_map[2], tag_map[3])
+                    )
+                )
+
 
 class NCXIndex(Index):
 

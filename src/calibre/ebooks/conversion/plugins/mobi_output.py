@@ -165,6 +165,8 @@ class MOBIOutput(OutputFormatPlugin):
         self.log, self.opts, self.oeb = log, opts, oeb
 
         mobi_type = tweaks.get('test_mobi_output_type', 'old')
+        if self.is_periodical:
+            mobi_type = 'old' # Amazon does not support KF8 periodicals
         create_kf8 = mobi_type in ('new', 'both')
 
         self.remove_html_cover()
@@ -172,7 +174,8 @@ class MOBIOutput(OutputFormatPlugin):
                 add_fonts=create_kf8)
         self.check_for_periodical()
 
-        kf8 = self.create_kf8(resources) if create_kf8 else None
+        kf8 = self.create_kf8(resources, for_joint=mobi_type=='both'
+                ) if create_kf8 else None
         if mobi_type == 'new':
             kf8.write(output_path)
             self.extract_mobi(output_path, opts)
@@ -181,9 +184,10 @@ class MOBIOutput(OutputFormatPlugin):
         self.log('Creating MOBI 6 output')
         self.write_mobi(input_plugin, output_path, kf8, resources)
 
-    def create_kf8(self, resources):
+    def create_kf8(self, resources, for_joint=False):
         from calibre.ebooks.mobi.writer8.main import create_kf8_book
-        return create_kf8_book(self.oeb, self.opts, resources)
+        return create_kf8_book(self.oeb, self.opts, resources,
+                for_joint=for_joint)
 
     def write_mobi(self, input_plugin, output_path, kf8, resources):
         from calibre.ebooks.mobi.mobiml import MobiMLizer

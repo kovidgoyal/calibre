@@ -23,6 +23,7 @@ from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
+NULL_INDEX = 0xffffffff
 
 class MobiWriter(object):
 
@@ -30,6 +31,7 @@ class MobiWriter(object):
         self.opts = opts
         self.resources = resources
         self.kf8 = kf8
+        self.for_joint = kf8 is not None
         self.write_page_breaks_after_item = write_page_breaks_after_item
         self.compression = UNCOMPRESSED if opts.dont_compress else PALMDOC
         self.prefer_author_sort = opts.prefer_author_sort
@@ -61,7 +63,7 @@ class MobiWriter(object):
         self.stream = stream
         self.records = [None]
         self.generate_content()
-        self.generate_record0()
+        self.generate_joint_record0() if self.for_joint else self.generate_record0()
         self.write_header()
         self.write_content()
 
@@ -200,8 +202,6 @@ class MobiWriter(object):
         first_image_record = None
         if self.resources:
             used_images = self.serializer.used_images
-            if self.kf8 is not None:
-                used_images |= self.kf8.used_images
             first_image_record  = len(self.records)
             self.resources.serialize(self.records, used_images)
         last_content_record = len(self.records) - 1
@@ -363,6 +363,68 @@ class MobiWriter(object):
         # MOBI is submitted for publication
         record0 += (b'\0' * (1024*8))
         self.records[0] = align_block(record0)
+    # }}}
+
+    def generate_joint_record0(self): # {{{
+        from calibre.ebooks.mobi.writer8.mobi import (MOBIHeader,
+                HEADER_FIELDS)
+        from calibre.ebooks.mobi.writer8.exth import build_exth
+
+        # Insert resource records
+        first_image_record = None
+        old = len(self.records)
+        if self.resources:
+            used_images = self.serializer.used_images | self.kf8.used_images
+            first_image_record  = len(self.records)
+            self.resources.serialize(self.records, used_images)
+        resource_record_count = len(self.records) - old
+
+        # Insert KF8 records
+        self.records.append(b'BOUNDARY')
+        kf8_header_index = len(self.records)
+        self.kf8.start_offset = (self.serializer.start_offset,
+                self.kf8.start_offset)
+        self.records.append(self.kf8.record0)
+        self.records.extend(self.kf8.records[1:])
+
+        first_image_record if first_image_record else len(self.records)
+
+        header_fields = {k:getattr(self.kf8, k) for k in HEADER_FIELDS}
+
+        # Now change the header fields that need to be different in the MOBI 6
+        # header
+        header_fields['first_resource_record'] = first_image_record
+        header_fields['exth_flags'] = 0b100001010000 # Kinglegen uses this
+        header_fields['fdst_record'] = NULL_INDEX
+        header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
+        header_fields['extra_data_flags'] = 0b11
+
+        for k, v in {'last_text_record':'last_text_record_idx',
+                'first_non_text_record':'first_non_text_record_idx',
+                'ncx_index':'primary_index_record_idx',
+                }.iteritems():
+            header_fields[k] = getattr(self, v)
+
+        for x in ('skel', 'chunk', 'guide'):
+            header_fields[x+'_index'] = NULL_INDEX
+
+        # Create the MOBI 6 EXTH
+        opts = self.opts
+        kuc = 0 if resource_record_count > 0 else None
+
+        header_fields['exth'] = build_exth(self.oeb.metadata,
+                prefer_author_sort=opts.prefer_author_sort,
+                is_periodical=opts.mobi_periodical,
+                share_not_sync=opts.share_not_sync,
+                cover_offset=self.cover_offset,
+                thumbnail_offset=self.thumbnail_offset,
+                num_of_resources=resource_record_count,
+                kf8_unknown_count=kuc, be_kindlegen2=True,
+                kf8_header_index=kf8_header_index,
+                start_offset=self.serializer.start_offset,
+                mobi_doctype=2)
+        self.records[0] = MOBIHeader(file_version=6)(**header_fields)
+
     # }}}
 
     def write_header(self): # PalmDB header {{{

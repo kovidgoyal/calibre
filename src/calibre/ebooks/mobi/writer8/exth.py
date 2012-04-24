@@ -27,6 +27,7 @@ EXTH_CODES = {
     'source': 112,
     'versionnumber': 114,
     'startreading': 116,
+    'kf8_header_index': 121,
     'num_of_resources': 125,
     'kf8_unknown_count': 131,
     'coveroffset': 201,
@@ -41,7 +42,7 @@ COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         share_not_sync=True, cover_offset=None, thumbnail_offset=None,
         start_offset=None, mobi_doctype=2, num_of_resources=None,
-        kf8_unknown_count=0, be_kindlegen2=False):
+        kf8_unknown_count=0, be_kindlegen2=False, kf8_header_index=None):
     exth = BytesIO()
     nrecs = 0
 
@@ -153,8 +154,19 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         nrecs += 1
 
     if start_offset is not None:
-        exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
-            start_offset))
+        try:
+            len(start_offset)
+        except TypeError:
+            start_offset = [start_offset]
+        for so in start_offset:
+            if so is not None:
+                exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
+                    so))
+                nrecs += 1
+
+    if kf8_header_index is not None:
+        exth.write(pack(b'>III', EXTH_CODES['kf8_header_index'], 12,
+            kf8_header_index))
         nrecs += 1
 
     if num_of_resources is not None:

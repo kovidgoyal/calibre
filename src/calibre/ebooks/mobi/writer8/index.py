@@ -284,7 +284,10 @@ class GuideIndex(Index):
 
 class NCXIndex(Index):
 
-    control_byte_count = 2
+    ''' The commented out parts have been seen in NCX indexes from MOBI 6
+    periodicals. Since we have no MOBI 8 periodicals to reverse engineer, leave
+    it for now. '''
+    # control_byte_count = 2
     tag_types = tuple(map(TagMeta, (
         ('offset',             1, 1, 1, 0),
         ('length',             2, 1, 2, 0),
@@ -295,12 +298,12 @@ class NCXIndex(Index):
         ('last_child',         23, 1, 64, 0),
         ('pos_fid',            6, 2, 128, 0),
         EndTagTable,
-        ('image',              69, 1, 1, 0),
-        ('description',        70, 1, 2, 0),
-        ('author',             71, 1, 4, 0),
-        ('caption',            72, 1, 8, 0),
-        ('attribution',        73, 1, 16, 0),
-        EndTagTable
+        # ('image',              69, 1, 1, 0),
+        # ('description',        70, 1, 2, 0),
+        # ('author',             71, 1, 4, 0),
+        # ('caption',            72, 1, 8, 0),
+        # ('attribution',        73, 1, 16, 0),
+        # EndTagTable
     )))
 
     def __init__(self, toc_table):
