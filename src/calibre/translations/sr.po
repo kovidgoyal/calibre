@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-20 09:28+0000\n"
-"PO-Revision-Date: 2012-04-22 15:23+0000\n"
-"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
+"PO-Revision-Date: 2012-04-23 20:31+0000\n"
+"Last-Translator: Maroje Delibasic <maroje.delibasic@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-23 04:45+0000\n"
+"X-Launchpad-Export-Date: 2012-04-24 04:52+0000\n"
 "X-Generator: Launchpad (build 15135)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -809,7 +809,7 @@ msgstr "Намењено за iPad и сличне уређаје с резол�
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Намењенo за iPad 3 и сличнe уређаје са резолуцијом од 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -2639,6 +2639,8 @@ msgid ""
 "When adding the Table of Contents to the book, add it at the start of the "
 "book instead of the end. Not recommended."
 msgstr ""
+"Када се додаје садржај, додаје се на почетак књиге уместо на крај. Није "
+"препоручено."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:49
 msgid ""
@@ -2891,6 +2893,8 @@ msgid ""
 "Normally extra space at the beginning of lines is retained. With this option "
 "they will be removed."
 msgstr ""
+"Нормално се додатни размаци задржавају на почетку линије. Са овом опцијом ће "
+"размаци бити уклоњени."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:51
 msgid "Do not insert a Table of Contents into the output text."
@@ -3270,6 +3274,8 @@ msgid ""
 "Set the height of the inserted blank lines (in em). The height of the lines "
 "between paragraphs will be twice the value set here."
 msgstr ""
+"Подесите висину уметнутих празних редова (у еm). Висина линија између пасуса "
+"биће двоструко већа од вредности подешене овде."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:411
 msgid ""
@@ -5018,7 +5024,7 @@ msgstr "Правим каталог %s..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
 msgid "Catalog generation complete, with warnings."
-msgstr ""
+msgstr "Прављење каталога је завршено са упозорењима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
@@ -11338,11 +11344,11 @@ msgstr "&Преглед  {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"
-msgstr ""
+msgstr "Нема рецепата"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "No custom recipes created."
-msgstr ""
+msgstr "Нема жељених направљених рецепата"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
@@ -11417,7 +11423,7 @@ msgstr "Рецепт са именом %s већ постоји. Да ли же�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:288
 msgid "Choose builtin recipe"
-msgstr ""
+msgstr "Изабери урађени рецепт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:334
 msgid "Choose a recipe file"
@@ -11455,7 +11461,7 @@ msgstr "Подели рецепт &с другима."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr ""
+msgstr "П&рикажи датотеку рецепата"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -11565,7 +11571,7 @@ msgstr "Није одабрана датотека за преузимање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:70
 msgid "Not a support ebook format."
-msgstr ""
+msgstr "Није подржан формат е-књиге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:91
 #, python-format
@@ -11725,7 +11731,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Објављено:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
@@ -11851,27 +11857,28 @@ msgstr " - Послови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:546
 msgid "Search for a job by name"
-msgstr ""
+msgstr "Претрага за послом по имену"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:595
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:617
 msgid "No job"
-msgstr ""
+msgstr "Без посла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:618
 msgid "No job selected"
-msgstr ""
+msgstr "Није изабран посао"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:598
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Да ли заиста желите да прекинете изабрани посао"
+msgstr[1] "Да ли заиста желите да прекинете изабрана посла"
+msgstr[2] "Да ли заиста желите да прекинете изабраних посалова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:608
 msgid "Do you really want to stop all non-device jobs?"
-msgstr ""
+msgstr "Да ли заиста желите да престану сви без- уређаја послови?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:365
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:86
@@ -11932,7 +11939,7 @@ msgstr "већ додељено за"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:499
 msgid "<b>This shortcut no longer exists</b>"
-msgstr ""
+msgstr "<b>Ова пречица више не постоји</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:508
 msgid "Shortcuts"
@@ -11945,7 +11952,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:607
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "Трагање за пречицом по имену"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:247
@@ -11958,7 +11965,7 @@ msgstr "Нема резултата"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:412
 #, python-format
 msgid "Could not find any shortcuts matching %s"
-msgstr ""
+msgstr "Није могуће пронаћи одговарајуће пречице %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:58
 msgid "Eject this device"
@@ -11966,7 +11973,7 @@ msgstr "Искључи овај уређај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:61
 msgid "Configure this device"
-msgstr ""
+msgstr "Подеси овај уређај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 msgid "Show books in calibre library"
@@ -12028,7 +12035,7 @@ msgstr "Копирајте текст који се тренутно тражи 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1073
 msgid "stars"
-msgstr ""
+msgstr "звездице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 msgid "Y"
@@ -12074,11 +12081,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:882
 msgid "Failed to set data"
-msgstr ""
+msgstr "Нисам успео да поставим податке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:883
 msgid "Could not set data, click Show Details to see why."
 msgstr ""
+"Није могуће поставити податке, кликните на Прикажи детаље да бисте видели "
+"зашто."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1064
 msgid "In Library"
@@ -12138,7 +12147,7 @@ msgstr "Прикажи стубац"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:242
 msgid "Shrink column if it is too wide to fit"
-msgstr ""
+msgstr "Скупи колону уколико је преширока да стане"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:245
 msgid "Restore default layout"
@@ -12396,7 +12405,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:139
 msgid "Title &sort:"
-msgstr ""
+msgstr "Поређај &наслов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:148
 msgid ""
@@ -12416,7 +12425,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:225
 msgid "Authors changed"
-msgstr ""
+msgstr "Измени ауторе"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:226
 msgid ""
@@ -12438,7 +12447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:319
 msgid "Author s&ort:"
-msgstr ""
+msgstr "Поређај а&уторе:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:329
 msgid ""
@@ -12467,6 +12476,9 @@ msgid ""
 "\n"
 "Double click to view"
 msgstr ""
+"Последња измена: %s\n"
+"\n"
+"Двоклик за приказ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:628
 #, python-format
@@ -12487,7 +12499,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:696
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "Уклоните изабрани формат из ове књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:767
 msgid "Choose formats for "
@@ -12549,7 +12561,7 @@ msgstr "Није могуће променити корице  слика је �
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1015
 msgid "This book has no cover"
-msgstr ""
+msgstr "Ова књига нема корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1017
 #, python-format
@@ -12568,22 +12580,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1171
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "Зарезом одвоји листу језика за ове књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1194
 msgid "Unknown language"
-msgstr ""
+msgstr "Непознати језик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1195
 #, python-format
 msgid "The language %s is not recognized"
 msgid_plural "The languages %s are not recognized"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Језик %s није препознат"
+msgstr[1] "Језика %s нису препозната"
+msgstr[2] "Језика %s није препознато"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1207
 msgid "I&ds:"
-msgstr ""
+msgstr "I&ds:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1208
 #, python-format
@@ -12592,6 +12605,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Уреди идентификатор за ове књиге. на пример: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1272
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1334
@@ -12606,11 +12622,11 @@ msgstr "Овај ISBN број је неисправан."
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1300
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1322
 msgid "Invalid ISBN"
-msgstr ""
+msgstr "Неважећи ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1301
 msgid "Enter an ISBN"
-msgstr ""
+msgstr "Унеси неки ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1323
 msgid "The ISBN you entered is not valid. Try again."
@@ -12622,7 +12638,7 @@ msgstr "Из&давач:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1416
 msgid "Clear date"
-msgstr ""
+msgstr "Очисти датум"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1450
 msgid "Publishe&d:"
@@ -12630,7 +12646,7 @@ msgstr "Из&дато:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:55
 msgid "Schedule download?"
-msgstr ""
+msgstr "Распоред преузимања?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:66
 #, python-format
