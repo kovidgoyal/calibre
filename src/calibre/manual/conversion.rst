@@ -573,6 +573,18 @@ There is a Word macro package that can automate the conversion of Word documents
 generating the Table of Contents much simpler. It is called BookCreator and is available for free
 at `mobileread <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
 
+An easy way to generate a Table of Contents when converting a Word document is:
+
+ 1. Mark your Chapters and sub-Chapters in the doc file with one of the MS built-in styles called 'Heading 1', 'Heading 2', ..., 'Heading 6'. 'Heading 1' equates to the HTML tag <h1>, 'Heading 2' to <h2> etc
+
+ 2. Save the doc as Webpage-filtered (rather than Webpage) and import the html file into |app|
+
+ 3. When you convert in |app| you use what you did in step 1 to set the box called 'Detect chapters at' on the Convert - Structure Detection page. For example:
+
+  * If you mark Chapters with style 'Heading 2' then set the 'Detect chapters at' box to //h:h2 This will give you a proper external metadata TOC in the converted epub.
+  * A slightly more complex example...if your book has Sections and Chapters and you want a 2-level nested metadata TOC. Mark the doc Sections with style 'Heading 2' and the Chapters with style 'Heading 3'. When you convert set the 'Detect chapters at' box to //h:h2|//h:h3. On the Convert - TOC page set the 'Level 1 TOC' box to //h:h2 and the 'Level 2 TOC' box to //h:h3.
+
+
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
 

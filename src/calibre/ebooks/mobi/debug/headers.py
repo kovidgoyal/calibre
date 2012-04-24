@@ -327,7 +327,7 @@ class MOBIHeader(object): # {{{
             self.primary_index_record, = struct.unpack(b'>I',
                     self.raw[244:248])
 
-        if self.file_version >= 8:
+        if self.length >= 248:
             (self.sect_idx, self.skel_idx, self.datp_idx, self.oth_idx
                     ) = struct.unpack_from(b'>4L', self.raw, 248)
             self.unknown9 = self.raw[264:self.length]
@@ -414,7 +414,7 @@ class MOBIHeader(object): # {{{
                     self.has_indexing_bytes, self.has_uncrossable_breaks ))
             ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
                 self.primary_index_record))
-        if self.file_version >= 8:
+        if self.length >= 248:
             i('Sections Index', self.sect_idx)
             i('SKEL Index', self.skel_idx)
             i('DATP Index', self.datp_idx)
