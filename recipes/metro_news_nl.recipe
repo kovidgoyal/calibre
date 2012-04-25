@@ -27,6 +27,8 @@ from BeautifulSoup import BeautifulSoup
  Version 1.9.1 18-04-2012
     removed some debug settings
     updated code to match new metro-layout
+ Version 1.9.2 14-04-2012
+    updated code to match new metro-layout
 '''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
@@ -250,7 +252,7 @@ class MerryProcess(BeautifulSoup):
         return self.myKiller.safeRemovePart(souparray, True)
 
     def removeUnwantedTagsByClass(self,soup):
-        self.removeArrayOfTags(soup.findAll("div", { "class" :re.compile('^(promo.*?|share-tools-top|share-tools-bottom|article-tools-below-title|metroCommentFormWrap|ad|share-tools|tools|header-links|related-links|padding-top-15|footer-[a-zA-Z0-9]+)$')}))
+        self.removeArrayOfTags(soup.findAll("div", { "class" :re.compile('^(promo.*?|share-tools-top|share-tools-bottom|article-tools-below-title|metroCommentFormWrap|ad|share-tools|tools|header-links|related-links|padding-top-15|footer-[a-zA-Z0-9]+|column-4-5)$')}))
         return soup
 
     def removeUnwantedTagsByID(self,soup):
