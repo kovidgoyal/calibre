@@ -536,7 +536,7 @@ OptionRecommendation(name='pubdate',
 
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the book timestamp (used by the date column in calibre).')),
+    help=_('Set the book timestamp (no longer used anywhere)')),
 
 OptionRecommendation(name='enable_heuristics',
     recommended_value=False, level=OptionRecommendation.LOW,
