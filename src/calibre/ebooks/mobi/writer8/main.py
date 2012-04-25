@@ -330,6 +330,7 @@ class KF8Writer(object):
             entry['index'] = i
         id_to_index = {entry['id']:entry['index'] for entry in entries}
 
+        # Write the hierarchical and start offset information
         for entry in entries:
             children = entry.pop('children')
             if children:
@@ -348,10 +349,19 @@ class KF8Writer(object):
                 pos, fid = self.aid_offset_map[aid]
             chunk = self.chunk_table[pos]
             offset = chunk.insert_pos + fid
-            length = chunk.length
             entry['pos_fid'] = (pos, fid)
             entry['offset'] = offset
-            entry['length'] = length
+
+        # Write the lengths
+        def get_next_start(entry):
+            enders = [e['offset'] for e in entries if e['depth'] <=
+                    entry['depth'] and e['offset'] > entry['offset']]
+            if enders:
+                return min(enders)
+            return len(self.flows[0])
+
+        for entry in entries:
+            entry['length'] = get_next_start(entry) - entry['offset']
 
         self.ncx_records = NCXIndex(entries)()
 
