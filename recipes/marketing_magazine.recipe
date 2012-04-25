@@ -1,11 +1,13 @@
 __license__   = 'GPL v3'
 __author__    = 'faber1971'
-description   = 'Collection of Italian marketing websites - v1.04 (17, March 2012)'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1327062445(BasicNewsRecipe):
     title          = u'Marketing Magazine'
+    description   = 'Collection of Italian marketing websites'
+    language = 'it'
+    __author__ = 'faber1971'
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True
@@ -16,4 +18,4 @@ class AdvancedUserRecipe1327062445(BasicNewsRecipe):
                      dict(name='ul', attrs={'id':'ads0'})
                   ]
     masthead_url            = 'http://www.simrendeogun.com/wp-content/uploads/2011/06/New-Marketing-Magazine-Logo.jpg'
-    feeds          = [(u'My Marketing', u'http://feed43.com/0537744466058428.xml'), (u'My Marketing_', u'http://feed43.com/8126723074604845.xml'), (u'Venturini', u'http://robertoventurini.blogspot.com/feeds/posts/default?alt=rss'), (u'Ninja Marketing', u'http://feeds.feedburner.com/NinjaMarketing'), (u'Comunitàzione', u'http://www.comunitazione.it/feed/novita.asp'), (u'Brandforum news', u'http://www.brandforum.it/rss/news'), (u'Brandforum papers', u'http://www.brandforum.it/rss/papers'), (u'MarketingArena', u'http://feeds.feedburner.com/marketingarena'), (u'minimarketing', u'http://feeds.feedburner.com/minimarketingit'), (u'Marketing Journal', u'http://feeds.feedburner.com/marketingjournal/jPwA'), (u'Disambiguando', u'http://giovannacosenza.wordpress.com/feed/')]
+    feeds          = [(u'My Marketing', u'http://feed43.com/0537744466058428.xml'), (u'My Marketing_', u'http://feed43.com/8126723074604845.xml'), (u'MarketingArena', u'http://feeds.feedburner.com/marketingarena'), (u'Marketing Journal', u'http://feeds.feedburner.com/marketingjournal/jPwA'), (u'Venturini', u'http://robertoventurini.blogspot.com/feeds/posts/default?alt=rss'), (u'Brandforum news', u'http://www.brandforum.it/rss/news'), (u'Brandforum papers', u'http://www.brandforum.it/rss/papers'), (u'minimarketing', u'http://feeds.feedburner.com/minimarketingit'), (u'[4]marketing.biz', u'http://feeds.feedburner.com/4marketing'), (u'Ninja Marketing', u'http://feeds.feedburner.com/NinjaMarketing'), (u'Bloguerrilla', u'http://feeds.feedburner.com/Bloguerrilla'), (u'Nonconvenzionale', u'http://feeds.feedburner.com/nonconvenzionale'), (u'Comunitàzione', u'http://www.comunitazione.it/feed/novita.asp'), (u'Disambiguando', u'http://giovannacosenza.wordpress.com/feed/')]
