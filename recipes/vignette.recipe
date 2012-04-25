@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1334935485(BasicNewsRecipe):
+    title          = u'Vignette'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    keep_only_tags = [
+                       dict(name='div', attrs={'class':['HomeFirstNewsfoto', 'photo']}),
+                       dict(name='img', attrs={'class':'altan-big'})
+                     ]
+    masthead_url            = 'http://vauro.globalist.it/vauroglobalistit/Img/vauro-logo-beta.gif'
+    feeds          = [(u'Altan', u'http://feed43.com/3556647724071522.xml'), (u'Ellekappa', u'http://ellekappa.tumblr.com/rss'), (u'Vauro', u'http://feeds.feedburner.com/vauro')]
+    description = 'Ellekappa, Altan, Vauro - Italian best satirical cartoons'
+    language = 'it'
+    __author__      = 'faber1971'
+
+__version__     = 'v1.0'
+__date__        = '24, April 2012'
