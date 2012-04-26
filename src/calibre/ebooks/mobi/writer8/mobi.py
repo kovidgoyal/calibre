@@ -229,9 +229,9 @@ class KF8Book(object):
             setattr(self, x, getattr(resources, x))
 
         self.first_resource_record = NULL_INDEX
+        before = len(self.records)
         if resources.records:
             self.first_resource_record = len(self.records)
-            before = len(self.records)
             if not for_joint:
                 resources.serialize(self.records, writer.used_images)
         self.num_of_resources = len(self.records) - before

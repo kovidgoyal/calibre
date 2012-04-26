@@ -387,7 +387,8 @@ class MobiWriter(object):
         self.records.append(self.kf8.record0)
         self.records.extend(self.kf8.records[1:])
 
-        first_image_record if first_image_record else len(self.records)
+        first_image_record = (first_image_record if first_image_record else
+                len(self.records))
 
         header_fields = {k:getattr(self.kf8, k) for k in HEADER_FIELDS}
 
@@ -407,6 +408,8 @@ class MobiWriter(object):
                 'ncx_index':'primary_index_record_idx',
                 }.iteritems():
             header_fields[k] = getattr(self, v)
+        if header_fields['ncx_index'] is None:
+            header_fields['ncx_index'] = NULL_INDEX
 
         for x in ('skel', 'chunk', 'guide'):
             header_fields[x+'_index'] = NULL_INDEX
