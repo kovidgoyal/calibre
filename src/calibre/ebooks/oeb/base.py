@@ -197,13 +197,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 new = cur[:pos] + new_link + cur[pos+len(link):]
                 el.attrib[attrib] = new
 
-    def set_property(v):
-        if v.CSS_PRIMITIVE_VALUE == v.cssValueType and \
-           v.CSS_URI == v.primitiveType:
-                v.setStringValue(v.CSS_URI,
-                        link_repl_func(v.getStringValue()))
-
-    for el in root.iter():
+    for el in root.iter(etree.Element):
         try:
             tag = el.tag
         except UnicodeDecodeError:
@@ -227,13 +221,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 except:
                     # Parsing errors are raised by cssutils
                     continue
-                for p in stext.getProperties(all=True):
-                    v = p.cssValue
-                    if v.CSS_VALUE_LIST == v.cssValueType:
-                        for item in v:
-                            set_property(item)
-                    elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
-                        set_property(v)
+                replaceUrls(stext, link_repl_func)
                 repl = stext.cssText.replace('\n', ' ').replace('\r',
                         ' ')
                 if isbytestring(repl):
