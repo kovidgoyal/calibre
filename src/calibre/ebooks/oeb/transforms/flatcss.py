@@ -404,7 +404,7 @@ class CSSFlattener(object):
         rules = [r.cssText for r in stylizer.font_face_rules]
         raw = '\n\n'.join(rules)
         # Make URLs referring to fonts relative to this item
-        sheet = cssutils.parseString(raw)
+        sheet = cssutils.parseString(raw, validate=False)
         cssutils.replaceUrls(sheet, item.relhref, ignoreImportRules=True)
         style.text += '\n' + sheet.cssText
 

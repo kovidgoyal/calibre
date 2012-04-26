@@ -212,7 +212,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if tag == XHTML('style') and el.text and \
                 (_css_url_re.search(el.text) is not None or '@import' in
                         el.text):
-            stylesheet = parseString(el.text)
+            stylesheet = parseString(el.text, validate=False)
             replaceUrls(stylesheet, link_repl_func)
             repl = stylesheet.cssText
             if isbytestring(repl):
@@ -223,7 +223,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
                 try:
-                    stext = parseStyle(text)
+                    stext = parseStyle(text, validate=False)
                 except:
                     # Parsing errors are raised by cssutils
                     continue
@@ -861,7 +861,7 @@ class Manifest(object):
             parser = CSSParser(loglevel=logging.WARNING,
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
-            data = parser.parseString(data, href=self.href)
+            data = parser.parseString(data, href=self.href, validate=False)
             data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
             return data

@@ -14,11 +14,9 @@ from xml.dom import SyntaxErr as CSSSyntaxError
 from cssutils.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
         cssproperties)
 try:
-    from cssutils.css import CSSValueList
-    CSSValueList
+    from cssutils.css import PropertyValue
 except ImportError:
-    # cssutils >= 0.9.8
-    from cssutils.css import PropertyValue as CSSValueList
+    raise RuntimeError('You need cssutils >= 0.9.9 for calibre')
 from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
         cssutils_log, CSSParser, profiles, replaceUrls)
 from lxml import etree
@@ -37,7 +35,7 @@ def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         html_css = open(P('templates/html.css'), 'rb').read()
-        _html_css_stylesheet = parseString(html_css)
+        _html_css_stylesheet = parseString(html_css, validate=False)
         _html_css_stylesheet.namespaces['h'] = XHTML_NS
     return _html_css_stylesheet
 
@@ -218,7 +216,8 @@ class Stylizer(object):
                 if text:
                     text = XHTML_CSS_NAMESPACE + text
                     text = oeb.css_preprocessor(text)
-                    stylesheet = parser.parseString(text, href=cssname)
+                    stylesheet = parser.parseString(text, href=cssname,
+                            validate=False)
                     stylesheet.namespaces['h'] = XHTML_NS
                     stylesheets.append(stylesheet)
                     # Make links to resources absolute, since these rules will
@@ -247,7 +246,8 @@ class Stylizer(object):
             if x:
                 try:
                     text = XHTML_CSS_NAMESPACE + x
-                    stylesheet = parser.parseString(text, href=cssname)
+                    stylesheet = parser.parseString(text, href=cssname,
+                            validate=False)
                     stylesheet.namespaces['h'] = XHTML_NS
                     stylesheets.append(stylesheet)
                 except:
@@ -374,7 +374,7 @@ class Stylizer(object):
 
     def _normalize_edge(self, cssvalue, name):
         style = {}
-        if isinstance(cssvalue, CSSValueList):
+        if isinstance(cssvalue, PropertyValue):
             primitives = [v.cssText for v in cssvalue]
         else:
             primitives = [cssvalue.cssText]
@@ -507,15 +507,11 @@ class Style(object):
         css = [x for x in css if self.MS_PAT.match(x) is None]
         css = '; '.join(css)
         try:
-            style = parseStyle(css)
+            style = parseStyle(css, validate=False)
         except CSSSyntaxError:
             return
         if url_replacer is not None:
-            # Fool replaceUrls into processing our style declaration
-            class Fool:
-                def __init__(self, s):
-                    self.style = s
-            replaceUrls(Fool(style), url_replacer, ignoreImportRules=True)
+            replaceUrls(style, url_replacer, ignoreImportRules=True)
         self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
@@ -579,7 +575,7 @@ class Style(object):
                 val = self._style.get('background', None)
                 if val is not None:
                     try:
-                        style = parseStyle('background: '+val)
+                        style = parseStyle('background: '+val, validate=False)
                         val = style.getProperty('background').cssValue
                         try:
                             val = list(val)

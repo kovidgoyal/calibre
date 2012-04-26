@@ -78,7 +78,7 @@ class KF8Writer(object):
                 # in-memory CSSStylesheet, as deepcopy doesn't work (raises an
                 # exception)
                 self._data_cache[item.href] = cssutils.parseString(
-                        item.data.cssText)
+                        item.data.cssText, validate=False)
 
     def data(self, item):
         return self._data_cache.get(item.href, item.data)
@@ -114,7 +114,7 @@ class KF8Writer(object):
 
                 for tag in XPath('//h:style')(root):
                     if tag.text:
-                        sheet = cssutils.parseString(tag.text)
+                        sheet = cssutils.parseString(tag.text, validate=False)
                         replacer = partial(pointer, item)
                         cssutils.replaceUrls(sheet, replacer,
                                 ignoreImportRules=True)
