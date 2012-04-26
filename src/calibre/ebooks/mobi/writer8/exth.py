@@ -95,7 +95,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
 
     if isinstance(uuid, unicode):
         uuid = uuid.encode('utf-8')
-    if share_not_sync:
+    if not share_not_sync:
         exth.write(pack(b'>II', 113, len(uuid) + 8))
         exth.write(uuid)
         nrecs += 1
