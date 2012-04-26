@@ -28,6 +28,7 @@ from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
         ChunkIndex, GuideIndex)
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
+from calibre.ebooks.mobi.writer8.toc import TOCAdder
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -42,6 +43,9 @@ class KF8Writer(object):
         self.compress = not self.opts.dont_compress
         self.has_tbs = False
         self.log.info('Creating KF8 output')
+
+        # Create an inline ToC if one does not already exist
+        self.toc_adder = TOCAdder(oeb, opts)
         self.used_images = set()
         self.resources = resources
         self.flows = [None] # First flow item is reserved for the text
@@ -62,6 +66,8 @@ class KF8Writer(object):
         self.create_fdst_records()
         self.create_indices()
         self.create_guide()
+        # We do not want to use this ToC for MOBI 6, so remove it
+        self.toc_adder.remove_generated_toc()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
