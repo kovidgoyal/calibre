@@ -10,6 +10,8 @@ import cStringIO
 
 from calibre.devices.usbms.driver import USBMS
 
+HTC_BCDS = [0x100, 0x0222, 0x0226, 0x227, 0x228]
+
 class ANDROID(USBMS):
 
     name           = 'Android driver'
@@ -23,23 +25,23 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0xc02  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc01  : [0x100, 0x0227, 0x0226],
-                       0xff9  : [0x0100, 0x0227, 0x0226],
-                       0xc86  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc87  : [0x0100, 0x0227, 0x0226],
-                       0xc8d  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc91  : [0x0100, 0x0227, 0x0226, 0x222],
-                       0xc92  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc97  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc99  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xca2  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xca3  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xca4  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xca9  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xcac  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xccf  : [0x100, 0x0227, 0x0226, 0x222],
-                       0x2910 : [0x222],
+            0x0bb4 : { 0xc02  : HTC_BCDS,
+                       0xc01  : HTC_BCDS,
+                       0xff9  : HTC_BCDS,
+                       0xc86  : HTC_BCDS,
+                       0xc87  : HTC_BCDS,
+                       0xc8d  : HTC_BCDS,
+                       0xc91  : HTC_BCDS,
+                       0xc92  : HTC_BCDS,
+                       0xc97  : HTC_BCDS,
+                       0xc99  : HTC_BCDS,
+                       0xca2  : HTC_BCDS,
+                       0xca3  : HTC_BCDS,
+                       0xca4  : HTC_BCDS,
+                       0xca9  : HTC_BCDS,
+                       0xcac  : HTC_BCDS,
+                       0xccf  : HTC_BCDS,
+                       0x2910 : HTC_BCDS,
                        0xff9  : [0x9999],
             },
 
