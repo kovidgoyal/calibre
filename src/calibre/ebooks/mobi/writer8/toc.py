@@ -58,7 +58,7 @@ class TOCAdder(object):
             else:
                 oeb.guide.remove('toc')
 
-        if not self.has_toc or 'toc' in oeb.guide:
+        if not self.has_toc or 'toc' in oeb.guide or opts.no_inline_toc:
             return
 
         self.log('\tGenerating in-line ToC')
