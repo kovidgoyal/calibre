@@ -6,11 +6,12 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import re
-import operator
-import math
+import re, operator, math
 from collections import defaultdict
+
 from lxml import etree
+import cssutils
+
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
@@ -132,6 +133,13 @@ class CSSFlattener(object):
             else:
                 self.oeb.log.debug('Filtering CSS properties: %s'%
                     ', '.join(self.filter_css))
+
+        for item in oeb.manifest.values():
+            # Make all links to resources absolute, as these sheets will be
+            # consolidated into a single stylesheet at the root of the document
+            if item.media_type in OEB_STYLES:
+                cssutils.replaceUrls(item.data, item.abshref,
+                        ignoreImportRules=True)
 
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
@@ -394,8 +402,11 @@ class CSSFlattener(object):
         style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
         style.text = "\n\t\t@page { %s; }" % css
         rules = [r.cssText for r in stylizer.font_face_rules]
-        for r in rules:
-            style.text += '\n\t\t'+r+'\n'
+        raw = '\n\n'.join(rules)
+        # Make URLs referring to fonts relative to this item
+        sheet = cssutils.parseString(raw)
+        cssutils.replaceUrls(sheet, item.relhref, ignoreImportRules=True)
+        style.text += '\n' + sheet.cssText
 
     def replace_css(self, css):
         manifest = self.oeb.manifest

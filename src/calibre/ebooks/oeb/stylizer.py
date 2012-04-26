@@ -11,8 +11,8 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os, itertools, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
-from cssutils.css import (CSSStyleRule, CSSPageRule, CSSStyleDeclaration,
-    CSSFontFaceRule, cssproperties)
+from cssutils.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
+        cssproperties)
 try:
     from cssutils.css import CSSValueList
     CSSValueList
@@ -20,7 +20,7 @@ except ImportError:
     # cssutils >= 0.9.8
     from cssutils.css import PropertyValue as CSSValueList
 from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
-        cssutils_log, CSSParser, profiles)
+        cssutils_log, CSSParser, profiles, replaceUrls)
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
 from calibre import force_unicode
@@ -221,6 +221,10 @@ class Stylizer(object):
                     stylesheet = parser.parseString(text, href=cssname)
                     stylesheet.namespaces['h'] = XHTML_NS
                     stylesheets.append(stylesheet)
+                    # Make links to resources absolute, since these rules will
+                    # be folded into a stylesheet at the root
+                    replaceUrls(stylesheet, item.abshref,
+                            ignoreImportRules=True)
             elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
                  and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
@@ -295,7 +299,7 @@ class Stylizer(object):
                 for elem in matches:
                     self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:*[@style]'):
-            self.style(elem)._apply_style_attr()
+            self.style(elem)._apply_style_attr(url_replacer=item.abshref)
         num_pat = re.compile(r'\d+$')
         for elem in xpath(tree, '//h:img[@width or @height]'):
             style = self.style(elem)
@@ -493,7 +497,7 @@ class Style(object):
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
 
-    def _apply_style_attr(self):
+    def _apply_style_attr(self, url_replacer=None):
         attrib = self._element.attrib
         if 'style' not in attrib:
             return
@@ -501,10 +505,17 @@ class Style(object):
         css = filter(None, (x.strip() for x in css))
         css = [x.strip() for x in css]
         css = [x for x in css if self.MS_PAT.match(x) is None]
+        css = '; '.join(css)
         try:
-            style = CSSStyleDeclaration('; '.join(css))
+            style = parseStyle(css)
         except CSSSyntaxError:
             return
+        if url_replacer is not None:
+            # Fool replaceUrls into processing our style declaration
+            class Fool:
+                def __init__(self, s):
+                    self.style = s
+            replaceUrls(Fool(style), url_replacer, ignoreImportRules=True)
         self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
