@@ -82,6 +82,9 @@ class Index(object):
     def __str__(self):
         return '\n'.join(self.render())
 
+    def __iter__(self):
+        return iter(self.records)
+
 class SKELIndex(Index):
 
     def __init__(self, skelidx, records, codec):

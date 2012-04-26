@@ -27,6 +27,7 @@ from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
         ChunkIndex, GuideIndex)
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
+from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -39,6 +40,7 @@ class KF8Writer(object):
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.compress = not self.opts.dont_compress
+        self.has_tbs = False
         self.log.info('Creating KF8 output')
         self.used_images = set()
         self.resources = resources
@@ -363,6 +365,8 @@ class KF8Writer(object):
         for entry in entries:
             entry['length'] = get_next_start(entry) - entry['offset']
 
+        self.has_tbs = apply_trailing_byte_sequences(entries, self.records,
+                self.last_text_record_idx+1)
         self.ncx_records = NCXIndex(entries)()
 
     def create_guide(self):

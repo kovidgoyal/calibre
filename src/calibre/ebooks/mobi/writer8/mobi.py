@@ -250,6 +250,8 @@ class KF8Book(object):
         self.full_title = utf8_text(unicode(metadata.title[0]))
         self.title_length = len(self.full_title)
         self.extra_data_flags = 0b1
+        if writer.has_tbs:
+            self.extra_data_flags |= 0b10
         self.uid = random.randint(0, 0xffffffff)
 
         self.language_code = iana2mobi(str(metadata.language[0]))

@@ -397,7 +397,10 @@ class MobiWriter(object):
         header_fields['exth_flags'] = 0b100001010000 # Kinglegen uses this
         header_fields['fdst_record'] = NULL_INDEX
         header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
-        header_fields['extra_data_flags'] = 0b11
+        extra_data_flags = 0b1 # Has multibyte overlap bytes
+        if self.primary_index_record_idx is not None:
+            extra_data_flags |= 0b10
+        header_fields['extra_data_flags'] = extra_data_flags
 
         for k, v in {'last_text_record':'last_text_record_idx',
                 'first_non_text_record':'first_non_text_record_idx',
