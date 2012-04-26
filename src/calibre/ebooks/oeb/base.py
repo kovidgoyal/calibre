@@ -77,7 +77,7 @@ def XLINK(name):
 def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
-_css_url_re = re.compile(r'url\s*\((.*?)\)', re.I)
+_css_url_re = re.compile(r'url\s*\([\'"]{0,1}(.*?)[\'"]{0,1}\)', re.I)
 _css_import_re = re.compile(r'@import "(.*?)"')
 _archive_re = re.compile(r'[^ ]+')
 
