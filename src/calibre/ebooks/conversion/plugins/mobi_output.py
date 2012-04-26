@@ -174,6 +174,13 @@ class MOBIOutput(OutputFormatPlugin):
                 add_fonts=create_kf8)
         self.check_for_periodical()
 
+        if create_kf8:
+            # Split on pagebreaks so that the resulting KF8 works better with
+            # calibre's viewer, which does not support CSS page breaks
+            from calibre.ebooks.oeb.transforms.split import Split
+            Split()(self.oeb, self.opts)
+
+
         kf8 = self.create_kf8(resources, for_joint=mobi_type=='both'
                 ) if create_kf8 else None
         if mobi_type == 'new':
