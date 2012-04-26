@@ -27,70 +27,66 @@ from BeautifulSoup import BeautifulSoup
  Version 1.9.1 18-04-2012
     removed some debug settings
     updated code to match new metro-layout
- Version 1.9.2 14-04-2012
+ Version 1.9.2 24-04-2012
     updated code to match new metro-layout
+ Version 1.9.3 25-04-2012
+    Changed a lot of custom code into calibre code as the default code of calibre has become much faster since the first version fo this recipe
+    Added new feeds
+    Updated css
+    Changed order of regex to speedup proces
 '''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title = u'Metro Nieuws NL'
     oldest_article = 1.2
     max_articles_per_feed = 25
-    __author__     = u'DrMerry'
-    description    = u'Metro Nederland'
-    language       = u'nl'
-    simultaneous_downloads = 3
+    __author__  = u'DrMerry'
+    description = u'Metro Nederland'
+    language = u'nl'
+    simultaneous_downloads = 5
     masthead_url = 'http://blog.metronieuws.nl/wp-content/themes/metro/images/header.gif'
     timeout = 10
-    center_navbar  = True
-    timefmt        = ' [%A, %d %b %Y]'
+    center_navbar = True
+    timefmt = ' [%A, %d %b %Y]'
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
-    cover_url      = 'http://www.oldreadmetro.com/img/en/metroholland/last/1/small.jpg'
+    cover_url = 'http://www.oldreadmetro.com/img/en/metroholland/last/1/small.jpg'
     publication_type = 'newspaper'
-    encoding              = 'utf-8'
-    remove_attributes = ['style', 'font', 'width', 'height']
+    encoding = 'utf-8'
+    remove_attributes = ['style', 'font', 'width', 'height', 'itemtype', 'itemprop', 'itemscope']#, 'href']
     use_embedded_content = False
-    conversion_options = {
-        'authors'        : 'Metro Nederland & calibre & DrMerry',
-        'author_sort'    : 'Metro Nederland & calibre & DrMerry',
-        'publisher'      : 'DrMerry/Metro Nederland'
-    }
-    extra_css = 'body {padding:5px 0; background-color:#fff;font-size: 1em}\
-        #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {margin-bottom: 10px}\
-        #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name, p.article-image-caption .credits {font-size:0.5em}\
-        .article-box-fact.module-title, #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {clear:both}\
-        .article-box-fact.module-title {padding: 8px 0}\
-        h1.title {color: #000;font-size: 1.4em}\
-        .article-box-fact.module-title, h2.subtitle {font-size: 1.2em}\
-        h1.title, h2.subtitle, .article-body p{padding-bottom:10px}\
-        h1.title, p.article-image-caption {font-weight: 300}\
-        div.column-1-3{margin-left: 19px;padding-right: 9px}\
-        div.column-1-2 {display: inline;padding-right: 7px}\
-        p.article-image-caption {font-size: 0.6em;margin-top: 5px}\
-        p.article-image-caption, #date, div.share-and-byline div.byline div.text div.title, div.share-and-byline div.byline div.text div.name {color: #616262}\
-        p.article-image-caption .credits {font-style: italic}\
-        div.article-image-caption {width: 246px;margin: 5px}\
-        div.article-image-caption-2column {width: 373px}\
-        div.article-image-caption-2column, div.article-image-caption-3column {margin-bottom: 5px}\
-        img {border:0}\
-        img, div.column-3 {padding:2px}\
-        hr.merryhr {width:30%;  border-width:0; margin-left:5px; background-color: #24763b}\
-        div.column-3 {background-color:#eee; width:50%; margin:2px; float:right}\
-        div.column-3 module-title {border: 1px solid #aaa}\
-        div.article-box-fact div.subtitle, .article-box-fact.module-title, h2.subtitle {font-weight:bold}\
-        div.article-box-fact div.subtitle, hr.merryhr, .article-box-fact.module-title {color: #24763b}'
+    extra_css = 'body{font-size:1em;padding:5px 0}body,a,h2{background-color:#fff;text-decoration:none;color:#000}#date,div.byline,p.article-image-caption .credits,.calibrenavbar{font-size:.5em}.article-box-fact.module-title,#date,div.byline{clear:both}.article-box-fact.module-title{margin:8px 0}.article-box-fact.module-title,h2{font-size:1.1em}h1.title{font-size:1.4em}h1.title,.article-body p,div.article-image-caption-2column,div.article-image-caption-3column,#date,div.byline{margin-bottom:.6em}div.article-box-fact div.subtitle,.article-box-fact.module-title,h1.title,p.article-image-caption{font-weight:700}div.column-1-3{margin-left:19px}div.column-1-2{display:inline}div.column-1-2,div.column-1-3{margin-right:7px}p.article-image-caption{font-size:.6em;margin-top:5px}p.article-image-caption,#date,div.byline{color:#616262}p.article-image-caption .credits{font-style:italic}div.article-image-caption{width:246px}div.article-image-caption-2column{width:373px}div.column-3{background-color:#eee;float:right;width:50%}div.column-3 module-title{border:1px solid #aaa}div.article-box-fact div.subtitle,.article-box-fact.module-title{color:#24763b}div.byline{border-top:2px solid #24763b}div.column-3,img,div.column-3,p.small,div.article-image-caption{margin:.5em}img,p.small,.column1,h2{border:0;padding:0}.column1,h1,h2{margin:0}'
 
 
     preprocess_regexps = [
-        (re.compile(r'<img[^>]+top-line[^>]+>', re.DOTALL|re.IGNORECASE),
-        lambda match: '<hr class="merryhr" />'),
-        (re.compile(r'<img[^>]+(metronieuws\.nl/[^>]+/templates/[^>]+jpe?g|metronieuws\.nl/internal\-roxen\-unit\.gif)[^>]+>', re.DOTALL|re.IGNORECASE),
-        lambda match: ''),
+        (re.compile(r'(&nbsp;|\s|<img[^>]+metronieuws\.nl/([^>]+/templates/[^>]+\.jpe?g|internal\-roxen\-unit\.gif)[^>]+>)', re.DOTALL|re.IGNORECASE),lambda match: ' '),
+        #(re.compile(r'(&nbsp;|\s)+', re.DOTALL|re.IGNORECASE),lambda match:' '),
+        #(re.compile(r'<(a |/a)[^>]*>', re.DOTALL|re.IGNORECASE),lambda match:'')
+        #(re.compile('(</?)h2', re.DOTALL|re.IGNORECASE),lambda match:'\1em')
         ]
+        
+    remove_tags_before= dict(id='date')
+    remove_tags_after = [dict(name='div', attrs={'class':['column-1-3','gallery-text']})]#id='share-and-byline')]
 
+    remove_tags = [
+        dict(name=['iframe','script','noscript','style']),
+        dict(name='div', attrs={'class':[re.compile('column-[14]-5'),'col-179 ','col-373 ','clear','ad','navigation',re.compile('share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)')]}),
+        dict(id=['column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'sidebar',re.compile('^article-\d'),'comments','gallery-1']),
+        dict(name='a', attrs={'name':'comments'}),
+        #dict(name='div', attrs={'data-href'}),
+        dict(name='img', attrs={'class':'top-line'}),
+        dict(attrs={'style':re.compile('^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$'),'title':'volledig scherm'})]
+        
+    '''removed by before/after:
+        id:
+        column-1-5-top,'hidden_div','footer',
+        class:
+        'header',re.compile('^footer-[a-zA-Z0-9]+$),'header-links',
+        '''
     def preprocess_html(self, soup):
         myProcess = MerryProcess()
+        myProcess.moveTitleAndAuthor(soup)
         myProcess.removeUnwantedTags(soup)
         return soup
 
@@ -108,26 +104,30 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         (u'Buitenland', u'http://www.metronieuws.nl/rss.xml?c=1277377288-4'),
         (u'Columns', u'http://www.metronieuws.nl/rss.xml?c=1277377288-17'),
         (u'Entertainment', u'http://www.metronieuws.nl/rss.xml?c=1277377288-2'),
-        (u'Dot', u'http://www.metronieuws.nl/rss.xml?c=1283166782-12'),
+        (u'Strips',u'http://www.metronieuws.nl/rss.xml?c=1325037714-0'),
+        (u'Tech', u'http://www.metronieuws.nl/rss.xml?c=1283166782-12'),
         (u'Familie', u'http://www.metronieuws.nl/rss.xml?c=1283166782-9'),
         (u'Blogs', u'http://www.metronieuws.nl/rss.xml?c=1295586825-6'),
         (u'Reizen', u'http://www.metronieuws.nl/rss.xml?c=1277377288-13'),
-        (u'Carri&egrave;re', u'http://www.metronieuws.nl/rss.xml?c=1278070988-1'),
+        (u'Carrière', u'http://www.metronieuws.nl/rss.xml?c=1278070988-1'),
+        (u'Wetenschap',u'http://www.metronieuws.nl/rss.xml?c=1303088437-0'),
+        (u'Planeet',u'http://www.metronieuws.nl/rss.xml?c=1277377288-14'),
+        (u'Gezondheid',u'http://www.metronieuws.nl/rss.xml?c=1277377288-15'),
         (u'Sport', u'http://www.metronieuws.nl/rss.xml?c=1277377288-12')
         ]
 
 class MerryPreProcess():
-    def replacePictures(self, soup):
-        #to be implemented
-        return soup
-
     def optimizePicture(self,soup):
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-            iurl = tag['src']
-            img = Image()
-            img.open(iurl)
-            img.trim(0)
-            img.save(iurl)
+            try:
+                iurl = tag['src']
+                img = Image()
+                img.open(iurl)
+                img.trim(0)
+                img.save(iurl)
+            except:
+                print '\n!!image optimize failed!!\n'
+                continue
         return soup
 
 class MerryExtract():
@@ -145,47 +145,8 @@ class MerryExtract():
             return False
         return killingSoup
 
-class MerryReplace():
-    myKiller = MerryExtract()
-    def replaceATag(self, soup):
-        anchors = []
-        anchors = soup.findAll('a')
-        if anchors and not (anchors == None or anchors == []):
-          try:
-            for link in anchors:
-                # print str(link)
-                if link and not link == None:
-                    # print ('type: %s'%(str(type(link))))
-                    # print ('link: %s' % (link))
-                    myParent = link.parent
-                    # print str('parent: %s'%(myParent))
-                    try:
-                        myIndex = link.parent.index(link)
-                        hasIndex = True
-                    except:
-                        myIndex = 0
-                        hasIndex = False
-                    # print str('index %s'%(myIndex))
-                    if not link.string == None:
-                        # print 'link=notnone'
-                        if hasIndex == True:
-                            myParent.insert(myIndex, link.string)
-                        else:
-                            myParent.append(link.string)
-                    else:
-                        # print 'link=none'
-                        myParent.insert(myIndex, link.contents)
-                    self.myKiller.safeRemovePart(link, False)
-                else:
-                     notshown = 'tag received is empty' # print
-          except:
-            notshown = 'tag received is empty' # print
-            notshown
-        return soup
-
 class MerryProcess(BeautifulSoup):
     myKiller = MerryExtract()
-    myReplacer = MerryReplace()
     myPrepare = MerryPreProcess()
 
     def optimizeLayout(self,soup):
@@ -193,9 +154,10 @@ class MerryProcess(BeautifulSoup):
         return soup
 
     def insertFacts(self, soup):
-        allfacts = soup.findAll('div', {'class':re.compile('^article-box-fact.*$')})
+        thefactpart = re.compile('^article-box-fact.*$')
+        allfacts = soup.findAll('div', {'class':thefactpart})
         if allfacts and not allfacts == None:
-            allfactsparent = soup.find('div', {'class':re.compile('^article-box-fact.*$')}).parent
+            allfactsparent = soup.find('div', {'class':thefactpart}).parent
             for part in allfactsparent:
                 if not part in allfacts:
                     self.myKiller.safeRemovePart(part, True)
@@ -211,84 +173,40 @@ class MerryProcess(BeautifulSoup):
           except:
               pass
         return soup
-
-    def previousNextSibRemover(self, soup, previous=True, soupIsArray=False):
-        findsibsof = soup
-        firstpart = previous
-        if findsibsof and not findsibsof == None:
-            if soupIsArray == True:
-                for foundsib in findsibsof:
-                    self.previousNextSibRemover(foundsib, firstpart, soupIsArray=False)
-            else:
-                if firstpart == True and soupIsArray == False:
-                    sibs = findsibsof.previousSiblingGenerator()
-                else:
-                    sibs = findsibsof.nextSiblingGenerator()
-                for sib in sibs:
-                    self.myKiller.safeRemovePart(sib, True)
-        return
+        
+    def moveTitleAndAuthor(self, soup):
+        moveitem = soup.h1
+        pubdate = soup.find(id="date")
+        if moveitem and not moveitem == None and pubdate and not pubdate == None:
+            try:
+                pubdate.parent.insert(0, moveitem)
+            except:
+                print '\n!!error in moving title!!\n'
+                pass
+        moveitem = None
+        moveitem = soup.find('div', {'class':'byline'})
+        if moveitem and not moveitem == None:
+            try:
+                moveitem.parent.parent.insert(-1, moveitem)
+            except:
+                print '\n!!error in moving byline!!\n'
+                pass
+        return soup
 
     def removeUnwantedTags(self,soup):
-        self.removeTagsByName(soup)
         self.insertFacts(soup)
-        self.removeFirstAndLastPart(soup)
-        self.removeUnwantedParts(soup)
         self.removeEmptyTags(soup)
-        self.myReplacer.replaceATag(soup)
-        return soup
-
-    def removeUnwantedParts(self, soup):
-        self.removeUnwantedTagsByID(soup)
-        self.removeUnwantedTagsByClass(soup)
-        self.removeUnwantedTagsByStyle(soup)
-        return soup
-
-    def removeUnwantedTagsByStyle(self,soup):
-        self.removeArrayOfTags(soup.findAll(attrs={'style':re.compile("^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$")}))
-        self.removeArrayOfTags(soup.findAll(attrs={'title':'volledig scherm'}))
+        self.removeArrayOfTags(soup.findAll(attrs={'class': 'share-tools-bottom'})) # at end to keep author
         return soup
 
     def removeArrayOfTags(self,souparray):
         return self.myKiller.safeRemovePart(souparray, True)
 
-    def removeUnwantedTagsByClass(self,soup):
-        self.removeArrayOfTags(soup.findAll("div", { "class" :re.compile('^(promo.*?|share-tools-top|share-tools-bottom|article-tools-below-title|metroCommentFormWrap|ad|share-tools|tools|header-links|related-links|padding-top-15|footer-[a-zA-Z0-9]+|column-4-5)$')}))
-        return soup
-
-    def removeUnwantedTagsByID(self,soup):
-        defaultids = ['footer-extra',re.compile('^ad(\d+|adcomp.*?)?$'),'column-4-5','navigation','header',re.compile('^column-1-5-(top|bottom)$'),'footer','hidden_div','sidebar',re.compile('^article-\d$'),'comments','footer','gallery-1']
-        for removeid in defaultids:
-            self.removeArrayOfTags(soup.findAll(id=removeid))
-        return soup
-
-    # def safeRemoveTag(self, subtree):
-        # return self.myKiller.safeRemovePart(subtree, True)
-
-
-    def removeTagsByName(self, soup):
-        self.myKiller.safeRemovePart(soup.script, True)
-        self.myKiller.safeRemovePart(soup.iframe, True)
-        self.myKiller.safeRemovePart(soup.style, True)
-        self.myKiller.safeRemovePart(soup.noscript, True)
-        return soup
-
     def removeEmptyTags(self,soup,run=0):
-        emptymatches = re.compile('^(&nbsp;|\s|\n|\r|\t)*$')
+        emptymatches = re.compile('^[&nbsp;\s\n\r\t ]*$')
         emptytags = soup.findAll(lambda tag: tag.find(True) is None and (tag.string is None or tag.string.strip()=="" or tag.string.strip()==emptymatches) and not tag.isSelfClosing)
         if emptytags and not (emptytags == None or emptytags == []):
             self.removeArrayOfTags(emptytags)
             #recursive in case removing empty tag creates new empty tag
             self.removeEmptyTags(soup, run=run)
-        return soup
-
-    def removeFirstAndLastPart(self,soup):
-        def findparenttag(lookuptag):
-            if lookuptag and not lookuptag == None:
-                return lookuptag.findParents()
-        findtag = soup.find(id="date")
-        self.previousNextSibRemover(findtag, previous=True, soupIsArray=False)
-        self.previousNextSibRemover(findparenttag(findtag), previous=True, soupIsArray=True)
-        for endtag in [soup.find(id="share-and-byline"), soup.find("div", { "class" : "gallery-text" })]:
-            self.previousNextSibRemover(endtag, previous=False, soupIsArray=False)
-            self.previousNextSibRemover(findparenttag(endtag), previous=False, soupIsArray=True)
         return soup
