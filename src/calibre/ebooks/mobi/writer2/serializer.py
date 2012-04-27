@@ -12,6 +12,7 @@ import re
 from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
         namespace, prefixname, urlnormalize)
 from calibre.ebooks.mobi.mobiml import MBP_NS
+from calibre.ebooks.mobi.utils import is_guide_ref_start
 
 from collections import defaultdict
 from urlparse import urldefrag
@@ -39,6 +40,7 @@ class Serializer(object):
         self.oeb = oeb
         # Map of image hrefs to image index in the MOBI file
         self.images = images
+        self.used_images = set()
         self.logger = oeb.logger
         self.is_periodical = is_periodical
         self.write_page_breaks_after_item = write_page_breaks_after_item
@@ -160,9 +162,7 @@ class Serializer(object):
                 buf.write(b'title="')
                 self.serialize_text(ref.title, quot=True)
                 buf.write(b'" ')
-                if (ref.title.lower() == 'start' or
-                    (ref.type and ref.type.lower() in ('start',
-                        'other.start'))):
+                if is_guide_ref_start(ref):
                     self._start_href = ref.href
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
@@ -329,6 +329,7 @@ class Serializer(object):
                     href = urlnormalize(item.abshref(val))
                     if href in self.images:
                         index = self.images[href]
+                        self.used_images.add(href)
                         buf.write(b'recindex="%05d"' % index)
                         continue
                 buf.write(attr.encode('utf-8'))

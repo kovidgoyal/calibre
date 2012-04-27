@@ -1,39 +1,49 @@
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Forbes(BasicNewsRecipe):
     title          = u'Forbes'
     description    = 'Business and Financial News'
-    __author__     = 'Darko Miletic'
+    __author__     = 'Kovid Goyal'
     oldest_article = 30
-    max_articles_per_feed = 100
+    max_articles_per_feed = 20
     language = 'en'
+    encoding = 'utf-8'
+    recursions = 1
 
     no_stylesheets = True
-    html2lrf_options = ['--base-font-size', '10']     
 
     cover_url  = u'http://www.forbes.com/media/current_covers/forbes_120_160.gif'
-    
-    feeds          = [(u'Latest', u'http://www.forbes.com/news/index.xml'), 
-        (u'Most Popular', u'http://www.forbes.com/feeds/popstories.xml'), 
-        (u'Most Emailed', u'http://www.forbes.com/feeds/mostemailed.xml'), 
-        (u'Faces', u'http://www.forbes.com/facesscan/index.xml'), 
-        (u'Technology', u'http://www.forbes.com/technology/index.xml'), 
-        (u'Personal Tech', u'http://www.forbes.com/personaltech/index.xml'), 
-        (u'Wireless', u'http://www.forbes.com/wireless/index.xml'),
-        (u'Business', u'http://www.forbes.com/business/index.xml'), 
-        (u'Sports Money', u'http://www.forbes.com/sportsmoney/index.xml'), 
-        (u'Sports', u'http://www.forbes.com/forbeslife/sports/index.xml'),
-        (u'Vehicles', u'http://www.forbes.com/forbeslife/vehicles/index.xml'),
-        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'), 
-        (u'Careers', u'http://www.forbes.com/leadership/careers/index.xml'),
-        (u'Compensation', u'http://www.forbes.com/leadership/compensation/index.xml'),
-        (u'Managing', u'http://www.forbes.com/leadership/managing/index.xml')]
 
-    def print_version(self, url):
-        raw = self.browser.open(url).read()
-        soup = BeautifulSoup(raw.decode('latin1', 'replace'))
-        print_link = soup.find('a', {'onclick':"s_linkTrackVars='prop18';s_linkType='o';s_linkName='Print';if(typeof(globalPageName)!='undefined')s_prop18=globalPageName;s_lnk=s_co(this);s_gs(s_account);"})
-        if print_link is None:
-            return ''
-        return 'http://www.forbes.com' + print_link['href']
+    feeds          = [(u'Latest', u'http://www.forbes.com/news/index.xml'),
+        (u'Most Popular', u'http://www.forbes.com/feeds/popstories.xml'),
+        (u'Technology', u'http://www.forbes.com/technology/index.xml'),
+        (u'Business', u'http://www.forbes.com/business/index.xml'),
+        (u'Sports Money', u'http://www.forbes.com/sportsmoney/index.xml'),
+        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'),]
+
+    keep_only_tags = \
+            {'class':lambda x: x and (set(x.split()) & {'body', 'pagination',
+                'articleHead', 'article_head'})}
+    remove_tags_before = {'name':'h1'}
+    remove_tags = [
+            {'class':['comment_bug', 'engagement_block',
+                        'video_promo_block', 'article_actions']},
+            {'id':'comments'}
+        ]
+
+    def is_link_wanted(self, url, tag):
+        ans = re.match(r'http://.*/[2-9]/', url) is not None
+        if ans:
+            self.log('Following multipage link: %s'%url)
+        return ans
+
+    def postprocess_html(self, soup, first_fetch):
+        for pag in soup.findAll(True, 'pagination'):
+            pag.extract()
+        if not first_fetch:
+            h1 = soup.find('h1')
+            if h1 is not None:
+                h1.extract()
+        return soup
+

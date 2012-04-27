@@ -6,6 +6,7 @@ class Android_com_pl(BasicNewsRecipe):
     description   = 'Android.com.pl - biggest polish Android site'
     category       = 'Android, mobile'
     language       = 'pl'
+    use_embedded_content=True
     cover_url =u'http://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Android_robot.svg/220px-Android_robot.svg.png'
     oldest_article = 8
     max_articles_per_feed = 100

@@ -128,6 +128,9 @@ class USBMS(CLI, Device):
         elif location_code == 'B':
             self._update_driveinfo_file(self._card_b_prefix, location_code, name)
 
+    def formats_to_scan_for(self):
+        return set(self.settings().format_map) | set(self.FORMATS)
+
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -166,7 +169,7 @@ class USBMS(CLI, Device):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        all_formats = set(self.settings().format_map) | set(self.FORMATS)
+        all_formats = self.formats_to_scan_for()
 
         def update_booklist(filename, path, prefix):
             changed = False
@@ -402,19 +405,23 @@ class USBMS(CLI, Device):
     def build_template_regexp(cls):
         def replfunc(match, seen=None):
             v = match.group(1)
-            if v in ['title', 'series', 'series_index', 'isbn']:
+            if v in ['authors', 'author_sort']:
+                v = 'author'
+            if v in ('title', 'series', 'series_index', 'isbn', 'author'):
                 if v not in seen:
-                    seen |= set([v])
+                    seen.add(v)
                     return '(?P<' + v + '>.+?)'
-            elif v in ['authors', 'author_sort']:
-                if v not in seen:
-                    seen |= set([v])
-                    return '(?P<author>.+?)'
             return '(.+?)'
         s = set()
         f = functools.partial(replfunc, seen=s)
-        template = cls.save_template().rpartition('/')[2]
-        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        template = None
+        try:
+            template = cls.save_template().rpartition('/')[2]
+            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        except:
+            prints(u'Failed to parse template: %r'%template)
+            template = u'{title} - {authors}'
+            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
     @classmethod
     def path_to_unicode(cls, path):

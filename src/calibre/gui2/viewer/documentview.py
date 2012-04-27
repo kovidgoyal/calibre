@@ -4,15 +4,15 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, re, glob, sys, zipfile
+import os, math, glob, zipfile
 from base64 import b64encode
 from functools import partial
 
-from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer,
+from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt,
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog,
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon,
-                     QFont, pyqtSignature, QAction, QByteArray, QMenu,
-                     pyqtSignal, QSwipeGesture)
+                     QFont, pyqtSignature, QAction, QMenu,
+                     pyqtSignal, QSwipeGesture, QApplication)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -21,10 +21,11 @@ from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
-from calibre import prints, guess_type
+from calibre import prints
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
+from calibre.ebooks.oeb.display.webview import load_html
 
 # }}}
 
@@ -46,8 +47,10 @@ def config(defaults=None):
         help=_('Remember last used window size'))
     c.add_opt('user_css', default='',
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
-    c.add_opt('max_view_width', default=6000,
-            help=_('Maximum width of the viewer window, in pixels.'))
+    c.add_opt('max_fs_width', default=800,
+        help=_("Set the maximum width that the book's text and pictures will take"
+        " when in fullscreen mode. This allows you to read the book text"
+        " without it becoming too wide."))
     c.add_opt('fit_images', default=True,
             help=_('Resize images larger than the viewer window to fit inside it'))
     c.add_opt('hyphenate', default=False, help=_('Hyphenate text'))
@@ -101,7 +104,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
-        self.max_view_width.setValue(opts.max_view_width)
+        self.max_fs_width.setValue(opts.max_fs_width)
         with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
             allow_user_override=False), 'r') as zf:
             pats = [x.split('.')[0].replace('-', '_') for x in zf.namelist()]
@@ -144,7 +147,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('user_css', unicode(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('fit_images', self.opt_fit_images.isChecked())
-        c.set('max_view_width', int(self.max_view_width.value()))
+        c.set('max_fs_width', int(self.max_fs_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
@@ -182,16 +185,16 @@ class Document(QWebPage): # {{{
                 self.misc_config()
                 self.after_load()
 
-    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None,
-            debug_javascript=False):
+    def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
         self.debug_javascript = debug_javascript
-        self.resize_callback = resize_callback
         self.current_language = None
         self.loaded_javascript = False
         self.js_loader = JavaScriptLoader(
                     dynamic_coffeescript=self.debug_javascript)
+        self.initial_left_margin = self.initial_right_margin = u''
+        self.in_fullscreen_mode = False
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -239,6 +242,9 @@ class Document(QWebPage): # {{{
         self.enable_page_flip = self.page_flip_duration > 0.1
         self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
+        screen_width = QApplication.desktop().screenGeometry().width()
+        # Leave some space for the scrollbar and some border
+        self.max_fs_width = min(opts.max_fs_width, screen_width-50)
 
     def fit_images(self):
         if self.do_fit_images:
@@ -252,12 +258,6 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
-        self.javascript(
-            '''
-            window.onresize = function(event) {
-                window.py_bridge.window_resized();
-            }
-            ''')
         self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
                 self.current_language, self.hyphenate_default_lang)
 
@@ -274,14 +274,34 @@ class Document(QWebPage): # {{{
         self.set_bottom_padding(0)
         self.fit_images()
         self.init_hyphenate()
+        self.initial_left_margin = unicode(self.javascript(
+                        'document.body.style.marginLeft').toString())
+        self.initial_right_margin = unicode(self.javascript(
+                        'document.body.style.marginRight').toString())
+        if self.in_fullscreen_mode:
+            self.switch_to_fullscreen_mode()
+
+    def switch_to_fullscreen_mode(self):
+        self.in_fullscreen_mode = True
+        self.javascript('''
+                var s = document.body.style;
+                s.maxWidth = "%dpx";
+                s.marginLeft = "auto";
+                s.marginRight = "auto";
+            '''%self.max_fs_width)
+
+    def switch_to_window_mode(self):
+        self.in_fullscreen_mode = False
+        self.javascript('''
+                var s = document.body.style;
+                s.maxWidth = "none";
+                s.marginLeft = "%s";
+                s.marginRight = "%s";
+            '''%(self.initial_left_margin, self.initial_right_margin))
 
     @pyqtSignature("QString")
     def debug(self, msg):
         prints(msg)
-
-    @pyqtSignature('')
-    def window_resized(self):
-        self.resize_callback()
 
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
@@ -293,10 +313,14 @@ class Document(QWebPage): # {{{
         self.javascript('goto_reference("%s")'%ref)
 
     def goto_bookmark(self, bm):
-        bm = bm.strip()
-        if bm.startswith('>'):
-            bm = bm[1:].strip()
-        self.javascript('scroll_to_bookmark("%s")'%bm)
+        if bm['type'] == 'legacy':
+            bm = bm['pos']
+            bm = bm.strip()
+            if bm.startswith('>'):
+                bm = bm[1:].strip()
+            self.javascript('scroll_to_bookmark("%s")'%bm)
+        elif bm['type'] == 'cfi':
+            self.page_position.to_pos(bm['pos'])
 
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
@@ -347,40 +371,9 @@ class Document(QWebPage): # {{{
     def elem_outer_xml(self, elem):
         return unicode(elem.toOuterXml())
 
-    def find_bookmark_element(self):
-        mf = self.mainFrame()
-        doc_pos = self.ypos
-        min_delta, min_elem = sys.maxint, None
-        for y in range(10, -500, -10):
-            for x in range(-50, 500, 10):
-                pos = QPoint(x, y)
-                result = mf.hitTestContent(pos)
-                if result.isNull(): continue
-                elem = result.enclosingBlockElement()
-                if elem.isNull(): continue
-                try:
-                    ypos = self.element_ypos(elem)
-                except:
-                    continue
-                delta = abs(ypos - doc_pos)
-                if delta < 25:
-                    return elem
-                if delta < min_delta:
-                    min_elem, min_delta = elem, delta
-        return min_elem
-
-
     def bookmark(self):
-        elem = self.find_bookmark_element()
-
-        if elem is None or self.element_ypos(elem) < 100:
-            bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
-        else:
-            bm = unicode(elem.evaluateJavaScript(
-                'calculate_bookmark(%d, this)'%self.ypos).toString())
-            if not bm:
-                bm = 'body|%f'%(float(self.ypos)/(self.height*0.7))
-        return bm
+        pos = self.page_position.current_pos
+        return {'type':'cfi', 'pos':pos}
 
     @property
     def at_bottom(self):
@@ -413,7 +406,7 @@ class Document(QWebPage): # {{{
     def scroll_fraction(self):
         def fget(self):
             try:
-                return float(self.ypos)/(self.height-self.window_height)
+                return abs(float(self.ypos)/(self.height-self.window_height))
             except ZeroDivisionError:
                 return 0.
         def fset(self, val):
@@ -455,19 +448,6 @@ class Document(QWebPage): # {{{
 
 # }}}
 
-class EntityDeclarationProcessor(object): # {{{
-
-    def __init__(self, html):
-        self.declared_entities = {}
-        for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
-            tokens = match.group(1).split()
-            if len(tokens) > 1:
-                self.declared_entities[tokens[0].strip()] = tokens[1].strip().replace('"', '')
-        self.processed_html = html
-        for key, val in self.declared_entities.iteritems():
-            self.processed_html = self.processed_html.replace('&%s;'%key, val)
-# }}}
-
 class DocumentView(QWebView): # {{{
 
     magnification_changed = pyqtSignal(object)
@@ -478,14 +458,11 @@ class DocumentView(QWebView): # {{{
         self.is_auto_repeat_event = False
         self.debug_javascript = debug_javascript
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
-        self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
-                re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
         self.initial_pos = 0.0
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
-                resize_callback=self.viewport_resized,
                 debug_javascript=debug_javascript)
         self.setPage(self.document)
         self.manager = None
@@ -581,8 +558,8 @@ class DocumentView(QWebView): # {{{
 
     def config(self, parent=None):
         self.document.do_config(parent)
-        if self.manager is not None:
-            self.manager.set_max_width()
+        if self.document.in_fullscreen_mode:
+            self.document.switch_to_fullscreen_mode()
         self.setFocus(Qt.OtherFocusReason)
 
     def bookmark(self):
@@ -602,6 +579,9 @@ class DocumentView(QWebView): # {{{
             menu.insertAction(list(menu.actions())[0], self.search_action)
         menu.addSeparator()
         menu.addAction(self.goto_location_action)
+        if self.document.in_fullscreen_mode and self.manager is not None:
+            menu.addSeparator()
+            menu.addAction(self.manager.toggle_toolbar_action)
         menu.exec_(ev.globalPos())
 
     def lookup(self, *args):
@@ -668,30 +648,16 @@ class DocumentView(QWebView): # {{{
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
 
-    def self_closing_sub(self, match):
-        tag = match.group(1)
-        if tag.lower().strip() == 'br':
-            return match.group()
-        return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
-
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
-        mt = getattr(path, 'mime_type', None)
-        if mt is None:
-            mt = guess_type(path)[0]
-        html = open(path, 'rb').read().decode(path.encoding, 'replace')
-        html = EntityDeclarationProcessor(html).processed_html
-        has_svg = re.search(r'<[:a-zA-Z]*svg', html) is not None
 
-        if 'xhtml' in mt:
-            html = self.self_closing_pat.sub(self.self_closing_sub, html)
-        if self.manager is not None:
-            self.manager.load_started()
-        self.loading_url = QUrl.fromLocalFile(path)
-        if has_svg:
-            self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
-        else:
-            self.setHtml(html, self.loading_url)
+        def callback(lu):
+            self.loading_url = lu
+            if self.manager is not None:
+                self.manager.load_started()
+
+        load_html(path, self, codec=path.encoding, mime_type=getattr(path,
+            'mime_type', None), pre_load_callback=callback)
         self.turn_off_internal_scrollbars()
 
     def initialize_scrollbar(self):
@@ -989,8 +955,12 @@ class DocumentView(QWebView): # {{{
             finally:
                 self.is_auto_repeat_event = False
         elif key == 'Down':
+            if self.document.at_bottom:
+                self.manager.next_document()
             self.scroll_by(y=15)
         elif key == 'Up':
+            if self.document.at_top:
+                self.manager.previous_document()
             self.scroll_by(y=-15)
         elif key == 'Left':
             self.scroll_by(x=-15)
@@ -1001,13 +971,9 @@ class DocumentView(QWebView): # {{{
         return handled
 
     def resizeEvent(self, event):
-        ret = QWebView.resizeEvent(self, event)
-        QTimer.singleShot(10, self.initialize_scrollbar)
-        return ret
-
-    def viewport_resized(self):
         if self.manager is not None:
-            self.manager.viewport_resized(self.scroll_fraction)
+            self.manager.viewport_resize_started(event)
+        return QWebView.resizeEvent(self, event)
 
     def event(self, ev):
         if ev.type() == ev.Gesture:

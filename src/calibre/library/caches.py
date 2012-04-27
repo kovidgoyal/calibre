@@ -172,11 +172,14 @@ def force_to_bool(val):
 
 class CacheRow(list): # {{{
 
-    def __init__(self, db, composites, val):
+    def __init__(self, db, composites, val, series_col, series_sort_col):
         self.db = db
         self._composites = composites
         list.__init__(self, val)
         self._must_do = len(composites) > 0
+        self._series_col = series_col
+        self._series_sort_col = series_sort_col
+        self._series_sort = None
 
     def __getitem__(self, col):
         if self._must_do:
@@ -191,12 +194,19 @@ class CacheRow(list): # {{{
             elif col in self._composites:
                 is_comp = True
             if is_comp:
-                id = list.__getitem__(self, 0)
+                id_ = list.__getitem__(self, 0)
                 self._must_do = False
-                mi = self.db.get_metadata(id, index_is_id=True,
+                mi = self.db.get_metadata(id_, index_is_id=True,
                                           get_user_categories=False)
                 for c in self._composites:
                     self[c] =  mi.get(self._composites[c])
+        if col == self._series_sort_col and self._series_sort is None:
+            if self[self._series_col]:
+                self._series_sort = title_sort(self[self._series_col])
+                self[self._series_sort_col] = self._series_sort
+            else:
+                self._series_sort = ''
+                self[self._series_sort_col] = ''
         return list.__getitem__(self, col)
 
     def __getslice__(self, i, j):
@@ -226,6 +236,8 @@ class ResultCache(SearchQueryParser): # {{{
         for key in field_metadata:
             if field_metadata[key]['datatype'] == 'composite':
                 self.composites[field_metadata[key]['rec_index']] = key
+        self.series_col = field_metadata['series']['rec_index']
+        self.series_sort_col = field_metadata['series_sort']['rec_index']
         self._data = []
         self._map = self._map_filtered = []
         self.first_sort = True
@@ -918,9 +930,11 @@ class ResultCache(SearchQueryParser): # {{{
         for id in ids:
             try:
                 self._data[id] = CacheRow(db, self.composites,
-                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
+                        self.series_col, self.series_sort_col)
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(self.marked_ids_dict.get(id, None))
+                self._data[id].append(None)
             except IndexError:
                 return None
         try:
@@ -935,9 +949,11 @@ class ResultCache(SearchQueryParser): # {{{
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
             self._data[id] = CacheRow(db, self.composites,
-                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
+                        self.series_col, self.series_sort_col)
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(self.marked_ids_dict.get(id, None))
+            self._data[id].append(None) # Series sort column
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -962,11 +978,13 @@ class ResultCache(SearchQueryParser): # {{{
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = CacheRow(db, self.composites, r)
+            self._data[r[0]] = CacheRow(db, self.composites, r,
+                                        self.series_col, self.series_sort_col)
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                item.append(None)
+                # Temp mark and series_sort columns
+                item.extend((None, None))
 
         marked_col = self.FIELD_MAP['marked']
         for id_,val in self.marked_ids_dict.iteritems():

@@ -259,7 +259,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw4', 'pobi'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -289,7 +289,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 class PDBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read PDB metadata'
-    file_types  = set(['pdb'])
+    file_types  = set(['pdb', 'updb'])
     description = _('Read metadata from %s files') % 'PDB'
     author      = 'John Schember'
 
@@ -625,7 +625,8 @@ from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK701, POCKETBOOK360P, PI2)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
-from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
+from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
+        JETBOOK_COLOR)
 from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
         KINDLE_FIRE)
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
@@ -664,9 +665,7 @@ plugins += [
     ILIAD,
     IREXDR1000,
     IREXDR800,
-    JETBOOK,
-    JETBOOK_MINI,
-    MIBUK,
+    JETBOOK, JETBOOK_MINI, MIBUK, JETBOOK_COLOR,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
     PI2,
@@ -1470,7 +1469,7 @@ class StoreNextoStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.nexto_plugin:NextoStore'
 
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
+    formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
 class StoreOpenBooksStore(StoreBase):
@@ -1548,6 +1547,7 @@ class StoreWaterstonesUKStore(StoreBase):
 
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
@@ -1567,15 +1567,6 @@ class StoreWHSmithUKStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
 
-class StoreWizardsTowerBooksStore(StoreBase):
-    name = 'Wizards Tower Books'
-    description = u'A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.'
-    actual_plugin = 'calibre.gui2.store.stores.wizards_tower_books_plugin:WizardsTowerBooksStore'
-
-    drm_free_only = True
-    headquarters = 'UK'
-    formats = ['EPUB', 'MOBI']
-
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = u'Tomasz Długosz'
@@ -1583,7 +1574,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.woblink_plugin:WoblinkStore'
 
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF', 'WOBLINK']
+    formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
@@ -1647,7 +1638,6 @@ plugins += [
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
-    StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
     XinXiiStore,
     StoreZixoStore

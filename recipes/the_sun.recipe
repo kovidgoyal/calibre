@@ -1,24 +1,23 @@
-import re
+import re, mechanize
 from calibre.web.feeds.recipes import BasicNewsRecipe
-
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     title          = u'The Sun UK'
-    cover_url = 'http://www.thesun.co.uk/img/global/new-masthead-logo.png'
 
-    description = 'A Recipe for The Sun tabloid UK - uses feed43'
+    description = 'A Recipe for The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 20/2/12
+    # last updated 7/4/12
     language = 'en_GB'
     oldest_article = 1
     max_articles_per_feed = 15
     remove_empty_feeds = True
     no_stylesheets = True
+    #auto_cleanup = True
+    #articles_are_obfuscated = True
 
     masthead_url = 'http://www.thesun.co.uk/sol/img/global/Sun-logo.gif'
-    encoding = 'cp1251'
+    encoding = 'UTF-8'
 
-    encoding = 'cp1252'
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
@@ -30,13 +29,14 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     preprocess_regexps = [
         (re.compile(r'<div class="foot-copyright".*?</div>', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
+
+
     keep_only_tags = [
                                dict(name='h1'),dict(name='h2',attrs={'class' : 'medium centered'}),
                dict(name='div',attrs={'class' : 'text-center'}),
                dict(name='div',attrs={'id' : 'bodyText'})
                # dict(name='p')
                ]
-
     remove_tags=[
            #dict(name='head'),
            dict(attrs={'class' : ['mystery-meat-link','ltbx-container','ltbx-var ltbx-hbxpn','ltbx-var ltbx-nav-loop','ltbx-var ltbx-url']}),
@@ -46,12 +46,46 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
            ]
 
+
     feeds          = [
-        (u'News','http://feed43.com/2517447382644748.xml'),
-        (u'Sport', u'http://feed43.com/4283846255668687.xml'),
-        (u'Bizarre', u'http://feed43.com/0233840304242011.xml'),
-        (u'Film',u'http://feed43.com/1307545221226200.xml'),
-        (u'Music',u'http://feed43.com/1701513435064132.xml'),
-        (u'Sun Woman',u'http://feed43.com/0022626854226453.xml'),
+            (u'News','http://feed43.com/2517447382644748.xml'),
+            (u'Sport', u'http://feed43.com/4283846255668687.xml'),
+            (u'Bizarre', u'http://feed43.com/0233840304242011.xml'),
+            (u'Film',u'http://feed43.com/1307545221226200.xml'),
+            (u'Music',u'http://feed43.com/1701513435064132.xml'),
+            (u'Sun Woman',u'http://feed43.com/0022626854226453.xml'),
     ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
+        # look for the block containing the sun button and url
+        cov = soup.find(attrs={'style' : 'background-image: url(http://www.politicshome.com/images/sources/source_frontpage_button_84.gif);'})
+
+
+
+        #cov = soup.find(attrs={'id' : 'large'})
+        cov2 = str(cov)
+
+        cov2='http://www.politicshome.com'+cov2[9:-133]
+        #cov2 now contains url of the page containing pic
+
+        #cov2 now contains url of the page containing pic
+        soup = self.index_to_soup(cov2)
+        cov = soup.find(attrs={'id' : 'large'})
+        cov2 = str(cov)
+        cov2=cov2[27:-18]
+        #cov2 now is pic url, now  go back to original function
+
+        br = mechanize.Browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open_novisit(cov2)
+            cover_url = cov2
+        except:
+            cover_url = 'http://www.thesun.co.uk/img/global/new-masthead-logo.png'
+
+        #cover_url = cov2
+        #cover_url = 'http://www.thesun.co.uk/img/global/new-masthead-logo.png'
+        return cover_url
+
 

@@ -31,6 +31,7 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
             bookmarks = self.bookmarks[:]
         self._model = BookmarkTableModel(self, bookmarks)
         self.bookmarks_table.setModel(self._model)
+        self.bookmarks_table.resizeColumnsToContents()
 
     def delete_bookmark(self):
         indexes = self.bookmarks_table.selectionModel().selectedIndexes()
@@ -80,7 +81,7 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
             if not bad:
                 bookmarks = self._model.bookmarks[:]
                 for bm in imported:
-                    if bm not in bookmarks and bm[0] != 'calibre_current_page_bookmark':
+                    if bm not in bookmarks and bm['title'] != 'calibre_current_page_bookmark':
                         bookmarks.append(bm)
                 self.set_bookmarks(bookmarks)
 
@@ -105,13 +106,14 @@ class BookmarkTableModel(QAbstractTableModel):
 
     def data(self, index, role):
         if role in (Qt.DisplayRole, Qt.EditRole):
-            ans = self.bookmarks[index.row()][0]
+            ans = self.bookmarks[index.row()]['title']
             return NONE if ans is None else QVariant(ans)
         return NONE
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self.bookmarks[index.row()] = (unicode(value.toString()).strip(), self.bookmarks[index.row()][1])
+            bm = self.bookmarks[index.row()]
+            bm['title'] = unicode(value.toString()).strip()
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
             return True
         return False

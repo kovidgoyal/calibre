@@ -15,6 +15,12 @@ from calibre.ebooks.mobi.utils import (decint, count_set_bits,
 
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
 PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
+INDEX_HEADER_FIELDS = (
+            'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
+            'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
+    ) + tuple('unknown%d'%i for i in xrange(27)) + ('ocnt', 'oentries',
+            'ordt1', 'ordt2', 'tagx')
+
 
 class InvalidFile(ValueError):
     pass
@@ -36,13 +42,40 @@ def format_bytes(byts):
 
 def parse_indx_header(data):
     check_signature(data, b'INDX')
-    words = (
-            'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
-            'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
-    )
+    words = INDEX_HEADER_FIELDS
     num = len(words)
     values = struct.unpack(bytes('>%dL' % num), data[4:4*(num+1)])
-    return dict(zip(words, values))
+    ans = dict(zip(words, values))
+    ordt1, ordt2 = ans['ordt1'], ans['ordt2']
+    ans['ordt1_raw'], ans['ordt2_raw'] = [], []
+    ans['ordt_map'] = ''
+
+    if ordt1 > 0 and data[ordt1:ordt1+4] == b'ORDT':
+        # I dont know what this is, but using it seems to be unnecessary, so
+        # just leave it as the raw bytestring
+        ans['ordt1_raw'] = data[ordt1+4:ordt1+4+ans['oentries']]
+    if ordt2 > 0 and data[ordt2:ordt2+4] == b'ORDT':
+        ans['ordt2_raw'] = raw = bytearray(data[ordt2+4:ordt2+4+2*ans['oentries']])
+        if ans['code'] == 65002:
+            # This appears to be EBCDIC-UTF (65002) encoded. I can't be
+            # bothered to write a decoder for this (see
+            # http://www.unicode.org/reports/tr16/) Just how stupid is Amazon?
+            # Instead, we use a weird hack that seems to do the trick for all
+            # the books with this type of ORDT record that I have come across.
+            # Some EBSP book samples in KF8 format from Amazon have this type
+            # of encoding.
+            # Basically we try to interpret every second byte as a printable
+            # ascii character. If we cannot, we map to the ? char.
+
+            parsed = bytearray(ans['oentries'])
+            for i in xrange(0, 2*ans['oentries'], 2):
+                parsed[i//2] = raw[i+1] if 0x20 < raw[i+1] < 0x7f else ord(b'?')
+            ans['ordt_map'] = bytes(parsed).decode('ascii')
+        else:
+            ans['ordt_map'] = '?'*ans['oentries']
+
+    return ans
+
 
 class CNCX(object): # {{{
 
@@ -78,6 +111,13 @@ class CNCX(object): # {{{
 
     def get(self, offset, default=None):
         return self.records.get(offset, default)
+
+    def __bool__(self):
+        return bool(self.records)
+    __nonzero__ = __bool__
+
+    def iteritems(self):
+        return self.records.iteritems()
 # }}}
 
 def parse_tagx_section(data):
@@ -163,7 +203,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
     return ans
 
 def parse_index_record(table, data, control_byte_count, tags, codec,
-        strict=False):
+        ordt_map, strict=False):
     header = parse_indx_header(data)
     idxt_pos = header['start']
     if data[idxt_pos:idxt_pos+4] != b'IDXT':
@@ -184,11 +224,10 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
     for j in xrange(entry_count):
         start, end = idx_positions[j:j+2]
         rec = data[start:end]
-        ident, consumed = decode_string(rec, codec=codec)
+        ident, consumed = decode_string(rec, codec=codec, ordt_map=ordt_map)
         rec = rec[consumed:]
         tag_map = get_tag_map(control_byte_count, tags, rec, strict=strict)
         table[ident] = tag_map
-
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
@@ -203,12 +242,13 @@ def read_index(sections, idx, codec):
         cncx_records = [x[0] for x in sections[off:off+indx_header['ncncx']]]
         cncx = CNCX(cncx_records, codec)
 
-    tag_section_start = indx_header['len']
+    tag_section_start = indx_header['tagx']
     control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
     for i in xrange(idx + 1, idx + 1 + indx_count):
         # Index record
         data = sections[i][0]
-        parse_index_record(table, data, control_byte_count, tags, codec)
+        parse_index_record(table, data, control_byte_count, tags, codec,
+                indx_header['ordt_map'])
     return table, cncx
 

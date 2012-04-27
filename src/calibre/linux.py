@@ -40,6 +40,46 @@ entry_points = {
                             ],
       }
 
+class PreserveMIMEDefaults(object):
+
+    def __init__(self):
+        self.initial_values = {}
+
+    def __enter__(self):
+        def_data_dirs = '/usr/local/share:/usr/share'
+        paths = os.environ.get('XDG_DATA_DIRS', def_data_dirs)
+        paths = paths.split(':')
+        paths.append(os.environ.get('XDG_DATA_HOME', os.path.expanduser(
+            '~/.local/share')))
+        paths = list(filter(os.path.isdir, paths))
+        if not paths:
+            # Env var had garbage in it, ignore it
+            paths = def_data_dirs.split(':')
+        paths = list(filter(os.path.isdir, paths))
+        self.paths = {os.path.join(x, 'applications/defaults.list') for x in
+                paths}
+        self.initial_values = {}
+        for x in self.paths:
+            try:
+                with open(x, 'rb') as f:
+                    self.initial_values[x] = f.read()
+            except:
+                self.initial_values[x] = None
+
+    def __exit__(self, *args):
+        for path, val in self.initial_values.iteritems():
+            if val is None:
+                try:
+                    os.remove(path)
+                except:
+                    pass
+            elif os.path.exists(path):
+                with open(path, 'r+b') as f:
+                    if f.read() != val:
+                        f.seek(0)
+                        f.truncate()
+                        f.write(val)
+
 # Uninstall script {{{
 UNINSTALL = '''\
 #!{python}
@@ -188,8 +228,8 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
             from calibre.ebooks.epub.fix.main import option_parser as fix_op
-            any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-                'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt', 'lrf', 'snb']
+            from calibre.ebooks import BOOK_EXTENSIONS
+            input_formats = sorted(all_input_formats())
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
                 'bash-completion')
             if os.path.exists(bc):
@@ -202,14 +242,18 @@ class PostInstall:
             if not os.path.exists(os.path.dirname(f)):
                 os.makedirs(os.path.dirname(f))
             self.manifest.append(f)
+            complete = 'calibre-complete'
+            if getattr(sys, 'frozen_path', None):
+                complete = os.path.join(getattr(sys, 'frozen_path'), complete)
+
             self.info('Installing bash completion to', f)
             with open(f, 'wb') as f:
                 f.write('# calibre Bash Shell Completion\n')
-                f.write(opts_and_exts('calibre', guiop, any_formats))
+                f.write(opts_and_exts('calibre', guiop, BOOK_EXTENSIONS))
                 f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
                 f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
                 f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
-                f.write(opts_and_exts('ebook-viewer', viewer_op, any_formats))
+                f.write(opts_and_exts('ebook-viewer', viewer_op, input_formats))
                 f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
                 f.write(opts_and_words('calibre-smtp', smtp_op, []))
                 f.write(opts_and_words('calibre-server', serv_op, []))
@@ -286,8 +330,8 @@ class PostInstall:
                 }
                 complete -o nospace  -F _ebook_device ebook-device
 
-                complete -o nospace -C calibre-complete ebook-convert
-                '''))
+                complete -o nospace -C %s ebook-convert
+                ''')%complete)
         except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
@@ -333,57 +377,55 @@ class PostInstall:
 
     def setup_desktop_integration(self): # {{{
         try:
-
             self.info('Setting up desktop integration...')
 
+            with TemporaryDirectory() as tdir, CurrentDir(tdir), \
+                                PreserveMIMEDefaults():
+                render_img('mimetypes/lrf.png', 'calibre-lrf.png')
+                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
+                self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
+                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
+                self.icon_resources.append(('mimetypes', 'application-lrs',
+                '128'))
+                render_img('lt.png', 'calibre-gui.png')
+                check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
+                self.icon_resources.append(('apps', 'calibre-gui', '128'))
+                render_img('viewer.png', 'calibre-viewer.png')
+                check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
+                self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
-            with TemporaryDirectory() as tdir:
-                with CurrentDir(tdir):
-                    render_img('mimetypes/lrf.png', 'calibre-lrf.png')
-                    check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
-                    self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
-                    check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
-                    self.icon_resources.append(('mimetypes', 'application-lrs',
-                    '128'))
-                    render_img('lt.png', 'calibre-gui.png')
-                    check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
-                    self.icon_resources.append(('apps', 'calibre-gui', '128'))
-                    render_img('viewer.png', 'calibre-viewer.png')
-                    check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-                    self.icon_resources.append(('apps', 'calibre-viewer', '128'))
+                mimetypes = set([])
+                for x in all_input_formats():
+                    mt = guess_type('dummy.'+x)[0]
+                    if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
+                        mimetypes.add(mt)
 
-                    mimetypes = set([])
-                    for x in all_input_formats():
-                        mt = guess_type('dummy.'+x)[0]
-                        if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
-                            mimetypes.add(mt)
+                def write_mimetypes(f):
+                    f.write('MimeType=%s;\n'%';'.join(mimetypes))
 
-                    def write_mimetypes(f):
-                        f.write('MimeType=%s;\n'%';'.join(mimetypes))
-
-                    f = open('calibre-lrfviewer.desktop', 'wb')
-                    f.write(VIEWER)
-                    f.close()
-                    f = open('calibre-ebook-viewer.desktop', 'wb')
-                    f.write(EVIEWER)
-                    write_mimetypes(f)
-                    f.close()
-                    f = open('calibre-gui.desktop', 'wb')
-                    f.write(GUI)
-                    write_mimetypes(f)
-                    f.close()
-                    des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
-                            'calibre-ebook-viewer.desktop')
-                    for x in des:
-                        cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
-                        check_call(' '.join(cmd), shell=True)
-                        self.menu_resources.append(x)
-                    check_call(['xdg-desktop-menu', 'forceupdate'])
-                    f = open('calibre-mimetypes', 'wb')
-                    f.write(MIME)
-                    f.close()
-                    self.mime_resources.append('calibre-mimetypes')
-                    check_call('xdg-mime install ./calibre-mimetypes', shell=True)
+                f = open('calibre-lrfviewer.desktop', 'wb')
+                f.write(VIEWER)
+                f.close()
+                f = open('calibre-ebook-viewer.desktop', 'wb')
+                f.write(EVIEWER)
+                write_mimetypes(f)
+                f.close()
+                f = open('calibre-gui.desktop', 'wb')
+                f.write(GUI)
+                write_mimetypes(f)
+                f.close()
+                des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
+                        'calibre-ebook-viewer.desktop')
+                for x in des:
+                    cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
+                    check_call(' '.join(cmd), shell=True)
+                    self.menu_resources.append(x)
+                check_call(['xdg-desktop-menu', 'forceupdate'])
+                f = open('calibre-mimetypes', 'wb')
+                f.write(MIME)
+                f.close()
+                self.mime_resources.append('calibre-mimetypes')
+                check_call('xdg-mime install ./calibre-mimetypes', shell=True)
         except Exception:
             if self.opts.fatal_errors:
                 raise

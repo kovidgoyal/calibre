@@ -69,9 +69,10 @@ if pictureflow is not None:
                 ans = self.model.title(index)
                 if not ans:
                     ans = ''
+                ans = ans.replace('&', '&&')
             except:
                 ans = ''
-            return ans.replace('&', '&&')
+            return ans
 
         def subtitle(self, index):
             try:

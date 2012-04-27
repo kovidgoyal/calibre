@@ -9,14 +9,20 @@ __docformat__ = 'restructuredtext en'
 
 import struct, re, os, imghdr
 from collections import namedtuple
-from itertools import repeat
+from itertools import repeat, izip
+from urlparse import urldefrag
+
+from lxml import etree
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
 from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
+from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.oeb.parse_utils import parse_html
+from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -65,16 +71,16 @@ class Mobi8Reader(object):
         return self.write_opf(guide, ncx, spine, resource_map)
 
     def read_indices(self):
-        self.flow_table = (0, NULL_INDEX)
+        self.flow_table = ()
 
         if self.header.fdstidx != NULL_INDEX:
             header = self.kf8_sections[self.header.fdstidx][0]
             if header[:4] != b'FDST':
                 raise ValueError('KF8 does not have a valid FDST record')
-            num_sections, = struct.unpack_from(b'>L', header, 0x08)
-            sections = header[0x0c:]
-            self.flow_table = struct.unpack_from(b'>%dL' % (num_sections*2),
-                    sections, 0)[::2] + (NULL_INDEX,)
+            sec_start, num_sections = struct.unpack_from(b'>LL', header, 4)
+            secs = struct.unpack_from(b'>%dL' % (num_sections*2),
+                    header, sec_start)
+            self.flow_table = tuple(izip(secs[::2], secs[1::2]))
 
         self.files = []
         if self.header.skelidx != NULL_INDEX:
@@ -121,13 +127,10 @@ class Mobi8Reader(object):
         raw_ml = self.mobi6_reader.mobi_html
         self.flows = []
         self.flowinfo = []
+        ft = self.flow_table if self.flow_table else [(0, len(raw_ml))]
 
         # now split the raw_ml into its flow pieces
-        for j in xrange(0, len(self.flow_table)-1):
-            start = self.flow_table[j]
-            end = self.flow_table[j+1]
-            if end == NULL_INDEX:
-                end = len(raw_ml)
+        for start, end in ft:
             self.flows.append(raw_ml[start:end])
 
         # the first piece represents the xhtml text
@@ -230,11 +233,9 @@ class Mobi8Reader(object):
 
     def get_id_tag_by_pos_fid(self, posfid, offset):
         # first convert kindle:pos:fid and offset info to position in file
-        row = int(posfid, 32)
-        off = int(offset, 32)
-        [insertpos, idtext, filenum, seqnm, startpos, length] = self.elems[row]
-        pos = insertpos + off
-        fname = self.get_file_info(pos).filename
+        insertpos, idtext, filenum, seqnm, startpos, length = self.elems[posfid]
+        pos = insertpos + offset
+        fi = self.get_file_info(pos)
         # an existing "id=" must exist in original xhtml otherwise it would not
         # have worked for linking.  Amazon seems to have added its own
         # additional "aid=" inside tags whose contents seem to represent some
@@ -243,7 +244,7 @@ class Mobi8Reader(object):
         # so find the closest "id=" before position the file by actually
         # searching in that file
         idtext = self.get_id_tag(pos)
-        return fname, idtext
+        return '%s/%s'%(fi.type, fi.filename), idtext
 
     def get_id_tag(self, pos):
         # find the correct tag by actually searching in the destination
@@ -254,12 +255,13 @@ class Mobi8Reader(object):
         textblock = self.parts[fi.num]
         id_map = []
         npos = pos - fi.start
-        # if npos inside a tag then search all text before the its end of tag
-        # marker
         pgt = textblock.find(b'>', npos)
         plt = textblock.find(b'<', npos)
-        if pgt < plt:
+        # if npos inside a tag then search all text before the its end of tag marker
+        # else not in a tag need to search the preceding tag
+        if plt == npos or pgt < plt:
             npos = pgt + 1
+        textblock = textblock[0:npos]
         # find id links only inside of tags
         #    inside any < > pair find all "id=' and return whatever is inside
         #    the quotes
@@ -286,7 +288,11 @@ class Mobi8Reader(object):
     def create_guide(self):
         guide = Guide()
         for ref_type, ref_title, fileno in self.guide:
-            elem = self.elems[fileno]
+            try:
+                elem = self.elems[fileno]
+            except IndexError:
+                # Happens for thumbnailstandard in Amazon book samples
+                continue
             fi = self.get_file_info(elem.insert_pos)
             idtext = self.get_id_tag(elem.insert_pos).decode(self.header.codec)
             linktgt = fi.filename
@@ -316,13 +322,18 @@ class Mobi8Reader(object):
 
         # Add href and anchor info to the index entries
         for entry in index_entries:
-            pos = entry['pos']
-            fi = self.get_file_info(pos)
-            #print (11111111, fi, entry['pos_fid'])
-            if fi.filename is None:
-                raise ValueError('Index entry has invalid pos: %d'%pos)
-            idtag = self.get_id_tag(pos).decode(self.header.codec)
-            entry['href'] = '%s/%s'%(fi.type, fi.filename)
+            pos_fid = entry['pos_fid']
+            if pos_fid is None:
+                pos = entry['pos']
+                fi = self.get_file_info(pos)
+                if fi.filename is None:
+                    raise ValueError('Index entry has invalid pos: %d'%pos)
+                idtag = self.get_id_tag(pos).decode(self.header.codec)
+                href = '%s/%s'%(fi.type, fi.filename)
+            else:
+                href, idtag = self.get_id_tag_by_pos_fid(*pos_fid)
+
+            entry['href'] = href
             entry['idtag'] = idtag
 
         # Build the TOC object
@@ -375,6 +386,19 @@ class Mobi8Reader(object):
                 len(resource_map)):
             mi.cover = resource_map[self.cover_offset]
 
+        if len(list(toc)) < 2:
+            self.log.warn('KF8 has no metadata Table of Contents')
+
+            for ref in guide:
+                if ref.type == 'toc':
+                    href = ref.href()
+                    href, frag = urldefrag(href)
+                    if os.path.exists(href.replace('/', os.sep)):
+                        try:
+                            toc = self.read_inline_toc(href, frag)
+                        except:
+                            self.log.exception('Failed to read inline ToC')
+
         opf = OPFCreator(os.getcwdu(), mi)
         opf.guide = guide
 
@@ -389,4 +413,70 @@ class Mobi8Reader(object):
             opf.render(of, ncx, 'toc.ncx')
         return 'metadata.opf'
 
+    def read_inline_toc(self, href, frag):
+        ans = TOC()
+        base_href = '/'.join(href.split('/')[:-1])
+        with open(href.replace('/', os.sep), 'rb') as f:
+            raw = f.read().decode(self.header.codec)
+        root = parse_html(raw, log=self.log)
+        body = XPath('//h:body')(root)
+        reached = False
+        if body:
+            start = body[0]
+        else:
+            start = None
+            reached = True
+        if frag:
+            elems = XPath('//*[@id="%s"]'%frag)
+            if elems:
+                start = elems[0]
+
+        def node_depth(elem):
+            ans = 0
+            parent = elem.getparent()
+            while parent is not None:
+                parent = parent.getparent()
+                ans += 1
+            return ans
+
+        # Layer the ToC based on nesting order in the source HTML
+        current_depth = None
+        parent = ans
+        seen = set()
+        links = []
+        for elem in root.iterdescendants(etree.Element):
+            if reached and elem.tag == XHTML('a') and elem.get('href',
+                    False):
+                href = elem.get('href')
+                href, frag = urldefrag(href)
+                href = base_href + '/' + href
+                text = xml2text(elem).strip()
+                if (text, href, frag) in seen:
+                    continue
+                seen.add((text, href, frag))
+                links.append((text, href, frag, node_depth(elem)))
+            elif elem is start:
+                reached = True
+
+        depths = sorted(set(x[-1] for x in links))
+        depth_map = {x:i for i, x in enumerate(depths)}
+        for text, href, frag, depth in links:
+            depth = depth_map[depth]
+            if current_depth is None:
+                current_depth = 0
+                parent.add_item(href, frag, text)
+            elif current_depth == depth:
+                parent.add_item(href, frag, text)
+            elif current_depth < depth:
+                parent = parent[-1] if len(parent) > 0 else parent
+                parent.add_item(href, frag, text)
+                current_depth += 1
+            else:
+                delta = current_depth - depth
+                while delta > 0 and parent.parent is not None:
+                    parent = parent.parent
+                    delta -= 1
+                parent.add_item(href, frag, text)
+                current_depth = depth
+        return ans
 

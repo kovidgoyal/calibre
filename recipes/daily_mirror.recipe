@@ -1,20 +1,21 @@
+
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+import mechanize
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     title          = u'The Daily Mirror'
     description = 'News as provide by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
-    # last updated 11/2/12
+    # last updated 7/4/12
     language = 'en_GB'
-
-    cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
+    #cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
 
     masthead_url = 'http://www.nmauk.co.uk/nma/images/daily_mirror.gif'
 
 
     oldest_article = 1
-    max_articles_per_feed = 5
+    max_articles_per_feed = 10
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
@@ -74,4 +75,29 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
                     h1{ font-size:18px;}
                     img { display:block}
                 	 '''
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
+        # look for the block containing the mirror button and url
+        cov = soup.find(attrs={'style' : 'background-image: url(http://www.politicshome.com/images/sources/source_frontpage_button_92.gif);'})
+        cov2 = str(cov)
+        cov2='http://www.politicshome.com'+cov2[9:-142]
+        #cov2 now contains url of the page containing pic
+        soup = self.index_to_soup(cov2)
+        cov = soup.find(attrs={'id' : 'large'})
+        cov2 = str(cov)
+        cov2=cov2[27:-18]
+        #cov2 now is pic url, now  go back to original function
+        br = mechanize.Browser()
+        br.set_handle_redirect(False)
+        try:
+                br.open_novisit(cov2)
+                cover_url = cov2
+        except:
+                cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
+
+        #cover_url = cov2
+        #cover_url = 'http://www.thesun.co.uk/img/global/new-masthead-logo.png'
+        return cover_url
+
 

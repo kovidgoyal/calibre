@@ -68,7 +68,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//div[@class="SearchImageContainer"]//img[1]/@src'))
                 
                 title = ''.join(data.xpath('.//div[@class="SCItemHeader"]/h1/a[1]/text()'))
-                author = ''.join(data.xpath('.//div[@class="SCItemSummary"]/span/a[1]/text()'))
+                author = ', '.join(data.xpath('.//div[@class="SCItemSummary"]//span//a/text()'))
                 drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and contains(text(), "DRM")])')
 
                 counter -= 1

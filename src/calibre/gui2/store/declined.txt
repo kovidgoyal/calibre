@@ -5,4 +5,3 @@ or asked not to be included in the store integration.
 * Indigo (http://www.chapters.indigo.ca/).
 * Libraria Rizzoli (http://libreriarizzoli.corriere.it/).
 * EPubBuy DE: reason: too much traffic for too little sales
-* Empik (http://empik.com.pl).

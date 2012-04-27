@@ -112,8 +112,11 @@ def html_to_lxml(raw):
             for a in remove:
                 del x.attrib[a]
         raw = etree.tostring(root, encoding=None)
-        return etree.fromstring(raw)
-
+        try:
+            return etree.fromstring(raw)
+        except:
+            from calibre.ebooks.oeb.parse_utils import _html4_parse
+            return _html4_parse(raw)
 
 def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
                   ignore_count=False, add_kind=False):

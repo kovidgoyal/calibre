@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Elektroda(BasicNewsRecipe):
     title          = u'Elektroda'
@@ -13,3 +14,18 @@ class Elektroda(BasicNewsRecipe):
     remove_tags_after=dict(name='td', attrs={'class':'spaceRow'})
     remove_tags=[dict(name='a', attrs={'href':'#top'})]
     feeds          = [(u'Elektroda', u'http://www.elektroda.pl/rtvforum/rss.php')]
+
+
+    def preprocess_html(self, soup):
+        tag=soup.find('span', attrs={'class':'postbody'})
+        if tag:
+            pos = len(tag.contents)
+            tag.insert(pos, BeautifulSoup('<br />'))
+        return soup
+
+    def parse_feeds (self):
+      feeds = BasicNewsRecipe.parse_feeds(self)
+      for feed in feeds:
+        for article in feed.articles[:]:
+            article.title=article.title[article.title.find("::")+3:]
+      return feeds

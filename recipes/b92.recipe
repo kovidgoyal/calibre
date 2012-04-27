@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 b92.net
 '''
@@ -20,13 +20,13 @@ class B92(BasicNewsRecipe):
     encoding              = 'cp1250'
     language              = 'sr'
     publication_type      = 'newsportal'
-    masthead_url          = 'http://www.b92.net/images/fp/logo.gif'
+    masthead_url          = 'http://b92s.net/v4/img/new-logo.png'
     extra_css             = """ 
-                                @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 body{font-family: Arial,Helvetica,sans1,sans-serif} 
-                                .articledescription{font-family: serif1, serif}
                                 .article-info2,.article-info1{text-transform: uppercase; font-size: small}
+                                img{display: block}
+                                .sms{font-weight: bold}
                             """
     
     conversion_options = {
@@ -37,11 +37,17 @@ class B92(BasicNewsRecipe):
                         , 'linearize_tables' : True
                         }
     
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [
+                           (re.compile(u'\u0110'), lambda match: u'\u00D0'),
+                           (re.compile(r'<html.*?<body>', re.DOTALL|re.IGNORECASE), lambda match: '<html><head><title>something</title></head><body>')
+                         ]
     
     keep_only_tags    = [dict(attrs={'class':['article-info1','article-text']})]
-    remove_attributes = ['width','height','align','hspace','vspace','border']
-    remove_tags       = [dict(name=['embed','link','base','meta'])]
+    remove_attributes = ['width','height','align','hspace','vspace','border','lang','xmlns:fb']
+    remove_tags       = [
+                           dict(name=['embed','link','base','meta','iframe'])
+                          ,dict(attrs={'id':'social'})
+                        ]
 
     feeds          = [
                         (u'Vesti'      , u'http://www.b92.net/info/rss/vesti.xml'     )

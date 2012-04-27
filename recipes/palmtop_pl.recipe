@@ -10,5 +10,7 @@ class palmtop_pl(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-
+    use_embedded_content=True
+    #remove_tags_before=dict(name='h2')
+    #remove_tags_after=dict(attrs={'class':'entry clearfix'})
     feeds          = [(u'Newsy', u'http://palmtop.pl/feed/atom/')]

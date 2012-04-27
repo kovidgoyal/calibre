@@ -731,7 +731,7 @@ class Style(object):
         parent = self._get_parent()
         if parent is not None:
             pcss = parent._style.get('text-decoration', None)
-        if css in ('none', None) and pcss not in (None, 'none'):
+        if css in ('none', None, 'inherit') and pcss not in (None, 'none'):
             return pcss
         return css
 

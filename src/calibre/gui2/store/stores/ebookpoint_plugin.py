@@ -3,7 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -64,9 +64,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 author = ''.join(data.xpath('.//p[@class="author"]/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/ins/text()'))
 
-                with closing(br.open(id.strip(), timeout=timeout)) as nf:
-                    idata = html.fromstring(nf.read())
-                    formats = ', '.join(idata.xpath('//dd[@class="radio-line"]/label/text()'))
+                formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
 
                 counter -= 1
 
@@ -77,6 +75,6 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 s.price = re.sub(r'\.',',',price)
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
-                s.formats = formats.upper().strip()
+                s.formats = formats.upper()
 
                 yield s

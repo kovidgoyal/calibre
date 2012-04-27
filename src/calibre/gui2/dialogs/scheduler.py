@@ -11,9 +11,9 @@ from datetime import timedelta
 import calendar, textwrap
 from collections import OrderedDict
 
-from PyQt4.Qt import QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, \
-        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout, \
-        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox
+from PyQt4.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
+        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout,
+        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox)
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2 import config as gconf, error_dialog
@@ -317,6 +317,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                     return False
             if un or pw:
                 self.recipe_model.set_account_info(urn, un, pw)
+            else:
+                self.recipe_model.clear_account_info(urn)
 
         if self.schedule.isChecked():
             schedule_type, schedule = \

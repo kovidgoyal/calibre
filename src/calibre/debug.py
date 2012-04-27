@@ -234,7 +234,7 @@ def main(args=sys.argv):
             sql_dump = args[-1]
         reinit_db(opts.reinitialize_db, sql_dump=sql_dump)
     elif opts.inspect_mobi:
-        from calibre.ebooks.mobi.debug import inspect_mobi
+        from calibre.ebooks.mobi.debug.main import inspect_mobi
         for path in args[1:]:
             prints('Inspecting:', path)
             inspect_mobi(path)

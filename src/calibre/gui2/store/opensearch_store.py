@@ -73,11 +73,13 @@ class OpenSearchOPDSStore(StorePlugin):
                     type = link.get('type')
                     
                     if rel and href and type:
-                        if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
+                        if 'http://opds-spec.org/thumbnail' in rel:
                             s.cover_url = href
-                        elif rel == u'http://opds-spec.org/acquisition/buy':
+                        elif 'http://opds-spec.org/image/thumbnail' in rel:
+                            s.cover_url = href
+                        elif 'http://opds-spec.org/acquisition/buy' in rel:
                             s.detail_item = href
-                        elif rel == u'http://opds-spec.org/acquisition':
+                        elif 'http://opds-spec.org/acquisition' in rel:
                             if type:
                                 ext = mimetypes.guess_extension(type)
                                 if ext:

@@ -535,7 +535,7 @@ class OPF(object): # {{{
         series_index    = MetadataField('series_index', is_dc=False,
                                         formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
-    rating          = MetadataField('rating', is_dc=False, formatter=int)
+    rating          = MetadataField('rating', is_dc=False, formatter=float)
     pubdate         = MetadataField('date', formatter=parse_date,
                                     renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
@@ -883,6 +883,8 @@ class OPF(object): # {{{
                     val = etree.tostring(x, with_tail=False, encoding=unicode,
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
+                        if typ == 'isbn' and val.lower().startswith('urn:isbn:'):
+                            val = val[len('urn:isbn:'):]
                         identifiers[typ] = val
                     found_scheme = True
                     break

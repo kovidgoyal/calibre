@@ -167,7 +167,8 @@ class Worker(object):
         '''
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
-        env['ORIGWD'] = cwd or os.path.abspath(os.getcwd())
+        env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(cwd or
+                                    os.path.abspath(os.getcwdu())))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']

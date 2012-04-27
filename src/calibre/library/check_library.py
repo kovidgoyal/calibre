@@ -47,8 +47,8 @@ class CheckLibrary(object):
         self.is_case_sensitive = db.is_case_sensitive
 
         self.all_authors = frozenset([x[1] for x in db.all_authors()])
-        self.all_ids = frozenset([id for id in db.all_ids()])
-        self.all_dbpaths = frozenset(self.dbpath(id) for id in self.all_ids)
+        self.all_ids = frozenset([id_ for id_ in db.all_ids()])
+        self.all_dbpaths = frozenset(self.dbpath(id_) for id_ in self.all_ids)
         self.all_lc_dbpaths = frozenset([f.lower() for f in self.all_dbpaths])
 
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
@@ -73,8 +73,8 @@ class CheckLibrary(object):
 
         self.failed_folders = []
 
-    def dbpath(self, id):
-        return self.db.path(id, index_is_id=True)
+    def dbpath(self, id_):
+        return self.db.path(id_, index_is_id=True)
 
     @property
     def errors_occurred(self):
@@ -116,21 +116,21 @@ class CheckLibrary(object):
                     self.invalid_titles.append((auth_dir, db_path, 0))
                     continue
 
-                id = m.group(1)
-                # Third check: the id must be in the DB and the paths must match
+                id_ = m.group(1)
+                # Third check: the id_ must be in the DB and the paths must match
                 if self.is_case_sensitive:
-                    if int(id) not in self.all_ids or \
+                    if int(id_) not in self.all_ids or \
                             db_path not in self.all_dbpaths:
                         self.extra_titles.append((title_dir, db_path, 0))
                         continue
                 else:
-                    if int(id) not in self.all_ids or \
+                    if int(id_) not in self.all_ids or \
                             db_path.lower() not in self.all_lc_dbpaths:
                         self.extra_titles.append((title_dir, db_path, 0))
                         continue
 
                 # Record the book to check its formats
-                self.book_dirs.append((db_path, title_dir, id))
+                self.book_dirs.append((db_path, title_dir, id_))
                 found_titles = True
 
             # Fourth check: author directories that contain no titles
@@ -144,6 +144,21 @@ class CheckLibrary(object):
                 traceback.print_exc()
                 # Sort-of check: exception processing directory
                 self.failed_folders.append((title_path, traceback.format_exc(), []))
+
+        # Check for formats and covers in db for book dirs that are gone
+        for id_ in self.all_ids:
+            path = self.dbpath(id_)
+            if not os.path.exists(os.path.join(lib, path)):
+                title_dir = os.path.basename(path)
+                book_formats = frozenset([x for x in
+                            self.db.format_files(id_, index_is_id=True)])
+                for fmt in book_formats:
+                    self.missing_formats.append((title_dir,
+                            os.path.join(path, fmt[0]+'.'+fmt[1].lower()), id_))
+                if self.db.has_cover(id_):
+                    self.missing_covers.append((title_dir,
+                            os.path.join(path, 'cover.jpg'), id_))
+
 
     def is_ebook_file(self, filename):
         ext = os.path.splitext(filename)[1]
@@ -226,8 +241,8 @@ class CheckLibrary(object):
         if self.db.has_cover(book_id):
             if 'cover.jpg' not in filenames:
                 self.missing_covers.append((title_dir,
-                        os.path.join(db_path, title_dir, 'cover.jpg'), book_id))
+                        os.path.join(db_path, 'cover.jpg'), book_id))
         else:
             if 'cover.jpg' in filenames:
                 self.extra_covers.append((title_dir,
-                        os.path.join(db_path, title_dir, 'cover.jpg'), book_id))
+                        os.path.join(db_path, 'cover.jpg'), book_id))

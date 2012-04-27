@@ -12,7 +12,7 @@ from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
         QCoreApplication)
 
-from calibre import isbytestring
+from calibre import isbytestring, sanitize_file_name_unicode
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.config import prefs
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
@@ -275,7 +275,7 @@ class ChooseLibraryAction(InterfaceAction):
                 '<p>'+_('Choose a new name for the library <b>%s</b>. ')%name +
                 '<p>'+_('Note that the actual library folder will be renamed.'),
                 text=name)
-        newname = unicode(newname)
+        newname = sanitize_file_name_unicode(unicode(newname))
         if not ok or not newname or newname == name:
             return
         newloc = os.path.join(base, newname)

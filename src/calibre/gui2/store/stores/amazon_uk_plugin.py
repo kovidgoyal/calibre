@@ -38,7 +38,8 @@ class AmazonUKKindleStore(StorePlugin):
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
+            # Apparently amazon Europe is responding in UTF-8 now
+            doc = html.fromstring(f.read())
 
             data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
             format_xpath = './/span[@class="format"]/text()'
@@ -62,8 +63,8 @@ class AmazonUKKindleStore(StorePlugin):
 
                 cover_url = ''.join(data.xpath(cover_xpath))
 
-                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
-                price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
+                title = ''.join(data.xpath('.//a[@class="title"]/text()'))
+                price = ''.join(data.xpath('.//span[@class="price"]/text()'))
 
                 author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
                 if author.startswith('by '):

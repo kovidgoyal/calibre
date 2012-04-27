@@ -27,7 +27,7 @@ class PRS505(USBMS):
     booklist_class = CollectionsBookList
 
 
-    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
+    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt', 'zbf']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 

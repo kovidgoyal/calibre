@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class CGM(BasicNewsRecipe):
     title          = u'CGM'
@@ -17,9 +18,9 @@ class CGM(BasicNewsRecipe):
     remove_tags_before=dict(id='mainContent')
     remove_tags_after=dict(name='div', attrs={'class':'fbContainer'})
     remove_tags=[dict(name='div', attrs={'class':'fbContainer'}),
- 	      dict(name='p', attrs={'class':['tagCloud', 'galleryAuthor']}), 
-	      dict(id=['movieShare', 'container'])]
-    feeds          = [(u'Informacje', u'http://www.cgm.pl/rss.xml'), (u'Polecamy', u'http://www.cgm.pl/rss,4,news.xml'), 
+          dict(name='p', attrs={'class':['tagCloud', 'galleryAuthor']}),
+          dict(id=['movieShare', 'container'])]
+    feeds          = [(u'Informacje', u'http://www.cgm.pl/rss.xml'), (u'Polecamy', u'http://www.cgm.pl/rss,4,news.xml'),
                           (u'Recenzje', u'http://www.cgm.pl/rss,1,news.xml')]
 
 
@@ -33,10 +34,12 @@ class CGM(BasicNewsRecipe):
                 img='http://www.cgm.pl'+img[img.find('url(')+4:img.find(')')]
                 gallery.contents[1].name='img'
                 gallery.contents[1]['src']=img
+                pos = len(gallery.contents)
+                gallery.insert(pos, BeautifulSoup('<br />'))
         for item in soup.findAll(style=True):
             del item['style']
         ad=soup.findAll('a')
         for r in ad:
-            if 'www.hustla.pl' in r['href'] or 'www.ebilet.pl' in r['href']:                
+            if 'www.hustla.pl' in r['href'] or 'www.ebilet.pl' in r['href']:
                  r.extract()
         return soup
