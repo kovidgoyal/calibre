@@ -1254,6 +1254,15 @@ class StoreBeWriteStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StoreBiblioStore(StoreBase):
+    name = 'Biblio'
+    author = 'Alex Stanev'
+    description = u'Електронна книжарница за книги и списания във формати ePUB и PDF. Част от заглавията са с активна DRM защита.'
+    actual_plugin = 'calibre.gui2.store.stores.biblio_plugin:BiblioStore'
+
+    headquarters = 'BG'
+    formats = ['EPUB, PDF']
+
 class StoreBookotekaStore(StoreBase):
     name = 'Bookoteka'
     author = u'Tomasz Długosz'
@@ -1605,6 +1614,7 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
+    StoreBiblioStore,
     StoreBookotekaStore,
     StoreChitankaStore,
     StoreDieselEbooksStore,
