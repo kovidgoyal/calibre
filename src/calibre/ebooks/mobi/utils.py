@@ -9,11 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import struct, string, imghdr, zlib, os
 from collections import OrderedDict
+from io import BytesIO
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
+RECORD_SIZE = 0x1000 # 4096 (Text record size (uncompressed))
 
 def decode_string(raw, codec='utf-8', ordt_map=''):
     length, = struct.unpack(b'>B', raw[0])
@@ -367,7 +369,7 @@ def count_set_bits(num):
 def to_base(num, base=32, min_num_digits=None):
     digits = string.digits + string.ascii_uppercase
     sign = 1 if num >= 0 else -1
-    if num == 0: return '0'
+    if num == 0: return ('0' if min_num_digits is None else '0'*min_num_digits)
     num *= sign
     ans = []
     while num:
@@ -497,4 +499,108 @@ def write_font_record(data, obfuscate=True, compress=True):
     return header + xor_key + data
 
 # }}}
+
+def create_text_record(text):
+    '''
+    Return a Palmdoc record of size RECORD_SIZE from the text file object.
+    In case the record ends in the middle of a multibyte character return
+    the overlap as well.
+
+    Returns data, overlap: where both are byte strings. overlap is the
+    extra bytes needed to complete the truncated multibyte character.
+    '''
+    opos = text.tell()
+    text.seek(0, 2)
+    # npos is the position of the next record
+    npos = min((opos + RECORD_SIZE, text.tell()))
+    # Number of bytes from the next record needed to complete the last
+    # character in this record
+    extra = 0
+
+    last = b''
+    while not last.decode('utf-8', 'ignore'):
+        # last contains no valid utf-8 characters
+        size = len(last) + 1
+        text.seek(npos - size)
+        last = text.read(size)
+
+    # last now has one valid utf-8 char and possibly some bytes that belong
+    # to a truncated char
+
+    try:
+        last.decode('utf-8', 'strict')
+    except UnicodeDecodeError:
+        # There are some truncated bytes in last
+        prev = len(last)
+        while True:
+            text.seek(npos - prev)
+            last = text.read(len(last) + 1)
+            try:
+                last.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+            else:
+                break
+        extra = len(last) - prev
+
+    text.seek(opos)
+    data = text.read(RECORD_SIZE)
+    overlap = text.read(extra)
+    text.seek(npos)
+
+    return data, overlap
+
+class CNCX(object): # {{{
+
+    '''
+    Create the CNCX records. These are records containing all the strings from
+    an index. Each record is of the form: <vwi string size><utf-8 encoded
+    string>
+    '''
+
+    MAX_STRING_LENGTH = 500
+
+    def __init__(self, strings=()):
+        self.strings = OrderedDict((s, 0) for s in strings)
+
+        self.records = []
+        offset = 0
+        buf = BytesIO()
+        for key in tuple(self.strings.iterkeys()):
+            utf8 = utf8_text(key[:self.MAX_STRING_LENGTH])
+            l = len(utf8)
+            sz_bytes = encint(l)
+            raw = sz_bytes + utf8
+            if 0xfbf8 - buf.tell() < 6 + len(raw):
+                # Records in PDB files cannot be larger than 0x10000, so we
+                # stop well before that.
+                pad = 0xfbf8 - buf.tell()
+                buf.write(b'\0' * pad)
+                self.records.append(buf.getvalue())
+                buf.seek(0), buf.truncate(0)
+                offset = len(self.records) * 0x10000
+            buf.write(raw)
+            self.strings[key] = offset
+            offset += len(raw)
+
+        val = buf.getvalue()
+        if val:
+            self.records.append(align_block(val))
+
+    def __getitem__(self, string):
+        return self.strings[string]
+
+    def __bool__(self):
+        return bool(self.records)
+    __nonzero__ = __bool__
+
+    def __len__(self):
+        return len(self.records)
+
+# }}}
+
+def is_guide_ref_start(ref):
+    return (ref.title.lower() == 'start' or
+            (ref.type and ref.type.lower() in {'start',
+                    'other.start', 'text'}))
 

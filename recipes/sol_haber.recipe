@@ -1,0 +1,141 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Onur Gungor onurgu@gmail.com'
+__docformat__ = 'restructuredtext en'
+
+'''
+www.sol.org.tr
+'''
+
+import datetime
+
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class SolHaberRecipe(BasicNewsRecipe):
+    title = u'soL Haber'
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    language = 'tr'
+    __author__ = 'Onur Güngör'
+    description = 'Hayata soL''dan bakın..'
+    publisher = 'soL Haber'
+    tags = 'news, haberler, siyaset, türkiye, turkey, politics'
+
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : tags
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    category_dict = { 'sonuncu-kavga':'Sonuncu Kavga',
+                      'devlet-ve-siyaset':'Devlet ve Siyaset',
+                      'ekonomi':'Ekonomi',
+                      'enternasyonal-gundem':'Enternasyonel Gündem',
+                      'kent-gundemleri':'Kent Gündemleri',
+                      'kultur-sanat':'Kültür Sanat',
+                      'dunyadan':'Dünyadan',
+                      'serbest-kursu':'Serbest Kürsü',
+                      'medya':'Medya',
+                      'liseliler':'Liseliler',
+                      'yazarlar':'Köşe Yazıları'}
+
+    end_date = datetime.date.today().isoformat()
+    start_date = (datetime.date.today()-datetime.timedelta(days=1)).isoformat()
+
+
+    section_tuples = [['Köşe Yazıları', 'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],
+                    ['Haberler', 'http://haber.sol.org.tr/arsiv?icerik=haber&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],
+                    ['soL postal', 'http://haber.sol.org.tr/arsiv?icerik=postal&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],
+                    ['Bizim Amerika', 'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)]]
+
+
+    # Disable stylesheets from site.
+    no_stylesheets = True
+
+    cover_margins = (20, 20, '#ffffff')
+
+    storybody_reg_exp = '^\s*(haber|kose)\s*$'
+
+    comments_reg_exp = '^\s*makale-elestiri\s*$'
+
+    remove_tags = [dict(name='div', attrs={'class':re.compile(comments_reg_exp, re.IGNORECASE)})]
+
+    keep_only_tags = [dict(name='div', attrs={'class':re.compile(storybody_reg_exp, re.IGNORECASE)})]
+
+    def get_masthead_title(self):
+        return self.title + "(" + self.end_date + ")"
+
+    def parse_index(self):
+
+        result = []
+        articles_dict = dict()
+
+        author_regexp = re.compile('^http://.*?/yazarlar/(.*?)/.*$')
+        category_regexp = re.compile('^http://.*?/(.+?)/.*$')
+
+        for section_tuple in self.section_tuples:
+
+            section_title = section_tuple[0]
+            section_index_url = section_tuple[1]
+
+            self.log('Bölüm:', section_title, 'URL:', section_index_url)
+
+            soup = self.index_to_soup(section_index_url)
+
+            logo = soup.find('div', id='logo').find('img', src=True)
+            if logo is not None:
+                self.cover_url = logo['src']
+                if self.cover_url.startswith('/'):
+                    self.cover_url = 'http://haber.sol.org.tr'+self.cover_url
+
+            view_content = soup.find('div', id='ana-icerik').find('div', attrs={'class':'view-content'})
+            if view_content == None:
+                break
+            rows = view_content.find('tbody').findAll('tr')
+
+            self.log('Row sayısı', len(rows))
+            for row in rows:
+                cells = row.findAll('td')
+
+                a = cells[1].find('a', href=True)
+
+                url = a['href']
+                title = self.tag_to_string(a)
+
+                if url.startswith('/'):
+                    url = 'http://haber.sol.org.tr'+url
+
+                category = section_title
+                category_match_result = category_regexp.match(url)
+                if category_match_result:
+                    category = category_match_result.group(1)
+
+                date = self.tag_to_string(cells[2])
+
+                author = 'soL haber'
+
+                author_match_result = author_regexp.match(url)
+                if author_match_result:
+                    author = author_match_result.group(1)
+
+                self.log('\tFound article:', title, 'at', url, 'published at ', date, 'by', author)
+                article = {'title':title, 'url':url, 'description':None, 'date':date, 'author':author}
+                if category in articles_dict:
+                    articles_dict[category].append(article)
+                else:
+                    articles_dict[category] = [article]
+
+        for category in articles_dict.keys():
+            if category in self.category_dict:
+                result.append((self.category_dict[category], articles_dict[category]))
+            else:
+                result.append((category, articles_dict[category]))
+
+        return result
