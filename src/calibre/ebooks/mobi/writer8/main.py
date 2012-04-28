@@ -264,12 +264,14 @@ class KF8Writer(object):
         text = BytesIO(text)
         nrecords = 0
         records_size = 0
+        self.uncompressed_record_lengths = []
 
         if self.compress:
             self.oeb.logger.info('\tCompressing markup...')
 
         while text.tell() < self.text_length:
             data, overlap = create_text_record(text)
+            self.uncompressed_record_lengths.append(len(data))
             if self.compress:
                 data = compress_doc(data)
 
@@ -372,7 +374,7 @@ class KF8Writer(object):
             entry['length'] = get_next_start(entry) - entry['offset']
 
         self.has_tbs = apply_trailing_byte_sequences(entries, self.records,
-                self.last_text_record_idx+1)
+                self.uncompressed_record_lengths)
         self.ncx_records = NCXIndex(entries)()
 
     def create_guide(self):
