@@ -81,5 +81,7 @@ class Nowa_Fantastyka(BasicNewsRecipe):
         title=soup.find(attrs={'class':'tytul'})
         if title:
             title['style']='font-size: 20px; font-weight: bold;'
-        self.log.warn(soup)
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.INDEX + a['href']
         return soup

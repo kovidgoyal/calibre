@@ -87,8 +87,11 @@
      </property>
      <item>
       <widget class="QPushButton" name="sr_add">
+       <property name="toolTip">
+        <string>Add the current expression to the list of expressions that will be applied</string>
+       </property>
        <property name="text">
-        <string>Add</string>
+        <string>&amp;Add</string>
        </property>
       </widget>
      </item>
@@ -97,8 +100,11 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Edit the currently selected expression</string>
+       </property>
        <property name="text">
-        <string>Change</string>
+        <string>&amp;Change</string>
        </property>
       </widget>
      </item>
@@ -107,22 +113,44 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Remove the currently selected expression</string>
+       </property>
        <property name="text">
-        <string>Remove</string>
+        <string>&amp;Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="sr_load">
+       <property name="toolTip">
+        <string>Load a list of expressions from a previously saved file</string>
+       </property>
        <property name="text">
-        <string>Load</string>
+        <string>&amp;Load</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="sr_save">
+       <property name="toolTip">
+        <string>Save this list of expressions so that you can re-use it easily</string>
+       </property>
        <property name="text">
-        <string>Save</string>
+        <string>&amp;Save</string>
        </property>
       </widget>
      </item>

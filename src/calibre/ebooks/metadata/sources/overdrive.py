@@ -197,14 +197,18 @@ class OverDrive(Source):
         title_tokens = list(self.get_title_tokens(title,
                 strip_joiners=False, strip_subtitle=True))
 
-        if len(title_tokens) >= len(author_tokens):
+        xref_q = ''
+        if len(author_tokens) <= 1:
             initial_q = ' '.join(title_tokens)
             xref_q = '+'.join(author_tokens)
         else:
             initial_q = ' '.join(author_tokens)
-            xref_q = '+'.join(title_tokens)
-        #log.error('Initial query is %s'%initial_q)
-        #log.error('Cross reference query is %s'%xref_q)
+            for token in title_tokens:
+                if len(xref_q) < len(token):
+                    xref_q = token
+
+        log.error('Initial query is %s'%initial_q)
+        log.error('Cross reference query is %s'%xref_q)
 
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
@@ -219,27 +223,30 @@ class OverDrive(Source):
 
         # get the search results object
         results = False
+        iterations = 0
         while results == False:
+            iterations += 1
             xreq = mechanize.Request(q_xref)
             xreq.add_header('X-Requested-With', 'XMLHttpRequest')
             xreq.add_header('Referer', q_init_search)
             xreq.add_header('Accept', 'application/json, text/javascript, */*')
             raw = br.open_novisit(xreq).read()
             for m in re.finditer(ur'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)', raw):
-                if int(m.group('displayrecords')) >= 1:
-                    results = True
-                elif int(m.group('totalrecords')) >= 1:
-                    if int(m.group('totalrecords')) >= 100:
-                        if xref_q.find('+') != -1:
-                            xref_tokens = xref_q.split('+')
-                            xref_q = xref_tokens[0]
-                            #log.error('xref_q is '+xref_q)
-                    else:
-                        xref_q = ''
-                    xref_q = ''
-                    q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
-                elif int(m.group('totalrecords')) == 0:
+                if int(m.group('totalrecords')) == 0:
                     return ''
+                elif int(m.group('displayrecords')) >= 1:
+                    results = True
+                elif int(m.group('totalrecords')) >= 1 and iterations < 3:
+                    if xref_q.find('+') != -1:
+                        xref_tokens = xref_q.split('+')
+                        xref_q = xref_tokens[0]
+                        for token in xref_tokens:
+                            if len(xref_q) < len(token):
+                                xref_q = token
+                        #log.error('rewrote xref_q, new query is '+xref_q)
+                else:
+                        xref_q = ''
+                q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
 
         return self.sort_ovrdrv_results(raw, log, title, title_tokens, author, author_tokens)
 
@@ -263,6 +270,7 @@ class OverDrive(Source):
                 else:
                     if creators:
                         creators = creators.split(', ')
+
                     # if an exact match in a preferred format occurs
                     if ((author and creators and creators[0] == author[0]) or (not author and not creators)) and od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
@@ -330,9 +338,9 @@ class OverDrive(Source):
     def find_ovrdrv_data(self, br, log, title, author, isbn, ovrdrv_id=None):
         q = base_url
         if ovrdrv_id is None:
-           return self.overdrive_search(br, log, q, title, author)
+            return self.overdrive_search(br, log, q, title, author)
         else:
-           return self.overdrive_get_record(br, log, q, ovrdrv_id)
+            return self.overdrive_get_record(br, log, q, ovrdrv_id)
 
 
 
@@ -461,10 +469,10 @@ if __name__ == '__main__':
         [
 
             (
-                {'title':'Foundation and Earth',
-                    'authors':['Asimov']},
-                [title_test('Foundation and Earth', exact=True),
-                    authors_test(['Isaac Asimov'])]
+                {'title':'The Sea Kings Daughter',
+                    'authors':['Elizabeth Peters']},
+                [title_test('The Sea Kings Daughter', exact=False),
+                    authors_test(['Elizabeth Peters'])]
             ),
 
             (

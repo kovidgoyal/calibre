@@ -377,7 +377,7 @@
         <xsl:apply-templates/><br/>
     </xsl:template>
     <!-- image -->
-    <xsl:template match="fb:image">
+    <xsl:template match="fb:body/fb:image|fb:section/fb:image">
         <div align="center">
             <xsl:element name="img">
                 <xsl:attribute name="border">1</xsl:attribute>
@@ -395,4 +395,20 @@
             </xsl:element>
         </div>
     </xsl:template>
+    <xsl:template match="fb:image">
+            <xsl:element name="img">
+                <xsl:choose>
+                    <xsl:when test="starts-with(@xlink:href,'#')">
+                        <xsl:attribute name="src"><xsl:value-of select="substring-after(@xlink:href,'#')"/></xsl:attribute>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:attribute name="src"><xsl:value-of select="@xlink:href"/></xsl:attribute>
+                    </xsl:otherwise>
+                </xsl:choose>
+                <xsl:if test="@title">
+                    <xsl:attribute name="title"><xsl:value-of select="@title"/></xsl:attribute>
+                </xsl:if>
+            </xsl:element>
+    </xsl:template>
+
 </xsl:stylesheet>

@@ -109,7 +109,7 @@ class Mobi8Reader(object):
             table, cncx = read_index(self.kf8_sections, self.header.othidx,
                     self.header.codec)
             Item = namedtuple('Item',
-                'type title div_frag_num')
+                'type title pos_fid')
 
             for i, ref_type in enumerate(table.iterkeys()):
                 tag_map = table[ref_type]
@@ -119,7 +119,7 @@ class Mobi8Reader(object):
                 if 3 in tag_map.keys():
                     fileno  = tag_map[3][0]
                 if 6 in tag_map.keys():
-                    fileno = tag_map[6][0]
+                    fileno = tag_map[6]
                 self.guide.append(Item(ref_type.decode(self.header.codec),
                     title, fileno))
 
@@ -287,23 +287,24 @@ class Mobi8Reader(object):
 
     def create_guide(self):
         guide = Guide()
-        for ref_type, ref_title, fileno in self.guide:
+        has_start = False
+        for ref_type, ref_title, pos_fid in self.guide:
             try:
-                elem = self.elems[fileno]
-            except IndexError:
-                # Happens for thumbnailstandard in Amazon book samples
-                continue
-            fi = self.get_file_info(elem.insert_pos)
-            idtext = self.get_id_tag(elem.insert_pos).decode(self.header.codec)
-            linktgt = fi.filename
+                if len(pos_fid) != 2:
+                    continue
+            except TypeError:
+                continue # thumbnailstandard record, ignore it
+            linktgt, idtext = self.get_id_tag_by_pos_fid(*pos_fid)
             if idtext:
                 linktgt += b'#' + idtext
-            g = Guide.Reference('%s/%s'%(fi.type, linktgt), os.getcwdu())
+            g = Guide.Reference(linktgt, os.getcwdu())
             g.title, g.type = ref_title, ref_type
+            if g.title == 'start' or g.type == 'text':
+                has_start = True
             guide.append(g)
 
         so = self.header.exth.start_offset
-        if so not in {None, NULL_INDEX}:
+        if so not in {None, NULL_INDEX} and not has_start:
             fi = self.get_file_info(so)
             if fi.filename is not None:
                 idtext = self.get_id_tag(so).decode(self.header.codec)

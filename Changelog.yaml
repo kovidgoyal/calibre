@@ -19,6 +19,113 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.49
+  date: 2012-04-27
+
+  new features:
+    - title: "Experimental support for generating Amazon's new KF8 format MOBI files"
+      description: "calibre can now generate Amazon's new KF8 format MOBI files.
+      To turn on this feature, go to Preferences->Tweaks and click Plugin Tweaks. In the box add:
+      test_mobi_output_type = 'both'
+      calibre will now produce MOBI files that have both the old MOBI format and the new KF8 format in them. 
+      To learn more about KF8, see: http://www.amazon.com/gp/feature.html?docId=1000729511
+      Note that calibre support for KF8 is still experimental and there will likely be bugs."
+
+    - title: "Upgrade to using cssutils 0.9.9 for CSS parsing. Improved speed and robustness."
+
+    - title: "Show cover size in a tooltip in the conversion dialog"
+      tickets: [986958]
+
+    - title: "Driver for Nook Simple Touch with Glow Light"
+      tickets: [989264]
+ 
+  bug fixes:
+    - title: "Heuristics: When italicizing words do not operate on words not in between HTML tags."
+      tickets: [986298]
+
+    - title: "Fix (I hope) the bulk metadata download process crashing for some people on OS X when clicking the Yes button to apply the updates."
+      tickets: [986658] 
+
+    - title: "Fix tooltip not being updated in the book details panel when pasting in a new cover"
+      tickets: [986958]
+
+    - title: "Cover Browser: Wrap the title on space only, not in between words."
+      tickets: [986516]
+
+    - title: "Edit metadata dialog: If a permission denied error occurs when clicking the next or prev buttons, stay on the current book."
+      tickets: [986903]
+
+    - title: "Fix heuristics not removing unnecessary hyphens from the end of lines."
+      tickets: [822744]
+
+  improved recipes:
+    - Metro Nieuws NL
+    - Der Tagesspiegel
+
+  new recipes:
+    - title: Berria 
+      author: Alayn Gortazar
+
+    - title: Sol Haber 
+      author: Onur Gungor
+
+    - title: Telam
+      author: Darko Miletic
+
+    - title: Richmond Times-Dispatch
+      author: jde
+
+- version: 0.8.48
+  date: 2012-04-20
+
+  new features:
+    - title: "Conversion: The search and replace feature has been completely revamped."
+      description: "You can now use any number of search and replace
+      expression, not just three. You can also store and load frequently used
+      sets of search and replace expressions. Also, the wizard generates its
+      preview in a separate process to protect against crashes/memory leaks."
+      tickets: [983476,983484,983478]
+
+    - title: "Support for the new '.azw3' files that Amazon recently started generating. calibre will now detect them as ebooks. It can also view/convert them, if they are DRM free."
+
+    - title: "Drivers for Samsung Galaxy ACE GT-S5830L and HTC One X"
+      tickets: [981185] 
+ 
+  bug fixes:
+    - title: "Get Books: Support the new website design of Barnes & Noble"
+
+    - title: "T1 driver: Fix books sent to SD card sometimes resulting problems when deleted."
+      tickets: [943586]
+
+    - title: "Do not allow author names to be set to blank via the Manage authors function. Blank authors are now automatically set to 'Unknown'"
+
+    - title: "MOBI Output: Handle background color specified on <td> and <tr> in addition to <table> tags."
+      tickets: [980813]
+
+    - title: "MOBI Output: Fix underline style applied to parent element not getting inherited by <a> children."
+      tickets: [985711]
+
+  improved recipes:
+    - xkcd
+    - Metro Nieuws
+    - Calgary Herald
+    - Orlando Sentinel
+    - countryfile
+    - Heise
+
+  new recipes:
+    - title: Various new Polish news sources
+      author: fenuks
+
+    - title: Various Italian news sources 
+      author: faber1971
+
+    - title: Jakarta Globe 
+      author: rty
+
+    - title: Acim Bilim Dergisi
+      author: thomass
+
 - version: 0.8.47
   date: 2012-04-13
 

@@ -2653,6 +2653,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
         new_name = new_name.replace(',', '|').strip()
+        if not new_name:
+            new_name = _('Unknown')
 
         # Get the list of books we must fix up, one way or the other
         # Save the list so we can use it twice

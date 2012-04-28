@@ -68,4 +68,7 @@ class Benchmark_pl(BasicNewsRecipe):
             self.image_article(soup, soup.body)
         else:
             self.append_page(soup, soup.body)
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.INDEX + a['href']
         return soup

@@ -367,3 +367,17 @@ class EbookIterator(object):
         for x in self.delete_on_exit:
             if os.path.exists(x):
                 os.remove(x)
+
+def get_preprocess_html(path_to_ebook, output):
+    from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+    iterator = EbookIterator(path_to_ebook)
+    iterator.__enter__(only_input_plugin=True)
+    preprocessor = HTMLPreProcessor(None, False)
+    with open(output, 'wb') as out:
+        for path in iterator.spine:
+            with open(path, 'rb') as f:
+                html = f.read().decode('utf-8', 'replace')
+            html = preprocessor(html, get_preprocess_html=True)
+            out.write(html.encode('utf-8'))
+            out.write(b'\n\n' + b'-'*80 + b'\n\n')
+

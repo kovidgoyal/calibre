@@ -9,6 +9,7 @@ class Adventure_zone(BasicNewsRecipe):
     no_stylesheets = True
     oldest_article = 20
     max_articles_per_feed = 100
+    index='http://www.adventure-zone.info/fusion/'
     use_embedded_content=False
     preprocess_regexps     = [(re.compile(r"<td class='capmain'>Komentarze</td>", re.IGNORECASE), lambda m: '')]
     remove_tags_before= dict(name='td', attrs={'class':'main-bg'})
@@ -45,6 +46,19 @@ class Adventure_zone(BasicNewsRecipe):
         skip_tag = skip_tag.findAll(name='a')
         for r in skip_tag:
            if r.strong:
-                 word=r.strong.string
-                 if word and (('zapowied' in word) or ('recenzj' in word)  or ('solucj' in word)):
+                 word=r.strong.string.lower()
+                 if word and (('zapowied' in word) or ('recenzj' in word)  or ('solucj' in word) or ('poradnik' in word)):
                    return self.index_to_soup('http://www.adventure-zone.info/fusion/print.php?type=A&item'+r['href'][r['href'].find('article_id')+7:], raw=True)
+
+    def preprocess_html(self, soup):
+        footer=soup.find(attrs={'class':'news-footer middle-border'})
+        if footer and len(footer('a'))>=2:
+            footer('a')[1].extract()
+        for item in soup.findAll(style=True):
+            del item['style']
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup
+           
+            
