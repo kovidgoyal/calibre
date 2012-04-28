@@ -295,21 +295,21 @@ class MOBIHeader(object): # {{{
         self.datp_record_count, = struct.unpack(b'>I', self.raw[124:128])
         self.exth_flags, = struct.unpack(b'>I', self.raw[128:132])
         self.has_exth = bool(self.exth_flags & 0x40)
-        self.has_drm_data = self.length >= 174 and len(self.raw) >= 180
+        self.has_drm_data = self.length >= 174 and len(self.raw) >= 184
         if self.has_drm_data:
-            self.unknown3 = self.raw[132:164]
-            self.drm_offset, = struct.unpack(b'>I', self.raw[164:168])
-            self.drm_count, = struct.unpack(b'>I', self.raw[168:172])
-            self.drm_size, = struct.unpack(b'>I', self.raw[172:176])
-            self.drm_flags = bin(struct.unpack(b'>I', self.raw[176:180])[0])
+            self.unknown3 = self.raw[132:168]
+            self.drm_offset, self.drm_count, self.drm_size, self.drm_flags = \
+                    struct.unpack(b'>4I', self.raw[168:184])
         self.has_extra_data_flags = self.length >= 232 and len(self.raw) >= 232+16
         self.has_fcis_flis = False
         self.has_multibytes = self.has_indexing_bytes = self.has_uncrossable_breaks = False
         self.extra_data_flags = 0
         if self.has_extra_data_flags:
-            self.unknown4 = self.raw[180:192]
-            self.fdst_idx, self.fdst_count = struct.unpack_from(b'>II',
+            self.unknown4 = self.raw[184:192]
+            self.fdst_idx, self.fdst_count = struct.unpack_from(b'>LL',
                     self.raw, 192)
+            if self.fdst_count <= 1:
+                self.fdst_idx = NULL_INDEX
             (self.fcis_number, self.fcis_count, self.flis_number,
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
@@ -327,7 +327,7 @@ class MOBIHeader(object): # {{{
             self.primary_index_record, = struct.unpack(b'>I',
                     self.raw[244:248])
 
-        if self.file_version >= 8:
+        if self.length >= 248:
             (self.sect_idx, self.skel_idx, self.datp_idx, self.oth_idx
                     ) = struct.unpack_from(b'>4L', self.raw, 248)
             self.unknown9 = self.raw[264:self.length]
@@ -337,12 +337,13 @@ class MOBIHeader(object): # {{{
 
         # The following are all relative to the position of the header record
         # make them absolute for ease of debugging
-        for x in ('sect_idx', 'skel_idx', 'datp_idx', 'oth_idx',
+        self.relative_records = {'sect_idx', 'skel_idx', 'datp_idx', 'oth_idx',
                 'meta_orth_indx', 'huffman_record_offset',
                 'first_non_book_record', 'datp_record_offset', 'fcis_number',
                 'flis_number', 'primary_index_record', 'fdst_idx',
-                'first_image_index'):
-            if hasattr(self, x):
+                'first_image_index'}
+        for x in self.relative_records:
+            if hasattr(self, x) and getattr(self, x) != NULL_INDEX:
                 setattr(self, x, self.header_offset+getattr(self, x))
 
         if self.has_exth:
@@ -355,70 +356,79 @@ class MOBIHeader(object): # {{{
 
     def __str__(self):
         ans = ['*'*20 + ' MOBI %d Header '%self.file_version+ '*'*20]
+
         a = ans.append
-        i = lambda d, x : a('%s (null value: %d): %d'%(d, NULL_INDEX, x))
-        ans.append('Compression: %s'%self.compression)
-        ans.append('Unused: %r'%self.unused)
-        ans.append('Number of text records: %d'%self.number_of_text_records)
-        ans.append('Text record size: %d'%self.text_record_size)
-        ans.append('Encryption: %s'%self.encryption_type)
-        ans.append('Unknown: %r'%self.unknown)
-        ans.append('Identifier: %r'%self.identifier)
-        ans.append('Header length: %d'% self.length)
-        ans.append('Type: %s'%self.type)
-        ans.append('Encoding: %s'%self.encoding)
-        ans.append('UID: %r'%self.uid)
-        ans.append('File version: %d'%self.file_version)
-        i('Meta Orth Index (Sections index in KF8)', self.meta_orth_indx)
-        i('Meta Infl Index', self.meta_infl_indx)
-        ans.append('Secondary index record: %d (null val: %d)'%(
-            self.secondary_index_record, NULL_INDEX))
-        ans.append('Reserved: %r'%self.reserved)
-        ans.append('First non-book record (null value: %d): %d'%(NULL_INDEX,
-            self.first_non_book_record))
-        ans.append('Full name offset: %d'%self.fullname_offset)
-        ans.append('Full name length: %d bytes'%self.fullname_length)
-        ans.append('Langcode: %r'%self.locale_raw)
-        ans.append('Language: %s'%self.language)
-        ans.append('Sub language: %s'%self.sublanguage)
-        ans.append('Input language: %r'%self.input_language)
-        ans.append('Output language: %r'%self.output_langauage)
-        ans.append('Min version: %d'%self.min_version)
-        ans.append('First Image index: %d'%self.first_image_index)
-        ans.append('Huffman record offset: %d'%self.huffman_record_offset)
-        ans.append('Huffman record count: %d'%self.huffman_record_count)
-        ans.append('DATP record offset: %r'%self.datp_record_offset)
-        ans.append('DATP record count: %r'%self.datp_record_count)
-        ans.append('EXTH flags: %s (%s)'%(bin(self.exth_flags)[2:], self.has_exth))
+
+        def i(d, x):
+            x = 'NULL' if x == NULL_INDEX else x
+            a('%s: %s'%(d, x))
+
+        def r(d, attr):
+            x = getattr(self, attr)
+            if attr in self.relative_records and x != NULL_INDEX:
+                a('%s: Absolute: %d Relative: %d'%(d, x, x-self.header_offset))
+            else:
+                i(d, x)
+
+        a('Compression: %s'%self.compression)
+        a('Unused: %r'%self.unused)
+        a('Number of text records: %d'%self.number_of_text_records)
+        a('Text record size: %d'%self.text_record_size)
+        a('Encryption: %s'%self.encryption_type)
+        a('Unknown: %r'%self.unknown)
+        a('Identifier: %r'%self.identifier)
+        a('Header length: %d'% self.length)
+        a('Type: %s'%self.type)
+        a('Encoding: %s'%self.encoding)
+        a('UID: %r'%self.uid)
+        a('File version: %d'%self.file_version)
+        r('Meta Orth Index', 'meta_orth_indx')
+        r('Meta Infl Index', 'meta_infl_indx')
+        r('Secondary index record', 'secondary_index_record')
+        a('Reserved: %r'%self.reserved)
+        r('First non-book record', 'first_non_book_record')
+        a('Full name offset: %d'%self.fullname_offset)
+        a('Full name length: %d bytes'%self.fullname_length)
+        a('Langcode: %r'%self.locale_raw)
+        a('Language: %s'%self.language)
+        a('Sub language: %s'%self.sublanguage)
+        a('Input language: %r'%self.input_language)
+        a('Output language: %r'%self.output_langauage)
+        a('Min version: %d'%self.min_version)
+        r('First Image index', 'first_image_index')
+        r('Huffman record offset', 'huffman_record_offset')
+        a('Huffman record count: %d'%self.huffman_record_count)
+        r('DATP record offset', 'datp_record_offset')
+        a('DATP record count: %r'%self.datp_record_count)
+        a('EXTH flags: %s (%s)'%(bin(self.exth_flags)[2:], self.has_exth))
         if self.has_drm_data:
-            ans.append('Unknown3: %r'%self.unknown3)
-            ans.append('DRM Offset: %s'%self.drm_offset)
-            ans.append('DRM Count: %s'%self.drm_count)
-            ans.append('DRM Size: %s'%self.drm_size)
-            ans.append('DRM Flags: %r'%self.drm_flags)
+            a('Unknown3: %r'%self.unknown3)
+            r('DRM Offset', 'drm_offset')
+            a('DRM Count: %s'%self.drm_count)
+            a('DRM Size: %s'%self.drm_size)
+            a('DRM Flags: %r'%self.drm_flags)
         if self.has_extra_data_flags:
-            ans.append('Unknown4: %r'%self.unknown4)
-            ans.append('FDST Index: %d'% self.fdst_idx)
-            ans.append('FDST Count: %d'% self.fdst_count)
-            ans.append('FCIS number: %d'% self.fcis_number)
-            ans.append('FCIS count: %d'% self.fcis_count)
-            ans.append('FLIS number: %d'% self.flis_number)
-            ans.append('FLIS count: %d'% self.flis_count)
-            ans.append('Unknown6: %r'% self.unknown6)
-            ans.append('SRCS record index: %d'%self.srcs_record_index)
-            ans.append('Number of SRCS records?: %d'%self.num_srcs_records)
-            ans.append('Unknown7: %r'%self.unknown7)
-            ans.append(('Extra data flags: %s (has multibyte: %s) '
+            a('Unknown4: %r'%self.unknown4)
+            r('FDST Index', 'fdst_idx')
+            a('FDST Count: %d'% self.fdst_count)
+            r('FCIS number', 'fcis_number')
+            a('FCIS count: %d'% self.fcis_count)
+            r('FLIS number', 'flis_number')
+            a('FLIS count: %d'% self.flis_count)
+            a('Unknown6: %r'% self.unknown6)
+            r('SRCS record index', 'srcs_record_index')
+            a('Number of SRCS records?: %d'%self.num_srcs_records)
+            a('Unknown7: %r'%self.unknown7)
+            a(('Extra data flags: %s (has multibyte: %s) '
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
                     self.has_indexing_bytes, self.has_uncrossable_breaks ))
-            ans.append('Primary index record (null value: %d): %d'%(NULL_INDEX,
-                self.primary_index_record))
-        if self.file_version >= 8:
-            i('Sections Index', self.sect_idx)
-            i('SKEL Index', self.skel_idx)
-            i('DATP Index', self.datp_idx)
-            i('Other Index', self.oth_idx)
+            r('NCX index', 'primary_index_record')
+        if self.length >= 248:
+            r('Sections Index', 'sect_idx')
+            r('SKEL Index', 'skel_idx')
+            r('DATP Index', 'datp_idx')
+            r('Other Index', 'oth_idx')
             if self.unknown9:
                 a('Unknown9: %r'%self.unknown9)
 

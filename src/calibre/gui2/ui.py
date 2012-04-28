@@ -43,6 +43,7 @@ from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
+from calibre.gui2.proceed import ProceedQuestion
 
 class Listener(Thread): # {{{
 
@@ -109,6 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.QueuedConnection)
+        self.proceed_question = ProceedQuestion(self)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts

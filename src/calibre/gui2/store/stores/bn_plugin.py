@@ -44,7 +44,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         query = query.replace(' ', '-')
-        url = 'http://www.barnesandnoble.com/s/%s?store=ebook&sze=%s' % (query, max_results)
+        url = 'http://www.barnesandnoble.com/s/%s?store=nookstore' % query
 
         br = browser()
 
@@ -55,14 +55,14 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[contains(@class, "image")]/a/@href'))
+                id = ''.join(data.xpath('.//a[contains(@class, "thumb")]/@href'))
                 if not id:
                     continue
-                cover_url = ''.join(data.xpath('.//div[contains(@class, "image")]//img/@src'))
+                cover_url = ''.join(data.xpath('.//img[contains(@class, "product-image")]/@src'))
 
-                title = ''.join(data.xpath('.//p[@class="title"]//span[@class="name"]/text()'))
-                author = ', '.join(data.xpath('.//ul[@class="contributors"]//li[position()>1]//a/text()'))
-                price = ''.join(data.xpath('.//table[@class="displayed-formats"]//a[contains(@class, "bn-price")]/text()'))
+                title = ''.join(data.xpath('.//a[@class="title"]//text()'))
+                author = ', '.join(data.xpath('.//a[@class="contributor"]//text()'))
+                price = ''.join(data.xpath('.//div[@class="price-format"]//span[contains(@class, "price")]/text()'))
 
                 counter -= 1
 

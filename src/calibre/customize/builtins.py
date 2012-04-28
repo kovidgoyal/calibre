@@ -259,7 +259,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw4', 'pobi'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):

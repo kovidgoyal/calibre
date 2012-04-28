@@ -7,6 +7,7 @@ class Dzieje(BasicNewsRecipe):
     cover_url      = 'http://www.dzieje.pl/sites/default/files/dzieje_logo.png'
     category       = 'history'
     language       = 'pl'
+    index='http://dzieje.pl'
     oldest_article = 8
     max_articles_per_feed = 100
     remove_javascript=True
@@ -15,3 +16,10 @@ class Dzieje(BasicNewsRecipe):
     remove_tags_after= dict(id='dogory')
     remove_tags=[dict(id='dogory')]
     feeds          = [(u'Dzieje', u'http://dzieje.pl/rss.xml')]
+
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

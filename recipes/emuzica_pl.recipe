@@ -7,6 +7,7 @@ class eMuzyka(BasicNewsRecipe):
     description   = u'Emuzyka to największa i najpopularniejsza strona o muzyce w Polsce'
     category       = 'music'
     language       = 'pl'
+    index='http://www.emuzyka.pl'
     cover_url='http://s.emuzyka.pl/img/emuzyka_invert_small.jpg'
     no_stylesheets = True
     oldest_article = 7
@@ -14,3 +15,9 @@ class eMuzyka(BasicNewsRecipe):
     keep_only_tags=[dict(name='div', attrs={'id':'news_container'}), dict(name='h3'), dict(name='div', attrs={'class':'review_text'})]
     remove_tags=[dict(name='span', attrs={'id':'date'})]
     feeds          = [(u'Aktualno\u015bci', u'http://www.emuzyka.pl/rss.php?f=1'), (u'Recenzje', u'http://www.emuzyka.pl/rss.php?f=2')]
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

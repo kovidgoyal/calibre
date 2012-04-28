@@ -536,7 +536,7 @@ OptionRecommendation(name='pubdate',
 
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the book timestamp (used by the date column in calibre).')),
+    help=_('Set the book timestamp (no longer used anywhere)')),
 
 OptionRecommendation(name='enable_heuristics',
     recommended_value=False, level=OptionRecommendation.LOW,
@@ -626,6 +626,14 @@ OptionRecommendation(name='sr3_search',
 OptionRecommendation(name='sr3_replace',
     recommended_value='', level=OptionRecommendation.LOW,
     help=_('Replacement to replace the text found with sr3-search.')),
+
+OptionRecommendation(name='search_replace',
+    recommended_value=None, level=OptionRecommendation.LOW, help=_(
+        'Path to a file containing search and replace regular expressions. '
+        'The file must contain alternating lines of regular expression '
+        'followed by replacement pattern (which can be an empty line). '
+        'The regular expression must be in the python regex syntax and '
+        'the file must be UTF-8 encoded.')),
 ]
         # }}}
 

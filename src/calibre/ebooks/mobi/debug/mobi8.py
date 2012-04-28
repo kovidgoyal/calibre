@@ -10,8 +10,11 @@ __docformat__ = 'restructuredtext en'
 import sys, os, imghdr, struct
 from itertools import izip
 
+from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
+        GuideIndex)
+from calibre.ebooks.mobi.utils import read_font_record, decode_tbs
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 
@@ -42,6 +45,24 @@ class FDST(object):
 
         return '\n'.join(ans)
 
+class File(object):
+
+    def __init__(self, skel, skeleton, text, first_aid, sections):
+        self.name = 'part%04d'%skel.file_number
+        self.skeleton, self.text, self.first_aid = skeleton, text, first_aid
+        self.sections = sections
+
+    def dump(self, ddir):
+        with open(os.path.join(ddir, self.name + '.html'), 'wb') as f:
+            f.write(self.text)
+        base = os.path.join(ddir, self.name + '-parts')
+        os.mkdir(base)
+        with CurrentDir(base):
+            with open('skeleton.html', 'wb') as f:
+                f.write(self.skeleton)
+            for i, text in enumerate(self.sections):
+                with open('sect-%04d.html'%i, 'wb') as f:
+                    f.write(text)
 
 class MOBIFile(object):
 
@@ -65,6 +86,9 @@ class MOBIFile(object):
         self.header = self.mf.mobi8_header
         self.extract_resources()
         self.read_fdst()
+        self.read_indices()
+        self.build_files()
+        self.read_tbs()
 
     def print_header(self, f=sys.stdout):
         print (str(self.mf.palmdb).encode('utf-8'), file=f)
@@ -84,6 +108,45 @@ class MOBIFile(object):
             self.fdst = FDST(self.mf.records[idx].raw)
             if self.fdst.num_sections != self.header.fdst_count:
                 raise ValueError('KF8 Header contains invalid FDST count')
+
+    def read_indices(self):
+        self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records,
+                self.header.encoding)
+        self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records,
+                self.header.encoding)
+        self.ncx_index = NCXIndex(self.header.primary_index_record,
+                self.mf.records, self.header.encoding)
+        self.guide_index = GuideIndex(self.header.oth_idx, self.mf.records,
+                self.header.encoding)
+
+    def build_files(self):
+        text = self.raw_text
+        self.files = []
+        for skel in self.skel_index.records:
+            sects = [x for x in self.sect_index.records if x.file_number
+                    == skel.file_number]
+            skeleton = text[skel.start_position:skel.start_position+skel.length]
+            ftext = skeleton
+            first_aid = sects[0].toc_text
+            sections = []
+
+            for sect in sects:
+                start_pos = skel.start_position + skel.length + sect.start_pos
+                sect_text = text[start_pos:start_pos+sect.length]
+                insert_pos = sect.insert_pos - skel.start_position
+                ftext = ftext[:insert_pos] + sect_text + ftext[insert_pos:]
+                sections.append(sect_text)
+
+            self.files.append(File(skel, skeleton, ftext, first_aid, sections))
+
+    def dump_flows(self, ddir):
+        if self.fdst is None:
+            raise ValueError('This MOBI file has no FDST record')
+        for i, x in enumerate(self.fdst.sections):
+            start, end = x
+            raw = self.raw_text[start:end]
+            with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
+                f.write(raw)
 
     def extract_resources(self):
         self.resource_map = []
@@ -121,6 +184,54 @@ class MOBIFile(object):
             self.resource_map.append(('%s/%06d%s.%s'%(prefix, i, suffix, ext),
                 payload))
 
+    def read_tbs(self):
+        from calibre.ebooks.mobi.writer8.tbs import (Entry,
+                collect_indexing_data)
+        entry_map = []
+        for index in self.ncx_index:
+            enders = [e['pos'] for e in self.ncx_index if e['pos'] >
+                    index['pos'] and
+                    e['hlvl'] <= index['hlvl']]
+            end = min(enders+[len(self.raw_text)])
+
+            entry_map.append(Entry(index=index['num'], title=index['text'],
+                depth=index['hlvl'],
+                parent=index['parent'] if index['parent'] > -1 else None,
+                first_child=index['child1'] if index['child1'] > -1 else None,
+                last_child=index['childn'] if index['childn'] > -1 else None,
+                start=index['pos'], length=end-index['pos']))
+
+        indexing_data = collect_indexing_data(entry_map,
+                len(self.text_records))
+        self.indexing_data = []
+        for i, data in enumerate(indexing_data):
+            rec = self.text_records[i]
+            tbs_bytes = rec.trailing_data.get('indexing', b'')
+            desc = ['Record #%d'%i]
+            for x in ('starts', 'completes', 'ends', 'spans'):
+                points = ['\t%d at depth: %d'%(e.index, e.depth) for e in
+                    getattr(data, x)]
+                if points:
+                    desc.append(x+':')
+                    desc.extend(points)
+            desc.append('TBS Bytes: ' + format_bytes(tbs_bytes))
+            flag_sz = 3
+            sequences = []
+            while tbs_bytes:
+                try:
+                    val, extra, consumed = decode_tbs(tbs_bytes, flag_size=flag_sz)
+                except:
+                    break
+                flag_sz = 4
+                tbs_bytes = tbs_bytes[consumed:]
+                extra = {bin(k):v for k, v in extra.iteritems()}
+                sequences.append((val, extra))
+            for i, seq in enumerate(sequences):
+                desc.append('Sequence #%d: %r %r'%(i, seq[0], seq[1]))
+            if tbs_bytes:
+                desc.append('Remaining bytes: %s'%format_bytes(tbs_bytes))
+            desc.append('')
+            self.indexing_data.append('\n'.join(desc))
 
 def inspect_mobi(mobi_file, ddir):
     f = MOBIFile(mobi_file)
@@ -131,7 +242,8 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows',
+            'tbs'):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -144,4 +256,25 @@ def inspect_mobi(mobi_file, ddir):
     if f.fdst:
         with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:
             fo.write(str(f.fdst).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
+        fo.write(str(f.skel_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'chunks.record'), 'wb') as fo:
+        fo.write(str(f.sect_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
+        fo.write(str(f.ncx_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'guide.record'), 'wb') as fo:
+        fo.write(str(f.guide_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'tbs', 'all.txt'), 'wb') as fo:
+        fo.write(('\n'.join(f.indexing_data)).encode('utf-8'))
+
+    for part in f.files:
+        part.dump(os.path.join(ddir, 'files'))
+
+    f.dump_flows(os.path.join(ddir, 'flows'))
+
 

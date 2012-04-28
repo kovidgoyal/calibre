@@ -1,0 +1,20 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class historia_news(BasicNewsRecipe):
+    title          = u'historia-news'
+    __author__        = 'fenuks'
+    description   = u'Historia-news to portal dla ludzi kochających historię. Najnowsze newsy z historii bliższej i dalszej, archeologii, paleontologii oraz ciekawostki i podcasty z historii kultury, sportu, motoryzacji i inne.'
+    masthead_url = 'http://historia-news.pl/templates/hajak4/images/header.jpg'
+    cover_url= 'http://www.historia-news.pl/templates/hajak4/images/header.jpg'
+    category       = 'history'
+    language       = 'pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_tags=[dict(name='form'), dict(name='img', attrs={'alt':'Print'}), dict(attrs={'class':['commbutt', 'cpr']}), dict(id=['plusone', 'facebook'])]
+    feeds          = [(u'Wiadomo\u015bci', u'http://historia-news.pl/wiadomoci.feed?type=rss'), (u'Artyku\u0142y', u'http://historia-news.pl/artykuy.feed?type=rss')]
+
+
+    def print_version(self, url):
+        return url + '?tmpl=component&print=1&layout=default&page='
