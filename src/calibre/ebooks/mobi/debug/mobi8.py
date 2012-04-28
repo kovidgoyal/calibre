@@ -215,12 +215,21 @@ class MOBIFile(object):
                     desc.append(x+':')
                     desc.extend(points)
             desc.append('TBS Bytes: ' + format_bytes(tbs_bytes))
-            val, extra, consumed = decode_tbs(tbs_bytes, flag_size=3)
-            extra = {bin(k):v for k, v in extra.iteritems()}
-            desc.append('First sequence: %r %r'%(val, extra))
-            byts = tbs_bytes[consumed:]
-            if byts:
-                desc.append('Remaining bytes: %s'%format_bytes(byts))
+            flag_sz = 3
+            sequences = []
+            while tbs_bytes:
+                try:
+                    val, extra, consumed = decode_tbs(tbs_bytes, flag_size=flag_sz)
+                except:
+                    break
+                flag_sz = 4
+                tbs_bytes = tbs_bytes[consumed:]
+                extra = {bin(k):v for k, v in extra.iteritems()}
+                sequences.append((val, extra))
+            for i, seq in enumerate(sequences):
+                desc.append('Sequence #%d: %r %r'%(i, seq[0], seq[1]))
+            if tbs_bytes:
+                desc.append('Remaining bytes: %s'%format_bytes(tbs_bytes))
             desc.append('')
             self.indexing_data.append('\n'.join(desc))
 
