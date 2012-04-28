@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, search_replace_option
+import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
 
@@ -517,28 +517,30 @@ class HTMLPreProcessor(object):
 
         # Function for processing search and replace
         def do_search_replace(search_pattern, replace_txt):
-            if search_pattern:
-                try:
-                    search_re = re.compile(search_pattern)
-                    if not replace_txt:
-                        replace_txt = ''
-                    print 'Replacing pattern \'{0}\' with text \'{1}\''.format(search_pattern, replace_txt)
-                    rules.insert(0, (search_re, replace_txt))
-                except Exception as e:
-                    self.log.error('Failed to parse %r regexp because %s' %
-                            (search, as_unicode(e)))
+            try:
+                search_re = re.compile(search_pattern)
+                if not replace_txt:
+                    replace_txt = ''
+                rules.insert(0, (search_re, replace_txt))
+            except Exception as e:
+                self.log.error('Failed to parse %r regexp because %s' %
+                        (search, as_unicode(e)))
 
-        #search / replace using the sr?_search / sr?_replace options
-        for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
+        # search / replace using the sr?_search / sr?_replace options
+        for i in range(1, 4):
+            search, replace = 'sr%d_search'%i, 'sr%d_replace'%i
             search_pattern = getattr(self.extra_opts, search, '')
             replace_txt = getattr(self.extra_opts, replace, '')
-            do_search_replace(search_pattern, replace_txt)
+            if search_pattern:
+                do_search_replace(search_pattern, replace_txt)
 
         # multi-search / replace using the search_replace option
-        search_replace = search_replace_option.decode(getattr(self.extra_opts, 'search_replace', '[]'))
-        for search_pattern, replace_txt in search_replace:
-            do_search_replace(search_pattern, replace_txt)
-            
+        search_replace = getattr(self.extra_opts, 'search_replace', None)
+        if search_replace:
+            search_replace = json.loads(search_replace)
+            for search_pattern, replace_txt in search_replace:
+                do_search_replace(search_pattern, replace_txt)
+
         end_rules = []
         # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:

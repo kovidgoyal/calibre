@@ -308,8 +308,10 @@ class MOBIHeader(object): # {{{
         self.extra_data_flags = 0
         if self.has_extra_data_flags:
             self.unknown4 = self.raw[180:192]
-            self.fdst_idx, self.fdst_count = struct.unpack_from(b'>II',
+            self.fdst_idx, self.fdst_count = struct.unpack_from(b'>LL',
                     self.raw, 192)
+            if self.fdst_count <= 1:
+                self.fdst_idx = NULL_INDEX
             (self.fcis_number, self.fcis_count, self.flis_number,
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
@@ -342,7 +344,7 @@ class MOBIHeader(object): # {{{
                 'first_non_book_record', 'datp_record_offset', 'fcis_number',
                 'flis_number', 'primary_index_record', 'fdst_idx',
                 'first_image_index'):
-            if hasattr(self, x):
+            if hasattr(self, x) and getattr(self, x) != NULL_INDEX:
                 setattr(self, x, self.header_offset+getattr(self, x))
 
         if self.has_exth:

@@ -252,6 +252,7 @@ class Widget(QWidget):
 
 
     def set_value_handler(self, g, val):
+        'Return True iff you handle setting the value for g'
         return False
 
     def post_set_value(self, g, val):

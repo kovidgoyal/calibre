@@ -129,6 +129,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             d.exec_()
             if d.result() == QDialog.Accepted:
                 format = d.format()
+            else:
+                return False
 
         if not format:
             error_dialog(self, _('No formats available'),
@@ -239,6 +241,9 @@ class RegexEdit(QWidget, Ui_Edit):
     @property
     def regex(self):
         return self.text
+
+    def clear(self):
+        self.edit.clear()
 
     def check(self):
         return True

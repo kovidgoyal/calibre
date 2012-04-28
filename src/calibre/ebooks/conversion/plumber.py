@@ -599,6 +599,7 @@ OptionRecommendation(name='renumber_headings',
     help=_('Looks for occurrences of sequential <h1> or <h2> tags. '
            'The tags are renumbered to prevent splitting in the middle '
            'of chapter headings.')),
+
 OptionRecommendation(name='sr1_search',
     recommended_value='', level=OptionRecommendation.LOW,
     help=_('Search pattern (regular expression) to be replaced with '
@@ -627,18 +628,12 @@ OptionRecommendation(name='sr3_replace',
     help=_('Replacement to replace the text found with sr3-search.')),
 
 OptionRecommendation(name='search_replace',
-    recommended_value='[]', level=OptionRecommendation.LOW,
-    help=_('Modify the document text and structure using user defined patterns.'
-           'This option accepts parameters in two forms:\n'
-           '1.file:<path to search/replace definitions file>\n'
-           'The file should contain alternating lines or search/replace strings:\n'
-           '      <search>\n'
-           '      <replace>\n'
-           '      <search>\n'
-           '      <replace>\n'
-           'Files saved through the user interface dialog can be used with this option.\n'
-           '2.json:<json encoded list containg [search, replace] touples:\n'
-           '      json:[["search","replace"],["search","replace"]]\n')),
+    recommended_value=None, level=OptionRecommendation.LOW, help=_(
+        'Path to a file containing search and replace regular expressions. '
+        'The file must contain alternating lines of regular expression '
+        'followed by replacement pattern (which can be an empty line). '
+        'The regular expression must be in the python regex syntax and '
+        'the file must be UTF-8 encoded.')),
 ]
         # }}}
 

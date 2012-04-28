@@ -19,6 +19,51 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.47
+  date: 2012-04-13
+
+  new features:
+    - title: "Conversion pipeline: Add support for all the named entities in the HTML 5 spec."
+      tickets: [976056]
+
+    - title: "Support for viewing and converting the Haodoo PDB ebook format"
+      tickets: [976478]
+
+    - title: "Device driver for Laser EB720"
+ 
+  bug fixes:
+    - title: "Fix regression in automatic adding in 0.8.46 that broke automatic adding if adding of duplicates is enabled and auto convert is also enabled"
+      tickets: [976336]
+
+    - title: 'Fix "Tags" field in advanced search does not obey regex setting'
+      tickets: [980221]
+
+    - title: "EPUB Input: Automatically extract cover image from simple HTML title page that consists of only a single <img> tag, instead of rendering the page"
+
+    - title: "Prevent errors when both author and author_sort are used in a template for reading metadata from filenames for files on a device"
+
+    - title: "Amazon metadata download: Handle books whose titles start with a bracket."
+      tickets: [976365]
+
+    - title: "Get Books: Fix downloading of purchased books from Baen"
+      tickets: [975929]
+
+
+  improved recipes:
+    - Forbes
+    - Caros Amigos
+    - Trouw
+    - Sun UK
+    - Metro
+    - Daily Mirror
+
+  new recipes:
+    - title: "Melbourne Herald Sun"
+      author: Ray Hartley
+
+    - title: "Editoriali and Zerocalcare"
+      author: faber1971
+
 - version: 0.8.46
   date: 2012-04-06
 

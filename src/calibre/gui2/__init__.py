@@ -641,6 +641,26 @@ def choose_files(window, name, title,
         return fd.get_files()
     return None
 
+def choose_save_file(window, name, title, filters=[], all_files=True):
+    '''
+    Ask user to choose a file to save to. Can be a non-existent file.
+    :param filters: list of allowable extensions. Each element of the list
+                     must be a 2-tuple with first element a string describing
+                     the type of files to be filtered and second element a list
+                     of extensions.
+    :param all_files: If True add All files to filters.
+    '''
+    mode = QFileDialog.AnyFile
+    fd = FileDialog(title=title, name=name, filters=filters,
+                    parent=window, add_all_files_filter=all_files, mode=mode)
+    fd.setParent(None)
+    ans = None
+    if fd.accepted:
+        ans = fd.get_files()
+        if ans:
+            ans = ans[0]
+    return ans
+
 def choose_images(window, name, title, select_only_single_file=True):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
     fd = FileDialog(title=title, name=name,

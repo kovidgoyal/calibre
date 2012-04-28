@@ -473,7 +473,7 @@ class MobiMLizer(object):
         if tag in TABLE_TAGS and self.ignore_tables:
             tag = 'span' if tag == 'td' else 'div'
 
-        if tag == 'table':
+        if tag in ('table', 'td', 'tr'):
             col = style.backgroundColor
             if col:
                 elem.set('bgcolor', col)

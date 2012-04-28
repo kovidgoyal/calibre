@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
+    <width>667</width>
     <height>451</height>
    </rect>
   </property>
@@ -86,68 +86,62 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QPushButton" name="sr_add" native="true">
+      <widget class="QPushButton" name="sr_add">
        <property name="text">
         <string>Add</string>
        </property>
-	  </widget>
+      </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="sr_change" native="true">
+      <widget class="QPushButton" name="sr_change">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Change</string>
        </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_remove">
        <property name="enabled">
         <bool>false</bool>
        </property>
-	  </widget>
-     </item>
-     <item>			
-      <widget class="QPushButton" name="sr_remove" native="true">
        <property name="text">
         <string>Remove</string>
        </property>
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-	  </widget>
+      </widget>
      </item>
-     <item>			
-      <widget class="QPushButton" name="sr_load" native="true">
+     <item>
+      <widget class="QPushButton" name="sr_load">
        <property name="text">
         <string>Load</string>
        </property>
-	  </widget>
-	 </item>
-     <item>	 
-	  <widget class="QPushButton" name="sr_save" native="true">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_save">
        <property name="text">
         <string>Save</string>
        </property>
-	  </widget>
+      </widget>
      </item>
-    </layout>	
+    </layout>
    </item>
    <item row="3" column="0">
-	<widget class="QTableWidget" name="search_replace" native="true">
-	 <property name="sizePolicy">
-	  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-	   <horstretch>0</horstretch>
-	   <verstretch>0</verstretch>
-	  </sizepolicy>
-	 </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-	 </property>
+    <widget class="QTableWidget" name="search_replace">
      <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
-	 </property>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
     </widget>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;Search and replace uses &lt;i&gt;regular expressions&lt;/i&gt;. See the &lt;a href=&quot;http://manual.calibre-ebook.com/regexp.html&quot;&gt;regular expressions tutorial&lt;/a&gt; to get started with regular expressions. Also clicking the wizard button below will allow you to test your regular expression against the current input document.</string>
+      <string>&lt;p&gt;Search and replace uses &lt;i&gt;regular expressions&lt;/i&gt;. See the &lt;a href=&quot;http://manual.calibre-ebook.com/regexp.html&quot;&gt;regular expressions tutorial&lt;/a&gt; to get started with regular expressions. Also clicking the wizard button below will allow you to test your regular expression against the current input document. When you are happy with an expression, click the Add button to add it to the list of expressions.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

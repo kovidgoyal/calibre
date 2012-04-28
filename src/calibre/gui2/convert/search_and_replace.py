@@ -4,14 +4,15 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
-from calibre.ebooks.conversion import search_replace_option
+import re, codecs, json
 
-from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox
+from PyQt4.Qt import Qt, QTableWidgetItem
+
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.gui2.convert import Widget
-from calibre.gui2 import error_dialog
+from calibre.gui2 import (error_dialog, question_dialog, choose_files,
+        choose_save_file)
+from calibre import as_unicode
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
@@ -22,6 +23,15 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     STRIP_TEXT_FIELDS = False
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+        # Dummy attributes to fool the Widget() option handler code. We handle
+        # everything in our *handler methods.
+        for i in range(1, 4):
+            x = 'sr%d_'%i
+            for y in ('search', 'replace'):
+                z = x + y
+                setattr(self, 'opt_'+z, z)
+        self.opt_search_replace = 'search_replace'
+
         Widget.__init__(self, parent,
                 ['search_replace',
                  'sr1_search', 'sr1_replace',
@@ -42,14 +52,15 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.setColumnCount(2)
         self.search_replace.setColumnWidth(0, 300)
         self.search_replace.setColumnWidth(1, 300)
-        self.search_replace.setHorizontalHeaderLabels([_('Search Regular Expression'), _('Replacement Text')])
+        self.search_replace.setHorizontalHeaderLabels([
+            _('Search Regular Expression'), _('Replacement Text')])
 
-        self.connect(self.sr_add, SIGNAL('clicked()'), self.sr_add_clicked)
-        self.connect(self.sr_change, SIGNAL('clicked()'), self.sr_change_clicked)
-        self.connect(self.sr_remove, SIGNAL('clicked()'), self.sr_remove_clicked)
-        self.connect(self.sr_load, SIGNAL('clicked()'), self.sr_load_clicked)
-        self.connect(self.sr_save, SIGNAL('clicked()'), self.sr_save_clicked)
-        self.connect(self.search_replace, SIGNAL('currentCellChanged(int, int, int, int)'), self.sr_currentCellChanged)
+        self.sr_add.clicked.connect(self.sr_add_clicked)
+        self.sr_change.clicked.connect(self.sr_change_clicked)
+        self.sr_remove.clicked.connect(self.sr_remove_clicked)
+        self.sr_load.clicked.connect(self.sr_load_clicked)
+        self.sr_save.clicked.connect(self.sr_save_clicked)
+        self.search_replace.currentCellChanged.connect(self.sr_currentCellChanged)
 
         self.initialize_options(get_option, get_help, db, book_id)
 
@@ -57,7 +68,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if self.sr_search.regex:
             row = self.sr_add_row(self.sr_search.regex, self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
-            
+
     def sr_add_row(self, search, replace):
         row = self.search_replace.rowCount()
         self.search_replace.setRowCount(row + 1)
@@ -75,23 +86,43 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.search_replace.item(row, 0).setText(self.sr_search.regex)
             self.search_replace.item(row, 1).setText(self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
-            
+
     def sr_remove_clicked(self):
         row = self.search_replace.currentRow()
         if  row >= 0:
             self.search_replace.removeRow(row)
             self.search_replace.setCurrentCell(row-1, 0)
+            self.sr_search.clear()
+            self.sr_replace.clear()
 
     def sr_load_clicked(self):
-        filename = QFileDialog.getOpenFileName(self, _('Load Calibre Search-Replace definitions file'), '.', _('Calibre Search-Replace definitions file (*.csr)'))
-        if filename:
-            self.set_value_handler(self.opt_search_replace, 'file:'+unicode(filename))
-            
+        files = choose_files(self, 'sr_saved_patterns',
+                _('Load Calibre Search-Replace definitions file'),
+                filters=[
+                    (_('Calibre Search-Replace definitions file'), ['csr'])
+                    ], select_only_single_file=True)
+        if files:
+            from calibre.ebooks.conversion.cli import read_sr_patterns
+            try:
+                self.set_value(self.opt_search_replace,
+                    read_sr_patterns(files[0]))
+            except Exception as e:
+                error_dialog(self, _('Failed to read'),
+                        _('Failed to load patterns from %s, click Show details'
+                            ' to learn more.')%files[0], det_msg=as_unicode(e),
+                        show=True)
+
     def sr_save_clicked(self):
-        filename = QFileDialog.getSaveFileName(self, _('Save Calibre Search-Replace definitions file'), '.', _('Calibre Search-Replace definitions file (*.csr)'))
+        filename = choose_save_file(self, 'sr_saved_patterns',
+                _('Save Calibre Search-Replace definitions file'),
+                filters=[
+                    (_('Calibre Search-Replace definitions file'), ['csr'])
+                    ])
         if filename:
-            search_replace_option.encodeFile(self.get_definitions(), unicode(filename))
-        
+            with codecs.open(filename, 'w', 'utf-8') as f:
+                for search, replace in self.get_definitions():
+                    f.write(search + u'\n' + replace + u'\n\n')
+
     def sr_currentCellChanged(self, row, column, previousRow, previousColumn) :
         if row >= 0:
             self.sr_change.setEnabled(True)
@@ -101,7 +132,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         else:
             self.sr_change.setEnabled(False)
             self.sr_remove.setEnabled(False)
-        
+
     def break_cycles(self):
         Widget.break_cycles(self)
 
@@ -119,8 +150,6 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.sr_search.set_doc(doc)
 
     def pre_commit_check(self):
-
-
         definitions = self.get_definitions()
 
         # Verify the search/replace in the edit widgets has been
@@ -135,16 +164,15 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 if search == edit_search and replace == edit_replace:
                     found = True
                     break
-            if not found:
-                msgBox = QMessageBox(self)
-                msgBox.setText(_('The search / replace definition being edited has not been added to the list of definitions'))
-                msgBox.setInformativeText(_('Do you wish to continue with the conversion (the definition will not be used)?'))
-                msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                msgBox.setDefaultButton(QMessageBox.No)
-                if msgBox.exec_() != QMessageBox.Yes:
+            if not found and not question_dialog(self,
+                    _('Unused Search & Replace definition'),
+                    _('The search / replace definition being edited '
+                        ' has not been added to the list of definitions. '
+                        'Do you wish to continue with the conversion '
+                        '(the definition will not be used)?')):
                     return False
 
-        # Verify all search expressions are valid        
+        # Verify all search expressions are valid
         for search, replace in definitions:
             try:
                 re.compile(search)
@@ -152,49 +180,19 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
                 return False
-        
+
         return True
-
-    # Options
-    @property
-    def opt_search_replace(self):
-        return 'search_replace'
-
-    @property
-    def opt_sr1_search(self):
-        return 'sr1_search'
-
-    @property
-    def opt_sr1_replace(self):
-        return 'sr1_replace'
-
-    @property
-    def opt_sr2_search(self):
-        return 'sr2_search'
-
-    @property
-    def opt_sr2_replace(self):
-        return 'sr2_replace'
-
-    @property
-    def opt_sr3_search(self):
-        return 'sr3_search'
-
-    @property
-    def opt_sr3_replace(self):
-        return 'sr3_replace'
-
 
     # Options handling
 
     def connect_gui_obj_handler(self, g, slot):
-        if g == self.opt_search_replace:
+        if g is self.opt_search_replace:
             self.search_replace.cellChanged.connect(slot)
 
     def get_value_handler(self, g):
-        if g != self.opt_search_replace:
-            return None
-        return search_replace_option.encodeJson(self.get_definitions())
+        if g is self.opt_search_replace:
+            return json.dumps(self.get_definitions())
+        return None
 
     def get_definitions(self):
         ans = []
@@ -206,22 +204,21 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         return ans
 
     def set_value_handler(self, g, val):
-        if g != self.opt_search_replace:
-            self.handle_legacy(g, val)
+        if g is not self.opt_search_replace:
             return True
 
         try:
-            rowItems = search_replace_option.decode(val)
+            rowItems = json.loads(val)
             if not isinstance(rowItems, list):
                 rowItems = []
         except:
             rowItems = []
 
         if len(rowItems) == 0:
-            return True
+            self.search_replace.clearContents()
 
         self.search_replace.setRowCount(len(rowItems))
-           
+
         for row, colItems in enumerate(rowItems):
             for col, cellValue in enumerate(colItems):
                 newItem = self.search_replace.itemPrototype().clone()
@@ -229,33 +226,44 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 self.search_replace.setItem(row,col, newItem)
         return True
 
-    def handle_legacy(self, g, val):
+    def apply_recommendations(self, recs):
         '''
-        Handles legacy search/replace options sr1_search, sr1_replace,
-        sr2_search, sr2_replace, sr3_search, sr3_replace.
-        Before introducing the search_replace option only three search/replace
-        definitions could be made. These where stored in the options named above.
-        This function is for backward compatibility with saved options and for
-        compatibility with setting sr* options in the CLI.
+        Handle the legacy sr* options that may have been previously saved. They
+        are applied only if the new search_replace option has not been set in
+        recs.
         '''
+        new_val = None
+        legacy = {}
+        rest = {}
+        for name, val in recs.items():
+            if name == 'search_replace':
+                new_val = val
+                if name in getattr(recs, 'disabled_options', []):
+                    self.search_replace.setDisabled(True)
+            elif name.startswith('sr'):
+                legacy[name] = val if val else ''
+            else:
+                rest[name] = val
 
-        if not val: return
-        
-        row = int(g[2]) - 1 # the row to set in the search_replace table is 0 for sr1_*, 1 for sr2_*, etc
-        col = (0 if g[4] == 's' else 1) # the fourth character in g is 's' for search options and 'r' for replace options
+        if rest:
+            super(SearchAndReplaceWidget, self).apply_recommendations(rest)
 
-        # add any missing rows 
-        while self.search_replace.rowCount() < row+1:
-            self.sr_add_row('', '')
-        
-        # set the value
-        self.search_replace.item(row, col).setText(val)
+        self.set_value(self.opt_search_replace, None)
+        if new_val is None and legacy:
+            for i in range(1, 4):
+                x = 'sr%d'%i
+                s, r = x+'_search', x+'_replace'
+                s, r = legacy.get(s, ''), legacy.get(r, '')
+                if s:
+                    self.sr_add_row(s, r)
+        if new_val is not None:
+            self.set_value(self.opt_search_replace, new_val)
 
     def setup_help_handler(self, g, help):
-        if g != self.opt_search_replace:
-            return True
-
-        self.search_replace._help = help
-        self.setup_widget_help(self.search_replace)
+        if g is self.opt_search_replace:
+            self.search_replace._help = _(
+                'The list of search/replace definitions that will be applied '
+                'to this conversion.')
+            self.setup_widget_help(self.search_replace)
         return True
-        
+
