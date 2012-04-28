@@ -132,7 +132,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
                     entries[-1].action == 'completes' and
                     entries[-1].length_offset != max_length_offset):
                 # I can't figure out exactly when kindlegen decides to insert
-                # this
+                # this, so disable it for now.
                 extra[0b1] = entries[-1].length_offset
 
             if entries[0] is first_entry:
@@ -143,12 +143,17 @@ def encode_strands_as_sequences(strands, tbs_type=8):
 
             index = entries[0].index - (entries[0].parent or 0)
             if ans and not strand_seqs:
+                # We are in the second or later strands, so we need to use a
+                # special flag and index value. The index value if the entry
+                # index - the index of the last entry in the previous strand.
                 extra[0b1000] = True
                 index = last_index - entries[0].index
             last_index = entries[-1].index
             strand_seqs.append((index, extra))
 
-        # Handle the case of consecutive action == 'spans' entries
+        # Handle the case of consecutive action == 'spans' entries. In this
+        # case, the 0b1 = 0 flag should be present only in the last consecutive
+        # spans entry.
         for i, seq in enumerate(strand_seqs):
             if i + 1 < len(strand_seqs):
                 if 0b1 in seq[1] and 0b1 in strand_seqs[i+1][1]:
@@ -162,7 +167,8 @@ def sequences_to_bytes(sequences):
     flag_size = 3
     for val, extra in sequences:
         ans.append(encode_tbs(val, extra, flag_size))
-        flag_size = 4
+        flag_size = 4 # only the first seuqence has flag size 3 as all
+                      # subsequent sequences could need the 0b1000 flag
     return b''.join(ans)
 
 def apply_trailing_byte_sequences(index_table, records, text_record_lengths):
