@@ -1,24 +1,32 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
-    title          = u'Max-Planck-Inst.'
-    __author__  = 'schuster'
-    oldest_article = 30
-    max_articles_per_feed = 100
+    title                  = u'Max-Planck-Gesellschaft'
+    description            = 'Forschungs-News-Feed der Max-Planck-Gesellschaft'
+    __author__             = 'schuster, a.peter'
+    __license__            = 'GPL v3'
+    version                = 2
+    
+    oldest_article         = 30
+    max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
     language               = 'de'
     remove_javascript      = True
+    timefmt                = ' [%d.%m.%Y]' 
 
     remove_tags = [dict(attrs={'class':['box_url', 'print_kontakt']}),
-                dict(id=['skiplinks'])]
-
-
+                dict(id=['skiplinks']),
+                dict(name='div', attrs={'id':['print_options','print_head']}),
+                dict(name='div', attrs={'class':['col2_box_meta']}),
+                dict(name='a', attrs={'class':['toggle_description']}),
+                dict(name='span', attrs={'class':['lens']})]
 
     def print_version(self, url):
-        split_url = url.split("/")
-        print_url = 'http://www.mpg.de/print/' +  split_url[3]
+        print_url = url + '?print=yes'
         return print_url
 
-    feeds          = [(u'Forschung', u'http://www.mpg.de/de/forschung.rss')]
+    feeds = [(u'Forschung', u'http://www.mpg.de/de/forschung.rss')]
 
+    def get_masthead_url(self):
+        return 'http://www.mpg.de/images/logo_print.png'
