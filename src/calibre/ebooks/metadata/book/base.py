@@ -647,14 +647,10 @@ class Metadata(object):
                     return (unicode(cmeta['name']+'_index'), '', '', cmeta)
 
         if key in self.custom_field_keys():
-            res = self.get(key, None)
+            res = self.get(key, None)       # get evaluates all necessary composites
             cmeta = self.get_user_metadata(key, make_copy=False)
             name = unicode(cmeta['name'])
-            if cmeta['datatype'] != 'composite' and (res is None or res == ''):
-                return (name, res, None, None)
-            orig_res = res
-            cmeta = self.get_user_metadata(key, make_copy=False)
-            if res is None or res == '':
+            if res is None or res == '':    # can't check "not res" because of numeric fields
                 return (name, res, None, None)
             orig_res = res
             datatype = cmeta['datatype']

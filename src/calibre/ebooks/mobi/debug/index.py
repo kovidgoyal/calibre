@@ -17,9 +17,11 @@ from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
 
-Elem = namedtuple('Elem',
+Elem = namedtuple('Chunk',
     'insert_pos toc_text file_number sequence_number start_pos '
     'length')
+
+GuideRef = namedtuple('GuideRef', 'type title pos_fid')
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
@@ -80,6 +82,9 @@ class Index(object):
     def __str__(self):
         return '\n'.join(self.render())
 
+    def __iter__(self):
+        return iter(self.records)
+
 class SKELIndex(Index):
 
     def __init__(self, skelidx, records, codec):
@@ -110,7 +115,7 @@ class SECTIndex(Index):
              for i, text in enumerate(self.table.iterkeys()):
                 tag_map = self.table[text]
                 if set(tag_map.iterkeys()) != {2, 3, 4, 6}:
-                    raise ValueError('SECT Index has unknown tags: %s'%
+                    raise ValueError('Chunk Index has unknown tags: %s'%
                             (set(tag_map.iterkeys())-{2, 3, 4, 6}))
 
                 toc_text = self.cncx[tag_map[2][0]]
@@ -124,6 +129,28 @@ class SECTIndex(Index):
                     )
                 )
 
+class GuideIndex(Index):
+
+    def __init__(self, guideidx, records, codec):
+        super(GuideIndex, self).__init__(guideidx, records, codec)
+        self.records = []
+
+        if self.table is not None:
+             for i, text in enumerate(self.table.iterkeys()):
+                tag_map = self.table[text]
+                if set(tag_map.iterkeys()) not in ({1, 6}, {1, 2, 3}):
+                    raise ValueError('Guide Index has unknown tags: %s'%
+                            tag_map)
+
+                title = self.cncx[tag_map[1][0]]
+                self.records.append(GuideRef(
+                    text,
+                    title,
+                    tag_map[6] if 6 in tag_map else (tag_map[2], tag_map[3])
+                    )
+                )
+
+
 class NCXIndex(Index):
 
     def __init__(self, ncxidx, records, codec):
@@ -131,9 +158,12 @@ class NCXIndex(Index):
         self.records = []
 
         if self.table is not None:
+            NCXEntry = namedtuple('NCXEntry', 'index start length depth parent '
+        'first_child last_child title pos_fid')
+
             for num, x in enumerate(self.table.iteritems()):
                 text, tag_map = x
-                entry = default_entry.copy()
+                entry = e = default_entry.copy()
                 entry['name'] = text
                 entry['num'] = num
 
@@ -152,7 +182,17 @@ class NCXIndex(Index):
                             if tag == which:
                                 entry[name] = self.cncx.get(fieldvalue,
                                         default_entry[name])
-                self.records.append(entry)
+                def refindx(e, name):
+                    ans = e[name]
+                    if ans < 0:
+                        ans = None
+                    return ans
 
+                entry = NCXEntry(start=e['pos'], index=e['num'],
+                        length=e['len'], depth=e['hlvl'], parent=refindx(e,
+                            'parent'), first_child=refindx(e, 'child1'),
+                        last_child=refindx(e, 'childn'), title=e['text'],
+                        pos_fid=e['pos_fid'])
+                self.records.append(entry)
 
 

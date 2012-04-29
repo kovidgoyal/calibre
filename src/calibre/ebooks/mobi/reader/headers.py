@@ -46,7 +46,10 @@ class EXTHHeader(object): # {{{
                 self.thumbnail_offset, = struct.unpack('>L', content)
             elif idx == 501:
                 # cdetype
-                pass
+                if content == b'EBSP':
+                    if not self.mi.tags:
+                        self.mi.tags = []
+                    self.mi.tags.append(_('Sample Book'))
             elif idx == 502:
                 # last update time
                 pass

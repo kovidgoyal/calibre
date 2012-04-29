@@ -1,0 +1,62 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.telam.com.ar
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Telam(BasicNewsRecipe):
+    title                 = 'Telam'
+    __author__            = 'Darko Miletic'
+    description           = 'AGENCIA DE NOTICIAS DE LA REPUBLICA ARGENTINA'
+    publisher             = 'Telam S.E.'
+    category              = 'news, politics, Argentina'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://www.telam.com.ar/front/imagenes/encabezado/logotelam.jpg'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags        = [dict(name=['meta','link'])]
+    remove_tags_before = dict(attrs={'class':'nota_fecha'})
+    remove_tags_after  = dict(attrs={'class':'nota_completa'})
+    remove_attributes  = ['lang']
+
+
+    feeds = [
+              (u'Ultimas noticias', u'http://www.telam.com.ar/xml/rss/' )
+             ,(u'Politica'        , u'http://www.telam.com.ar/xml/rss/1')
+             ,(u'Economia'        , u'http://www.telam.com.ar/xml/rss/2')
+             ,(u'Sociedad'        , u'http://www.telam.com.ar/xml/rss/3')
+             ,(u'Policiales'      , u'http://www.telam.com.ar/xml/rss/4')
+             ,(u'Internacionales' , u'http://www.telam.com.ar/xml/rss/6')
+             ,(u'Espectaculos'    , u'http://www.telam.com.ar/xml/rss/7')
+             ,(u'Cultura'         , u'http://www.telam.com.ar/xml/rss/8')
+             ,(u'Deportes'        , u'http://www.telam.com.ar/xml/rss/9')
+             ,(u'Telam Investiga' , u'http://www.telam.com.ar/xml/rss/5')
+            ]
+
+    def print_version(self, url):
+        artid = url.rpartition('/')[2]
+        return 'http://www.telam.com.ar/?codProg=imprimir-nota&id=' + artid
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

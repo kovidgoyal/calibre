@@ -95,9 +95,15 @@ class MetadataWidget(Widget, Ui_Form):
             if not pm.isNull():
                 self.cover.setPixmap(pm)
                 self.cover_data = cover
+                self.set_cover_tooltip(pm)
         else:
             self.cover.setPixmap(QPixmap(I('default_cover.png')))
+            self.cover.setToolTip(_('This book has no cover'))
 
+    def set_cover_tooltip(self, pm):
+        tt = _('Cover size: %(width)d x %(height)d pixels') % dict(
+                width=pm.width(), height=pm.height())
+        self.cover.setToolTip(tt)
 
     def initialize_combos(self):
         self.initalize_authors()
@@ -205,6 +211,7 @@ class MetadataWidget(Widget, Ui_Form):
                     d.exec_()
                 else:
                     self.cover_path.setText(_file)
+                    self.set_cover_tooltip(pix)
                     self.cover.setPixmap(pix)
                     self.cover_changed = True
                     self.cpixmap = pix

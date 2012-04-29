@@ -19,6 +19,62 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.49
+  date: 2012-04-27
+
+  new features:
+    - title: "Experimental support for generating Amazon's new KF8 format MOBI files"
+      description: "calibre can now generate Amazon's new KF8 format MOBI files.
+      To turn on this feature, go to Preferences->Tweaks and click Plugin Tweaks. In the box add:
+      test_mobi_output_type = 'both'
+      calibre will now produce MOBI files that have both the old MOBI format and the new KF8 format in them. 
+      To learn more about KF8, see: http://www.amazon.com/gp/feature.html?docId=1000729511
+      Note that calibre support for KF8 is still experimental and there will likely be bugs."
+
+    - title: "Upgrade to using cssutils 0.9.9 for CSS parsing. Improved speed and robustness."
+
+    - title: "Show cover size in a tooltip in the conversion dialog"
+      tickets: [986958]
+
+    - title: "Driver for Nook Simple Touch with Glow Light"
+      tickets: [989264]
+ 
+  bug fixes:
+    - title: "Heuristics: When italicizing words do not operate on words not in between HTML tags."
+      tickets: [986298]
+
+    - title: "Fix (I hope) the bulk metadata download process crashing for some people on OS X when clicking the Yes button to apply the updates."
+      tickets: [986658] 
+
+    - title: "Fix tooltip not being updated in the book details panel when pasting in a new cover"
+      tickets: [986958]
+
+    - title: "Cover Browser: Wrap the title on space only, not in between words."
+      tickets: [986516]
+
+    - title: "Edit metadata dialog: If a permission denied error occurs when clicking the next or prev buttons, stay on the current book."
+      tickets: [986903]
+
+    - title: "Fix heuristics not removing unnecessary hyphens from the end of lines."
+      tickets: [822744]
+
+  improved recipes:
+    - Metro Nieuws NL
+    - Der Tagesspiegel
+
+  new recipes:
+    - title: Berria 
+      author: Alayn Gortazar
+
+    - title: Sol Haber 
+      author: Onur Gungor
+
+    - title: Telam
+      author: Darko Miletic
+
+    - title: Richmond Times-Dispatch
+      author: jde
+
 - version: 0.8.48
   date: 2012-04-20
 

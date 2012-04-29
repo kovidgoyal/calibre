@@ -59,7 +59,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                 id = ''.join(details.xpath('./div[@class="text"]/a/@name')).strip()
                 if not id:
                     continue
-                cover_url = ''.join(details.xpath('./div[@class="bild"]/a/img/@src'))
+                cover_url = ''.join(details.xpath('.//div[@class="coverImg"]/a/img/@src'))
                 title = ''.join(details.xpath('./div[@class="text"]/span[@class="titel"]/a/text()')).strip()
                 author = ''.join(details.xpath('./div[@class="text"]/span[@class="author"]/text()')).strip()
                 pdf = details.xpath(
@@ -68,7 +68,8 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                         'boolean(.//span[@class="format" and contains(text(), "epub")]/text())')
                 mobi = details.xpath(
                         'boolean(.//span[@class="format" and contains(text(), "mobipocket")]/text())')
-                price = (''.join(data.xpath('.//span[@class="preis"]/text()'))).replace('*', '')
+                price = ''.join(data.xpath('.//span[@class="preis"]/text()')).replace('*', '').strip()
+
                 counter -= 1
 
                 s = SearchResult()

@@ -116,7 +116,7 @@ class Extract(ODF2XHTML):
     def do_filter_css(self, css):
         from cssutils import parseString
         from cssutils.css import CSSRule
-        sheet = parseString(css)
+        sheet = parseString(css, validate=False)
         rules = list(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
         sel_map = {}
         count = 0

@@ -13,54 +13,21 @@ from cStringIO import StringIO
 from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
-        encode_tbs, align_block, utf8_text, RECORD_SIZE)
+        encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
 
-class CNCX(object): # {{{
-
-    '''
-    Create the CNCX records. These are records containing all the strings from
-    the NCX. Each record is of the form: <vwi string size><utf-8 encoded
-    string>
-    '''
-
-    MAX_STRING_LENGTH = 500
+class CNCX(CNCX_): # {{{
 
     def __init__(self, toc, is_periodical):
-        self.strings = OrderedDict()
-
+        strings = []
         for item in toc.iterdescendants(breadth_first=True):
-            self.strings[item.title] = 0
+            strings.append(item.title)
             if is_periodical:
-                self.strings[item.klass] = 0
+                strings.append(item.klass)
                 if item.author:
-                    self.strings[item.author] = 0
+                    strings.append(item.author)
                 if item.description:
-                    self.strings[item.description] = 0
-
-        self.records = []
-        offset = 0
-        buf = StringIO()
-        for key in tuple(self.strings.iterkeys()):
-            utf8 = utf8_text(key[:self.MAX_STRING_LENGTH])
-            l = len(utf8)
-            sz_bytes = encint(l)
-            raw = sz_bytes + utf8
-            if 0xfbf8 - buf.tell() < 6 + len(raw):
-                # Records in PDB files cannot be larger than 0x10000, so we
-                # stop well before that.
-                pad = 0xfbf8 - buf.tell()
-                buf.write(b'\0' * pad)
-                self.records.append(buf.getvalue())
-                buf.truncate(0)
-                offset = len(self.records) * 0x10000
-            buf.write(raw)
-            self.strings[key] = offset
-            offset += len(raw)
-
-        self.records.append(align_block(buf.getvalue()))
-
-    def __getitem__(self, string):
-        return self.strings[string]
+                    strings.append(item.description)
+        CNCX_.__init__(self, strings)
 # }}}
 
 class TAGX(object): # {{{
@@ -533,14 +500,14 @@ class Indexer(object): # {{{
 
         # Write offsets to index entries as an IDXT block
         idxt_block = b'IDXT'
-        buf.truncate(0)
+        buf.seek(0), buf.truncate(0)
         for offset in offsets:
             buf.write(pack(b'>H', header_length+offset))
         idxt_block = align_block(idxt_block + buf.getvalue())
         body = index_block + idxt_block
 
         header = b'INDX'
-        buf.truncate(0)
+        buf.seek(0), buf.truncate(0)
         buf.write(pack(b'>I', header_length))
         buf.write(b'\0'*4) # Unknown
         buf.write(pack(b'>I', 1)) # Header type? Or index record number?

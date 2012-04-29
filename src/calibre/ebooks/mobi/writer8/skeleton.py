@@ -172,11 +172,11 @@ class Chunker(object):
             body = root.xpath('//body')[0]
             body.tail = '\n'
 
-            if self.orig_dumps is not None:
-                self.orig_dumps.append(tostring(root, xml_declaration=True,
+            if orig_dumps is not None:
+                orig_dumps.append(tostring(root, xml_declaration=True,
                     with_tail=True))
-                self.orig_dumps[-1] = close_self_closing_tags(
-                        self.orig_dumps[-1].replace(b'<html',
+                orig_dumps[-1] = close_self_closing_tags(
+                        orig_dumps[-1].replace(b'<html',
                         bytes('<html xmlns="%s"'%XHTML_NS), 1))
 
             # First pass: break up document into rendered strings of length no
@@ -321,13 +321,13 @@ class Chunker(object):
             s.start_pos = sp
             sp += len(s)
         self.skel_table = [Skel(s.file_number, 'SKEL%010d'%s.file_number,
-            len(s.chunks), s.start_pos, len(s.skeleton)) for x in self.skeletons]
+            len(s.chunks), s.start_pos, len(s.skeleton)) for s in self.skeletons]
 
         Chunk = namedtuple('Chunk',
             'insert_pos selector file_number sequence_number start_pos length')
-        num = cp = 0
+        num = 0
         for skel in self.skeletons:
-            cp = skel.start_pos
+            cp = 0
             for chunk in skel.chunks:
                 self.chunk_table.append(
                     Chunk(chunk.insert_pos + skel.start_pos, chunk.selector,
@@ -336,15 +336,37 @@ class Chunker(object):
                 num += 1
 
     def set_internal_links(self, text):
-        # First find the start pos of all tags with aids
-        aid_map = {}
+        ''' Update the internal link placeholders to point to the correct
+        location, based on the chunk table.'''
+        # A kindle:pos:fid link contains two base 32 numbers of the form
+        # XXXX:YYYYYYYYYY
+        # The first number is an index into the chunk table and the second is
+        # an offset from the start of the chunk to the start of the tag pointed
+        # to by the link.
+        aid_map = {} # Map of aid to (pos, fid)
         for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
-            aid_map[match.group(1)] = match.start()
+            offset = match.start()
+            pos_fid = None
+            for chunk in self.chunk_table:
+                if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos)
+                    break
+                if chunk.insert_pos > offset:
+                    # This aid is in the skeleton, not in a chunk, so we use
+                    # the chunk immediately after
+                    pos_fid = (chunk.sequence_number, 0)
+                    break
+            if pos_fid is None:
+                raise ValueError('Could not find chunk for aid: %r'%
+                        match.group(1))
+            aid_map[match.group(1)] = pos_fid
+
         self.aid_offset_map = aid_map
 
-        def to_placeholder(x):
-            file_number, aid = x
-            return bytes('%04d:%s'%(file_number, to_href(aid_map[aid])))
+        def to_placeholder(aid):
+            pos, fid = aid_map[aid]
+            pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
+            return bytes(':off:'.join((pos, fid)))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}
@@ -354,12 +376,13 @@ class Chunker(object):
             raw = match.group()
             pl = match.group(1)
             try:
-                return raw[:-15] + placeholder_map[pl]
+                return raw[:-19] + placeholder_map[pl]
             except KeyError:
                 pass
             return raw
 
-        return re.sub(br'<[^>]+(kindle:pos:fid:\d{4}:\d{10})', sub, text)
+        return re.sub(br'<[^>]+(kindle:pos:fid:0000:off:[0-9A-Za-z]{10})', sub,
+                text)
 
     def dump(self, orig_dumps):
         import tempfile, shutil, os
@@ -369,10 +392,15 @@ class Chunker(object):
             shutil.rmtree(tdir)
         orig = os.path.join(tdir, 'orig')
         rebuilt = os.path.join(tdir, 'rebuilt')
-        for x in (orig, rebuilt):
+        chunks = os.path.join(tdir, 'chunks')
+        for x in (orig, rebuilt, chunks):
             os.makedirs(x)
         error = False
         for i, skeleton in enumerate(self.skeletons):
+            for j, chunk in enumerate(skeleton.chunks):
+                with open(os.path.join(chunks, 'file-%d-chunk-%d.html'%(i, j)),
+                        'wb') as f:
+                    f.write(chunk.raw)
             oraw, rraw = orig_dumps[i], skeleton.rebuild()
             with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
                 f.write(oraw)
