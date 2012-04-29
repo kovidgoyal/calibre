@@ -78,7 +78,7 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="buttonsLayout">
      <property name="spacing">
       <number>-1</number>
      </property>
@@ -146,25 +146,92 @@
      </item>
      <item>
       <widget class="QPushButton" name="sr_save">
-       <property name="toolTip">
-        <string>Save this list of expressions so that you can re-use it easily</string>
-       </property>
-       <property name="text">
-        <string>&amp;Save</string>
-       </property>
+	    <property name="enabled">
+		  <bool>false</bool>
+	    </property>
+        <property name="toolTip">
+          <string>Save this list of expressions so that you can re-use it easily</string>
+        </property>
+        <property name="text">
+          <string>&amp;Save</string>
+        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item row="3" column="0">
-    <widget class="QTableWidget" name="search_replace">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-    </widget>
+     <layout class="QHBoxLayout" name="searchReplaceLayout">
+	   <property name="spacing">
+	     <number>-1</number>
+	   </property>
+	   <property name="leftMargin">
+	     <number>0</number>
+	   </property>
+	   <item>
+         <widget class="QTableWidget" name="search_replace">
+           <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+         </widget>
+	   </item>
+	   <item>
+	     <layout class="QVBoxLayout" name="positionLayout">
+		   <item>
+             <widget class="QPushButton" name="sr_up">
+			   <property name="sizePolicy">
+			     <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                 </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                 <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                 </size>
+			   </property> 
+			   <property name="enabled">
+                 <bool>false</bool>
+               </property>
+               <property name="toolTip">
+				 <string>Reorder selected expression above previous one.</string>
+			   </property>
+			   <property name="text">
+				 <string>&#8743;</string>
+               </property>
+             </widget>
+           </item>
+		   <item>
+             <widget class="QPushButton" name="sr_down">
+			   <property name="sizePolicy">
+			     <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                 </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                 <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                 </size>
+			   </property>
+			   <property name="enabled">
+                 <bool>false</bool>
+               </property>
+ 			   <property name="toolTip">
+				  <string>Reorder selected expression below next one.</string>
+			   </property>
+			   <property name="text">
+				 <string>&#8744;</string>
+               </property>
+             </widget>
+           </item>
+		 </layout>
+	   </item>
+	 </layout>   
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
