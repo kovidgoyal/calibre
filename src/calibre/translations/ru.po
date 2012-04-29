@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-24 17:44+0000\n"
+"PO-Revision-Date: 2012-04-28 17:18+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-04-29 04:44+0000\n"
 "X-Generator: Launchpad (build 15149)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -12813,7 +12813,7 @@ msgstr "Плохое расположение базы данных"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:180
 #, python-format
 msgid "Bad database location %r. calibre will now quit."
-msgstr ""
+msgstr "Неверное расположение базы данных %r. calibre прекращает работу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:517
@@ -12827,12 +12827,17 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
+"База данных библиотеки %s похоже повреждена. Вы желаете что бы calibre "
+"попыталась восстановить её автоматически? Исправление может не быть "
+"полностью удачным. Если нажмёте Нет, то будет создана новая пустая "
+"бибблиотека."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:205
 #, python-format
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
+"Неверное расположение базы данных %r. Будет создана новая пустая библиотека."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:215
 #, python-format

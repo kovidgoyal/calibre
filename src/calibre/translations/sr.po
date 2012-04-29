@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-27 08:25+0000\n"
+"PO-Revision-Date: 2012-04-28 15:35+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-04-29 04:44+0000\n"
 "X-Generator: Launchpad (build 15149)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3917,7 +3917,7 @@ msgstr "Наслов"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1066
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
 msgid "Author(s)"
-msgstr "Аутор(и)"
+msgstr "Аутор"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:775
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:65
@@ -7459,7 +7459,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "Keep &ligatures"
-msgstr "Задржиј &лигатуре"
+msgstr "Задржи &лигатуре"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:148
 msgid "&Linearize tables"
@@ -8141,7 +8141,7 @@ msgid ""
 "Detection"
 msgstr ""
 "Одређивање\n"
-"структуре."
+"структуре"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -8197,7 +8197,7 @@ msgstr "Уклони &лажне ивице"
 msgid ""
 "Table of\n"
 "Contents"
-msgstr "Садржај."
+msgstr "Садржај"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
@@ -12066,7 +12066,7 @@ msgstr "На уређају."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
 msgid "Size (MB)"
-msgstr "Величина (МБ)."
+msgstr "Величина (МБ)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:275
@@ -13128,7 +13128,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Аутоматско додавање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -13143,11 +13143,11 @@ msgstr "Низак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Веома низак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
-msgstr ""
+msgstr "Сажети метаподаци"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Default"
@@ -13173,7 +13173,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr ""
+msgstr "Да/Не колоне имају три вредности (Захтева препокретање)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:151
 msgid "Automatically send downloaded &news to ebook reader"
@@ -13246,16 +13246,16 @@ msgstr "&Омогући сва искључена питања за потврд
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "is true"
-msgstr ""
+msgstr "Истина је"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:33
 msgid "is false"
-msgstr ""
+msgstr "Нетачно је"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:29
 msgid "is undefined"
-msgstr ""
+msgstr "Недефинисан је"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:36
 msgid "has id"
@@ -13263,7 +13263,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
 msgid "does not have id"
-msgstr ""
+msgstr "нема id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
 msgid "is equal to"
@@ -13279,19 +13279,19 @@ msgstr "је веће од"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "has"
-msgstr ""
+msgstr "има"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:46
 msgid "does not have"
-msgstr ""
+msgstr "нема"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "has pattern"
-msgstr ""
+msgstr "има шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have pattern"
-msgstr ""
+msgstr "нема шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
@@ -13313,11 +13313,11 @@ msgstr "није"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "одговара шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "не одговара шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
@@ -13331,19 +13331,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:213
 msgid "Enter a number"
-msgstr ""
+msgstr "Унесите број"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:218
 msgid "Enter a date in the format YYYY-MM-DD"
-msgstr ""
+msgstr "Унесите датум у формату YYYY-MM-DD"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:220
 msgid "Enter a string."
-msgstr ""
+msgstr "Унесите низ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:222
 msgid "Enter a regular expression"
-msgstr ""
+msgstr "Унесите прави израз"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:224
 #, python-format
@@ -13352,7 +13352,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:239
 msgid "Create/edit a column coloring rule"
-msgstr ""
+msgstr "Направи/измени правила бојења колоне"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:244
 msgid "Create a coloring rule by filling in the boxes below"
@@ -13368,15 +13368,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:276
 msgid "Add another condition"
-msgstr ""
+msgstr "Додај још један услов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:280
 msgid "You can disable a condition by blanking all of its boxes"
-msgstr ""
+msgstr "Можете да онемогућите стање затамњења по свим својим пољима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:352
 msgid "Invalid condition"
-msgstr ""
+msgstr "Неважећи услов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:353
 #, python-format
@@ -13385,11 +13385,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:358
 msgid "No conditions"
-msgstr ""
+msgstr "Нема услова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:359
 msgid "You must specify at least one non-empty condition for this rule"
-msgstr ""
+msgstr "Морате навести бар један услов за ово правило"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:447
 #, python-format
@@ -13433,7 +13433,7 @@ msgstr "Уклони правило"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:511
 msgid "Move the selected rule up"
-msgstr ""
+msgstr "Премести изабрано правило горе"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:516
 msgid "Move the selected rule down"
@@ -13717,7 +13717,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
 msgid "&Lookup name"
-msgstr "&Име за претрагу."
+msgstr "&Име за претрагу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
 msgid "Column &heading"
