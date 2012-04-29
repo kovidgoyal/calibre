@@ -262,9 +262,11 @@ class BooksView(QTableView): # {{{
         self.selected_ids = [idc(r) for r in selected_rows]
 
     def sorting_done(self, indexc):
+        pos = self.horizontalScrollBar().value()
         self.select_rows(self.selected_ids, using_ids=True, change_current=True,
             scroll=True)
         self.selected_ids = []
+        self.horizontalScrollBar().setValue(pos)
 
     def sort_by_named_field(self, field, order, reset=True):
         if field in self.column_map:

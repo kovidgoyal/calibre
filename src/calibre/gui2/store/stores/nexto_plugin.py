@@ -68,8 +68,8 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     title = ''.join(data.xpath('.//a[@class="title"]/text()'))
                     title = re.sub(r' - ebook$', '', title)
                     formats = ', '.join(data.xpath('.//ul[@class="formats_available"]/li//b/text()'))
-                    DrmFree = re.search(r'bez.DRM', formats)
-                    formats = re.sub(r'\(.+\)', '', formats)
+                    DrmFree = re.search(r'znak', formats)
+                    formats = re.sub(r'\ ?\(.+?\)', '', formats)
 
                     author = ''
                     with closing(br.open('http://www.nexto.pl/' + id.strip(), timeout=timeout/4)) as nf:

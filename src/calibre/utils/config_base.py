@@ -418,7 +418,7 @@ def _prefs():
     c.add_opt('limit_search_columns_to',
             default=['title', 'authors', 'tags', 'series', 'publisher'],
             help=_('Choose columns to be searched when not using prefixes, '
-                'as for example, when searching for Redd instead of '
+                'as for example, when searching for Red instead of '
                 'title:Red. Enter a list of search/lookup names '
                 'separated by commas. Only takes effect if you set the option '
                 'to limit search columns above.'))

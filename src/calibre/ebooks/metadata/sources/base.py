@@ -112,6 +112,18 @@ def get_cached_cover_urls(mi):
         if url:
             yield (p, url)
 
+def dump_caches():
+    from calibre.customize.ui import metadata_plugins
+    return {p.name:p.dump_caches() for p in metadata_plugins(['identify'])}
+
+def load_caches(dump):
+    from calibre.customize.ui import metadata_plugins
+    plugins = list(metadata_plugins(['identify']))
+    for p in plugins:
+        cache = dump.get(p.name, None)
+        if cache:
+            p.load_caches(cache)
+
 def cap_author_token(token):
     lt = lower(token)
     if lt in ('von', 'de', 'el', 'van', 'le'):
@@ -292,6 +304,16 @@ class Source(Plugin):
     def cached_identifier_to_cover_url(self, id_):
         with self.cache_lock:
             return self._identifier_to_cover_url_cache.get(id_, None)
+
+    def dump_caches(self):
+        with self.cache_lock:
+            return {'isbn_to_identifier':self._isbn_to_identifier_cache.copy(),
+                    'identifier_to_cover':self._identifier_to_cover_url_cache.copy()}
+
+    def load_caches(self, dump):
+        with self.cache_lock:
+            self._isbn_to_identifier_cache.update(dump['isbn_to_identifier'])
+            self._identifier_to_cover_url_cache.update(dump['identifier_to_cover'])
 
     # }}}
 

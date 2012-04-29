@@ -1,5 +1,7 @@
 #  Test with "\Program Files\Calibre2\ebook-convert.exe" RealClear.recipe .epub --test -vv --debug-pipeline debug
+import re
 import time
+from urlparse import urlparse
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import NavigableString
 
@@ -20,12 +22,13 @@ class RealClear(BasicNewsRecipe):
     # Don't go down
     recursions      = 0
     max_articles_per_feed = 400
-    debugMessages = False
+    debugMessages = True
 
     # Numeric parameter is type, controls whether we look for
     feedsets = [
-                ["Politics",        "http://www.realclearpolitics.com/index.xml", 0],
-                ["Science",         "http://www.realclearscience.com/index.xml", 0],
+                ["Politics",        "http://www.realclearpolitics.com/index.xml",   0],
+                ["Policy",           "http://www.realclearpolicy.com/index.xml", 0],
+                ["Science",         "http://www.realclearscience.com/index.xml",    0],
                 ["Tech",            "http://www.realcleartechnology.com/index.xml", 0],
                 # The feedburner is essentially the same as the top feed, politics.
                 # ["Politics Burner", "http://feeds.feedburner.com/realclearpolitics/qlMj", 1],
@@ -37,7 +40,9 @@ class RealClear(BasicNewsRecipe):
             ]
     # Hints to extractPrintURL.
     # First column is the URL snippet.  Then the string to search for as text, and the attributes to look for above it.  Start with attributes and drill down.
-    printhints = [
+    phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
+
+    printhints = [  ["realclear",           "",                            '' , 'printpage'],
                     ["billoreilly.com",     "Print this entry",            'a', ''],
                     ["billoreilly.com",     "Print This Article",          'a', ''],
                     ["politico.com",        "Print",                       'a', 'share-print'],
@@ -48,11 +53,24 @@ class RealClear(BasicNewsRecipe):
                     # usatoday - just prints with all current crap anyhow
 
             ]
+     # RCP - look for a strange compound.  See http://www.realclearpolitics.com/articles/2012/01/24/in_speech_obama_to_call_for_fairness_--_and_four_more_years_112879.html
+     # The print link isn't obvious, and only the end is needed (the -full append.)  SO maybe try that first?s
+     # http://www.realclearpolitics.com/printpage/?url=http://www.realclearpolitics.com/articles/2012/01/24/in_speech_obama_to_call_for_fairness_--_and_four_more_years_112879-full.html
+     # Single page articles don't have a _full; e.g. http://www.realclearpolitics.com/articles/2012/01/25/obamas_green_robber_barons_112897.html
+     # Use the FULL PRINTPAGE URL; it formats it better too!
+     #
+     # NYT - try single page...
+     # Need special code - is it one page or several?  Which URL?
+     # from  http://www.nytimes.com/2012/01/22/business/apple-america-and-a-squeezed-middle-class.html?_r=1
+     # to    http://www.nytimes.com/2012/01/22/business/apple-america-and-a-squeezed-middle-class.html?_r=1&pagewanted=all
+     # which is at link rel="canonical"   and at        <meta property="og:url"    or look for "Single Page"
 
     # Returns the best-guess print url.
     # The second parameter (pageURL) is returned if nothing is found.
     def extractPrintURL(self, pageURL):
         tagURL = pageURL
+        baseParse = urlparse(pageURL)
+        baseURL = baseParse[0]+"://"+baseParse[1]
         hintsCount =len(self.printhints)
         for x in range(0,hintsCount):
             if pageURL.find(self.printhints[x][0])== -1 :
@@ -62,23 +80,37 @@ class RealClear(BasicNewsRecipe):
             soup = self.index_to_soup(pageURL)
             if soup is None:
                 return pageURL
-            if len(self.printhints[x][3])>0 and len(self.printhints[x][1]) == 0:
+            if  len(self.printhints[x][self.phHrefSearch])>0 and len(self.printhints[x][self.phLinkText]) == 0:
+                # e.g. RealClear
                 if self.debugMessages == True :
-                    print("search1")
+                    print("Search by href: "+self.printhints[x][self.phHrefSearch])
+                printFind = soup.find(href=re.compile(self.printhints[x][self.phHrefSearch]))
+            elif len(self.printhints[x][3])>0 and len(self.printhints[x][1]) == 0:
+                if self.debugMessages == True :
+                    print("Search 1: "+self.printhints[x][2]+" Attributes: ")
+                    print(self.printhints[x][3])
                 printFind = soup.find(self.printhints[x][2], attrs=self.printhints[x][3])
             elif  len(self.printhints[x][3])>0 :
                 if self.debugMessages == True :
                     print("search2")
                 printFind = soup.find(self.printhints[x][2], attrs=self.printhints[x][3], text=self.printhints[x][1])
             else :
+                if self.debugMessages == True:
+                    print("Default Search: "+self.printhints[x][2]+" Text: "+self.printhints[x][1])
                 printFind = soup.find(self.printhints[x][2], text=self.printhints[x][1])
             if printFind is None:
                 if self.debugMessages == True :
                     print("Not Found")
+                    # print(soup)
+                    print("end soup\n\n");
                 continue
+
             print(printFind)
             if isinstance(printFind, NavigableString)==False:
                 if printFind['href'] is not None:
+                    print("Check "+printFind['href']+" for base of "+baseURL)
+                    if printFind['href'].find("http")!=0 :
+                        return baseURL+printFind['href']
                     return printFind['href']
             tag = printFind.parent
             print(tag)
@@ -158,6 +190,7 @@ class RealClear(BasicNewsRecipe):
     def parse_index(self):
         # Parse the page into Python Soup
 
+        #articleList = []
         ans = []
         feedsCount = len(self.feedsets)
         for x in range(0,feedsCount): # should be ,4
@@ -167,4 +200,5 @@ class RealClear(BasicNewsRecipe):
         if self.debugMessages == True :
             print(ans)
         return ans
+
 

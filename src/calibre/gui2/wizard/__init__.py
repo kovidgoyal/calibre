@@ -887,8 +887,8 @@ class Wizard(QWizard):
         for pid in self.pageIds():
             page = self.page(pid)
             page.retranslateUi(page)
-        self.set_finish_text()
         self.set_button_texts()
+        self.set_finish_text()
 
     def accept(self):
         pages = map(self.page, self.visitedPages())

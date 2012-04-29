@@ -7,14 +7,15 @@ class Gram_pl(BasicNewsRecipe):
     category       = 'games'
     language       = 'pl'
     oldest_article = 8
+    index='http://www.gram.pl'
     max_articles_per_feed = 100
     no_stylesheets= True
-    extra_css = 'h2 {font-style: italic;  font-size:20px;}'
+    extra_css = 'h2 {font-style: italic;  font-size:20px;} .picbox div {float: left;}'
     cover_url=u'http://www.gram.pl/www/01/img/grampl_zima.png'
     remove_tags= [dict(name='p', attrs={'class':['extraText', 'must-log-in']}), dict(attrs={'class':['el', 'headline', 'post-info']}), dict(name='div', attrs={'class':['twojaOcena', 'comment-body', 'comment-author vcard', 'comment-meta commentmetadata', 'tw_button']}), dict(id=['igit_rpwt_css', 'comments', 'reply-title', 'igit_title'])]
     keep_only_tags= [dict(name='div', attrs={'class':['main', 'arkh-postmetadataheader', 'arkh-postcontent', 'post', 'content', 'news_header', 'news_subheader', 'news_text']}), dict(attrs={'class':['contentheading', 'contentpaneopen']})]
-    feeds          = [(u'gram.pl - informacje', u'http://www.gram.pl/feed_news.asp'),
-	      (u'gram.pl - publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')]
+    feeds          = [(u'Informacje', u'http://www.gram.pl/feed_news.asp'),
+	      (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')]
 
     def parse_feeds (self): 
       feeds = BasicNewsRecipe.parse_feeds(self) 
@@ -23,3 +24,36 @@ class Gram_pl(BasicNewsRecipe):
           if 'REKLAMA SKLEP' in article.title.upper() or u'ARTYKUŁ:' in article.title.upper():
             feed.articles.remove(article)
       return feeds
+
+    def append_page(self, soup, appendtag):
+        nexturl = appendtag.find('a', attrs={'class':'cpn'})
+        while nexturl:
+            soup2 = self.index_to_soup('http://www.gram.pl'+ nexturl['href'])
+            r=appendtag.find(id='pgbox')
+            if r:
+                r.extract()
+            pagetext = soup2.find(attrs={'class':'main'})
+            r=pagetext.find('h1')
+            if r:
+                r.extract()
+            r=pagetext.find('h2')
+            if r:
+                r.extract()
+            for r in pagetext.findAll('script'):
+                r.extract()
+            pos = len(appendtag.contents)
+            appendtag.insert(pos, pagetext)
+            nexturl = appendtag.find('a', attrs={'class':'cpn'})
+        r=appendtag.find(id='pgbox')
+        if r:
+           r.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        tag=soup.findAll(name='div', attrs={'class':'picbox'})
+        for t in tag:
+            t['style']='float: left;'
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

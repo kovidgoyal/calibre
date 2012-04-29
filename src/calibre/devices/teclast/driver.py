@@ -57,7 +57,8 @@ class PICO(NEWSMY):
     gui_name = 'Pico'
     description    = _('Communicate with the Pico reader.')
 
-    WINDOWS_MAIN_MEM = 'USBDISK__USER'
+    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'LASER-']
+    WINDOWS_MAIN_MEM = ['USBDISK__USER', 'EB720']
     EBOOK_DIR_MAIN = 'Books'
     FORMATS = ['EPUB', 'FB2', 'TXT', 'LRC', 'PDB', 'PDF', 'HTML', 'WTXT']
 

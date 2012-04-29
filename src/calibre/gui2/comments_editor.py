@@ -9,10 +9,10 @@ import re, os
 
 from lxml import html
 
-from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
-    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, \
-    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog, \
-    QHBoxLayout
+from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
+    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl,
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog,
+    QHBoxLayout, QKeySequence)
 from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
@@ -32,6 +32,7 @@ class PageAction(QAction): # {{{
                 type=Qt.QueuedConnection)
         self.page_action.changed.connect(self.update_state,
                 type=Qt.QueuedConnection)
+        self.update_state()
 
     @property
     def page_action(self):
@@ -65,6 +66,12 @@ class EditorWidget(QWebView): # {{{
         QWebView.__init__(self, parent)
 
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+
+        extra_shortcuts = {
+                'ToggleBold': 'Bold',
+                'ToggleItalic': 'Italic',
+                'ToggleUnderline': 'Underline',
+        }
 
         for wac, name, icon, text, checkable in [
                 ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
@@ -106,6 +113,9 @@ class EditorWidget(QWebView): # {{{
             ]:
             ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
+            ss = extra_shortcuts.get(wac, None)
+            if ss:
+                ac.setShortcut(QKeySequence(getattr(QKeySequence, ss)))
 
         self.action_color = QAction(QIcon(I('format-text-color')), _('Foreground color'),
                 self)

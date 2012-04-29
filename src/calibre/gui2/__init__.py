@@ -105,6 +105,7 @@ gprefs.defaults['show_files_after_save'] = True
 gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
+gprefs.defaults['auto_add_auto_convert'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -639,6 +640,26 @@ def choose_files(window, name, title,
     if fd.accepted:
         return fd.get_files()
     return None
+
+def choose_save_file(window, name, title, filters=[], all_files=True):
+    '''
+    Ask user to choose a file to save to. Can be a non-existent file.
+    :param filters: list of allowable extensions. Each element of the list
+                     must be a 2-tuple with first element a string describing
+                     the type of files to be filtered and second element a list
+                     of extensions.
+    :param all_files: If True add All files to filters.
+    '''
+    mode = QFileDialog.AnyFile
+    fd = FileDialog(title=title, name=name, filters=filters,
+                    parent=window, add_all_files_filter=all_files, mode=mode)
+    fd.setParent(None)
+    ans = None
+    if fd.accepted:
+        ans = fd.get_files()
+        if ans:
+            ans = ans[0]
+    return ans
 
 def choose_images(window, name, title, select_only_single_file=True):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles

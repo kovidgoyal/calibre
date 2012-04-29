@@ -29,4 +29,4 @@ class SearchResult(object):
         self.plugin_author = ''
 
     def __eq__(self, other):
-        return self.title == other.title and self.author == other.author and self.store_name == other.store_name
+        return self.title == other.title and self.author == other.author and self.store_name == other.store_name and self.formats == other.formats

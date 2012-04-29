@@ -74,6 +74,11 @@ def base_dir():
 
     return _base_dir
 
+def reset_base_dir():
+    global _base_dir
+    _base_dir = None
+    base_dir()
+
 def force_unicode(x):
     # Cannot use the implementation in calibre.__init__ as it causes a circular
     # dependency

@@ -259,7 +259,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw4', 'pobi'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -289,7 +289,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 class PDBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read PDB metadata'
-    file_types  = set(['pdb'])
+    file_types  = set(['pdb', 'updb'])
     description = _('Read metadata from %s files') % 'PDB'
     author      = 'John Schember'
 
@@ -1460,7 +1460,7 @@ class StoreNextoStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.nexto_plugin:NextoStore'
 
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
+    formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
 class StoreOpenBooksStore(StoreBase):
@@ -1558,15 +1558,6 @@ class StoreWHSmithUKStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
 
-class StoreWizardsTowerBooksStore(StoreBase):
-    name = 'Wizards Tower Books'
-    description = u'A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.'
-    actual_plugin = 'calibre.gui2.store.stores.wizards_tower_books_plugin:WizardsTowerBooksStore'
-
-    drm_free_only = True
-    headquarters = 'UK'
-    formats = ['EPUB', 'MOBI']
-
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = u'Tomasz Długosz'
@@ -1574,7 +1565,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.woblink_plugin:WoblinkStore'
 
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF', 'WOBLINK']
+    formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
@@ -1637,7 +1628,6 @@ plugins += [
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
-    StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
     XinXiiStore,
     StoreZixoStore

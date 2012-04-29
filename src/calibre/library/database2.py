@@ -434,6 +434,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
         self.FIELD_MAP['marked'] = base = base+1
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
+        self.FIELD_MAP['series_sort'] = base = base+1
+        self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -2651,6 +2653,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
         new_name = new_name.replace(',', '|').strip()
+        if not new_name:
+            new_name = _('Unknown')
 
         # Get the list of books we must fix up, one way or the other
         # Save the list so we can use it twice
@@ -3241,7 +3245,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return id
 
 
-    def add_books(self, paths, formats, metadata, add_duplicates=True):
+    def add_books(self, paths, formats, metadata, add_duplicates=True,
+            return_ids=False):
         '''
         Add a book to the database. The result cache is not updated.
         :param:`paths` List of paths to book files or file-like objects
@@ -3286,8 +3291,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             paths    = list(duplicate[0] for duplicate in duplicates)
             formats  = list(duplicate[1] for duplicate in duplicates)
             metadata = list(duplicate[2] for duplicate in duplicates)
-            return (paths, formats, metadata), len(ids)
-        return None, len(ids)
+            return (paths, formats, metadata), (ids if return_ids else
+                    len(ids))
+        return None, (ids if return_ids else len(ids))
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,
             apply_import_tags=True, preserve_uuid=False):

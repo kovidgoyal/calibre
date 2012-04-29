@@ -307,10 +307,20 @@ class PRST1(USBMS):
 
         # Work-around for Sony Bug (SD Card DB not using right SQLite sequence)
         if source_id == 1:
+			# Update any existing sequence numbers in the table that aren't in the required range
             sdcard_sequence_start = '4294967296'
             query = 'UPDATE sqlite_sequence SET seq = ? WHERE seq < ?'
             t = (sdcard_sequence_start, sdcard_sequence_start,)
             cursor.execute(query, t)
+
+			# Insert sequence numbers for tables we will be manipulating, if they don't already exist
+			query = ('INSERT INTO sqlite_sequence (name, seq) ' 
+					'SELECT ?, ? '
+				    'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
+			cursor.execute(query, ('books',sdcard_sequence_start,'books',))
+			cursor.execute(query, ('collection',sdcard_sequence_start,'collection',))
+			cursor.execute(query, ('collections',sdcard_sequence_start,'collections',))
+			
 
         for book in booklist:
             # Run through plugboard if needed

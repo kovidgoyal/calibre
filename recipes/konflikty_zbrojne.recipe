@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Konflikty(BasicNewsRecipe):
     title          = u'Konflikty Zbrojne'
@@ -10,6 +11,23 @@ class Konflikty(BasicNewsRecipe):
     category='military, history'
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup = True
+    no_stylesheets = True
+    keep_only_tags=[dict(attrs={'class':['title1', 'image']}), dict(id='body')]
 
-    feeds          = [(u'Aktualności', u'http://www.konflikty.pl/rss_aktualnosci_10.xml'), (u'Artyku\u0142y', u'http://www.konflikty.pl/rss_artykuly_10.xml'), (u'Relacje', u'http://www.konflikty.pl/rss_relacje_10.xml'), (u'Recenzje', u'http://www.konflikty.pl/rss_recenzje_10.xml')]
+    feeds          = [(u'Aktualności', u'http://www.konflikty.pl/rss_aktualnosci_10.xml'),
+		(u'Artyku\u0142y', u'http://www.konflikty.pl/rss_artykuly_10.xml'),
+		(u'Historia', u'http://www.konflikty.pl/rss_historia_10.xml'),
+		(u'Militaria', u'http://www.konflikty.pl/rss_militaria_10.xml'),
+		(u'Relacje', u'http://www.konflikty.pl/rss_relacje_10.xml'),
+		(u'Recenzje', u'http://www.konflikty.pl/rss_recenzje_10.xml'),
+		(u'Teksty źródłowe', u'http://www.konflikty.pl/rss_tekstyzrodlowe_10.xml')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for image in soup.findAll(name='a', attrs={'class':'image'}):
+            if image.img and image.img.has_key('alt'):
+                image.name='div'
+                pos = len(image.contents)
+                image.insert(pos, BeautifulSoup('<p style="font-style:italic;">'+image.img['alt']+'</p>'))
+        return soup

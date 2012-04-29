@@ -12,6 +12,7 @@ import inspect, re, traceback
 
 from calibre import human_readable
 from calibre.constants import DEBUG
+from calibre.ebooks.metadata import title_sort
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -836,6 +837,17 @@ class BuiltinOndevice(BuiltinFormatterFunction):
             return _('Yes')
         return ''
 
+class BuiltinSeriesSort(BuiltinFormatterFunction):
+    name = 'series_sort'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('series_sort() -- return the series sort value')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if mi.series:
+            return title_sort(mi.series)
+        return ''
+
 class BuiltinHasCover(BuiltinFormatterFunction):
     name = 'has_cover'
     arg_count = 0
@@ -1149,8 +1161,8 @@ _formatter_builtins = [
     BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
-    BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
-    BuiltinStrcatMax(),
+    BuiltinRe(), BuiltinSelect(), BuiltinSeriesSort(), BuiltinShorten(),
+    BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),

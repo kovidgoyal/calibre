@@ -71,7 +71,7 @@ class AddAction(InterfaceAction):
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut=_('Shift+A'))
         self.add_menu.addSeparator()
-        ma('add-config', _('Configure the adding of books'),
+        ma('add-config', _('Control the adding of books'),
                 triggered=self.add_config)
 
         self.qaction.triggered.connect(self.add_books)

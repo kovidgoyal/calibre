@@ -6,8 +6,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
-        QApplication, QCompleter
+from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
+        QApplication, QCompleter, pyqtSignal)
 
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
@@ -158,6 +158,8 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
 
 class MultiCompleteComboBox(EnComboBox):
 
+    clear_edit_text = pyqtSignal()
+
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(MultiCompleteLineEdit(self))
@@ -169,6 +171,8 @@ class MultiCompleteComboBox(EnComboBox):
         self.dummy_model = CompleteModel(self)
         c.setModel(self.dummy_model)
         self.lineEdit()._completer.setWidget(self)
+        self.clear_edit_text.connect(self.clearEditText,
+                type=Qt.QueuedConnection)
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
@@ -182,14 +186,26 @@ class MultiCompleteComboBox(EnComboBox):
     def set_add_separator(self, what):
         self.lineEdit().set_add_separator(what)
 
-
+    def show_initial_value(self, what):
+        '''
+        Show an initial value. Handle the case of the initial value being blank
+        correctly (on Qt 4.8.0 having a blank value causes the first value from
+        the completer to be shown, when the event loop runs).
+        '''
+        what = unicode(what)
+        le = self.lineEdit()
+        if not what.strip():
+            self.clear_edit_text.emit()
+        else:
+            self.setEditText(what)
+            le.selectAll()
 
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
     app = QApplication([])
     d = QDialog()
     d.setLayout(QVBoxLayout())
-    le = MultiCompleteLineEdit(d)
+    le = MultiCompleteComboBox(d)
     d.layout().addWidget(le)
     le.all_items = ['one', 'otwo', 'othree', 'ooone', 'ootwo', 'oothree']
     d.exec_()

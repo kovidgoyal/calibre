@@ -218,7 +218,7 @@ class _CompileParser(_Parser):
 
     def expr(self, level):
         if self.compile_text:
-            self.max_level = max(level, self.max_level)
+            self.max_level = max(level+1, self.max_level)
 
         if self.token_is_id():
             funcs = formatter_functions().get_functions()

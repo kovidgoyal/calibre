@@ -17,21 +17,8 @@ class Overclock_pl(BasicNewsRecipe):
     remove_tags=[dict(name='span', attrs={'class':'info'}), dict(attrs={'class':'shareit'})]
     feeds          = [(u'Aktualno\u015bci', u'http://www.overclock.pl/rss.news.xml'), (u'Testy i recenzje', u'http://www.overclock.pl/rss.articles.xml')]
 
-
-    def append_page(self, soup, appendtag):
-        tag=soup.find(id='navigation')
-        if tag:
-            nexturl=tag.findAll('option')
-            tag.extract()
-            for nextpage in nexturl[2:]:
-               soup2 = self.index_to_soup(nextpage['value'])
-               pagetext = soup2.find(id='content')
-               pos = len(appendtag.contents)
-               appendtag.insert(pos, pagetext)
-            rem=appendtag.find(attrs={'alt':'Pierwsza'})
-            if rem:
-                rem.parent.extract()
-
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
-        return soup
+    def print_version(self, url):
+        if 'articles/show' in url:
+            return url.replace('show', 'showall')
+        else:
+            return url
