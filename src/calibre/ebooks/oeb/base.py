@@ -77,7 +77,7 @@ def XLINK(name):
 def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
-_css_url_re = re.compile(r'url\s*\((.*?)\)', re.I)
+_css_url_re = re.compile(r'url\s*\([\'"]{0,1}(.*?)[\'"]{0,1}\)', re.I)
 _css_import_re = re.compile(r'@import "(.*?)"')
 _archive_re = re.compile(r'[^ ]+')
 
@@ -197,13 +197,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 new = cur[:pos] + new_link + cur[pos+len(link):]
                 el.attrib[attrib] = new
 
-    def set_property(v):
-        if v.CSS_PRIMITIVE_VALUE == v.cssValueType and \
-           v.CSS_URI == v.primitiveType:
-                v.setStringValue(v.CSS_URI,
-                        link_repl_func(v.getStringValue()))
-
-    for el in root.iter():
+    for el in root.iter(etree.Element):
         try:
             tag = el.tag
         except UnicodeDecodeError:
@@ -212,7 +206,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if tag == XHTML('style') and el.text and \
                 (_css_url_re.search(el.text) is not None or '@import' in
                         el.text):
-            stylesheet = parseString(el.text)
+            stylesheet = parseString(el.text, validate=False)
             replaceUrls(stylesheet, link_repl_func)
             repl = stylesheet.cssText
             if isbytestring(repl):
@@ -223,17 +217,11 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
                 try:
-                    stext = parseStyle(text)
+                    stext = parseStyle(text, validate=False)
                 except:
                     # Parsing errors are raised by cssutils
                     continue
-                for p in stext.getProperties(all=True):
-                    v = p.cssValue
-                    if v.CSS_VALUE_LIST == v.cssValueType:
-                        for item in v:
-                            set_property(item)
-                    elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
-                        set_property(v)
+                replaceUrls(stext, link_repl_func)
                 repl = stext.cssText.replace('\n', ' ').replace('\r',
                         ' ')
                 if isbytestring(repl):
@@ -861,7 +849,7 @@ class Manifest(object):
             parser = CSSParser(loglevel=logging.WARNING,
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
-            data = parser.parseString(data, href=self.href)
+            data = parser.parseString(data, href=self.href, validate=False)
             data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
             return data

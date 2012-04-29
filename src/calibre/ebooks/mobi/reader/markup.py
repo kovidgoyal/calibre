@@ -223,15 +223,15 @@ def insert_images_into_markup(parts, resource_map, log):
     # Handle any embedded raster images links in the xhtml text
     # kindle:embed:XXXX?mime=image/gif (png, jpeg, etc) (used for images)
     img_pattern = re.compile(r'''(<[img\s|image\s][^>]*>)''', re.IGNORECASE)
-    img_index_pattern = re.compile(r'''['"]kindle:embed:([0-9|A-V]+)[^'"]*['"]''')
+    img_index_pattern = re.compile(r'''[('"]kindle:embed:([0-9|A-V]+)[^')"]*[)'"]''')
+
+    style_pattern = re.compile(r'''(<[a-zA-Z0-9]+\s[^>]*style\s*=\s*[^>]*>)''',
+            re.IGNORECASE)
+
     for i in xrange(len(parts)):
         part = parts[i]
-        #[partnum, dir, filename, beg, end, aidtext] = self.k8proc.partinfo[i]
-
-        # links to raster image files
-        # image_pattern
         srcpieces = img_pattern.split(part)
-        for j in range(1, len(srcpieces), 2):
+        for j in xrange(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag.startswith('<im'):
                 for m in img_index_pattern.finditer(tag):
@@ -247,6 +247,30 @@ def insert_images_into_markup(parts, resource_map, log):
         part = "".join(srcpieces)
         # store away modified version
         parts[i] = part
+
+    # Replace urls used in style attributes
+    for i in xrange(len(parts)):
+        part = parts[i]
+        srcpieces = style_pattern.split(part)
+        for j in xrange(1, len(srcpieces), 2):
+            tag = srcpieces[j]
+            if 'kindle:embed' in tag:
+                for m in img_index_pattern.finditer(tag):
+                    num = int(m.group(1), 32)
+                    href = resource_map[num-1]
+                    osep = m.group()[0]
+                    csep = m.group()[-1]
+                    if href:
+                        replacement = '%s%s%s'%(osep, '../' + href, csep)
+                        tag = img_index_pattern.sub(replacement, tag, 1)
+                    else:
+                        log.warn('Referenced image %s was not recognized as '
+                                'a valid image in %s' % (num, tag))
+                srcpieces[j] = tag
+        part = "".join(srcpieces)
+        # store away modified version
+        parts[i] = part
+
 
 def upshift_markup(parts):
     tag_pattern = re.compile(r'''(<(?:svg)[^>]*>)''', re.IGNORECASE)

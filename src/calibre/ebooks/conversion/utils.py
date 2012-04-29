@@ -148,6 +148,7 @@ class HeuristicProcessor(object):
         return wordcount.words
 
     def markup_italicis(self, html):
+        self.log.debug("\n\n\nitalicize debugging \n\n\n")
         ITALICIZE_WORDS = [
             'Etc.', 'etc.', 'viz.', 'ie.', 'i.e.', 'Ie.', 'I.e.', 'eg.',
             'e.g.', 'Eg.', 'E.g.', 'et al.', 'et cetera', 'n.b.', 'N.b.',
@@ -156,28 +157,30 @@ class HeuristicProcessor(object):
         ]
 
         ITALICIZE_STYLE_PATS = [
-            ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_',
-            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
+            ur'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_',
             ur'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
-            ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
-            ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
             ur'(?msu)(?<=[\s>"“\'‘])_/(?P<words>[^/_]+)/_',
             ur'(?msu)(?<=[\s>"“\'‘])_\*(?P<words>[^\*_]+)\*_',
             ur'(?msu)(?<=[\s>"“\'‘])\*/(?P<words>[^/\*]+)/\*',
-            ur'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_',
             ur'(?msu)(?<=[\s>"“\'‘])/:(?P<words>[^:/]+):/',
             ur'(?msu)(?<=[\s>"“\'‘])\|:(?P<words>[^:\|]+):\|',
+            ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
+            ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
+            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
+            ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_'
         ]
 
         for word in ITALICIZE_WORDS:
             html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
-        def sub(mo):
-            return '<i>%s</i>'%mo.group('words')
-
+        search_text = re.sub(r'(?s)<head[^>]*>.*?</head>', '', html)
+        search_text = re.sub(r'<[^>]*>', '', search_text)
         for pat in ITALICIZE_STYLE_PATS:
-            html = re.sub(pat, sub, html)
-
+            for match in re.finditer(pat, search_text):
+                ital_string = str(match.group('words'))
+                #self.log.debug("italicising "+str(match.group(0))+"    with <i>"+ital_string+"</i>")
+                html = re.sub(re.escape(str(match.group(0))), '<i>%s</i>' % ital_string, html)
+                
         return html
 
     def markup_chapters(self, html, wordcount, blanks_between_paragraphs):

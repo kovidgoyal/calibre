@@ -2,65 +2,50 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+''' Changelog
+ 2012-04-27 DrMerry:
+  Added cover picture
+  removed some extra tags
+'''
+
 __license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Tweakers(BasicNewsRecipe):
-     title          = u'Tweakers.net - with Reactions'
-     __author__     = 'Roedi06'
+     title          = u'Tweakers.net'
+     __author__     = 'Kovid Goyal'
      language       = 'nl'
-     oldest_article = 7
-     max_articles_per_feed = 100
-     cover_url       = 'http://img51.imageshack.us/img51/7470/tweakersnetebook.gif'
+     oldest_article = 4
+     max_articles_per_feed = 40
+     cover_url      = 'http://tweakers.net/ext/launch/g/logo.gif'
 
-     keep_only_tags = [dict(name='div', attrs={'class':'columnwrapper news'}),
-    {'id':'reacties'},
-      ]
+     keep_only_tags = [dict(name='div', attrs={'class':'columnwrapper news'})]
 
-     remove_tags    = [dict(name='div', attrs={'id' : ['utracker']}),
-                        {'id' : ['channelNav']},
-                        {'id' : ['contentArea']},
-                        {'class' : ['breadCrumb']},
-                        {'class' : ['nextPrevious ellipsis']},
-                        {'class' : ['advertorial']},
-                        {'class' : ['sidebar']},
-                        {'class' : ['filterBox']},
-                        {'id' : ['toggleButtonTxt']},
-                        {'id' : ['socialButtons']},
-                        {'class' : ['button']},
-                        {'class' : ['textadTop']},
-                        {'class' : ['commentLink']},
-                        {'title' : ['Reageer op deze reactie']},
-                        {'class' : ['pageIndex']},
-        {'class' : ['reactieHeader collapsed']},
+     remove_tags    = [dict(name='div', attrs={'class':'reacties'}),
+                        {'id' : ['utracker','socialButtons','b_ac']},
+                        {'class' : ['sidebar','advertorial']},
+                        {'class' : re.compile('nextPrevious')},
                       ]
      no_stylesheets=True
+     filter_regexps = [r'ads\.doubleclick\.net',r'ad\.doubleclick\.net']
 
-     preprocess_regexps = [
-        (re.compile(r'<hr*?>', re.IGNORECASE | re.DOTALL), lambda match : ''),
-        (re.compile(r'<p>', re.IGNORECASE | re.DOTALL), lambda match : ''),
-        (re.compile(r'</p>', re.IGNORECASE | re.DOTALL), lambda match : ''),
-        (re.compile(r'<a.*?>'), lambda h1: '<b><u>'),
-        (re.compile(r'</a>'), lambda h2: '</u></b>'),
-        (re.compile(r'<span class="new">', re.IGNORECASE | re.DOTALL), lambda match : ''),
-        (re.compile(r'</span>', re.IGNORECASE | re.DOTALL), lambda match : ''),
-        (re.compile(r'<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_0'), lambda match : ' - moderated 0<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_0'),
-        (re.compile(r'<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_1'), lambda match : ' - moderated +1<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_1'),
-        (re.compile(r'<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_2'), lambda match : ' - moderated +2<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_2'),
-        (re.compile(r'<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_3'), lambda match : ' - moderated +3<div class="moderation"><img src="http://tweakimg.net/g/if/comments/score_3'),
-        (re.compile(r'<div class="moderation">.*?</div>'), lambda h1: ''),
-     ]
+     feeds          = [(u'Tweakers.net', u'http://tweakers.net/feeds/nieuws.xml')]
 
-     extra_css = '.reactieHeader { color: #333333; font-size: 6px; border-bottom:solid 2px #333333; border-top:solid 1px #333333; } \
-       .reactieContent { font-family:"Times New Roman",Georgia,Serif; color: #000000; font-size: 8px; } \
-       .quote { font-family:"Times New Roman",Georgia,Serif; padding-left:2px; border-left:solid 3px #666666; color: #666666; }'
+     def preprocess_html(self, soup):
+        for a in soup.findAll('a', href=True, rel=True):
+            if a['rel'].startswith('imageview'):
+                a['src'] = a['href']
+                del a['href']
+                a.name = 'img'
+                for x in a.findAll(True):
+                    x.extract()
+        return soup
 
-
-     feeds          = [(u'Tweakers.net', u'http://feeds.feedburner.com/tweakers/nieuws')]
-
-     def print_version(self, url):
-        return url + '?max=200'
-
+     def postprocess_html(self, soup, first):
+        for base in soup.findAll('base'):
+            base.extract()
+        return soup

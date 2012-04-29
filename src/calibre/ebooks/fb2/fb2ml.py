@@ -18,6 +18,7 @@ from lxml import etree
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.utils.magick import Image
+from calibre.utils.localization import lang_as_iso639_1
 
 class FB2MLizer(object):
     '''
@@ -103,7 +104,10 @@ class FB2MLizer(object):
         metadata['version'] = __version__
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
         if self.oeb_book.metadata.language:
-            metadata['lang'] = self.oeb_book.metadata.language[0].value
+            lc = lang_as_iso639_1(self.oeb_book.metadata.language[0].value)
+            if not lc:
+                lc = self.oeb_book.metadata.language[0].value
+            metadata['lang'] = lc or 'en'
         else:
             metadata['lang'] = u'en'
         metadata['id'] = None

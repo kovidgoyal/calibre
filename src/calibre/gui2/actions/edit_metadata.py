@@ -115,14 +115,12 @@ class EditMetadataAction(InterfaceAction):
                     ' "Show details" to see which books.')%num
 
         payload = (id_map, tdir, log_file, lm_map)
-        from calibre.gui2.dialogs.message_box import ProceedNotification
-        p = ProceedNotification(self.apply_downloaded_metadata,
+        self.gui.proceed_question(self.apply_downloaded_metadata,
                 payload, log_file,
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 cancel_callback=lambda x:self.cleanup_bulk_download(tdir),
-                parent=self.gui, log_is_file=True)
-        p.show()
+                log_is_file=True)
 
     def apply_downloaded_metadata(self, payload):
         good_ids, tdir, log_file, lm_map = payload

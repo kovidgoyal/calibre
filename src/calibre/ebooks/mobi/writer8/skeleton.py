@@ -321,13 +321,13 @@ class Chunker(object):
             s.start_pos = sp
             sp += len(s)
         self.skel_table = [Skel(s.file_number, 'SKEL%010d'%s.file_number,
-            len(s.chunks), s.start_pos, len(s.skeleton)) for x in self.skeletons]
+            len(s.chunks), s.start_pos, len(s.skeleton)) for s in self.skeletons]
 
         Chunk = namedtuple('Chunk',
             'insert_pos selector file_number sequence_number start_pos length')
-        num = cp = 0
+        num = 0
         for skel in self.skeletons:
-            cp = skel.start_pos
+            cp = 0
             for chunk in skel.chunks:
                 self.chunk_table.append(
                     Chunk(chunk.insert_pos + skel.start_pos, chunk.selector,
@@ -366,7 +366,7 @@ class Chunker(object):
         def to_placeholder(aid):
             pos, fid = aid_map[aid]
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
-            return bytes(':'.join((pos, fid)))
+            return bytes(':off:'.join((pos, fid)))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
                 self.placeholder_map.iteritems()}
@@ -376,12 +376,13 @@ class Chunker(object):
             raw = match.group()
             pl = match.group(1)
             try:
-                return raw[:-15] + placeholder_map[pl]
+                return raw[:-19] + placeholder_map[pl]
             except KeyError:
                 pass
             return raw
 
-        return re.sub(br'<[^>]+(kindle:pos:fid:0000:\d{10})', sub, text)
+        return re.sub(br'<[^>]+(kindle:pos:fid:0000:off:[0-9A-Za-z]{10})', sub,
+                text)
 
     def dump(self, orig_dumps):
         import tempfile, shutil, os
@@ -391,10 +392,15 @@ class Chunker(object):
             shutil.rmtree(tdir)
         orig = os.path.join(tdir, 'orig')
         rebuilt = os.path.join(tdir, 'rebuilt')
-        for x in (orig, rebuilt):
+        chunks = os.path.join(tdir, 'chunks')
+        for x in (orig, rebuilt, chunks):
             os.makedirs(x)
         error = False
         for i, skeleton in enumerate(self.skeletons):
+            for j, chunk in enumerate(skeleton.chunks):
+                with open(os.path.join(chunks, 'file-%d-chunk-%d.html'%(i, j)),
+                        'wb') as f:
+                    f.write(chunk.raw)
             oraw, rraw = orig_dumps[i], skeleton.rebuild()
             with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
                 f.write(oraw)
