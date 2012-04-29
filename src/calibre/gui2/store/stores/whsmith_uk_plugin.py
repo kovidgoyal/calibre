@@ -41,7 +41,7 @@ class WHSmithUKStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = ('http://www.whsmith.co.uk/CatalogAndSearch/SearchWithinCategory.aspx'
-               '?cat=\Books\eb_eBooks&gq=' + urllib2.quote(query))
+               '?cat=\eb_eBooks&gq=' + urllib2.quote(query))
 
         br = browser()
 
