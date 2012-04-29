@@ -197,10 +197,11 @@
                  <bool>false</bool>
                </property>
                <property name="toolTip">
-				 <string>Reorder selected expression above previous one.</string>
+				 <string>Move expression up.</string>
 			   </property>
-			   <property name="text">
-				 <string>&#8743;</string>
+               <property name="icon">
+                 <iconset>
+                    <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
                </property>
              </widget>
            </item>
@@ -222,10 +223,11 @@
                  <bool>false</bool>
                </property>
  			   <property name="toolTip">
-				  <string>Reorder selected expression below next one.</string>
+				  <string>Move expression down.</string>
 			   </property>
-			   <property name="text">
-				 <string>&#8744;</string>
+			   <property name="icon">
+                 <iconset>
+                    <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
                </property>
              </widget>
            </item>
@@ -256,6 +258,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>
