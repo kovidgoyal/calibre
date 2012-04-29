@@ -68,9 +68,9 @@ class AmazonDEKindleStore(StorePlugin):
                 cover_url = ''.join(data.xpath(cover_xpath))
 
                 title = ''.join(data.xpath('.//a[@class="title"]/text()'))
-                price = ''.join(data.xpath('.//span[@class="price"]/text()'))
+                price = ''.join(data.xpath('.//div[@class="newPrice"]/span[contains(@class, "price")]/text()'))
 
-                author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
+                author = ''.join(data.xpath('.//h3[@class="title"]/span[@class="ptBrand"]/text()'))
                 if author.startswith('von '):
                     author = author[4:]
 
