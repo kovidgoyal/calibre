@@ -2,20 +2,25 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, matek09, matek09@gmail.com'
+__copyright__ = '2010, matek09, matek09@gmail.com; 2012, admroz, a.rozewicki@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
+from string import capwords
 import datetime
 
 
 class Newsweek(BasicNewsRecipe):
+	
+	# how many issues to go back, 0 means get the most current one
+	BACK_ISSUES = 1
+
 	EDITION = '0'
 	DATE = None
 	YEAR = datetime.datetime.now().year
 
 	title = u'Newsweek Polska'
-	__author__ = 'matek09'
+	__author__ = 'matek09, admroz'
 	description = 'Weekly magazine'
 	encoding = 'utf-8'
 	language = 'pl'
@@ -25,6 +30,9 @@ class Newsweek(BasicNewsRecipe):
 	articles_are_obfuscated = True 
 
 
+	#
+	# Parses each article
+	#
 	def get_obfuscated_article(self, url):
 		br = self.get_browser()
 		br.open(url)
@@ -37,7 +45,28 @@ class Newsweek(BasicNewsRecipe):
 		info = main_section.find('ul', attrs={'class' : 'articleInfo'})
 		authors = info.find('li').find('h4')
 		article = main_section.find('div', attrs={'id' : 'article'})
-		html =  unicode(title) + unicode(authors) + unicode(article)
+
+		# remove related articles box
+		related = article.find('div', attrs={'class' : 'relatedBox'})
+		if related is not None:
+			related.extract()
+		
+		# remove div with social networking links and links to
+		# other articles in web version
+		for div in article.findAll('div'):
+			if div.find('span', attrs={'class' : 'google-plus'}):
+				div.extract()
+				
+			for p in div.findAll('p'):
+				if p.find('span', attrs={'style' : 'color: rgb(255, 0, 0);'}):
+					p.extract()
+					continue
+				for a in p.findAll('a'):
+					if a.find('span', attrs={'style' : 'font-size: larger;'}):
+						a.extract()	
+		
+
+		html = unicode(title) + unicode(authors) + unicode(article)
 		next = main_section.find('li', attrs={'class' : 'next'})
 		
 		while next:
@@ -58,33 +87,35 @@ class Newsweek(BasicNewsRecipe):
 		self.temp_files[-1].write(html) 
 		self.temp_files[-1].close() 
 		return self.temp_files[-1].name
-		
-	def is_full(self, issue_soup):
-		while True:
-			main_section = issue_soup.find(id='mainSection')
-			next = main_section.find('li', attrs={'class' : 'next'})
-			if len(main_section.findAll(attrs={'class' : 'locked'})) > 1:
-				return False
-			elif next is None:
-				return True
-			else:
-				issue_soup = self.index_to_soup(next.find('a')['href'])
 
-	def find_last_full_issue(self, archive_url):
+
+	#
+	# Goes back given number of issues. It also knows how to go back
+	# to the previous year if there are not enough issues in the current one
+	#
+	def find_last_issue(self, archive_url):
 		archive_soup = self.index_to_soup(archive_url)
 		select = archive_soup.find('select', attrs={'id' : 'paper_issue_select'})
-		for option in select.findAll(lambda tag: tag.name == 'option' and tag.has_key('value')):
+		options = select.findAll(lambda tag: tag.name == 'option' and tag.has_key('value'))
+
+		# check if need to go back to previous year
+		if len(options) > self.BACK_ISSUES:
+			option = options[self.BACK_ISSUES];
 			self.EDITION = option['value'].replace('http://www.newsweek.pl/wydania/','')
 			issue_soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
-			if self.is_full(issue_soup):
-				return
-				
-		self.YEAR = self.YEAR - 1
-		self.find_last_full_issue(archive_url + ',' + str(self.YEAR))
-		
+		else:	
+			self.BACK_ISSUES = self.BACK_ISSUES - len(options)	
+			self.YEAR = self.YEAR - 1
+			self.find_last_issue(archive_url + ',' + str(self.YEAR))
+
+
+	#
+	# Looks for the last issue which we want to download. Then goes on each
+	# section and article and stores them (assigning to sections)
+	#
 	def parse_index(self):
 		archive_url = 'http://www.newsweek.pl/wydania/archiwum'
-		self.find_last_full_issue(archive_url)
+		self.find_last_issue(archive_url)
 		soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
 		self.DATE = self.tag_to_string(soup.find('span', attrs={'class' : 'data'}))
 		main_section = soup.find(id='mainSection')
@@ -93,32 +124,44 @@ class Newsweek(BasicNewsRecipe):
 		feeds = []
 		articles = {}
 		sections = []
-		while True:
-			news_list = main_section.find('ul', attrs={'class' : 'newsList'})
-			for h2 in news_list.findAll('h2'):
+
+		news_list = main_section.find('ul', attrs={'class' : 'newsList'})
+		section = 'Inne'
+
+		for li in news_list.findAll('li'):
+			h3 = li.find('h3')
+			if h3 is not None:
+				section = capwords(self.tag_to_string(h3))
+				continue
+			else:
+				h2 = li.find('h2')
+				if h2 is not None:
+					article = self.create_article(h2)
+					if article is None :
+						continue
 				
-				article = self.create_article(h2)
-				category_div = h2.findNext('div', attrs={'class' : 'kategorie'})
-				section = self.tag_to_string(category_div)
-				if articles.has_key(section):
-					articles[section].append(article)
-				else:
-					articles[section] = [article]
-					sections.append(section)
+					if articles.has_key(section):
+						articles[section].append(article)
+					else:
+						articles[section] = [article]
+						sections.append(section)
 				
-			next = main_section.find('li', attrs={'class' : 'next'})
-			if next is None:
-				break
-			soup = self.index_to_soup(next.find('a')['href'])
-			main_section = soup.find(id='mainSection')
 			
 		for section in sections:
 			feeds.append((section, articles[section]))
 		return feeds
 
+
+	#
+	# Creates each article metadata (skips locked ones). The content will
+	# be extracted later by other method (get_obfuscated_article).
+	#
 	def create_article(self, h2):
 		article = {}
 		a = h2.find('a')
+		if a is None:
+			return None
+		
 		article['title'] = self.tag_to_string(a)
 		article['url'] = a['href']
 		article['date'] = self.DATE
@@ -129,7 +172,3 @@ class Newsweek(BasicNewsRecipe):
 		else:
 			article['description'] = ''
 		return article
-		
-
-
-
