@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-25 21:13+0000\n"
+"PO-Revision-Date: 2012-04-29 22:51+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:43+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-04-30 04:40+0000\n"
+"X-Generator: Launchpad (build 15171)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -8514,7 +8514,7 @@ msgstr "&Rimuovi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:119
 msgid "Load a list of expressions from a previously saved file"
-msgstr ""
+msgstr "Carica un elenco di espressioni da un file salvato in precedenza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:120
 msgid "&Load"
@@ -8523,6 +8523,7 @@ msgstr "&Carica"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:121
 msgid "Save this list of expressions so that you can re-use it easily"
 msgstr ""
+"Salva un elenco di espressioni che può essere riutilizzato facilmente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
@@ -20035,6 +20036,8 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Ricarica automaticamente il server quando cambia il codice sorgente. "
+"Potrebbe non funzionare in tutti gli ambienti."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:160
 msgid "Switch to the full interface (non-mobile interface)"
