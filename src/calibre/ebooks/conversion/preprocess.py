@@ -538,7 +538,7 @@ class HTMLPreProcessor(object):
         search_replace = getattr(self.extra_opts, 'search_replace', None)
         if search_replace:
             search_replace = json.loads(search_replace)
-            for search_pattern, replace_txt in search_replace:
+            for search_pattern, replace_txt in reversed(search_replace):
                 do_search_replace(search_pattern, replace_txt)
 
         end_rules = []

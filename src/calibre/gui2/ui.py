@@ -617,6 +617,31 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                     d.show()
                     self._modeless_dialogs.append(d)
                 return
+
+            if 'calibre.ebooks.oeb.transforms.split.SplitError' in job.details:
+                title = job.description.split(':')[-1].partition('(')[-1][:-1]
+                msg = _('<p><b>Failed to convert: %s')%title
+                msg += '<p>'+_('''
+                Many older ebook reader devices are incapable of displaying
+                EPUB files that have internal components over a certain size.
+                Therefore, when converting to EPUB, calibre automatically tries
+                to split up the EPUB into smaller sized pieces.  For some
+                files that are large undifferentiated blocks of text, this
+                splitting fails.
+                <p>You can <b>work around the problem</b> by either increasing the
+                maximum split size under EPUB Output in the conversion dialog,
+                or by turning on Heuristic Processing, also in the conversion
+                dialog. Note that if you make the maximum split size too large,
+                your ebook reader may have trouble with the EPUB.
+                        ''')
+                if not minz:
+                    d = error_dialog(self, _('Conversion Failed'), msg,
+                            det_msg=job.details)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
+                return
+
             if 'calibre.web.feeds.input.RecipeDisabled' in job.details:
                 if not minz:
                     msg = job.details

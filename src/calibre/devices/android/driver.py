@@ -42,7 +42,7 @@ class ANDROID(USBMS):
                        0xcac  : HTC_BCDS,
                        0xccf  : HTC_BCDS,
                        0x2910 : HTC_BCDS,
-                       0xff9  : [0x9999],
+                       0xff9  : HTC_BCDS + [0x9999],
             },
 
             # Eken
