@@ -539,7 +539,8 @@ from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
 from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
 from calibre.ebooks.conversion.plugins.lit_output import LITOutput
 from calibre.ebooks.conversion.plugins.lrf_output import LRFOutput
-from calibre.ebooks.conversion.plugins.mobi_output import MOBIOutput
+from calibre.ebooks.conversion.plugins.mobi_output import (MOBIOutput,
+        AZW3Output)
 from calibre.ebooks.conversion.plugins.oeb_output import OEBOutput
 from calibre.ebooks.conversion.plugins.pdb_output import PDBOutput
 from calibre.ebooks.conversion.plugins.pdf_output import PDFOutput
@@ -580,7 +581,7 @@ plugins += [
     FB2Output,
     LITOutput,
     LRFOutput,
-    MOBIOutput,
+    MOBIOutput, AZW3Output,
     OEBOutput,
     PDBOutput,
     PDFOutput,

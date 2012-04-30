@@ -19,9 +19,11 @@ PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\
 
 class Resources(object):
 
-    def __init__(self, oeb, opts, is_periodical, add_fonts=False):
+    def __init__(self, oeb, opts, is_periodical, add_fonts=False,
+            process_images=True):
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
         self.is_periodical = is_periodical
+        self.process_images = True
 
         self.item_map = {}
         self.records = []
@@ -34,6 +36,8 @@ class Resources(object):
         self.add_resources(add_fonts)
 
     def process_image(self, data):
+        if not self.process_images:
+            return data
         return (mobify_image(data) if self.opts.mobi_keep_original_images else
                 rescale_image(data))
 
