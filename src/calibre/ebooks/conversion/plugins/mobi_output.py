@@ -280,6 +280,7 @@ class AZW3Output(OutputFormatPlugin):
         from calibre.ebooks.mobi.writer8.main import create_kf8_book
 
         self.oeb, self.opts, self.log = oeb, opts, log
+        opts.mobi_periodical = self.is_periodical
 
         resources = Resources(self.oeb, self.opts, self.is_periodical,
                 add_fonts=True, process_images=False)

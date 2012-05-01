@@ -23,7 +23,7 @@ class Resources(object):
             process_images=True):
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
         self.is_periodical = is_periodical
-        self.process_images = True
+        self.process_images = process_images
 
         self.item_map = {}
         self.records = []
