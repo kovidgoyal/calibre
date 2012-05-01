@@ -1254,7 +1254,7 @@ class StoreBeWriteStore(StoreBase):
     formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreBiblioStore(StoreBase):
-    name = 'Biblio'
+    name = u'Библио.бг'
     author = 'Alex Stanev'
     description = u'Електронна книжарница за книги и списания във формати ePUB и PDF. Част от заглавията са с активна DRM защита.'
     actual_plugin = 'calibre.gui2.store.stores.biblio_plugin:BiblioStore'
