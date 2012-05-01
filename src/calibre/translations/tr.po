@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-22 13:20+0000\n"
-"Last-Translator: kulkke <Unknown>\n"
+"PO-Revision-Date: 2012-04-30 14:36+0000\n"
+"Last-Translator: ismail yenigul <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:50+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-05-01 05:28+0000\n"
+"X-Generator: Launchpad (build 15171)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -808,6 +808,7 @@ msgstr "768x1024 çözünürlüğe sahip iPad ve benzer cihazları hedefler."
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"Çözünürlüğü 1536x2048 olan iPad 3 ve benzeri cihazlar için düşünülmüştür"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1451,7 +1452,7 @@ msgstr "JetBook Mini okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "JetBook Color okuyucu ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1909,6 +1910,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Eğer Sony üzerindeki yazar isimlerinin T1'deki kullanıldığı şekilde görmek "
+"istiyorsanız bu özelliği seçin. Bunun anlamı çoklu yazarı olan kitaplarda "
+"sadece ilk yazarın adı gösterilecektir. Eğer Metadata Plugboards "
+"kullanıyorsanız bu özelliği iptal edin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2804,6 +2809,8 @@ msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
+"Ölçü birimi. Öntanımlısı inçdir. Seçenekler %s Not: Bu kenarlıklar için "
+"seçilen biriminde değişiklik yapmaz"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:75
 #, python-format
@@ -2820,6 +2827,8 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
+"Döküman için özel boyut. genişlikxyükselik formatında yazınız. Örnek: "
+"'123x321'. Bu belirtilen herhangi bir kağıt boyutu değerinin üzerine yazar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:84
 #, python-format
@@ -2877,6 +2886,9 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
+"Calibre RTF dosya formatını desteklememektedir. Dosyayı HTML formatına "
+"çevirdikten sonra deneyin.\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/tcr_output.py:21
@@ -3013,6 +3025,10 @@ msgid ""
 "* markdown: Produce Markdown formatted text.\n"
 "* textile: Produce Textile formatted text."
 msgstr ""
+"Dökümanda kullanılan formatlar\n"
+"* düz: Düz metin üretir\n"
+"* markdown: Markdownformata metin üreti\n"
+"*dokuma: Dokuma formatında metin üretir"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:58
 msgid ""
@@ -3020,6 +3036,9 @@ msgid ""
 "with a txt-output-formatting option that is not none because links are "
 "always removed with plain text output."
 msgstr ""
+"Dökümandaki bağlantıları kaldırma. Bu sadece txt-output-formatting seçeneği "
+"ile birlikte kullanıldığında işe yarar. Çünkü düz metin çıktılarında "
+"bağlantılar her zaman kaldırılır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:63
 msgid ""
@@ -3027,6 +3046,9 @@ msgid ""
 "paired with a txt-output-formatting option that is not none because links "
 "are always removed with plain text output."
 msgstr ""
+"Dökümandaki resim referanslarını kaldırma. Bu sadece txt-output-formatting "
+"seçeneği ile birlikte kullanıldığında işe yarar. Çünkü düz metin "
+"çıktılarında bağlantılar her zaman kaldırılır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:68
 msgid ""
@@ -3503,7 +3525,7 @@ msgstr "Basım tarihini ayarla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:539
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "Kitap zamandamgasını tanımla(Artık kullanılmıyor)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:543
 msgid ""
@@ -3659,7 +3681,7 @@ msgstr "ePub Düzeltici"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:17
 msgid "Workaround epubcheck bugs"
-msgstr ""
+msgstr "epubcheck hataları için ara çözüm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:21
 msgid ""
@@ -3775,7 +3797,7 @@ msgstr "%s dosyası boş"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 #, python-format
 msgid "Failed to parse link %(tag)s %(children)s"
-msgstr ""
+msgstr "%(tag)s %(children)s bağlantısında ayrıştırma hatası"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:609
 #, python-format
@@ -3873,7 +3895,7 @@ msgstr "Çıktı dosyasının yolu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
 msgid "Verbose processing"
-msgstr ""
+msgstr "Ayrıntılı işleme"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
