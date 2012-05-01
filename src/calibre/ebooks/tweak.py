@@ -14,6 +14,7 @@ from calibre.constants import iswindows, __appname__
 from calibre.ptempfile import TemporaryDirectory
 from calibre.libunzip import extract as zipextract
 from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
+from calibre.utils.ipc.simple_worker import WorkerError
 
 class Error(ValueError):
     pass
@@ -95,6 +96,10 @@ def tweak(ebook_file):
             os.path.basename(ebook_file).rpartition('.')[0]) as tdir:
         try:
             opf = exploder(ebook_file, tdir, question=ask_cli_question)
+        except WorkerError as e:
+            prints('Failed to unpack', ebook_file)
+            prints(e.orig_tb)
+            raise SystemExit(1)
         except Error as e:
             prints(as_unicode(e), file=sys.stderr)
             raise SystemExit(1)
@@ -121,6 +126,12 @@ def tweak(ebook_file):
             proceed = True
 
         if proceed:
-            rebuilder(tdir, ebook_file)
+            prints('Rebuilding', ebook_file, 'please wait ...')
+            try:
+                rebuilder(tdir, ebook_file)
+            except WorkerError as e:
+                prints('Failed to rebuild', ebook_file)
+                prints(e.orig_tb)
+                raise SystemExit(1)
             prints(ebook_file, 'successfully tweaked')
 

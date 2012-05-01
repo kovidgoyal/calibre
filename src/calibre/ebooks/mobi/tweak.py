@@ -19,9 +19,20 @@ from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
 from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
 from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
+from calibre.utils.ipc.simple_worker  import fork_job
 
 class BadFormat(ValueError):
     pass
+
+def do_explode(path, dest):
+    with open(path, 'rb') as stream:
+        mr = MobiReader(stream, default_log, None, None)
+
+        with CurrentDir(dest):
+            mr = Mobi8Reader(mr, default_log)
+            opf = os.path.abspath(mr())
+
+    return opf
 
 def explode(path, dest, question=lambda x:True):
     with open(path, 'rb') as stream:
@@ -50,21 +61,10 @@ def explode(path, dest, question=lambda x:True):
                 'sure?')):
                 return None
 
+    return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path,
+            dest), no_output=True)['result']
 
-        stream.seek(0)
-        mr = MobiReader(stream, default_log, None, None)
-
-        with CurrentDir(dest):
-            mr = Mobi8Reader(mr, default_log)
-            opf = os.path.abspath(mr())
-
-    return opf
-
-def rebuild(src_dir, dest_path):
-    opf = glob.glob(os.path.join(src_dir, '*.opf'))
-    if not opf:
-        raise ValueError('No OPF file found in %s'%src_dir)
-    opf = opf[0]
+def do_rebuild(opf, dest_path):
     plumber = Plumber(opf, dest_path, default_log)
     plumber.setup_options()
     inp = plugin_for_input_format('azw3')
@@ -74,4 +74,11 @@ def rebuild(src_dir, dest_path):
     oeb = create_oebbook(default_log, opf, plumber.opts)
     outp.convert(oeb, dest_path, inp, plumber.opts, default_log)
 
+def rebuild(src_dir, dest_path):
+    opf = glob.glob(os.path.join(src_dir, '*.opf'))
+    if not opf:
+        raise ValueError('No OPF file found in %s'%src_dir)
+    opf = opf[0]
+    fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
+            no_output=True)
 
