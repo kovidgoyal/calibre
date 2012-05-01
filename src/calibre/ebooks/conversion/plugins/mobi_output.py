@@ -281,15 +281,17 @@ class AZW3Output(OutputFormatPlugin):
 
         self.oeb, self.opts, self.log = oeb, opts, log
         opts.mobi_periodical = self.is_periodical
+        passthrough = getattr(opts, 'mobi_passthrough', False)
 
         resources = Resources(self.oeb, self.opts, self.is_periodical,
                 add_fonts=True, process_images=False)
-        remove_html_cover(self.oeb, self.log)
+        if not passthrough:
+            remove_html_cover(self.oeb, self.log)
 
-        # Split on pagebreaks so that the resulting KF8 works better with
-        # calibre's viewer, which does not support CSS page breaks
-        from calibre.ebooks.oeb.transforms.split import Split
-        Split()(self.oeb, self.opts)
+            # Split on pagebreaks so that the resulting KF8 works better with
+            # calibre's viewer, which does not support CSS page breaks
+            from calibre.ebooks.oeb.transforms.split import Split
+            Split()(self.oeb, self.opts)
 
         kf8 = create_kf8_book(self.oeb, self.opts, resources, for_joint=False)
 
