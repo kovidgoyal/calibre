@@ -7,7 +7,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
-import re
 import urllib
 from contextlib import closing
 
@@ -39,7 +38,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
             purl = None
             url = murl
 
-        print(url)
+        #print(url)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(url)))

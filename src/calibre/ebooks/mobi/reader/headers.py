@@ -234,6 +234,22 @@ class MetadataHeader(BookHeader):
         else:
             self.exth = None
 
+    @property
+    def kf8_type(self):
+        if (self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) !=
+                NULL_INDEX):
+            return u'standalone'
+
+        kf8_header_index = getattr(self.exth, 'kf8_header', None)
+        if kf8_header_index is None:
+            return None
+        try:
+            if self.section_data(kf8_header_index-1) == b'BOUNDARY':
+                return u'joint'
+        except:
+            pass
+        return None
+
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8).upper()

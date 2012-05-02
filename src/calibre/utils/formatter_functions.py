@@ -217,7 +217,9 @@ class BuiltinTemplate(BuiltinFormatterFunction):
             'characters are special, you must use [[ for the { character and '
             ']] for the } character; they are converted automatically. '
             'For example, template(\'[[title_sort]]\') will evaluate the '
-            'template {title_sort} and return its value.')
+            'template {title_sort} and return its value. Note also that '
+            'prefixes and suffixes (the "|prefix|suffix" syntax) cannot be '
+            'used in the argument to this function when using template program mode.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         template = template.replace('[[', '{').replace(']]', '}')
@@ -230,7 +232,12 @@ class BuiltinEval(BuiltinFormatterFunction):
     __doc__ = doc = _('eval(template) -- evaluates the template, passing the local '
             'variables (those \'assign\'ed to) instead of the book metadata. '
             ' This permits using the template processor to construct complex '
-            'results from local variables.')
+            'results from local variables. Because the { and } '
+            'characters are special, you must use [[ for the { character and '
+            ']] for the } character; they are converted automatically. '
+            'Note also that prefixes and suffixes (the "|prefix|suffix" syntax) '
+            'cannot be used in the argument to this function when using '
+            'template program mode.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         from formatter import EvalFormatter

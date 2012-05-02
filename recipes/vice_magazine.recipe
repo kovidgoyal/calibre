@@ -1,0 +1,17 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ViceESRecipe(BasicNewsRecipe):
+    title = u'Vice Magazine España'
+    __author__ = 'atordo'
+    description = u'La página web oficial de la revista Vice España'
+    category = u'noticias, fotografía, blogs, moda, arte, cine, música, literatura, tecnología'
+    cover_url = 'http://www.seeklogo.com/images/V/Vice-logo-668578AC94-seeklogo.com.gif'
+    oldest_article = 20
+    max_articles_per_feed = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    language = 'es'
+
+    feeds = [('Vice', 'http://www.vice.com/es/rss')]
+
