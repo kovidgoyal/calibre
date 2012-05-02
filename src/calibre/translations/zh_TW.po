@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-19 08:32+0000\n"
+"PO-Revision-Date: 2012-05-02 00:59+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:53+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-05-02 05:25+0000\n"
+"X-Generator: Launchpad (build 15177)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5115,7 +5115,7 @@ msgid ""
 "Some books were automatically merged into existing records in the target "
 "library. Click Show details to see which ones. This behavior is controlled "
 "by the Auto merge option in Preferences->Adding books."
-msgstr ""
+msgstr "有些書籍會自動合併到目標書庫現有的紀錄中。點選顯示詳細資料以查看是哪些書。這個行為是由偏好設定->加入書籍中的自動合併選項控制的。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:225
 msgid ""
@@ -7191,7 +7191,7 @@ msgstr "表格直線化(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
-msgstr ""
+msgstr "選擇您想要完全移除的樣式資訊："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
@@ -7688,11 +7688,11 @@ msgstr "搜尋正規表示式(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "取代文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "搜尋正規表示式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:100
 msgid "Load Calibre Search-Replace definitions file"
@@ -7746,7 +7746,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:111
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "搜尋/取代定義編輯"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:112
 msgid "&Replacement Text"
@@ -7759,7 +7759,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:114
 msgid "&Add"
-msgstr ""
+msgstr "加入(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:115
 msgid "Edit the currently selected expression"
@@ -7785,7 +7785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:120
 msgid "&Load"
-msgstr ""
+msgstr "載入(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:121
 msgid "Save this list of expressions so that you can re-use it easily"
@@ -7905,6 +7905,8 @@ msgid ""
 "to use these options. Leave the replace field blank and enter your "
 "header/footer removal regexps into the search field."
 msgstr ""
+"頁首及頁尾移除選項已被搜尋 & 取代選擇替換了。請在左邊的工具列中點選搜尋 & "
+"取代分類來使用這些選項。將取代欄位保持空白並在搜尋欄位中輸入您的頁首/頁尾移除正規表示式即可。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
@@ -12720,7 +12722,7 @@ msgstr "<b>警告：</b>上列資料夾中的檔案在加入 calibre 後都會�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "Ignore files with the following extensions when automatically adding "
-msgstr ""
+msgstr "自動加入時忽略具有以下延伸檔名的檔案 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Folder to auto-add files from"
@@ -12732,7 +12734,7 @@ msgstr "瀏覽資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "Automatically &convert added files to the current output format"
-msgstr ""
+msgstr "自動將加入的檔案轉換為目前的輸出格式(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "&Automatic Adding"
@@ -13886,6 +13888,7 @@ msgid ""
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
+"您可以取消核取任何元數據來源以停用它們。您也可以設定封面的優先順序。來自較高(數字較小)優先順序來源的封面在大量下載元數據時會優先被使用。\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:48
 msgid ""
@@ -14220,7 +14223,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "只顯示使用者已安裝的外掛程式(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -14569,7 +14572,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "Password incompatible with some devices"
-msgstr ""
+msgstr "密碼與部分裝置不相容"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
@@ -16028,7 +16031,7 @@ msgstr "等寬"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
-msgstr ""
+msgstr "記住上次使用的視窗尺寸與配置(&W)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -16074,11 +16077,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Maximum text width in &fullscreen:"
-msgstr ""
+msgstr "全螢幕最大文字寬度(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid "Font &magnification step size:"
-msgstr ""
+msgstr "字型逐步放大尺寸(&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:212
 msgid ""
@@ -17247,6 +17250,8 @@ msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
+"\n"
+"*** 加入 MOBI 輸出所要求的 'By Authors' 節區 ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:499
 msgid "No enabled genres found to catalog.\n"
@@ -19765,7 +19770,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Control order of categories in the tag browser"
-msgstr ""
+msgstr "控制分類在標籤瀏覽器中的順序"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -20037,6 +20042,8 @@ msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
 msgstr ""
+"設定為 True 以確定在「加入書籍時要加入的標籤」\n"
+"在複製書籍到另一個書庫時有加入"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:352
 msgid "Set the maximum number of tags to show per book in the content server"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-01-20 13:50+0000\n"
-"Last-Translator: bushido <Unknown>\n"
+"PO-Revision-Date: 2012-05-02 00:16+0000\n"
+"Last-Translator: Kaur Alasoo <kauralasoo@gmail.com>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:39+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-05-02 05:25+0000\n"
+"X-Generator: Launchpad (build 15177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -711,11 +711,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:463
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
-msgstr ""
+msgstr "See profiil on mõeldud SONY PRS seeriale (500/505/600/700 jne)."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "See profiil on mõeldud SONY PRS 300-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
@@ -730,7 +730,7 @@ msgstr "See profiil on mõeldud Microsoft Readeri jaoks."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:559
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "See profiil on mõeldud Mobipocket raamatutele."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:572
@@ -740,42 +740,42 @@ msgstr "See profiil on mõeldud Hanlin V3 ja selle kloonide jaoks."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:584
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "See profiil on mõeldud Hanlin V5-le ja selle kloonidele."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:592
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "See profiil on mõeldud Cybook G3-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:147
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:606
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "See profiil on mõeldud Cybook Opusele."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:159
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:619
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "See profiil on mõeldud Amazon Kindle'le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:171
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:679
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "See profiil on mõeldud Irex Illiadile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:183
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:692
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "See profiil on mõeldud IRex Digital Readel 1000-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:706
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "See profiil on mõeldud IRex Digital Readel 800-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:720
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "See profiil on mõeldud B&N Nookile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid "Output profile"
@@ -791,12 +791,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:277
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "Mõeldud IPadile ja teistele 768x1024 eraldusvõimega seadmetele"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Mõeldud iPad 3-le ja teistele 1536x2048 eraldusvõimega seadmetele"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -814,7 +814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "See profiil on mõeldud Sony PRS-300-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:512
 msgid "Suitable for use with any e-ink device"
@@ -826,7 +826,7 @@ msgstr "Sobib kasutamiseks suurte ekraanidega e-ink seadmetel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "See profiil on mõeldud 5-tollisele JetBookile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
 msgid ""
@@ -836,24 +836,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:645
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr ""
+msgstr "See profiil on mõeldud Amazon Kindle DX-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "See profiil on mõeldud Amazon Kindle Fire'le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:732
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "See profiil on mõeldud B&N Nook Colorile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:743
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "See profiil on mõeldud Sanda Bambookile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:758
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "See profiil on mõeldud PocketBook Pro 900 seeria seadmetele."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1029,15 +1029,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:191
 msgid "Apple device"
-msgstr ""
+msgstr "Apple seade"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:193
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Suhtle iTunes/iBooks'iga"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:207
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Tuvastatud Apple seade, käivitatakse iTunes, palun oota ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:209
 msgid ""
@@ -1117,19 +1117,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3095
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Suhtle iTunes'ga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Suhtle Sanda Bambook eBook lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Seadme IP-aadress (taaskäivita calibre peale muutmist)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:48
 msgid ""
@@ -1151,7 +1151,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1221,7 +1221,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr ""
+msgstr "Suhtle Blackberry nutitelefoniga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
@@ -1229,7 +1229,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr ""
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
@@ -1237,63 +1237,63 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Suhtle BOEYE BEX seeria lugeritega."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Suhtle BOEYE BEX seeria lugeritega."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "Suhtle Cybook Gen 3 / Opus lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Suhtle Cybook Orizon lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
-msgstr ""
+msgstr "Suhtle EB600 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Suhtle Astak Mentor EB600 lugeria."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Suhtle PocketBook 301 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Suhtle PocketBook 602/603/902/903 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Suhtle PocketBook 360+ lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Suhtle PocketBook 701 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Suhtle Infibeam Pi2 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Suhtle Entourage Edge'ga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Suhtle ESlick lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Suhtle Sigmatek lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:33
@@ -1307,15 +1307,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Suhtle Hanlin V3 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Suhtle Hanlin V5 lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
 msgid "Communicate with the BOOX eBook reader."
-msgstr ""
+msgstr "Suhtle BOOK lugeriga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:133
 msgid ""
@@ -1359,7 +1359,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:43
 msgid "John Schember"
-msgstr ""
+msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:57
 msgid "Cannot get files from this device"

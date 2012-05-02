@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-30 19:19+0000\n"
+"PO-Revision-Date: 2012-05-01 23:55+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-01 05:28+0000\n"
-"X-Generator: Launchpad (build 15171)\n"
+"X-Launchpad-Export-Date: 2012-05-02 05:25+0000\n"
+"X-Generator: Launchpad (build 15177)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -14795,7 +14795,7 @@ msgid ""
 msgstr ""
 "Выберите как отображаются подкатегории браузера тегов когда\n"
 "количество элементов больше лимита. Отметьте \"по первой букве\"\n"
-"чтобы увидеть A, Б, В список. Выберите \"partitioned\" чтобы получить\n"
+"чтобы увидеть A, Б, В список. Выберите \"по разделам\" чтобы получить\n"
 "список групп фиксированного размера. Установите \"запрещено\",\n"
 "если вы никогда не хотите видеть подкатегории."
 
@@ -17057,10 +17057,12 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
+"Вы запустили calibre в режиме отладки. После закрытия программы, журнал "
+"можно будет увидеть в файле %s<p>Журнал будет показан автоматически."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:386
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "Не удалось запустить контент сервер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:387
 #, python-format
@@ -17080,6 +17082,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"Похоже, база данных библиотеки %s повреждена. Вы желаете что бы calibre "
+"попытался автоматически восстановить её? Восстановление может не быть "
+"полностью удачным."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:602
 msgid "Conversion Error"
@@ -17087,11 +17092,11 @@ msgstr "Ошибка преобразования"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:625
 msgid "Recipe Disabled"
-msgstr ""
+msgstr "Функция отключена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:641
 msgid "<b>Failed</b>"
-msgstr ""
+msgstr "<b>Неудача</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:675
 msgid "There are active jobs. Are you sure you want to quit?"
@@ -17125,6 +17130,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s был обновлён до версии <b>%(ver)s</b>. Прочитайте о <a "
+"href=\"http://calibre-ebook.com/whats-new\">новых возможностях</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
@@ -17270,7 +17277,7 @@ msgstr "Моноширинный"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
-msgstr ""
+msgstr "Помнить последнее положение и размер окна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -17331,10 +17338,12 @@ msgid ""
 "The amount by which the font size is increased/decreased\n"
 " when you click the font size larger/smaller buttons"
 msgstr ""
+"Значение на которое увеличивается/уменьшается размер шрифта\n"
+" при нажатии соответствующих кнопок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:215
 msgid "&General"
@@ -17386,7 +17395,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Resize images larger than the viewer window to fit inside it"
-msgstr ""
+msgstr "Уменьшать изображения которые больше окна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:56
 msgid "Hyphenate text"
@@ -17402,18 +17411,22 @@ msgstr "Сохранить текущую позицию в документе �
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "Have the mouse wheel turn pages"
-msgstr ""
+msgstr "Использовать колесо мыши для перелистывания страниц"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:64
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
+"Время в секундах для анимации перелистывания страницы. По умолчанию - пол "
+"секунды."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
 msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
 msgstr ""
+"Значение на которое изменяется размер текста при нажатии кнопок "
+"увеличения/уменьшения шрифта. Должно быть числом между 0 и 1."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:71
 msgid "Font options"
@@ -17562,19 +17575,19 @@ msgstr "Полный экран (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:307
 msgid "Full screen mode"
-msgstr ""
+msgstr "Полноэкранный режим"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:308
 msgid "Right click to show controls"
-msgstr ""
+msgstr "Нажмите правой кнопкой что бы увидеть управление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:309
 msgid "Press Esc to quit"
-msgstr ""
+msgstr "Нажмите Esc для выхода"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:323
 msgid "Show/hide controls"
-msgstr ""
+msgstr "Показать/спрятать управление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:335
 msgid "Print Preview"
@@ -17591,11 +17604,11 @@ msgstr "Соединение с dict.org для поиска: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:533
 msgid "No such location"
-msgstr ""
+msgstr "Нет такого адреса"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:534
 msgid "The location pointed to by this item does not exist."
-msgstr ""
+msgstr "Адреса, указанного в этом элементе, не существует."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "Choose ebook"
@@ -17699,7 +17712,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr ""
+msgstr "Просмотрщик электронных книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
@@ -21329,7 +21342,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
-msgstr "Управление группировкой при просмотре тегов"
+msgstr "Управление группировкой в обозревателе тэгов"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:109
 msgid ""
