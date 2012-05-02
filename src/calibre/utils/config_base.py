@@ -387,7 +387,7 @@ def _prefs():
               help=_('The language in which to display the user interface'))
     c.add_opt('output_format', default='EPUB',
               help=_('The default output format for ebook conversions.'))
-    c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'LIT', 'PRC',
+    c.add_opt('input_format_order', default=['EPUB', 'AZW3', 'MOBI', 'LIT', 'PRC',
         'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'ODT', 'RTF', 'PDF',
         'TXT'],
               help=_('Ordered list of formats to prefer for input.'))

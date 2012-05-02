@@ -179,8 +179,12 @@ class HeuristicProcessor(object):
             for match in re.finditer(pat, search_text):
                 ital_string = str(match.group('words'))
                 #self.log.debug("italicising "+str(match.group(0))+"    with <i>"+ital_string+"</i>")
-                html = re.sub(re.escape(str(match.group(0))), '<i>%s</i>' % ital_string, html)
-                
+                try:
+                    html = re.sub(re.escape(str(match.group(0))), '<i>%s</i>' % ital_string, html)
+                except OverflowError:
+                    # match.group(0) was too large to be compiled into a regex
+                    continue
+
         return html
 
     def markup_chapters(self, html, wordcount, blanks_between_paragraphs):
@@ -319,13 +323,13 @@ class HeuristicProcessor(object):
         '''
         Unwraps lines based on line length and punctuation
         supports a range of html markup and text files
-        
+
         the lookahead regex below is meant look for any non-full stop characters - punctuation
         characters which can be used as a full stop should *not* be added below - e.g. ?!“”. etc
         the reason for this is to prevent false positive wrapping.  False positives are more
         difficult to detect than false negatives during a manual review of the doc
-        
-        This function intentionally leaves hyphenated content alone as that is handled by the 
+
+        This function intentionally leaves hyphenated content alone as that is handled by the
         dehyphenate routine in a separate step
         '''
 

@@ -54,6 +54,15 @@ Run an embedded python interpreter.
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
             help='Inspect the MOBI file(s) at the specified path(s)')
+    parser.add_option('--tweak-book', default=None,
+            help='Tweak the book (exports the book as a collection of HTML '
+            'files and metadata, which you can edit using standard HTML '
+            'editing tools, and then rebuilds the file from the edited HTML. '
+            'Makes no additional changes to the HTML, unlike a full calibre '
+            'conversion). Note that this tool will try to open the '
+            'folder containing the HTML files in the editor pointed to by the'
+            ' EDITOR environment variable.')
+
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
 
@@ -239,7 +248,9 @@ def main(args=sys.argv):
             prints('Inspecting:', path)
             inspect_mobi(path)
             print
-
+    elif opts.tweak_book:
+        from calibre.ebooks.tweak import tweak
+        tweak(opts.tweak_book)
     elif opts.test_build:
         from calibre.test_build import test
         test()

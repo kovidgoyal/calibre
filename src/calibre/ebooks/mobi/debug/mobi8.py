@@ -141,9 +141,10 @@ class MOBIFile(object):
             self.files.append(File(skel, skeleton, ftext, first_aid, sections))
 
     def dump_flows(self, ddir):
-        if self.fdst is None:
-            raise ValueError('This MOBI file has no FDST record')
-        for i, x in enumerate(self.fdst.sections):
+        boundaries = [(0, len(self.raw_text))]
+        if self.fdst is not None:
+            boundaries = self.fdst.sections
+        for i, x in enumerate(boundaries):
             start, end = x
             raw = self.raw_text[start:end]
             with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
