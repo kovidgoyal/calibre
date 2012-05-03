@@ -52,7 +52,10 @@ def explode(path, dest, question=lambda x:True):
         kf8_type = header.kf8_type
 
         if kf8_type is None:
-            raise BadFormat('This MOBI file does not contain a KF8 format book')
+            raise BadFormat(_('This MOBI file does not contain a KF8 format '
+                    'book. KF8 is the new format from Amazon. calibre can '
+                    'only tweak MOBI files that contain KF8 books. Older '
+                    'MOBI files without KF8 are not tweakable.'))
 
         if kf8_type == 'joint':
             if not question(_('This MOBI file contains both KF8 and '
