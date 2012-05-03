@@ -220,7 +220,7 @@ def main(args=sys.argv):
         from calibre.utils.pyconsole.main import main
         main()
     elif opts.command:
-        sys.argv = args[:1]
+        sys.argv = args
         exec opts.command
     elif opts.debug_device_driver:
         debug_device_driver()
