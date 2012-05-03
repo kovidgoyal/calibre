@@ -232,6 +232,10 @@ class MOBIOutput(OutputFormatPlugin):
         writer(oeb, output_path)
         extract_mobi(output_path, opts)
 
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
+        CSSCleanup(log, opts)(item, stylizer)
+
 class AZW3Output(OutputFormatPlugin):
 
     name = 'AZW3 Output'
@@ -297,5 +301,9 @@ class AZW3Output(OutputFormatPlugin):
 
         kf8.write(output_path)
         extract_mobi(output_path, opts)
+
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
+        CSSCleanup(log, opts)(item, stylizer)
 
 
