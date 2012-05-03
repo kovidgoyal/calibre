@@ -392,9 +392,9 @@ class CSSFlattener(object):
         href = item.relhref(href)
         etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
-        stylizer.page_rule['margin-top'] = '%fpt'%\
+        stylizer.page_rule['margin-top'] = '%gpt'%\
                 float(self.context.margin_top)
-        stylizer.page_rule['margin-bottom'] = '%fpt'%\
+        stylizer.page_rule['margin-bottom'] = '%gpt'%\
                 float(self.context.margin_bottom)
 
         items = stylizer.page_rule.items()
