@@ -332,7 +332,7 @@ class Preferences(QMainWindow):
                     ' Please restart calibre as soon as possible.')
             if rc:
                 msg = _('The changes you have made require calibre be '
-                        'restarted immediately. You will not be allowed '
+                        'restarted immediately. You will not be allowed to '
                         'set any more preferences, until you restart.')
 
 
