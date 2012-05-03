@@ -59,9 +59,7 @@ Run an embedded python interpreter.
             'files and metadata, which you can edit using standard HTML '
             'editing tools, and then rebuilds the file from the edited HTML. '
             'Makes no additional changes to the HTML, unlike a full calibre '
-            'conversion). Note that this tool will try to open the '
-            'folder containing the HTML files in the editor pointed to by the'
-            ' EDITOR environment variable.')
+            'conversion).')
 
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
