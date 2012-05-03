@@ -155,7 +155,10 @@ class CHMReader(CHMFile):
                     self.hhc_path = f
                     break
         if self.hhc_path not in files and files:
-            self.hhc_path = files[0]
+            for f in files:
+                if f.partition('.')[-1].lower() in {'html', 'htm'}:
+                    self.hhc_path = f
+                    break
 
         if self.hhc_path == '.hhc' and self.hhc_path not in files:
             from calibre import walk
@@ -241,7 +244,10 @@ class CHMReader(CHMFile):
         except:
             pass
         # do not prettify, it would reformat the <pre> tags!
-        return str(soup)
+        try:
+            return str(soup)
+        except RuntimeError:
+            return data
 
     def Contents(self):
         if self._contents is not None:
