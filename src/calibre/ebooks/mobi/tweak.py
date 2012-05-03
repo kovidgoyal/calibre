@@ -31,6 +31,10 @@ def do_explode(path, dest):
         with CurrentDir(dest):
             mr = Mobi8Reader(mr, default_log)
             opf = os.path.abspath(mr())
+            try:
+                os.remove('debug-raw.html')
+            except:
+                pass
 
     return opf
 
