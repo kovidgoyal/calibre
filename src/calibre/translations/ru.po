@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-05-01 23:55+0000\n"
+"PO-Revision-Date: 2012-05-02 22:30+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-02 05:25+0000\n"
-"X-Generator: Launchpad (build 15177)\n"
+"X-Launchpad-Export-Date: 2012-05-03 05:25+0000\n"
+"X-Generator: Launchpad (build 15185)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -15481,6 +15481,29 @@ msgid ""
 "check for duplicates, to find which column contains a particular item, or to "
 "have hierarchical categories (categories that contain categories)."
 msgstr ""
+"<b>Группированые поисковые выражения</b> - это поисковые имена, которые "
+"позволяют делать запрос по нескольким полям. Например, если вы создадите "
+"поисковое выражение <code>ВсеСерии</code> со значением <code>series, "
+"#myseries, #myseries2</code>, то запрос <code>всесерии:значение</code> "
+"найдёт 'значение' в любом столбце: <code>series</code>, "
+"<code>#myseries</code>, и <code>#myseries2</code>.<p> Введите название "
+"будущего выражения в выпадающем списке, введите список столбцов в поле "
+"значения и нажмите кнопку \"Сохранить\". <p>Помните, что поисковые выражения "
+"учитываются в нижнем регистре; <code>MySearch</code> и <code>mysearch</code> "
+"считаюся как одно выражение.<p>Вы можете отображать группированые поисковые "
+"выражения в Обозревателе тэгов как пользовательские категории. Для этого "
+"просто добавьте название выражения в в поле \"Создать пользовательскую "
+"категорию из\". Вы можете добавить несколько выражений, разделённых запятой. "
+"Новая пользовательская категория будет автоматически обновляться всеми "
+"элементами в категориях из группированого поискового выражения. "
+"<p>Автоматические пользовательские категории позволят вам легко увидеть все "
+"элементы категории, содержащиеся в группированом выражении. Например, при "
+"использовании указанного <code>ВсеСерии</code> пользовательская категория "
+"будет включать все серии упомянутые в <code>series</code>, "
+"<code>#myseries</code>, и <code>#myseries2</code>. Это может быть полезно "
+"при поиске дубликатов, что бы выяснить какой столбец содержит конкретный "
+"элемент, или при создании иерархических категорий (категорий содержащих "
+"категории)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:106
@@ -16898,7 +16921,7 @@ msgstr "Добавить %s в пользовательские категори
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:382
 #, python-format
 msgid "Children of %s"
-msgstr ""
+msgstr "Дочерний для %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:392
 #, python-format
@@ -17324,14 +17347,17 @@ msgid ""
 "fullscreen mode. This allows you to read the book text without it becoming "
 "too wide."
 msgstr ""
+"Установите максимальную ширину текста и картинок для этой книги в "
+"полноэкранном режиме. Это позволит вам читать книгу и не беспокоится что "
+"текст станет слишком широким."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Maximum text width in &fullscreen:"
-msgstr ""
+msgstr "Максимальная ширина текста в полноэкранном режиме:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid "Font &magnification step size:"
-msgstr ""
+msgstr "Шаг увеличения размера шрифта:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:212
 msgid ""
@@ -17692,13 +17718,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:944
 msgid "Print javascript alert and console messages to the console"
-msgstr ""
+msgstr "Выводить предупреждения javascript и консольные сообщения в консоли"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:946
 msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
+"Позиция на которой открыта определённая книга. Позиция отображается в "
+"верхнем левом углу просмотрщика."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:953
 msgid ""
@@ -17829,6 +17857,8 @@ msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
 msgstr ""
+"<p>Неверная библиотека уже существует по адресу %(loc)s. Удалите её прежде "
+"чем пытаться перемещать существующую библиотеку.<br>Ошибка: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:645
 msgid "Could not move library"
@@ -17994,7 +18024,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:68
 #, python-format
 msgid "Your %s &email address:"
-msgstr ""
+msgstr "Ваш %s электронный адрес:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:69
 #, python-format
@@ -18066,6 +18096,8 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Вы должны ввести одновременно имя пользователя <b>и</b> пароль для сервера "
+"почты или не использовать имя пользователя и пароль совсем."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:238
 msgid "Please enter a username and password or set encryption to None "
@@ -18263,7 +18295,7 @@ msgstr "несколько дней назад"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:597
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:614
 msgid "blank"
-msgstr ""
+msgstr "новый"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:597
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:614
@@ -18272,7 +18304,7 @@ msgstr "пусто"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:598
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Неверный логический запрос \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:36
 #, python-format
