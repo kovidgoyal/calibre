@@ -211,8 +211,7 @@ class EPUBInput(InputFormatPlugin):
                     cover_toc_item = item
                     break
             spine = {x.href for x in oeb.spine}
-            if (cover_toc_item is not None and cover_toc_item.count() == 0 and
-                    cover_toc_item not in spine):
+            if (cover_toc_item is not None and cover_toc_item not in spine):
                 oeb.toc.item_that_refers_to_cover = cover_toc_item
 
 
