@@ -173,7 +173,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.box_last_values['tags_box'] = tags
         tags = [t.strip() for t in tags.split(',') if t.strip()]
         if tags:
-            tags = ['tags:"=' + t + '"' for t in tags]
+            tags = ['tags:"' + self.mc + t + '"' for t in tags]
             ans.append('(' + ' or '.join(tags) + ')')
         general = unicode(self.general_box.text())
         self.box_last_values['general_box'] = general

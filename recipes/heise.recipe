@@ -59,12 +59,15 @@ class heiseDe(BasicNewsRecipe):
 		   dict(name='span', attrs={'class':'rsaquo'}),
 		   dict(name='div', attrs={'class':'news_logo'}),
 		   dict(name='div', attrs={'class':'bcadv ISI_IGNORE'}),
+		   dict(name='div', attrs={'class':'navi_top_container'}),
 		   dict(name='p', attrs={'class':'news_option'}),
 		   dict(name='p', attrs={'class':'news_navi'}),
 		   dict(name='div', attrs={'class':'news_foren'})]
     remove_tags_after = [dict(name='div', attrs={'class':'news_foren'})]
 
     feeds =  [ ('heise', 'http://www.heise.de/newsticker/heise.rdf') ]
+
+
 
 
 

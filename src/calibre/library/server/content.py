@@ -41,7 +41,8 @@ class ContentServer(object):
         connect('root', '/', self.index)
         connect('old', '/old', self.old)
         connect('get', '/get/{what}/{id}', self.get,
-                conditions=dict(method=["GET", "HEAD"]))
+                conditions=dict(method=["GET", "HEAD"]),
+                android_workaround=True)
         connect('static', '/static/{name:.*?}', self.static,
                 conditions=dict(method=["GET", "HEAD"]))
         connect('favicon', '/favicon.png', self.favicon,

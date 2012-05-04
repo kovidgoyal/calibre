@@ -217,6 +217,10 @@ class EbookIterator(object):
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
 
+        self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
+        if getattr(plumber.input_plugin, 'is_kf8', False):
+            self.book_format = 'KF8'
+
         self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
         if self.opf is None:
             self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
@@ -363,3 +367,17 @@ class EbookIterator(object):
         for x in self.delete_on_exit:
             if os.path.exists(x):
                 os.remove(x)
+
+def get_preprocess_html(path_to_ebook, output):
+    from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+    iterator = EbookIterator(path_to_ebook)
+    iterator.__enter__(only_input_plugin=True)
+    preprocessor = HTMLPreProcessor(None, False)
+    with open(output, 'wb') as out:
+        for path in iterator.spine:
+            with open(path, 'rb') as f:
+                html = f.read().decode('utf-8', 'replace')
+            html = preprocessor(html, get_preprocess_html=True)
+            out.write(html.encode('utf-8'))
+            out.write(b'\n\n' + b'-'*80 + b'\n\n')
+

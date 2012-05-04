@@ -1,0 +1,136 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, watou'
+'''
+southernstar.ie
+'''
+import re
+import tempfile
+import os
+import codecs
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+class TheSouthernStar(BasicNewsRecipe):
+
+    title      = 'The Southern Star'
+    __author__ = 'watou'
+    description = 'West Cork\'s leading news and information provider since 1889'
+    NEWS_INDEX = 'http://www.southernstar.ie/news.php'
+    LOCAL_NOTES = 'http://www.southernstar.ie/localnotes.php'
+    SPORT_INDEX = 'http://www.southernstar.ie/sport.php'
+    CLASSIFIEDS = 'http://www.southernstar.ie/classifieds.php'
+    language = 'en_IE'
+    encoding = 'cp1252'
+
+    publication_type   = 'newspaper'
+    masthead_url       = 'http://www.southernstar.ie/images/logo.gif'
+    remove_tags_before = dict(name='div', attrs={'class':'article'})
+    remove_tags_after  = dict(name='div', attrs={'class':'article'})
+    remove_tags        = [dict(name='div', attrs={'style':'width:300px; position:relative'}),
+        dict(name='form'),
+        dict(name='div', attrs={'class':'endpanel'})]
+    no_stylesheets = True
+    tempfiles = []
+    pubdate = ''
+
+    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+
+    def parse_index(self):
+        feeds = []
+        seen_titles = set([])
+
+        articles = self.fetch_ss_articles(self.NEWS_INDEX, seen_titles)
+        if articles:
+            feeds.append(('News', articles))
+
+        articles = self.fetch_ss_notes(self.LOCAL_NOTES)
+        if articles:
+            feeds.append(('Local Notes', articles))
+
+        articles = self.fetch_ss_articles(self.SPORT_INDEX, seen_titles)
+        if articles:
+            feeds.append(('Sport', articles))
+
+        articles = self.fetch_ss_notes(self.CLASSIFIEDS)
+        if articles:
+            feeds.append(('Classifieds', articles))
+
+        return feeds
+
+    def fetch_ss_articles(self, index, seen_titles):
+        articles = []
+        soup = self.index_to_soup(index)
+        ts = soup.find('div', {'class':'article'})
+        ds = self.tag_to_string(ts.find('strong'))
+        self.pubdate = ' ['+ds+']'
+        self.timefmt = ' [%s]'%ds
+
+        for post in ts.findAll('h1'):
+            a = post.find('a', href=True)
+            title = self.tag_to_string(a)
+            if title in seen_titles:
+                continue
+            seen_titles.add(title)
+            url = a['href']
+            if url.startswith('article'):
+                url = 'http://www.southernstar.ie/'+url
+            self.log('\tFound article:', title, 'at', url)
+            p = post.findNextSibling('p')
+            desc = None
+            if p is not None:
+                desc = str(p)
+            articles.append({'title':title, 'url':url, 'description':desc,
+                'date':self.pubdate})
+
+        return articles
+
+    def fetch_ss_notes(self, page):
+        articles = []
+
+        soup = self.index_to_soup(page)
+        ts = soup.find('div', {'class':'content'})
+        for post in ts.findAll('h1'):
+            title = self.tag_to_string(post)
+            self.log('\tFound note:', title)
+            f = tempfile.NamedTemporaryFile(suffix='.html',delete=False)
+            f.close()
+            f = codecs.open(f.name, 'w+b', self.encoding, 'replace')
+            url = "file://" + f.name
+            f.write(u'<html><head><meta http-equiv="Content-Type" content="text/html; charset='+
+                self.encoding+'"></head><body><h1>'+title+'</h1>')
+            f.write(str(post.findNextSibling('p')))
+            f.write(u'</body></html>')
+            self.log('\tWrote note to', f.name)
+            f.close()
+            self.tempfiles.append(f)
+            articles.append({'title':title, 'url':url, 'date':self.pubdate})
+
+        return articles
+
+    def postprocess_html(self, soup, first):
+        for table in soup.findAll('table', align='right'):
+            img = table.find('img')
+            if img is not None:
+                img.extract()
+                caption = self.tag_to_string(table).strip()
+                div = Tag(soup, 'div')
+                div['style'] = 'text-align:center'
+                div.insert(0, img)
+                div.insert(1, Tag(soup, 'br'))
+                if caption:
+                    div.insert(2, NavigableString(caption))
+                table.replaceWith(div)
+
+        return soup
+
+    def image_url_processor(self, baseurl, url):
+        return url.replace(' ','%20')
+
+    def cleanup(self):
+        self.log('cleaning up')
+        for f in self.tempfiles:
+            os.unlink(f.name)
+        self.tempfiles = []

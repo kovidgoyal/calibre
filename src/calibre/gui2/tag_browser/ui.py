@@ -443,12 +443,12 @@ class TagBrowserWidget(QWidget): # {{{
         txt = unicode(self.item_search.currentText()).strip()
 
         if txt.startswith('*'):
-            model.filter_categories_by = txt[1:]
+            model.set_categories_filter(txt[1:])
             self.tags_view.recount()
             self.current_find_position = None
             return
-        if model.filter_categories_by:
-            model.filter_categories_by = None
+        if model.get_categories_filter():
+            model.set_categories_filter(None)
             self.tags_view.recount()
             self.current_find_position = None
 

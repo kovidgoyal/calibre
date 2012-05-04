@@ -108,6 +108,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
 
     def show_recipe_files(self, *args):
         bdir = os.path.dirname(custom_recipes.file_path)
+        if not os.path.exists(bdir):
+            return error_dialog(self, _('No recipes'),
+                    _('No custom recipes created.'), show=True)
         open_local_file(bdir)
 
     def break_cycles(self):

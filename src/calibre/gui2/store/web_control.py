@@ -89,6 +89,7 @@ class NPWebView(QWebView):
                 os.path.join(home, filename),
                 '*.*')
             if name:
+                name = unicode(name)
                 self.gui.download_ebook(url, cf, name, name, False)
         else:
             self.gui.download_ebook(url, cf, filename, tags=self.tags)

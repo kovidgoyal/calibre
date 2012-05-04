@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re
+import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
 
@@ -515,18 +515,31 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
-        for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
+        # Function for processing search and replace
+        def do_search_replace(search_pattern, replace_txt):
+            try:
+                search_re = re.compile(search_pattern)
+                if not replace_txt:
+                    replace_txt = ''
+                rules.insert(0, (search_re, replace_txt))
+            except Exception as e:
+                self.log.error('Failed to parse %r regexp because %s' %
+                        (search, as_unicode(e)))
+
+        # search / replace using the sr?_search / sr?_replace options
+        for i in range(1, 4):
+            search, replace = 'sr%d_search'%i, 'sr%d_replace'%i
             search_pattern = getattr(self.extra_opts, search, '')
+            replace_txt = getattr(self.extra_opts, replace, '')
             if search_pattern:
-                try:
-                    search_re = re.compile(search_pattern)
-                    replace_txt = getattr(self.extra_opts, replace, '')
-                    if not replace_txt:
-                        replace_txt = ''
-                    rules.insert(0, (search_re, replace_txt))
-                except Exception as e:
-                    self.log.error('Failed to parse %r regexp because %s' %
-                            (search, as_unicode(e)))
+                do_search_replace(search_pattern, replace_txt)
+
+        # multi-search / replace using the search_replace option
+        search_replace = getattr(self.extra_opts, 'search_replace', None)
+        if search_replace:
+            search_replace = json.loads(search_replace)
+            for search_pattern, replace_txt in reversed(search_replace):
+                do_search_replace(search_pattern, replace_txt)
 
         end_rules = []
         # delete soft hyphens - moved here so it's executed after header/footer removal
@@ -546,7 +559,7 @@ class HTMLPreProcessor(object):
                 end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:

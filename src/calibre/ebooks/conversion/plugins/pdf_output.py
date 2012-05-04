@@ -99,12 +99,8 @@ class PDFOutput(OutputFormatPlugin):
 
         # Remove page-break-before on <body> element as it causes
         # blank pages in PDF Output
-        from calibre.ebooks.oeb.base import OEB_STYLES, XPath
-        stylesheet = None
-        for item in self.oeb.manifest:
-            if item.media_type.lower() in OEB_STYLES:
-                stylesheet = item
-                break
+        from calibre.ebooks.oeb.base import XPath
+        stylesheet = self.oeb.manifest.main_stylesheet
         if stylesheet is not None:
             from cssutils.css import CSSRule
             classes = set(['.calibre'])

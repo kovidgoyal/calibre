@@ -387,7 +387,7 @@ def _prefs():
               help=_('The language in which to display the user interface'))
     c.add_opt('output_format', default='EPUB',
               help=_('The default output format for ebook conversions.'))
-    c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'LIT', 'PRC',
+    c.add_opt('input_format_order', default=['EPUB', 'AZW3', 'MOBI', 'LIT', 'PRC',
         'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'ODT', 'RTF', 'PDF',
         'TXT'],
               help=_('Ordered list of formats to prefer for input.'))
@@ -418,7 +418,7 @@ def _prefs():
     c.add_opt('limit_search_columns_to',
             default=['title', 'authors', 'tags', 'series', 'publisher'],
             help=_('Choose columns to be searched when not using prefixes, '
-                'as for example, when searching for Redd instead of '
+                'as for example, when searching for Red instead of '
                 'title:Red. Enter a list of search/lookup names '
                 'separated by commas. Only takes effect if you set the option '
                 'to limit search columns above.'))

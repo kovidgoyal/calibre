@@ -147,7 +147,7 @@ class AmazonKindleStore(StorePlugin):
                     asin_xpath = './/div[@class="image"]/a[1]'
                     cover_xpath = './/img[@class="productImage"]/@src'
                     title_xpath = './/a[@class="title"]/text()'
-                    price_xpath = './/span[@class="price"]/text()'
+                    price_xpath = './/span[contains(@class, "price")]/text()'
                 # Old style list. Search "martin"
                 else:
                     data_xpath = '//div[contains(@class, "result")]'

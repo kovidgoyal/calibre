@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, cPickle, os
+import sys, cPickle, os, binascii
 from code import InteractiveInterpreter
 from Queue import Queue, Empty
 from threading import Thread
@@ -130,7 +130,7 @@ class Interpreter(InteractiveInterpreter): # {{{
 # }}}
 
 def connect():
-    os.chdir(os.environ['ORIGWD'])
+    os.chdir(cPickle.loads(binascii.unhexlify(os.environ['ORIGWD'])))
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     return Client(address, authkey=key)

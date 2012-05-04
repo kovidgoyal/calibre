@@ -18,27 +18,27 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-03-05 19:08+0000\n"
-"Last-Translator: Dennis Baudys <Unknown>\n"
+"PO-Revision-Date: 2012-04-21 14:42+0000\n"
+"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-03-06 04:47+0000\n"
-"X-Generator: Launchpad (build 14900)\n"
+"X-Launchpad-Export-Date: 2012-04-22 04:43+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 "Language: de\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr ""
+msgstr "Ghotuo (Nigeria)"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr "Alumu-Tesu"
+msgstr "Alumu-Tesu (Nigeria)"
 
 #. name for aac
 msgid "Ari"
-msgstr "Ari"
+msgstr "Ari (Papua-Neuguinea)"
 
 #. name for aad
 msgid "Amal"
@@ -66,7 +66,7 @@ msgstr "Arifama-Miniafia"
 
 #. name for aak
 msgid "Ankave"
-msgstr "Ankave"
+msgstr "Ankave (Papua-Neuguinea)"
 
 #. name for aal
 msgid "Afade"
@@ -110,7 +110,7 @@ msgstr ""
 
 #. name for aaw
 msgid "Solong"
-msgstr ""
+msgstr "Solong"
 
 #. name for aax
 msgid "Mandobo Atas"
@@ -30860,7 +30860,7 @@ msgstr ""
 
 #. name for zxx
 msgid "No linguistic content"
-msgstr ""
+msgstr "Kein linguistischer Inhalt"
 
 #. name for zyb
 msgid "Zhuang; Yongbei"

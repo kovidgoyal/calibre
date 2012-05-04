@@ -1,0 +1,12 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1334649829(BasicNewsRecipe):
+    title          = u'Liberatorio Politico'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    masthead_url            = 'http://liberatorio.altervista.org/wp-content/uploads/2012/01/Testata-LIBERATORIO-Altervista1.jpg'
+    feeds          = [(u'Liberatorio Politico', u'http://liberatorio.altervista.org/feed/')]
+    __author__    = 'faber1971'
+    description   = 'Inquiry journalism - a blog on Molfetta, Land of Bari, Apulia and Italy - v1.00 (07, April 2012)'
+    language = 'it'

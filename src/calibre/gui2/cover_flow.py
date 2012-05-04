@@ -69,9 +69,10 @@ if pictureflow is not None:
                 ans = self.model.title(index)
                 if not ans:
                     ans = ''
+                ans = ans.replace('&', '&&')
             except:
                 ans = ''
-            return ans.replace('&', '&&')
+            return ans
 
         def subtitle(self, index):
             try:
@@ -315,10 +316,7 @@ class CoverFlowMixin(object):
                 index = m.index(row, 0)
                 if self.library_view.currentIndex().row() != row and index.isValid():
                     self.cover_flow_sync_flag = False
-                    self.library_view.scroll_to_row(index.row())
-                    sm = self.library_view.selectionModel()
-                    sm.select(index, sm.ClearAndSelect|sm.Rows)
-                    self.library_view.setCurrentIndex(index)
+                    self.library_view.select_rows([row], using_ids=False)
         except:
             import traceback
             traceback.print_exc()
