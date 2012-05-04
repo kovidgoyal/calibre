@@ -156,7 +156,8 @@ class CHMReader(CHMFile):
                     break
         if self.hhc_path not in files and files:
             for f in files:
-                if f.partition('.')[-1].lower() in {'html', 'htm'}:
+                if f.partition('.')[-1].lower() in {'html', 'htm', 'xhtm',
+                        'xhtml'}:
                     self.hhc_path = f
                     break
 
@@ -167,6 +168,9 @@ class CHMReader(CHMFile):
                         'contents.htm', 'contents.html'):
                     self.hhc_path = os.path.relpath(x, output_dir)
                     break
+
+        if self.hhc_path not in files and files:
+            self.hhc_path = files[0]
 
     def _reformat(self, data, htmlpath):
         if self.input_encoding:
