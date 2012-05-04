@@ -64,11 +64,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     continue
                 id = mo.group()
                 
-                cover_url = ''
-                cover_load = ''.join(data.xpath('.//div[@class="img"]//img/@onload'))
-                mo = re.search('(?<=\').+?(?=\')', cover_load)
-                if mo:
-                    cover_url = mo.group();
+                cover_url = ''.join(data.xpath('.//div[@class="img"]//img/@src'))
                 
                 title = ''
                 author = ''

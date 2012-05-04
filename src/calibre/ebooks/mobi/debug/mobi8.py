@@ -2,19 +2,20 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, imghdr, struct
+import sys, os, imghdr, struct, textwrap
 from itertools import izip
 
 from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.headers import TextRecord
 from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
         GuideIndex)
-from calibre.ebooks.mobi.utils import read_font_record, decode_tbs
+from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 
@@ -140,9 +141,10 @@ class MOBIFile(object):
             self.files.append(File(skel, skeleton, ftext, first_aid, sections))
 
     def dump_flows(self, ddir):
-        if self.fdst is None:
-            raise ValueError('This MOBI file has no FDST record')
-        for i, x in enumerate(self.fdst.sections):
+        boundaries = [(0, len(self.raw_text))]
+        if self.fdst is not None:
+            boundaries = self.fdst.sections
+        for i, x in enumerate(boundaries):
             start, end = x
             raw = self.raw_text[start:end]
             with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
@@ -185,42 +187,61 @@ class MOBIFile(object):
                 payload))
 
     def read_tbs(self):
-        from calibre.ebooks.mobi.writer8.tbs import (Entry,
-                collect_indexing_data)
+        from calibre.ebooks.mobi.writer8.tbs import (Entry, DOC,
+                collect_indexing_data, encode_strands_as_sequences,
+                sequences_to_bytes)
         entry_map = []
         for index in self.ncx_index:
-            enders = [e['pos'] for e in self.ncx_index if e['pos'] >
-                    index['pos'] and
-                    e['hlvl'] <= index['hlvl']]
-            end = min(enders+[len(self.raw_text)])
+            vals = list(index)[:-1] + [None, None, None, None]
+            entry_map.append(Entry(*vals))
 
-            entry_map.append(Entry(index=index['num'], title=index['text'],
-                depth=index['hlvl'],
-                parent=index['parent'] if index['parent'] > -1 else None,
-                first_child=index['child1'] if index['child1'] > -1 else None,
-                last_child=index['childn'] if index['childn'] > -1 else None,
-                start=index['pos'], length=end-index['pos']))
 
-        indexing_data = collect_indexing_data(entry_map,
-                len(self.text_records))
-        self.indexing_data = []
-        for i, data in enumerate(indexing_data):
+        indexing_data = collect_indexing_data(entry_map, list(map(len,
+            self.text_records)))
+        self.indexing_data = [DOC + '\n' +textwrap.dedent('''\
+                Index Entry lines are of the form:
+                depth:index_number [action] parent (index_num-parent) Geometry
+
+                Where Geometry is the start and end of the index entry w.r.t
+                the start of the text record.
+
+                ''')]
+        for i, strands in enumerate(indexing_data):
             rec = self.text_records[i]
             tbs_bytes = rec.trailing_data.get('indexing', b'')
             desc = ['Record #%d'%i]
-            for x in ('starts', 'completes', 'ends', 'spans'):
-                points = ['\t%d at depth: %d'%(e.index, e.depth) for e in
-                    getattr(data, x)]
-                if points:
-                    desc.append(x+':')
-                    desc.extend(points)
+            for s, strand in enumerate(strands):
+                desc.append('Strand %d'%s)
+                for entries in strand.itervalues():
+                    for e in entries:
+                        desc.append(
+                        ' %s%d [%-9s] parent: %s (%d) Geometry: (%d, %d)'%(
+                            e.depth * ('  ') + '- ', e.index, e.action, e.parent,
+                            e.index-(e.parent or 0), e.start-i*RECORD_SIZE,
+                            e.start+e.length-i*RECORD_SIZE))
             desc.append('TBS Bytes: ' + format_bytes(tbs_bytes))
-            val, extra, consumed = decode_tbs(tbs_bytes, flag_size=3)
-            extra = {bin(k):v for k, v in extra.iteritems()}
-            desc.append('First sequence: %r %r'%(val, extra))
-            byts = tbs_bytes[consumed:]
-            if byts:
-                desc.append('Remaining bytes: %s'%format_bytes(byts))
+            flag_sz = 3
+            sequences = []
+            otbs = tbs_bytes
+            while tbs_bytes:
+                try:
+                    val, extra, consumed = decode_tbs(tbs_bytes, flag_size=flag_sz)
+                except:
+                    break
+                flag_sz = 4
+                tbs_bytes = tbs_bytes[consumed:]
+                extra = {bin(k):v for k, v in extra.iteritems()}
+                sequences.append((val, extra))
+            for j, seq in enumerate(sequences):
+                desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))
+            if tbs_bytes:
+                desc.append('Remaining bytes: %s'%format_bytes(tbs_bytes))
+            calculated_sequences = encode_strands_as_sequences(strands)
+            calculated_bytes = sequences_to_bytes(calculated_sequences)
+            if calculated_bytes != otbs:
+                print ('WARNING: TBS mismatch for record %d'%i)
+                desc.append('WARNING: TBS mismatch!')
+                desc.append('Calculated sequences: %r'%calculated_sequences)
             desc.append('')
             self.indexing_data.append('\n'.join(desc))
 
@@ -233,8 +254,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows',
-            'tbs'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows'):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -260,7 +280,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(os.path.join(ddir, 'guide.record'), 'wb') as fo:
         fo.write(str(f.guide_index).encode('utf-8'))
 
-    with open(os.path.join(ddir, 'tbs', 'all.txt'), 'wb') as fo:
+    with open(os.path.join(ddir, 'tbs.txt'), 'wb') as fo:
         fo.write(('\n'.join(f.indexing_data)).encode('utf-8'))
 
     for part in f.files:

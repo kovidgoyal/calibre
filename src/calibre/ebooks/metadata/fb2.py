@@ -8,7 +8,6 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
 import os
 import datetime
 from functools import partial
-from base64 import b64decode
 from lxml import etree
 from calibre.utils.date import parse_date
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
@@ -143,6 +142,7 @@ def _parse_cover(root, mi):
             pass
 
 def _parse_cover_data(root, imgid, mi):
+    from calibre.ebooks.fb2 import base64_decode
     elm_binary = XPath('//fb2:binary[@id="%s"]'%imgid)(root)
     if elm_binary:
         mimetype = elm_binary[0].get('content-type', 'image/jpeg')
@@ -156,7 +156,8 @@ def _parse_cover_data(root, imgid, mi):
         if mime_extensions:
             pic_data = elm_binary[0].text
             if pic_data:
-                mi.cover_data = (mime_extensions[0][1:], b64decode(pic_data))
+                mi.cover_data = (mime_extensions[0][1:],
+                        base64_decode(pic_data.strip()))
         else:
             prints("WARNING: Unsupported coverpage mime-type '%s' (id=#%s)" % (mimetype, imgid) )
 

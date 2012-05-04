@@ -334,7 +334,7 @@ class CoverView(QWidget): # {{{
             self.pixmap = pmap
             self.do_layout()
             self.update()
-            self.update_tooltip()
+            self.update_tooltip(getattr(self.parent(), 'current_path', ''))
             if not config['disable_animations']:
                 self.animation.start()
             id_ = self.data.get('id', None)

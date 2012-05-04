@@ -1142,6 +1142,19 @@ class Manifest(object):
             element(elem, OPF('item'), attrib=attrib)
         return elem
 
+    @dynamic_property
+    def main_stylesheet(self):
+        def fget(self):
+            ans = getattr(self, '_main_stylesheet', None)
+            if ans is None:
+                for item in self:
+                    if item.media_type.lower() in OEB_STYLES:
+                        ans = item
+                        break
+            return ans
+        def fset(self, item):
+            self._main_stylesheet = item
+        return property(fget=fget, fset=fset)
 
 class Spine(object):
     """Collection of manifest items composing an OEB data model book's main

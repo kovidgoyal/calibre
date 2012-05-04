@@ -549,6 +549,9 @@ class TextRecord(object): # {{{
                 raw = '%s : %r\n\n'%(k, v)
                 f.write(raw.encode('utf-8'))
 
+    def __len__(self):
+        return len(self.raw)
+
 # }}}
 
 

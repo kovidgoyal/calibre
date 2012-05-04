@@ -7,6 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -28,23 +29,27 @@ class BNStore(BasicStoreConfig, StorePlugin):
         if random.randint(1, 10) in (1, 2, 3):
             pub_id = '0dsO3kDu/AU'
 
-        base_url = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=229293.1&type=10&tmpid=8433&RD_PARM1=' % pub_id
-        url = base_url + 'http%253A%252F%252Fwww.barnesandnoble.com%252F'
+        murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&offerid=239662.13&type=3&subid=0' % pub_id
 
         if detail_item:
-            detail_item = base_url + detail_item
+            purl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=239662.%s&type=2&subid=0' % (pub_id, detail_item)
+            url = purl
+        else:
+            purl = None
+            url = murl
+
+        #print(url)
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            open_url(QUrl(url_slash_cleaner(url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            d = WebStoreDialog(self.gui, murl, parent, purl)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        query = query.replace(' ', '-')
-        url = 'http://www.barnesandnoble.com/s/%s?store=nookstore' % query
+        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook' % (query.replace(' ', '-'), urllib.quote_plus(query))
 
         br = browser()
 
@@ -55,9 +60,10 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//a[contains(@class, "thumb")]/@href'))
+                id = ''.join(data.xpath('.//div[contains(@class, "display-tile-item")]/@data-bn-ean'))
                 if not id:
                     continue
+
                 cover_url = ''.join(data.xpath('.//img[contains(@class, "product-image")]/@src'))
 
                 title = ''.join(data.xpath('.//a[@class="title"]//text()'))
