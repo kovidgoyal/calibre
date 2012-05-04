@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-27 10:15+0000\n"
-"Last-Translator: Maarten de Vries <maarten.k.de.vries@gmail.com>\n"
+"PO-Revision-Date: 2012-05-04 04:22+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:39+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-05-04 04:45+0000\n"
+"X-Generator: Launchpad (build 15195)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -8575,6 +8575,7 @@ msgstr "&laden"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:121
 msgid "Save this list of expressions so that you can re-use it easily"
 msgstr ""
+"Bewaar de lijst met uitdrukkingen om deze later makkelijk te kunnen gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
@@ -22905,7 +22906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:504
 msgid "Compile General Program Mode templates to Python"
-msgstr ""
+msgstr "Strandaard programmamodus sjablonen compileren naar Python"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:505
 msgid ""

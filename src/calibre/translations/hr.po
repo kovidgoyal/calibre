@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2011-08-05 17:51+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-05-03 19:07+0000\n"
+"Last-Translator: Tomislav Pešut <tomislav.pesut@edu.fit.ba>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-28 04:48+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-05-04 04:46+0000\n"
+"X-Generator: Launchpad (build 15195)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -307,7 +307,7 @@ msgstr "Čitaj metapodatke iz %s datoteka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:327
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Ćitaj metapodatke iz elektroničkih knjiga u RAR arhivama"
+msgstr "Čitaj metapodatke iz elektroničkih knjiga u RAR arhivama"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:401
 msgid "Read metadata from ebooks in ZIP archives"
@@ -332,11 +332,11 @@ msgstr "Postavi metapodatke iz %s datoteka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Dodaj knjige u calibre ili priključenom uređaju"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Preuzmi bilješke od priključenog Kidle (eksperimentalna funkcija)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Generate a catalog of the books in your calibre library"
@@ -348,7 +348,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Izbriši knjige iz calibre kolekcije ili priključenog uređaja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Edit the metadata of books in your calibre library"
@@ -489,7 +489,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
 msgid "Searching"
-msgstr "Pretraživanje"
+msgstr "Tražim"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:968
 msgid "Customize the way searching for books works in calibre"
@@ -507,7 +507,7 @@ msgstr "Konverzija"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:979
 msgid "Set conversion options specific to each input format"
-msgstr ""
+msgstr "Postavi opcije konverzije specifične za svaki ulazni format"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:984
 msgid "Common Options"
@@ -519,7 +519,7 @@ msgstr "Postavi opcije konverzije zajedničke za sve formate"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:995
 msgid "Output Options"
-msgstr ""
+msgstr "Izlazne opcije"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1001
 msgid "Set conversion options specific to each output format"
@@ -627,7 +627,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Tweaks"
-msgstr ""
+msgstr "Ugađanja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1118
 msgid "Fine tune how calibre behaves in various contexts"
@@ -635,7 +635,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1123
 msgid "Keyboard"
-msgstr ""
+msgstr "Tipkovnica"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -838,11 +838,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:732
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Ovaj profil je namijenjen za B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:743
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Ovaj profil je namijenjen za B&N Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:758
 msgid ""
@@ -991,7 +991,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Isključi Apple Driver"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:81
 msgid "Enable Apple driver"

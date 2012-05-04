@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-04-29 07:11+0000\n"
+"PO-Revision-Date: 2012-05-03 15:07+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-04-30 04:40+0000\n"
-"X-Generator: Launchpad (build 15171)\n"
+"X-Launchpad-Export-Date: 2012-05-04 04:46+0000\n"
+"X-Generator: Launchpad (build 15195)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3417,7 +3417,7 @@ msgstr "Наведи продуцента књиге."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:531
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:72
 msgid "Set the language."
-msgstr "Наведи језик."
+msgstr "Наведи језик"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:535
 msgid "Set the publication date."
@@ -17024,6 +17024,8 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Одаберите ваш уређај е -књига . Ако ваш уређај није на списку, изаберите "
+"\"%s\" уређај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:562
 msgid "Moving library..."
@@ -17131,13 +17133,15 @@ msgid ""
 msgstr ""
 "<h2>Демо снимци</h2>Снимци који демонстрирају различите функције програма "
 "calibre су вам на располагању на <a href=\"http://calibre-"
-"ebook.com/demo\">Internetu</a>."
+"ebook.com/demo\">Интернету</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
 msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>Корисничко упутство</h2>Упутство за коришћење је такође доступно<a "
+"href=\"http://manual.calibre-ebook.com\">на мрежи</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -18992,7 +18996,7 @@ msgstr ""
 "оптимизиованом за мобилне уређаје на адреси /mobile\n"
 "као и OPDS интерфејс намењен читачима на адреси /opds.\n"
 "\n"
-"OPDS interfejs se automatski najavljuje preko Bonjour servisa.\n"
+"OPDS интерфејс се аутоматски најављује преко Bonjour сервиса.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:52
 msgid "Path to the library folder to serve with the content server"
@@ -19739,7 +19743,7 @@ msgstr "Радим..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "Brazilian Portuguese"
-msgstr "Бразилски (Португалски)"
+msgstr "Португалски (Бразил)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (UK)"
@@ -19771,7 +19775,7 @@ msgstr "Енглески (Јапан)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Germany)"
-msgstr "Енглески (Немачки)"
+msgstr "Енглески (Немачка)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Bulgaria)"

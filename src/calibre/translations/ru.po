@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-04-27 05:30+0000\n"
-"PO-Revision-Date: 2012-05-02 22:30+0000\n"
+"PO-Revision-Date: 2012-05-03 21:56+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-03 05:25+0000\n"
-"X-Generator: Launchpad (build 15185)\n"
+"X-Launchpad-Export-Date: 2012-05-04 04:46+0000\n"
+"X-Generator: Launchpad (build 15195)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -5064,7 +5064,7 @@ msgstr "Архивы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "Файлы Word"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -9939,7 +9939,7 @@ msgstr "&Скрыть все задания"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:296
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:51
 msgid "&Copy to clipboard"
-msgstr "&Скопировать в буфер обмена"
+msgstr "&Копировать в буфер обмена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:299
@@ -10275,7 +10275,7 @@ msgstr "&Применить дату"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:585
 msgid "&Published:"
-msgstr "&Издана:"
+msgstr "Оп&убликовано:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid "Clear published date"
@@ -18607,6 +18607,13 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
+"Противоречивые значения \"Сортировочных имён авторов\" для\n"
+"Автор '{0}':\n"
+"'{1}' <> '{2}'\n"
+"Не удалось создать каталог MOBI.\n"
+"\n"
+"Выберите все книги '{0}', примените корректное Сортировочное имя автора в "
+"диалоге редактирования метаданных и перестройте каталог.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:596
 msgid ""
@@ -18614,12 +18621,17 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Внимание: противоречивые значения \"Сортировочных имён авторов\" для\n"
+"Author '{0}':\n"
+"'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:791
 msgid ""
 "No books found to catalog.\n"
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
+"Не найдено книг в каталоге.\n"
+"Проверьте фильтр \"Исключаемые книги\" в настройках.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:793
 msgid "No books available to include in catalog"
@@ -18631,7 +18643,7 @@ msgstr "Недопустимые названия"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:27
 msgid "Extra titles"
-msgstr ""
+msgstr "Дополнительные заголовки"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:28
 msgid "Invalid authors"
@@ -18797,7 +18809,7 @@ msgstr "Добавить пустую книгу (книгу без формат
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:311
 msgid "Set the title of the added book(s)"
-msgstr ""
+msgstr "Установите заголовок добавляемой книги(книг)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid "Set the authors of the added book(s)"
@@ -19031,6 +19043,10 @@ msgid ""
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr ""
+"Фильтровать результаты по поисковому запрому. О формате поискового запроса, "
+"пожалуйста читайте связанную с поиском документацию в Инструкции "
+"Пользователя.\n"
+"По умолчанию: не фильтруется (no filtering)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:710
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:528
@@ -19052,12 +19068,23 @@ msgid ""
 "    command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog set_custom [настройки] столбец идентификатор значение\n"
+"\n"
+"    Устанавливает значение пользовательского столбца для книги определённой "
+"по идентификатору.\n"
+"    Вы можете получить список идентификаторов используя команду list.\n"
+"    Вы можете получить список имён столбцов используя команду "
+"custom_columns.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:780
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
+"Если столбец содержит несколько значений, добавить указанное значение к "
+"существующим, а не заменять их."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:791
 msgid "Error: You must specify a field name, id and value"
@@ -19071,6 +19098,12 @@ msgid ""
 "    List available custom columns. Shows column labels and ids.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog custom_columns [настройки]\n"
+"\n"
+"    Список пользовательских столбцов. Показывает пользовательские метки и "
+"идентификаторы.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:817
 msgid "Show details for each column."
@@ -19094,6 +19127,13 @@ msgid ""
 "    columns with the custom_columns command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog remove_custom_column [настройки] метка\n"
+"\n"
+"    Удаляет пользовательский столбец, определённый по метке.bel. \n"
+"    Вы можете получить список имён столбцов используя команду "
+"custom_columns.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:845
 msgid "Do not ask for confirmation"
@@ -19115,14 +19155,25 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [настройки] список\n"
+"    %prog saved_searches add название поиск\n"
+"    %prog saved_searches remove название\n"
+"\n"
+"    Управляет сохранёнными поисками хранящимися в базе данных.\n"
+"    Если вы попытаетесь добавить запрос с именем которое уже существует, \n"
+"    он будет перемещён.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:883
 msgid "Error: You must specify an action (add|remove|list)"
 msgstr ""
+"Ошибка: Вы должны определить действие "
+"(добавить(add)|удалить(remove)|список(list))"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:891
 msgid "Name:"
-msgstr ""
+msgstr "Название:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:892
 msgid "Search string:"
@@ -19134,7 +19185,7 @@ msgstr "Ошибка: Вы должны указать имя и строку п
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:901
 msgid "added"
-msgstr ""
+msgstr "добавлено"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:906
 msgid "Error: You must specify a name"
@@ -19142,12 +19193,14 @@ msgstr "Ошибка: Вы должны указать имя"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:909
 msgid "removed"
-msgstr ""
+msgstr "удалено"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:913
 #, python-format
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
+"Ошибка: Действие %s не распознано, должно быть одно из: "
+"(добавить(add)|удалить(remove)|список(list))"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:921
 msgid ""
@@ -19156,6 +19209,10 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
+"%prog check_library [настройки]\n"
+"\n"
+"Выполняет некоторые проверки файловой системы представляющей библиотеку. "
+"Отчёты {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:928
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1078
@@ -19167,22 +19224,28 @@ msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"Разделённый запятой список отчётов.\n"
+"По умолчанию: все (all)."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:935
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
+"Разделённый запятой список игнорируемых расширений.\n"
+"По умолчанию: все (all)."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:939
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
+"Разделённый запятой список игнорируемых названий.\n"
+"По умолчанию: все (all)."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:969
 msgid "Unknown report check"
-msgstr ""
+msgstr "Неизвестная отметка отчёта"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1003
 msgid ""
@@ -19198,17 +19261,31 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
+"%prog restore_database [настройки]\n"
+"\n"
+"Восстанавливает текущую базу данных из метаданных хранящихся \n"
+"в OPF файлах в каждой папке библиотеки. Это полезно если \n"
+"был повреждён ваш файл metadata.db.\n"
+"\n"
+"ВНИМАНИЕ: Эта команда полностью перестоздаёт вашу базу данных. \n"
+"Вы потеряете все сохранённые поиски, пользовательские категории, \n"
+"связи метаданных, настройки преобразования каждой книги, \n"
+"и пользовательские функции. Восстановленные метаданные будут \n"
+"полностью зависеть от того, что будет найдено в файлах OPF.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1017
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Действительно сделать восстановление. Команда не запустится пока эта опция "
+"не определена."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1030
 #, python-format
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "Вы должны указать опцию %s что бы произвести восстановление"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1067
 msgid ""
@@ -19217,6 +19294,10 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [настройки]\n"
+"\n"
+"Генерирует отчёт по категориям в базе данных. \n"
+"Информация соответствует той, что отображается в панели тэгов.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1075
 msgid ""
@@ -19231,20 +19312,26 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Символ который ставится за значением категории в CSV режиме. По умолчанию "
+"это кавычка (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1083
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Разделённый запятой список поисковых имён категории.\n"
+"По умолчанию: все (all)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1089
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"Строка используемая для разделения полей в CSV режиме. По умолчанию это "
+"запятая."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1127
 msgid "CATEGORY ITEMS"
-msgstr ""
+msgstr "ЭЛЕМЕНТЫ КАТЕГОРИИ"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1200
 #, python-format
@@ -19351,6 +19438,8 @@ msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
 msgstr ""
+"Номер серии. Что бы пропустить начальные нули используйте "
+"{series_index:0>3s} или {series_index:>3s} для начальных пробелов"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
@@ -19483,11 +19572,13 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"Неудача при рассчёте пути сохранения на диск. Шаблон: %(templ)s\n"
+"Ошибка: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:309
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
-msgstr ""
+msgstr "В результате оценки шаблона не обнаружено компонент пути. Шаблон: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:405
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:438
@@ -19552,6 +19643,8 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
+"Префикс добавляемый ко всем адресам. Полезно для переадресации на этот "
+"сервер из Apache/nginx/и т.д."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
@@ -19597,7 +19690,7 @@ msgstr "Средний рейтинг"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
 #, python-format
 msgid "%(prefix)s: %(rating).1f stars"
-msgstr ""
+msgstr "%(prefix)s: %(rating).1f звёзд"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
 #, python-format
@@ -19623,7 +19716,7 @@ msgstr "главная"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
 msgid "Browse books by"
-msgstr ""
+msgstr "Отобразить книги по"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
 msgid "Choose a category to browse by:"
@@ -19631,7 +19724,7 @@ msgstr "Выберите категорию:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Browsing by"
-msgstr ""
+msgstr "Отображать по"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
 msgid "Up"
@@ -19652,7 +19745,7 @@ msgstr "Другие форматы"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
 #, python-format
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr ""
+msgstr "Читать %(title)s в формате %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:770
 msgid "Get"
@@ -19717,6 +19810,8 @@ msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
 msgstr ""
+"Задаёт ограничения которые будут использованы при этом вызове. Эта опция "
+"заменяет любые опции для библиотек, определённые в интерфейсе"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:62
 msgid ""
@@ -19761,7 +19856,7 @@ msgstr "ТЕГИ: %s<br />"
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:178
 #, python-format
 msgid "SERIES: %(series)s [%(sidx)s]<br />"
-msgstr ""
+msgstr "СЕРИИ: %(series)s [%(sidx)s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:276
 msgid "Books in your library"
@@ -19769,7 +19864,7 @@ msgstr "Книги в вашей библиотеке"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:282
 msgid "By "
-msgstr ""
+msgstr "По "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:283
 msgid "Books sorted by "
@@ -19777,7 +19872,7 @@ msgstr "Книги, сортированные "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:34
 msgid "Usage"
-msgstr ""
+msgstr "Использовано"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:85
 msgid "Created by "
@@ -19932,7 +20027,7 @@ msgstr "%s: неизвестная функция"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:541
 msgid "No such variable "
-msgstr ""
+msgstr "Нет такой переменной "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:77
 msgid "No documentation provided"
@@ -20674,7 +20769,7 @@ msgstr "Английский (Япония)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Germany)"
-msgstr ""
+msgstr "Английский (Германия)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Bulgaria)"
@@ -20682,7 +20777,7 @@ msgstr "Английский (Болгария)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Egypt)"
-msgstr ""
+msgstr "Английский (Египт)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (New Zealand)"
@@ -20962,7 +21057,7 @@ msgstr "Не удалось получить статью."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:978
 msgid "The debug traceback is available earlier in this log"
-msgstr ""
+msgstr "Отладочня трассировка доступна ранее в этом журнале"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:980
 msgid "Run with -vv to see the reason"
@@ -21010,7 +21105,7 @@ msgstr "Выходные данные изображения загрузили"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1260
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Статьи в этом выпуске: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1332
 msgid "Untitled Article"
@@ -21162,6 +21257,11 @@ msgid ""
 "a link, it will be ignored. By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Любая ссылка совпадающя с этим регулярным выражением будет игнорироваться. "
+"Эта опция может быть определена много раз и пока хоть одно выражение "
+"совпадает со ссылкой, она будет игнорироваться. По умолчанию ссылки не "
+"игнорируются. Если определены одновременно регулярное выражение фильтра и "
+"выражение совпадения, то фильтрующее выражение срабатывает первым."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:527
 msgid "Do not download CSS stylesheets."
@@ -21371,6 +21471,14 @@ msgid ""
 "switch\n"
 "to ascii ordering for performance reasons."
 msgstr ""
+"По умолчанию, calibre использует зависящую от локализации лексикографическую "
+"сортировку, когда отображает конечные значения. Это означает что порядок "
+"сортировки верен для пользовательского языка. Однако это может работать "
+"медленно. Производительность повысится при переходе на ASCII сортировку. Эта "
+"настройка управляет тем, когда это переключение должно происходить. "
+"Установите его равным нулю что бы всегда использовать ASCII сортировку. "
+"Установите значение выше нуля для включения ASCII сортировки при плохой "
+"производительности."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
