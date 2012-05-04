@@ -102,12 +102,13 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
 
 class CSSFlattener(object):
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
-                 untable=False, page_break_on_body=False):
+                 untable=False, page_break_on_body=False, specializer=None):
         self.fbase = fbase
         self.fkey = fkey
         self.lineh = lineh
         self.unfloat = unfloat
         self.untable = untable
+        self.specializer = specializer
         self.page_break_on_body = page_break_on_body
 
     @classmethod
@@ -391,9 +392,9 @@ class CSSFlattener(object):
         href = item.relhref(href)
         etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
-        stylizer.page_rule['margin-top'] = '%fpt'%\
+        stylizer.page_rule['margin-top'] = '%gpt'%\
                 float(self.context.margin_top)
-        stylizer.page_rule['margin-bottom'] = '%fpt'%\
+        stylizer.page_rule['margin-bottom'] = '%gpt'%\
                 float(self.context.margin_bottom)
 
         items = stylizer.page_rule.items()
@@ -423,6 +424,8 @@ class CSSFlattener(object):
         for item in self.oeb.spine:
             html = item.data
             stylizer = self.stylizers[item]
+            if self.specializer is not None:
+                self.specializer(item, stylizer)
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
             self.flatten_node(body, stylizer, names, styles, fsize, item.id)
