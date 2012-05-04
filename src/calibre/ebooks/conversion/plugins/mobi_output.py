@@ -258,9 +258,6 @@ class AZW3Output(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Disable compression of the file contents.')
         ),
-        OptionRecommendation(name='personal_doc', recommended_value='[PDOC]',
-            help=_('Tag marking book to be filed with Personal Docs')
-        ),
         OptionRecommendation(name='mobi_toc_at_start',
             recommended_value=False,
             help=_('When adding the Table of Contents to the book, add it at the start of the '
