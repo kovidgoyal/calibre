@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import Counter
 
-from calibre.ebooks.oeb.base import OEB_STYLES, barename, XPath
+from calibre.ebooks.oeb.base import barename, XPath
 
 class RemoveAdobeMargins(object):
     '''
@@ -51,10 +51,7 @@ class RemoveFakeMargins(object):
         self.stats = {}
         self.selector_map = {}
 
-        for item in self.oeb.manifest:
-            if item.media_type.lower() in OEB_STYLES:
-                stylesheet = item
-                break
+        stylesheet = self.oeb.manifest.main_stylesheet
         if stylesheet is None:
             return
 

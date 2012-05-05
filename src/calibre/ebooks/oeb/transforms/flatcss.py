@@ -378,7 +378,7 @@ class CSSFlattener(object):
         for child in node:
             self.flatten_node(child, stylizer, names, styles, psize, item_id, left)
 
-    def flatten_head(self, item, stylizer, href):
+    def flatten_head(self, item, href, global_href):
         html = item.data
         head = html.find(XHTML('head'))
         for node in head:
@@ -390,33 +390,55 @@ class CSSFlattener(object):
                  and node.get('type', CSS_MIME) in OEB_STYLES:
                 head.remove(node)
         href = item.relhref(href)
-        etree.SubElement(head, XHTML('link'),
+        l = etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
-        stylizer.page_rule['margin-top'] = '%gpt'%\
-                float(self.context.margin_top)
-        stylizer.page_rule['margin-bottom'] = '%gpt'%\
-                float(self.context.margin_bottom)
-
-        items = stylizer.page_rule.items()
-        items.sort()
-        css = '; '.join("%s: %s" % (key, val) for key, val in items)
-        style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
-        style.text = "\n\t\t@page { %s; }" % css
-        rules = [r.cssText for r in stylizer.font_face_rules]
-        raw = '\n\n'.join(rules)
-        # Make URLs referring to fonts relative to this item
-        sheet = cssutils.parseString(raw, validate=False)
-        cssutils.replaceUrls(sheet, item.relhref, ignoreImportRules=True)
-        style.text += '\n' + sheet.cssText
+        l.tail='\n'
+        href = item.relhref(global_href)
+        l = etree.SubElement(head, XHTML('link'),
+            rel='stylesheet', type=CSS_MIME, href=href)
+        l.tail = '\n'
 
     def replace_css(self, css):
         manifest = self.oeb.manifest
-        id, href = manifest.generate('css', 'stylesheet.css')
         for item in manifest.values():
             if item.media_type in OEB_STYLES:
                 manifest.remove(item)
-        item = manifest.add(id, href, CSS_MIME, data=css)
+        id, href = manifest.generate('css', 'stylesheet.css')
+        item = manifest.add(id, href, CSS_MIME, data=cssutils.parseString(css,
+            validate=False))
+        self.oeb.manifest.main_stylesheet = item
         return href
+
+    def collect_global_css(self):
+        global_css = defaultdict(list)
+        for item in self.oeb.spine:
+            stylizer = self.stylizers[item]
+            stylizer.page_rule['margin-top'] = '%gpt'%\
+                    float(self.context.margin_top)
+            stylizer.page_rule['margin-bottom'] = '%gpt'%\
+                    float(self.context.margin_bottom)
+            items = stylizer.page_rule.items()
+            items.sort()
+            css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
+            css = '@page {\n%s\n}\n'%css
+            rules = [r.cssText for r in stylizer.font_face_rules]
+            raw = '\n\n'.join(rules)
+            css += '\n\n' + raw
+            global_css[css].append(item)
+
+        gc_map = {}
+        manifest = self.oeb.manifest
+        for css in global_css:
+            id_, href = manifest.generate('page_css', 'page_styles.css')
+            manifest.add(id_, href, CSS_MIME, data=cssutils.parseString(css,
+                validate=False))
+            gc_map[css] = href
+
+        ans = {}
+        for css, items in global_css.iteritems():
+            for item in items:
+                ans[item] = gc_map[css]
+        return ans
 
     def flatten_spine(self):
         names = defaultdict(int)
@@ -433,7 +455,8 @@ class CSSFlattener(object):
         items.sort()
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
         href = self.replace_css(css)
+        global_css = self.collect_global_css()
         for item in self.oeb.spine:
             stylizer = self.stylizers[item]
-            self.flatten_head(item, stylizer, href)
+            self.flatten_head(item, href, global_css[item])
 
