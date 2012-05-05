@@ -113,6 +113,9 @@ class HTMLFile(object):
                 raise IOError(msg)
             raise IgnoreFile(msg, err.errno)
 
+        if not src:
+            raise ValueError('The file %s is empty'%self.path)
+
         if not self.is_binary:
             if not encoding:
                 encoding = detect_xml_encoding(src[:4096], verbose=verbose)[1]
