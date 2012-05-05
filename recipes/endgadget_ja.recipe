@@ -17,7 +17,26 @@ class EndgadgetJapan(BasicNewsRecipe):
     no_stylesheets = True
     language = 'ja'
     encoding = 'utf-8'
-    feeds          = [(u'engadget', u'http://japanese.engadget.com/rss.xml')]
+    index = 'http://japanese.engadget.com/'
+    remove_javascript = True
 
-    remove_tags_before = dict(name="div", attrs={'id':"content_wrap"})
-    remove_tags_after = dict(name='h3', attrs={'id':'addcomments'})
+    remove_tags_before = dict(name="h1", attrs={'class':"post_title"})
+    remove_tags_after = dict(name='div', attrs={'class':'post_body'})
+
+    def parse_index(self):
+        feeds = []
+        newsarticles = []
+        soup   = self.index_to_soup(self.index)
+        for topstories in soup.findAll('div',attrs={'class':'post_content'}):
+           itt = topstories.find('h4')
+           itema = itt.find('a',href=True)
+           itemdiv = itema.find('div',attrs={'class':'post_body'})
+           newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'       :''
+                                     ,'url'        :itema['href']
+                                     ,'description':''
+                                    })
+        feeds.append(('Latest Posts', newsarticles))
+        return feeds
+
