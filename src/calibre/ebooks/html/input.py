@@ -114,7 +114,9 @@ class HTMLFile(object):
             raise IgnoreFile(msg, err.errno)
 
         if not src:
-            raise ValueError('The file %s is empty'%self.path)
+            if level == 0:
+                raise ValueError('The file %s is empty'%self.path)
+            self.is_binary = True
 
         if not self.is_binary:
             if not encoding:
