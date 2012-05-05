@@ -259,33 +259,36 @@ class RuleEditor(QDialog): # {{{
         l.addWidget(l3, 2, 2)
 
         self.color_box = QComboBox(self)
+        self.color_label = QLabel('Sample text Sample text')
+        self.color_label.setTextFormat(Qt.RichText)
         l.addWidget(self.color_box, 2, 3)
-        l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 4)
+        l.addWidget(self.color_label, 2, 4)
+        l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 5)
 
         self.l4 = l4 = QLabel(
             _('Only if the following conditions are all satisfied:'))
-        l.addWidget(l4, 3, 0, 1, 5)
+        l.addWidget(l4, 3, 0, 1, 6)
 
         self.scroll_area = sa = QScrollArea(self)
         sa.setMinimumHeight(300)
         sa.setMinimumWidth(950)
         sa.setWidgetResizable(True)
-        l.addWidget(sa, 4, 0, 1, 5)
+        l.addWidget(sa, 4, 0, 1, 6)
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add another condition'))
-        l.addWidget(b, 5, 0, 1, 5)
+        l.addWidget(b, 5, 0, 1, 6)
         b.clicked.connect(self.add_blank_condition)
 
         self.l5 = l5 = QLabel(_('You can disable a condition by'
             ' blanking all of its boxes'))
-        l.addWidget(l5, 6, 0, 1, 5)
+        l.addWidget(l5, 6, 0, 1, 6)
 
         self.bb = bb = QDialogButtonBox(
                 QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb, 7, 0, 1, 5)
+        l.addWidget(bb, 7, 0, 1, 6)
 
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
@@ -308,7 +311,20 @@ class RuleEditor(QDialog): # {{{
         self.color_box.addItems(QColor.colorNames())
         self.color_box.setCurrentIndex(0)
 
+        self.update_color_label()
+        self.color_box.currentIndexChanged.connect(self.update_color_label)
         self.resize(self.sizeHint())
+
+    def update_color_label(self):
+        pal = QApplication.palette()
+        bg1 = unicode(pal.color(pal.Base).name())
+        bg2 = unicode(pal.color(pal.AlternateBase).name())
+        c = unicode(self.color_box.currentText())
+        self.color_label.setText('''
+            <span style="color: {c}; background-color: {bg1}">&nbsp;{st}&nbsp;</span>
+            <span style="color: {c}; background-color: {bg2}">&nbsp;{st}&nbsp;</span>
+            '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample Text')))
+
 
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
@@ -617,7 +633,7 @@ if __name__ == '__main__':
 
     db = db()
 
-    if False:
+    if True:
         d = RuleEditor(db.field_metadata)
         d.add_blank_condition()
         d.exec_()
