@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, error as re_error
+import re
 from math import ceil
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
@@ -184,7 +184,7 @@ class HeuristicProcessor(object):
                 except OverflowError:
                     # match.group(0) was too large to be compiled into a regex
                     continue
-                except re_error:
+                except re.error:
                     # the match was not a valid regular expression
                     continue
 
