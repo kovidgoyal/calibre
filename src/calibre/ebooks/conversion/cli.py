@@ -304,7 +304,10 @@ def read_sr_patterns(path, log=None):
 def main(args=sys.argv):
     log = Log()
     parser, plumber = create_option_parser(args, log)
-    opts = parser.parse_args(args)[0]
+    opts, leftover_args = parser.parse_args(args)
+    if len(leftover_args) > 3:
+        log.error('Extra arguments not understood:', u', '.join(leftover_args[3:]))
+        return 1
     for x in ('read_metadata_from_opf', 'cover'):
         if getattr(opts, x, None) is not None:
             setattr(opts, x, abspath(getattr(opts, x)))
