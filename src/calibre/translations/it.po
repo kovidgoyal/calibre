@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-04 19:27+0000\n"
-"Last-Translator: Rebek94 <Unknown>\n"
+"PO-Revision-Date: 2012-05-05 07:31+0000\n"
+"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-05 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-05-06 04:38+0000\n"
 "X-Generator: Launchpad (build 15195)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1567,10 +1567,10 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
-"Se si ha una colonna personalizzata nella propria libreria che viene usata "
-"per salvare il conteggio delle pagine dei libri, è possibile farla usare a "
-"calibre, invece di calcolare un conteggio delle pagine. Specificare il nome "
-"della colonna personalizzata qui, per esempio, #paggine. "
+"Se hai una colonna personalizzata nella bliblioteca che viene usata per "
+"salvare il conteggio delle pagine dei libri,  puoi farla usare a calibre, "
+"invece di calcolare un conteggio delle pagine. Specifica il nome della "
+"colonna personalizzata qui, ad esempio, #pagine. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:419
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1634,9 +1634,9 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
-"Le anteprime in Kobo sono incluse nella versione Touch ed altre. Di default, "
-"queste non sono più visualizzate, non ci sarebbe alcuna ragione di vederle. "
-"Abilita l'opzione se si desidera vederle/eliminarle."
+"Le anteprime in Kobo sono incluse nella versione Touch ed altre. In modo "
+"predefinito, non sono più visualizzate poiché non ci sarebbe alcuna ragione "
+"di vederle. Abilita l'opzione se desideri vederle/eliminarle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
@@ -4531,7 +4531,7 @@ msgstr "Scarica metadati e copertine da OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:52
 msgid "Sample Book"
-msgstr ""
+msgstr "Libro campione"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4539,15 +4539,15 @@ msgstr "Questo è un libro Amazon Topaz. Non può essere elaborato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "Non è un file MOBI, ma un file Topaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "Non è un file MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Questo file è protetto da DRM. Non può essere ottimizzato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -6534,7 +6534,7 @@ msgstr "Ottimizza libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:59
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Scegli il formato da ottimizzare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:69
 msgid ""
@@ -6565,11 +6565,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:98
 msgid "&Explode Book"
-msgstr ""
+msgstr "&Esplodi libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:99
 msgid "&Preview Book"
-msgstr ""
+msgstr "Ante&prima del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6581,61 +6581,65 @@ msgstr "&Annulla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:101
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "&Rigenera libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "Esplodi il libro per modificare i suoi componenti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "Anteprima dei risultati dell'ottimizzazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:108
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Interrompi senza salvare le modifiche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:110
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "Salva le modifiche e aggiorna il libro nella biblioteca di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:150
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "Esplosione in corso, attendi..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:180
 msgid "Failed to unpack"
-msgstr ""
+msgstr "Estrazione non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:171
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "Impossibile esplodere il file %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:181
 #, python-format
 msgid ""
 "Could not explode the %s file. Click \"Show Details\" for more information."
 msgstr ""
+"Impossibile esplodere il file %s. Fai clic su \"Mostra dettagli\" per "
+"ulteriori informazioni."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:215
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "Rigenerazione del file non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:216
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
 msgstr ""
+"Rigenerazione di %s non riuscita. Per ulteriori informazioni, fai clic su "
+"\"Mostra dettagli\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:233
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "Rigenerazione in corso, attendi..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:282
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
-msgstr ""
+msgstr "Apporta piccole modifiche ai libri nei formati ePub, HTMLZ or AZW3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:283
 msgid "T"
@@ -6647,7 +6651,7 @@ msgstr "Impossibile ottimizzare il libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:303
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Impossibile ottimizzare il libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:304
 msgid ""
@@ -6655,6 +6659,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Il libro deve essere in formato ePub, HTMLZ o AZW3 per essere ottimizzato.\n"
+"\n"
+"Converti prima il libro in uno di questi formati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7547,7 +7554,7 @@ msgstr "Sorgente HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "Output AZW3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
@@ -8697,11 +8704,11 @@ msgstr "&Salva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Sposta su l'espressione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Sposta giù l'espressione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -14449,7 +14456,7 @@ msgstr "Colonna costruita da altre colonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:48
 msgid "Column built from other columns, behaves like tags"
-msgstr ""
+msgstr "Colonna generata da altre colonne, si comporta come i tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:56

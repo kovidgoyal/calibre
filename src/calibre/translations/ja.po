@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-02 04:05+0000\n"
+"PO-Revision-Date: 2012-05-05 14:55+0000\n"
 "Last-Translator: vine_user <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-05-05 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-05-06 04:38+0000\n"
 "X-Generator: Launchpad (build 15195)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -427,7 +427,7 @@ msgstr "一つのCalibreライブラリから他へ本をコピーする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
-msgstr ""
+msgstr "あなたのCalibreライブラリにあるepubまたはhtmlzファイルに小さな設定変更を行う"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid ""
@@ -783,7 +783,7 @@ msgstr "iPadや同等の解像度(768x1024)のデバイス用です。"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "iPad 3 あるいは 1536x2048 の解像度をもつ同様なデバイス向け"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1290,7 +1290,7 @@ msgstr "PocketBook 701と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Infibeam Pi2電子書籍リーダーと通信する"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1404,7 +1404,7 @@ msgstr "JetBookミニリーダーと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "JetBook Colorリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1464,7 +1464,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:305
 msgid "Use slower but more accurate page number calculation"
-msgstr ""
+msgstr "より遅いが正確なページ番号計算を用いる"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:307
 msgid ""
@@ -3324,7 +3324,7 @@ msgstr "出版年月日を設定する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:540
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "本のタイムスタンプを設定（他では一切使われません）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:544
 msgid ""
@@ -4113,7 +4113,7 @@ msgstr "書誌情報と表紙をOZON.ruからダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:52
 msgid "Sample Book"
-msgstr ""
+msgstr "サンプル書籍"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4121,15 +4121,15 @@ msgstr "これはAmazon Topaz ブックです。処理できません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "MOBIファイルではありません。Topazファイルです。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "MOBIファイルではありません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "このファイルは、DRMで制限されています。調整できません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4137,6 +4137,8 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"このMOBIファイルは、KF8書籍フォーマットではありません。KF8は、Amazonの新しいフォーマットです。calibreは、KF8書籍からなるMOBI"
+"ファイルだけ調整可能です。KF8なしの古いMOBIファイルは、調整不可能です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4144,6 +4146,8 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"このMOBIファイルは、KF8と古いMobi6データを含んでいます。調整により、Mobi6データが削除されます。これにより、古いKindleで使えなくなり"
+"ますが、よろしいでしょうか?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -4708,7 +4712,7 @@ msgstr "書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "ワープロファイル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -4760,7 +4764,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "書籍の追加をコントロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -4789,7 +4793,7 @@ msgstr "よろしいですか？"
 msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
-msgstr ""
+msgstr "本当にすべての %d 書籍に同じファイルを追加しますか？書籍にそのフォーマットがすでに存在すれば、それは置き換えられます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:107
 msgid "Select book files"
@@ -4925,7 +4929,7 @@ msgstr "%s のカタログを生成中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
 msgid "Catalog generation complete, with warnings."
-msgstr ""
+msgstr "カタログ生成が、警告なく完了しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
@@ -5266,7 +5270,7 @@ msgstr "%(num)d 本を %(loc)s へコピーしました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:205
 msgid "Auto merged"
-msgstr ""
+msgstr "自動結合"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:206
 msgid ""
@@ -6008,11 +6012,11 @@ msgstr "本を入手について"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:281
 msgid "Tweak Book"
-msgstr ""
+msgstr "書籍の調整"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:59
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "調整するフォーマットの選択："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:69
 msgid ""
@@ -6043,11 +6047,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:98
 msgid "&Explode Book"
-msgstr ""
+msgstr "書籍の分解(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:99
 msgid "&Preview Book"
-msgstr ""
+msgstr "書籍のプレビュー(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6059,37 +6063,37 @@ msgstr "キャンセル(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:101
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "書籍の再構成(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "書籍の要素を編集するために、分解する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "調整結果のプレビュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:108
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "すべての変更を破棄して中断"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:110
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "calibreライブラリへの変更や、書籍更新を保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:150
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "分解中、おまちください…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:180
 msgid "Failed to unpack"
-msgstr ""
+msgstr "解凍失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:171
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "%sファイルの分解ができませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:181
 #, python-format
@@ -6099,7 +6103,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:215
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "ファイルの再構築の失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:216
 #, python-format
@@ -6109,7 +6113,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:233
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "再構成中です、お待ちください…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:282
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
@@ -6133,6 +6137,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"調整には、書籍フォーマットは、ePub, HTMLZまたはAZW3フォーマットである必要があります。\n"
+"\n"
+"最初に、これらのフォーマットへ変換してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7000,7 +7007,7 @@ msgstr "HTML のソース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "AZW3出力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
@@ -7916,7 +7923,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
 msgid "Failed to generate preview"
-msgstr ""
+msgstr "プレビューの生成に失敗しました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:191
 msgid "Open book"
@@ -7985,7 +7992,7 @@ msgstr "検索に使う正規表現(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "テキストの置換え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
@@ -8002,7 +8009,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:113
 msgid "Failed to read"
-msgstr ""
+msgstr "読み込みに失敗しました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:114
 #, python-format
@@ -8011,11 +8018,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:120
 msgid "Save Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Calibre 検索-置換の定義ファイルを保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:196
 msgid "Unused Search & Replace definition"
-msgstr ""
+msgstr "検索と置換の定義が使用されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:197
 msgid ""
@@ -8039,11 +8046,11 @@ msgstr "次の正規表現は無効です: %s"
 msgid ""
 "The list of search/replace definitions that will be applied to this "
 "conversion."
-msgstr ""
+msgstr "この登録で適用される検索/置換の定義のリスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:146
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "検索/置換の定義編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:147
 msgid "&Replacement Text"
@@ -8056,7 +8063,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 msgid "&Add"
-msgstr ""
+msgstr "追加 (&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Edit the currently selected expression"

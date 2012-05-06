@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-03 15:07+0000\n"
-"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
+"PO-Revision-Date: 2012-05-05 17:09+0000\n"
+"Last-Translator: Maroje Delibasic <maroje.delibasic@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-05 04:52+0000\n"
+"X-Launchpad-Export-Date: 2012-05-06 04:39+0000\n"
 "X-Generator: Launchpad (build 15195)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1505,6 +1505,10 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Постоје два начина генерисања информације о броју странице. Коришћење "
+"поузданијег генератора ће дати странице које више одговарају штампаним "
+"књигама. Међутим, овај метод је спорији и успориће слање фајлова у Кindle "
+"uređaj."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:311
 msgid "Custom column name to retrieve page counts from"
@@ -5196,7 +5200,7 @@ msgstr "Имајте на уму да ће фасцикла тренутне б�
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:308
 msgid "Already exists"
-msgstr "Već postoji"
+msgstr "Већ постоји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:284
 #, python-format
@@ -6623,7 +6627,7 @@ msgstr "Кликни да бисте отворили"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:158
 msgid "Ids"
-msgstr "Ids"
+msgstr "Id-ови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:196
 #, python-format
@@ -6898,7 +6902,7 @@ msgstr "Колона која садржи додатне критеријуме
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid "Exclusion pattern"
-msgstr "Šablon za isključivanje"
+msgstr "Шаблон за искључивање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
@@ -6914,7 +6918,7 @@ msgstr "Колона која садржи статус 'прочитано'."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
-msgstr "Šablon za 'knjiga pročitana'"
+msgstr "Шаблон за 'књига прочитана'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
@@ -7388,7 +7392,7 @@ msgstr " КБ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
-msgstr "\"Izravnaj\" &fajl sistem u EPUB formatu"
+msgstr "\\\"Изравнај\\\" &фајл систем у EPUB формату"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -10031,7 +10035,7 @@ msgstr "&Датум:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 msgid "d MMM yyyy"
-msgstr "d MMM yyyy"
+msgstr "д МММ гггг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
@@ -10232,10 +10236,10 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
-"Odredite kako će tekst biti obrađen posle pronalaženja i zamene. U načinu "
-"rada s običnim tekstom\n"
-"biće obrađeno celo polje. U načinu rada s regularnim izrazima biće obrađen "
-"samo pronađeni tekst."
+"Одредите како ће текст бити обрађен после проналажења и замене. У начину "
+"рада с обичним текстом\n"
+"биће обрађено цело поље. У начину рада с регуларним изразима биће обрађен "
+"само пронађени текст."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:633
 msgid "&Destination field:"
@@ -10540,7 +10544,7 @@ msgstr "Даруј програмера за овај додатак"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:115
 msgid "&Customize plugin"
-msgstr "&Podesi dodatak"
+msgstr "&Подеси додатак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 #, python-format
@@ -13907,7 +13911,7 @@ msgstr "Користите MMM yyyy за месец + годину, а yyyy ак
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:239
 msgid "Default: dd MMM yyyy."
-msgstr "Подразумева се: dd MMM yyyy."
+msgstr "Подразумева се: дд МММ гггг."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
 msgid ""
@@ -19294,7 +19298,7 @@ msgstr "Корисничке категорије за излог етикета
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:413
 msgid "How and when calibre updates metadata on the device."
-msgstr "Kako i kada će calibre osvežiti metapodatke na uređaju."
+msgstr "Како и када ће calibre освежити метаподатке на уређају."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:415
 msgid ""
