@@ -463,7 +463,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         ResizableDialog.reject(self)
 
     def save_state(self):
-        gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+        try:
+            gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+        except:
+            # Weird failure, see https://bugs.launchpad.net/bugs/995271
+            import traceback
+            traceback.print_exc()
 
     # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None,
