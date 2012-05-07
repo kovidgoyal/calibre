@@ -8,8 +8,9 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-
 from PyQt4.Qt import QStandardItem, QStandardItemModel, Qt
+
+from calibre.ebooks.metadata.toc import TOC as MTOC
 
 class TOCItem(QStandardItem):
 
@@ -30,8 +31,10 @@ class TOCItem(QStandardItem):
 
 class TOC(QStandardItemModel):
 
-    def __init__(self, toc):
+    def __init__(self, spine, toc=None):
         QStandardItemModel.__init__(self)
+        if toc is None:
+            toc = MTOC()
         for t in toc:
             self.appendRow(TOCItem(t))
         self.setHorizontalHeaderItem(0, QStandardItem(_('Table of Contents')))

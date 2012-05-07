@@ -18,7 +18,7 @@ from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
     info_dialog, error_dialog, open_url, available_height)
-from calibre.ebooks.oeb.iterator import EbookIterator
+from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, isbsd, isosx, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
@@ -802,11 +802,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if not title:
                 title = os.path.splitext(os.path.basename(pathtoebook))[0]
             if self.iterator.toc:
-                self.toc_model = TOC(self.iterator.toc)
+                self.toc_model = TOC(self.iterator.spine, self.iterator.toc)
                 self.toc.setModel(self.toc_model)
                 if self.show_toc_on_open:
                     self.action_table_of_contents.setChecked(True)
             else:
+                self.toc_model = TOC(self.iterator.spine)
+                self.toc.setModel(self.toc_model)
                 self.action_table_of_contents.setChecked(False)
             if isbytestring(pathtoebook):
                 pathtoebook = force_unicode(pathtoebook, filesystem_encoding)
