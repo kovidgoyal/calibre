@@ -169,7 +169,8 @@ class EbookIterator(BookmarksMixin):
             start += s.pages
             s.max_page = s.start_page + s.pages - 1
         self.toc = self.opf.toc
-        create_indexing_data(self.spine, self.toc)
+        if read_anchor_map:
+            create_indexing_data(self.spine, self.toc)
 
         self.read_bookmarks()
 
