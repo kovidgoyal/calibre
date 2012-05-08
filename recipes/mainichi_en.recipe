@@ -15,7 +15,7 @@ class MainichiEnglishNews(BasicNewsRecipe):
     description    = 'Japanese traditional newspaper Mainichi news in English'
     publisher      = 'Mainichi News'
     category       = 'news, japan'
-    language       = 'en_JA'
+    language       = 'en_JP'
     index          = 'http://mainichi.jp/english/english/index.html'
     remove_javascript = True
     masthead_url = 'http://mainichi.jp/english/images/themainichi.png'
