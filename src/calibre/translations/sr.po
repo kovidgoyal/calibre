@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-05 17:09+0000\n"
-"Last-Translator: Maroje Delibasic <maroje.delibasic@gmail.com>\n"
+"PO-Revision-Date: 2012-05-07 20:10+0000\n"
+"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-06 04:39+0000\n"
-"X-Generator: Launchpad (build 15195)\n"
+"X-Launchpad-Export-Date: 2012-05-08 04:49+0000\n"
+"X-Generator: Launchpad (build 15204)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -11960,7 +11960,7 @@ msgstr "Не могу да прекинем посао."
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:289
 msgid "Cannot kill jobs that communicate with the device"
-msgstr "Ne mogu da prekinem posao koji komunicira sa uređajem"
+msgstr "Не могу да прекинем посао који комуницира са уређајем"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:278
 msgid "Job has already run"
@@ -13907,7 +13907,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:238
 msgid "Use MMM yyyy for month + year, yyyy for year only"
-msgstr "Користите MMM yyyy за месец + годину, а yyyy ако желите само годину."
+msgstr "Користите МММ гггг за месец + годину, а гггг ако желите само годину."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:239
 msgid "Default: dd MMM yyyy."
@@ -15417,7 +15417,7 @@ msgstr "Расположи&ве акције."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:62
 msgid "Add selected actions to toolbar"
-msgstr "Dodaj izabranu akciju na traku sa alatima"
+msgstr "Додај изабрану акцију на алатну траку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:73
 msgid "Remove selected actions from toolbar"
@@ -17021,7 +17021,7 @@ msgstr "Додај обележивач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:756
 msgid "Enter title for bookmark:"
-msgstr "Unesi naziv za обележивач."
+msgstr "Унеси назив за обележивач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:767
 msgid "Manage Bookmarks"
