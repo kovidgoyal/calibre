@@ -111,7 +111,11 @@ def update_flow_links(mobi8_reader, resource_map, log):
             continue
 
         if not isinstance(flow, unicode):
-            flow = flow.decode(mr.header.codec)
+            try:
+                flow = flow.decode(mr.header.codec)
+            except UnicodeDecodeError:
+                log.error('Flow part has invalid %s encoded bytes'%mr.header.codec)
+                flow = flow.decode(mr.header.codec, 'replace')
 
         # links to raster image files from image tags
         # image_pattern

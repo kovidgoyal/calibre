@@ -207,9 +207,9 @@ class Mobi8Reader(object):
                     fname = 'svgimg' + nstr + '.svg'
             else:
                 # search for CDATA and if exists inline it
-                if flowpart.find('[CDATA[') >= 0:
+                if flowpart.find(b'[CDATA[') >= 0:
                     typ = 'css'
-                    flowpart = '<style type="text/css">\n' + flowpart + '\n</style>\n'
+                    flowpart = b'<style type="text/css">\n' + flowpart + b'\n</style>\n'
                     format = 'inline'
                     dir = None
                     fname = None
