@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-03 21:56+0000\n"
+"PO-Revision-Date: 2012-05-08 19:57+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-05 04:52+0000\n"
-"X-Generator: Launchpad (build 15195)\n"
+"X-Launchpad-Export-Date: 2012-05-09 04:46+0000\n"
+"X-Generator: Launchpad (build 15213)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -3645,7 +3645,7 @@ msgstr "Установить дату публикации."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:540
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "Установить дату книги (больше нигде не используется)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:544
 msgid ""
@@ -3889,7 +3889,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "Добавить связанные файлы в первую очередь"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -4257,6 +4257,16 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Прочитать/Записать метаданные из/в файлы электронных книг.\n"
+"\n"
+"Поддерживаемые форматы для чтения метаданных: %(read)s\n"
+"\n"
+"Поддерживаемые форматы для записи метаданных: %(write)s\n"
+"\n"
+"Различные типы файлов поддерживают различные типы метаданных. \n"
+"Если вы попытаетесь установить некоторые метаданные в неподдерживаемых \n"
+"типах файлов, то метаданные будут проигнорированы без предупреждения.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
@@ -4474,6 +4484,11 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Дополнительные метаданные могут быть получены со страницы книги на сайте "
+"Overdrive. Это включает ограниченное множество тэгов использованных в "
+"библиотеках, комментариях, языке, ISBN. Сбор этих данных отключён по "
+"умолчанию изза потребности в дополнительном времени. Установите опцию "
+"\"Загрузить все метаданные\" что бы загружать эти данные."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:20
 msgid "Downloads metadata and covers from OZON.ru"
@@ -4481,7 +4496,7 @@ msgstr "Загрузка метаданных и обложек с OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:52
 msgid "Sample Book"
-msgstr ""
+msgstr "Пример книги"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4489,15 +4504,15 @@ msgstr "Это книга Amazon Topaz. Она не может быть проч
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "Это не MOBI файл. Это файл Topaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "Это не MOBI файл."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Этот файл заблокирован DRM. Он не может быть изменён."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4505,6 +4520,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"Этот MOBI файл не содержит формат книги KF8. KF8 - это новый формат от "
+"Amazon. calibre может настроить только MOBI файлы которые содержат книги в "
+"формате KF8. Более старые MOBI файлы без KF8 не настраиваемы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4512,6 +4530,9 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"Этот MOBI файл содержит одновременно KF8 и старые Mobi6 данные. Его "
+"настройка удалит Mobi6 данные. Это означает, что файл станет нечитаемым для "
+"старых Kindle. Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
