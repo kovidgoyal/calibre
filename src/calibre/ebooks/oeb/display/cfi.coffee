@@ -390,7 +390,7 @@ class CanonicalFragmentIdentifier
         while true
             target = cdoc.elementFromPoint x, y
             if not target or target.localName == 'html'
-                log("No element at (#{ x }, #{ y })")
+                # log("No element at (#{ x }, #{ y })")
                 return null
 
             name = target.localName
