@@ -30,7 +30,6 @@ class EndgadgetJapan(BasicNewsRecipe):
         for topstories in soup.findAll('div',attrs={'class':'post_content'}):
            itt = topstories.find('h4')
            itema = itt.find('a',href=True)
-           itemdiv = itema.find('div',attrs={'class':'post_body'})
            newsarticles.append({
                                       'title'      :itema.string
                                      ,'date'       :''
