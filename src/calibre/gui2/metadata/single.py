@@ -357,7 +357,9 @@ class MetadataSingleDialogBase(ResizableDialog):
             old_tags = self.tags.current_val
             tags = mi.tags if mi.tags else []
             if old_tags and merge_tags:
-                tags += old_tags
+                ltags, lotags = {t.lower() for t in tags}, {t.lower() for t in
+                        old_tags}
+                tags = [t for t in tags if t.lower() in ltags-lotags] + old_tags
             self.tags.current_val = tags
         if not mi.is_null('identifiers'):
             current = self.identifiers.current_val
