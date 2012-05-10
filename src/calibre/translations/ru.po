@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-08 19:57+0000\n"
+"PO-Revision-Date: 2012-05-09 18:41+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-09 04:46+0000\n"
+"X-Launchpad-Export-Date: 2012-05-10 05:19+0000\n"
 "X-Generator: Launchpad (build 15213)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -5147,17 +5147,16 @@ msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Добавить книги из директорий, включая поддиректории (одна книга на "
-"директорию, считая, что каждый файл в директории - та же самая книга в "
-"разных форматах)"
+"Добавить книги из папок, включая подпапки (одна книга на папку, считая, что "
+"каждый файл в папке - та же книга в разных форматах)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:62
 msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Добавить книги из директорий, включая поддиректории (одна книга на "
-"директорию, считая, что каждый файл - отдельная книга)"
+"Добавить книги из папок, включая подпапки (одна книга на папку, считая, что "
+"каждый файл - отдельная книга)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add Empty book. (Book entry with no formats)"
@@ -6097,6 +6096,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"Форматы книг и метаданные из выбранных книг будут добавлены в <b>первую "
+"выбранную книгу</b> (%s). ISBN <i>не</i> будет объединён.<br><br> Вторая и "
+"следующие выбранные книги не будут удалены или изменены.<br><br>Пожалуйста, "
+"подтвердите что желаете продолжить."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:306
 #, python-format
@@ -6110,6 +6113,13 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Форматы книг будут объединены из выбранных книг в <b>первую выбранную "
+"книгу</b> (%s). Метаданные первой книги не изменятся. Автор, Заголовок, ISBN "
+"и все другие метаданные <i>не</i> будут объединены.<br><br>После "
+"объединения, вторая и следующие книги со всеми метаданными будут "
+"<b>удалены</b>. <br><br>Все книжные форматы первой выбранной книги будут "
+"сохранены и любой повторный формат из других книг будет <b>удалён</b> из "
+"вашей библиотеки calibre.<br><br>  Вы <b>уверены</b> что хотите продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:322
 #, python-format
@@ -6122,6 +6132,12 @@ msgid ""
 "books will be permanently <b>deleted</b> from your calibre library.<br><br>  "
 "Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Форматы книг и метаданные из выбранных книг будут объединены в <b>первую "
+"выбранную книгу</b> (%s). ISBN <i>не</i> будет объединён.<br><br> После "
+"объединения вторая и следующие выбранные книги будут <b>удалены</b>. "
+"<br><br>Все книжные форматы первой выбранной книги будут сохранены и любой "
+"повторный формат из других книг будет <b>удалён</b> из вашей библиотеки "
+"calibre.<br><br>  Вы <b>уверены</b> что хотите продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:497
 msgid "Applying changed metadata"
@@ -6478,7 +6494,7 @@ msgstr "Настроить книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:59
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Выберите формат для настройки:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:69
 msgid ""
@@ -6506,14 +6522,37 @@ msgid ""
 "            library.</li>\n"
 "            </ol>"
 msgstr ""
+"            <h2>О настройке книги</h2>\n"
+"            <p>Настройка Книги открывает вам доступ для тонкой настройки "
+"внешнего вида \n"
+"            электронной книги с помощью небольших изменений в её внутренней "
+"структуре. \n"
+"            Для использования Настройки Книги вы должны хоть немного знать "
+"технологии \n"
+"            HTML и CSS, которые используются в электронных книгах. Следуйте "
+"инструкциям:</p>\n"
+"            <br>\n"
+"            <ol>\n"
+"            <li>Нажмите \"Разобрать книгу\": Это разберёт книгу на отдельные "
+"\n"
+"            внутренние компоненты.<br></li>\n"
+"            <li>Правой кнопкой нажмите на любой из частей и выберите "
+"\"Открыть с помощью...\" \n"
+"            для редактирования в вашем текстовом редакторе.<br></li>\n"
+"            <li>Когда вы завершите настройку: <b>закройте редактор и окно \n"
+"            обозревателя windows, которые вы использовали при "
+"редактировании</b>. \n"
+"            Затем нажмите \"Пересоздать книгу\" для обновления книги в вашей "
+"библиотеке calibre.</li>\n"
+"            </ol>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:98
 msgid "&Explode Book"
-msgstr ""
+msgstr "Разобрать книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:99
 msgid "&Preview Book"
-msgstr ""
+msgstr "Просмотреть книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6525,61 +6564,65 @@ msgstr "&Отменить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:101
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "Пересоздать книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "Разобрать книгу для редактирования её частей"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "Просмотреть результат вашей настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:108
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Прервать без сохранения изменений"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:110
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "Сохранить ваши изменения и обновить книгу в библиотеке calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:150
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "Разбираю, пожалуйста подождите ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:180
 msgid "Failed to unpack"
-msgstr ""
+msgstr "Не удалось распаковать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:171
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "Не удалось разобрать файл %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:181
 #, python-format
 msgid ""
 "Could not explode the %s file. Click \"Show Details\" for more information."
 msgstr ""
+"Не удалось разобрать файл %s. Нажмите \"Показать детали\", чтобы увидеть "
+"подробности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:215
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "Не удалось пересоздать файл"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:216
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
 msgstr ""
+"Не удалось пересоздать %s. For more information, click \"Show details\". "
+"Нажмите \"Показать детали\", чтобы увидеть подробности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:233
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "Пересоздаю, пожалуйста подождите..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:282
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
-msgstr ""
+msgstr "Делать небольшие изменения для книг формата ePub, HTMLZ или AZW3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:283
 msgid "T"
@@ -6591,7 +6634,7 @@ msgstr "Невозможно настроить книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:303
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Не могу настроить книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:304
 msgid ""
@@ -6599,6 +6642,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Для настройки, книга должна быть в формате ePub, HTMLZ или AZW3.\n"
+"\n"
+"Вначале преобразуйте книгу в один из этих форматов."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7135,6 +7181,13 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Некоторые пояснения по этому шаблону:\n"
+" -Доступные поля 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"   'tags', 'timestamp', 'title', 'uuid', 'title_sort'\n"
+" -Для списка типов вроде авторы или тэги, только\n"
+"   первый элемент будет выделен.\n"
+" -Для поля времени только дата будет использована. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7275,6 +7328,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid "Custom column source for note to include in Description header area"
 msgstr ""
+"Выберите столбец-источник, который будет включён в поле заголовка описания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
@@ -7411,7 +7465,7 @@ msgstr "Цвет фона"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
 msgid "Style text block"
-msgstr ""
+msgstr "Оформить блок текста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Style the selected text block"
@@ -7481,7 +7535,7 @@ msgstr "Исходный код HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "AZW3 вывод"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
@@ -7521,7 +7575,7 @@ msgstr "Настройки Kindle"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:76
 msgid "Personal Doc tag:"
-msgstr ""
+msgstr "Тэг личной маркировки:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:77
@@ -8605,7 +8659,7 @@ msgstr "&Удалить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid "Load a list of expressions from a previously saved file"
-msgstr ""
+msgstr "Загрузить список выражений из последнего сохранённого файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:155
 msgid "&Load"
@@ -8614,6 +8668,7 @@ msgstr "&Загрузить"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:156
 msgid "Save this list of expressions so that you can re-use it easily"
 msgstr ""
+"Сохранить список выражений, который вы легко сможете использовать снова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
@@ -8623,11 +8678,11 @@ msgstr "Сохранить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Переместить выражение вверх."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Переместить выражение вниз."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -9331,6 +9386,8 @@ msgid ""
 "support them. If you send these formats to your {1} they may not work. Are "
 "you sure?"
 msgstr ""
+"У вас выделены <b>{0}</b> форматы для {1}. {1} может не поддерживать их. "
+"Если вы отправите эти форматы {1}, они могут не работать. Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:437
@@ -9596,11 +9653,11 @@ msgstr "Удалить отмеченные файлы (выбранные по�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:244
 msgid "&Fix marked"
-msgstr ""
+msgstr "Исправить отмеченное"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:247
 msgid "Fix marked sections (checked fixable items)"
-msgstr ""
+msgstr "Исправить отмеченные разделы (проверенные исправимые элементы)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:257
 msgid "Names to ignore:"
@@ -9626,7 +9683,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:319
 msgid "(fixable)"
-msgstr ""
+msgstr "(исправимо)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:342
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
@@ -11871,7 +11928,7 @@ msgstr "Количество"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
-msgstr ""
+msgstr "Было"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
@@ -12044,7 +12101,7 @@ msgstr "Выбранное имя параметра %s уже существу�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:288
 msgid "Choose builtin recipe"
-msgstr ""
+msgstr "Выберите встроеную функцию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:334
 msgid "Choose a recipe file"
@@ -12900,6 +12957,9 @@ msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"Если calibre уже запущен, то будет остановлен. Помните, что если имеются "
+"запущеные задания, то они будут тихо прекращены, поэтому используйте с "
+"осторожностью."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:764
@@ -12979,19 +13039,19 @@ msgstr "Запуск %s: Загрузка книг..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:295
 msgid "If you are sure it is not running"
-msgstr ""
+msgstr "Если вы уверены что оно не заущено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:298
 msgid "may be running in the system tray, in the"
-msgstr ""
+msgstr "возможно оно запущено в системном трее, в"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:300
 msgid "upper right region of the screen."
-msgstr ""
+msgstr "правом верхнем углу экрана."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:302
 msgid "lower right region of the screen."
-msgstr ""
+msgstr "правом нижнем углу экрана."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:305
 msgid "try rebooting your computer."
@@ -15029,6 +15089,8 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
 msgstr ""
+"Сделаные вами изменения требуют немедленного презапуска calibre. До "
+"перезагрузки вам недоступны другие настройки."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
@@ -15499,13 +15561,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
-msgstr ""
+msgstr "Постоянный шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:67
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
+"Этот шаблон не содержит {полей}, поэтому все книги будут иметь одинаковое "
+"имя. Желаете продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:57
 msgid "Save &template"
@@ -17264,7 +17328,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
-msgstr ""
+msgstr "Преобразование не удалось"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:650
 msgid "Recipe Disabled"
@@ -17637,7 +17701,7 @@ msgstr "Стандартный шрифт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:135
 msgid "Still editing"
-msgstr ""
+msgstr "Ещё редактируется"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:136
 msgid ""
@@ -17965,6 +18029,8 @@ msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
 msgstr ""
+"Название <b>%r</b>, похоже, не заканчивается расширением. Название должно "
+"заканчиваться расширением файла вроде .epub или .mobi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Drag to resize"
@@ -18152,7 +18218,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
 msgid "Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption"
-msgstr ""
+msgstr "Используя: %(un)s:%(pw)s@%(host)s:%(port)s и %(enc)s шифрование"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
@@ -18215,7 +18281,7 @@ msgstr "Для %s требуется полный почтовый адрес в
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
-msgstr ""
+msgstr "Согласны продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid ""
@@ -18470,6 +18536,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Поля для вывода при составлении каталога книг в базе данных. Требуется "
+"список полей, разделённых запятой.\n"
+"Доступные поля: %(fields)s.\n"
+"плюс пользовательские поля.\n"
+"Пример: %(opt)s=title,authors,tags\n"
+"По умолчанию: '%%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:49
 #, python-format
@@ -18492,6 +18565,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Создать цитирование для записей BibTeX.\n"
+"Булево значение: True, False\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:67
 #, python-format
@@ -18501,6 +18578,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Создать запись файла если выбраны форматы для записей BibTeX.\n"
+"Булево значение: True, False\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:76
 #, python-format
@@ -18511,6 +18592,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Шаблон для создания цитат из полей базы данных.\n"
+"Должен быть шаблон с полями, заключёнными в {}.\n"
+"Доступные поля: %s.\n"
+"По умолчанию: '%%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:86
 #, python-format
@@ -18520,6 +18606,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Кодировка выходного файла BibTeX.\n"
+"Доступные типы: utf8, cp1252, ascii.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:95
 #, python-format
@@ -18529,6 +18619,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Способы кодировки выходного файла BibTeX.\n"
+"Доступные типы: strict, replace, ignore, backslashreplace.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:104
 #, python-format
@@ -18538,6 +18632,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Входной тип для каталога BibTeX.\n"
+"Доступные типы: книга, разное, смешанный.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходному формату BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:32
 #, python-format
@@ -18550,6 +18648,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Поля для вывода при составлении каталога книг в базе данных. Требуется "
+"список полей, разделённых запятой.\n"
+"Доступные поля: %(fields)s,\n"
+"плюс пользовательские поля.\n"
+"Пример: %(opt)s=title,authors,tags\n"
+"По умолчанию: '%%default'\n"
+"Относится к: выходным форматам CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:45
 #, python-format
@@ -18571,6 +18676,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Заголовок созданного каталога испльзуется как заголовок метаданных.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:45
 #, python-format
@@ -18581,6 +18689,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Сохранить вывод с различных этапов преобразования в указанную папку. Полезно "
+"если вы не уверены на каком этапе преобразования появляется ошибка.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:55
 #, python-format
@@ -18681,6 +18793,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Выберите поле содержащее текст для вставки в заголовок описания\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:125
 #, python-format

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-04-20 01:58+0000\n"
-"Last-Translator: Bruno Coelho Santiago <bcs.cin@gmail.com>\n"
+"PO-Revision-Date: 2012-05-09 16:00+0000\n"
+"Last-Translator: Amir Frederico Carneiro Faria <drmirf@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-05-05 04:57+0000\n"
-"X-Generator: Launchpad (build 15195)\n"
+"X-Launchpad-Export-Date: 2012-05-10 05:20+0000\n"
+"X-Generator: Launchpad (build 15213)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5118,7 +5118,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Controle a adição de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120

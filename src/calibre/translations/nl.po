@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-04 04:22+0000\n"
+"PO-Revision-Date: 2012-05-09 20:13+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-05 04:43+0000\n"
-"X-Generator: Launchpad (build 15195)\n"
+"X-Launchpad-Export-Date: 2012-05-10 05:19+0000\n"
+"X-Generator: Launchpad (build 15213)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1190,7 +1190,7 @@ msgid ""
 msgstr ""
 "Sommige boeken niet gevonden in de iTunes-database.\n"
 "Verwijder met behulp van de iBooks-app.\n"
-"Klik op ‘Details tonen’ voor een lijst."
+"Klik op ‘Toon details’ voor een lijst."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1062
 msgid ""
@@ -1198,7 +1198,7 @@ msgid ""
 "Click 'Show Details' for a list."
 msgstr ""
 "Sommige omslagafbeeldingen kunnen niet geconverteerd worden.\n"
-"Klik op ‘Details tonen’ voor een overzicht."
+"Klik op ‘Toon details’ voor een overzicht."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2726
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:103
@@ -1601,10 +1601,10 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
-"Je kunt een eigen kolom in je bibliotheek hebben die het aantal pagina's per "
-"boek aangeeft. Als je wilt, kan Calibre die informatie gebruiken, in plaats "
-"van het zelf uit te rekenen. Geef dan hier de naam van de kolom op, bij "
-"voorbeeld \"Aantal pagina's\". "
+"U kunt een eigen kolom in je bibliotheek hebben die het aantal pagina's per "
+"boek aangeeft. Als u wilt, kan Calibre die informatie gebruiken, in plaats "
+"van het zelf uit te rekenen. Geef dan hier de naam van de kolom op, "
+"bijvoorbeeld \"Aantal pagina's\". "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:419
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1681,7 +1681,7 @@ msgid ""
 "you wish to see/delete them."
 msgstr ""
 "Kobo toont nu aanraders op het apparaat. Soms zijn dit bestanden, soms "
-"simpelweg een link naar de aankooppagina. Schakel ze in als je ze wilt zien "
+"simpelweg een link naar de aankooppagina. Schakel ze in als u ze wilt zien "
 "of verwijderen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
@@ -2595,6 +2595,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"Geef aan hoe elementen in secties worden opgedeeld. \"Niets\" betekent dat "
+"het boek één lange sectie wordt. Met \"Bestand\" wordt elk bestand een "
+"aparte sectie, gebruik deze instelling als uw apparaat problemen ondervindt. "
+"Met \"Inhoudsopgave\" worden titels gemaakt van de onderdelen van de "
+"inhoudsopgave en op basis hiervan secties gemaakt. (Als dit mislukt, pas dan "
+"de instellingen \"Structuurdetectie\" en/of \"Inhoudsopgave\" aan. Schakel "
+"\"Gebruik van automatische inhoudsopgaven afdwingen\" hierbij in.)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:157
 #, python-format
@@ -2638,7 +2645,7 @@ msgid ""
 "pipeline."
 msgstr ""
 "Normaal gesproken zet deze plug-in alle bronbestanden in een standaard "
-"mappenstructuur. Gebruik deze optie alleen als je weet wat je doet: hij kan "
+"mappenstructuur. Gebruik deze optie alleen als u weet wat u doet: hij kan "
 "wat nare bijwerkingen hebben in de rest van de conversieketen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:21
@@ -2862,7 +2869,7 @@ msgstr ""
 "Calibre converteert standaard alle afbeeldingen naar het JPEG-formaat in het "
 "uiteindelijke MOBI-bestand. Dit vanwege compatibiliteit, omdat sommige "
 "oudere MOBI-viewers problemen hebben met andere afbeeldingstypen. Met deze "
-"optie doet Calibre dat juist niet. Dit is handig als je document veel GIF- "
+"optie doet Calibre dat juist niet. Dit is handig als uw document veel GIF- "
 "of PNG-afbeeldingen bevat die als JPEG heel groot worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:127
@@ -3412,7 +3419,7 @@ msgstr ""
 "<h1> en <h2> tags met de woorden \"hoofdstuk\", \"boek\", \"deel\", "
 "\"voorwoord\", \"nawoord\" of \"sectie\", en naar tags met "
 "class=\"chapter\". De expressie moet leiden tot een lijst met elementen. Om "
-"hoofdstukdetectie uit te schakelen, vul je in: \"/\" Voor meer informatie "
+"hoofdstukdetectie uit te schakelen, vult u in: \"/\" Voor meer informatie "
 "over deze optie, zie de XPath-tutorial in de Calibre-handleiding."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
@@ -3590,9 +3597,6 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
-"Vervang rechte aanhalingstekens, streepjes, en beletseltekens door hun "
-"typografisch correcte equivalente. Voor details, zie "
-"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
@@ -4575,7 +4579,7 @@ msgstr "Download metadata en omslagen van OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:52
 msgid "Sample Book"
-msgstr ""
+msgstr "Voorbeeld boek"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4583,11 +4587,11 @@ msgstr "Dit is een Amazon Topaz boek. Het kan niet verwerkt worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "Dit is geen MOBI bestand maar een Topaz bestand."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "Dit is geen MOBI bestand."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
@@ -5668,7 +5672,7 @@ msgstr "Mislukt"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:385
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
-"Controle database-integriteit mislukt. Klik op ‘Details tonen’ voor details."
+"Controle database-integriteit mislukt. Klik op ‘Toon details’ voor details."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:389
 msgid "Starting library scan, this may take a while"
@@ -5795,7 +5799,7 @@ msgid ""
 "by the Auto merge option in Preferences->Adding books."
 msgstr ""
 "Sommige boeken zijn automatisch opgenomen in bestaande informatie van de "
-"doelbibliotheek. Klik op \"Details tonen\" om te zien welke boeken. Deze "
+"doelbibliotheek. Klik op \"Toon details\" om te zien welke boeken. Deze "
 "actie is uitgevoerd op basis van de \"Automatisch samenvoegen\"-optie onder "
 "Voorkeuren->Boeken toevoegen."
 
@@ -5851,7 +5855,7 @@ msgstr "Verwijderen mislukt"
 msgid ""
 "Failed to delete some books, click the Show Details button for details."
 msgstr ""
-"Het verwijderen van enkele boeken is mislukt, klik op ‘Details tonen’ voor "
+"Het verwijderen van enkele boeken is mislukt, klik op ‘Toon details’ voor "
 "meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:85
@@ -6124,7 +6128,7 @@ msgid ""
 "details\" to see which books."
 msgstr ""
 "Kan voor %d van deze boeken geen metadata en/of omslag downloaden. Klik "
-"‘Details tonen’ om te zien welke boeken het betreft."
+"‘Toon details’ om te zien welke boeken het betreft."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:120
 msgid "Download complete"
@@ -6148,7 +6152,7 @@ msgid ""
 msgstr ""
 "De metadata voor enkele boeken in uw bibliotheek zijn veranderd na de start "
 "van het downloaden. Als u doorgaat, zullen sommige veranderingen mogelijk "
-"worden overschreven. Klik ‘Details tonen’ om de lijst van gewijzigde boeken "
+"worden overschreven. Klik ‘Toon details’ om de lijst van gewijzigde boeken "
 "te zien. Wilt u doorgaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:177
@@ -6241,7 +6245,7 @@ msgid ""
 "\"Show Details\" to see details."
 msgstr ""
 "Updaten van metadata is voor enkele boeken in de bibliotheek mislukt. Klik "
-"op ‘Details tonen’ voor meer informatie."
+"op ‘Toon details’ voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -6415,12 +6419,12 @@ msgstr "Kan sommige boeken niet opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:142
 msgid "Click the show details button to see which ones."
-msgstr "Klik op ‘Details tonen’ om die boeken te zien."
+msgstr "Klik op ‘Toon details’ om die boeken te zien."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:784
 msgid "Show book details"
-msgstr "Boekdetails tonen"
+msgstr "Toon boekdetails"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
@@ -6582,7 +6586,7 @@ msgstr "Boek aanpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:59
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Kies het formaat om aan te passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:69
 msgid ""
@@ -6613,11 +6617,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:98
 msgid "&Explode Book"
-msgstr ""
+msgstr "Boek &Uitpakken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:99
 msgid "&Preview Book"
-msgstr ""
+msgstr "&Voorbeeldweergave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6629,61 +6633,63 @@ msgstr "&Annuleren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:101
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "Boek &herbouwen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "Pak het boek uit om de inhoud te bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "Toon de resultaten van de aanpassingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:108
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Stoppen zonder aanpassingen op te slaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:110
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "Sla uw wijzigingen op en werk het boek bij in calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:150
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "Uitpakken, een moment aub..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:180
 msgid "Failed to unpack"
-msgstr ""
+msgstr "Uitpakken mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:171
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "Con bestand %s niet uitpakken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:181
 #, python-format
 msgid ""
 "Could not explode the %s file. Click \"Show Details\" for more information."
 msgstr ""
+"Kon bestand %s niet uitpakken. Klik \"Toon details\" voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:215
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "Herbouwen van bestand mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:216
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
 msgstr ""
+"Herbouwen van %s mislukt. Voor meer informatie, klik \"Toon details\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:233
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "Herbouwen, een moment aub..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:282
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
-msgstr ""
+msgstr "Maak kleine aanpassingen aan boeken in ePub, HTMLZ of AZW3 formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:283
 msgid "T"
@@ -6695,7 +6701,7 @@ msgstr "Kan boek niet aanpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:303
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Kan boek niet bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:304
 msgid ""
@@ -6823,7 +6829,7 @@ msgid ""
 "Show Details to see the list of such files."
 msgstr ""
 "Kan sommige bestanden niet toevoegen, omdat u geen rechten heeft om deze te "
-"lezen. Klik op ‘Details tonen’ om een lijst van deze bestanden te zien."
+"lezen. Klik op ‘Toon details’ om een lijst van deze bestanden te zien."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:357
 msgid "Added"
@@ -7596,7 +7602,7 @@ msgstr "HTML-broncode"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "AZW3 uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
@@ -8546,7 +8552,7 @@ msgstr ""
 msgid ""
 "Failed to generate markup for testing. Click \"Show Details\" to learn more."
 msgstr ""
-"Opmaak voor test kon niet worden gegenereerd. Klik op \"Details tonen\" voor "
+"Opmaak voor test kon niet worden gegenereerd. Klik op \"Toon details\" voor "
 "meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
@@ -8645,8 +8651,7 @@ msgstr "Lezen mislukt"
 #, python-format
 msgid "Failed to load patterns from %s, click Show details to learn more."
 msgstr ""
-"Patronen laden uit %s mislukt. Klik op \"Details tonen\" voor meer "
-"informatie."
+"Patronen laden uit %s mislukt. Klik op \"Toon details\" voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:120
 msgid "Save Calibre Search-Replace definitions file"
@@ -8662,8 +8667,8 @@ msgid ""
 "of definitions. Do you wish to continue with the conversion (the definition "
 "will not be used)?"
 msgstr ""
-"De zoek-en-vervang-definitie die je nu bewerkt, is nog niet opgenomen in de "
-"definitielijst. Wil je doorgaan met de conversie? (De definitie wordt dan "
+"De zoek-en-vervang-definitie die u nu bewerkt, is nog niet opgenomen in de "
+"definitielijst. Wilt u doorgaan met de conversie? (De definitie wordt dan "
 "NIET gebruikt.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:208
@@ -8742,11 +8747,11 @@ msgstr "Op&slaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Uitdrukking omhoog verplaatsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Uitdrukking omlaag verplaatsen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -8760,7 +8765,7 @@ msgstr ""
 "<p>Zoek en vervang gebruikt <i>reguliere expressies</i>. Zie de <a "
 "href=\"http://manual.calibre-ebook.com/regexp.html\">tutorial over reguliere "
 "expressies (Engels)</a> om met reguliere expressies aan de slag te gaan. Met "
-"de Wizard-knop kun je de huidige expressie testen op het bronbestand. Als je "
+"de Wizard-knop kunt u de huidige expressie testen op het bronbestand. Als u "
 "tevreden bent met het resultaat, klik dan op Toevoegen om de expressie aan "
 "de lijst toe te voegen."
 
@@ -9527,8 +9532,8 @@ msgid ""
 "Some of the ISBNs you entered were invalid. They will be ignored. Click Show "
 "Details to see which ones. Do you want to proceed?"
 msgstr ""
-"Enkele opgegeven ISBN-nummers waren fout. Deze worden genegeerd. Klik "
-"Details tonen om te zien welke dit waren. Wilt u door gaan?"
+"Enkele opgegeven ISBN-nummers waren fout. Deze worden genegeerd. Klik Toon "
+"details om te zien welke dit waren. Wilt u door gaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
@@ -10322,7 +10327,7 @@ msgstr "&Verberg geselecteerde taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
-msgstr "Taak&details tonen"
+msgstr "Toon taak&details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
@@ -10346,13 +10351,13 @@ msgstr "Naar klembord &kopieren"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:299
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:54
 msgid "Show &details"
-msgstr "&Details tonen"
+msgstr "Toon &details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:300
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:55
 msgid "Hide &details"
-msgstr "&Details verbergen"
+msgstr "Verberg &details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:304
@@ -11419,7 +11424,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:131
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
-"Herstellen van de database is mislukt. Klik op ‘Details tonen’ voor meer "
+"Herstellen van de database is mislukt. Klik op ‘Toon details’ voor meer "
 "informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
@@ -12710,8 +12715,8 @@ msgid ""
 "Some of the jobs cannot be stopped. Click Show details to see the list of "
 "unstoppable jobs."
 msgstr ""
-"Sommige taken kunnen niet worden gestopt. Klik details tonen om een lijst "
-"van niet te stoppen taken weer te geven."
+"Sommige taken kunnen niet worden gestopt. Klik toon details om een lijst van "
+"niet te stoppen taken weer te geven."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:394
 msgid "Unavailable"
@@ -13789,7 +13794,7 @@ msgstr "Zoekopdracht: "
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:508
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr ""
-"Metadata downloaden mislukt. Klik op ‘Details tonen’ voor meer informatie"
+"Metadata downloaden mislukt. Klik op ‘Toon details’ voor meer informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:517
 msgid ""
@@ -13819,7 +13824,7 @@ msgstr "Omslagen voor <b>%s</b> aan het downloaden, even geduld…"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:819
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
-"Geen omslagen gedownload. Klik op ‘Details tonen’ voor meer informatie."
+"Geen omslagen gedownload. Klik op ‘Toon details’ voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:825
 #, python-format
@@ -14018,6 +14023,10 @@ msgid ""
 " If it is, a meesage will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Indien ingeschakeld, zorgt deze optie dat calibre controleert of een "
+"bestand\n"
+" welke automatisch wordt toegevoegd al in de Calibre-bibliotheek staat.\n"
+" Zo ja, dan zal calibre u vragen of u het bestand nogmaals wilt toevoegen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:148
 msgid "Check for &duplicates when auto-adding files"
@@ -15123,7 +15132,7 @@ msgstr ""
 "<p>Voer een sjabloon in voor een link naar\n"
 "een auteur in de informatie van het boek. Dit sjabloon\n"
 "wordt gebruikt als er geen link is ingevoerd voor de\n"
-"auteur in \"Auteurs beheren\". Je kunt gebruik maken van\n"
+"auteur in \"Auteurs beheren\". U kunt gebruik maken van\n"
 "de waarden {author}, {author_sort} en alle sjabloon-\n"
 "functies."
 
@@ -15186,8 +15195,8 @@ msgid ""
 msgstr ""
 "Categorielijst, gescheiden door komma's, die niet\n"
 "mogen worden opgedeeld, ook niet als het aantal items\n"
-"hoger is dan de waarde hierboven. Met deze optie voorkom\n"
-"je dat hiërarchische categorieën worden ingeklapt die\n"
+"hoger is dan de waarde hierboven. Met deze optie voorkomt\n"
+"u dat hiërarchische categorieën worden ingeklapt die\n"
 "maar een paar elementen op topniveau hebben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:263
@@ -15267,6 +15276,8 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
 msgstr ""
+"De wijzigingen die u heeft gemaakt vereisen dat calibre direct wordt "
+"herstart. U kunt geen andereen instellingen wijzigen, todat u heeft herstart."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
@@ -16074,11 +16085,11 @@ msgid ""
 "having trouble downloading files from the content server, try removing the "
 "password."
 msgstr ""
-"<p>Als je geen wachtwoord invoert, kan iedereen\n"
-" je boekencollectie benaderen via het web\n"
+"<p>Als u geen wachtwoord invoert, kan iedereen\n"
+" uw boekencollectie benaderen via het web\n"
 "<br>\n"
 "<p>Sommige apparaten hebben browsers die wachtwoordverificatie niet "
-"ondersteunen. Als je problemen ondervindt bij het downloaden van de content "
+"ondersteunen. Als u problemen ondervindt bij het downloaden van de content "
 "server, probeer het dan eens zonder wachtwoord."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
@@ -16127,7 +16138,7 @@ msgid ""
 "the password."
 msgstr ""
 "<p>Sommige apparaten hebben browsers die wachtwoordverificatie niet "
-"ondersteunen. Als je problemen ondervindt bij het downloaden van de content "
+"ondersteunen. Als u problemen ondervindt bij het downloaden van de content "
 "server, probeer het dan eens zonder wachtwoord."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
@@ -16145,7 +16156,7 @@ msgid ""
 "proxy."
 msgstr ""
 "Een prefix (voorloper) die wordt toegepast op alle URL's op de content "
-"server. Gebruik deze optie alleen als je van plan bent de server te plaatsen "
+"server. Gebruik deze optie alleen als u van plan bent de server te plaatsen "
 "achter een andere server (zoals Apache), met een reverse proxy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
@@ -16536,8 +16547,7 @@ msgstr "Zoek een aanpassing"
 msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
-msgstr ""
-"Syntaxfout in uw tweak. Klik op ‘Details tonen’ voor meer informatie."
+msgstr "Syntaxfout in uw tweak. Klik op ‘Toon details’ voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:391
 msgid "Invalid tweaks"
@@ -17255,7 +17265,7 @@ msgstr "Verwijder item"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:255
 #, python-format
 msgid "%s will be deleted from all books. Are you sure?"
-msgstr "%s wordt verwijderd uit alle boeken. Wil je doorgaan?"
+msgstr "%s wordt verwijderd uit alle boeken. Wilt u doorgaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
 msgid "Find item in tag browser"
@@ -17563,7 +17573,7 @@ msgstr "Conversiefout"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Omzetten mislukt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -17590,7 +17600,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
-msgstr ""
+msgstr "Omzetten mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:650
 msgid "Recipe Disabled"
@@ -17842,7 +17852,7 @@ msgid ""
 "The amount by which the font size is increased/decreased\n"
 " when you click the font size larger/smaller buttons"
 msgstr ""
-"De vergroting/verkleining van de lettergrootte als je op\n"
+"De vergroting/verkleining van de lettergrootte als u op\n"
 " de knoppen drukt om tekst te vergroten of te verkleinen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
@@ -17931,7 +17941,7 @@ msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
 msgstr ""
-"De vergroting/verkleining waarmee de lettergrootte moet veranderen als je op "
+"De vergroting/verkleining waarmee de lettergrootte moet veranderen als u op "
 "de knop klikt. Vul een waarde in tussen 0 en 1."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:71
@@ -18087,7 +18097,7 @@ msgstr "Volledig scherm modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:308
 msgid "Right click to show controls"
-msgstr "Klik op je rechter muisknop voor opties"
+msgstr "Klik op uw rechter muisknop voor opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:309
 msgid "Press Esc to quit"
@@ -19701,7 +19711,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:817
 msgid "Show details for each column."
-msgstr "Details voor iedere kolom weergeven."
+msgstr "Toon details voor iedere kolom."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:829
 #, python-format
@@ -20573,10 +20583,10 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
-"Kies welke kolommen doorzocht moeten worden, als je geen prefixes "
-"(voorvoegsels) gebruikt. Bijvoorbeeld als je zoekt op 'Rood' in plaats van "
+"Kies welke kolommen doorzocht moeten worden, als u geen prefixes "
+"(voorvoegsels) gebruikt. Bijvoorbeeld als u zoekt op 'Rood' in plaats van "
 "'title:Rood'. Voer namen in, gescheiden door komma's. Deze optie werkt "
-"alleen als je een zoekopdracht beperkt tot een aantal kolommen (zoals "
+"alleen als u een zoekopdracht beperkt tot een aantal kolommen (zoals "
 "hierboven)."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
@@ -21348,7 +21358,7 @@ msgid ""
 "the template \"{:'current_library_name()'}\"."
 msgstr ""
 "current_library_name() -- Geeft de laatste naam in het pad van de huidige "
-"Calibre-bibliotheek. Deze functie kun je aanroepen in "
+"Calibre-bibliotheek. Deze functie kunt u aanroepen in "
 "sjabloonprogrammeermodus met \"{:'current_library_name()'}\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1145
@@ -21363,7 +21373,7 @@ msgstr ""
 "achtervoegsels toe op een waarde, op dezelfde manier als gebeurt met een "
 "sjabloon als {series_index:05.2f| - |- }. Voorbeeld: met het sjabloon "
 "program: finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - "
-"\") bereik je hetzelfde resultaat  als met het sjabloon hierboven."
+"\") bereikt u hetzelfde resultaat  als met het sjabloon hierboven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -21907,10 +21917,10 @@ msgid ""
 "a link, it will be ignored. By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
-"Alle links die overeenkomen met deze reguliere expressie worden genegeerd. "
-"Je kunt deze optie vaker toepassen. Als een regexp een match oplevert, wordt "
-"de link genegeerd. Standaard wordt links niet genegeerd. Als filter regexp "
-"en match regexp allebei zijn gespecifieerd, wordt filter regexp als eerste "
+"Alle links die overeenkomen met deze reguliere expressie worden genegeerd. U "
+"kunt deze optie vaker toepassen. Als een regexp een match oplevert, wordt de "
+"link genegeerd. Standaard wordt links niet genegeerd. Als filter regexp en "
+"match regexp allebei zijn gespecifieerd, wordt filter regexp als eerste "
 "toegepast."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:527
@@ -22997,7 +23007,7 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
-"Klik met je rechter muisknop op de Beeld-knop, voor een overzicht van "
+"Klik met uw rechter muisknop op de Beeld-knop, voor een overzicht van "
 "recent\n"
 "gelezen boeken. Stel hier in hoeveel titels maximaal worden getoond."
 
