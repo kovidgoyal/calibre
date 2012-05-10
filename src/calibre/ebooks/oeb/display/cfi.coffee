@@ -389,7 +389,7 @@ class CanonicalFragmentIdentifier
         # Drill down into iframes, etc.
         while true
             target = cdoc.elementFromPoint x, y
-            if not target or target.localName == 'html'
+            if not target or target.localName in ['html', 'body']
                 # log("No element at (#{ x }, #{ y })")
                 return null
 
