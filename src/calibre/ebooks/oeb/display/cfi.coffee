@@ -390,6 +390,15 @@ class CanonicalFragmentIdentifier
         while true
             target = cdoc.elementFromPoint x, y
             if not target or target.localName in ['html', 'body']
+                # We ignore both html and body even though body could
+                # have text nodes under it as performance is very poor if body
+                # has large margins/padding (for e.g. in fullscreen mode)
+                # A possible solution for this is to wrap all text node
+                # children of body in <span> but that is seriously ugly and
+                # might have side effects. Lets do this only if there are lots of
+                # books in the wild that actually have text children of body,
+                # and even in this case it might be better to change the input
+                # plugin to prevent this from happening.
                 # log("No element at (#{ x }, #{ y })")
                 return null
 
