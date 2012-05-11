@@ -20,7 +20,7 @@
 #     - title: 
 
 - version: 0.8.51
-  date: 2012-06-11
+  date: 2012-05-11
 
   new features:
     - title: "When switching libraries preserve the position and selected books if you switch back to a previously opened library."
