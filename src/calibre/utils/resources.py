@@ -72,5 +72,29 @@ def get_path(path, data=False, allow_user_override=True):
 def get_image_path(path, data=False, allow_user_override=True):
     return get_path('images/'+path, data=data)
 
+def _compile_coffeescript(name):
+    from calibre.utils.serve_coffee import compile_coffeescript
+    path = (u'/'.join(name.split('.'))) + '.coffee'
+    d = os.path.dirname
+    base = d(d(os.path.abspath(__file__)))
+    src = os.path.join(base, path)
+    with open(src, 'rb') as f:
+        cs, errors = compile_coffeescript(f.read(), src)
+        if errors:
+            for line in errors:
+                print (line)
+            raise Exception('Failed to compile coffeescript'
+                    ': %s'%src)
+        return cs
+
+def compiled_coffeescript(name, dynamic=False):
+    if dynamic:
+        return _compile_coffeescript(name)
+    else:
+        import zipfile
+        zipf = get_path('compiled_coffeescript.zip', allow_user_override=False)
+        with zipfile.ZipFile(zipf, 'r') as zf:
+            return zf.read(name+'.js')
+
 __builtin__.__dict__['P'] = get_path
 __builtin__.__dict__['I'] = get_image_path

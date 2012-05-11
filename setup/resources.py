@@ -26,7 +26,7 @@ def get_opts_from_parser(parser):
 class Coffee(Command): # {{{
 
     description = 'Compile coffeescript files into javascript'
-    COFFEE_DIRS = {'ebooks/oeb/display': 'display'}
+    COFFEE_DIRS = ('ebooks/oeb/display',)
 
     def add_options(self, parser):
         parser.add_option('--watch', '-w', action='store_true', default=False,
@@ -47,49 +47,69 @@ class Coffee(Command): # {{{
             except KeyboardInterrupt:
                 pass
 
-    def show_js(self, jsfile):
+    def show_js(self, raw):
         from pygments.lexers import JavascriptLexer
         from pygments.formatters import TerminalFormatter
         from pygments import highlight
-        with open(jsfile, 'rb') as f:
-            raw = f.read()
         print highlight(raw, JavascriptLexer(), TerminalFormatter())
 
     def do_coffee_compile(self, opts, timestamp=False, ignore_errors=False):
-        for toplevel, dest in self.COFFEE_DIRS.iteritems():
-            dest = self.j(self.RESOURCES, dest)
-            for x in glob.glob(self.j(self.SRC, __appname__, toplevel, '*.coffee')):
-                js = self.j(dest, os.path.basename(x.rpartition('.')[0]+'.js'))
-                if self.newer(js, x):
-                    print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
-                        timestamp else '', os.path.basename(x)))
-                    try:
-                        cs = subprocess.check_output(self.compiler +
-                                [x]).decode('utf-8')
-                    except Exception as e:
-                        print ('\n\tCompilation of %s failed'%os.path.basename(x))
-                        print (e)
-                        if ignore_errors:
-                            with open(js, 'wb') as f:
-                                f.write('# Compilation from coffeescript failed')
-                        else:
-                            raise SystemExit(1)
-                    else:
-                        with open(js, 'wb') as f:
-                            f.write(cs.encode('utf-8'))
-                        if opts.show_js:
-                            self.show_js(js)
-                            print ('#'*80)
-                            print ('#'*80)
+        src_files = {}
+        for src in self.COFFEE_DIRS:
+            for f in glob.glob(self.j(self.SRC, __appname__, src,
+                '*.coffee')):
+                bn = os.path.basename(f).rpartition('.')[0]
+                arcname = src.replace('/', '.') + '.' + bn + '.js'
+                src_files[arcname] = (f, os.stat(f).st_mtime)
+
+        existing = {}
+        dest = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
+        if os.path.exists(dest):
+            with zipfile.ZipFile(dest, 'r') as zf:
+                for info in zf.infolist():
+                    mtime = time.mktime(info.date_time + (0, 0, -1))
+                    arcname = info.filename
+                    if (arcname in src_files and src_files[arcname][1] <
+                            mtime):
+                        existing[arcname] = (zf.read(info), info)
+
+        todo = set(src_files) - set(existing)
+        updated = {}
+        for arcname in todo:
+            name = arcname.rpartition('.')[0]
+            print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
+                        timestamp else '', name))
+            src = src_files[arcname][0]
+            try:
+                js = subprocess.check_output(self.compiler +
+                        [src]).decode('utf-8')
+            except Exception as e:
+                print ('\n\tCompilation of %s failed'%name)
+                print (e)
+                if ignore_errors:
+                    js = u'# Compilation from coffeescript failed'
+                else:
+                    raise SystemExit(1)
+            else:
+                if opts.show_js:
+                    self.show_js(js)
+                    print ('#'*80)
+                    print ('#'*80)
+            zi = zipfile.ZipInfo()
+            zi.filename = arcname
+            zi.date_time = time.localtime()[:6]
+            updated[arcname] = (js.encode('utf-8'), zi)
+        if updated:
+            with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
+                for raw, zi in updated.itervalues():
+                    zf.writestr(zi, raw)
+                for raw, zi in existing.itervalues():
+                    zf.writestr(zi, raw)
 
     def clean(self):
-        for toplevel, dest in self.COFFEE_DIRS.iteritems():
-            dest = self.j(self.RESOURCES, dest)
-            for x in glob.glob(self.j(self.SRC, __appname__, toplevel, '*.coffee')):
-                x = x.rpartition('.')[0] + '.js'
-                x = self.j(dest, os.path.basename(x))
-                if os.path.exists(x):
-                    os.remove(x)
+        x = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
+        if os.path.exists(x):
+            os.remove(x)
 # }}}
 
 class Kakasi(Command): # {{{

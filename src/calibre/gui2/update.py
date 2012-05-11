@@ -9,7 +9,7 @@ import mechanize
 
 from calibre.constants import (__appname__, __version__, iswindows, isosx,
         isportable)
-from calibre import browser
+from calibre import browser, prints, as_unicode
 from calibre.utils.config import prefs
 from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
@@ -45,14 +45,14 @@ class CheckForUpdates(QThread):
                 version = get_newest_version()
                 if version and version != __version__ and len(version) < 10:
                     calibre_update_version = version
-            except:
-                traceback.print_exc()
+            except Exception as e:
+                prints('Failed to check for calibre update:', as_unicode(e))
             try:
                 update_plugins = get_plugin_updates_available()
                 if update_plugins is not None:
                     plugins_update_found = len(update_plugins)
-            except:
-                traceback.print_exc()
+            except Exception as e:
+                prints('Failed to check for plugin update:', as_unicode(e))
             if (calibre_update_version != NO_CALIBRE_UPDATE or
                     plugins_update_found > 0):
                 self.update_found.emit('%s%s%d'%(calibre_update_version,

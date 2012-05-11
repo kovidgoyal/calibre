@@ -382,6 +382,7 @@ class MobiWriter(object):
             first_image_record  = len(self.records)
             self.resources.serialize(self.records, used_images)
         resource_record_count = len(self.records) - old
+        last_content_record = len(self.records) - 1
 
         # FCIS/FLIS (Seems to serve no purpose)
         flis_number = len(self.records)
@@ -406,7 +407,7 @@ class MobiWriter(object):
         # header
         header_fields['first_resource_record'] = first_image_record
         header_fields['exth_flags'] = 0b100001010000 # Kinglegen uses this
-        header_fields['fdst_record'] = NULL_INDEX
+        header_fields['fdst_record'] = pack(b'>HH', 1, last_content_record)
         header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
         header_fields['flis_record'] = flis_number
         header_fields['fcis_record'] = fcis_number

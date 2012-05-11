@@ -2,6 +2,7 @@
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
+resources/compiled_coffeescript.zip
 src/calibre/ebooks/oeb/display/test/*.js
 src/calibre/manual/.build/
 src/calibre/manual/cli/
@@ -16,7 +17,6 @@ resources/ebook-convert-complete.pickle
 resources/builtin_recipes.xml
 resources/builtin_recipes.zip
 resources/template-functions.json
-resources/display/*.js
 setup/installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/cssutils/.svn/

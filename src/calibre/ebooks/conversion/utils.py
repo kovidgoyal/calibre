@@ -148,7 +148,7 @@ class HeuristicProcessor(object):
         return wordcount.words
 
     def markup_italicis(self, html):
-        self.log.debug("\n\n\nitalicize debugging \n\n\n")
+        #self.log.debug("\n\n\nitalicize debugging \n\n\n")
         ITALICIZE_WORDS = [
             'Etc.', 'etc.', 'viz.', 'ie.', 'i.e.', 'Ie.', 'I.e.', 'eg.',
             'e.g.', 'Eg.', 'E.g.', 'et al.', 'et cetera', 'n.b.', 'N.b.',
@@ -183,6 +183,9 @@ class HeuristicProcessor(object):
                     html = re.sub(re.escape(str(match.group(0))), '<i>%s</i>' % ital_string, html)
                 except OverflowError:
                     # match.group(0) was too large to be compiled into a regex
+                    continue
+                except re.error:
+                    # the match was not a valid regular expression
                     continue
 
         return html
