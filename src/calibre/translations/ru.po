@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-04 07:27+0000\n"
-"PO-Revision-Date: 2012-05-09 18:41+0000\n"
+"PO-Revision-Date: 2012-05-10 19:21+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-10 05:19+0000\n"
-"X-Generator: Launchpad (build 15213)\n"
+"X-Launchpad-Export-Date: 2012-05-11 04:36+0000\n"
+"X-Generator: Launchpad (build 15225)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -17301,7 +17301,7 @@ msgstr "Ошибка преобразования"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Преобразование не удалось: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -17325,6 +17325,21 @@ msgid ""
 "                your ebook reader may have trouble with the EPUB.\n"
 "                        "
 msgstr ""
+"\n"
+"                Многие старые читалки неспособны отображать файлы EPUB, \n"
+"                которые имеют внутренние компоненты больше определённого \n"
+"                размера. Таким образом, при преобразовании в EPUB, \n"
+"                calibre автоматически попытается разделить EPUB на части \n"
+"                меньшего размера. Для файлов, содержащих большие \n"
+"                неразделимые блоки текста, это разделение не удастся.\n"
+"                <p>Вы можете <b>обойти эту проблему</b> увеличив \n"
+"                максимальный размер разделения в выводе EPUB в диалоге \n"
+"                преобразования, или запустив Эвристическую обработку в том "
+"же \n"
+"                диалоге преобразования. Помните, что если вы сделаете \n"
+"                максимальный размер части слишком большим, у вашей читалки \n"
+"                могут появиться проблемы с EPUB.\n"
+"                        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
@@ -18710,6 +18725,9 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Регулярное выражение описывающее тэги для исключения как жанров.\n"
+"По умолчанию: '%default' исключая тэги в скобках, например '[<tag>]'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:68
 #, python-format
@@ -18719,6 +18737,11 @@ msgid ""
 "this'. Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Разделённый запятой список тэгов-слов указывающих книгу, которая должна быть "
+"удалена из вывода. Например: 'skip' совпадает с 'skip this book' и 'Skip "
+"will like this'.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:76
 #, python-format
@@ -18818,6 +18841,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Определяет выходной набор настроек(профиль). В некоторых случаях, выходные "
+"настройки требуют оптимизировать папку для устройства. Например, 'kindle' "
+"или 'kindle_dx' создают упорядоченное оглавление с Отделами и Статьями.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:142
 #, python-format
@@ -18826,6 +18854,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"поле:шаблон означающие прочтённую книгу.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:148
 #, python-format
@@ -18859,7 +18890,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:499
 msgid "No enabled genres found to catalog.\n"
-msgstr ""
+msgstr "В каталоге не найдено выделенных жанров.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:503
 msgid "No books available to catalog"
@@ -19244,7 +19275,7 @@ msgstr "Экспортировать все книги в одну деррик�
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:562
 msgid "Specifying this switch will turn this behavior off."
-msgstr ""
+msgstr "Указание этого переключателя отключит данный режим."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
@@ -19282,6 +19313,9 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
+"Словарь настроек для определения того, как данные в этом столбце будут "
+"интерпретированы. Это JSON строка. Для перечисления столбцов используйте --"
+"display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:625
 msgid "You must specify label, name and datatype"
@@ -20240,6 +20274,9 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
+"Выберите столбцы для поиска, когда не используется префикс, например Red "
+"вместо title:Red. Введите список названий поиска разделённых запятой. Будет "
+"полезно только если вы установите ограничение столбцов поиска выше."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
