@@ -93,16 +93,8 @@ def compiled_coffeescript(name, dynamic=False):
     else:
         import zipfile
         zipf = get_path('compiled_coffeescript.zip', allow_user_override=False)
-        try:
-            with zipfile.ZipFile(zipf, 'r') as zf:
-                return zf.read(name+'.js')
-        except EnvironmentError:
-            # zipfile does not exist, probably someone running with
-            # CALIBRE_DEVELOP_FROM and an outdated binary install, so try to
-            # compile from source
-            if os.path.exists(zipf): raise
-            return _compile_coffeescript(name)
-
+        with zipfile.ZipFile(zipf, 'r') as zf:
+            return zf.read(name+'.js')
 
 __builtin__.__dict__['P'] = get_path
 __builtin__.__dict__['I'] = get_image_path
