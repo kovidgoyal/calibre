@@ -415,8 +415,8 @@ class MOBIHeader(object): # {{{
         if self.has_extra_data_flags:
             a('Unknown4: %r'%self.unknown4)
             if hasattr(self, 'first_text_record'):
-                a('First text record: %d'%self.first_text_record)
-                a('Last text record: %d'%self.last_text_record)
+                a('First content record: %d'%self.first_text_record)
+                a('Last content record: %d'%self.last_text_record)
             else:
                 r('FDST Index', 'fdst_idx')
             a('FDST Count: %d'% self.fdst_count)
