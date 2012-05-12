@@ -161,8 +161,12 @@ class EditorWidget(QWebView): # {{{
         self.page().setContentEditable(True)
 
     def clear_text(self, *args):
-        self.html = u''
-        self.page().contentsChanged.emit()
+        us = self.page().undoStack()
+        us.beginMacro('clear all text')
+        self.action_select_all.trigger()
+        self.action_remove_format.trigger()
+        self.exec_command('delete')
+        us.endMacro()
 
     def link_clicked(self, url):
         open_url(url)
