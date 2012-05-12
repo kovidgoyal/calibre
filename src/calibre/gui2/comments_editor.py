@@ -161,8 +161,8 @@ class EditorWidget(QWebView): # {{{
         self.page().setContentEditable(True)
 
     def clear_text(self, *args):
-        self.action_select_all.trigger()
-        self.action_cut.trigger()
+        self.html = u''
+        self.page().contentsChanged.emit()
 
     def link_clicked(self, url):
         open_url(url)
@@ -627,4 +627,6 @@ if __name__ == '__main__':
     w = Editor()
     w.resize(800, 600)
     w.show()
+    w.html = '<b>testing</b>'
+    app.exec_()
     #print w.html
