@@ -82,6 +82,7 @@ class AddBrackets:
 
     def __initiate_values(self):
         """
+        Init temp values
         """
         self.__state = 'before_body'
         self.__inline = {}
@@ -92,6 +93,7 @@ class AddBrackets:
 
     def __before_body_func(self, line):
         """
+        If we are before the body, not interest in changing anything
         """
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'in_body'
@@ -172,11 +174,12 @@ class AddBrackets:
             self.__state = 'in_body'
 
     def __check_brackets(self, in_file):
-        self.__check_brack_obj = check_brackets.CheckBrackets\
+        """
+        Return True if brackets match
+        """
+        check_brack_obj = check_brackets.CheckBrackets\
             (file = in_file)
-        good_br =  self.__check_brack_obj.check_brackets()[0]
-        if not good_br:
-            return True
+        return check_brack_obj.check_brackets()[0]
 
     def add_brackets(self):
         """
@@ -197,7 +200,7 @@ class AddBrackets:
                             '%s\n' % self.__state)
                     action(line)
         #Check bad brackets
-        if not self.__check_brackets(self.__write_to):
+        if self.__check_brackets(self.__write_to):
             copy_obj = copy.Copy(bug_handler = self.__bug_handler)
             if self.__copy:
                 copy_obj.copy_file(self.__write_to, "add_brackets.data")
