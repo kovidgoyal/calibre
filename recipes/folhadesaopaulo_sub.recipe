@@ -14,7 +14,7 @@ class FSP(BasicNewsRecipe):
     HOMEPAGE = 'http://www1.folha.uol.com.br/fsp/'
     masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
 
-    language = 'pt'
+    language = 'pt_BR'
     no_stylesheets = True
     max_articles_per_feed  = 40
     remove_javascript     = True

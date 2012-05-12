@@ -7,11 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shlex, subprocess
+import sys, os, shlex, subprocess, shutil
 
 from calibre import prints, as_unicode, walk
 from calibre.constants import iswindows, __appname__
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.libunzip import extract as zipextract
 from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 from calibre.utils.ipc.simple_worker import WorkerError
@@ -108,21 +108,32 @@ def tweak(ebook_file):
             # The question was answered with No
             return
 
-        ed = os.environ.get('EDITOR', None)
+        ed = os.environ.get('EDITOR', 'dummy')
+        cmd = shlex.split(ed)
+        isvim = bool([x for x in cmd[0].split('/') if x.endswith('vim')])
+
         proceed = False
-        if ed is None:
-            prints('Book extracted to', tdir)
+        prints('Book extracted to', tdir)
+
+        if not isvim:
             prints('Make your tweaks and once you are done,', __appname__,
                     'will rebuild', ebook_file, 'from', tdir)
             print()
             proceed = ask_cli_question('Rebuild ' + ebook_file + '?')
         else:
-            cmd = shlex.split(ed)
-            try:
-                subprocess.check_call(cmd + [tdir])
-            except:
-                prints(ed, 'failed, aborting...')
-                raise SystemExit(1)
+            base = os.path.basename(ebook_file)
+            with TemporaryFile(base+'.zip') as zipf:
+                with ZipFile(zipf, 'w') as zf:
+                    zf.add_dir(tdir)
+                try:
+                    subprocess.check_call(cmd + [zipf])
+                except:
+                    prints(ed, 'failed, aborting...')
+                    raise SystemExit(1)
+                with ZipFile(zipf, 'r') as zf:
+                    shutil.rmtree(tdir)
+                    os.mkdir(tdir)
+                    zf.extractall(path=tdir)
             proceed = True
 
         if proceed:

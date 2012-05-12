@@ -7,10 +7,11 @@ __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 ''' http://www.derstandard.at - Austrian Newspaper '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from time import strftime
 
 class DerStandardRecipe(BasicNewsRecipe):
     title = u'derStandard'
-    __author__ = 'Gerhard Aigner and Sujata Raman and Marcel Jira'
+    __author__ = 'Gerhard Aigner and Sujata Raman and Marcel Jira and Peter Reschenhofer'
     description = u'Nachrichten aus Österreich'
     publisher ='derStandard.at'
     category = 'news, politics, nachrichten, Austria'
@@ -88,3 +89,41 @@ class DerStandardRecipe(BasicNewsRecipe):
         for t in soup.findAll(['ul', 'li']):
             t.name = 'div'
         return soup
+
+    def get_cover_url(self):
+        highResolution = True
+
+        date    = strftime("%Y/%Y%m%d")
+        # it is also possible for the past
+        #date    = '2012/20120503'
+
+        urlP1   = 'http://epaper.derstandarddigital.at/'
+        urlP2   = 'data_ep/STAN/' + date
+        urlP3   = '/V.B1/'
+        urlP4   = 'paper.htm'
+        urlHTML = urlP1 + urlP2 + urlP3 + urlP4
+
+        br = self.clone_browser(self.browser)
+        htmlF  = br.open_novisit(urlHTML)
+        htmlC  = htmlF.read()
+
+
+        # URL EXAMPLE: data_ep/STAN/2012/20120504/V.B1/pages/A3B6798F-2751-4D8D-A103-C5EF22F7ACBE.htm
+        # consists of part2 + part3 + 'pages/' + code
+        # 'pages/' has length 6, code has lenght 36
+
+        index   = htmlC.find(urlP2) + len(urlP2 + urlP3) + 6
+        code    = htmlC[index:index + 36]
+
+
+        # URL EXAMPLE HIGH RESOLUTION: http://epaper.derstandarddigital.at/data_ep/STAN/2012/20120504/pagejpg/A3B6798F-2751-4D8D-A103-C5EF22F7ACBE_b.png
+        # URL EXAMPLE LOW RESOLUTION: http://epaper.derstandarddigital.at/data_ep/STAN/2012/20120504/pagejpg/2AB52F71-11C1-4859-9114-CDCD79BEFDCB.png
+
+        urlPic  = urlP1 + urlP2 + '/pagejpg/' + code
+
+        if highResolution:
+            urlPic  = urlPic + '_b'
+
+        urlPic  = urlPic + '.png'
+
+        return urlPic

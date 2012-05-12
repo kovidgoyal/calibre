@@ -314,9 +314,9 @@ class KF8Writer(object):
             return
 
         # Flatten the ToC into a depth first list
-        fl = toc.iter() if is_periodical else toc.iterdescendants()
+        fl = toc.iterdescendants()
         for i, item in enumerate(fl):
-            entry = {'id': id(item), 'index': i, 'href':item.href,
+            entry = {'id': id(item), 'index': i, 'href':item.href or '',
                     'label':(item.title or _('Unknown')),
                     'children':[]}
             entry['depth'] = getattr(item, 'ncx_hlvl', 0)

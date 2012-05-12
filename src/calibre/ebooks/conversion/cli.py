@@ -15,6 +15,7 @@ from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
+from calibre.ebooks.conversion import ConversionUserFeedBack
 
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
@@ -304,7 +305,10 @@ def read_sr_patterns(path, log=None):
 def main(args=sys.argv):
     log = Log()
     parser, plumber = create_option_parser(args, log)
-    opts = parser.parse_args(args)[0]
+    opts, leftover_args = parser.parse_args(args)
+    if len(leftover_args) > 3:
+        log.error('Extra arguments not understood:', u', '.join(leftover_args[3:]))
+        return 1
     for x in ('read_metadata_from_opf', 'cover'):
         if getattr(opts, x, None) is not None:
             setattr(opts, x, abspath(getattr(opts, x)))
@@ -317,7 +321,16 @@ def main(args=sys.argv):
                                         if n.dest]
     plumber.merge_ui_recommendations(recommendations)
 
-    plumber.run()
+    try:
+        plumber.run()
+    except ConversionUserFeedBack as e:
+        ll = {'info': log.info, 'warn': log.warn,
+                'error':log.error}.get(e.level, log.info)
+        ll(e.title)
+        if e.det_msg:
+            log.debug(e.detmsg)
+        ll(e.msg)
+        raise SystemExit(1)
 
     log(_('Output saved to'), ' ', plumber.output)
 

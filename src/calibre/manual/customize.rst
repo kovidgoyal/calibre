@@ -42,7 +42,7 @@ The default values for the tweaks are reproduced below
 .. literalinclude:: ../../../resources/default_tweaks.py
 
 
-Overriding icons, templates, etcetera
+Overriding icons, templates, et cetera
 ----------------------------------------
 
 |app| allows you to override the static resources, like icons, templates, javascript, etc. with customized versions that you like.
