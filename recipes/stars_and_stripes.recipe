@@ -30,4 +30,10 @@ class AdvancedUserRecipe1308791026(BasicNewsRecipe):
         }
     keep_only_tags    = [dict(name='div', attrs={'class':['element article']})]
     remove_tags_after = [dict(name='ul', attrs={'class':'inline-bookmarks'})]
-    feeds          = [(u'News', u'http://feeds.stripes.com/starsandstripes/news'), (u'Sports', u'http://feeds.stripes.com/starsandstripes/sports'), (u'Military Life', u'http://feeds.stripes.com/starsandstripes/militarylife'), (u'Opinion', u'http://feeds.stripes.com/starsandstripes/opinion'), (u'Travel', u'http://feeds.stripes.com/starsandstripes/travel')]
+    feeds          = [
+            (u'News', u'http://feeds.stripes.com/starsandstripes/news'),
+            (u'Sports', u'http://feeds.stripes.com/starsandstripes/sports'),
+            (u'Military Life', u'http://feeds.stripes.com/starsandstripes/militarylife'),
+            (u'Opinion', u'http://feeds.stripes.com/starsandstripes/opinion'),
+            (u'Travel', u'http://feeds.stripes.com/starsandstripes/travel')
+            ]
