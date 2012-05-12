@@ -15,6 +15,7 @@ from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
+from calibre.ebooks.conversion import ConversionUserFeedBack
 
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
@@ -320,7 +321,16 @@ def main(args=sys.argv):
                                         if n.dest]
     plumber.merge_ui_recommendations(recommendations)
 
-    plumber.run()
+    try:
+        plumber.run()
+    except ConversionUserFeedBack as e:
+        ll = {'info': log.info, 'warn': log.warn,
+                'error':log.error}.get(e.level, log.info)
+        ll(e.title)
+        if e.det_msg:
+            log.debug(e.detmsg)
+        ll(e.msg)
+        raise SystemExit(1)
 
     log(_('Output saved to'), ' ', plumber.output)
 

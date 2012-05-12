@@ -656,8 +656,21 @@ class BasicNewsRecipe(Recipe):
 
         For an example, see the recipe for downloading `The Atlantic`.
         In addition, you can add 'author' for the author of the article.
+
+        If you want to abort processing for some reason and have
+        calibre show the user a simple message instead of an error, call
+        :meth:`abort_recipe_processing`.
         '''
         raise NotImplementedError
+
+    def abort_recipe_processing(self, msg):
+        '''
+        Causes the recipe download system to abort the download of this recipe,
+        displaying a simple feedback message to the user.
+        '''
+        from calibre.ebooks.conversion import ConversionUserFeedBack
+        raise ConversionUserFeedBack(_('Failed to download %s')%self.title,
+                msg)
 
     def get_obfuscated_article(self, url):
         '''

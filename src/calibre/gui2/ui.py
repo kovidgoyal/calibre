@@ -24,9 +24,9 @@ from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
 from calibre.customize.ui import interface_actions, available_store_plugins
-from calibre.gui2 import error_dialog, GetMetadata, open_url, \
-        gprefs, max_available_height, config, info_dialog, Dispatcher, \
-        question_dialog
+from calibre.gui2 import (error_dialog, GetMetadata, open_url,
+        gprefs, max_available_height, config, info_dialog, Dispatcher,
+        question_dialog, warning_dialog)
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.update import UpdateMixin
@@ -649,6 +649,23 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                     msg = msg.partition(':')[-1]
                     d = error_dialog(self, _('Recipe Disabled'),
                         '<p>%s</p>'%msg)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
+                return
+
+            if 'calibre.ebooks.conversion.ConversionUserFeedBack:' in job.details:
+                if not minz:
+                    import json
+                    payload = job.details.rpartition(
+                        'calibre.ebooks.conversion.ConversionUserFeedBack:')[-1]
+                    payload = json.loads('{' + payload.partition('{')[-1])
+                    d = {'info':info_dialog, 'warn':warning_dialog,
+                            'error':error_dialog}.get(payload['level'],
+                                    error_dialog)
+                    d = d(self, payload['title'],
+                            '<p>%s</p>'%payload['msg'],
+                            det_msg=payload['det_msg'])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
