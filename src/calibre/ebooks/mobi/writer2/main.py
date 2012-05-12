@@ -25,6 +25,15 @@ from calibre.ebooks.mobi.writer2.indexer import Indexer
 WRITE_UNCROSSABLE_BREAKS = False
 NULL_INDEX = 0xffffffff
 
+FLIS = (b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
+            b'\xff'*4)
+
+def fcis(text_length):
+    fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
+    fcis += pack(b'>I', text_length)
+    fcis += b'\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+    return fcis
+
 class MobiWriter(object):
 
     def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True):
@@ -208,14 +217,9 @@ class MobiWriter(object):
 
         # FCIS/FLIS (Seems to serve no purpose)
         flis_number = len(self.records)
-        self.records.append(
-            b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
-            b'\xff'*4)
-        fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
-        fcis += pack(b'>I', self.text_length)
-        fcis += b'\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+        self.records.append(FLIS)
         fcis_number = len(self.records)
-        self.records.append(fcis)
+        self.records.append(fcis(self.text_length))
 
         # EOF record
         self.records.append(b'\xE9\x8E\x0D\x0A')
@@ -378,6 +382,13 @@ class MobiWriter(object):
             first_image_record  = len(self.records)
             self.resources.serialize(self.records, used_images)
         resource_record_count = len(self.records) - old
+        last_content_record = len(self.records) - 1
+
+        # FCIS/FLIS (Seems to serve no purpose)
+        flis_number = len(self.records)
+        self.records.append(FLIS)
+        fcis_number = len(self.records)
+        self.records.append(fcis(self.text_length))
 
         # Insert KF8 records
         self.records.append(b'BOUNDARY')
@@ -387,7 +398,8 @@ class MobiWriter(object):
         self.records.append(self.kf8.record0)
         self.records.extend(self.kf8.records[1:])
 
-        first_image_record if first_image_record else len(self.records)
+        first_image_record = (first_image_record if first_image_record else
+                len(self.records))
 
         header_fields = {k:getattr(self.kf8, k) for k in HEADER_FIELDS}
 
@@ -395,15 +407,22 @@ class MobiWriter(object):
         # header
         header_fields['first_resource_record'] = first_image_record
         header_fields['exth_flags'] = 0b100001010000 # Kinglegen uses this
-        header_fields['fdst_record'] = NULL_INDEX
+        header_fields['fdst_record'] = pack(b'>HH', 1, last_content_record)
         header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
-        header_fields['extra_data_flags'] = 0b11
+        header_fields['flis_record'] = flis_number
+        header_fields['fcis_record'] = fcis_number
+        extra_data_flags = 0b1 # Has multibyte overlap bytes
+        if self.primary_index_record_idx is not None:
+            extra_data_flags |= 0b10
+        header_fields['extra_data_flags'] = extra_data_flags
 
         for k, v in {'last_text_record':'last_text_record_idx',
                 'first_non_text_record':'first_non_text_record_idx',
                 'ncx_index':'primary_index_record_idx',
                 }.iteritems():
             header_fields[k] = getattr(self, v)
+        if header_fields['ncx_index'] is None:
+            header_fields['ncx_index'] = NULL_INDEX
 
         for x in ('skel', 'chunk', 'guide'):
             header_fields[x+'_index'] = NULL_INDEX

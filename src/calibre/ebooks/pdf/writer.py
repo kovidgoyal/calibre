@@ -45,24 +45,29 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None):
     if not is_ok_to_use_qt():
         raise Exception('Not OK to use Qt')
 
-    custom_size = False
     printer = QPrinter(QPrinter.HighResolution)
     custom_size = get_custom_size(opts)
-    if opts.output_profile.short_name == 'default' or \
-            opts.output_profile.width > 9999:
-        if custom_size is None:
-            printer.setPaperSize(paper_size(opts.paper_size))
-        else:
-            custom_size = True
-            printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+    if isosx and not for_comic:
+        # On OSX, the native engine can only produce a single page size
+        # (usually A4). The Qt engine on the other hand produces image based
+        # PDFs. If we set a custom page size using QSizeF the native engine
+        # produces unreadable output, so we just ignore the custom size
+        # settings.
+        printer.setPaperSize(paper_size(opts.paper_size))
     else:
-        custom_size = True
-        w = opts.output_profile.comic_screen_size[0] if for_comic else \
-                opts.output_profile.width
-        h = opts.output_profile.comic_screen_size[1] if for_comic else \
-                opts.output_profile.height
-        dpi = opts.output_profile.dpi
-        printer.setPaperSize(QSizeF(float(w) / dpi, float(h) / dpi), QPrinter.Inch)
+        if opts.output_profile.short_name == 'default' or \
+                opts.output_profile.width > 9999:
+            if custom_size is None:
+                printer.setPaperSize(paper_size(opts.paper_size))
+            else:
+                printer.setPaperSize(QSizeF(custom_size[0], custom_size[1]), unit(opts.unit))
+        else:
+            w = opts.output_profile.comic_screen_size[0] if for_comic else \
+                    opts.output_profile.width
+            h = opts.output_profile.comic_screen_size[1] if for_comic else \
+                    opts.output_profile.height
+            dpi = opts.output_profile.dpi
+            printer.setPaperSize(QSizeF(float(w) / dpi, float(h) / dpi), QPrinter.Inch)
 
     if for_comic:
         # Comic pages typically have their own margins, or their background
@@ -72,13 +77,13 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None):
         printer.setPageMargins(opts.margin_left, opts.margin_top,
                 opts.margin_right, opts.margin_bottom, QPrinter.Point)
     printer.setOrientation(orientation(opts.orientation))
+    printer.setOutputFormat(QPrinter.PdfFormat)
     printer.setFullPage(for_comic)
     if output_file_name:
         printer.setOutputFileName(output_file_name)
-    if isosx and not custom_size:
+    if isosx and not for_comic:
+        # Ensure we are not generating enormous image based PDFs
         printer.setOutputFormat(QPrinter.NativeFormat)
-    else:
-        printer.setOutputFormat(QPrinter.PdfFormat)
 
     return printer
 

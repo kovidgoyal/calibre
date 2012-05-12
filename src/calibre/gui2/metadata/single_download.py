@@ -955,7 +955,7 @@ class FullFetch(QDialog): # {{{
         # QWebView. Seems to only happen on windows, but keep it for all
         # platforms just in case.
         self.identify_widget.comments_view.setMaximumHeight(500)
-        self.resize(850, 550)
+        self.resize(850, 600)
 
         self.finished.connect(self.cleanup)
 
@@ -1034,7 +1034,7 @@ class CoverFetch(QDialog): # {{{
         self.covers_widget.chosen.connect(self.accept)
         l.addWidget(self.covers_widget)
 
-        self.resize(850, 550)
+        self.resize(850, 600)
 
         self.finished.connect(self.cleanup)
 

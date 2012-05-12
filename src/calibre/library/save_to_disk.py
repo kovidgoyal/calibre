@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, cStringIO, re
+import os, traceback, cStringIO, re, shutil
 
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
@@ -19,6 +19,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import parse_date, as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
+from calibre.ptempfile import SpooledTemporaryFile
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -339,19 +340,16 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
     for fmt in formats:
         global plugboard_save_to_disk_value, plugboard_any_format_value
         cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
-        # Leave this here for a while, in case problems arise.
-        if cpb is not None:
-            prints('Save-to-disk using plugboard:', fmt, cpb)
         fp = format_map.get(fmt, None)
         if fp is None:
             continue
+        stream = SpooledTemporaryFile(20*1024*1024, '_save_to_disk.'+(fmt or
+            'tmp'))
         with open(fp, 'rb') as f:
-            data = f.read()
+            shutil.copyfileobj(f, stream)
+        stream.seek(0)
         written = True
         if opts.update_metadata:
-            stream = cStringIO.StringIO()
-            stream.write(data)
-            stream.seek(0)
             try:
                 if cpb:
                     newmi = mi.deepcopy_metadata()
@@ -365,10 +363,9 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
                 if DEBUG:
                     traceback.print_exc()
             stream.seek(0)
-            data = stream.read()
         fmt_path = base_path+'.'+str(fmt)
         with open(fmt_path, 'wb') as f:
-            f.write(data)
+            shutil.copyfileobj(stream, f)
 
     return not written, id_, mi.title
 

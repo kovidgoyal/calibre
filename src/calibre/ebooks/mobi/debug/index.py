@@ -82,6 +82,9 @@ class Index(object):
     def __str__(self):
         return '\n'.join(self.render())
 
+    def __iter__(self):
+        return iter(self.records)
+
 class SKELIndex(Index):
 
     def __init__(self, skelidx, records, codec):
@@ -155,9 +158,12 @@ class NCXIndex(Index):
         self.records = []
 
         if self.table is not None:
+            NCXEntry = namedtuple('NCXEntry', 'index start length depth parent '
+        'first_child last_child title pos_fid')
+
             for num, x in enumerate(self.table.iteritems()):
                 text, tag_map = x
-                entry = default_entry.copy()
+                entry = e = default_entry.copy()
                 entry['name'] = text
                 entry['num'] = num
 
@@ -176,7 +182,17 @@ class NCXIndex(Index):
                             if tag == which:
                                 entry[name] = self.cncx.get(fieldvalue,
                                         default_entry[name])
-                self.records.append(entry)
+                def refindx(e, name):
+                    ans = e[name]
+                    if ans < 0:
+                        ans = None
+                    return ans
 
+                entry = NCXEntry(start=e['pos'], index=e['num'],
+                        length=e['len'], depth=e['hlvl'], parent=refindx(e,
+                            'parent'), first_child=refindx(e, 'child1'),
+                        last_child=refindx(e, 'childn'), title=e['text'],
+                        pos_fid=e['pos_fid'])
+                self.records.append(entry)
 
 

@@ -8,14 +8,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-03-25 12:19+0000\n"
-"Last-Translator: Radan Putnik <srastral@gmail.com>\n"
+"PO-Revision-Date: 2012-05-03 14:49+0000\n"
+"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-03-26 04:37+0000\n"
-"X-Generator: Launchpad (build 15008)\n"
+"X-Launchpad-Export-Date: 2012-05-04 04:47+0000\n"
+"X-Generator: Launchpad (build 15195)\n"
 "Language: sr\n"
 
 #. name for aaa
@@ -6152,7 +6152,7 @@ msgstr ""
 
 #. name for deu
 msgid "German"
-msgstr "немачки"
+msgstr "Немачки"
 
 #. name for dev
 msgid "Domung"
@@ -8416,7 +8416,7 @@ msgstr "ирски"
 
 #. name for glg
 msgid "Galician"
-msgstr ""
+msgstr "Галицијски"
 
 #. name for glh
 msgid "Pashayi; Northwest"
@@ -8472,11 +8472,11 @@ msgstr ""
 
 #. name for gmh
 msgid "German; Middle High (ca. 1050-1500)"
-msgstr ""
+msgstr "Немачки; средње високи (ca. 1050-1500)"
 
 #. name for gml
 msgid "German; Middle Low"
-msgstr ""
+msgstr "Немачки; средње низак"
 
 #. name for gmm
 msgid "Gbaya-Mbodomo"
@@ -8792,7 +8792,7 @@ msgstr ""
 
 #. name for gsg
 msgid "German Sign Language"
-msgstr ""
+msgstr "Немачки језик"
 
 #. name for gsl
 msgid "Gusilay"
@@ -8820,7 +8820,7 @@ msgstr ""
 
 #. name for gsw
 msgid "German; Swiss"
-msgstr ""
+msgstr "Немачки ; Швајцарска"
 
 #. name for gta
 msgid "Guató"
@@ -17954,7 +17954,7 @@ msgstr ""
 
 #. name for nds
 msgid "German; Low"
-msgstr ""
+msgstr "Немачки; низак"
 
 #. name for ndt
 msgid "Ndunga"
@@ -18778,7 +18778,7 @@ msgstr ""
 
 #. name for nno
 msgid "Norwegian Nynorsk"
-msgstr "норвешки модерни"
+msgstr "Норвешки модерни"
 
 #. name for nnp
 msgid "Naga; Wancho"
@@ -18830,7 +18830,7 @@ msgstr ""
 
 #. name for nob
 msgid "Norwegian Bokmål"
-msgstr ""
+msgstr "Норвешки (књижевни)"
 
 #. name for noc
 msgid "Nuk"
@@ -18886,7 +18886,7 @@ msgstr ""
 
 #. name for nor
 msgid "Norwegian"
-msgstr "норвешки"
+msgstr "Норвешки"
 
 #. name for nos
 msgid "Nisu; Eastern"
@@ -19066,7 +19066,7 @@ msgstr ""
 
 #. name for nsl
 msgid "Norwegian Sign Language"
-msgstr ""
+msgstr "Норвешки језик"
 
 #. name for nsm
 msgid "Naga; Sumi"
@@ -20406,7 +20406,7 @@ msgstr ""
 
 #. name for pdc
 msgid "German; Pennsylvania"
-msgstr ""
+msgstr "Немачки ; Пенсилванија"
 
 #. name for pdi
 msgid "Pa Di"
@@ -22086,7 +22086,7 @@ msgstr ""
 
 #. name for rmg
 msgid "Norwegian; Traveller"
-msgstr ""
+msgstr "Норвешки; путнички"
 
 #. name for rmh
 msgid "Murkim"
@@ -22871,7 +22871,7 @@ msgstr ""
 
 #. name for sgg
 msgid "Swiss-German Sign Language"
-msgstr ""
+msgstr "Швајцарско-Немачки језик"
 
 #. name for sgh
 msgid "Shughni"

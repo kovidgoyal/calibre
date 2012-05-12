@@ -22,7 +22,7 @@ It can convert every input format in the following list, to every output format.
 
 *Input Formats:* CBZ, CBR, CBC, CHM, DJVU, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
 
-*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, RTF, SNB, TCR, TXT, TXTZ
+*Output Formats:* AZW3, EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, RTF, SNB, TCR, TXT, TXTZ
 
 .. note ::
 
@@ -35,7 +35,7 @@ It can convert every input format in the following list, to every output format.
 
 What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, EPUB, FB2, HTML, PRC, RTF, PDB, TXT, PDF
+In order of decreasing preference: LIT, MOBI, AZW, EPUB, AZW3, FB2, HTML, PRC, RTF, PDB, TXT, PDF
 
 I converted a PDF file, but the result has various problems?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

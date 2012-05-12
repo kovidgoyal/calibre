@@ -25,16 +25,15 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://www.awin1.com/awclick.php?mid=1414&id=120917'
         detail_url = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p='
-        url_redirect = 'http://www.foyles.co.uk'
 
         if external or self.config.get('open_external', False):
             if detail_item:
-                url = detail_url + url_redirect + detail_item
+                url = detail_url + detail_item
             open_url(QUrl(url_slash_cleaner(url)))
         else:
             detail_url = None
             if detail_item:
-                detail_url = url + url_redirect + detail_item
+                detail_url = url + detail_item
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))

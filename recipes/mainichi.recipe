@@ -16,12 +16,12 @@ class MainichiDailyNews(BasicNewsRecipe):
     publisher      = 'Mainichi Daily News'
     category       = 'news, japan'
     language       = 'ja'
-
-    feeds          = [(u'daily news', u'http://mainichi.jp/rss/etc/flash.rss')]
+    index          = 'http://mainichi.jp/select/'
+    remove_javascript = True
+    masthead_title = u'MAINICHI DAILY NEWS'
 
     remove_tags_before = {'class':"NewsTitle"}
-    remove_tags = [{'class':"RelatedArticle"}]
-    remove_tags_after = {'class':"Credit"}
+    remove_tags_after = {'class':"NewsBody clr"}
 
     def parse_feeds(self):
 
@@ -32,9 +32,30 @@ class MainichiDailyNews(BasicNewsRecipe):
             for a,curarticle in enumerate(curfeed.articles):
                 if re.search(r'pheedo.jp', curarticle.url):
                     delList.append(curarticle)
+                if re.search(r'rssad.jp', curarticle.url):
+                    delList.append(curarticle)
             if len(delList)>0:
                 for d in delList:
                     index = curfeed.articles.index(d)
                     curfeed.articles[index:index+1] = []
 
         return feeds
+
+    def parse_index(self):
+        feeds = []
+        soup   = self.index_to_soup(self.index)
+        topstories = soup.find('ul',attrs={'class':'MaiLink'})
+        if topstories:
+           newsarticles = []
+           for itt in topstories.findAll('li'):
+                itema = itt.find('a',href=True)
+                if itema:
+                    newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'       :''
+                                     ,'url'        :itema['href']
+                                     ,'description':''
+                                    })
+           feeds.append(('latest', newsarticles))
+        return feeds
+

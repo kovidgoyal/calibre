@@ -7,11 +7,12 @@ __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 ''' http://www.derstandard.at - Austrian Newspaper '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from time import strftime
 
 class DerStandardRecipe(BasicNewsRecipe):
     title = u'derStandard'
-    __author__ = 'Gerhard Aigner and Sujata Raman'
-    description = u'Nachrichten aus ??sterreich'
+    __author__ = 'Gerhard Aigner and Sujata Raman and Marcel Jira and Peter Reschenhofer'
+    description = u'Nachrichten aus Österreich'
     publisher ='derStandard.at'
     category = 'news, politics, nachrichten, Austria'
     use_embedded_content = False
@@ -30,17 +31,26 @@ class DerStandardRecipe(BasicNewsRecipe):
                 h4{color:#404450;font-size:x-small;}
                 h6{color:#404450; font-size:x-small;}
                 '''
-    feeds          = [(u'International', u'http://derstandard.at/?page=rss&ressort=internationalpolitik'),
-        (u'Inland', u'http://derstandard.at/?page=rss&ressort=innenpolitik'),
-        (u'Wirtschaft', u'http://derstandard.at/?page=rss&ressort=investor'),
-        (u'Web', u'http://derstandard.at/?page=rss&ressort=webstandard'),
-        (u'Sport', u'http://derstandard.at/?page=rss&ressort=sport'),
-        (u'Panorama', u'http://derstandard.at/?page=rss&ressort=panorama'),
-        (u'Etat', u'http://derstandard.at/?page=rss&ressort=etat'),
-        (u'Kultur', u'http://derstandard.at/?page=rss&ressort=kultur'),
-        (u'Wissenschaft', u'http://derstandard.at/?page=rss&ressort=wissenschaft'),
-        (u'Gesundheit', u'http://derstandard.at/?page=rss&ressort=gesundheit'),
-        (u'Bildung', u'http://derstandard.at/?page=rss&ressort=subildung')
+    feeds          = [
+        (u'Newsroom', u'http://derStandard.at/?page=rss&ressort=Seite1'),
+        (u'Inland', u'http://derstandard.at/?page=rss&ressort=InnenPolitik'),
+        (u'International', u'http://derstandard.at/?page=rss&ressort=InternationalPolitik'),
+        (u'Wirtschaft', u'http://derStandard.at/?page=rss&ressort=Wirtschaft'),
+        (u'Web', u'http://derStandard.at/?page=rss&ressort=Web'),
+        (u'Sport', u'http://derStandard.at/?page=rss&ressort=Sport'),
+        (u'Panorama', u'http://derStandard.at/?page=rss&ressort=Panorama'),
+        (u'Etat', u'http://derStandard.at/?page=rss&ressort=Etat'),
+        (u'Kultur', u'http://derStandard.at/?page=rss&ressort=Kultur'),
+        (u'Wissenschaft', u'http://derStandard.at/?page=rss&ressort=Wissenschaft'),
+        (u'Gesundheit', u'http://derStandard.at/?page=rss&ressort=Gesundheit'),
+        (u'Bildung', u'http://derStandard.at/?page=rss&ressort=Bildung'),
+        (u'Meinung', u'http://derStandard.at/?page=rss&ressort=Meinung'),
+        (u'Lifestyle', u'http://derStandard.at/?page=rss&ressort=Lifestyle'),
+        (u'Reisen', u'http://derStandard.at/?page=rss&ressort=Reisen'),
+        (u'Karriere', u'http://derStandard.at/?page=rss&ressort=Karriere'),
+        (u'Immobilien', u'http://derstandard.at/?page=rss&ressort=Immobilien'),
+        (u'dieStandard', u'http://dieStandard.at/?page=rss&ressort=diestandard'),
+        (u'daStandard', u'http://daStandard.at/?page=rss&ressort=dastandard')
                       ]
 
     keep_only_tags = [
@@ -79,3 +89,41 @@ class DerStandardRecipe(BasicNewsRecipe):
         for t in soup.findAll(['ul', 'li']):
             t.name = 'div'
         return soup
+
+    def get_cover_url(self):
+        highResolution = True
+
+        date    = strftime("%Y/%Y%m%d")
+        # it is also possible for the past
+        #date    = '2012/20120503'
+
+        urlP1   = 'http://epaper.derstandarddigital.at/'
+        urlP2   = 'data_ep/STAN/' + date
+        urlP3   = '/V.B1/'
+        urlP4   = 'paper.htm'
+        urlHTML = urlP1 + urlP2 + urlP3 + urlP4
+
+        br = self.clone_browser(self.browser)
+        htmlF  = br.open_novisit(urlHTML)
+        htmlC  = htmlF.read()
+
+
+        # URL EXAMPLE: data_ep/STAN/2012/20120504/V.B1/pages/A3B6798F-2751-4D8D-A103-C5EF22F7ACBE.htm
+        # consists of part2 + part3 + 'pages/' + code
+        # 'pages/' has length 6, code has lenght 36
+
+        index   = htmlC.find(urlP2) + len(urlP2 + urlP3) + 6
+        code    = htmlC[index:index + 36]
+
+
+        # URL EXAMPLE HIGH RESOLUTION: http://epaper.derstandarddigital.at/data_ep/STAN/2012/20120504/pagejpg/A3B6798F-2751-4D8D-A103-C5EF22F7ACBE_b.png
+        # URL EXAMPLE LOW RESOLUTION: http://epaper.derstandarddigital.at/data_ep/STAN/2012/20120504/pagejpg/2AB52F71-11C1-4859-9114-CDCD79BEFDCB.png
+
+        urlPic  = urlP1 + urlP2 + '/pagejpg/' + code
+
+        if highResolution:
+            urlPic  = urlPic + '_b'
+
+        urlPic  = urlPic + '.png'
+
+        return urlPic

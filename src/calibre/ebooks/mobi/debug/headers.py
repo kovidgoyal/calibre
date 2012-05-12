@@ -306,10 +306,15 @@ class MOBIHeader(object): # {{{
         self.extra_data_flags = 0
         if self.has_extra_data_flags:
             self.unknown4 = self.raw[184:192]
-            self.fdst_idx, self.fdst_count = struct.unpack_from(b'>LL',
-                    self.raw, 192)
-            if self.fdst_count <= 1:
-                self.fdst_idx = NULL_INDEX
+            if self.file_version < 8:
+                self.first_text_record, self.last_text_record = \
+                    struct.unpack_from(b'>HH', self.raw, 192)
+                self.fdst_count = struct.unpack_from(b'>L', self.raw, 196)
+            else:
+                self.fdst_idx, self.fdst_count = struct.unpack_from(b'>LL',
+                        self.raw, 192)
+                if self.fdst_count <= 1:
+                    self.fdst_idx = NULL_INDEX
             (self.fcis_number, self.fcis_count, self.flis_number,
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
@@ -409,7 +414,11 @@ class MOBIHeader(object): # {{{
             a('DRM Flags: %r'%self.drm_flags)
         if self.has_extra_data_flags:
             a('Unknown4: %r'%self.unknown4)
-            r('FDST Index', 'fdst_idx')
+            if hasattr(self, 'first_text_record'):
+                a('First content record: %d'%self.first_text_record)
+                a('Last content record: %d'%self.last_text_record)
+            else:
+                r('FDST Index', 'fdst_idx')
             a('FDST Count: %d'% self.fdst_count)
             r('FCIS number', 'fcis_number')
             a('FCIS count: %d'% self.fcis_count)
@@ -548,6 +557,9 @@ class TextRecord(object): # {{{
             for k, v in self.trailing_data.iteritems():
                 raw = '%s : %r\n\n'%(k, v)
                 f.write(raw.encode('utf-8'))
+
+    def __len__(self):
+        return len(self.raw)
 
 # }}}
 

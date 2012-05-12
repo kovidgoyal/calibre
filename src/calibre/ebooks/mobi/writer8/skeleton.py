@@ -13,7 +13,7 @@ from functools import partial
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML_NS
+from calibre.ebooks.oeb.base import XHTML_NS, extract
 from calibre.constants import ispy3
 from calibre.ebooks.mobi.utils import to_base
 
@@ -224,14 +224,24 @@ class Chunker(object):
         nroot.text = root.text
         nroot.tail = '\n'
 
-        for tag in root.iterdescendants(etree.Element):
-            # We are ignoring all non tag entities in the tree
-            # like comments and processing instructions, as they make the
-            # chunking code even harder, for minimal gain.
-            elem = nroot.makeelement(tag.tag.rpartition('}')[-1],
-                    attrib={k.rpartition('}')[-1]:v for k, v in
-                        tag.attrib.iteritems()})
-            elem.text, elem.tail = tag.text, tag.tail
+        # Remove Comments and ProcessingInstructions as kindlegen seems to
+        # remove them as well
+        for tag in root.iterdescendants():
+            if tag.tag in {etree.Comment, etree.ProcessingInstruction}:
+                extract(tag)
+
+        for tag in root.iterdescendants():
+            if tag.tag == etree.Entity:
+                elem = etree.Entity(tag.name)
+            else:
+                tn = tag.tag
+                if tn is not None:
+                    tn = tn.rpartition('}')[-1]
+                elem = nroot.makeelement(tn,
+                        attrib={k.rpartition('}')[-1]:v for k, v in
+                            tag.attrib.iteritems()})
+                elem.text = tag.text
+            elem.tail = tag.tail
             parent = node_from_path(nroot, path_to_node(tag.getparent()))
             parent.append(elem)
 
@@ -251,6 +261,11 @@ class Chunker(object):
         # Now loop over children
         for child in list(tag):
             raw = tostring(child, with_tail=False)
+            if child.tag == etree.Entity:
+                chunks.append(raw)
+                if child.tail:
+                    chunks.extend(self.chunk_up_text(child.tail, aid))
+                continue
             raw = close_self_closing_tags(raw)
             if len(raw) > CHUNK_SIZE and child.get('aid', None):
                 self.step_into_tag(child, chunks)

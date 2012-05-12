@@ -69,7 +69,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 
                 title = ''.join(data.xpath('.//div[@class="SCItemHeader"]/h1/a[1]/text()'))
                 author = ', '.join(data.xpath('.//div[@class="SCItemSummary"]//span//a/text()'))
-                drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and contains(text(), "DRM")])')
+                drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and not(contains(text(), "DRM-Free"))])')
 
                 counter -= 1
                 

@@ -256,7 +256,7 @@ class OEBReader(object):
             media_type = elem.get('media-type', None)
             if media_type is None:
                 media_type = elem.get('mediatype', None)
-            if media_type is None or media_type == 'text/xml':
+            if not media_type or media_type == 'text/xml':
                 guessed = guess_type(href)[0]
                 media_type = guessed or media_type or BINARY_MIME
             if hasattr(media_type, 'lower'):

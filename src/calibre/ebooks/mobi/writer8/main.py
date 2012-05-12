@@ -27,6 +27,8 @@ from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
         ChunkIndex, GuideIndex)
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
+from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
+from calibre.ebooks.mobi.writer8.toc import TOCAdder
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -39,7 +41,11 @@ class KF8Writer(object):
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.compress = not self.opts.dont_compress
+        self.has_tbs = False
         self.log.info('Creating KF8 output')
+
+        # Create an inline ToC if one does not already exist
+        self.toc_adder = TOCAdder(oeb, opts)
         self.used_images = set()
         self.resources = resources
         self.flows = [None] # First flow item is reserved for the text
@@ -60,6 +66,8 @@ class KF8Writer(object):
         self.create_fdst_records()
         self.create_indices()
         self.create_guide()
+        # We do not want to use this ToC for MOBI 6, so remove it
+        self.toc_adder.remove_generated_toc()
 
     def dup_data(self):
         ''' Duplicate data so that any changes we make to markup/CSS only
@@ -76,7 +84,7 @@ class KF8Writer(object):
                 # in-memory CSSStylesheet, as deepcopy doesn't work (raises an
                 # exception)
                 self._data_cache[item.href] = cssutils.parseString(
-                        item.data.cssText)
+                        item.data.cssText, validate=False)
 
     def data(self, item):
         return self._data_cache.get(item.href, item.data)
@@ -112,7 +120,7 @@ class KF8Writer(object):
 
                 for tag in XPath('//h:style')(root):
                     if tag.text:
-                        sheet = cssutils.parseString(tag.text)
+                        sheet = cssutils.parseString(tag.text, validate=False)
                         replacer = partial(pointer, item)
                         cssutils.replaceUrls(sheet, replacer,
                                 ignoreImportRules=True)
@@ -256,12 +264,14 @@ class KF8Writer(object):
         text = BytesIO(text)
         nrecords = 0
         records_size = 0
+        self.uncompressed_record_lengths = []
 
         if self.compress:
             self.oeb.logger.info('\tCompressing markup...')
 
         while text.tell() < self.text_length:
             data, overlap = create_text_record(text)
+            self.uncompressed_record_lengths.append(len(data))
             if self.compress:
                 data = compress_doc(data)
 
@@ -304,9 +314,9 @@ class KF8Writer(object):
             return
 
         # Flatten the ToC into a depth first list
-        fl = toc.iter() if is_periodical else toc.iterdescendants()
+        fl = toc.iterdescendants()
         for i, item in enumerate(fl):
-            entry = {'id': id(item), 'index': i, 'href':item.href,
+            entry = {'id': id(item), 'index': i, 'href':item.href or '',
                     'label':(item.title or _('Unknown')),
                     'children':[]}
             entry['depth'] = getattr(item, 'ncx_hlvl', 0)
@@ -330,6 +340,7 @@ class KF8Writer(object):
             entry['index'] = i
         id_to_index = {entry['id']:entry['index'] for entry in entries}
 
+        # Write the hierarchical and start offset information
         for entry in entries:
             children = entry.pop('children')
             if children:
@@ -348,11 +359,22 @@ class KF8Writer(object):
                 pos, fid = self.aid_offset_map[aid]
             chunk = self.chunk_table[pos]
             offset = chunk.insert_pos + fid
-            length = chunk.length
             entry['pos_fid'] = (pos, fid)
             entry['offset'] = offset
-            entry['length'] = length
 
+        # Write the lengths
+        def get_next_start(entry):
+            enders = [e['offset'] for e in entries if e['depth'] <=
+                    entry['depth'] and e['offset'] > entry['offset']]
+            if enders:
+                return min(enders)
+            return len(self.flows[0])
+
+        for entry in entries:
+            entry['length'] = get_next_start(entry) - entry['offset']
+
+        self.has_tbs = apply_trailing_byte_sequences(entries, self.records,
+                self.uncompressed_record_lengths)
         self.ncx_records = NCXIndex(entries)()
 
     def create_guide(self):

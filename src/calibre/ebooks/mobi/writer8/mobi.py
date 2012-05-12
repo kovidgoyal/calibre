@@ -18,6 +18,14 @@ from calibre.ebooks.mobi.writer8.exth import build_exth
 from calibre.utils.filenames import ascii_filename
 
 NULL_INDEX = 0xffffffff
+FLIS = b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+ b'\xff'*4
+
+def fcis(text_length):
+    fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x02\x00\x00\x00\x00'
+    fcis += pack(b'>L', text_length)
+    fcis += b'\x00\x00\x00\x00\x00\x00\x00\x28\x00\x00\x00\x00\x00\x00\x00'
+    fcis += b'\x28\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+    return fcis
 
 class MOBIHeader(Header): # {{{
     '''
@@ -115,7 +123,10 @@ class MOBIHeader(Header): # {{{
     exth_flags = DYN
 
     # 132: Unknown
-    unknown = zeroes(36)
+    unknown = zeroes(32)
+
+    # 164: Unknown
+    unknown_index = NULL
 
     # 168: DRM
     drm_offset = NULL
@@ -127,16 +138,18 @@ class MOBIHeader(Header): # {{{
     unknown2 = zeroes(8)
 
     # 192: FDST
+    # In MOBI 6 the fdst record is instead two two byte fields storing the
+    # index of the first and last content records
     fdst_record = DYN
     fdst_count = DYN
 
-    # 200: FCI
-    fcis_record = NULL
-    fcis_count
+    # 200: FCIS
+    fcis_record = DYN
+    fcis_count = 1
 
     # 208: FLIS
-    flis_record = NULL
-    flis_count
+    flis_record = DYN
+    flis_count = 1
 
     # 216: Unknown
     unknown3 = zeroes(8)
@@ -193,7 +206,7 @@ HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
                     'first_resource_record', 'exth_flags', 'fdst_record',
                     'fdst_count', 'ncx_index', 'chunk_index', 'skel_index',
                     'guide_index', 'exth', 'full_title', 'extra_data_flags',
-                    'uid'}
+                    'flis_record', 'fcis_record', 'uid'}
 
 class KF8Book(object):
 
@@ -229,9 +242,9 @@ class KF8Book(object):
             setattr(self, x, getattr(resources, x))
 
         self.first_resource_record = NULL_INDEX
+        before = len(self.records)
         if resources.records:
             self.first_resource_record = len(self.records)
-            before = len(self.records)
             if not for_joint:
                 resources.serialize(self.records, writer.used_images)
         self.num_of_resources = len(self.records) - before
@@ -240,6 +253,12 @@ class KF8Book(object):
         self.fdst_count = writer.fdst_count
         self.fdst_record = len(self.records)
         self.records.extend(writer.fdst_records)
+
+        # FLIS/FCIS
+        self.flis_record = len(self.records)
+        self.records.append(FLIS)
+        self.fcis_record = len(self.records)
+        self.records.append(fcis(self.text_length))
 
         # EOF
         self.records.append(b'\xe9\x8e\r\n') # EOF record
@@ -250,6 +269,8 @@ class KF8Book(object):
         self.full_title = utf8_text(unicode(metadata.title[0]))
         self.title_length = len(self.full_title)
         self.extra_data_flags = 0b1
+        if writer.has_tbs:
+            self.extra_data_flags |= 0b10
         self.uid = random.randint(0, 0xffffffff)
 
         self.language_code = iana2mobi(str(metadata.language[0]))

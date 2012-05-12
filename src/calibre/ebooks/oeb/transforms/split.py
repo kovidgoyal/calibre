@@ -50,6 +50,7 @@ class Split(object):
     def __call__(self, oeb, opts):
         self.oeb = oeb
         self.log = oeb.log
+        self.log('Splitting markup on page breaks and flow limits, if any...')
         self.opts = opts
         self.map = {}
         for item in list(self.oeb.manifest.items):

@@ -50,8 +50,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         proto.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable + Qt.ItemIsEnabled))
         self.search_replace.setItemPrototype(proto)
         self.search_replace.setColumnCount(2)
-        self.search_replace.setColumnWidth(0, 300)
-        self.search_replace.setColumnWidth(1, 300)
+        self.search_replace.setColumnWidth(0, 320)
+        self.search_replace.setColumnWidth(1, 320)
         self.search_replace.setHorizontalHeaderLabels([
             _('Search Regular Expression'), _('Replacement Text')])
 
@@ -60,6 +60,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.sr_remove.clicked.connect(self.sr_remove_clicked)
         self.sr_load.clicked.connect(self.sr_load_clicked)
         self.sr_save.clicked.connect(self.sr_save_clicked)
+        self.sr_up.clicked.connect(self.sr_up_clicked)
+        self.sr_down.clicked.connect(self.sr_down_clicked)
         self.search_replace.currentCellChanged.connect(self.sr_currentCellChanged)
 
         self.initialize_options(get_option, get_help, db, book_id)
@@ -91,7 +93,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         row = self.search_replace.currentRow()
         if  row >= 0:
             self.search_replace.removeRow(row)
-            self.search_replace.setCurrentCell(row-1, 0)
+            self.search_replace.setCurrentCell(row if row < self.search_replace.rowCount() else row-1, 0)
             self.sr_search.clear()
             self.sr_replace.clear()
 
@@ -106,6 +108,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             try:
                 self.set_value(self.opt_search_replace,
                     read_sr_patterns(files[0]))
+                self.search_replace.setCurrentCell(0, 0)
             except Exception as e:
                 error_dialog(self, _('Failed to read'),
                         _('Failed to load patterns from %s, click Show details'
@@ -123,15 +126,40 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 for search, replace in self.get_definitions():
                     f.write(search + u'\n' + replace + u'\n\n')
 
+    def sr_up_clicked(self):
+        self.cell_rearrange(-1)
+    
+    def sr_down_clicked(self):
+        self.cell_rearrange(1)
+
+    def cell_rearrange(self, i):
+        row = self.search_replace.currentRow()
+        for col in xrange(0, self.search_replace.columnCount()):
+            item1 = self.search_replace.item(row, col)
+            item2 = self.search_replace.item(row+i, col)
+            value = item1.text();
+            item1.setText(item2.text())
+            item2.setText(value)
+        self.search_replace.setCurrentCell(row+i, 0)
+        
     def sr_currentCellChanged(self, row, column, previousRow, previousColumn) :
         if row >= 0:
             self.sr_change.setEnabled(True)
             self.sr_remove.setEnabled(True)
+            self.sr_save.setEnabled(True)
             self.sr_search.set_regex(self.search_replace.item(row, 0).text())
             self.sr_replace.setText(self.search_replace.item(row, 1).text())
+            # set the up/down buttons
+            self.sr_up.setEnabled(row > 0)
+            self.sr_down.setEnabled(row < self.search_replace.rowCount()-1)
         else:
             self.sr_change.setEnabled(False)
             self.sr_remove.setEnabled(False)
+            self.sr_save.setEnabled(False)
+            self.sr_down.setEnabled(False)
+            self.sr_up.setEnabled(False)
+
+
 
     def break_cycles(self):
         Widget.break_cycles(self)

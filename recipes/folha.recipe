@@ -1,0 +1,82 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.folha.uol.com.br
+'''
+import urllib
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Folha_de_s_paulo(BasicNewsRecipe):
+    title                 = u'Folha de São Paulo - portal'
+    __author__            = 'Darko Miletic'
+    description           = 'Um Jornala a servicao do Brasil'
+    publisher             = 'Folhapress'
+    category              = 'news, politics, Brasil'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'pt_BR'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name=['meta','link','base','iframe','embed','object'])]
+    keep_only_tags = [dict(attrs={'id':'articleNew'})]
+
+
+    feeds = [
+              (u'Poder'          , u'http://feeds.folha.uol.com.br/poder/rss091.xml'               )
+             ,(u'Mundo'          , u'http://feeds.folha.uol.com.br/mundo/rss091.xml'               )
+             ,(u'Mercado'        , u'http://feeds.folha.uol.com.br/mercado/rss091.xml'             )
+             ,(u'Cotidiano'      , u'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'           )
+             ,(u'Esporte'        , u'http://feeds.folha.uol.com.br/esporte/rss091.xml'             )
+             ,(u'Ilustrada'      , u'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'           )
+             ,(u'F5'             , u'http://feeds.folha.uol.com.br/f5/rss091.xml'                  )
+             ,(u'Ciência'        , u'http://feeds.folha.uol.com.br/ciencia/rss091.xml'             )
+             ,(u'Tec'            , u'http://feeds.folha.uol.com.br/tec/rss091.xml'                 )
+             ,(u'Ambiente'       , u'http://feeds.folha.uol.com.br/ambiente/rss091.xml'            )
+             ,(u'Bichos'         , u'http://feeds.folha.uol.com.br/bichos/rss091.xml'              )
+             ,(u'Celebridades'   , u'http://feeds.folha.uol.com.br/celebridades/rss091.xml'        )
+             ,(u'Comida'         , u'http://feeds.folha.uol.com.br/comida/rss091.xml'              )
+             ,(u'Equilibrio'     , u'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'    )
+             ,(u'Folhateen'      , u'http://feeds.folha.uol.com.br/folhateen/rss091.xml'           )
+             ,(u'Folhinha'       , u'http://feeds.folha.uol.com.br/folhinha/rss091.xml'            )
+             ,(u'Ilustrissima'   , u'http://feeds.folha.uol.com.br/ilustrissima/rss091.xml'        )
+             ,(u'Saber'          , u'http://feeds.folha.uol.com.br/saber/rss091.xml'               )
+             ,(u'Turismo'        , u'http://feeds.folha.uol.com.br/turismo/rss091.xml'             )
+             ,(u'Panel do Leitor', u'http://feeds.folha.uol.com.br/folha/paineldoleitor/rss091.xml')
+             ,(u'Publifolha'     , u'http://feeds.folha.uol.com.br/folha/publifolha/rss091.xml'    )
+             ,(u'Em cima da hora', u'http://feeds.folha.uol.com.br/emcimadahora/rss091.xml'        )
+            ]
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        curl = url.partition('/*')[2]
+        return curl
+
+    def print_version(self, url):
+        return 'http://tools.folha.com.br/print?site=emcimadahora&url=' + urllib.quote_plus(url)
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.folha.uol.com.br/')
+        cont = soup.find('div', attrs={'id':'newspaper'})
+        if cont:
+           ai = cont.find('a', href='http://www1.folha.uol.com.br/fsp/')
+           if ai:
+              return ai.img['src']
+        return None
