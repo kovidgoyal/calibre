@@ -8,7 +8,7 @@ from urllib2 import Request, urlopen, URLError
 class FolhaOnline(BasicNewsRecipe):
     THUMBALIZR_API        = '' # ---->Get your at http://www.thumbalizr.com/ and put here
     LANGUAGE              = 'pt_br'
-    language = 'pt'
+    language = 'pt_BR'
     LANGHTM               = 'pt-br'
     ENCODING              = 'cp1252'
     ENCHTM                = 'iso-8859-1'

@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
-__author__    = 'Lorenzo Vigentini, based on Darko Miletic, Gabriele Marini'
-__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>, Lorenzo Vigentini <l.vigentini at gmail.com>'
-description   = 'Italian daily newspaper - v1.01 (04, January 2010); 16.05.2010 new version; 17.10.2011 new version; 14.12.2011 new version'
+__author__    = 'Lorenzo Vigentini, based on Darko Miletic, Gabriele Marini; minor fixes by faber1971'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>, Lorenzo Vigentini <l.vigentini at gmail.com>, faber1971'
+description   = 'Italian daily newspaper - v1.02 (04, January 2010); 16.05.2010 new version; 17.10.2011 new version; 14.12.2011 new version; 11.05.2012 new version'
 
 '''
 http://www.repubblica.it/
@@ -12,14 +12,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class LaRepubblica(BasicNewsRecipe):
     title                   = 'La Repubblica'
-    __author__              = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic'
+    __author__              = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic, faber1971'
     description             = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'
     masthead_url            = 'http://www.repubblica.it/static/images/homepage/2010/la-repubblica-logo-home-payoff.png'
     publisher               = 'Gruppo editoriale L\'Espresso'
     category                = 'News, politics, culture, economy, general interest'
     language                = 'it'
     timefmt                 = '[%a, %d %b, %Y]'
-    oldest_article          = 5
+    oldest_article          = 1
     encoding                = 'utf8'
     use_embedded_content    = False
     no_stylesheets          = True
@@ -59,6 +59,7 @@ class LaRepubblica(BasicNewsRecipe):
                           dict(attrs={'class':'articolo'}),
                           dict(attrs={'class':'body-text'}),
                           dict(name='p', attrs={'class':'disclaimer clearfix'}),
+                          dict(name='div', attrs={'id':'main'}),
                           dict(attrs={'id':'contA'})
                          ]
 
@@ -67,7 +68,7 @@ class LaRepubblica(BasicNewsRecipe):
                             dict(name=['object','link','meta','iframe','embed']),
                             dict(name='span',attrs={'class':'linkindice'}),
                             dict(name='div', attrs={'class':['bottom-mobile','adv adv-middle-inline']}),
-                            dict(name='div', attrs={'id':['rssdiv','blocco','fb-like-head']}),
+                            dict(name='div', attrs={'id':['rssdiv','blocco','fb-like-head', 'sidebar']}),
                             dict(name='div', attrs={'class':['utility','fb-like-button','archive-button']}),
                             dict(name='div', attrs={'class':'generalbox'}),
                             dict(name='ul', attrs={'id':'hystory'})
@@ -88,11 +89,12 @@ class LaRepubblica(BasicNewsRecipe):
                        (u'Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
                        (u'Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
                        (u'Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
-                       (u'Edizione Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
-                       (u'Edizione Torino', u'http://torino.repubblica.it/rss/rss2.0.xml'),
-                       (u'Edizione Milano', u'feed://milano.repubblica.it/rss/rss2.0.xml'),
-                       (u'Edizione Napoli', u'feed://napoli.repubblica.it/rss/rss2.0.xml'),
-                       (u'Edizione Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
+                       (u'Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
+                       (u'Torino', u'http://torino.repubblica.it/rss/rss2.0.xml'),
+                       (u'Milano', u'feed://milano.repubblica.it/rss/rss2.0.xml'),
+                       (u'Napoli', u'feed://napoli.repubblica.it/rss/rss2.0.xml'),
+                       (u'Bari', u'http://bari.repubblica.it/rss/rss2.0.xml'),
+                       (u'Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
                       ]
 
     def preprocess_html(self, soup):

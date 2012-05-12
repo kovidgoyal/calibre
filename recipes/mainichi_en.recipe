@@ -1,0 +1,67 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.mainichi.jp
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MainichiEnglishNews(BasicNewsRecipe):
+    title          = u'The Mainichi'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 2
+    max_articles_per_feed = 40
+    description    = 'Japanese traditional newspaper Mainichi news in English'
+    publisher      = 'Mainichi News'
+    category       = 'news, japan'
+    language       = 'en_JP'
+    index          = 'http://mainichi.jp/english/english/index.html'
+    remove_javascript = True
+    masthead_url = 'http://mainichi.jp/english/images/themainichi.png'
+
+    remove_tags_before = {'class':"NewsTitle"}
+    remove_tags_after = {'class':"NewsBody clr"}
+
+    def parse_feeds(self):
+
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        for curfeed in feeds:
+            delList = []
+            for a,curarticle in enumerate(curfeed.articles):
+                if re.search(r'pheedo.jp', curarticle.url):
+                    delList.append(curarticle)
+                if re.search(r'rssad.jp', curarticle.url):
+                    delList.append(curarticle)
+            if len(delList)>0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index+1] = []
+
+        return feeds
+
+    def parse_index(self):
+        feeds = []
+        soup   = self.index_to_soup(self.index)
+        for section in soup.findAll('section'):
+           newsarticles = []
+           section_name = 'news'
+           hds = section.find('div', attrs={'class':'CategoryHead clr'})
+           if hds:
+               section_item = hds.find('h1')
+               if section_item:
+                   section_name = section_item.find('a').string
+               items = section.find('ul', attrs={'class':'MaiLink'})
+               for item in items.findAll('li'):
+                   if item:
+                       itema = item.find('a')
+                       newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'       :''
+                                     ,'url'        :itema['href']
+                                     ,'description':''
+                                    })
+               feeds.append((section_name, newsarticles))
+        return feeds
+
