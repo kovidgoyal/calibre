@@ -72,7 +72,7 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 formats = ', '.join(data.xpath('.//div[@class="book-info"]//text()')).strip()
                 a, b, formats = formats.partition('Format:')
                 drm = SearchResult.DRM_LOCKED
-                if 'drm free' not in formats.lower():
+                if 'drm free' in formats.lower():
                     drm = SearchResult.DRM_UNLOCKED
 
 

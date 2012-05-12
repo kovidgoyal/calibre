@@ -53,7 +53,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="pageCenterContent2"]//div[@class="bookCoverImg"]'):
+            for data in doc.xpath('//div[@id="pageCenterContent"]//div[@class="bookCoverImg"]'):
                 if counter <= 0:
                     break
                 data = html.fromstring(html.tostring(data))
