@@ -202,7 +202,8 @@ class ANDROID(USBMS):
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
-            'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0_DRIVER', 'XT875']
+            'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0_DRIVER', 'XT875',
+            'UMS_COMPOSITE']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
