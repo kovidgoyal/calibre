@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from functools import partial
 
 from dateutil.tz import tzlocal, tzutc
@@ -88,8 +88,6 @@ def parse_only_date(raw, assume_utc=True):
     guarantees that the month and year are always correct in all timezones, and
     the day is at most one day wrong.
     '''
-    from calibre.utils.date import utcnow, now, parse_date
-    from datetime import timedelta
     f = utcnow if assume_utc else now
     default = f().replace(hour=0, minute=0, second=0, microsecond=0,
             day=15)
