@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-11 06:56+0000\n"
-"PO-Revision-Date: 2012-05-05 07:31+0000\n"
+"PO-Revision-Date: 2012-05-12 17:17+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-12 05:20+0000\n"
+"X-Launchpad-Export-Date: 2012-05-13 04:42+0000\n"
 "X-Generator: Launchpad (build 15225)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -14252,7 +14252,7 @@ msgstr "Puoi disabilitare una condizione svuotando tutte le relative caselle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:327
 msgid "Sample Text"
-msgstr ""
+msgstr "Testo di esempio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:369
 msgid "Invalid condition"
@@ -15626,7 +15626,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
-msgstr ""
+msgstr "Modello costante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:67
 msgid ""
@@ -16908,7 +16908,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:277
 msgid "Customize get books search"
-msgstr ""
+msgstr "Personalizza la ricerca dei libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:287
 msgid "Configure search"
@@ -17441,7 +17441,7 @@ msgstr "Errore di conversione"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Conversione non riuscita: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -17468,7 +17468,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
-msgstr ""
+msgstr "Conversione non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:650
 msgid "Recipe Disabled"
@@ -20810,6 +20810,10 @@ msgid ""
 "empty, otherwise returns the empty string. This function works well with "
 "test or first_non_empty. You can have as many values as you want."
 msgstr ""
+"and(valore, valore, ...) -- restituisce la stringa \"1\" se tutti i valori "
+"sono non vuoti, altrimenti restituisce la stringa vuota. Questa funzione "
+"lavora correttamente con test o first_non_empty. Puoi avere un numero "
+"qualsiasi di valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:908
 msgid ""
@@ -20817,6 +20821,10 @@ msgid ""
 "otherwise returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"or(valore, valore, ...) -- restituisce la stringa \"1\" se un qualunque "
+"valore è non vuoto, altrimenti restituisce la stringa vuota. Questa funzione "
+"lavora correttamente con test o first_non_empty. Puoi avere un numero "
+"qualsiasi di valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:925
 msgid ""
@@ -20824,6 +20832,9 @@ msgid ""
 "returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"not(valore) -- restituisce la \"1\" se il valore è vuoti, altrimenti "
+"restituisce la stringa vuota. Questa funzione lavora correttamente con test "
+"o first_non_empty. Puoi avere un numero qualsiasi di valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:937
 msgid ""
