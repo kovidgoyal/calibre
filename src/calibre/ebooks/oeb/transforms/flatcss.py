@@ -157,10 +157,12 @@ class CSSFlattener(object):
             bs = body.get('style', '').split(';')
             bs.append('margin-top: 0pt')
             bs.append('margin-bottom: 0pt')
-            bs.append('margin-left : %fpt'%\
-                    float(self.context.margin_left))
-            bs.append('margin-right : %fpt'%\
-                    float(self.context.margin_right))
+            if float(self.context.margin_left) >= 0:
+                bs.append('margin-left : %gpt'%\
+                        float(self.context.margin_left))
+            if float(self.context.margin_right) >= 0:
+                bs.append('margin-right : %gpt'%\
+                        float(self.context.margin_right))
             bs.extend(['padding-left: 0pt', 'padding-right: 0pt'])
             if self.page_break_on_body:
                 bs.extend(['page-break-before: always'])
@@ -393,10 +395,11 @@ class CSSFlattener(object):
         l = etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
         l.tail='\n'
-        href = item.relhref(global_href)
-        l = etree.SubElement(head, XHTML('link'),
-            rel='stylesheet', type=CSS_MIME, href=href)
-        l.tail = '\n'
+        if global_href:
+            href = item.relhref(global_href)
+            l = etree.SubElement(head, XHTML('link'),
+                rel='stylesheet', type=CSS_MIME, href=href)
+            l.tail = '\n'
 
     def replace_css(self, css):
         manifest = self.oeb.manifest
@@ -413,14 +416,16 @@ class CSSFlattener(object):
         global_css = defaultdict(list)
         for item in self.oeb.spine:
             stylizer = self.stylizers[item]
-            stylizer.page_rule['margin-top'] = '%gpt'%\
-                    float(self.context.margin_top)
-            stylizer.page_rule['margin-bottom'] = '%gpt'%\
-                    float(self.context.margin_bottom)
+            if float(self.context.margin_top) >= 0:
+                stylizer.page_rule['margin-top'] = '%gpt'%\
+                        float(self.context.margin_top)
+            if float(self.context.margin_bottom) >= 0:
+                stylizer.page_rule['margin-bottom'] = '%gpt'%\
+                        float(self.context.margin_bottom)
             items = stylizer.page_rule.items()
             items.sort()
             css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
-            css = '@page {\n%s\n}\n'%css
+            css = ('@page {\n%s\n}\n'%css) if items else ''
             rules = [r.cssText for r in stylizer.font_face_rules]
             raw = '\n\n'.join(rules)
             css += '\n\n' + raw
@@ -429,9 +434,11 @@ class CSSFlattener(object):
         gc_map = {}
         manifest = self.oeb.manifest
         for css in global_css:
-            id_, href = manifest.generate('page_css', 'page_styles.css')
-            manifest.add(id_, href, CSS_MIME, data=cssutils.parseString(css,
-                validate=False))
+            href = None
+            if css.strip():
+                id_, href = manifest.generate('page_css', 'page_styles.css')
+                manifest.add(id_, href, CSS_MIME, data=cssutils.parseString(css,
+                    validate=False))
             gc_map[css] = href
 
         ans = {}

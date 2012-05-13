@@ -966,7 +966,7 @@ class Manifest(object):
                 data = data.cssText
                 if isinstance(data, unicode):
                     data = data.encode('utf-8')
-                return data
+                return data + b'\n'
             return str(data)
 
         def __unicode__(self):
