@@ -14,9 +14,10 @@ from calibre.gui2 import NONE, file_icon_provider
 
 class Formats(QAbstractListModel):
 
-    def __init__(self, fmts):
+    def __init__(self, fmt_count):
         QAbstractListModel.__init__(self)
-        self.fmts = sorted(fmts)
+        self.fmts = sorted(set(fmt_count))
+        self.counts = fmt_count
         self.fi = file_icon_provider()
 
     def rowCount(self, parent):
@@ -25,9 +26,17 @@ class Formats(QAbstractListModel):
     def data(self, index, role):
         row = index.row()
         if role == Qt.DisplayRole:
-            return QVariant(self.fmts[row].upper())
+            fmt = self.fmts[row]
+            count = self.counts[fmt]
+            return QVariant('%s [%d]'%(fmt.upper(), count))
         if role == Qt.DecorationRole:
             return QVariant(self.fi.icon_from_ext(self.fmts[row].lower()))
+        if role == Qt.ToolTipRole:
+            fmt = self.fmts[row]
+            count = self.counts[fmt]
+            return QVariant(
+                _('The are %(count)d book(s) with the %(fmt)s format')%dict(
+                    count=count, fmt=fmt.upper()))
         return NONE
 
     def flags(self, index):
@@ -38,7 +47,7 @@ class Formats(QAbstractListModel):
 
 class SelectFormats(QDialog):
 
-    def __init__(self, fmt_list, msg, single=False, parent=None):
+    def __init__(self, fmt_count, msg, single=False, parent=None):
         QDialog.__init__(self, parent)
         self._l = QVBoxLayout(self)
         self.setLayout(self._l)
@@ -46,7 +55,7 @@ class SelectFormats(QDialog):
         self._m = QLabel(msg)
         self._m.setWordWrap(True)
         self._l.addWidget(self._m)
-        self.formats = Formats(fmt_list)
+        self.formats = Formats(fmt_count)
         self.fview = QListView(self)
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)

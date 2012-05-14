@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from collections import Counter
 
 from PyQt4.Qt import QObject, QTimer
 
@@ -117,13 +118,14 @@ class DeleteAction(InterfaceAction):
 
     def _get_selected_formats(self, msg, ids):
         from calibre.gui2.dialogs.select_formats import SelectFormats
-        fmts = set([])
+        c = Counter()
         db = self.gui.library_view.model().db
         for x in ids:
             fmts_ = db.formats(x, index_is_id=True, verify_formats=False)
             if fmts_:
-                fmts.update(frozenset([x.lower() for x in fmts_.split(',')]))
-        d = SelectFormats(list(sorted(fmts)), msg, parent=self.gui)
+                for x in frozenset([x.lower() for x in fmts_.split(',')]):
+                    c[x] += 1
+        d = SelectFormats(c, msg, parent=self.gui)
         if d.exec_() != d.Accepted:
             return None
         return d.selected_formats
