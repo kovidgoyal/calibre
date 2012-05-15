@@ -889,7 +889,10 @@ OptionRecommendation(name='search_replace',
             self.log.debug('Resolved conversion options')
             try:
                 self.log.debug('calibre version:', __version__)
-                self.log.debug(pprint.pformat(self.opts.__dict__))
+                odict = dict(self.opts.__dict__)
+                for x in ('username', 'password'):
+                    odict.pop(x, None)
+                self.log.debug(pprint.pformat(odict))
             except:
                 self.log.exception('Failed to get resolved conversion options')
 
