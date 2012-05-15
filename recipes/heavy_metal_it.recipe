@@ -1,0 +1,22 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1336289226(BasicNewsRecipe):
+    title          = u'Heavy Metal'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    masthead_url            = 'http://net-static2.tccstatic.com/template/tmw/img/tj.gif'
+    feeds          = [(u'Heavy Metal', u'http://www.heavy-metal.it/feed/')]
+    keep_only_tags = [
+                       dict(name='div', attrs={'class':'entry'})
+                     ]
+    remove_tags_after = [
+                            dict(name='div', attrs={'class':'sociable'})
+                            ]
+    description = 'An Heavy metal Italian magazine'
+    __author__      = 'faber1971'
+    language = 'it'
+
+__version__     = 'v1.0'
+__date__        = '6, May 2012'
