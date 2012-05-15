@@ -336,6 +336,8 @@ Index: src/PdfFiltersPrivate.cpp
 ImageMagick
 --------------
 
+Get the source from: http://www.imagemagick.org/download/windows/ImageMagick-windows.zip
+
 Edit VisualMagick/configure/configure.cpp to set
 
 int projectType = MULTITHREADEDDLL;
@@ -349,7 +351,10 @@ Edit magick/magick-config.h
 Undefine ProvideDllMain and MAGICKCORE_X11_DELEGATE
 
 Now open VisualMagick/VisualDynamicMT.sln set to Release
-Remove the CORE_xlib and UTIL_Imdisplay project CORE_Magick++
+Remove the CORE_xlib, UTIL_Imdisplay and CORE_Magick++ projects.
+
+F7 for build project, you will get one error due to the removal of xlib, ignore
+it.
 
 calibre
 ---------
