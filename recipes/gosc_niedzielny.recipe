@@ -13,7 +13,7 @@ class GN(BasicNewsRecipe):
         EDITION = 0
 
         __author__ = 'Piotr Kontek'
-        title = unicode('Gość niedzielny')
+        title = u'Gość niedzielny'
         description = 'Weekly magazine'
         encoding = 'utf-8'
         no_stylesheets = True

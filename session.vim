@@ -20,7 +20,11 @@ vipy.session.initialize(project_name='calibre', src_dir=src_dir,
             project_dir=project_dir, base_dir=project_dir)
 
 def recipe_title_callback(raw):
-    return eval(raw.decode('utf-8')).replace(' ', '_')
+    try:
+        return eval(raw.decode('utf-8')).replace(u' ', u'_')
+    except:
+        print ('Failed to decode recipe title: %r'%raw)
+        raise
 
 vipy.session.add_content_browser('<leader>r', 'Recipe',
     vipy.session.glob_based_iterator(os.path.join(project_dir, 'recipes', '*.recipe')),
