@@ -1,23 +1,29 @@
-# Arabic translation for calibre
-# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
-# This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# Arabic translations of ISO 639 Language names
+# Copyright (C) 2002,2004 Free Software Foundation, Inc.
+# Alastair McKinstry <mckinstry@computer.org>, 2002.
+# Translations from kde-i18n/desktop.po:
+# Mohammad Gamal <f2c2001@yahoo.com>, 2001.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: iso_639_3\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2012-05-11 06:56+0000\n"
-"PO-Revision-Date: 2011-12-09 11:30+0000\n"
-"Last-Translator: عبدالله شلي (Abdellah Chelli) <sneetsher@gmail.com>\n"
-"Language-Team: Arabic <ar@li.org>\n"
+"PO-Revision-Date: 2012-05-14 17:52+0000\n"
+"Last-Translator: الأستاذ عوض الغامدي <Unknown>\n"
+"Language-Team: awadh alghaamdi <awadh_al_ghaamdi@hotmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2012-05-12 05:14+0000\n"
-"X-Generator: Launchpad (build 15225)\n"
+"X-Launchpad-Export-Date: 2012-05-15 04:50+0000\n"
+"X-Generator: Launchpad (build 15238)\n"
+"X-Poedit-Country: SAUDI ARABIA\n"
+"Language: ar\n"
+"X-Poedit-Language: Arabic\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:189
 msgid "&Monospace family:"
@@ -19041,7 +19047,7 @@ msgstr "صينية تقليدية"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English"
-msgstr "الإنغليزي"
+msgstr "الإنجليزية"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
