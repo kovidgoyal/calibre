@@ -1,22 +1,24 @@
+# translation of 20120515-src_calibre_translations_calibre-is.po to Icelandic
 # Icelandic translation for calibre
 # Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
 #
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+# Sveinn í Felli <sveinki@nett.is>, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre\n"
+"Project-Id-Version: 20120515-src_calibre_translations_calibre-is\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-11 06:56+0000\n"
-"PO-Revision-Date: 2012-02-07 18:08+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Icelandic <is@li.org>\n"
+"PO-Revision-Date: 2012-05-15 21:07+0000\n"
+"Last-Translator: Sveinn í Felli <sveinki@nett.is>\n"
+"Language-Team: Icelandic <translation-team-is@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-12 05:20+0000\n"
-"X-Generator: Launchpad (build 15225)\n"
+"X-Launchpad-Export-Date: 2012-05-16 04:49+0000\n"
+"X-Generator: Launchpad (build 15247)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -256,11 +258,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Lager"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr ""
+msgstr "Rafbókalager."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -446,7 +448,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Look and Feel"
-msgstr ""
+msgstr "Útlit og viðmót"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:931
@@ -454,7 +456,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:953
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:965
 msgid "Interface"
-msgstr ""
+msgstr "Viðmót"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -462,7 +464,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Behavior"
-msgstr ""
+msgstr "Hegðun"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid "Change the way calibre behaves"
@@ -471,7 +473,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:267
 msgid "Add your own columns"
-msgstr ""
+msgstr "Bættu við þínum eigin dálkum"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:946
 msgid "Add/remove your own columns to the calibre book list"
@@ -489,7 +491,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
 msgid "Searching"
-msgstr ""
+msgstr "Leita"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:969
 msgid "Customize the way searching for books works in calibre"
@@ -17833,32 +17835,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
 msgid "All books"
-msgstr ""
+msgstr "Allar bækur"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:295
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:582
 msgid "Newest"
-msgstr ""
+msgstr "Nýjast"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:498
 msgid "Loading, please wait"
-msgstr ""
+msgstr "Hleð inn, bíddu aðeins"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
 msgid "Go to"
-msgstr ""
+msgstr "Fara í"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr ""
+msgstr "Fyrsta"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
-msgstr ""
+msgstr "Síðasta"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 #, python-format
@@ -17868,7 +17870,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
 msgid "Average rating"
-msgstr ""
+msgstr "Meðaleinkunn"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
 #, python-format
@@ -17878,19 +17880,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
 #, python-format
 msgid "%d stars"
-msgstr ""
+msgstr "%d stjörnur"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
 msgid "Popularity"
-msgstr ""
+msgstr "Vinsældir"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr ""
+msgstr "Raða eftir"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:279
 msgid "library"
-msgstr ""
+msgstr "safn"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
 msgid "home"
@@ -17911,19 +17913,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
 msgid "Up"
-msgstr ""
+msgstr "Upp"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
 msgid "in"
-msgstr ""
+msgstr "í"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:664
 msgid "Books in"
-msgstr ""
+msgstr "Bækur í"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:758
 msgid "Other formats"
-msgstr ""
+msgstr "Önnur snið"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
 #, python-format
@@ -17932,11 +17934,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:770
 msgid "Get"
-msgstr ""
+msgstr "Sækja"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:783
 msgid "Details"
-msgstr ""
+msgstr "Nánar"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
 msgid "Permalink"
@@ -18004,12 +18006,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 #, python-format
 msgid "%d book"
-msgstr ""
+msgstr "%d bók"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:152
 #, python-format
 msgid "%d items"
-msgstr ""
+msgstr "%d hlutir"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:170
 #, python-format
@@ -18028,23 +18030,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:276
 msgid "Books in your library"
-msgstr ""
+msgstr "Bækur í safninu þínu"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:282
 msgid "By "
-msgstr ""
+msgstr "Eftir "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:283
 msgid "Books sorted by "
-msgstr ""
+msgstr "Bókum raðað eftir "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:34
 msgid "Usage"
-msgstr ""
+msgstr "Notkun"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:85
 msgid "Created by "
-msgstr ""
+msgstr "Búið til af "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:86
 msgid ""
@@ -18692,95 +18694,95 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr ""
+msgstr "Bíð..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "Hætti við, tók of langan tíma"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
-msgstr ""
+msgstr "Stöðvað"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:58
 msgid "Finished"
-msgstr ""
+msgstr "Lokið"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:80
 msgid "Working..."
-msgstr ""
+msgstr "Í vinnslu..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "Brasilísk portúgalska"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (UK)"
-msgstr ""
+msgstr "Enska (Bretland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "Einfölduð kínverska"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Kínverska (HK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "Hefðbundin kínverska"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English"
-msgstr ""
+msgstr "Enska"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "Enska (Argentína)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
-msgstr ""
+msgstr "Enska (Ástralía)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Japan)"
-msgstr ""
+msgstr "Enska (Japan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Germany)"
-msgstr ""
+msgstr "Enska (Þýskaland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "Enska (Búlgaría)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Egypt)"
-msgstr ""
+msgstr "Enska (Egyptaland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (New Zealand)"
-msgstr ""
+msgstr "Enska (Nýja-Sjáland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Canada)"
-msgstr ""
+msgstr "Enska (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Greece)"
-msgstr ""
+msgstr "Enska (Grikkland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (India)"
-msgstr ""
+msgstr "Enska (Indland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Nepal)"
-msgstr ""
+msgstr "Enska (Nepal)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Thailand)"
-msgstr ""
+msgstr "Enska (Tæland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "English (Turkey)"
@@ -18796,23 +18798,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "Enska (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Croatia)"
-msgstr ""
+msgstr "Enska (Króatía)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "English (Hong Kong)"
-msgstr ""
+msgstr "Enska (Hong Kong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Enska (Indónesía)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "English (Israel)"
-msgstr ""
+msgstr "Enska (Ísrael)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "English (Russia)"
@@ -18820,7 +18822,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "English (Singapore)"
-msgstr ""
+msgstr "Enska (Singapore)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "English (Yemen)"
@@ -18828,99 +18830,99 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "English (Ireland)"
-msgstr ""
+msgstr "Enska (Írland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "English (China)"
-msgstr ""
+msgstr "Enska (Kína)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "English (South Africa)"
-msgstr ""
+msgstr "Enska (Suður-Afríka)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "Spanish (Paraguay)"
-msgstr ""
+msgstr "Spænska (Paragvæ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Spænska (Urugvæ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Spænska (Argentína)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Spænska (Mexíkó)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:151
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Spænska (Kúba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:152
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Spænska (Chíle)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:153
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Spænska (Ekvador)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:154
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Spænska (Hondúras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:155
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Spænska (Venesúela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:156
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Spænska (Bólivía)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:157
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Spænska (Níkaragva)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "Spænska (Kólumbía)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:159
 msgid "German (AT)"
-msgstr ""
+msgstr "Þýska (AT)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "French (BE)"
-msgstr ""
+msgstr "Franska (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:161
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Hollenska (NL)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Hollenska (BE)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:170
 msgid "AM"
-msgstr ""
+msgstr "FH"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:172
 msgid "PM"
-msgstr ""
+msgstr "EH"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:174
 msgid "am"
-msgstr ""
+msgstr "fh"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:176
 msgid "pm"
-msgstr ""
+msgstr "eh"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -18950,7 +18952,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Velkomin í"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
@@ -18996,7 +18998,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:161
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:188
 msgid "Untitled article"
-msgstr ""
+msgstr "Ónefnd grein"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:48
 msgid "Unknown News Source"
@@ -19021,7 +19023,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:872
 msgid " from "
-msgstr ""
+msgstr " frá "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:874
 msgid "\tFailed links:"
@@ -19085,7 +19087,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1332
 msgid "Untitled Article"
-msgstr ""
+msgstr "Ónefnd grein"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1404
 #, python-format
@@ -19115,42 +19117,42 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 msgid "You"
-msgstr ""
+msgstr "Þú"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:75
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:203
 msgid "Scheduled"
-msgstr ""
+msgstr "Áætlað"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:123
 msgid "Next section"
-msgstr ""
+msgstr "Næsti hluti"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:126
 msgid "Main menu"
-msgstr ""
+msgstr "Aðalvalmynd"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:130
 msgid "Previous section"
-msgstr ""
+msgstr "Fyrri hluti"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:222
 msgid "Section Menu"
-msgstr ""
+msgstr "Hlutavalmynd"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:225
 msgid "Main Menu"
-msgstr ""
+msgstr "Aðalvalmynd"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:314
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:402
 msgid "Sections"
-msgstr ""
+msgstr "Hlutar"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:399
 msgid "Articles"
-msgstr ""
+msgstr "Greinar"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:505
 msgid ""
@@ -19219,71 +19221,71 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "OK"
-msgstr ""
+msgstr "Í lagi"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "Save"
-msgstr ""
+msgstr "Vista"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Open"
-msgstr ""
+msgstr "Opna"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:670
 msgid "&Close"
-msgstr ""
+msgstr "&Loka"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:673
 msgid "Apply"
-msgstr ""
+msgstr "Virkja"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:683
 msgid "Don't Save"
-msgstr ""
+msgstr "Ekki vista"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:685
 msgid "Close without Saving"
-msgstr ""
+msgstr "Loka án þess að vista"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:687
 msgid "Discard"
-msgstr ""
+msgstr "Henda"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "&Yes"
-msgstr ""
+msgstr "&Já"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Yes to &All"
-msgstr ""
+msgstr "Já við öll&u"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "&No"
-msgstr ""
+msgstr "&Nei"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "N&o to All"
-msgstr ""
+msgstr "N&ei við öllu"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Save All"
-msgstr ""
+msgstr "Vista allt"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Abort"
-msgstr ""
+msgstr "Hætta við"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:708
 msgid "Retry"
-msgstr ""
+msgstr "Reyna aftur"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:711
 msgid "Ignore"
-msgstr ""
+msgstr "Hunsa"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:714
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Endurheimta sjálfgefið"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
