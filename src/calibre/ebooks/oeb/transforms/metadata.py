@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, re
 from calibre.utils.date import isoformat, now
 from calibre import guess_type
 
@@ -141,7 +141,7 @@ class MergeMetadata(object):
                 item = self.oeb.manifest.hrefs[old_cover.href]
                 if not cdata:
                     return item.id
-                self.oeb.manifest.remove(item)
+                self.remove_old_cover(item)
             elif not cdata:
                 id = self.oeb.manifest.generate(id='cover')
                 self.oeb.manifest.add(id, old_cover.href, 'image/jpeg')
@@ -151,4 +151,42 @@ class MergeMetadata(object):
             self.oeb.manifest.add(id, href, guess_type('cover.'+ext)[0], data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
         return id
+
+    def remove_old_cover(self, cover_item):
+        from calibre.ebooks.oeb.base import XPath
+        from lxml import etree
+
+        self.oeb.manifest.remove(cover_item)
+
+        # Remove any references to the cover in the HTML
+        affected_items = set()
+        for item in self.oeb.spine:
+            try:
+                images = XPath('//h:img[@src]')(item.data)
+            except:
+                images = []
+            removed = False
+            for img in images:
+                href = item.abshref(img.get('src'))
+                if href == cover_item.href:
+                    img.getparent().remove(img)
+                    removed = True
+            if removed:
+                affected_items.add(item)
+
+        # Check if the resulting HTML has no content, if so remove it
+        for item in affected_items:
+            body = XPath('//h:body')(item.data)
+            if body:
+                text = etree.tostring(body[0], method='text', encoding=unicode)
+            else:
+                text = ''
+            text = re.sub(r'\s+', '', text)
+            if not text:
+                self.log('Removing %s as it is a wrapper around'
+                        ' the cover image'%item.href)
+                self.oeb.spine.remove(item)
+                self.oeb.manifest.remove(item)
+
+
 
