@@ -182,7 +182,7 @@ class MergeMetadata(object):
             else:
                 text = ''
             text = re.sub(r'\s+', '', text)
-            if not text:
+            if not text and not XPath('//h:img|//svg:svg')(item.data):
                 self.log('Removing %s as it is a wrapper around'
                         ' the cover image'%item.href)
                 self.oeb.spine.remove(item)
