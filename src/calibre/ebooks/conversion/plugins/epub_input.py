@@ -207,7 +207,7 @@ class EPUBInput(InputFormatPlugin):
         if rc:
             cover_toc_item = None
             for item in oeb.toc.iterdescendants():
-                if item.href == rc:
+                if item.href and item.href.partition('#')[0] == rc:
                     cover_toc_item = item
                     break
             spine = {x.href for x in oeb.spine}
