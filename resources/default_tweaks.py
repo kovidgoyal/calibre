@@ -506,3 +506,17 @@ change_book_details_font_size_by = 0
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
 
+#: What format to default to when using the Tweak feature
+# The Tweak feature of calibre allows direct editing of a book format.
+# If multiple formats are available, calibre will offer you a choice
+# of formats, defaulting to your preferred output format if it is available.
+# Set this tweak to a specific value of 'EPUB' or 'AZW3' to always default
+# to that format rather than your output format preference.
+# Set to a value of 'remember' to use whichever format you chose last time you
+# used the Tweak feature.
+# Examples:
+#   default_tweak_format = None       (Use output format)
+#   default_tweak_format = 'EPUB'
+#   default_tweak_format = 'remember'
+default_tweak_format = None
+

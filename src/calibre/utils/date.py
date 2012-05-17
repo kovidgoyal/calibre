@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from functools import partial
 
 from dateutil.tz import tzlocal, tzutc
@@ -81,6 +81,24 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
+def parse_only_date(raw, assume_utc=True):
+    '''
+    Parse a date string that contains no time information in a manner that
+    guarantees that the month and year are always correct in all timezones, and
+    the day is at most one day wrong.
+    '''
+    f = utcnow if assume_utc else now
+    default = f().replace(hour=0, minute=0, second=0, microsecond=0,
+            day=15)
+    ans = parse_date(raw, default=default, assume_utc=assume_utc)
+    n = ans + timedelta(days=1)
+    if n.month > ans.month:
+        ans = ans.replace(day=ans.day-1)
+    if ans.day == 1:
+        ans = ans.replace(day=2)
+    return ans
+
 
 def strptime(val, fmt, assume_utc=False, as_utc=True):
     dt = datetime.strptime(val, fmt)

@@ -161,8 +161,14 @@ class EditorWidget(QWebView): # {{{
         self.page().setContentEditable(True)
 
     def clear_text(self, *args):
+        us = self.page().undoStack()
+        us.beginMacro('clear all text')
         self.action_select_all.trigger()
-        self.action_cut.trigger()
+        self.action_remove_format.trigger()
+        self.exec_command('delete')
+        us.endMacro()
+        self.set_font_style()
+        self.setFocus(Qt.OtherFocusReason)
 
     def link_clicked(self, url):
         open_url(url)
@@ -262,19 +268,21 @@ class EditorWidget(QWebView): # {{{
 
         def fset(self, val):
             self.setHtml(val)
-            fi = QFontInfo(QApplication.font(self))
-            f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
-            fam = unicode(fi.family()).strip().replace('"', '')
-            if not fam:
-                fam = 'sans-serif'
-            style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)
-
-            # toList() is needed because PyQt on Debian is old/broken
-            for body in self.page().mainFrame().documentElement().findAll('body').toList():
-                body.setAttribute('style', style)
-            self.page().setContentEditable(True)
-
+            self.set_font_style()
         return property(fget=fget, fset=fset)
+
+    def set_font_style(self):
+        fi = QFontInfo(QApplication.font(self))
+        f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
+        fam = unicode(fi.family()).strip().replace('"', '')
+        if not fam:
+            fam = 'sans-serif'
+        style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)
+
+        # toList() is needed because PyQt on Debian is old/broken
+        for body in self.page().mainFrame().documentElement().findAll('body').toList():
+            body.setAttribute('style', style)
+        self.page().setContentEditable(True)
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
@@ -627,4 +635,6 @@ if __name__ == '__main__':
     w = Editor()
     w.resize(800, 600)
     w.show()
+    w.html = '<b>testing</b>'
+    app.exec_()
     #print w.html

@@ -10,7 +10,8 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
-        QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem)
+        QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
+        QApplication)
 
 from calibre import prepare_string_for_xml
 from calibre.utils.icu import sort_key
@@ -626,7 +627,6 @@ class EditRules(QWidget): # {{{
 # }}}
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
     app = QApplication([])
 
     from calibre.library import db

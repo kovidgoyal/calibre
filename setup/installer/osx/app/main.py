@@ -429,7 +429,7 @@ class Py2App(object):
     def add_imagemagick(self):
         info('\nAdding ImageMagick')
         for x in ('Wand', 'Core'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.4.dylib'%x))
+            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.5.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
         dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):

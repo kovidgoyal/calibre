@@ -138,6 +138,8 @@ class MOBIHeader(Header): # {{{
     unknown2 = zeroes(8)
 
     # 192: FDST
+    # In MOBI 6 the fdst record is instead two two byte fields storing the
+    # index of the first and last content records
     fdst_record = DYN
     fdst_count = DYN
 

@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat, importlib
+import sys, os, cPickle, textwrap, stat
 from subprocess import check_call
 
 from calibre import  __appname__, prints, guess_type
@@ -177,7 +177,6 @@ class PostInstall:
         self.mime_resources = []
         if islinux or isbsd:
             self.setup_completion()
-        self.install_man_pages()
         if islinux or isbsd:
             self.setup_desktop_integration()
         self.create_uninstaller()
@@ -341,38 +340,6 @@ class PostInstall:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up completion failed')
-    # }}}
-
-    def install_man_pages(self): # {{{
-        try:
-            from calibre.utils.help2man import create_man_page
-            if isbsd:
-                manpath = os.path.join(self.opts.staging_root, 'man/man1')
-            else:
-                manpath = os.path.join(self.opts.staging_sharedir, 'man/man1')
-            if not os.path.exists(manpath):
-                os.makedirs(manpath)
-            self.info('Installing MAN pages...')
-            for src in entry_points['console_scripts']:
-                prog, right = src.split('=')
-                prog = prog.strip()
-                module = importlib.import_module(right.split(':')[0].strip())
-                parser = getattr(module, 'option_parser', None)
-                if parser is None:
-                    continue
-                parser = parser()
-                raw = create_man_page(prog, parser)
-                if isbsd:
-                    manfile = os.path.join(manpath, prog+'.1')
-                else:
-                    manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
-                self.info('\tInstalling MAN page for', prog)
-                open(manfile, 'wb').write(raw)
-                self.manifest.append(manfile)
-        except:
-            if self.opts.fatal_errors:
-                raise
-            self.task_failed('Installing MAN pages failed')
     # }}}
 
     def setup_desktop_integration(self): # {{{

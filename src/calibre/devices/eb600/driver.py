@@ -92,6 +92,10 @@ class POCKETBOOK360(EB600):
     name = 'PocketBook 360 Device Interface'
 
     gui_name = 'PocketBook 360'
+    VENDOR_ID   = [0x1f85, 0x525]
+    PRODUCT_ID  = [0x1688, 0xa4a5]
+    BCD         = [0x110]
+
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 

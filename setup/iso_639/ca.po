@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-04-28 10:42+0000\n"
-"Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
+"PO-Revision-Date: 2012-05-03 16:09+0000\n"
+"Last-Translator: Dídac Rios <didac@niorcs.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-29 04:45+0000\n"
-"X-Generator: Launchpad (build 15149)\n"
+"X-Launchpad-Export-Date: 2012-05-04 04:47+0000\n"
+"X-Generator: Launchpad (build 15195)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -9936,11 +9936,11 @@ msgstr "Ibani"
 
 #. name for ica
 msgid "Ede Ica"
-msgstr ""
+msgstr "Ede Ica"
 
 #. name for ich
 msgid "Etkywan"
-msgstr ""
+msgstr "Etkywan"
 
 #. name for icl
 msgid "Icelandic Sign Language"
@@ -9952,7 +9952,7 @@ msgstr "Anglès crioll; Islander"
 
 #. name for ida
 msgid "Idakho-Isukha-Tiriki"
-msgstr ""
+msgstr "Idakho-Isukha-Tiriki"
 
 #. name for idb
 msgid "Indo-Portuguese"
@@ -9960,15 +9960,15 @@ msgstr "Indo-portuguès"
 
 #. name for idc
 msgid "Idon"
-msgstr ""
+msgstr "Idon"
 
 #. name for idd
 msgid "Ede Idaca"
-msgstr ""
+msgstr "Ede Idaca"
 
 #. name for ide
 msgid "Idere"
-msgstr ""
+msgstr "Idere"
 
 #. name for idi
 msgid "Idi"
@@ -9976,43 +9976,43 @@ msgstr ""
 
 #. name for ido
 msgid "Ido"
-msgstr ""
+msgstr "ido"
 
 #. name for idr
 msgid "Indri"
-msgstr ""
+msgstr "Indri"
 
 #. name for ids
 msgid "Idesa"
-msgstr ""
+msgstr "Idesa"
 
 #. name for idt
 msgid "Idaté"
-msgstr ""
+msgstr "Idaté"
 
 #. name for idu
 msgid "Idoma"
-msgstr ""
+msgstr "Idoma"
 
 #. name for ifa
 msgid "Ifugao; Amganad"
-msgstr ""
+msgstr "Ifugao; Amganad"
 
 #. name for ifb
 msgid "Ifugao; Batad"
-msgstr ""
+msgstr "Ifugao; Batad"
 
 #. name for ife
 msgid "Ifè"
-msgstr ""
+msgstr "Ifè"
 
 #. name for iff
 msgid "Ifo"
-msgstr ""
+msgstr "Ifo"
 
 #. name for ifk
 msgid "Ifugao; Tuwali"
-msgstr ""
+msgstr "Ifugao; Tuwali"
 
 #. name for ifm
 msgid "Teke-Fuumu"
@@ -10020,15 +10020,15 @@ msgstr "Teke; Fuumu"
 
 #. name for ifu
 msgid "Ifugao; Mayoyao"
-msgstr ""
+msgstr "Ifugao; Mayoyao"
 
 #. name for ify
 msgid "Kallahan; Keley-I"
-msgstr ""
+msgstr "Kallahan; Keley-I"
 
 #. name for igb
 msgid "Ebira"
-msgstr ""
+msgstr "Ebira"
 
 #. name for ige
 msgid "Igede"

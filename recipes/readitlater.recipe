@@ -1,5 +1,5 @@
 """
-Pocket Calibre Recipe v1.0
+Pocket Calibre Recipe v1.2
 """
 __license__   = 'GPL v3'
 __copyright__ = '''
@@ -73,6 +73,9 @@ class Pocket(BasicNewsRecipe):
             articles = []
             soup = self.index_to_soup(feedurl)
             ritem = soup.find('ul', attrs={'id':'list'})
+            if ritem is None:
+                self.log.exception("Page %s skipped: invalid HTML" % (feedtitle if feedtitle else feedurl))
+                continue
             for item in reversed(ritem.findAll('li')):
                 if articlesToGrab < 1:
                     break
@@ -94,7 +97,12 @@ class Pocket(BasicNewsRecipe):
                     self.readList.append(readLink)
             totalfeeds.append((feedtitle, articles))
         if len(self.readList) < self.minimum_articles:
-            raise Exception("Not enough articles in RIL! Change minimum_articles or add more.")
+            self.mark_as_read_after_dl = False
+            if hasattr(self, 'abort_recipe_processing'):
+               self.abort_recipe_processing("Only %d articles retrieved, minimum_articles not reached" % len(self.readList))
+            else:
+                self.log.exception("Only %d articles retrieved, minimum_articles not reached" % len(self.readList))
+                return []
         return totalfeeds
 
     def mark_as_read(self, markList):

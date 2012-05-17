@@ -1,0 +1,22 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Nachdenkseiten(BasicNewsRecipe):
+    title          = u'Nachdenkseiten'
+    __author__ = 'jrda'
+    publisher = 'www.nachdenkseiten.de Albrecht Mueller und Dr. Wolfgang Lieb'
+    description = 'NachDenkSeiten - Die kritische Website'
+    category = 'news'
+    oldest_article = 7
+    use_embedded_content  = False
+    language = 'de'
+    timefmt = ''
+    max_articles_per_feed = 6
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    remove_javascript     = True
+    keep_only_tags = [
+            {'id':'content'}]
+
+    feeds = [
+              ('News', 'http://www.nachdenkseiten.de/?feed=rss2'),
+            ]
