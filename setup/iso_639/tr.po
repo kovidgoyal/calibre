@@ -10,14 +10,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-04-22 07:11+0000\n"
+"PO-Revision-Date: 2012-05-12 10:25+0000\n"
 "Last-Translator: kulkke <Unknown>\n"
 "Language-Team: Turkish <gnome-turk@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-23 04:45+0000\n"
-"X-Generator: Launchpad (build 15135)\n"
+"X-Launchpad-Export-Date: 2012-05-13 04:43+0000\n"
+"X-Generator: Launchpad (build 15225)\n"
 "Language: tr\n"
 
 #. name for aaa
@@ -406,7 +406,7 @@ msgstr ""
 
 #. name for aed
 msgid "Argentine Sign Language"
-msgstr ""
+msgstr "Arjantin İşaret Dili"
 
 #. name for aee
 msgid "Pashayi; Northeast"
@@ -1554,7 +1554,7 @@ msgstr "Dano"
 
 #. name for asp
 msgid "Algerian Sign Language"
-msgstr ""
+msgstr "Cezayir İşaret Dili"
 
 #. name for asq
 msgid "Austrian Sign Language"
@@ -2578,7 +2578,7 @@ msgstr "Blafe"
 
 #. name for bfi
 msgid "British Sign Language"
-msgstr ""
+msgstr "Britanya İşaret Dili"
 
 #. name for bfj
 msgid "Bafanji"
@@ -4167,7 +4167,7 @@ msgstr "Bukat"
 
 #. name for bvl
 msgid "Bolivian Sign Language"
-msgstr ""
+msgstr "Bolivya İşaret Dili"
 
 #. name for bvm
 msgid "Bamunka"
@@ -4587,7 +4587,7 @@ msgstr "Biri"
 
 #. name for bzs
 msgid "Brazilian Sign Language"
-msgstr ""
+msgstr "Brezilya İşaret Dili"
 
 #. name for bzt
 msgid "Brithenig"
@@ -5623,11 +5623,11 @@ msgstr ""
 
 #. name for csf
 msgid "Cuba Sign Language"
-msgstr ""
+msgstr "Küba İşaret Dili"
 
 #. name for csg
 msgid "Chilean Sign Language"
-msgstr ""
+msgstr "Şili İşaret Dili"
 
 #. name for csh
 msgid "Chin; Asho"
@@ -5651,7 +5651,7 @@ msgstr ""
 
 #. name for csn
 msgid "Colombian Sign Language"
-msgstr ""
+msgstr "Kolombiya İşaret Dili"
 
 #. name for cso
 msgid "Chinantec; Sochiapan"
@@ -5663,7 +5663,7 @@ msgstr ""
 
 #. name for csr
 msgid "Costa Rican Sign Language"
-msgstr ""
+msgstr "Kosta Rika İşaret Dili"
 
 #. name for css
 msgid "Ohlone; Southern"
@@ -7347,7 +7347,7 @@ msgstr ""
 
 #. name for esl
 msgid "Egypt Sign Language"
-msgstr ""
+msgstr "Mısır İşaret Dili"
 
 #. name for esm
 msgid "Esuma"
@@ -7551,7 +7551,7 @@ msgstr ""
 
 #. name for fcs
 msgid "Quebec Sign Language"
-msgstr ""
+msgstr "Quebec İşaret Dili"
 
 #. name for fer
 msgid "Feroge"
@@ -8806,7 +8806,7 @@ msgstr ""
 
 #. name for gsm
 msgid "Guatemalan Sign Language"
-msgstr ""
+msgstr "Guatemala İşaret Dili"
 
 #. name for gsn
 msgid "Gusan"
@@ -10895,7 +10895,7 @@ msgstr ""
 
 #. name for jos
 msgid "Jordanian Sign Language"
-msgstr ""
+msgstr "Ürdün İşaret Dili"
 
 #. name for jow
 msgid "Jowulu"
@@ -13847,7 +13847,7 @@ msgstr ""
 
 #. name for lbs
 msgid "Libyan Sign Language"
-msgstr ""
+msgstr "Libya İşaret Dili"
 
 #. name for lbt
 msgid "Lachi"
@@ -15591,7 +15591,7 @@ msgstr ""
 
 #. name for mfs
 msgid "Mexican Sign Language"
-msgstr ""
+msgstr "Meksika İşaret Dili"
 
 #. name for mft
 msgid "Mokerang"
@@ -17055,7 +17055,7 @@ msgstr ""
 
 #. name for mul
 msgid "Multiple languages"
-msgstr ""
+msgstr "Çoklu diller"
 
 #. name for mum
 msgid "Maiwala"
@@ -17867,7 +17867,7 @@ msgstr ""
 
 #. name for ncs
 msgid "Nicaraguan Sign Language"
-msgstr ""
+msgstr "Nikaragua İşaret Dili"
 
 #. name for nct
 msgid "Naga; Chothe"
@@ -19495,7 +19495,7 @@ msgstr ""
 
 #. name for nzs
 msgid "New Zealand Sign Language"
-msgstr ""
+msgstr "Yeni Zelanda İşaret Dili"
 
 #. name for nzu
 msgid "Teke-Nzikou"
@@ -21219,7 +21219,7 @@ msgstr ""
 
 #. name for prl
 msgid "Peruvian Sign Language"
-msgstr ""
+msgstr "Peru İşaret Dili"
 
 #. name for prm
 msgid "Kibiri"
@@ -22699,7 +22699,7 @@ msgstr ""
 
 #. name for sdl
 msgid "Saudi Arabian Sign Language"
-msgstr ""
+msgstr "Suudi Arabistan İşaret Dili"
 
 #. name for sdm
 msgid "Semandang"
@@ -22847,7 +22847,7 @@ msgstr ""
 
 #. name for sfs
 msgid "South African Sign Language"
-msgstr ""
+msgstr "Güney Afrika İşaret Dili"
 
 #. name for sfw
 msgid "Sehwi"
@@ -25943,7 +25943,7 @@ msgstr ""
 
 #. name for tse
 msgid "Tunisian Sign Language"
-msgstr ""
+msgstr "Tunus İşaret Dili"
 
 #. name for tsf
 msgid "Tamang; Southwestern"
@@ -27348,7 +27348,7 @@ msgstr ""
 
 #. name for vsl
 msgid "Venezuelan Sign Language"
-msgstr ""
+msgstr "Venezuela İşaret Dili"
 
 #. name for vsv
 msgid "Valencian Sign Language"
@@ -28760,7 +28760,7 @@ msgstr ""
 
 #. name for xms
 msgid "Moroccan Sign Language"
-msgstr ""
+msgstr "Fas İşaret Dili"
 
 #. name for xmt
 msgid "Matbat"
@@ -29540,7 +29540,7 @@ msgstr ""
 
 #. name for yid
 msgid "Yiddish"
-msgstr "Yiddiş"
+msgstr "Yidiş"
 
 #. name for yif
 msgid "Ache"
