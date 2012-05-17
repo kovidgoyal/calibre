@@ -1,0 +1,42 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class ArmyTimes(BasicNewsRecipe):
+    title                  	= 'Army Times'
+    __author__             	= 'jde'
+    __date__		= '16 May 2012'
+    __version__	= '1.0'
+    description            	= 'News of the U.S. Army'
+    language               	= 'en'
+    publisher              	= 'ArmyTimes.com'
+    category               	= 'news, U.S. Army'
+    tags 		= 'news, U.S. Army'
+    cover_url        	= 'http://www.armytimes.com/images/logo_armytimes_alert.jpg'
+    masthead_url        	= 'http://www.armytimes.com/images/logo_armytimes_alert.jpg'
+    oldest_article 	= 7 #days
+    max_articles_per_feed  	= 25
+    publication_type 	= 'newspaper'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= True
+
+
+
+    feeds          =   [
+
+('News', 		'http://www.armytimes.com/rss_news.php'),
+('Benefits', 		'http://www.armytimes.com/rss_benefits.php'),
+('Money', 		'http://www.armytimes.com/rss_money.php'),
+('Careers & Education', 	'http://www.armytimes.com/rss_careers.php'),
+('Community', 	'http://www.armytimes.com/rss_community.php'),
+('Off Duty', 		'http://www.armytimes.com/rss_off_duty.php'),
+('Entertainment', 	'http://www.armytimes.com/rss_entertainment.php'),
+('Guard & Reserve', 	'http://www.armytimes.com/rss_guard.php'),
+
+    ]
+
+
+
