@@ -72,7 +72,7 @@ def explode(path, dest, question=lambda x:True):
             dest), no_output=True)['result']
 
 def set_cover(oeb):
-    if 'cover' not in oeb.guide: return
+    if 'cover' not in oeb.guide or oeb.metadata['cover']: return
     cover = oeb.guide['cover']
     if cover.href in oeb.manifest.hrefs:
         item = oeb.manifest.hrefs[cover.href]
