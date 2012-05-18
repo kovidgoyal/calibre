@@ -257,9 +257,10 @@ def _set_title(title_info, mi):
 
 def _set_comments(title_info, mi):
     if not mi.is_null('comments'):
+        from calibre.utils.html2text import html2text
         _clear_meta_tags(title_info, 'annotation')
         title = _get_or_create(title_info, 'annotation')
-        title.text = mi.comments
+        title.text = html2text(mi.comments)
 
 
 def _set_authors(title_info, mi):
