@@ -18,7 +18,7 @@ QT_DIR = 'Q:\\Qt\\4.8.1'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
         'VisualMagick', 'bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 

@@ -393,8 +393,14 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)
 
+            formchildren = XPath('./h:input|./h:button|./h:textarea|'
+                    './h:label|./h:fieldset|./h:legend')
             for tag in XPath('//h:form')(root):
-                tag.getparent().remove(tag)
+                if formchildren(tag):
+                    tag.getparent().remove(tag)
+                else:
+                    # Not a real form
+                    tag.tag = XHTML('div')
 
             for tag in XPath('//h:center')(root):
                 tag.tag = XHTML('div')

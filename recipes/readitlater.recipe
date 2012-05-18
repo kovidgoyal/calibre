@@ -1,5 +1,5 @@
 """
-Pocket Calibre Recipe v1.1
+Pocket Calibre Recipe v1.2
 """
 __license__   = 'GPL v3'
 __copyright__ = '''
@@ -97,7 +97,12 @@ class Pocket(BasicNewsRecipe):
                     self.readList.append(readLink)
             totalfeeds.append((feedtitle, articles))
         if len(self.readList) < self.minimum_articles:
-            raise Exception("Not enough articles in Pocket! Change minimum_articles or add more articles.")
+            self.mark_as_read_after_dl = False
+            if hasattr(self, 'abort_recipe_processing'):
+               self.abort_recipe_processing("Only %d articles retrieved, minimum_articles not reached" % len(self.readList))
+            else:
+                self.log.exception("Only %d articles retrieved, minimum_articles not reached" % len(self.readList))
+                return []
         return totalfeeds
 
     def mark_as_read(self, markList):

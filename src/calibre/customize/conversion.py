@@ -302,7 +302,9 @@ class OutputFormatPlugin(Plugin):
 
         :param item: The item (HTML file) being processed
         :param stylizer: A Stylizer object containing the flattened styles for
-        item. You can get the style for any element by stylizer.style(element).
+                         item. You can get the style for any element by
+                         stylizer.style(element).
+
         '''
         pass
 
