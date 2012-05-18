@@ -21,7 +21,10 @@ vipy.session.initialize(project_name='calibre', src_dir=src_dir,
 
 def recipe_title_callback(raw):
     try:
-        return eval(raw.decode('utf-8')).replace(u' ', u'_')
+        raw = eval(raw)
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8')
+        return raw.replace(u' ', u'_')
     except:
         print ('Failed to decode recipe title: %r'%raw)
         raise
@@ -31,4 +34,4 @@ vipy.session.add_content_browser('<leader>r', 'Recipe',
     vipy.session.regexp_based_matcher(r'title\s*=\s*(?P<title>.+)', 'title', recipe_title_callback))
 EOFPY
 
-nmap \log :enew<CR>:read ! bzr log -l 500 <CR>:e Changelog.yaml<CR>:e src/calibre/constants.py<CR>
+nnoremap \log :enew<CR>:read ! bzr log -l 500 <CR>:e Changelog.yaml<CR>:e src/calibre/constants.py<CR>
