@@ -22,6 +22,9 @@ NAMESPACES = {
 XPath = partial(etree.XPath, namespaces=NAMESPACES)
 tostring = partial(etree.tostring, method='text', encoding=unicode)
 
+def FB2(tag):
+    return '{%s}%s'%(NAMESPACES['fb2'], tag)
+
 def get_metadata(stream):
     ''' Return fb2 metadata as a L{MetaInformation} object '''
 
@@ -85,6 +88,7 @@ def _parse_authors(root):
     authors = []
     # pick up authors but only from 1 secrion <title-info>; otherwise it is not consistent!
     # Those are fallbacks: <src-title-info>, <document-info>
+    author = None
     for author_sec in ['title-info', 'src-title-info', 'document-info']:
         for au in XPath('//fb2:%s/fb2:author'%author_sec)(root):
             author = _parse_author(au)
@@ -211,8 +215,8 @@ def _parse_publisher(root, mi):
 def _parse_pubdate(root, mi):
     year = XPath('number(//fb2:publish-info/fb2:year/text())')(root)
     if float.is_integer(year):
-        # only year is available, so use 1-st of Jan
-        mi.pubdate = datetime.date(int(year), 1, 1)
+        # only year is available, so use 2nd of June
+        mi.pubdate = datetime.date(int(year), 6, 2)
 
 def _parse_timestamp(root, mi):
     #<date value="1996-12-03">03.12.1996</date>
@@ -240,70 +244,92 @@ def _get_fbroot(stream):
     root = etree.fromstring(raw, parser=parser)
     return root
 
-def _get_child_or_create_and_insert_before(doc, root, tag, index, location):
-    nodes = root.getElementsByTagName(tag)
-    node = nodes[index] if nodes else root.insertBefore(doc.createElement(tag), location)
-    return node
+def _clear_meta_tags(doc, tag):
+    for parent in ('title-info', 'src-title-info', 'publish-info'):
+        for x in XPath('//fb2:%s/fb2:%s'%(parent, tag))(doc):
+            x.getparent().remove(x)
 
-def _get_first_child_or_create_and_insert_before(doc, root, tag, location):
-    return _get_child_or_create_and_insert_before(doc, root, tag, 0, location)
-
-def _get_first_child_or_create_and_insert_first(doc, root, tag):
-    return _get_first_child_or_create_and_insert_before(doc, root, tag, root.firstChild)
-
-def _get_first_child_or_create_and_append(doc, root, tag):
-    nodes = root.getElementsByTagName(tag)
-    node = nodes[0] if nodes else root.appendChild(doc.createElement(tag))
-    return node
-
-def _set_title(doc, title_info, mi):
+def _set_title(title_info, mi):
     if not mi.is_null('title'):
-        xml_title = _get_first_child_or_create_and_append(doc, title_info, 'book-title')
-        xml_title.childNodes = []
-        xml_title.appendChild(doc.createTextNode(mi.title))
+        _clear_meta_tags(title_info, 'book-title')
+        title = _get_or_create(title_info, 'book-title')
+        title.text = mi.title
 
-def _set_authors(doc, title_info, mi):
+def _set_comments(title_info, mi):
+    if not mi.is_null('comments'):
+        _clear_meta_tags(title_info, 'annotation')
+        title = _get_or_create(title_info, 'annotation')
+        title.text = mi.comments
+
+
+def _set_authors(title_info, mi):
     if not mi.is_null('authors'):
-        xml_authors = title_info.getElementsByTagName('author')
-        count = len(xml_authors)
-        i = 0
+        _clear_meta_tags(title_info, 'author')
         for author in mi.authors:
-            xml_author = xml_authors[i] if i < count else title_info.insertBefore(doc.createElement('author'), xml_authors[-1].nextSibling)
-            i += 1
-            xml_author.childNodes = []
-            author_parts = author.split(' ')
-            c = len(author_parts)
-            name_tags = ['nickname'] if c == 1 else \
-                        ['first-name', 'last-name'] if c == 2 else \
-                        ['first-name', 'middle-name', 'last-name'] if c == 3 else \
-                        ['first-name', 'middle-name', 'last-name', 'nickname']
-            for tag, part in zip(name_tags, author_parts):
-                xml_author_part = xml_author.appendChild(doc.createElement(tag))
-                xml_author_part.appendChild(doc.createTextNode(part))
-        if i < count:
-            for ind in range(i, count):
-                title_info.removeChild(xml_authors[ind])
+            author_parts = author.split()
+            if not author_parts: continue
+            atag = title_info.makeelement(FB2('author'))
+            title_info.insert(0, atag)
+            if len(author_parts) == 1:
+                _get_or_create(atag, 'nickname').text = author
+            else:
+                _get_or_create(atag, 'first-name').text = author_parts[0]
+                author_parts = author_parts[1:]
+                if len(author_parts) > 1:
+                    _get_or_create(atag, 'middle-name', at_start=False).text = author_parts[0]
+                    author_parts = author_parts[1:]
+                if author_parts:
+                    _get_or_create(atag, 'last-name', at_start=False).text = ' '.join(author_parts)
 
-def _set_series(doc, title_info, mi):
+def _set_tags(title_info, mi):
+    if not mi.is_null('tags'):
+        _clear_meta_tags(title_info, 'genre')
+        for t in mi.tags:
+            tag = title_info.makeelement(FB2('genre'))
+            tag.text = t
+            title_info.insert(0, tag)
+
+def _set_series(title_info, mi):
     if not mi.is_null('series'):
-        xml_sequence = _get_first_child_or_create_and_append(doc, title_info, 'sequence')
-        xml_sequence.setAttribute('name', mi.series)
-        if not mi.is_null('series_index'):
-            xml_sequence.setAttribute('number', str(int(float(mi.series_index))))
+        _clear_meta_tags(title_info, 'sequence')
+        seq = _get_or_create(title_info, 'sequence')
+        seq.set('name', mi.series)
+        try:
+            seq.set('number', '%g'%mi.series_index)
+        except:
+            seq.set('number', '1')
+
+def _get_or_create(parent, tag, at_start=True):
+    ans = XPath('./fb2:'+tag)(parent)
+    if ans:
+        ans = ans[0]
+    else:
+        ans = parent.makeelement(FB2(tag))
+        if at_start:
+            parent.insert(0, ans)
+        else:
+            parent.append(ans)
+    return ans
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
-    import xml.dom.minidom as md
-    from calibre.ebooks.metadata import MetaInformation
     stream.seek(0)
-    raw = stream.read()
-    xml_doc = md.parseString(raw)
-    xml_fiction_book = xml_doc.getElementsByTagName('FictionBook')[0]
-    xml_description = _get_first_child_or_create_and_insert_first(xml_doc, xml_fiction_book, 'description')
-    xml_titleinfo = _get_first_child_or_create_and_insert_first(xml_doc, xml_description, 'title-info')
+    root = _get_fbroot(stream)
+    desc = _get_or_create(root, 'description')
+    ti = _get_or_create(desc, 'title-info')
 
-    _set_title(xml_doc, xml_titleinfo, mi)
-    _set_authors(xml_doc, xml_titleinfo, mi)
-    _set_series(xml_doc, xml_titleinfo, mi)
-    
-    stream.truncate(0)
-    stream.write(xml_doc.toxml(xml_doc.encoding))
+    indent = ti.text
+
+    _set_comments(ti, mi)
+    _set_series(ti, mi)
+    _set_tags(ti, mi)
+    _set_authors(ti, mi)
+    _set_title(ti, mi)
+
+    for child in ti:
+        child.tail = indent
+
+    stream.seek(0)
+    stream.truncate()
+    stream.write(etree.tostring(root, method='xml', encoding='utf-8',
+        xml_declaration=True))
+

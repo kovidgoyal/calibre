@@ -18,7 +18,7 @@ class AdvancedUserRecipe1308791026(BasicNewsRecipe):
     encoding               = 'utf8'
     publisher              = 'stripes.com'
     category               = 'news, US, world'
-    language               = 'en_US'
+    language               = 'en'
     publication_type       = 'newsportal'
     preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
     conversion_options = {
