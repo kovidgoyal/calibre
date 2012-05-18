@@ -45,6 +45,10 @@ class EXTHHeader(object): # {{{
             elif idx == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
             elif idx == 501:
+                try:
+                    self.cdetype = content.decode('ascii')
+                except UnicodeDecodeError:
+                    self.cdetype = None
                 # cdetype
                 if content == b'EBSP':
                     if not self.mi.tags:
@@ -109,8 +113,11 @@ class EXTHHeader(object): # {{{
                         self.mi.isbn = raw
             except:
                 pass
-        elif idx == 113:
-            pass # ASIN or UUID
+        elif idx == 113: # ASIN or other id
+            try:
+                self.uuid = content.decode('ascii')
+            except:
+                self.uuid = None
         elif idx == 116:
             self.start_offset, = struct.unpack(b'>L', content)
         elif idx == 121:
