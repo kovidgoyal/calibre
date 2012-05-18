@@ -34,4 +34,12 @@ vipy.session.add_content_browser('<leader>r', 'Recipe',
     vipy.session.regexp_based_matcher(r'title\s*=\s*(?P<title>.+)', 'title', recipe_title_callback))
 EOFPY
 
-nnoremap \log :enew<CR>:read ! bzr log -l 500 <CR>:e Changelog.yaml<CR>:e src/calibre/constants.py<CR>
+fun! CalibreLog()
+    enew
+    read ! bzr log -l 500
+    set nomodifiable noswapfile buftype=nofile
+    edit Changelog.yaml
+    edit src/calibre/constants.py
+endfun
+
+nnoremap \log :call CalibreLog()<CR>
