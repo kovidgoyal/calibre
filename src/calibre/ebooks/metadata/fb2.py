@@ -239,3 +239,71 @@ def _get_fbroot(stream):
     raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
     root = etree.fromstring(raw, parser=parser)
     return root
+
+def _get_child_or_create_and_insert_before(doc, root, tag, index, location):
+    nodes = root.getElementsByTagName(tag)
+    node = nodes[index] if nodes else root.insertBefore(doc.createElement(tag), location)
+    return node
+
+def _get_first_child_or_create_and_insert_before(doc, root, tag, location):
+    return _get_child_or_create_and_insert_before(doc, root, tag, 0, location)
+
+def _get_first_child_or_create_and_insert_first(doc, root, tag):
+    return _get_first_child_or_create_and_insert_before(doc, root, tag, root.firstChild)
+
+def _get_first_child_or_create_and_append(doc, root, tag):
+    nodes = root.getElementsByTagName(tag)
+    node = nodes[0] if nodes else root.appendChild(doc.createElement(tag))
+    return node
+
+def _set_title(doc, title_info, mi):
+    if not mi.is_null('title'):
+        xml_title = _get_first_child_or_create_and_append(doc, title_info, 'book-title')
+        xml_title.childNodes = []
+        xml_title.appendChild(doc.createTextNode(mi.title))
+
+def _set_authors(doc, title_info, mi):
+    if not mi.is_null('authors'):
+        xml_authors = title_info.getElementsByTagName('author')
+        count = len(xml_authors)
+        i = 0
+        for author in mi.authors:
+            xml_author = xml_authors[i] if i < count else title_info.insertBefore(doc.createElement('author'), xml_authors[-1].nextSibling)
+            i += 1
+            xml_author.childNodes = []
+            author_parts = author.split(' ')
+            c = len(author_parts)
+            name_tags = ['nickname'] if c == 1 else \
+                        ['first-name', 'last-name'] if c == 2 else \
+                        ['first-name', 'middle-name', 'last-name'] if c == 3 else \
+                        ['first-name', 'middle-name', 'last-name', 'nickname']
+            for tag, part in zip(name_tags, author_parts):
+                xml_author_part = xml_author.appendChild(doc.createElement(tag))
+                xml_author_part.appendChild(doc.createTextNode(part))
+        if i < count:
+            for ind in range(i, count):
+                title_info.removeChild(xml_authors[ind])
+
+def _set_series(doc, title_info, mi):
+    if not mi.is_null('series'):
+        xml_sequence = _get_first_child_or_create_and_append(doc, title_info, 'sequence')
+        xml_sequence.setAttribute('name', mi.series)
+        if not mi.is_null('series_index'):
+            xml_sequence.setAttribute('number', str(int(float(mi.series_index))))
+
+def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
+    import xml.dom.minidom as md
+    from calibre.ebooks.metadata import MetaInformation
+    stream.seek(0)
+    raw = stream.read()
+    xml_doc = md.parseString(raw)
+    xml_fiction_book = xml_doc.getElementsByTagName('FictionBook')[0]
+    xml_description = _get_first_child_or_create_and_insert_first(xml_doc, xml_fiction_book, 'description')
+    xml_titleinfo = _get_first_child_or_create_and_insert_first(xml_doc, xml_description, 'title-info')
+
+    _set_title(xml_doc, xml_titleinfo, mi)
+    _set_authors(xml_doc, xml_titleinfo, mi)
+    _set_series(xml_doc, xml_titleinfo, mi)
+    
+    stream.truncate(0)
+    stream.write(xml_doc.toxml(xml_doc.encoding))

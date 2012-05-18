@@ -421,6 +421,16 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.epub import set_metadata
         set_metadata(stream, mi, apply_null=self.apply_null)
 
+class FB2MetadataWriter(MetadataWriterPlugin):
+
+    name = 'Set FB2 metadata'
+    file_types = set(['fb2'])
+    description = _('Set metadata in %s files')%'FB2'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.fb2 import set_metadata
+        set_metadata(stream, mi, apply_null=self.apply_null)
+
 class HTMLZMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set HTMLZ metadata'
