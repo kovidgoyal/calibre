@@ -2,7 +2,6 @@
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
-resources/compiled_coffeescript.zip
 src/calibre/ebooks/oeb/display/test/*.js
 src/calibre/manual/.build/
 src/calibre/manual/cli/

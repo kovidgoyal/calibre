@@ -156,8 +156,6 @@ class AmazonKindleStore(StorePlugin):
                     cover_xpath = './/div[@class="productImage"]//img/@src'
                     title_xpath = './/div[@class="productTitle"]/a/text()'
                     price_xpath = './/div[@class="newPrice"]//span//text()'
-                    
-            
             
             for data in doc.xpath(data_xpath):
                 if counter <= 0:

@@ -98,18 +98,18 @@ class EbookIterator(BookmarksMixin):
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
 
-        if not only_input_plugin:
-            # Run the HTML preprocess/parsing from the conversion pipeline as
-            # well
-            if (processed or plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'}
-                    and not hasattr(self.pathtoopf, 'manifest')):
-                if hasattr(self.pathtoopf, 'manifest'):
-                    self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
-                self.pathtoopf = create_oebbook(self.log, self.pathtoopf,
-                        plumber.opts)
+            if not only_input_plugin:
+                # Run the HTML preprocess/parsing from the conversion pipeline as
+                # well
+                if (processed or plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'}
+                        and not hasattr(self.pathtoopf, 'manifest')):
+                    if hasattr(self.pathtoopf, 'manifest'):
+                        self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
+                    self.pathtoopf = create_oebbook(self.log, self.pathtoopf,
+                            plumber.opts)
 
-        if hasattr(self.pathtoopf, 'manifest'):
-            self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
+            if hasattr(self.pathtoopf, 'manifest'):
+                self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
 
         self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
         if getattr(plumber.input_plugin, 'is_kf8', False):

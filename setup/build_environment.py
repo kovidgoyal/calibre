@@ -120,7 +120,7 @@ if iswindows:
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR', sw_lib_dir)
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs = ['poppler']
-    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.6.6')]
+    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.7.6')]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')

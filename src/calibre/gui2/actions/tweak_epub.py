@@ -12,11 +12,11 @@ from PyQt4.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QFrame,
 
 from calibre import as_unicode
 from calibre.constants import isosx
-from calibre.gui2 import error_dialog, question_dialog, open_local_file
+from calibre.gui2 import error_dialog, question_dialog, open_local_file, gprefs
 from calibre.gui2.actions import InterfaceAction
 from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 
 class TweakBook(QDialog):
 
@@ -32,11 +32,16 @@ class TweakBook(QDialog):
             index_is_id=True))
 
         button = self.fmt_choice_buttons[0]
+        button_map = {unicode(x.text()):x for x in self.fmt_choice_buttons}
         of = prefs['output_format'].upper()
-        for x in self.fmt_choice_buttons:
-            if unicode(x.text()) == of:
-                button = x
-                break
+        df = tweaks.get('default_tweak_format', None)
+        lf = gprefs.get('last_tweak_format', None)
+        if df and df.lower() == 'remember' and lf in button_map:
+            button = button_map[lf]
+        elif df and df.upper() in button_map:
+            button = button_map[df.upper()]
+        elif of in button_map:
+            button = button_map[of]
         button.setChecked(True)
 
         self.init_state()
@@ -148,6 +153,8 @@ class TweakBook(QDialog):
 
     def explode(self):
         self.show_msg(_('Exploding, please wait...'))
+        if len(self.fmt_choice_buttons) > 1:
+            gprefs.set('last_tweak_format', self.current_format.upper())
         QTimer.singleShot(5, self.do_explode)
 
     def ask_question(self, msg):

@@ -9,10 +9,10 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Pescanik(BasicNewsRecipe):
-    title                 = 'Peščanik'
+    title                 = u'Peščanik'
     __author__            = 'Darko Miletic'
-    description           = 'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'
-    publisher             = 'Peščanik'
+    description           = u'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'
+    publisher             = u'Peščanik'
     category              = 'news, politics, Serbia'
     oldest_article        = 10
     max_articles_per_feed = 100

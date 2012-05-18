@@ -1,8 +1,9 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2012, mkydgr'
 '''
 www.wired.com
+based on the (broken) built-in recipe by Darko Miletic <darko.miletic at gmail.com>
 '''
 
 import re
@@ -11,11 +12,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Wired(BasicNewsRecipe):
     title                 = 'Wired Magazine'
-    __author__            = 'Darko Miletic'
-    description           = 'Gaming news'
+    __author__            = 'mkydgr'
+    description           = 'Technology News'
     publisher             = 'Conde Nast Digital'
-    category              = 'news, games, IT, gadgets'
-    oldest_article        = 32
+    category              = ''
+    oldest_article        = 500
     delay                 = 1
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -25,8 +26,9 @@ class Wired(BasicNewsRecipe):
     language              = 'en'
     publication_type      = 'magazine'
     extra_css             = ' body{font-family: Arial,Verdana,sans-serif} .entryDescription li {display: inline; list-style-type: none} '
-    index                 = 'http://www.wired.com/magazine/'
-
+    index                 = 'http://www.wired.com/magazine'
+    departments           = ['features','start','test','play','found', 'reviews']
+    
     preprocess_regexps = [(re.compile(r'<meta name="Title".*<title>', re.DOTALL|re.IGNORECASE),lambda match: '<title>')]
     conversion_options = {
                           'comment'   : description
@@ -38,80 +40,53 @@ class Wired(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class':'post'})]
     remove_tags_after = dict(name='div', attrs={'class':'tweetmeme_button'})
     remove_tags = [
-                     dict(name=['object','embed','iframe','link','meta','base'])
+                     dict(name=['object','embed','iframe','link'])
                     ,dict(name='div', attrs={'class':['podcast_storyboard','tweetmeme_button']})
                     ,dict(attrs={'id':'ff_bottom_nav'})
                     ,dict(name='a',attrs={'href':'http://www.wired.com/app'})
                   ]
-    remove_attributes = ['height','width','lang','border','clear']
+    remove_attributes = ['height','width']
 
 
     def parse_index(self):
         totalfeeds = []
 
         soup   = self.index_to_soup(self.index)
-        majorf = soup.find('div',attrs={'class':'index'})
-        if majorf:
-           pfarticles = []
-           firsta = majorf.find(attrs={'class':'spread-header'})
-           if firsta:
-              pfarticles.append({
-                                  'title'      :self.tag_to_string(firsta.a)
-                                 ,'date'       :strftime(self.timefmt)
-                                 ,'url'        :'http://www.wired.com' + firsta.a['href']
-                                 ,'description':''
-                                })
-           for itt in majorf.findAll('li'):
-               itema = itt.find('a',href=True)
-               if itema:
-                  pfarticles.append({
-                                      'title'      :self.tag_to_string(itema)
-                                     ,'date'       :strftime(self.timefmt)
-                                     ,'url'        :'http://www.wired.com' + itema['href']
-                                     ,'description':''
-                                    })
-           totalfeeds.append(('Cover', pfarticles))
-        features = soup.find('div',attrs={'id':'my-glider'})
-        if features:
-           farticles = []
-           for item in features.findAll('div',attrs={'class':'section'}):
-               divurl = item.find('div',attrs={'class':'feature-header'})
-               if divurl:
-                   divdesc = item.find('div',attrs={'class':'feature-text'})
-                   url = divurl.a['href']
-                   if not divurl.a['href'].startswith('http://www.wired.com'):
-                      url   = 'http://www.wired.com' + divurl.a['href']
-                   title = self.tag_to_string(divurl.a)
-                   description = self.tag_to_string(divdesc)
-                   date  = strftime(self.timefmt)
-                   farticles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
-                                    })
-           totalfeeds.append(('Featured Articles', farticles))
-        #department feeds
-        departments = ['rants','start','test','play','found']
-        dept = soup.find('div',attrs={'id':'magazine-departments'})
-        if dept:
-            for ditem in departments:
+        
+        #department feeds    
+        depts = soup.find('div',attrs={'id':'department-posts'})
+        
+        if depts:
+            for ditem in self.departments:
                 darticles = []
-                department = dept.find('div',attrs={'id':'department-'+ditem})
+                department = depts.find('h3',attrs={'id':'department-'+ditem})
                 if department:
-                    for item in department.findAll('div'):
-                        description = ''
-                        feed_link = item.find('a')
-                        if feed_link and feed_link.has_key('href'):
-                            url   = feed_link['href']
-                            title = self.tag_to_string(feed_link)
-                            date  = strftime(self.timefmt)
-                            darticles.append({
-                                              'title'      :title
-                                             ,'date'       :date
-                                             ,'url'        :url
-                                             ,'description':description
-                                            })
+                    #print '\n###### Found department %s ########'%(ditem)
+                    
+                    el = department.next
+                    while el and (el.__class__.__name__ == 'NavigableString' or el.name != 'h3'):
+                        if el.__class__.__name__ != 'NavigableString':
+                            #print '\t ... element',el.name
+                            if el.name == 'ul':
+                                for artitem in el.findAll('li'):
+                                    #print '\t\t ... article',repr(artitem)
+                                    feed_link = artitem.find('a')
+                                    #print '\t\t\t ... link',repr(feed_link)
+                                    if feed_link and feed_link.has_key('href'):
+                                        url   = self.makeurl(feed_link['href'])
+                                        title = self.tag_to_string(feed_link)
+                                        date  = strftime(self.timefmt)
+                                        #print '\t\t ... found "%s" %s'%(title,url)
+                                        darticles.append({
+                                                          'title'      :title
+                                                         ,'date'       :date
+                                                         ,'url'        :url
+                                                         ,'description':''
+                                                        })
+                                el = None                            
+                        else: 
+                            el = el.next
+                     
                     totalfeeds.append((ditem.capitalize(), darticles))
         return totalfeeds
 
@@ -120,7 +95,7 @@ class Wired(BasicNewsRecipe):
         soup = self.index_to_soup(self.index)
         cover_item = soup.find('div',attrs={'class':'spread-image'})
         if cover_item:
-           cover_url = 'http://www.wired.com' + cover_item.a.img['src']
+           cover_url = self.makeurl(cover_item.a.img['src'])
         return cover_url
 
     def print_version(self, url):
@@ -129,17 +104,10 @@ class Wired(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
-        for item in soup.findAll('a'):
-            if item.string is not None:
-               tstr = item.string
-               item.replaceWith(tstr)
-            else:
-               item.name='span'
-               for atrs in ['href','target','alt','title','name','id']:
-                   if item.has_key(atrs):
-                      del item[atrs]
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'            
         return soup
+        
+    def makeurl(self, addr):     
+        if addr[:4] != 'http' : addr='http://www.wired.com' + addr
+        while addr[-2:] == '//' : addr=addr[:-1]
+        return addr
 

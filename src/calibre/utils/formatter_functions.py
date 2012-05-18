@@ -218,7 +218,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
             ']] for the } character; they are converted automatically. '
             'For example, template(\'[[title_sort]]\') will evaluate the '
             'template {title_sort} and return its value. Note also that '
-            'prefixes and suffixes (the "|prefix|suffix" syntax) cannot be '
+            'prefixes and suffixes (the `|prefix|suffix` syntax) cannot be '
             'used in the argument to this function when using template program mode.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
@@ -235,7 +235,7 @@ class BuiltinEval(BuiltinFormatterFunction):
             'results from local variables. Because the { and } '
             'characters are special, you must use [[ for the { character and '
             ']] for the } character; they are converted automatically. '
-            'Note also that prefixes and suffixes (the "|prefix|suffix" syntax) '
+            'Note also that prefixes and suffixes (the `|prefix|suffix` syntax) '
             'cannot be used in the argument to this function when using '
             'template program mode.')
 
@@ -1144,7 +1144,7 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _('finish_formatting(val, fmt, prefix, suffix) -- apply the '
                       'format, prefix, and suffix to a value in the same way as '
-                      'done in a template like {series_index:05.2f| - |- }. For '
+                      'done in a template like `{series_index:05.2f| - |- }`. For '
                       'example, the following program produces the same output '
                       'as the above template: '
                       'program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")')

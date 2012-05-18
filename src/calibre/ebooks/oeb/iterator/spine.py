@@ -62,7 +62,10 @@ class IndexEntry(object):
         self.text = toc_entry.text or _('Unknown')
         self.key = toc_entry.abspath
         self.anchor = self.start_anchor = toc_entry.fragment or None
-        self.spine_pos = spine.index(self.key)
+        try:
+            self.spine_pos = spine.index(self.key)
+        except ValueError:
+            self.spine_pos = -1
         self.anchor_pos = 0
         if self.spine_pos > -1:
             self.anchor_pos = spine[self.spine_pos].anchor_map.get(self.anchor,
