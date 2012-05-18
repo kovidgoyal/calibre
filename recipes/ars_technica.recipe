@@ -4,9 +4,8 @@ __copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 arstechnica.com
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class ArsTechnica(BasicNewsRecipe):
     title                 = u'Ars Technica'
@@ -21,7 +20,7 @@ class ArsTechnica(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     remove_empty_feeds    = True
-    publication_type      = 'newsportal'    
+    publication_type      = 'newsportal'
     extra_css             = '''
                             body {font-family: Arial,sans-serif}
                             .heading{font-family: "Times New Roman",serif}
@@ -49,7 +48,7 @@ class ArsTechnica(BasicNewsRecipe):
                   ]
     remove_attributes = ['lang']
 
-                  
+
     feeds = [
               (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/'      )
              ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/'     )
@@ -93,9 +92,9 @@ class ArsTechnica(BasicNewsRecipe):
                    item.replaceWith(str)
         for item in soup.findAll('img'):
             if not item.has_key('alt'):
-               item['alt'] = 'image'        
+               item['alt'] = 'image'
         return soup
 
     def preprocess_raw_html(self, raw, url):
        return '<html><head>'+raw[raw.find('</head>'):]
-        
+
