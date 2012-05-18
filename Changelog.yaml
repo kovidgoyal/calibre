@@ -19,6 +19,80 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.52
+  date: 2012-05-18
+
+  new features:
+    - title: "EPUB Input: When setting the cover for a book that identifies its cover image, but not the html wrapper around the cover, try to detect and remove that wrapper automatically."
+      tickets: [ 999959 ] 
+
+    - title: "When deleting books of a specific format, show the number of books with each format available"
+
+    - title: "Linux install: No longer create MAN pages as all utilities have more comprehensive command line --help anyway"
+
+    - title: "Add a tweak Preferences->Tweaks to control the default choice of format for the Tweak Book feature"
+
+    - title: "Conversion: Allow setting negative page margins. A negative page margin means that calibre will not specify any page margin in the output document (for formats that support this)"
+ 
+  bug fixes:
+    - title: "Tweak book: Fix handling of covers when tweaking KF8 books"
+
+    - title: "KF8 Output: Handle input documents with out of sequence ToC entries. Note that currently section jumping in the KF8 output produced by calibre for such files does not work."
+      tickets: [1000493]
+
+    - title: "Edit metadata dialog: Fix the edit values button for custom tag-like columns showing a unneeded warning about changed values"
+
+    - title: "EPUB Output: Be a little more conservative when removing <form> tags. Only remove them if they have actual forms inside. "
+      tickets: [ 1000384 ]
+
+    - title: "EPUB Input: Correctly update the Cover entry in the ToC even when the entry has a fragment reference. "
+      tickets: [ 999973 ]
+
+    - title: "Update ImagMagick DLLs in all calibre binary builds to fix security vulnerabilities in ImageMagick"
+      tickets: [ 999496 ] 
+
+    - title: "Advanced search dialog: Fix equals and regex matching not being applied for custom column searches."
+      tickets: [ 980221 ] 
+
+    - title: "RTF Input: Handle old RTF files that have commands without braces."
+      tickets: [ 994133 ] 
+
+    - title: "Get Books: Diesel, fix results not showing when only a single match is found"
+
+    - title: "Get Books: Fix DRM status indicators for Kobo and Diesel stores. Fix smashwords not returning results."
+      tickets: [ 993755 ] 
+
+    - title: "Fix regression in 0.8.51 that broke viewing of LIT and some EPUB files"
+      tickets: [998248, 998216] 
+
+  improved recipes:
+    - Clarin
+    - Spiegel
+    - Spiegel International
+    - Montreal Gazette
+    - Gosc Niedzelny
+    - Ars Technica
+
+  new recipes:
+    - title: "Army/Navy/Air force/Marine Times and News busters" 
+      author: jde
+
+    - title: "Ads of the World, Heavy Meta (Italian) and Juve La Stampa"
+      author: faber1971
+
+    - title: "Revista Summa"
+      author: Vakya
+
+    - title: "Strategic culture"
+      author: Darko Miletic
+
+    - title: Stars and Stripes 
+      author: adoucette
+
+    - title: Nackdenkseiten 
+      author: jrda
+
+
 - version: 0.8.51
   date: 2012-05-11
 
