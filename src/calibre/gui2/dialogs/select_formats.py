@@ -35,7 +35,7 @@ class Formats(QAbstractListModel):
             fmt = self.fmts[row]
             count = self.counts[fmt]
             return QVariant(
-                _('The are %(count)d book(s) with the %(fmt)s format')%dict(
+                _('There are %(count)d book(s) with the %(fmt)s format')%dict(
                     count=count, fmt=fmt.upper()))
         return NONE
 
