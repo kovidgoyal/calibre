@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-11 06:56+0000\n"
-"PO-Revision-Date: 2012-05-05 13:35+0000\n"
+"PO-Revision-Date: 2012-05-17 12:53+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-12 05:18+0000\n"
-"X-Generator: Launchpad (build 15225)\n"
+"X-Launchpad-Export-Date: 2012-05-18 04:39+0000\n"
+"X-Generator: Launchpad (build 15259)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3321,6 +3321,11 @@ msgid ""
 "other forms of auto-detection. See the XPath Tutorial in the calibre User "
 "Manual for examples."
 msgstr ""
+"XPath Ausdrücke die alle Tags bestimmen, sollten auf Ebene Eins zum "
+"Inhaltsverzeichnis hinzugefügt werden. \r\n"
+"Falls dieser Ausdruck angegeben ist, hat er Vorrang vor anderen Formen der "
+"automatischen Erkennung. Für Beispiele sehen Sie sich das XPath Tutorial im "
+"Calibre Benutzerhandbuch an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -3328,6 +3333,10 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
+"XPath Ausdrücke die alle Tags bestimmen, sollten auf Ebene Zwei zum "
+"Inhaltsverzeichnis hinzugefügt werden. \r\n"
+"Jeder Eintrag wird unter der vorherigen Ebene Eins hinzugefügt. Für "
+"Beispiele sehen Sie sich das XPath Tutorial im Calibre Benutzerhandbuch an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:227
 msgid ""
@@ -3335,6 +3344,10 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
+"XPath Ausdrücke die alle Tags bestimmen, sollten auf Ebene Drei zum "
+"Inhaltsverzeichnis hinzugefügt werden.\r\n"
+"Jeder Eintrag wird unter der vorherigen Ebene Zwei hinzugefügt. Für "
+"Beispiele sehen Sie sich das XPath Tutorial im Calibre Benutzerhandbuch an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:236
 msgid ""
@@ -3714,7 +3727,7 @@ msgstr "Geben Sie das Erscheinungsdatum an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:540
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "Buch Zeitstempel festlegen (wird nicht mehr überall verwendet)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:544
 msgid ""
@@ -3837,6 +3850,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Pfad zu einer Datei mit regulären Suchen und Ersetzen  Ausdrücken. Die Datei "
+"muss abwechselnd Zeilen von regulären Ausdrücken gefolgt von einem Austausch-"
+"Muster (das kann eine leere Zeile sein) enthalten. Der reguläre Ausdruck "
+"muss dem Python Regex Syntax entsprechen und die Datei muss in UTF-8 kodiert "
+"sein."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:742
 msgid "Could not find an ebook inside the archive"
@@ -4571,7 +4589,7 @@ msgstr "Lade Metadaten und Cover von OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:52
 msgid "Sample Book"
-msgstr ""
+msgstr "Buchbeispiel"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4579,15 +4597,15 @@ msgstr "Dies ist ein Amazon Topaz-Buch. Es kann nicht verarbeitet werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "Das ist keine MOBI Datei. Es ist eine Topaz Datei."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "Das ist keine MOBI Datei."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Diese Datei ist DRM geschützt und kann nicht verändert werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4595,6 +4613,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"Diese MOBI Datei enthält kein Buch im KF8 Format. KF8 ist das neue Format "
+"von Amazon. Calibre kann nur MOBI Dateien Tweaken, die KF8 Bücher enthalten. "
+"Ältere MOBI Dateien ohne KF8 können nicht getweaked werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4602,6 +4623,9 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"Diese MOBI Datei enthält sowohl das KF8, als auch die ältere Mobi6 Datei. "
+"Durch das Tweaken wird die Mobi6 Datei entfernt, was bedeutet, dass sie "
+"nicht mehr auf älteren Kindles verwendet werden kann. Sind sie sich sicher?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -6602,7 +6626,7 @@ msgstr "Buch optimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:59
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Format zum Tweaken auswählen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:69
 msgid ""
@@ -6630,14 +6654,35 @@ msgid ""
 "            library.</li>\n"
 "            </ol>"
 msgstr ""
+"            <h2>Über Tweak Book</h2>\n"
+"             <p>Tweak Book ermöglicht Feintuning beim Aussehen eines "
+"Ebooks,\n"
+"             indem interne Änderungen vorgenommen werden. Um Tweak Book zu "
+"verwenden,\n"
+"             sind gewisse HTML und CSS Kenntnisse erforderlich, da diese "
+"Technologien \n"
+"             in Ebooks verwendet werden. Diese Schritte sind dabei zu "
+"befolgen:</p>\n"
+"             <br>\n"
+"             <ol>\n"
+"             <li>Zuerst auf \"Buch Zerlegen\" klicken: Das wird das Buch in "
+"seine individuellen internen Komponenten zerlegen.\"br></li>\n"
+"             <li>Rechtsklick auf eine individuelle Datei und \"Öffnen "
+"mit...\" um es in einem Texteditor zu bearbeiten.<br></li>\n"
+"             <li>Nach Abschluss des Tweaking: <b>Dateibrowser Fenster \n"
+"             und den Texteditor schließen, mit dem Tweaks vorgenommen "
+"wurden</b>. Dann\n"
+"            den auf den Button \"Buch erneuern\"  klicken, um das Buch in "
+"der Calibre Bibliothek zu aktualisieren.</li>\n"
+"             </ol>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:98
 msgid "&Explode Book"
-msgstr ""
+msgstr "Buch &Zerlegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:99
 msgid "&Preview Book"
-msgstr ""
+msgstr "Buch &Vorschau"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6649,61 +6694,66 @@ msgstr "&Abbrechen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:101
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "Buch &Erneuern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "Zerlege das Buch um seine Bestandteile zu bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "Vorschau des Tweak Ergebnisses"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:108
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Abbrechen ohne Änderungen zu speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:110
 msgid "Save your changes and update the book in the calibre library"
 msgstr ""
+"Änderungen speichern und das Buch in der Calibre Bibliothek aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:150
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "Wird zerlegt, bitte warten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:180
 msgid "Failed to unpack"
-msgstr ""
+msgstr "Fehler beim Entpacken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:171
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "Kann die %s Datei nicht zerlegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:181
 #, python-format
 msgid ""
 "Could not explode the %s file. Click \"Show Details\" for more information."
 msgstr ""
+"Kann die %s Datei nicht zerlegen. Für mehr Informationen auf \"Details "
+"Anzeigen\" klicken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:215
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "Fehler beim Wiederherstellen der Datei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:216
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
 msgstr ""
+"Fehler beim Erneuern %s. Für mehr Informationen auf \"Details Anzeigen\" "
+"klicken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:233
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "Wiederherstellung, bitte warten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:282
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
-msgstr ""
+msgstr "Kleine Änderungen bei ePub, HTMLZ oder AZW3 Büchern vornehmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:283
 msgid "T"
@@ -6715,7 +6765,7 @@ msgstr "Kann Buch nicht optimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:303
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Buch kann nicht getweaked werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:304
 msgid ""
@@ -6723,6 +6773,7 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Das Buch muss in den Formaten ePub, HTMLZ oder AZW3  sein, um zu Tweaken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7617,7 +7668,7 @@ msgstr "HTML-Quelltext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "AZW3 Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
@@ -8776,11 +8827,11 @@ msgstr "&Speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Ausdruck nach Oben verschieben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Ausdruck nach Unten verschieben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -8791,6 +8842,12 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p>Suchen und Ersetzen verwenden <i>reguläre Ausdrücke</i>. Besuche das<a "
+"href=\"http://manual.calibre-ebook.com/regexp.html\">Tutorial zu regulären "
+"Ausdrücken</a> um reguläre Ausdrücke anzuwenden. Durch das Klicken auf den "
+"Wizard Button unten können regulären Ausdruck am aktuell eingegebenen "
+"Dokument getestet werden. Wenn das Ergebnis zufriedenstellend ist, klicke "
+"den Hinzufügen Button um ihn zu der Liste der Ausdrücke hinzuzufügen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"
@@ -9139,6 +9196,13 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p>Zum Beispiel, um alle h2 Tags zu treffen, bei denen class=\"chapter\" "
+"ist,  setze den Tag auf <i>h2</i>, Eigenschaft auf <i>class</i> und Wert auf "
+"<i>chapter</i>.</p><p>Wenn keine Eigenschaft festgelegt wird, treffen alle "
+"Eigenschaften zu und wenn kein Wert angegeben sind, alle Werte. Um jeden Tag "
+"zu treffen, Tag auf * setzen.</p><p>Um mehr über die Anwendung von XPath zu "
+"erfahren, lesen Sie das <a href=\"http://manual.calibre-"
+"ebook.com/xpath.html\">XPath Tutorial</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:149
 msgid "Browse by covers"
@@ -14406,7 +14470,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:327
 msgid "Sample Text"
-msgstr ""
+msgstr "Beispieltext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:369
 msgid "Invalid condition"
@@ -15385,6 +15449,8 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
 msgstr ""
+"Die getroffenen Änderungen erfordern einen umgehenden Neustart von Calibre. "
+"Bis zu einem Neustart können keine Einstellungen mehr vorgenommen werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
@@ -16400,6 +16466,74 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <p>Hier können Sie die Vorlagen hinzufügen und entfernen, die in der "
+"Template Verarbeitung angewand werden.\n"
+"        Eine Template Funktion wird in Python geschrieben. Es liest "
+"Informationen aus Büchern,\n"
+"        verarbeitet diese und gibt sie als String aus. Funktionen, die hier "
+"definiert werden,\n"
+"        können in Templates auf die gleiche Weise verwendet werden, wie "
+"Built in Funktionen.\n"
+"        Die Funktion muss <b>evaluate</b> genannt werden und muss die unten "
+"stehenden\n"
+"        Signaturen aufweisen.</p>\n"
+"        <p><code>evaluate(self, formatter, kwargs, mi, locals, eigene "
+"Parameter)\n"
+"        &rarr; einen Unicode String ausgeben</code></p>\n"
+"        <p>Die Parameter der evaluate Funktion sind:\n"
+"        <ul>\n"
+"        <li><b>formatter</b>: Die Instanz der Formatierung, die verwendet "
+"wird,\n"
+"        um das aktuelle Template zu beurteilen. Sie können diese Funktion "
+"nutzen,\n"
+"        um rekursive Template Evaluation anzuwenden.</li>\n"
+"        <li><b>kwargs</b>: ein Wörterbuch der Metadaten. In diesem "
+"Wörterbuch \n"
+"        sind Feldwerte.\n"
+"        <li><b>mi</b>: ein Metadaten Instanz, verwendbar um eine Feld "
+"Information\n"
+"        zu erhalten. Dieser Parameter kann in manchen Fällen Keiner sein, "
+"wenn z.B.\n"
+"        Templates evaluiert werden, die keine Bücher sind.</li>\n"
+"        <li><b>locals</b>: die Lokalen Variablen werden durch die aktuelle "
+"Programmvorlage zugewiesen.</li>\n"
+"        <li><b>eigene Parameter</b>: hier müssen ein oder mehrere gültige "
+"Parameter eingegeben werden.\n"
+"        Die Nummer muss mit dem Argument Feld übereinstimmen, es sei denn, "
+"das Argumentfeld hat einen Wert von\n"
+"        -1 (Variable Nummer oder Argument), in diesem Fall muss das letzte "
+"Argument *args (Argumente) sein. Zumindest ein\n"
+"        Argument ist erforderlich. Das ist normalerweise der Wert des "
+"Feldes, welches gerade angewand wird. Beachten Sie beim\n"
+"        Schreiben von Basis Template Modus darauf, dass Nutzer nicht über "
+"dieses erste Argument verfügt. Stattdessen wird es vom\n"
+"        Formatierungsprogramm zugeführt.</li>\n"
+"        </ul></p>\n"
+"        <p>\n"
+"        Die folgenden Beispiel Funktionen prüfen den Wert des Feldes. Wenn "
+"das Feld nicht leer ist,\n"
+"        wird der Feldwert ausgegeben, ansonsten der Wert EMPTY (Leer).\n"
+"         \n"
+"        <pre>\n"
+"        name: my_ifempty\n"
+"        arg count: 1\n"
+"        doc: my_ifempty(val) -- gibt val aus, wenn er nicht leer ist, sonst "
+"den String 'EMPTY'\n"
+"        program code:\n"
+"        def evaluate(self, formatter, kwargs, mi, locals, val):\n"
+"             if val:\n"
+"                 return val\n"
+"             else:\n"
+"                 return 'EMPTY'</pre>\n"
+"        Diese Funktion kann in jedem der Drei folgenden Programm Templates "
+"aufgerufen werden:\n"
+"        <ul>\n"
+"        <li>single-function mode: {tags:my_ifempty()}</li>\n"
+"        <li>template program mode: {tags:'my_ifempty($)'}</li>\n"
+"        <li>general program mode: program: my_ifempty(field('tags'))</li>\n"
+"        </p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:146
@@ -17664,7 +17798,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
-msgstr ""
+msgstr "Konvertierung fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:650
 msgid "Recipe Disabled"
@@ -17855,7 +17989,7 @@ msgstr "Nichtproportional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size and layout"
-msgstr ""
+msgstr "Zuletzt verwendete &Fenstergröße und das Layout merken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -17902,10 +18036,13 @@ msgid ""
 "fullscreen mode. This allows you to read the book text without it becoming "
 "too wide."
 msgstr ""
+"Legt die Maximalbreite fest, die der Buchtext und die Bilder im "
+"Vollbildmodus haben wird. Dadurch ist es möglich den Buchtext zu lesen, ohne "
+"dass er zu breit wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Maximum text width in &fullscreen:"
-msgstr ""
+msgstr "Maximale Textbreite im &Vollbild:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid "Font &magnification step size:"
@@ -18146,6 +18283,8 @@ msgid ""
 "Go to a reference. To get reference numbers, use the <i>reference mode</i>, "
 "by clicking the reference mode button in the toolbar."
 msgstr ""
+"Gehe zu einer Referenz. Um die Referenznummer zu erhalten, klicke auf den "
+"<i>Referenz Modus</i> Button in der Werkzeugleiste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:184
 msgid "Search for text in book"
@@ -18187,7 +18326,7 @@ msgstr "Verbinde mit dict.org zum Nachschlagen von: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:500
 msgid "No such location"
-msgstr ""
+msgstr "Dieser Ordner existiert nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:501
 msgid "The location pointed to by this item does not exist."
@@ -20891,6 +21030,11 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, pattern, value, pattern, value, ..., else_value) -- für jedes "
+"`pattern, value` Paar, prüft, ob das Feld den regulären Ausdruck `pattern` "
+"enthält und wenn, dann wird `value` ausgegeben. Wenn keine pattern "
+"zutreffen, dann wird else_value ausgegeben. Es können beliebig viele "
+"`pattern, value` Paare angegeben werden"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:372
 msgid "switch requires an odd number of arguments"
@@ -20965,6 +21109,8 @@ msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, text if empty) -- gibt val aus wenn val nicht leer ist, "
+"ansonsten `text if empty`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:521
 msgid ""
@@ -22691,8 +22837,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:480
 msgid "Save original file when converting from same format to same format"
 msgstr ""
-"Die Originaldatei speichern, wenn vom selben Format in das selbe Format "
-"konvertiert wird"
+"Die Originaldatei speichern, wenn in das selbe Format konvertiert wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid ""

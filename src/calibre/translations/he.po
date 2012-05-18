@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-11 06:56+0000\n"
-"PO-Revision-Date: 2011-11-02 16:40+0000\n"
-"Last-Translator: nachshon <Unknown>\n"
+"PO-Revision-Date: 2012-05-17 16:03+0000\n"
+"Last-Translator: amit geva <amitgeva@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-12 05:19+0000\n"
-"X-Generator: Launchpad (build 15225)\n"
+"X-Launchpad-Export-Date: 2012-05-18 04:39+0000\n"
+"X-Generator: Launchpad (build 15259)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -277,6 +277,8 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"צור ארכיון TXTZ כאשר קוסץ מיובא מסוג TXT מכיל הפניות Markdown או Textile "
+"לתמונות. בנוסף לקובץ TXT יוספו גם התמונות לארכיון."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
@@ -338,7 +340,7 @@ msgstr "הוסף ספרים לקליבר או למכשיר המחובר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "יבא הערות ממכשיר קינדל מחובר (ניסיוני)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Generate a catalog of the books in your calibre library"
@@ -366,15 +368,15 @@ msgstr "להוריד חדשות מהאנטרנט בתצורת ספר אלקטר�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "הצג במהירות רשימה של ספרים קשורים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "יצא ספרים מספריית הקליבר שלך לכונן הקשיח"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "הצג פרטי הספר בחלון נפרד"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Restart calibre"
@@ -382,7 +384,7 @@ msgstr "לאתחל קליברה"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "פתח את התיקיה המכילה את קבצי הספר בספריית הקליבר שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Send books to the connected device"
@@ -401,11 +403,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Customize calibre"
-msgstr ""
+msgstr "התאם את קליבר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "מצא בקלות ספרים הדומים לספר הנבחר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
@@ -414,15 +416,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "העתק ספרים ממכשירך לספריית קליבר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:854
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "ערוך את האוספים בהם ממוקמים הספרים במכשירך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "העתק ספר מספריית קליבר אחת לאחרת"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
@@ -436,7 +438,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "בחר ספר אקראי מספריית הקליבר שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 msgid "Search for books from different book sellers"
@@ -481,7 +483,7 @@ msgstr "הוסף/הסר טורים אישיים לרשימת הספרים של �
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
 msgid "Toolbar"
-msgstr ""
+msgstr "סרגל כלים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:957
 msgid ""
@@ -491,7 +493,7 @@ msgstr "התאם אישית סרגלי כלים ותפריטי מידע, שנה 
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
 msgid "Searching"
-msgstr ""
+msgstr "מחפש"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:969
 msgid "Customize the way searching for books works in calibre"
@@ -572,7 +574,7 @@ msgstr "שנה שדות נתוני מטא לפני שמירה/שליחה"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1054
 msgid "Template Functions"
-msgstr ""
+msgstr "פונקציות תבנית"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
@@ -642,11 +644,11 @@ msgstr "כוונן את התנהגות קליבר בהקשרים שונים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Keyboard"
-msgstr ""
+msgstr "מקלדת"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1130
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "התאם את קיצורי המקלדת בהם קליבר משתמש"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1135
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -686,7 +688,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:268
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "המר ספרים לפורמט %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
@@ -791,7 +793,7 @@ msgstr "מיועד ל-iPad ומכשירים דומים עם רזולוציה ש�
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "מוכוון לiPad3 ומכשירים דומים בעלי רזולוצייה של 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -813,11 +815,11 @@ msgstr "פרופיל זה מיועד למכשיר SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:512
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "מתאים לשימוש עם כל מכשיר דיו אלקטרוני"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "מתאים לשימוש עם כל מכשיר דיו אלקטרוני בעל מסך גדול"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid "This profile is intended for the 5-inch JetBook."
@@ -837,7 +839,7 @@ msgstr "פרופיל זה מיועד למכשיר Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "פרופיל זה מוכוון לאמזון קינדל פייר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:732
 msgid "This profile is intended for the B&N Nook Color."
@@ -934,24 +936,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:844
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:867
 msgid "Yes"
-msgstr ""
+msgstr "כן"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1143
 msgid "Main"
-msgstr ""
+msgstr "ראשי"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1145
 msgid "Card A"
-msgstr ""
+msgstr "כרטיס A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1147
 msgid "Card B"
-msgstr ""
+msgstr "כרטיס B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:162
 msgid "Debug log"

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-11 06:56+0000\n"
-"PO-Revision-Date: 2012-05-13 20:44+0000\n"
+"PO-Revision-Date: 2012-05-17 19:43+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-14 04:43+0000\n"
-"X-Generator: Launchpad (build 15238)\n"
+"X-Launchpad-Export-Date: 2012-05-18 04:39+0000\n"
+"X-Generator: Launchpad (build 15259)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -16516,7 +16516,7 @@ msgstr "Двойной щелчек для изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
-msgstr ""
+msgstr "Рамка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Custom"
@@ -17283,11 +17283,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:136
 msgid "Queueing books for bulk conversion"
-msgstr ""
+msgstr "Обработка книг для массового преобразования"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:199
 msgid "Queueing "
-msgstr ""
+msgstr "Обрабатывается "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:200
 #, python-format
@@ -17800,6 +17800,8 @@ msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
+"Вы запустили процесс смены сочетания клавиш. Для начала закончите его, нажав "
+"мышкой за пределами рамки редактирования."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
 msgid "&Lookup in dictionary"
@@ -17899,6 +17901,9 @@ msgid ""
 "Go to a reference. To get reference numbers, use the <i>reference mode</i>, "
 "by clicking the reference mode button in the toolbar."
 msgstr ""
+"Перейти по указателю. Для получения номеров указателей (ссылок на разделы и "
+"абзацы) используйте <i>Справочный режим</i>, нажатием соответствующей кнопки "
+"на панели инструментов."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:184
 msgid "Search for text in book"
@@ -18210,7 +18215,7 @@ msgstr "Готово"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:845
 msgid "Commit"
-msgstr ""
+msgstr "Фиксировать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:850
 msgid "welcome wizard"
