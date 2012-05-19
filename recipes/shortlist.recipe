@@ -1,0 +1,61 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1324663493(BasicNewsRecipe):
+    title          = u'Shortlist'
+    description = 'Articles From Shortlist.com'
+    # I've set oldest article to 7 days as the website updates weekly
+    oldest_article = 7
+    max_articles_per_feed = 12
+    remove_empty_feeds = True
+    remove_javascript     = True
+    no_stylesheets = True
+    __author__ = 'Dave Asbury'
+    # last updated 19/5/12
+    language = 'en_GB'
+    def get_cover_url(self):
+            soup = self.index_to_soup('http://www.shortlist.com')
+            cov = soup.find(attrs={'width' : '121'})
+            #print '******** ',cov,' ***'
+            #cover_url = 'http://www.shortlist.com'+cov['src']
+            cover_url =cov['src']
+            return cover_url
+
+    masthead_url = 'http://www.mediauk.com/logos/100/344096.png'
+
+    preprocess_regexps = [
+    (re.compile(r'…or.*?email to your friends</a>.', re.IGNORECASE | re.DOTALL), lambda match: '')]
+
+    keep_only_tags = [
+              #dict(name='h1'),
+              dict(name='h2',attrs={'class' : 'title'}),
+                                     dict(name='h3',atts={'class' : 'subheading'}),
+              dict(attrs={'class' : [ 'hero-static','stand-first']}),
+                                    dict(attrs={'class' : 'hero-image'}),
+                  dict(name='div',attrs={'id' : ['list','article','article alternate']}),
+              dict(name='div',attrs={'class' : 'stand-first'}),
+                 ]
+    remove_tags = [dict(name='h2',attrs={'class' : 'graphic-header'}),
+           dict(attrs={'id' : ['share','twitter','facebook','digg','delicious','facebook-like']}),
+           dict(atts={'class' : ['related-content','related-content-item','related-content horizontal','more']}),
+
+          ]
+
+    remove_tags_after = [dict(name='p',attrs={'id' : 'tags'})
+                     ]
+
+    feeds          = [
+                               (u'Home carousel',u'http://feed43.com/7106317222455380.xml'),
+                               (u'This Weeks Issue', u'http://feed43.com/0323588208751786.xml'),
+         (u'Cool Stuff',u'http://feed43.com/6253845228768456.xml'),
+                                (u'Style',u'http://feed43.com/7217107577215678.xml'),
+                                (u'Films',u'http://feed43.com/3101308515277265.xml'),
+         (u'Music',u'http://feed43.com/2416400550560162.xml'),
+         (u'TV',u'http://feed43.com/4781172470717123.xml'),
+         (u'Sport',u'http://feed43.com/5303151885853308.xml'),
+         (u'Gaming',u'http://feed43.com/8883764600355347.xml'),
+                                (u'Women',u'http://feed43.com/2648221746514241.xml'),
+                                (u'Instant Improver', u'http://feed43.com/1236541026275417.xml'),
+
+    #(u'Articles', u'http://feed43.com/3428534448355545.xml')
+    ]
