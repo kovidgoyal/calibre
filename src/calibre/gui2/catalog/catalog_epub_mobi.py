@@ -365,7 +365,7 @@ class PluginWidget(QWidget,Ui_Form):
 
     def merge_source_field_changed(self,new_index):
         '''
-        Process changes in the header_note_source_field combo box
+        Process changes in the merge_source_field combo box
         '''
         new_source = str(self.merge_source_field.currentText())
         self.merge_source_field_name = new_source
