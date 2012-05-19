@@ -191,6 +191,9 @@ else:
     lh = os.path.join(poppler_inc_dirs[0], 'Link.h')
     if 'class AnnotLink' not in open(lh, 'rb').read():
         poppler_cflags.append('-DPOPPLER_OLD_LINK_TYPE')
+    ph = os.path.join(poppler_inc_dirs[0], 'Page.h')
+    if 'getLinks(Catalog' in open(ph, 'rb').read():
+        poppler_cflags.append('-DPOPPLER_PRE_20')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],
