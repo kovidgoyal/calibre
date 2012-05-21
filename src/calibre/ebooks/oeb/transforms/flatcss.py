@@ -221,7 +221,7 @@ class CSSFlattener(object):
                         value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
-    def flatten_node(self, node, stylizer, names, styles, psize, item_id, left=0):
+    def flatten_node(self, node, stylizer, names, styles, psize, item_id):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
                return
@@ -316,16 +316,6 @@ class CSSFlattener(object):
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
-            margin = asfloat(style['margin-left'], 0)
-            indent = asfloat(style['text-indent'], 0)
-            left += margin
-            if (left + indent) < 0:
-                try:
-                    percent = (margin - indent) / style['width']
-                    cssdict['margin-left'] = "%d%%" % (percent * 100)
-                except ZeroDivisionError:
-                    pass
-                left -= indent
             if 'display' in cssdict and cssdict['display'] == 'in-line':
                 cssdict['display'] = 'inline'
             if self.unfloat and 'float' in cssdict \
@@ -378,7 +368,7 @@ class CSSFlattener(object):
         if 'style' in node.attrib:
             del node.attrib['style']
         for child in node:
-            self.flatten_node(child, stylizer, names, styles, psize, item_id, left)
+            self.flatten_node(child, stylizer, names, styles, psize, item_id)
 
     def flatten_head(self, item, href, global_href):
         html = item.data
