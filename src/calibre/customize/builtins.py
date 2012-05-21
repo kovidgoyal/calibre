@@ -1331,15 +1331,15 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-class StoreEBookShoppeUKStore(StoreBase):
-    name = 'ebookShoppe UK'
-    author = u'Charles Haley'
-    description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
-    actual_plugin = 'calibre.gui2.store.stores.ebookshoppe_uk_plugin:EBookShoppeUKStore'
-
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-    affiliate = True
+# class StoreEBookShoppeUKStore(StoreBase):
+#     name = 'ebookShoppe UK'
+#     author = u'Charles Haley'
+#     description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
+#     actual_plugin = 'calibre.gui2.store.stores.ebookshoppe_uk_plugin:EBookShoppeUKStore'
+#
+#     headquarters = 'UK'
+#     formats = ['EPUB', 'PDF']
+#     affiliate = True
 
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
@@ -1623,7 +1623,6 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
-    StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
     StoreEscapeMagazineStore,
