@@ -255,12 +255,22 @@ def _set_title(title_info, mi):
         title = _get_or_create(title_info, 'book-title')
         title.text = mi.title
 
+def _text2fb2(parent, text):
+    lines = text.split('\n')
+    for line in lines:
+        line = line.strip()
+        if line:
+            p = _create_tag(parent, 'p', at_start=False)
+            p.text = line
+        else:
+            _create_tag(parent, 'empty-line', at_start=False)
+
 def _set_comments(title_info, mi):
     if not mi.is_null('comments'):
         from calibre.utils.html2text import html2text
         _clear_meta_tags(title_info, 'annotation')
         title = _get_or_create(title_info, 'annotation')
-        title.text = html2text(mi.comments)
+        _text2fb2(title, html2text(mi.comments))
 
 
 def _set_authors(title_info, mi):
@@ -269,26 +279,24 @@ def _set_authors(title_info, mi):
         for author in mi.authors:
             author_parts = author.split()
             if not author_parts: continue
-            atag = title_info.makeelement(FB2('author'))
-            title_info.insert(0, atag)
+            atag = _create_tag(title_info, 'author')
             if len(author_parts) == 1:
-                _get_or_create(atag, 'nickname').text = author
+                _create_tag(atag, 'nickname').text = author
             else:
-                _get_or_create(atag, 'first-name').text = author_parts[0]
+                _create_tag(atag, 'first-name').text = author_parts[0]
                 author_parts = author_parts[1:]
                 if len(author_parts) > 1:
-                    _get_or_create(atag, 'middle-name', at_start=False).text = author_parts[0]
+                    _create_tag(atag, 'middle-name', at_start=False).text = author_parts[0]
                     author_parts = author_parts[1:]
                 if author_parts:
-                    _get_or_create(atag, 'last-name', at_start=False).text = ' '.join(author_parts)
+                    _create_tag(atag, 'last-name', at_start=False).text = ' '.join(author_parts)
 
 def _set_tags(title_info, mi):
     if not mi.is_null('tags'):
         _clear_meta_tags(title_info, 'genre')
         for t in mi.tags:
-            tag = title_info.makeelement(FB2('genre'))
+            tag = _create_tag(title_info, 'genre')
             tag.text = t
-            title_info.insert(0, tag)
 
 def _set_series(title_info, mi):
     if not mi.is_null('series'):
@@ -300,16 +308,20 @@ def _set_series(title_info, mi):
         except:
             seq.set('number', '1')
 
+def _create_tag(parent, tag, at_start=True):
+    ans = parent.makeelement(FB2(tag))
+    if at_start:
+        parent.insert(0, ans)
+    else:
+        parent.append(ans)
+    return ans
+
 def _get_or_create(parent, tag, at_start=True):
     ans = XPath('./fb2:'+tag)(parent)
     if ans:
         ans = ans[0]
     else:
-        ans = parent.makeelement(FB2(tag))
-        if at_start:
-            parent.insert(0, ans)
-        else:
-            parent.append(ans)
+        ans = _create_tag(parent, tag, at_start)
     return ans
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
