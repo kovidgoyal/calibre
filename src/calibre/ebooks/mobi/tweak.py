@@ -95,6 +95,8 @@ def rebuild(src_dir, dest_path):
     if not opf:
         raise ValueError('No OPF file found in %s'%src_dir)
     opf = opf[0]
+    # For debugging, uncomment the following line
+    # def fork_job(a, b, args=None, no_output=True): do_rebuild(*args)
     fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
             no_output=True)
 
