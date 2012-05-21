@@ -159,7 +159,7 @@ class NCXIndex(Index):
 
         if self.table is not None:
             NCXEntry = namedtuple('NCXEntry', 'index start length depth parent '
-        'first_child last_child title pos_fid')
+        'first_child last_child title pos_fid kind')
 
             for num, x in enumerate(self.table.iteritems()):
                 text, tag_map = x
@@ -192,7 +192,7 @@ class NCXIndex(Index):
                         length=e['len'], depth=e['hlvl'], parent=refindx(e,
                             'parent'), first_child=refindx(e, 'child1'),
                         last_child=refindx(e, 'childn'), title=e['text'],
-                        pos_fid=e['pos_fid'])
+                        pos_fid=e['pos_fid'], kind=e['kind'])
                 self.records.append(entry)
 
 
