@@ -12,3 +12,6 @@ fun! CalibreLog()
 endfun
 
 nnoremap \log :call CalibreLog()<CR>
+
+python import init_calibre
+python import calibre

@@ -647,7 +647,12 @@ void XMLOutputDev::process_link(AnnotLink* link){
 
 
 void XMLOutputDev::endPage() {
+#ifdef POPPLER_PRE_20
     Links *slinks = catalog->getPage(current_page->number())->getLinks(catalog);
+#else
+    Links *slinks = catalog->getPage(current_page->number())->getLinks();
+#endif
+
     for (int i = 0; i < slinks->getNumLinks(); i++)
     {
         this->process_link(slinks->getLink(i));
@@ -878,7 +883,11 @@ vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
         throw ReflowException("Failed to allocate SplashOutputDev");
     }
     try {
+#ifdef POPPLER_PRE_20
         out->startDoc(doc->getXRef());
+#else
+        out->startDoc(doc);
+#endif
         out->startPage(1, NULL);
 
         double pg_w, pg_h;

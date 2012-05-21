@@ -60,6 +60,9 @@ def config(defaults=None):
             help=_('Save the current position in the document, when quitting'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
+    c.add_opt('line_scrolling_stops_on_pagebreaks', default=False,
+            help=_('Prevent the up and down arrow keys from scrolling past '
+                'page breaks'))
     c.add_opt('page_flip_duration', default=0.5,
             help=_('The time, in seconds, for the page flip animation. Default'
                 ' is half a second.'))
@@ -96,6 +99,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         if fms < 0.01 or fms > 1:
             fms = 0.2
         self.opt_font_mag_step.setValue(int(fms*100))
+        self.opt_line_scrolling_stops_on_pagebreaks.setChecked(
+                opts.line_scrolling_stops_on_pagebreaks)
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -157,6 +162,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
+        c.set('line_scrolling_stops_on_pagebreaks',
+                self.opt_line_scrolling_stops_on_pagebreaks.isChecked())
         return QDialog.accept(self, *args)
 
 # }}}
@@ -242,6 +249,7 @@ class Document(QWebPage): # {{{
         self.enable_page_flip = self.page_flip_duration > 0.1
         self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
+        self.line_scrolling_stops_on_pagebreaks = opts.line_scrolling_stops_on_pagebreaks
         screen_width = QApplication.desktop().screenGeometry().width()
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
@@ -955,13 +963,17 @@ class DocumentView(QWebView): # {{{
             finally:
                 self.is_auto_repeat_event = False
         elif key == 'Down':
-            if self.document.at_bottom:
+            if (not self.document.line_scrolling_stops_on_pagebreaks and
+                    self.document.at_bottom):
                 self.manager.next_document()
-            self.scroll_by(y=15)
+            else:
+                self.scroll_by(y=15)
         elif key == 'Up':
-            if self.document.at_top:
+            if (not self.document.line_scrolling_stops_on_pagebreaks and
+                    self.document.at_top):
                 self.manager.previous_document()
-            self.scroll_by(y=-15)
+            else:
+                self.scroll_by(y=-15)
         elif key == 'Left':
             self.scroll_by(x=-15)
         elif key == 'Right':

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess
+import os, socket, struct, subprocess, glob
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
@@ -128,8 +128,9 @@ if iswindows:
 elif isosx:
     fc_inc = '/sw/include/fontconfig'
     fc_lib = '/sw/lib'
+    poppler = glob.glob('/sw/build/poppler-*')[-1]
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            '/sw/build/poppler-0.14.5/poppler:/sw/build/poppler-0.14.5')
+            '{0}/poppler:{0}'.format(poppler))
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
             '/sw/lib')
     poppler_libs = ['poppler']
@@ -191,6 +192,9 @@ else:
     lh = os.path.join(poppler_inc_dirs[0], 'Link.h')
     if 'class AnnotLink' not in open(lh, 'rb').read():
         poppler_cflags.append('-DPOPPLER_OLD_LINK_TYPE')
+    ph = os.path.join(poppler_inc_dirs[0], 'Page.h')
+    if 'getLinks(Catalog' in open(ph, 'rb').read():
+        poppler_cflags.append('-DPOPPLER_PRE_20')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],

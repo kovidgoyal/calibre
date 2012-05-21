@@ -291,7 +291,10 @@ class OEBReader(object):
                     href, _ = urldefrag(href)
                     if not href:
                         continue
-                    href = item.abshref(urlnormalize(href))
+                    try:
+                        href = item.abshref(urlnormalize(href))
+                    except ValueError: # Malformed URL
+                        continue
                     if href not in manifest.hrefs:
                         continue
                     found = manifest.hrefs[href]

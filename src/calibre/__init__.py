@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, __builtin__, warnings
-__builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
+__builtin__.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
 

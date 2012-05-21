@@ -35,7 +35,7 @@ class Formats(QAbstractListModel):
             fmt = self.fmts[row]
             count = self.counts[fmt]
             return QVariant(
-                _('The are %(count)d book(s) with the %(fmt)s format')%dict(
+                _('There are %(count)d book(s) with the %(fmt)s format')%dict(
                     count=count, fmt=fmt.upper()))
         return NONE
 
@@ -47,7 +47,7 @@ class Formats(QAbstractListModel):
 
 class SelectFormats(QDialog):
 
-    def __init__(self, fmt_count, msg, single=False, parent=None):
+    def __init__(self, fmt_count, msg, single=False, parent=None, exclude=False):
         QDialog.__init__(self, parent)
         self._l = QVBoxLayout(self)
         self.setLayout(self._l)
@@ -57,6 +57,10 @@ class SelectFormats(QDialog):
         self._l.addWidget(self._m)
         self.formats = Formats(fmt_count)
         self.fview = QListView(self)
+        if exclude:
+            self.fview.setStyleSheet('''
+                    QListView { background-color: #FAE7B5}
+                    ''')
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)
         self.fview.setSelectionMode(self.fview.SingleSelection if single else
