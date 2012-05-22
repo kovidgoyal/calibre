@@ -603,6 +603,9 @@ def educateQuotes(str):
 	str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
 	
 	# Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
+	# This case commented out as it works under the assumption that the regex pattern will always
+	# evaluate a complete sentence - the tokenize function called earlier in smarty will break up
+	# the text based on tags, so sentence fragments can be passed to the patterns as well.
 	#str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
 	#str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
 
