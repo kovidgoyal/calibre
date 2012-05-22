@@ -597,14 +597,19 @@ def educateQuotes(str):
 	str = re.sub(r"""(?<=\W)'(?=\w)""", r"""&#8216;""", str)
 	str = re.sub(r"""(?<=\w)"(?=\W)""", r"""&#8221;""", str)
 	str = re.sub(r"""(?<=\w)'(?=\W)""", r"""&#8217;""", str)
-	
+
+    # The following are commented out as smartypants tokenizes text by
+    # stripping out html tags. Therefore, there is no guarantee that the
+    # start-of-line and end-ol-line regex operators will match anything
+    # meaningful
+
 	# Special case for Quotes at end of line with a preceeding space (may change just to end of line)
-	str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
-	str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
-	
+	#str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
+	#str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
+
 	# Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
-	str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
-	str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
+	#str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
+	#str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
 
 	# Special case for decade abbreviations (the '80s):
 	str = re.sub(r"""\b'(?=\d{2}s)""", r"""&#8217;""", str)
