@@ -59,9 +59,7 @@ Run an embedded python interpreter.
             'files and metadata, which you can edit using standard HTML '
             'editing tools, and then rebuilds the file from the edited HTML. '
             'Makes no additional changes to the HTML, unlike a full calibre '
-            'conversion). Note that this tool will try to open the '
-            'folder containing the HTML files in the editor pointed to by the'
-            ' EDITOR environment variable.')
+            'conversion).')
 
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
@@ -184,6 +182,12 @@ def main(args=sys.argv):
     from calibre.constants import debug
     debug()
     if len(args) > 2 and args[1] in ('-e', '--exec-file'):
+
+        # Load all plugins user defined plugins so the script can import from the
+        # calibre_plugins namespace
+        import calibre.customize.ui as dummy
+        dummy
+
         sys.argv = [args[2]] + args[3:]
         ef = os.path.abspath(args[2])
         base = os.path.dirname(ef)
@@ -222,7 +226,7 @@ def main(args=sys.argv):
         from calibre.utils.pyconsole.main import main
         main()
     elif opts.command:
-        sys.argv = args[:1]
+        sys.argv = args
         exec opts.command
     elif opts.debug_device_driver:
         debug_device_driver()

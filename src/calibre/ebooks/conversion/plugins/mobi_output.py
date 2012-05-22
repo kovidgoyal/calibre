@@ -232,6 +232,10 @@ class MOBIOutput(OutputFormatPlugin):
         writer(oeb, output_path)
         extract_mobi(output_path, opts)
 
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
+        CSSCleanup(log, opts)(item, stylizer)
+
 class AZW3Output(OutputFormatPlugin):
 
     name = 'AZW3 Output'
@@ -253,9 +257,6 @@ class AZW3Output(OutputFormatPlugin):
         OptionRecommendation(name='dont_compress',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Disable compression of the file contents.')
-        ),
-        OptionRecommendation(name='personal_doc', recommended_value='[PDOC]',
-            help=_('Tag marking book to be filed with Personal Docs')
         ),
         OptionRecommendation(name='mobi_toc_at_start',
             recommended_value=False,
@@ -297,5 +298,9 @@ class AZW3Output(OutputFormatPlugin):
 
         kf8.write(output_path)
         extract_mobi(output_path, opts)
+
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
+        CSSCleanup(log, opts)(item, stylizer)
 
 

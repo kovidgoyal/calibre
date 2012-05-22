@@ -417,6 +417,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.writable_fields.sort()
         self.search_field.setMaxVisibleItems(25)
         self.destination_field.setMaxVisibleItems(25)
+        self.testgrid.setColumnStretch(1, 1)
+        self.testgrid.setColumnStretch(2, 1)
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):

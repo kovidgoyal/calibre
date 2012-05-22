@@ -22,7 +22,8 @@ Do not modify it unless you know what you are doing.
 import sys, os
 
 path = os.environ.get('CALIBRE_PYTHON_PATH', {path!r})
-sys.path.insert(0, path)
+if path not in sys.path:
+    sys.path.insert(0, path)
 
 sys.resources_location = os.environ.get('CALIBRE_RESOURCES_PATH', {resources!r})
 sys.extensions_location = os.environ.get('CALIBRE_EXTENSIONS_PATH', {extensions!r})

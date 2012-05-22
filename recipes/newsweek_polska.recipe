@@ -11,7 +11,7 @@ import datetime
 
 
 class Newsweek(BasicNewsRecipe):
-	
+
 	# how many issues to go back, 0 means get the most current one
 	BACK_ISSUES = 1
 
@@ -26,8 +26,8 @@ class Newsweek(BasicNewsRecipe):
 	language = 'pl'
 	remove_javascript = True
 
-	temp_files = [] 
-	articles_are_obfuscated = True 
+	temp_files = []
+	articles_are_obfuscated = True
 
 
 	#
@@ -40,7 +40,7 @@ class Newsweek(BasicNewsRecipe):
 		page = self.index_to_soup(source)
 
 		main_section = page.find(id='mainSection')
-		
+
 		title = main_section.find('h1')
 		info = main_section.find('ul', attrs={'class' : 'articleInfo'})
 		authors = info.find('li').find('h4')
@@ -50,25 +50,25 @@ class Newsweek(BasicNewsRecipe):
 		related = article.find('div', attrs={'class' : 'relatedBox'})
 		if related is not None:
 			related.extract()
-		
+
 		# remove div with social networking links and links to
 		# other articles in web version
 		for div in article.findAll('div'):
 			if div.find('span', attrs={'class' : 'google-plus'}):
 				div.extract()
-				
+
 			for p in div.findAll('p'):
 				if p.find('span', attrs={'style' : 'color: rgb(255, 0, 0);'}):
 					p.extract()
 					continue
 				for a in p.findAll('a'):
 					if a.find('span', attrs={'style' : 'font-size: larger;'}):
-						a.extract()	
-		
+						a.extract()
+
 
 		html = unicode(title) + unicode(authors) + unicode(article)
 		next = main_section.find('li', attrs={'class' : 'next'})
-		
+
 		while next:
 			url = next.find('a')['href']
 			br.open(url)
@@ -81,11 +81,11 @@ class Newsweek(BasicNewsRecipe):
 				aside.extract()
 			html = html + unicode(article)
 			next = main_section.find('li', attrs={'class' : 'next'})
-		
-		
-		self.temp_files.append(PersistentTemporaryFile('_temparse.html')) 
-		self.temp_files[-1].write(html) 
-		self.temp_files[-1].close() 
+
+
+		self.temp_files.append(PersistentTemporaryFile('_temparse.html'))
+		self.temp_files[-1].write(html)
+		self.temp_files[-1].close()
 		return self.temp_files[-1].name
 
 
@@ -102,9 +102,9 @@ class Newsweek(BasicNewsRecipe):
 		if len(options) > self.BACK_ISSUES:
 			option = options[self.BACK_ISSUES];
 			self.EDITION = option['value'].replace('http://www.newsweek.pl/wydania/','')
-			issue_soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
-		else:	
-			self.BACK_ISSUES = self.BACK_ISSUES - len(options)	
+			self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
+		else:
+			self.BACK_ISSUES = self.BACK_ISSUES - len(options)
 			self.YEAR = self.YEAR - 1
 			self.find_last_issue(archive_url + ',' + str(self.YEAR))
 
@@ -139,14 +139,14 @@ class Newsweek(BasicNewsRecipe):
 					article = self.create_article(h2)
 					if article is None :
 						continue
-				
+
 					if articles.has_key(section):
 						articles[section].append(article)
 					else:
 						articles[section] = [article]
 						sections.append(section)
-				
-			
+
+
 		for section in sections:
 			feeds.append((section, articles[section]))
 		return feeds
@@ -161,7 +161,7 @@ class Newsweek(BasicNewsRecipe):
 		a = h2.find('a')
 		if a is None:
 			return None
-		
+
 		article['title'] = self.tag_to_string(a)
 		article['url'] = a['href']
 		article['date'] = self.DATE

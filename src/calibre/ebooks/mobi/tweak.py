@@ -31,6 +31,10 @@ def do_explode(path, dest):
         with CurrentDir(dest):
             mr = Mobi8Reader(mr, default_log)
             opf = os.path.abspath(mr())
+            try:
+                os.remove('debug-raw.html')
+            except:
+                pass
 
     return opf
 
@@ -52,7 +56,10 @@ def explode(path, dest, question=lambda x:True):
         kf8_type = header.kf8_type
 
         if kf8_type is None:
-            raise BadFormat('This MOBI file does not contain a KF8 format book')
+            raise BadFormat(_('This MOBI file does not contain a KF8 format '
+                    'book. KF8 is the new format from Amazon. calibre can '
+                    'only tweak MOBI files that contain KF8 books. Older '
+                    'MOBI files without KF8 are not tweakable.'))
 
         if kf8_type == 'joint':
             if not question(_('This MOBI file contains both KF8 and '
@@ -64,6 +71,14 @@ def explode(path, dest, question=lambda x:True):
     return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path,
             dest), no_output=True)['result']
 
+def set_cover(oeb):
+    if 'cover' not in oeb.guide or oeb.metadata['cover']: return
+    cover = oeb.guide['cover']
+    if cover.href in oeb.manifest.hrefs:
+        item = oeb.manifest.hrefs[cover.href]
+        oeb.metadata.clear('cover')
+        oeb.metadata.add('cover', item.id)
+
 def do_rebuild(opf, dest_path):
     plumber = Plumber(opf, dest_path, default_log)
     plumber.setup_options()
@@ -72,6 +87,7 @@ def do_rebuild(opf, dest_path):
 
     plumber.opts.mobi_passthrough = True
     oeb = create_oebbook(default_log, opf, plumber.opts)
+    set_cover(oeb)
     outp.convert(oeb, dest_path, inp, plumber.opts, default_log)
 
 def rebuild(src_dir, dest_path):
@@ -79,6 +95,8 @@ def rebuild(src_dir, dest_path):
     if not opf:
         raise ValueError('No OPF file found in %s'%src_dir)
     opf = opf[0]
+    # For debugging, uncomment the following line
+    # def fork_job(a, b, args=None, no_output=True): do_rebuild(*args)
     fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
             no_output=True)
 

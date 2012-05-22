@@ -22,6 +22,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
 from calibre import force_unicode
+from calibre.utils.localization import get_lang, canonicalize_lang
 
 def convert_day_time_schedule(val):
     day_of_week, hour, minute = val
@@ -57,6 +58,8 @@ class DaysOfWeek(Base):
 
         self.time = QTimeEdit(self)
         self.time.setDisplayFormat('hh:mm AP')
+        if canonicalize_lang(get_lang()) in {'deu', 'nds'}:
+            self.time.setDisplayFormat('HH:mm')
         self.hl = QHBoxLayout()
         self.l1 = QLabel(_('&Download after:'))
         self.l1.setBuddy(self.time)

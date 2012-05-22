@@ -56,7 +56,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_attributes = ['style', 'font', 'width', 'height', 'itemtype', 'itemprop', 'itemscope']#, 'href']
     use_embedded_content = False
-    extra_css = 'body{font-size:1em;padding:5px 0}body,a,h2{background-color:#fff;text-decoration:none;color:#000}#date,div.byline,p.article-image-caption .credits,.calibrenavbar{font-size:.5em}.article-box-fact.module-title,#date,div.byline{clear:both}.article-box-fact.module-title{margin:8px 0}.article-box-fact.module-title,h2{font-size:1.1em}h1.title{font-size:1.4em}h1.title,.article-body p,div.article-image-caption-2column,div.article-image-caption-3column,#date,div.byline{margin-bottom:.6em}div.article-box-fact div.subtitle,.article-box-fact.module-title,h1.title,p.article-image-caption{font-weight:700}div.column-1-3{margin-left:19px}div.column-1-2{display:inline}div.column-1-2,div.column-1-3{margin-right:7px}p.article-image-caption{font-size:.6em;margin-top:5px}p.article-image-caption,#date,div.byline{color:#616262}p.article-image-caption .credits{font-style:italic}div.article-image-caption{width:246px}div.article-image-caption-2column{width:373px}div.column-3{background-color:#eee;float:right;width:50%}div.column-3 module-title{border:1px solid #aaa}div.article-box-fact div.subtitle,.article-box-fact.module-title{color:#24763b}div.byline{border-top:2px solid #24763b}div.column-3,img,div.column-3,p.small,div.article-image-caption{margin:.5em}img,p.small,.column1,h2{border:0;padding:0}.column1,h1,h2{margin:0}'
+    extra_css = 'body{font-size:1em;padding:5px 0}body,a,h2{background-color:#fff;text-decoration:none;color:#000}#date,div.byline,p.article-image-caption .credits,.calibrenavbar,.calibre5{font-size:.5em}.article-box-fact.module-title,#date,div.byline{clear:both}.article-box-fact{font-size:0.7em}.article-box-fact.module-title{margin:8px 0; font-size:0.8em}h2{font-size:1em}h1.title{font-size:1.4em}h1.title,.article-body p,div.article-image-caption-2column,div.article-image-caption-3column,#date,div.byline{margin-bottom:.6em}div.article-box-fact div.subtitle,.article-box-fact.module-title,h1.title,p.article-image-caption{font-weight:700}div.column-1-3{margin-left:19px}div.column-1-2{display:inline}div.column-1-2,div.column-1-3{margin-right:7px}p.article-image-caption{font-size:.6em;margin-top:5px}p.article-image-caption,#date,div.byline{color:#616262}p.article-image-caption .credits{font-style:italic}div.article-image-caption{width:246px}div.article-image-caption-2column{width:373px}div.column-3{background-color:#eee;float:right;width:50%}div.column-3 module-title{border:1px solid #aaa}div.article-box-fact div.subtitle,.article-box-fact.module-title{color:#24763b}div.byline{border-top:2px solid #24763b}div.column-3,img,div.column-3,p.small,div.article-image-caption{margin:.5em}img,p.small,.column1,h2,.calibre5,.calibrenavbar{border:0;padding:0}.column1,h1,h2,.calibrenavbar{margin:0}'
 
 
     preprocess_regexps = [
@@ -71,11 +71,11 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['iframe','script','noscript','style']),
-        dict(name='div', attrs={'class':[re.compile('column-[14]-5'),'col-179 ','col-373 ','clear','ad','navigation',re.compile('share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)')]}),
-        dict(id=['column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'sidebar',re.compile('^article-\d'),'comments','gallery-1']),
+        dict(name='div', attrs={'class':['column-4-5','column-1-5','ad-msg','col-179 ','col-373 ','clear','ad','navigation',re.compile('share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)'),'promos','header-links','promo-2']}),
+        dict(id=['column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'adadcomp-4','margin-5','sidebar',re.compile('^article-\d'),'comments','gallery-1']),
         dict(name='a', attrs={'name':'comments'}),
         #dict(name='div', attrs={'data-href'}),
-        dict(name='img', attrs={'class':'top-line'}),
+        dict(name='img', attrs={'class':'top-line','title':'volledig scherm'}),
         dict(attrs={'style':re.compile('^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$'),'title':'volledig scherm'})]
         
     '''removed by before/after:

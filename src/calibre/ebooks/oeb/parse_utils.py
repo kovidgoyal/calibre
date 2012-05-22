@@ -361,9 +361,11 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     # Remove any encoding-specifying <meta/> elements
     for meta in META_XP(data):
         meta.getparent().remove(meta)
-    etree.SubElement(head, XHTML('meta'),
-        attrib={'http-equiv': 'Content-Type',
-                'content': '%s; charset=utf-8' % XHTML_NS})
+    meta = etree.SubElement(head, XHTML('meta'),
+        attrib={'http-equiv': 'Content-Type'})
+    meta.set('content', 'text/html; charset=utf-8') # Ensure content is second
+                                                    # attribute
+
     # Ensure has a <body/>
     if not xpath(data, '/h:html/h:body'):
         body = xpath(data, '//h:body')

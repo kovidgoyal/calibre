@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
+    <width>724</width>
     <height>342</height>
    </rect>
   </property>
@@ -14,7 +14,20 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0" colspan="2">
+   <item row="6" column="0">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_prefer_author_sort">
      <property name="text">
       <string>Use author &amp;sort for author</string>
@@ -31,13 +44,10 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="opt_toc_title"/>
-   </item>
    <item row="5" column="0">
-    <widget class="QCheckBox" name="opt_dont_compress">
+    <widget class="QCheckBox" name="opt_share_not_sync">
      <property name="text">
-      <string>Disable compression of the file contents</string>
+      <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
      </property>
     </widget>
    </item>
@@ -55,68 +65,15 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_mobi_ignore_margins">
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="opt_toc_title"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_dont_compress">
      <property name="text">
-      <string>Ignore &amp;margins</string>
+      <string>Disable compression of the file contents</string>
      </property>
     </widget>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Kindle options</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Personal Doc tag:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="opt_personal_doc"/>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_share_not_sync">
-        <property name="text">
-         <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

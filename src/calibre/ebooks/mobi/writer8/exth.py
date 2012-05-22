@@ -56,7 +56,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
                         items][:1]
             else:
                 creators = [unicode(c) for c in items]
-            items = ['; '.join(creators)]
+            items = creators
         for item in items:
             data = unicode(item)
             if term != 'description':

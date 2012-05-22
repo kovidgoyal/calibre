@@ -65,6 +65,7 @@ class EPUBInput(InputFormatPlugin):
         return False
 
     def rationalize_cover(self, opf, log):
+        removed = None
         from lxml import etree
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
@@ -91,6 +92,7 @@ class EPUBInput(InputFormatPlugin):
         # specially
         if not self.for_viewer:
             spine[0].getparent().remove(spine[0])
+            removed = guide_cover
         guide_elem.set('href', 'calibre_raster_cover.jpg')
         from calibre.ebooks.oeb.base import OPF
         t = etree.SubElement(elem[0].getparent(), OPF('item'),
@@ -109,6 +111,7 @@ class EPUBInput(InputFormatPlugin):
             if renderer is not None:
                 open('calibre_raster_cover.jpg', 'wb').write(
                     renderer)
+        return removed
 
     def find_opf(self):
         from lxml import etree
@@ -170,7 +173,7 @@ class EPUBInput(InputFormatPlugin):
             for elem in opf.iterguide():
                 elem.set('href', delta+elem.get('href'))
 
-        self.rationalize_cover(opf, log)
+        self.removed_cover = self.rationalize_cover(opf, log)
 
         self.optimize_opf_parsing = opf
         for x in opf.itermanifest():
@@ -198,3 +201,17 @@ class EPUBInput(InputFormatPlugin):
             nopf.write(opf.render())
 
         return os.path.abspath(u'content.opf')
+
+    def postprocess_book(self, oeb, opts, log):
+        rc = getattr(self, 'removed_cover', None)
+        if rc:
+            cover_toc_item = None
+            for item in oeb.toc.iterdescendants():
+                if item.href and item.href.partition('#')[0] == rc:
+                    cover_toc_item = item
+                    break
+            spine = {x.href for x in oeb.spine}
+            if (cover_toc_item is not None and cover_toc_item not in spine):
+                oeb.toc.item_that_refers_to_cover = cover_toc_item
+
+

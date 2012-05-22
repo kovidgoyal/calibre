@@ -126,7 +126,8 @@ class BulkConfig(Config):
     def setup_output_formats(self, db, preferred_output_format):
         if preferred_output_format:
             preferred_output_format = preferred_output_format.lower()
-        output_formats = sorted(available_output_formats())
+        output_formats = sorted(available_output_formats(),
+                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x))
         output_formats.remove('oeb')
         preferred_output_format = preferred_output_format if \
             preferred_output_format and preferred_output_format \
