@@ -13,6 +13,7 @@ from calibre.utils.date import parse_date
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
+from string import ascii_letters, digits
 
 
 NAMESPACES = {
@@ -24,6 +25,9 @@ tostring = partial(etree.tostring, method='text', encoding=unicode)
 
 def FB2(tag):
     return '{%s}%s'%(NAMESPACES['fb2'], tag)
+
+def XLINK(tag):
+    return '{%s}%s'%(NAMESPACES['xlink'], tag)
 
 def get_metadata(stream):
     ''' Return fb2 metadata as a L{MetaInformation} object '''
@@ -308,20 +312,57 @@ def _set_series(title_info, mi):
         except:
             seq.set('number', '1')
 
-def _create_tag(parent, tag, at_start=True):
+def _rnd_name(size=8, chars=ascii_letters + digits):
+    import random
+    return ''.join(random.choice(chars) for x in range(size))
+
+def _rnd_pic_file_name(prefix='', size=8, ext='jpg'):
+    return prefix + _rnd_name(size) + '.' + ext
+
+def _encode_into_jpeg(data):
+    from base64 import b64encode
+    if data[0] == 'jpg':
+        pic = b64encode(data[1])
+    else:
+        im = Image()
+        im.load(data[1])
+        im.set_compression_quality(70)
+        imdata = im.export('jpg')
+        pic = b64encode(imdata)
+    return pic
+
+def _set_cover(title_info, mi):
+    if not mi.is_null('cover_data'):
+        coverpage = _get_or_create(title_info, 'coverpage')
+        cim_tag = _get_or_create(coverpage, 'image')
+        cim_filename = _rnd_pic_file_name('cover')
+        if cim_tag.attrib.has_key(XLINK('href')):
+            cim_filename = cim_tag.attrib[XLINK('href')][1:]
+        else:
+            cim_tag.attrib[XLINK('href')] = '#' + cim_filename
+        fb2_root = cim_tag.getroottree().getroot()
+        cim_binary = _get_or_create(fb2_root, 'binary', attribs={'id': cim_filename}, at_start=False)
+        cim_binary.attrib['content-type'] = 'image/jpeg'
+        cim_binary.text = _encode_into_jpeg(mi.cover_data)
+
+def _create_tag(parent, tag, attribs={}, at_start=True):
     ans = parent.makeelement(FB2(tag))
+    ans.attrib.update(attribs)
     if at_start:
         parent.insert(0, ans)
     else:
         parent.append(ans)
     return ans
 
-def _get_or_create(parent, tag, at_start=True):
-    ans = XPath('./fb2:'+tag)(parent)
+def _get_or_create(parent, tag, attribs={}, at_start=True):
+    xpathstr='./fb2:'+tag
+    for n, v in attribs.items():
+        xpathstr += '[@%s="%s"]' % (n, v)
+    ans = XPath(xpathstr)(parent)
     if ans:
         ans = ans[0]
     else:
-        ans = _create_tag(parent, tag, at_start)
+        ans = _create_tag(parent, tag, attribs, at_start)
     return ans
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
@@ -337,6 +378,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     _set_tags(ti, mi)
     _set_authors(ti, mi)
     _set_title(ti, mi)
+    _set_cover(ti, mi)
 
     for child in ti:
         child.tail = indent
