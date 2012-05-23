@@ -854,9 +854,24 @@ ol, ul { padding-left: 2em; }
             else:
                 css_styles[css2] = [name]
 
+        def filter_margins(css2):
+            names = { k for k, v in css2 }
+            ignore = set()
+            if {'margin-left', 'margin-right', 'margin-top',
+                    'margin-bottom'}.issubset(names):
+                # These come from XML and we cannot preserve XML attribute
+                # order so we assume that margin is to be overridden See
+                # https://bugs.launchpad.net/calibre/+bug/941134 and
+                # https://bugs.launchpad.net/calibre/+bug/1002702
+                ignore.add('margin')
+            css2 = sorted(css2, key=lambda x:{'margin':0}.get(x[0], 1))
+            for k, v in css2:
+                if k not in ignore:
+                    yield k, v
+
         for css2, names in css_styles.iteritems():
             self.writeout("%s {\n" % ', '.join(names))
-            for style, val in css2:
+            for style, val in filter_margins(css2):
                 self.writeout("\t%s: %s;\n" % (style, val) )
             self.writeout("}\n")
 
@@ -941,20 +956,8 @@ ol, ul { padding-left: 2em; }
         if self.currentstyle is None: # Added by Kovid
             return
 
-        # Added by Kovid
-        names = {x[1]:x for x in attrs.iterkeys()}
-        ignore_keys = set()
-        if ('margin' in names and 'margin-top' in names and 'margin-left' in
-                names and 'margin-right' in names and 'margin-bottom' in
-                names):
-            # These come from XML and we cannot preserve XML attribute order so
-            # we assume that margin is to be overridden
-            # See https://bugs.launchpad.net/calibre/+bug/941134
-            ignore_keys.add(names['margin'])
-
         for key,attr in attrs.items():
-            if key not in ignore_keys:
-                self.styledict[self.currentstyle][key] = attr
+            self.styledict[self.currentstyle][key] = attr
 
 
     familymap = {'frame':'frame', 'paragraph':'p', 'presentation':'presentation',
