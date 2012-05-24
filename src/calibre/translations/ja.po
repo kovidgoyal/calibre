@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-05 14:55+0000\n"
-"Last-Translator: vine_user <Unknown>\n"
+"PO-Revision-Date: 2012-05-20 16:02+0000\n"
+"Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:08+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-24 11:07+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -451,7 +451,7 @@ msgstr "新しいCalibreのプラグインを取得したり、既存のもの�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:927
 msgid "Look and Feel"
-msgstr "ルック＆フィール"
+msgstr "外観"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:941
@@ -463,7 +463,7 @@ msgstr "インターフェース"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:933
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Calibreのルック＆フィールをあなたの好みに調整します"
+msgstr "Calibreの外観をあなたの好みに調整します"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 msgid "Behavior"
@@ -775,7 +775,7 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you want to "
 "produce a document intended to be read at a computer or on a range of "
 "devices."
-msgstr "このプロファイルはsaneのデフォルト設定を提供します。コンピュータや様々なデバイスで読むための文書を生成したい場合に役に立ちます。"
+msgstr "このプロファイルはsaneのデフォルト設定を提供します。コンピューターや様々なデバイスで読むための文書を生成したい場合に役に立ちます。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:277
 msgid ""
@@ -2158,7 +2158,7 @@ msgstr "%s出力処理をコントロールするためのオプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:132
 msgid "Options to control the look and feel of the output"
-msgstr "出力の見た目をコントロールするためのオプション"
+msgstr "出力の外観を調整するためのオプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:150
 #, python-format
@@ -2233,7 +2233,7 @@ msgstr "コントラスト強調しない。"
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
-msgstr "コミックページのトリミングをしない。一部のコミックでは、トリミングによって境界線だけでなくて、コンテントまで取り去ることがあります。"
+msgstr "コミックページのトリミングをしない。一部のコミックでは、トリミングによって境界線だけでなく内容まで削除されてしまう可能性があります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:41
 msgid "Don't split landscape images into two portrait images"
@@ -2996,8 +2996,8 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
-"たまにテーブルでページのレイアウトを行う悪いデザインの文章があります。そのような文章を変換する場合、ページがはみ出したりみだれたりするばあいがあります。こ"
-"のオプションを使うとテーブルから内容を抜き出し、直線的な配置に置き換えます。"
+"一部のデザインの良くない文書では、ページのテキストレイアウトにテーブルを使用しているものがあります。こういった文書を変換すると、ページがはみ出したり乱れる"
+"ことがよくあります。このオプションを使うと、テーブルから内容を抜き出して直線的な配置に置き換えます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:208
 msgid ""
@@ -3805,7 +3805,7 @@ msgstr "いいえ"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:375
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:583
 msgid "Title"
-msgstr "本名"
+msgstr "タイトル"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:770
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
@@ -4625,7 +4625,7 @@ msgstr "新しい書誌情報に、著者とタイトルを上書きする。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:197
 msgid "Automatically download the cover, if available"
-msgstr "利用できる場合、自動的に表紙をダウンロードする。"
+msgstr "自動的に表紙をダウンロードする(利用できる場合)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:199
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -7143,7 +7143,7 @@ msgstr "画像を白黒変換しない(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:117
 msgid "Override image  &size:"
-msgstr "イメージサイズをオーバーライド(&S):"
+msgstr "画像サイズを無視する(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
@@ -7421,7 +7421,7 @@ msgstr "外観"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr "出力のルック＆フィールを調整"
+msgstr "出力の外観を調整"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:45
 msgid "Original"
@@ -8038,7 +8038,7 @@ msgid ""
 "The search / replace definition being edited  has not been added to the list "
 "of definitions. Do you wish to continue with the conversion (the definition "
 "will not be used)?"
-msgstr ""
+msgstr "編集されている検索/置換の定義は、定義リストに追加されていません。登録を継続しますか？(定義は使用されません)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:112
@@ -9378,7 +9378,7 @@ msgstr "アイテムが選択されていません"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:205
 msgid "You must select one item from the list of Available items."
-msgstr "使用できるアイテムのりすとから１つのアイテムを選ばなければなりません。"
+msgstr "使用できるアイテムのリストからアイテムを１つ選択する必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:212
@@ -9946,7 +9946,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 msgid "Restore pre conversion &originals, if available"
-msgstr "利用可能であれば変換前のオリジナルを復元する(&O)"
+msgstr "変換前のオリジナルを復元する(利用できる場合)(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid ""
@@ -10232,7 +10232,7 @@ msgstr "未インストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr "アップデート有り"
+msgstr "アップデートが利用できます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
@@ -12281,7 +12281,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:764
 msgid "Calibre Library"
-msgstr "Calibreライブラリ"
+msgstr "Calibre Library"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:95
 msgid "Choose a location for your calibre e-book library"
@@ -12848,11 +12848,11 @@ msgstr "基本書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:139
 msgid "Has cover"
-msgstr "表紙有り"
+msgstr "表紙あり"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:139
 msgid "Has summary"
-msgstr "サマリー有り"
+msgstr "サマリーあり"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:196
 msgid ""
@@ -12861,8 +12861,9 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
-"「表紙有り」の表示は完全に信用できるわけではありません。時々、表紙なしとなった物でダウンロードすると表紙が見つかったり、あるいはその逆が起こることがありま"
-"す。"
+"「表紙あり」の表示は完全に信用できるわけではありません。\n"
+"時々、表紙なしとなった物でもダウンロードすると\n"
+"表紙が見つかったり、あるいはその逆が起こることがあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:281
 msgid "See at"
@@ -13250,7 +13251,7 @@ msgstr "は不定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
 msgid "has id"
-msgstr "idがある"
+msgstr "IDあり"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:38
 msgid "does not have id"
@@ -13278,7 +13279,7 @@ msgstr "は持っていない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "has pattern"
-msgstr "はパターンが有る"
+msgstr "パターンあり"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 msgid "does not have pattern"
@@ -14475,7 +14476,7 @@ msgstr "このフォーマットとデバイスの組はすでにルールにあ
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:205
 msgid "Possibly override plugboard?"
-msgstr "ルールをオーバーライドする可能性があります。"
+msgstr "ルールを無視する可能性があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:206
 msgid ""
@@ -14960,7 +14961,7 @@ msgid ""
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
 "ここではデバイスへ送るボタンが押されたときに、calibreがどのように本を保存するか設定します。この設定は、「設定」->「高度な設定」-"
-">「プラグイン」のデバイスインターフェースプラグインをカスタマイズする事で、各デバイスごとに設定を上書きすることができます。"
+">「プラグイン」のデバイスインターフェースプラグインをカスタマイズする事で、各デバイスごとに設定を無視することができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:454
@@ -15084,10 +15085,10 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
-"<p>calibreの実行中にのみサーバーとして機能するので、Calibreを走らせ続けておいてください。\n"
-"<p>calibreサーバーへデバイスから接続するにはURLとして http://myhostname:8080 "
-"を、例えばiPhoneのStanzaリーダーの新しいカタログとして使ってください。myhostname "
-"はcalibreが稼働しているコンピュータのホスト名、もしくはIPアドレスです"
+"<p>calibreを実行している間のみサーバーとして機能するので、Calibreを実行したままにしてください。\n"
+"<p>calibreサーバーへデバイスから接続するには、例えばiPhoneのStanzaリーダーの新しいカタログの場合は "
+"http://myhostname:8080 "
+"という形式のURLを使用してください。myhostnameは、calibreが稼働しているコンピューターのホスト名もしくはIPアドレスです"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -16345,7 +16346,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:386
 msgid "Failed to start Content Server"
-msgstr "コンテントサーバーの開始に失敗しました。"
+msgstr "コンテンツサーバーの開始に失敗しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:387
 #, python-format
@@ -16354,7 +16355,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"コンテントサーバーの開始ができませんでした. Error:\n"
+"コンテンツサーバーを開始できませんでした. エラー:\n"
 "\n"
 "%s"
 
@@ -16668,7 +16669,7 @@ msgid ""
 "For examples, click <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
-"<p>本のルック＆フィールを調整するためのCSSスタイルシート。例としては<a "
+"<p>本の外観を調整するためのCSSスタイルシート。例としては<a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">このフォーラム</a>を"
 "クリックして見てください。"
 
@@ -17472,7 +17473,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
-msgstr "コンテンツサーバーを稼働(&C)"
+msgstr "コンテンツサーバーを稼働する(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:51
 msgid ""
@@ -17483,10 +17484,10 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
-"<p>calibreの実行中にのみサーバーとして機能することを覚えておいてください。\n"
-"<p>Stanzaにはcalibreのライブラリを自動的に検出する機能がありますが、検出できないときはiPhoneのStanzaに、URL "
-"http://myhostname:8080 を登録してください。myhostname "
-"はcalibreが稼働しているコンピュータのホスト名、もしくはIPアドレスです。"
+"<p>calibreを実行している間のみ、サーバーとして機能することを覚えておいてください。\n"
+"<p>Stanzaにはcalibreのライブラリを自動的に検出する機能がありますが、検出できないときはiPhoneのStanzaに URL "
+"http://myhostname:8080 "
+"を登録してください。myhostnameはcalibreが稼働しているコンピューターのホスト名、もしくはIPアドレスです。"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:163
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:596
@@ -19054,7 +19055,7 @@ msgstr "指定したファイルへプロセスPIDを書き込む"
 msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
-msgstr "この起動に適用する制限を指定。このオプションはGUIから設定したライブラリ毎の設定より優先されます。"
+msgstr "この起動に適用する制限を指定します。このオプションはGUIで設定されたライブラリごとの設定を無視します。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:62
 msgid ""

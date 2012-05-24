@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-15 11:41+0000\n"
+"PO-Revision-Date: 2012-05-20 18:28+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:07+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-24 11:06+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3394,6 +3394,9 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Adja meg a felső margót képpontban. Alapértelmezett érték: %default. Ha "
+"nullánál kisebb értéket ad meg, akkor az érték nem állítódik át. Vegye "
+"figyelembe, hogy 70 képpont=1 hüvelyk."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3401,6 +3404,9 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Adja meg az alsó margót képpontban. Alapértelmezett érték: %default. Ha "
+"nullánál kisebb értéket ad meg, akkor az érték nem állítódik át. Vegye "
+"figyelembe, hogy 70 képpont=1 hüvelyk."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3408,6 +3414,9 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Adja meg a bal margót képpontban. Alapértelmezett érték: %default. Ha "
+"nullánál kisebb értéket ad meg, akkor az érték nem állítódik át. Vegye "
+"figyelembe, hogy 70 képpont=1 hüvelyk."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3415,6 +3424,9 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Adja meg a jobb margót képpontban. Alapértelmezett érték: %default. Ha "
+"nullánál kisebb értéket ad meg, akkor az érték nem állítódik át. Vegye "
+"figyelembe, hogy 70 képpont=1 hüvelyk."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -3624,7 +3636,7 @@ msgstr "Kiadás dátumának megadása."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:544
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "Könyv időbélyeg megadása (már nem használt)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:548
 msgid ""
@@ -4478,7 +4490,7 @@ msgstr "Metaadatok és borítók letöltése az OZON.ru honlapról"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:56
 msgid "Sample Book"
-msgstr ""
+msgstr "Minta könyv"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -6504,7 +6516,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "&Preview Book"
-msgstr ""
+msgstr "Könyv &előnézete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6541,7 +6553,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:187
 msgid "Failed to unpack"
-msgstr ""
+msgstr "A kicsomagolás nem sikerült"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:178
 #, python-format
@@ -8317,7 +8329,7 @@ msgstr "&Balról:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "Nincs margó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -8431,7 +8443,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
 msgid "Failed to generate preview"
-msgstr ""
+msgstr "Az előnézet létrehozása nem sikerült"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:191
 msgid "Open book"
@@ -8501,11 +8513,11 @@ msgstr "Kere&ső reguláris kifejezés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "Helyettesítő szöveg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "Kereső reguláris kifejezés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
@@ -8572,11 +8584,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 msgid "&Add"
-msgstr ""
+msgstr "&Hozzáadás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Edit the currently selected expression"
-msgstr ""
+msgstr "A kiválasztott kifejezés szerkesztése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
@@ -8585,7 +8597,7 @@ msgstr "Mó&dosítás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Remove the currently selected expression"
-msgstr ""
+msgstr "A kiválasztott kifejezés törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:886
@@ -8594,11 +8606,11 @@ msgstr "&Törlés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid "Load a list of expressions from a previously saved file"
-msgstr ""
+msgstr "Kifejezések betöltése egy korábban mentett fájlból"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:155
 msgid "&Load"
-msgstr ""
+msgstr "&Betöltés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:156
 msgid "Save this list of expressions so that you can re-use it easily"
@@ -8612,11 +8624,11 @@ msgstr "M&entés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Mozgatás felfelé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Mozgatás lefelé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -14189,7 +14201,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:327
 msgid "Sample Text"
-msgstr ""
+msgstr "Mintaszöveg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:369
 msgid "Invalid condition"

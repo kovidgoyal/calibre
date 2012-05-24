@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-17 12:53+0000\n"
+"PO-Revision-Date: 2012-05-23 13:19+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:05+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-24 11:06+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3484,6 +3484,8 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Setzt den oberen Abstand in Punkten. Standard ist %default.  Ein Wert "
+"kleiner als 0 setzt den Abstand auf 0. Hinweis: 72 Punkte entsprechen 1 Zoll."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3491,6 +3493,8 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Setzt den unteren Abstand in Punkten. Standard ist %default.  Ein Wert "
+"kleiner als 0 setzt den Abstand auf 0. Hinweis: 72 Punkte entsprechen 1 Zoll."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3498,6 +3502,8 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Setzt den linken Abstand in Punkten. Standard ist %default.  Ein Wert "
+"kleiner als 0 setzt den Abstand auf 0. Hinweis: 72 Punkte entsprechen 1 Zoll."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3505,6 +3511,8 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Setzt den rechten Abstand in Punkten. Standard ist %default.  Ein Wert "
+"kleiner als 0 setzt den Abstand auf 0. Hinweis: 72 Punkte entsprechen 1 Zoll."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -8522,7 +8530,7 @@ msgstr "&Links:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "Kein Seitenrand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -8635,6 +8643,8 @@ msgstr ""
 msgid ""
 "Failed to generate markup for testing. Click \"Show Details\" to learn more."
 msgstr ""
+"Markup konnte für den Test nicht erstellt werden. Klicken Sie auf \"Details "
+"anzeigen\" um mehr zu erfahren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
@@ -8713,7 +8723,7 @@ msgstr "Ersetzungstext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "Suche reguläre Ausdrücke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
@@ -12076,7 +12086,7 @@ msgstr "Tit&el/Autor/Buchreihe ..."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:38
 #, python-format
 msgid "There are %(count)d book(s) with the %(fmt)s format"
-msgstr ""
+msgstr "Es gibt %(count)d Bücher im %(fmt)s Format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:54
 msgid "Choose formats"
@@ -12344,11 +12354,11 @@ msgstr "&Test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"
-msgstr ""
+msgstr "Keine Vorschläge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "No custom recipes created."
-msgstr ""
+msgstr "Keine benutzerdefinierten Vorschläge erstellt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
@@ -17780,7 +17790,7 @@ msgstr "Konvertierungsfehler"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Fehler beim Konvertieren von: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -17804,6 +17814,24 @@ msgid ""
 "                your ebook reader may have trouble with the EPUB.\n"
 "                        "
 msgstr ""
+"\n"
+"                Einige ältere Ebook Reader können EPUB Dateien nicht "
+"anzeigen,\n"
+"                 wenn interne Komponenten eine bestimmte Größe "
+"überschreiten.\n"
+"                 Daher versucht Calibre automatisch alle EPUB Dateien in "
+"kleinere Stücke zu teilen.\n"
+"                 Bei einigen Dateien, die größere, ungetrennte Textblöcke "
+"enthalten, versagt diese Trennung.\n"
+"                 <p>Sie können <b>das Problem umgehen</b>, indem Sie "
+"entweder die\n"
+"                 unter Konvertieren / Ausgabeoptionen / EPUB-Ausgabe die "
+"Größe der Teile anpassen,\n"
+"                 oder durch das Einschalten der Heuristischen Verarbeitung, "
+"ebenfalls im Konvertieren Dialog. \n"
+"                Bitte beachten Sie, dass der Reader Probleme mit der Datei "
+"bekommt, wenn sie zu groß ist.\n"
+"                        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
@@ -19358,6 +19386,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Empfehlung für die Größe des Buchcovers (in Inches) im Katalog.\n"
+"Berreich: 1.0 - 2.0\n"
+"Standard: '%default'\n"
+"Gilt für ePub und Mobi Ausgabeformate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:156
 #, python-format
@@ -19398,6 +19430,14 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
+"Widersprüchliche Werte für die Sortierung nach Autor\n"
+"Autor '{0}':\n"
+"'{1}' <> '{2}'\n"
+"MOBI Katalog kann nicht erstellt werden.\n"
+"\n"
+"Wählen Sie alle Bücher von '{0}' aus und korrigieren Sie den Wert für die "
+"Sortierung nach Autor unter \"Metadaten bearbeiten\". Erstellen Sie dann den "
+"Katalog erneut.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:596
 msgid ""
@@ -21461,7 +21501,7 @@ msgstr "Englisch"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "Englisch (Argentinien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -21733,7 +21773,7 @@ msgstr "Nachrichtenquelle unbekannt"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:672
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "Fehler beim Download von %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:768
 #, python-format
@@ -22099,6 +22139,9 @@ msgid ""
 "for authors.\n"
 "Can be either True or False"
 msgstr ""
+"Sollte das Abschlusstrennzeichen am Ende des Textes angefügt werden,\n"
+"beginnt automatisch ein neuer Abschlussvorgang für Autoren.\n"
+"Kann entweder True oder False sein"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:51
 msgid "Author sort name algorithm"
@@ -22649,8 +22692,8 @@ msgid ""
 msgstr ""
 "Datumsangaben enthalten ein Datum und eine Zeit. Wenn sortiert wird, werden "
 "alle Felder\n"
-"benutzt, unabhängig von dem, was angezeigt wird. Setzte diese Optimierung "
-"auf Wahr, um nur\n"
+"benutzt, unabhängig von dem, welches angezeigt wird. Setzte diese "
+"Optimierung auf True, um nur\n"
 "die Felder zu benutzen, die gerade angezeigt werden."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:387
@@ -22860,10 +22903,11 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
-"Bei der Konvertierung mit selbem Quell- und Zielformat (z.B. von EPUB zu \n"
-"EPUB) wird die Originaldatei gespeichert, so dass im Fall einer schlechten\n"
-"Konvertierung, die Einstellungen optimiert und Konvertierung erneut \n"
-"durchgeführt werden können. Wird diese Option abgewählt, speichert Calibre\n"
+"Bei der Konvertierung mit selbem Quell- und Zielformat (z.B. von EPUB zu "
+"EPUB) \n"
+"wird die Originaldatei gespeichert, so dass im Falle einer schlechten\n"
+"Konvertierung die Einstellungen optimiert und die Konvertierung erneut \n"
+"durchgeführt werden kann. Wird diese Option abgewählt, speichert Calibre\n"
 "die Originaldatei nicht."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:487
@@ -22910,7 +22954,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:508
 msgid "What format to default to when using the Tweak feature"
-msgstr ""
+msgstr "Welches Format standartmäßig zum Tweaken ausgewählt wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:509
 msgid ""

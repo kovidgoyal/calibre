@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-09 16:00+0000\n"
+"PO-Revision-Date: 2012-05-22 19:03+0000\n"
 "Last-Translator: Amir Frederico Carneiro Faria <drmirf@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:18+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-24 11:08+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1506,7 +1506,7 @@ msgstr "<b>Página %(dl)d &bull; %(typ)s</b><br />"
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:225
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr "<b>Local %(dl)d &bull; %(typ)s</b><br />"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:290
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."

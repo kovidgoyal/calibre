@@ -10,16 +10,16 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-14 17:52+0000\n"
-"Last-Translator: الأستاذ عوض الغامدي <Unknown>\n"
+"PO-Revision-Date: 2012-05-24 09:38+0000\n"
+"Last-Translator: abbas <abbasalshaikh@gmail.com>\n"
 "Language-Team: awadh alghaamdi <awadh_al_ghaamdi@hotmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:00+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-24 11:05+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 "X-Poedit-Country: SAUDI ARABIA\n"
 "Language: ar\n"
 "X-Poedit-Language: Arabic\n"
@@ -63,7 +63,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "لا يفعل شيءً"
+msgstr "لا يفعل شيئًا"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
@@ -248,11 +248,11 @@ msgstr "لا يفعل شيءً"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
-msgstr "مجهول"
+msgstr "غير محدّد"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "قاعدة"
+msgstr "أساس"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
@@ -280,7 +280,7 @@ msgstr "كاتب دليل المعلومات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "كتالوج المولدات"
+msgstr "مولّد الفهرس"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
@@ -294,7 +294,7 @@ msgstr "واجهة المستخدم"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "الخيارات"
+msgstr "تفضيلات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -476,6 +476,7 @@ msgstr "نسخ الكتاب من مكتبة النظم واحد إلى آخر"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"يعمل بعض التعديلات البسيطة لملفات epub أو htmlz في مكتبة كاليبر الخاصة بك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
 msgid ""
@@ -487,7 +488,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "يختار كتابًا عشوائياً من مكتبة كاليبر الخاصة بك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:892
 msgid "Search for books from different book sellers"
@@ -700,7 +701,7 @@ msgstr "لوحة المفاتيح"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1140
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "تخصيص اختصارات لوحة المفاتيح المستخدمة بواسطة كاليبر"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1145
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -848,7 +849,7 @@ msgstr "المقصود لأجهزة مماثلة وباد مع قرار من  76
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "موجه لآيباد 3 والأجهزة المماثلة التي تستخدم جودة 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -895,7 +896,7 @@ msgstr "ملف التعريف هذا يستخدم مع Amazon Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "هذا الملف موجه لكيندل فاير التابع لأمازون"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:732
 msgid "This profile is intended for the B&N Nook Color."
@@ -1033,7 +1034,7 @@ msgstr "تواصل معا هواتف S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:282
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "يتصل مع المتصفحات اللوحية التي تستخدم نظام .WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -1318,7 +1319,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "يتصل مع بلاي بوك التابع لبلاك بيري"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."

@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-19 06:13+0000\n"
-"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
+"PO-Revision-Date: 2012-05-23 09:57+0000\n"
+"Last-Translator: boki24 <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-20 04:37+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-24 11:07+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -242,7 +242,7 @@ msgstr "Генератор каталога"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr "Акција корисничког сучеља"
+msgstr "Акција корисничког окружења"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -5569,8 +5569,8 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
-"Изабране књиге ће бити <b>заувек избрисане</b> и датотеке уклоњене из ваше "
-"calibre библиотеке. Да ли сте сигурни?"
+"Изабране књиге ће бити <b>заувек избрисане</b> и  уклоњене из ваше calibre "
+"библиотеке. Да ли сте сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:329
 msgid ""
@@ -8123,7 +8123,7 @@ msgstr "&Претходна"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:124
 msgid "&Next"
-msgstr "&Следеће"
+msgstr "&Следећа"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:98
 msgid "Preview"
@@ -9633,7 +9633,7 @@ msgstr "Траж&и."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:91
 msgid "Sort by author"
-msgstr "Разврстај по имену аутора"
+msgstr "Разврстај по  аутору"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
@@ -12261,7 +12261,7 @@ msgstr "Сакриј стубац %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:207
 #, python-format
 msgid "Sort on %s"
-msgstr "Разврстај по стубцу %s"
+msgstr "Разврстај по  %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:208
 msgid "Ascending"
@@ -12858,7 +12858,7 @@ msgstr "Уреди метаподатке"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:219
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:410
 msgid "Next"
-msgstr "Следеће"
+msgstr "Следећа"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:69
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
@@ -13477,7 +13477,7 @@ msgstr "Унесите прави израз"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:225
 #, python-format
 msgid "You can match multiple values by separating them with %s"
-msgstr ""
+msgstr "Може одговарати више вредности  раздвојени са %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:240
 msgid "Create/edit a column coloring rule"
@@ -13493,7 +13493,7 @@ msgstr "за"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:270
 msgid "Only if the following conditions are all satisfied:"
-msgstr ""
+msgstr "Само ако су следећи услови  сви задовољни :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:280
 msgid "Add another condition"
@@ -13514,7 +13514,7 @@ msgstr "Неважећи услов"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:370
 #, python-format
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr ""
+msgstr "Један од услова за ово правило је неважећи <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:375
 msgid "No conditions"
@@ -13532,6 +13532,10 @@ msgid ""
 "            <pre>%(rule)s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            <p>Напредна правило за колону <b>%(col)s</b>:\n"
+"            <pre>%(rule)s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:469
 #, python-format
@@ -13765,7 +13769,7 @@ msgstr "Моје ознаке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:178
 msgid "My Series"
-msgstr ""
+msgstr "Моја серија"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "My Rating"
@@ -18760,7 +18764,7 @@ msgstr "Идентификатори"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
-msgstr "Разврстај по аутору."
+msgstr "Разврстај по аутору"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
@@ -18768,7 +18772,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
-msgstr "Разврстај по наслову."
+msgstr "Разврстај по наслову"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:128
 msgid "Processed"
@@ -21052,7 +21056,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:419
 msgid "Number of columns for custom metadata in the edit metadata dialog"
-msgstr ""
+msgstr "Број колона за прилагођене метаподатке у  уређивању метаподатака"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:420
 msgid ""
@@ -21064,7 +21068,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:425
 msgid "Order of custom column(s) in edit metadata"
-msgstr ""
+msgstr "Ове прилагођене колоне приликом уређивања метаподатка"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:426
 msgid ""
@@ -21080,7 +21084,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:436
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Број секунди чекања пре слања поруке е-поштом"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:437
 msgid ""
@@ -21093,7 +21097,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:444
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Уклоните светле жуте линије на ивицама листе књига"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:445
 msgid ""
@@ -21104,7 +21108,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:450
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr ""
+msgstr "Највећа ширина и висина корица сачувана је у библиотеци calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:451
 msgid ""
@@ -21115,7 +21119,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:456
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Где да се шаљу преузете вести"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:457
 msgid ""
@@ -21144,7 +21148,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:472
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Обједињена трака са алаткама на OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:473
 msgid ""
@@ -21196,7 +21200,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:498
 msgid "Compile General Program Mode templates to Python"
-msgstr ""
+msgstr "Састави опште  програмске обрасцеза Python"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:499
 msgid ""
@@ -21212,7 +21216,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:508
 msgid "What format to default to when using the Tweak feature"
-msgstr ""
+msgstr "Подразумевани формат у случају могућих \"корекција\""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:509
 msgid ""
