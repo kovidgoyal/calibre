@@ -120,13 +120,12 @@ class OEB2HTML(object):
                 el.attrib['id'] = self.get_link_id(page.href, el.attrib['id'])[1:]
 
     def get_css(self, oeb_book):
-        css = u''
+        css = b''
         for item in oeb_book.manifest:
             if item.media_type == 'text/css':
-                css = item.data.cssText
-                break
+                css += item.data.cssText + b'\n\n'
         return css
-    
+
     def prepare_string_for_html(self, raw):
         raw = prepare_string_for_xml(raw)
         raw = raw.replace(u'\u00ad', '&shy;')
