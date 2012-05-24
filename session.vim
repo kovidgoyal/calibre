@@ -6,7 +6,7 @@ fun! CalibreLog()
     " making a release.
     enew
     read ! bzr log -l 500
-    set nomodifiable noswapfile buftype=nofile
+    setl nomodifiable noswapfile buftype=nofile
     edit Changelog.yaml
     edit src/calibre/constants.py
 endfun
