@@ -597,15 +597,17 @@ def educateQuotes(str):
 	str = re.sub(r"""(?<=\W)'(?=\w)""", r"""&#8216;""", str)
 	str = re.sub(r"""(?<=\w)"(?=\W)""", r"""&#8221;""", str)
 	str = re.sub(r"""(?<=\w)'(?=\W)""", r"""&#8217;""", str)
-	
+
+    # The following are commented out as smartypants tokenizes text by
+    # stripping out html tags. Therefore, there is no guarantee that the
+    # start-of-line and end-ol-line regex operators will match anything
+    # meaningful
+
 	# Special case for Quotes at end of line with a preceeding space (may change just to end of line)
-	str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
-	str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
-	
+	#str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
+	#str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
+
 	# Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
-	# This case commented out as it works under the assumption that the regex pattern will always
-	# evaluate a complete sentence - the tokenize function called earlier in smarty will break up
-	# the text based on tags, so sentence fragments can be passed to the patterns as well.
 	#str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
 	#str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
 

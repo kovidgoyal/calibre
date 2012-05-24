@@ -626,7 +626,10 @@ class HTMLPreProcessor(object):
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)
 
-        unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
+        try:
+            unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
+        except AttributeError:
+            unsupported_unicode_chars = u''
         if unsupported_unicode_chars:
             from calibre.utils.localization import get_udc
             unihandecoder = get_udc()
