@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-09 20:13+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2012-05-24 14:12+0000\n"
+"Last-Translator: J.R. van Wijk <j.wyk91@upcmail.nl>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:03+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-25 04:38+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1671,6 +1671,9 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Kobo voorbeelden zijn inbegrepen op de Touch en sommige oudere versies. "
+"Standaard worden ze niet langer weergegeven, omdat er geen goede reden is om "
+"ze te tonen.  Schakel dit in als u de voorbeelden wilt zien of wilt wissen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
@@ -3484,6 +3487,9 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de bovenmarge in pts. Standaard is %default. Bij instelling van minder "
+"dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk aan 1 "
+"inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3491,6 +3497,9 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de ondermarge in pts. Standaard is %default. Bij instelling van minder "
+"dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk aan 1 "
+"inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3498,6 +3507,9 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de linkermarge in pts. Standaard is %default. Bij instelling van minder "
+"dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk aan 1 "
+"inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3505,6 +3517,9 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de rechtermarge in pts. Standaard is %default. Bij instelling van "
+"minder dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk "
+"aan 1 inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -3594,6 +3609,9 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Zet gewone aanhalingstekens, streepjes en ellipsis (weglatingsteken) om in "
+"hun typografisch juiste equivalenten. Voor details: "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
@@ -3839,6 +3857,10 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Pad naar een bestand, met zoek-en-vervang-expressies. Het bestand moet "
+"afwisselend een zoek- en een vervanggedeelte bevatten (waarbij het "
+"vervangdeel blanco kan zijn). De reguliere expressie moet in Python RegEx "
+"syntax zijn en het bestand gecodeerd in UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:746
 msgid "Could not find an ebook inside the archive"
@@ -4592,7 +4614,7 @@ msgstr "Dit is geen MOBI bestand."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Dit bestand is afgesloten door DRM. Het kan niet worden gewijzigd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4600,6 +4622,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"Dit MOBI bestand bevat geen boek in KF8 opmaak. KF8 is de nieuwe opmaak van "
+"Amazon. Calibre kan alleen die MOBI bestanden wijzigen, die KF8 boeken "
+"bevatten. Oudere MOBI bestanden zonder KF8 zijn niet te wijzigen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4607,6 +4632,9 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"Dit MOBI bestand bevat zowel KF8 als oudere Mobi6 gegevens. Verandering hier "
+"in zal de Mobi6 gegevens verwijderen. Dit betekent dat het bestand niet meer "
+"bruikbaar is op oudere Kindels. Weet u het zeker"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -6706,6 +6734,10 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Het boek moet in ePub, HTMLZ of AZW3 indelingzijn opgemaakt om ze te kunnen "
+"wijzigen.\n"
+"\n"
+"Zet het boek eerst in één van die indelingen om."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -8443,7 +8475,7 @@ msgstr "&Links:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "Geen marge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -11940,7 +11972,7 @@ msgstr "Tit&el/Auteur/Reeks …"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:38
 #, python-format
 msgid "There are %(count)d book(s) with the %(fmt)s format"
-msgstr ""
+msgstr "Er is/zijn %(count)d boek(en) met de %(fmt)s opmaak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:54
 msgid "Choose formats"
@@ -14332,7 +14364,7 @@ msgstr "U kunt een voorwaarde uitschakelen door alle velden leeg te maken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:327
 msgid "Sample Text"
-msgstr ""
+msgstr "Voorbeeldtekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:369
 msgid "Invalid condition"
@@ -21427,7 +21459,7 @@ msgstr "Engels"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "Engels (Argentijns)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -21698,7 +21730,7 @@ msgstr "Onbekende nieuwsbron"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:672
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "Het ophalen van %s is mislukt."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:768
 #, python-format
@@ -23061,6 +23093,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:508
 msgid "What format to default to when using the Tweak feature"
 msgstr ""
+"Welke indeling moet standaard worden bij het gebruik van de Tweak functie"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:509
 msgid ""
