@@ -19,6 +19,71 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.53
+  date: 2012-05-25
+
+  new features:
+    - title: "Kindle Touch/4 driver: Upload cover thumbnails when sending books to device by USB to workaround Amazon bug of not displaying covers for sync-enabled books"
+
+    - title: "Support for updating metadata in FB2 files"
+
+    - title: "Set a different background color when choosing formats to not delete as opposed to choosing format to delete."
+      tickets: [ 1001741 ] 
+
+    - title: "E-book viewer: Add an option to prevent the up and down arrow keys from scrolling past page breaks"
+
+    - title: "Get Books: Remove ebookshoppe.com at the website's request"
+ 
+  bug fixes:
+    - title: "PDF Input: Support image rotation commands in PDF files. Fixes the long standing problem of some  images being flipped when converting from PDF in calibre."
+
+    - title: "Fix a regression in 0.8.51 that caused conversion to HTMLZ to not have any CSS"
+
+    - title: "Get Books: Fix website change at kobo.com causing prices not to be found"
+
+    - title: "Edit the time in the 24 hour clock when calibre's interface language is set to German."
+      tickets: [ 1001809 ] 
+
+    - title: "MOBI Output: When generating joint KF8/MOBI6 .mobi files set the text length field in the MOBI 6 header correctly. "
+      tickets: [ 1003489 ] 
+
+    - title: "ODT Input: More workarounds for LibreOffice 3.5's habit of inserting pointless margin:100% directives everywhere."
+      tickets: [ 1002702 ] 
+
+    - title: "Fix regression that broke smarten punctuation when quotes were next to html tags."
+      tickets: [ 998900 ] 
+
+    - title: "Fix published date from ozon.ru wrong in some timezones"
+      tickets: [ 975338 ]
+
+    - title: "Catalogs: Handle the use of custom columns with non-ascii names correctly"
+      tickets: [1001437]
+
+    - title: "Conversion pipeline: Remove the attempt to detect and autocorrect if text will go off the left edge of the page, as it was a rather crude heuristic. Also do not remove fake margins if the book uses negative text indents on the margined elements."
+
+    - title: "KF8 Output: Set offsets to tags in the skeleton the same way kindlegen does. Also linearize non linear ToCs to ensure section to section jumping works."
+
+    - title: "Conversion pipeline: Use correct default value of 'inherit' for font-family and font-size when normalizing the shorthand font property."
+
+    - title: "When running python scripts via calibre-debug ensure that user plugins are loaded"
+
+  improved recipes:
+    - Business Week Magazine
+    - Metro Nieuws NL
+
+  new recipes:
+    - title: Attac.es 
+      author: Marc Busque
+
+    - title: Drytooling.com
+      author: Damian Granowski
+
+    - title: Shortlist.com 
+      author: Dave ASbury
+
+    - title: National Geographic (es) 
+      author: vakya
+
 - version: 0.8.52
   date: 2012-05-18
 
