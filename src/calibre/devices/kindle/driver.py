@@ -386,7 +386,7 @@ class KINDLE2(KINDLE):
             import traceback
             traceback.print_exc()
         # Upload the apnx file
-        self.upload_apnx(filename, metadata, filepath)
+        self.upload_apnx(path, filename, metadata, filepath)
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
@@ -406,7 +406,7 @@ class KINDLE2(KINDLE):
         with open(thumbfile, 'wb') as f:
             f.write(coverdata[2])
 
-    def upload_apnx(self, filename, metadata, filepath):
+    def upload_apnx(self, path, filename, metadata, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder
 
         opts = self.settings()
