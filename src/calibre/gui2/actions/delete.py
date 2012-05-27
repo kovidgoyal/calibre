@@ -267,6 +267,12 @@ class DeleteAction(InterfaceAction):
             ci = view.model().index(current_row, 0)
             if ci.isValid():
                 view.set_current_row(current_row)
+            elif view.row_count() > 0:
+                new_row = current_row - len(ids_deleted)
+                if new_row >= 0:
+                    view.set_current_row(new_row)
+                else:
+                    view.set_current_row(0)
 
     def delete_books(self, *args):
         '''
