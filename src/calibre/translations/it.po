@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-05-18 22:21+0000\n"
+"PO-Revision-Date: 2012-05-26 06:07+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-26 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-05-27 04:38+0000\n"
 "X-Generator: Launchpad (build 15288)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2832,6 +2832,12 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"In modo predefinito, calibre converte tutte le immagini in formato JPEG per "
+"la produzione di file MOBI. Ciò avviene per massimizzare la compatibilità "
+"con alcuni lettori MOBI datati che hanno problemi con altri formati di "
+"immagine. Questa opzione impedisce che calibre esegua la conversione. Utile "
+"se il documento contiene molte immagini GIF/PNG che diventano molto grandi "
+"se convertite in JPEG."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:127
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -14757,7 +14763,7 @@ msgstr "&Modello"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
 msgid "Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "Modello di campo. Usa la stessa sintassi dei modelli di salvataggio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -16798,15 +16804,15 @@ msgstr "Numero di thread di ricerca da utilizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:81
 msgid "Number of cache update threads to use"
-msgstr ""
+msgstr "Numero di thread di aggiornamento della cache da utilizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:89
 msgid "Number of cover download threads to use"
-msgstr ""
+msgstr "Numero di thread di scaricamento delle copertine da utilizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:97
 msgid "Number of details threads to use"
-msgstr ""
+msgstr "Numero di thread di dettagli da utilizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:105
 msgid "Performance"
@@ -16826,7 +16832,7 @@ msgstr "Numero di scaricamenti simultanei di copertine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:109
 msgid "Number of simultaneous details downloads"
-msgstr ""
+msgstr "Numero di scaricamenti dei dettagli contemporanei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
@@ -17760,7 +17766,7 @@ msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:218
 msgid "Line &scrolling stops at page breaks"
-msgstr ""
+msgstr "Lo &scorrimento di riga si ferma alle interruzioni di pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:219
 msgid "&General"
@@ -17835,6 +17841,8 @@ msgstr "Sfoglia le pagine con la rotella del mouse"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:64
 msgid "Prevent the up and down arrow keys from scrolling past page breaks"
 msgstr ""
+"Impedisce ai tasti direzionali freccia su e giù di scorrere oltre le "
+"interruzioni di pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
 msgid ""
@@ -17990,6 +17998,9 @@ msgid ""
 "Go to a reference. To get reference numbers, use the <i>reference mode</i>, "
 "by clicking the reference mode button in the toolbar."
 msgstr ""
+"Vai a un riferimento. Per ottenere numeri di riferimento, usa la <i>modalità "
+"riferimento</i>, facendo clic sul relativo pulsante della barra degli "
+"strumenti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:184
 msgid "Search for text in book"
@@ -18128,6 +18139,8 @@ msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
+"La posizione alla quale aprire il libro specificato. La posizione è visibile "
+"nell'angolo in alto a sinistra del visualizzatore."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:928
 msgid ""
@@ -19675,7 +19688,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:969
 msgid "Unknown report check"
-msgstr ""
+msgstr "Risultato sconosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1003
 msgid ""
@@ -19732,6 +19745,8 @@ msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Elenco separato da virgole di nomi di ricerca per categorie.\n"
+"Predefinito: tutti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1089
 msgid "The string used to separate fields in CSV mode. Default is a comma."
