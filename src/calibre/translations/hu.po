@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-05-20 18:28+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-05-27 13:37+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-26 04:50+0000\n"
+"X-Launchpad-Export-Date: 2012-05-28 05:17+0000\n"
 "X-Generator: Launchpad (build 15288)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4506,7 +4506,7 @@ msgstr "Ez nem MOBI fájl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Ez a fájl DRM-mel van zárolva. Nem lehet változtatni rajta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -5339,7 +5339,7 @@ msgstr "%s katalógus létrehozása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
 msgid "Catalog generation complete, with warnings."
-msgstr ""
+msgstr "A katalógus generálás véget ért, de hibák merültek fel."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
@@ -6481,7 +6481,7 @@ msgstr "Könyv finomhangolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:64
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Válassza ki a finomhangolás formátumát:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:74
 msgid ""
@@ -6528,7 +6528,7 @@ msgstr "&Mégsem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "Könyv &újraépítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
@@ -6536,11 +6536,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "A finomhangolás változtatásainak előnézete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:113
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Megszakítás a változtatások elvesztésével"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:115
 msgid "Save your changes and update the book in the calibre library"
@@ -6568,7 +6568,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:222
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "Sikertelen a fájl újraépítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:223
 #, python-format

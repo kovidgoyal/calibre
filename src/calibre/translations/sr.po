@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-05-23 09:57+0000\n"
-"Last-Translator: boki24 <Unknown>\n"
+"PO-Revision-Date: 2012-05-27 17:34+0000\n"
+"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-26 04:56+0000\n"
+"X-Launchpad-Export-Date: 2012-05-28 05:17+0000\n"
 "X-Generator: Launchpad (build 15288)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -6272,7 +6272,7 @@ msgstr "Није могуће подесити књигу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:310
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Није могуће подесити књигу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:311
 msgid ""
@@ -6280,6 +6280,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Књига мора бити у ePub, HTMLZ или AZW3 формату за подешавање.\n"
+"\n"
+"Прво пребаците књигу у један од ових формата."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -8786,7 +8789,7 @@ msgstr "Основна меморија."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:546
 msgid "Send specific format to"
-msgstr "Пошаљи одређени формат на."
+msgstr "Пошаљи одређени формат на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:547
 msgid "Send and delete from library"
@@ -16205,11 +16208,11 @@ msgstr "Одредите начин разврставања у Излогу е�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Match all"
-msgstr "Морају одговарати сви."
+msgstr "Одговарају сви"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Match any"
-msgstr "Одговара било који од."
+msgstr "Одговара било који"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:408
 msgid ""
