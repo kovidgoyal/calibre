@@ -265,8 +265,10 @@ class DeleteAction(InterfaceAction):
             v.model().clear_ondevice(ids_deleted)
         if current_row is not None:
             ci = view.model().index(current_row, 0)
-            if ci.isValid():
-                view.set_current_row(current_row)
+            if not ci.isValid():
+                # Current row is after the last row, set it to the last row
+                current_row = view.row_count() - 1
+            view.set_current_row(current_row)
 
     def delete_books(self, *args):
         '''
