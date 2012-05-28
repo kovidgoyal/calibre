@@ -147,6 +147,33 @@ podofo_PDFDoc_extract_first_page(podofo_PDFDoc *self, PyObject *args, PyObject *
 }
 
 static PyObject *
+podofo_PDFDoc_page_count(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    int count;
+    try {
+        count = self->doc->GetPageCount();
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    return Py_BuildValue("i", count);
+}
+
+static PyObject *
+podofo_PDFDoc_delete_page(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    int num = 0;
+    if (PyArg_ParseTuple(args, "i", &num)) {
+        try {
+            self->doc->DeletePages(num, 1);
+        } catch(const PdfError & err) {
+            podofo_set_exception(err);
+            return NULL;
+        }
+    } else return NULL;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 podofo_convert_pdfstring(const PdfString &s) {
     std::string raw = s.GetStringUtf8();
 	return PyString_FromStringAndSize(raw.c_str(), raw.length());
@@ -321,6 +348,13 @@ static PyMethodDef podofo_PDFDoc_methods[] = {
     {"extract_first_page", (PyCFunction)podofo_PDFDoc_extract_first_page, METH_VARARGS,
      "extract_first_page() -> Remove all but the first page."
     },
+    {"page_count", (PyCFunction)podofo_PDFDoc_page_count, METH_VARARGS,
+     "page_count() -> Number of pages in the PDF."
+    },
+    {"delete_page", (PyCFunction)podofo_PDFDoc_delete_page, METH_VARARGS,
+     "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
+    },
+
 
     {NULL}  /* Sentinel */
 };
