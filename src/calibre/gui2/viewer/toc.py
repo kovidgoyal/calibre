@@ -69,20 +69,38 @@ class TOCItem(QStandardItem):
         # to count a partial line as being visible.
 
         if spine_index >= self.starts_at and spine_index <= self.ends_at:
+            # The position at which this anchor is present in the document
             start_pos = anchor_map.get(self.start_anchor, 0)
-            psp = [anchor_map.get(x, 0) for x in self.possible_end_anchors]
+            psp = []
             if self.ends_at == spine_index:
+                # Anchors that could possibly indicate the start of the next
+                # section and therefore the end of this section.
+                # self.possible_end_anchors is a set of anchors belonging to
+                # toc entries with depth <= self.depth that are also not
+                # ancestors of this entry.
+                psp = [anchor_map.get(x, 0) for x in self.possible_end_anchors]
                 psp = [x for x in psp if x >= start_pos]
+            # The end position. The first anchor whose pos is >= self.start_pos
+            # or if the end is not in this spine item, we set it to the bottom
+            # of the window +1
             end_pos = min(psp) if psp else (bottom+1 if self.ends_at >=
                     spine_index else 0)
             if spine_index > self.starts_at and spine_index < self.ends_at:
+                # The entire spine item is contained in this entry
                 is_being_viewed = True
-            elif spine_index == self.starts_at and bottom-25 >= start_pos:
-                if spine_index != self.ends_at or top < end_pos:
+            elif (spine_index == self.starts_at and bottom-25 >= start_pos and
+                    # This spine item contains the start
+                    # The start position is before the end of the viewport
+                    spine_index != self.ends_at or top < end_pos):
+                    # The end position is after the start of the viewport
                     is_being_viewed = True
-            elif spine_index == self.ends_at and top < end_pos:
-                if spine_index != self.starts_at or bottom-25 >= start_pos:
+            elif (spine_index == self.ends_at and top < end_pos and
+                    # This spine item contains the end
+                    # The end position is after the start of the viewport
+                    spine_index != self.starts_at or bottom-25 >= start_pos):
+                    # The start position is before the end of the viewport
                     is_being_viewed = True
+
         changed = is_being_viewed != self.is_being_viewed
         self.is_being_viewed = is_being_viewed
         if changed:
