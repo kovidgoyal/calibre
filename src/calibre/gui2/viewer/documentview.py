@@ -513,6 +513,11 @@ class DocumentView(QWebView): # {{{
     def scroll_horizontally(self, amount):
         self.document.scroll_to(y=self.document.ypos, x=amount)
 
+    @property
+    def scroll_pos(self):
+        return (self.document.ypos, self.document.ypos +
+                self.document.window_height)
+
     def link_hovered(self, link, text, context):
         link, text = unicode(link), unicode(text)
         if link:

@@ -493,8 +493,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.pending_bookmark = None
             self.load_path(self.iterator.spine[spine_index])
 
-    def toc_clicked(self, index):
-        if QApplication.mouseButtons() & Qt.LeftButton:
+    def toc_clicked(self, index, force=False):
+        if force or QApplication.mouseButtons() & Qt.LeftButton:
             item = self.toc_model.itemFromIndex(index)
             if item.abspath is not None:
                 if not os.path.exists(item.abspath):
@@ -625,11 +625,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.pending_anchor = frag
                 self.load_path(path)
             else:
+                oldpos = self.view.document.ypos
                 if frag:
                     self.view.scroll_to(frag)
                 else:
                     # Scroll to top
                     self.view.scroll_to('#')
+                if self.view.document.ypos == oldpos:
+                    # If we are coming from goto_next_section() call this will
+                    # cause another goto next section call with the next toc
+                    # entry, since this one did not cause any scrolling at all.
+                    QTimer.singleShot(10, self.update_indexing_state)
         else:
             open_url(url)
 
@@ -664,13 +670,41 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return self.current_index
 
     def goto_next_section(self):
-        nindex = (self.current_index + 1)%len(self.iterator.spine)
-        self.load_path(self.iterator.spine[nindex])
+        if hasattr(self, 'current_index'):
+            entry = self.toc_model.next_entry(self.current_index)
+            if entry is not None:
+                self.pending_goto_next_section = (
+                        self.toc_model.currently_viewed_entry, entry, False)
+                self.toc_clicked(entry.index(), force=True)
 
     def goto_previous_section(self):
-        pindex = (self.current_index - 1 + len(self.iterator.spine)) \
-                % len(self.iterator.spine)
-        self.load_path(self.iterator.spine[pindex])
+        if hasattr(self, 'current_index'):
+            entry = self.toc_model.next_entry(self.current_index, backwards=True)
+            if entry is not None:
+                self.pending_goto_next_section = (
+                        self.toc_model.currently_viewed_entry, entry, True)
+                self.toc_clicked(entry.index(), force=True)
+
+    def update_indexing_state(self, anchor_positions=None):
+        pgns = getattr(self, 'pending_goto_next_section', None)
+        if hasattr(self, 'current_index'):
+            if anchor_positions is None:
+                anchor_positions = self.view.document.read_anchor_positions()
+            items = self.toc_model.update_indexing_state(self.current_index,
+                        self.view.scroll_pos, anchor_positions)
+            if items:
+                self.toc.scrollTo(items[-1].index())
+            if pgns is not None:
+                self.pending_goto_next_section = None
+                # Check that we actually progressed
+                if pgns[0] is self.toc_model.currently_viewed_entry:
+                    entry = self.toc_model.next_entry(self.current_index,
+                            backwards=pgns[2], current_entry=pgns[1])
+                    if entry is not None:
+                        self.pending_goto_next_section = (
+                                self.toc_model.currently_viewed_entry, entry,
+                                pgns[2])
+                        self.toc_clicked(entry.index(), force=True)
 
     def load_path(self, path, pos=0.0):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
@@ -867,15 +901,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if not onload:
             ap = self.view.document.read_anchor_positions()
             self.update_indexing_state(ap)
-
-    def update_indexing_state(self, anchor_positions=None):
-        if hasattr(self, 'current_index'):
-            if anchor_positions is None:
-                anchor_positions = self.view.document.read_anchor_positions()
-            items = self.toc_model.update_indexing_state(self.current_index,
-                        self.view.document.ypos, anchor_positions)
-            if items:
-                self.toc.scrollTo(items[-1].index())
 
     def next_document(self):
         if (hasattr(self, 'current_index') and self.current_index <

@@ -51,20 +51,27 @@ class TOCItem(QStandardItem):
 
     def update_indexing_state(self, spine_index, scroll_pos, anchor_map):
         is_being_viewed = False
+        top, bottom = scroll_pos
         if spine_index >= self.starts_at and spine_index <= self.ends_at:
             start_pos = anchor_map.get(self.start_anchor, 0)
             psp = [anchor_map.get(x, 0) for x in self.possible_end_anchors]
             if self.ends_at == spine_index:
                 psp = [x for x in psp if x >= start_pos]
-            end_pos = min(psp) if psp else (scroll_pos+1 if self.ends_at ==
+            end_pos = min(psp) if psp else (bottom+1 if self.ends_at ==
                     spine_index else 0)
             if spine_index > self.starts_at and spine_index < self.ends_at:
                 is_being_viewed = True
-            elif spine_index == self.starts_at and scroll_pos >= start_pos:
-                if spine_index != self.ends_at or scroll_pos < end_pos:
+            elif spine_index == self.starts_at and top >= start_pos:
+                if spine_index != self.ends_at or top < end_pos:
                     is_being_viewed = True
-            elif spine_index == self.ends_at and scroll_pos < end_pos:
-                if spine_index != self.starts_at or scroll_pos >= start_pos:
+            elif spine_index == self.ends_at and top < end_pos:
+                if spine_index != self.starts_at or bottom-25 >= start_pos:
+                    # We use -25 to account for the case where the next entry
+                    # has some invisible margin that just overlaps with the
+                    # bottom of the screen. In this case it will appear to the
+                    # user that the entry is not visible on the screen. Of
+                    # course, the margin could be larger than 25, but that's a
+                    # decent compromise.
                     is_being_viewed = True
         changed = is_being_viewed != self.is_being_viewed
         self.is_being_viewed = is_being_viewed
@@ -72,6 +79,12 @@ class TOCItem(QStandardItem):
             self.setFont(self.bold_font if is_being_viewed else self.normal_font)
             self.setBackground(self.alternate_base if is_being_viewed else
                     self.base)
+
+    def __repr__(self):
+        return 'TOC Item: %s %s#%s'%(self.title, self.abspath, self.fragment)
+
+    def __str__(self):
+        return repr(self)
 
 class TOC(QStandardItemModel):
 
@@ -97,11 +110,29 @@ class TOC(QStandardItemModel):
             x.ends_at = min_spine
             x.possible_end_anchors = possible_enders
 
+        self.currently_viewed_entry = None
+
     def update_indexing_state(self, *args):
         items_being_viewed = []
         for t in self.all_items:
             t.update_indexing_state(*args)
             if t.is_being_viewed:
                 items_being_viewed.append(t)
+                self.currently_viewed_entry = t
         return items_being_viewed
+
+    def next_entry(self, spine_pos, backwards=False, current_entry=None):
+        current_entry = (self.currently_viewed_entry if current_entry is None
+                else current_entry)
+        if current_entry is None: return
+        items = reversed(self.all_items) if backwards else self.all_items
+        found = False
+        for item in items:
+            if found:
+                if item.starts_at != spine_pos or item.start_anchor:
+                    return item
+            if item is current_entry:
+                found = True
+
+
 
