@@ -61,26 +61,27 @@ class TOCItem(QStandardItem):
     def update_indexing_state(self, spine_index, scroll_pos, anchor_map):
         is_being_viewed = False
         top, bottom = scroll_pos
+        # We use bottom-25 in the checks below to account for the case where
+        # the next entry has some invisible margin that just overlaps with the
+        # bottom of the screen. In this case it will appear to the user that
+        # the entry is not visible on the screen. Of course, the margin could
+        # be larger than 25, but that's a decent compromise. Also we dont want
+        # to count a partial line as being visible.
+
         if spine_index >= self.starts_at and spine_index <= self.ends_at:
             start_pos = anchor_map.get(self.start_anchor, 0)
             psp = [anchor_map.get(x, 0) for x in self.possible_end_anchors]
             if self.ends_at == spine_index:
                 psp = [x for x in psp if x >= start_pos]
-            end_pos = min(psp) if psp else (bottom+1 if self.ends_at ==
+            end_pos = min(psp) if psp else (bottom+1 if self.ends_at >=
                     spine_index else 0)
             if spine_index > self.starts_at and spine_index < self.ends_at:
                 is_being_viewed = True
-            elif spine_index == self.starts_at and top >= start_pos:
+            elif spine_index == self.starts_at and bottom-25 >= start_pos:
                 if spine_index != self.ends_at or top < end_pos:
                     is_being_viewed = True
             elif spine_index == self.ends_at and top < end_pos:
                 if spine_index != self.starts_at or bottom-25 >= start_pos:
-                    # We use -25 to account for the case where the next entry
-                    # has some invisible margin that just overlaps with the
-                    # bottom of the screen. In this case it will appear to the
-                    # user that the entry is not visible on the screen. Of
-                    # course, the margin could be larger than 25, but that's a
-                    # decent compromise.
                     is_being_viewed = True
         changed = is_being_viewed != self.is_being_viewed
         self.is_being_viewed = is_being_viewed
