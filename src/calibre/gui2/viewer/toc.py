@@ -15,11 +15,12 @@ from calibre.ebooks.metadata.toc import TOC as MTOC
 
 class TOCItem(QStandardItem):
 
-    def __init__(self, spine, toc, depth, all_items):
+    def __init__(self, spine, toc, depth, all_items, parent=None):
         text = toc.text
         if text:
             text = re.sub(r'\s', ' ', text)
         self.title = text
+        self.parent = parent
         QStandardItem.__init__(self, text if text else '')
         self.abspath = toc.abspath
         self.fragment = toc.fragment
@@ -31,7 +32,7 @@ class TOCItem(QStandardItem):
         self.bold_font.setBold(True)
         self.normal_font = self.font()
         for t in toc:
-            self.appendRow(TOCItem(spine, t, depth+1, all_items))
+            self.appendRow(TOCItem(spine, t, depth+1, all_items, parent=self))
         self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
         spos = 0
         for i, si in enumerate(spine):
@@ -42,8 +43,16 @@ class TOCItem(QStandardItem):
         frag = self.fragment if (self.fragment and self.fragment in am) else None
         self.starts_at = spos
         self.start_anchor = frag
+        self.start_src_offset = am.get(frag, 0)
         self.depth = depth
         self.is_being_viewed = False
+
+    @property
+    def ancestors(self):
+        parent = self.parent
+        while parent is not None:
+            yield parent
+            parent = parent.parent
 
     @classmethod
     def type(cls):
@@ -99,7 +108,8 @@ class TOC(QStandardItemModel):
 
         for x in depth_first:
             possible_enders = [ t for t in depth_first if t.depth <= x.depth
-                    and t.starts_at >= x.starts_at and t is not x]
+                    and t.starts_at >= x.starts_at and t is not x and t not in
+                    x.ancestors]
             if possible_enders:
                 min_spine = min(t.starts_at for t in possible_enders)
                 possible_enders = { t.fragment for t in possible_enders if
