@@ -89,17 +89,17 @@ class TOCItem(QStandardItem):
                 # The entire spine item is contained in this entry
                 is_being_viewed = True
             elif (spine_index == self.starts_at and bottom-25 >= start_pos and
-                    # This spine item contains the start
-                    # The start position is before the end of the viewport
-                    spine_index != self.ends_at or top < end_pos):
-                    # The end position is after the start of the viewport
-                    is_being_viewed = True
+                # This spine item contains the start
+                # The start position is before the end of the viewport
+                (spine_index != self.ends_at or top < end_pos)):
+                # The end position is after the start of the viewport
+                is_being_viewed = True
             elif (spine_index == self.ends_at and top < end_pos and
-                    # This spine item contains the end
-                    # The end position is after the start of the viewport
-                    spine_index != self.starts_at or bottom-25 >= start_pos):
-                    # The start position is before the end of the viewport
-                    is_being_viewed = True
+                # This spine item contains the end
+                # The end position is after the start of the viewport
+                (spine_index != self.starts_at or bottom-25 >= start_pos)):
+                # The start position is before the end of the viewport
+                is_being_viewed = True
 
         changed = is_being_viewed != self.is_being_viewed
         self.is_being_viewed = is_being_viewed
