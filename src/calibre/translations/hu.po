@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-05-27 13:37+0000\n"
-"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
+"PO-Revision-Date: 2012-05-28 18:19+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-28 05:17+0000\n"
-"X-Generator: Launchpad (build 15288)\n"
+"X-Launchpad-Export-Date: 2012-05-29 04:43+0000\n"
+"X-Generator: Launchpad (build 15316)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -4514,6 +4514,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"Ez a MOBI fájl nem tartalmaz KF8 formátumú könyvet. A KF8 az Amazon új "
+"formátuma. A calibre csak a KF8 könyvet tartalmazó MOBI fájlok "
+"finomhangolását teszi lehetővé, a régebbieknél ez nem lehetséges."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4521,6 +4524,9 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"Ez a MOBI fájl tartalmaz mind KF8, mind pedig régebbi Mobi6 adatokat is. A "
+"finomhangolás eltávolítja a Mobi6 adatokat, ami azt eredményezi, hogy "
+"régebbi olvasókon a könyv nem lesz használható. Biztosan folytatja?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -6512,7 +6518,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
-msgstr ""
+msgstr "&Könyv kicsomagolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "&Preview Book"
@@ -6533,6 +6539,7 @@ msgstr "Könyv &újraépítése"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
 msgstr ""
+"Könyv szétbontása alkotóelemeire az összetevők szerkesztése érdekében"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
@@ -6548,7 +6555,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:155
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "Kicsomagolás, kérem, várjon…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:187
@@ -6558,7 +6565,7 @@ msgstr "A kicsomagolás nem sikerült"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:178
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "A következő fájl kicsomagolása nem sikerült: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:188
 #, python-format
@@ -7490,7 +7497,7 @@ msgstr "HTML-forrás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "AZW3 kimenet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
@@ -8571,7 +8578,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:146
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "Keresés/Csere kifejezés szerkesztése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:147
 msgid "&Replacement Text"
@@ -8580,7 +8587,7 @@ msgstr "Cse&re erre"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid ""
 "Add the current expression to the list of expressions that will be applied"
-msgstr ""
+msgstr "Az aktuális kifejezés hozzáadása az alkalmazandók listájához"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 msgid "&Add"
@@ -8639,6 +8646,12 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p> A „Keresésé és Csere” <i>reguláris kifejezéseket</i> használ. Bővebb "
+"információk a <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">reguláris kifejezések oktató</a> linken találhatóak. "
+"A varázsló gombjára kattintva tesztelheti a kifejezést az aktuális bemeneti "
+"dokumentumon. Ha kész a kifejezés, kattintson a Hozzáadás gombra, így a "
+"kifejezés megjelenik a listában."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-03-18 08:47+0000\n"
-"Last-Translator: viktorc <dinalt@email.cz>\n"
+"PO-Revision-Date: 2012-05-28 19:15+0000\n"
+"Last-Translator: Michal Kaliňák <michal.kalinak@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-05-26 04:57+0000\n"
-"X-Generator: Launchpad (build 15288)\n"
+"X-Launchpad-Export-Date: 2012-05-29 04:44+0000\n"
+"X-Generator: Launchpad (build 15316)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -809,7 +809,7 @@ msgstr "Určený pre iPad a podobné zariadenia s rozlíšením 768x1024"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Určené pre iPad 3 a podobné zariadenie s rozlíšením 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1451,7 +1451,7 @@ msgstr "Komunikácia s čítačkou JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Komunikuj s čítačkou JetBook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -2724,7 +2724,7 @@ msgstr "Zakázanie kompresie obsahu súboru."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:59
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr ""
+msgstr "Značka označujúca knihu na založenie do Osobných dokumentov"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:63
 msgid ""
@@ -2771,6 +2771,11 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Štandardne calibre konvertuje všetky obrázky do formátu JPEG vo výstupnom "
+"súbore MOBI. Je to kvôli maximálnej kompatibilite, pretože niektoré staršie "
+"čítačky MOBI majú problémy s inými formátmi obrázkov. Táto voľba zabráni "
+"konverzii cez calibre. Je to užitočné ak Váš dokument obsahuje veľa GIF/PNG "
+"obrázkov, ktoré by po konverzii do JPEG boli príliš veľké."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:127
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -2806,6 +2811,9 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.45, just below "
 "the median line length."
 msgstr ""
+"Škála používaná na stanovenie dĺžky, pri ktorej sa riadok nezalomí. Platné "
+"sú desatinné hodnoty medzi 0 a 1. Štandardne je hodnota 0,45; tesne pod "
+"strednú dĺžku riadku."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:26
 msgid "Use the new PDF conversion engine."
@@ -3360,6 +3368,8 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastav horný okraj v bodoch. Štandard je %default. Nastavenie menšie ako "
+"nula spôsobí, že okraj nebude nastavený. Poznámka: 72 bodov sa rovná 1 palec"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3367,6 +3377,8 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastav dolný okraj v bodoch. Štandard je %default. Nastavenie menšie ako "
+"nula spôsobí, že okraj nebude nastavený. Poznámka: 72 bodov sa rovná 1 palec"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3374,6 +3386,8 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastav ľavý okraj v bodoch. Štandard je %default. Nastavenie menšie ako nula "
+"spôsobí, že okraj nebude nastavený. Poznámka: 72 bodov sa rovná 1 palec"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3381,6 +3395,8 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastav pravý okraj v bodoch. Štandard je %default. Nastavenie menšie ako "
+"nula spôsobí, že okraj nebude nastavený. Poznámka: 72 bodov sa rovná 1 palec"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -3508,6 +3524,11 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Zachovaj ligatúry prítomné vo vstupnom dokumente. Ligatúra je zvláštne "
+"vykreslenie dvojice znakov ako ff, fi, fl atď. Väčšina čítačiek nemá podporu "
+"pre ligatúry v štandardných písmach, a tak ich asi nezobrazia správne. "
+"Štandardne, calibre zmení ligatúru na príslušnú dvojicu obyčajných znakov. "
+"Táto voľba ich zachová."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:483
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -3581,7 +3602,7 @@ msgstr "Zadajte dátum publikovania."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:544
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "Nastav časový údaj (už to viac nie je nikde použité)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:548
 msgid ""
@@ -7176,7 +7197,7 @@ msgstr "Šírka &náhľadu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
-msgstr ""
+msgstr "Tip na veľkosť pre miniatúry popisov obálky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
