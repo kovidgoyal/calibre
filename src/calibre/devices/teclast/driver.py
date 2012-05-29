@@ -50,7 +50,7 @@ class ARCHOS7O(TECLAST_K3):
     FORMATS = ['epub', 'mobi', 'fb2', 'rtf', 'ap', 'html', 'pdf', 'txt']
 
     VENDOR_NAME      = 'ARCHOS'
-    WINDOWS_MAIN_MEM = 'USB-MSC'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB-MSC'
 
 class PICO(NEWSMY):
     name = 'Pico device interface'
