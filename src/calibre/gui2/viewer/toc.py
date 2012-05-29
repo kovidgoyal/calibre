@@ -33,7 +33,7 @@ class TOCItem(QStandardItem):
         self.normal_font = self.font()
         for t in toc:
             self.appendRow(TOCItem(spine, t, depth+1, all_items, parent=self))
-        self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+        self.setFlags(Qt.ItemIsEnabled)
         spos = 0
         for i, si in enumerate(spine):
             if si == self.abspath:
@@ -131,14 +131,21 @@ class TOC(QStandardItemModel):
                 self.currently_viewed_entry = t
         return items_being_viewed
 
-    def next_entry(self, spine_pos, backwards=False, current_entry=None):
+    def next_entry(self, spine_pos, anchor_map, scroll_pos, backwards=False,
+            current_entry=None):
         current_entry = (self.currently_viewed_entry if current_entry is None
                 else current_entry)
         if current_entry is None: return
         items = reversed(self.all_items) if backwards else self.all_items
         found = False
+        top = scroll_pos[0]
         for item in items:
             if found:
+                start_pos = anchor_map.get(item.start_anchor, 0)
+                if backwards and item.is_being_viewed and start_pos >= top:
+                    # Going to this item will either not move the scroll
+                    # position or cause to to *increase* instead of descresing
+                    continue
                 if item.starts_at != spine_pos or item.start_anchor:
                     return item
             if item is current_entry:

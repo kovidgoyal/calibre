@@ -671,7 +671,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def goto_next_section(self):
         if hasattr(self, 'current_index'):
-            entry = self.toc_model.next_entry(self.current_index)
+            entry = self.toc_model.next_entry(self.current_index,
+                    self.view.document.read_anchor_positions(),
+                    self.view.scroll_pos)
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, False)
@@ -679,7 +681,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def goto_previous_section(self):
         if hasattr(self, 'current_index'):
-            entry = self.toc_model.next_entry(self.current_index, backwards=True)
+            entry = self.toc_model.next_entry(self.current_index,
+                    self.view.document.read_anchor_positions(),
+                    self.view.scroll_pos, backwards=True)
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, True)
@@ -699,6 +703,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 # Check that we actually progressed
                 if pgns[0] is self.toc_model.currently_viewed_entry:
                     entry = self.toc_model.next_entry(self.current_index,
+                            self.view.document.read_anchor_positions(),
+                            self.view.scroll_pos,
                             backwards=pgns[2], current_entry=pgns[1])
                     if entry is not None:
                         self.pending_goto_next_section = (
