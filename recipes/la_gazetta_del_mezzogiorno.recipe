@@ -1,8 +1,8 @@
 #!/usr/bin/env  python
 __license__     = 'GPL v3'
 __copyright__   = '2012, faber1971'
-__version__     = 'v1.00'
-__date__        = '15, May 2012'
+__version__     = 'v1.01'
+__date__        = '29, May 2012'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -21,6 +21,15 @@ class AdvancedUserRecipe1324038402(BasicNewsRecipe):
                            ,dict(name='td', attrs={'colspan':'5'})
                            ,dict(name='td', attrs={'width':'300'})
                            ]
+    def get_article_url(self, article):
+	link = BasicNewsRecipe.get_article_url(self, article)
+	if link.split('/')[-1]=="story01.htm":
+		link=link.split('/')[-2]
+		a=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'L'      , 'N'   , 'S'   ]
+		b=['0', '.', '/', '?', '-', '=', '&', '_', 'http://', '.com', 'www.']
+		for i in range(0,len(a)):
+			link=link.replace('0'+a[-i],b[-i])
+	return link
 
     remove_javascript = True
     conversion_options = {'linearize_tables': True}
