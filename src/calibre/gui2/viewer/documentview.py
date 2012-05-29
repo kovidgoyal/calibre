@@ -4,15 +4,14 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, glob
+import os, math, glob, json
 from base64 import b64encode
 from functools import partial
 
-from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt,
-                     QPainter, QPalette, QBrush, QFontDatabase, QDialog,
-                     QColor, QPoint, QImage, QRegion, QIcon,
-                     pyqtSignature, QAction, QMenu,
-                     pyqtSignal, QSwipeGesture, QApplication)
+from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
+        QPainter, QPalette, QBrush, QFontDatabase, QDialog, QColor, QPoint,
+        QImage, QRegion, QIcon, pyqtSignature, QAction, QMenu, QString,
+        pyqtSignal, QSwipeGesture, QApplication)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
@@ -60,7 +59,14 @@ class Document(QWebPage): # {{{
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
+        # Use this to pass arbitrary JSON encodable objects between python and
+        # javascript. In python get/set the value as: self.bridge_value. In
+        # javascript, get/set the value as: py_bridge.value
+        self.bridge_value = None
+
         self.debug_javascript = debug_javascript
+        self.anchor_positions = {}
+        self.index_anchors = set()
         self.current_language = None
         self.loaded_javascript = False
         self.js_loader = JavaScriptLoader(
@@ -125,6 +131,14 @@ class Document(QWebPage): # {{{
 
     def add_window_objects(self):
         self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
+        self.javascript('''
+                py_bridge.__defineGetter__('value', function() {
+                    return JSON.parse(this._pass_json_value);
+                });
+                py_bridge.__defineSetter__('value', function(val) {
+                    this._pass_json_value = JSON.stringify(val);
+                });
+        ''')
         self.loaded_javascript = False
 
     def load_javascript_libraries(self):
@@ -143,6 +157,16 @@ class Document(QWebPage): # {{{
         if self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
+    def _pass_json_value_getter(self):
+        val = json.dumps(self.bridge_value)
+        return QString(val)
+
+    def _pass_json_value_setter(self, value):
+        self.bridge_value = json.loads(unicode(value))
+
+    _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
+            fset=_pass_json_value_setter)
+
     def after_load(self):
         self.set_bottom_padding(0)
         self.fit_images()
@@ -153,6 +177,18 @@ class Document(QWebPage): # {{{
                         'document.body.style.marginRight').toString())
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
+        self.read_anchor_positions(use_cache=False)
+
+    def read_anchor_positions(self, use_cache=True):
+        self.bridge_value = tuple(self.index_anchors)
+        self.javascript(u'''
+            py_bridge.value = book_indexing.anchor_positions(py_bridge.value, %s);
+            '''%('true' if use_cache else 'false'))
+        self.anchor_positions = self.bridge_value
+        if not isinstance(self.anchor_positions, dict):
+            # Some weird javascript error happened
+            self.anchor_positions = {}
+        return self.anchor_positions
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
@@ -531,6 +567,13 @@ class DocumentView(QWebView): # {{{
 
         load_html(path, self, codec=path.encoding, mime_type=getattr(path,
             'mime_type', None), pre_load_callback=callback)
+        entries = set()
+        for ie in getattr(path, 'index_entries', []):
+            if ie.start_anchor:
+                entries.add(ie.start_anchor)
+            if ie.end_anchor:
+                entries.add(ie.end_anchor)
+        self.document.index_anchors = entries
         self.turn_off_internal_scrollbars()
 
     def initialize_scrollbar(self):
@@ -572,7 +615,8 @@ class DocumentView(QWebView): # {{{
             if spine_index > -1:
                 self.document.set_reference_prefix('%d.'%(spine_index+1))
             if scrolled:
-                self.manager.scrolled(self.document.scroll_fraction)
+                self.manager.scrolled(self.document.scroll_fraction,
+                        onload=True)
 
         self.turn_off_internal_scrollbars()
         if self.flipper.isVisible():
