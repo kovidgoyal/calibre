@@ -56,16 +56,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-05-18 15:30+0000\n"
-"PO-Revision-Date: 2012-05-09 20:13+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"POT-Creation-Date: 2012-05-25 05:57+0000\n"
+"PO-Revision-Date: 2012-05-24 14:12+0000\n"
+"Last-Translator: J.R. van Wijk <j.wyk91@upcmail.nl>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-19 05:03+0000\n"
-"X-Generator: Launchpad (build 15259)\n"
+"X-Launchpad-Export-Date: 2012-05-26 04:47+0000\n"
+"X-Generator: Launchpad (build 15288)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -126,8 +126,8 @@ msgstr "Doet helemaal niets"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/extz.py:23
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:41
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:48
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:109
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:66
@@ -168,7 +168,7 @@ msgstr "Doet helemaal niets"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:463
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer8/main.py:320
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer8/main.py:399
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer8/main.py:413
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:168
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:170
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:855
@@ -221,7 +221,7 @@ msgstr "Doet helemaal niets"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:813
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:409
@@ -1212,7 +1212,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1057
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1092
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:469
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1163
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1165
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:346
@@ -1671,6 +1671,9 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Kobo voorbeelden zijn inbegrepen op de Touch en sommige oudere versies. "
+"Standaard worden ze niet langer weergegeven, omdat er geen goede reden is om "
+"ze te tonen.  Schakel dit in als u de voorbeelden wilt zien of wilt wissen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
@@ -1687,7 +1690,7 @@ msgstr ""
 "of verwijderen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:392
 msgid "Not Implemented"
 msgstr "Niet geïmplementeerd"
 
@@ -3484,6 +3487,9 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de bovenmarge in pts. Standaard is %default. Bij instelling van minder "
+"dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk aan 1 "
+"inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3491,6 +3497,9 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de ondermarge in pts. Standaard is %default. Bij instelling van minder "
+"dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk aan 1 "
+"inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3498,6 +3507,9 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de linkermarge in pts. Standaard is %default. Bij instelling van minder "
+"dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk aan 1 "
+"inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3505,6 +3517,9 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Stel de rechtermarge in pts. Standaard is %default. Bij instelling van "
+"minder dan nul zal er geen marge worden ingesteld.  Let op: 72 pts is gelijk "
+"aan 1 inch (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -3594,6 +3609,9 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Zet gewone aanhalingstekens, streepjes en ellipsis (weglatingsteken) om in "
+"hun typografisch juiste equivalenten. Voor details: "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
@@ -3839,6 +3857,10 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Pad naar een bestand, met zoek-en-vervang-expressies. Het bestand moet "
+"afwisselend een zoek- en een vervanggedeelte bevatten (waarbij het "
+"vervangdeel blanco kan zijn). De reguliere expressie moet in Python RegEx "
+"syntax zijn en het bestand gecodeerd in UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:746
 msgid "Could not find an ebook inside the archive"
@@ -4592,7 +4614,7 @@ msgstr "Dit is geen MOBI bestand."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Dit bestand is afgesloten door DRM. Het kan niet worden gewijzigd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4600,6 +4622,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"Dit MOBI bestand bevat geen boek in KF8 opmaak. KF8 is de nieuwe opmaak van "
+"Amazon. Calibre kan alleen die MOBI bestanden wijzigen, die KF8 boeken "
+"bevatten. Oudere MOBI bestanden zonder KF8 zijn niet te wijzigen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4607,6 +4632,9 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"Dit MOBI bestand bevat zowel KF8 als oudere Mobi6 gegevens. Verandering hier "
+"in zal de Mobi6 gegevens verwijderen. Dit betekent dat het bestand niet meer "
+"bruikbaar is op oudere Kindels. Weet u het zeker"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -4870,7 +4898,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:49
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:305
 msgid "Author"
 msgstr "Auteur"
 
@@ -5326,21 +5354,21 @@ msgstr ""
 "verwerkt en volgens de instellingen voor automatisch samenvoegen aan uw "
 "calibre-database toegevoegd:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:351
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:353
 msgid "Failed to read metadata"
 msgstr "Lezen van metadata mislukt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:354
 msgid "Failed to read metadata from the following"
 msgstr "Kan metadata van de volgende boeken niet lezen:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:373
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:378
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:375
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:399
 msgid "Add to library"
 msgstr "Aan bibliotheek toevoegen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
@@ -5351,14 +5379,14 @@ msgstr "Aan bibliotheek toevoegen"
 msgid "No book selected"
 msgstr "Geen boek geselecteerd"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
 "De volgende boeken zijn virtueel en kunnen niet aan de calibre-bibliotheek "
 "toegevoegd worden:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:399
 msgid "No book files found"
 msgstr "Geen boekbestanden gevonden"
 
@@ -5555,7 +5583,7 @@ msgstr ""
 "Let erop dat de daadwerkelijke map van de bibliotheek hernoemd zal worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:302
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:726
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:728
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:308
 msgid "Already exists"
@@ -5638,7 +5666,7 @@ msgstr ""
 "nogmaals."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:397
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:733
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:735
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:314
@@ -5661,8 +5689,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1008
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:130
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:337
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:339
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:379
 msgid "Failed"
 msgstr "Mislukt"
 
@@ -5812,7 +5840,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:112
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:674
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:676
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:374
@@ -5900,7 +5928,7 @@ msgstr ""
 "Kies de formaten die <b>niet</b> verwijderd moeten worden.<p>NB: dit "
 "verwijdert nooit alle formaten uit een boek."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:191
 msgid ""
 "<b>All formats</b> for the selected books will be <b>deleted</b> from your "
 "library.<br>The book metadata will be kept. Are you sure?"
@@ -5909,44 +5937,44 @@ msgstr ""
 "worden uit uw bibliotheek.<br> De metadata ervan zal worden bewaard. Weet u "
 "het zeker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:211
 msgid "Cannot delete books"
 msgstr "Kan boeken niet verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:212
 msgid "No device is connected"
 msgstr "Geen apparaat verbonden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:222
 msgid "Main memory"
 msgstr "Hoofdgeheugen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
 msgid "Storage Card A"
 msgstr "Geheugenkaart A"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:529
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:538
 msgid "Storage Card B"
 msgstr "Geheugenkaart B"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:229
 msgid "No books to delete"
 msgstr "Er zijn geen boeken om te verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:230
 msgid "None of the selected books are on the device"
 msgstr "Geen van de geselecteerde boeken bevindt zich op het apparaat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:246
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:338
 msgid "Deleting books from device."
 msgstr "Boeken worden van het apparaat verwijderd."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:292
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:293
 msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
@@ -5954,7 +5982,7 @@ msgstr ""
 "Sommige geselecteerde boeken staan op het verbonden apparaat. <b>Waarvan</b> "
 "wilt u de geselecteerde bestanden verwijderen?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:304
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:305
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
@@ -5963,7 +5991,7 @@ msgstr ""
 "bestanden zullen uit de calibre-bibliotheek verwijderd worden. Weet u het "
 "zeker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:330
 msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
@@ -6706,6 +6734,10 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Het boek moet in ePub, HTMLZ of AZW3 indelingzijn opgemaakt om ze te kunnen "
+"wijzigen.\n"
+"\n"
+"Zet het boek eerst in één van die indelingen om."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7043,7 +7075,7 @@ msgid "Added %(num)d book(s) automatically from %(src)s"
 msgstr "%(num)d boek(en) automatisch toevoegen uit %(src)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:31
 msgid "Donate"
 msgstr "Doneren"
@@ -8443,7 +8475,7 @@ msgstr "&Links:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "Geen marge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -10987,66 +11019,66 @@ msgstr "&Wachtwoord:"
 msgid "&Show password"
 msgstr "Wachtwoord &tonen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:124
 msgid "Restart required"
 msgstr "Herstart vereist"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:125
 msgid "You must restart Calibre before using this plugin!"
 msgstr "U moet Calibre herstaren voor het gebruiken van deze plugin!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:166
 #, python-format
 msgid "Version History for %s"
 msgstr "Versie geschiedenis voor %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
 msgid "All"
 msgstr "Alle"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
 msgid "Installed"
 msgstr "Geïnstalleerd"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:399
 msgid "Not installed"
 msgstr "Niet geïnstalleerd"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:186
 msgid "Update available"
 msgstr "Update beschikbaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
 msgid "Plugin Name"
 msgstr "Naam plugin"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:68
 msgid "Status"
 msgstr "Status"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:305
 msgid "Available"
 msgstr "Beschikbaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:305
 msgid "Calibre"
 msgstr "Calibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:305
 msgid "Released"
 msgstr "Uitgegeven"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:328
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:330
 msgid "PayPal"
 msgstr "Paypal"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:354
 msgid ""
 "This plugin is FREE but you can reward the developer for their effort\n"
 "by donating to them via PayPal.\n"
@@ -11058,159 +11090,159 @@ msgstr ""
 "\n"
 "Klik rechts en kies Doneren om te doneren: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:387
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:389
 msgid "Platform unavailable"
 msgstr "Geen platform beschikbaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:389
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:391
 msgid "Calibre upgrade required"
 msgstr "Calibre upgrade nodig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "Plugin deprecated"
 msgstr "Plugin verouderd"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:396
 msgid "New version available"
 msgstr "Nieuwe versie beschikbaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:396
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:398
 msgid "Latest version installed"
 msgstr "Nieuwste versie geinstalleerd"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:429
 msgid "This plugin has been deprecated and should be uninstalled"
 msgstr "Deze plugin is verouderd er moet worden gedeïnstalleerd"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:436
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:440
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:443
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:430
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:434
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:438
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:445
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:447
 msgid "Right-click to see more options"
 msgstr "Rechts klikken om meer opties te zien"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:430
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
 #, python-format
 msgid "This plugin can only be installed on: %s"
 msgstr "Deze plugin kan alleen geïnstalleerd worden op: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:434
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:436
 #, python-format
 msgid "You must upgrade to at least Calibre %s before installing this plugin"
 msgstr ""
 "U moet minimaal upgraden naar Calibre %s alvorens deze plugin te installeren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:439
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:441
 msgid "You can install this plugin"
 msgstr "U kunt deze plug-in installeren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
 msgid "A new version of this plugin is available"
 msgstr "Een nieuwe versie van deze plugin is beschikbaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:446
 msgid "This plugin is installed and up-to-date"
 msgstr "Deze plugin is geïnstalleerd en up-to-date"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:475
 msgid "Update Check Failed"
 msgstr "Controle op nieuwe versie mislukt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:476
 msgid "Unable to reach the MobileRead plugins forum index page."
 msgstr "Forum indexpagina onbereikbaar."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:483
 msgid "User plugins"
 msgstr "Gebruikers plugins"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:488
 msgid "User Plugins"
 msgstr "Gebruikers plugins"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:496
 msgid "Filter list of plugins"
 msgstr "Lijst van plugins filteren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:514
 msgid "Description"
 msgstr "Omschrijving"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:537
 msgid "&Install"
 msgstr "&Installeren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:538
 msgid "Install the selected plugin"
 msgstr "Geselecteerde plugin installeren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:529
 msgid "&Customize plugin "
 msgstr "Plug-in &aanpassen "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:530
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:582
 msgid "Customize the options for this plugin"
 msgstr "Opties voor deze plug-in aanpassen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:542
 msgid "Version &History"
 msgstr "Versie gesc&hiedenis"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:543
 msgid "Show history of changes to this plugin"
 msgstr "Toon geschiedenis met aanpassingen voor deze plugin"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:547
 msgid "Plugin &Forum Thread"
 msgstr "Plug-in op &forum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:556
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "Enable/&Disable plugin"
 msgstr "Activeer/&Deactiveer plug-in"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:557
 msgid "Enable or disable this plugin"
 msgstr "Plugin in- of uitschakelen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:116
 msgid "&Remove plugin"
 msgstr "Plug-in &verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:562
 msgid "Uninstall the selected plugin"
 msgstr "Geselecteerde plugin verwijderen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:569
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:571
 msgid "Donate to developer"
 msgstr "Geef een donatie aan de ontwikkelaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:570
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:572
 msgid "Donate to the developer of this plugin"
 msgstr "Geef de ontwikkelaar van deze plugin een donatie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:581
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:115
 msgid "&Customize plugin"
 msgstr "Plug-in &aanpassen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:677
 #, python-format
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
 msgstr "Weet u zeker dat u de <b>%s</b> plugin wilt verwijderen?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:689
 #, python-format
 msgid "Install %s"
 msgstr "Installeer %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:688
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:690
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:299
 msgid ""
 "Installing plugins is a <b>security risk</b>. Plugins can contain a "
@@ -11221,37 +11253,37 @@ msgstr ""
 "kunnen virussen/malware bevatten. Installeer enkel plug-ins uit een "
 "vertrouwde bron. Weet u zeker dat u wilt doorgaan?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:705
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:707
 #, python-format
 msgid "Locating zip file for %(name)s: %(link)s"
 msgstr "Locatie zip-bestand voor %(name)s: %(link)s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:709
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:746
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:711
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:748
 msgid "Install Plugin Failed"
 msgstr "Installatie plugin"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:710
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:712
 #, python-format
 msgid "Unable to locate a plugin zip file for <b>%s</b>"
 msgstr "Lokaliseren van een plugin zip-bestand voor <b>%s</b> onmogelijk"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:715
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:717
 #, python-format
 msgid "Downloading plugin zip attachment: %s"
 msgstr "Plugin zip-bijlage downloaden: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:720
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:722
 #, python-format
 msgid "Installing plugin: %s"
 msgstr "Plugin installeren: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:732
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:734
 #, python-format
 msgid "Plugin installed: %s"
 msgstr "Plugin geïnstalleerd: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:734
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:736
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:315
 msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
@@ -11260,7 +11292,7 @@ msgstr ""
 "Plug-in <b>{0}</b> succesvol geïnstalleerd onder <b>{1} plug-ins</b>. "
 "Misschien moet u calibre herstarten voordat de plug-in werkt."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:747
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:749
 msgid ""
 "A problem occurred while installing this plugin. This plugin will now be "
 "uninstalled. Please post the error message in details below into the forum "
@@ -11270,32 +11302,32 @@ msgstr ""
 "plugin zal nu worden verwijderd. Plaats de foutmelding uit de details "
 "hieronder a.u.b. bij het forumonderwerp voor deze plugin en herstart Calibre."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:772
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:774
 msgid "Version history missing"
 msgstr "Versiegeschiedenis niet beschikbaar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:773
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:775
 #, python-format
 msgid "Unable to find the version history for %s"
 msgstr "Versiegeschiedenis voor %s kan niet worden gevonden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:780
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:782
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:350
 msgid "Plugin not customizable"
 msgstr "Plug-in kan niet aangepast worden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:781
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:783
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:351
 #, python-format
 msgid "Plugin: %s does not need customization"
 msgstr "Plug-in %s hoeft niet aangepast te worden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:785
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:787
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:357
 msgid "Must restart"
 msgstr "Moet herstarten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:786
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:788
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:358
 #, python-format
 msgid ""
@@ -11303,12 +11335,12 @@ msgid ""
 msgstr ""
 "U moet calibre herstarten voordat u plug-in <b>%s</b> kunt configureren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:794
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:796
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:339
 msgid "Plugin cannot be disabled"
 msgstr "Plug-in kan niet worden uitgeschakeld"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:795
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:797
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:340
 #, python-format
 msgid "The plugin: %s cannot be disabled"
@@ -11479,7 +11511,7 @@ msgstr "Verander de naam van de zoekopdracht naar dat wat in het veld staat"
 msgid "Change the contents of the saved search"
 msgstr "Verander de inhoud van de zoekopdracht"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:43
 msgid ""
 "                Download this periodical every week on the specified days "
 "after\n"
@@ -11495,11 +11527,11 @@ msgstr ""
 "                dit elke maandag na 13u00 gedownload.\n"
 "            "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:64
 msgid "&Download after:"
 msgstr "&Download na:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:94
 msgid ""
 "                Download this periodical every month, on the specified "
 "days.\n"
@@ -11518,19 +11550,19 @@ msgstr ""
 "                dit de 1e en 15e van de maand na 13u00 gedownload.\n"
 "            "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:106
 msgid "&Days of the month:"
 msgstr "&Dagen van de maand:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:108
 msgid "Comma separated list of days of the month. For example: 1, 15"
 msgstr "Komma-gescheiden lijst van dagen van de maand. Bijvoorbeeld: 1, 15"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:112
 msgid "Download &after:"
 msgstr "Download n&a:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:145
 msgid ""
 "                Download this periodical every x days. For example, if you\n"
 "                choose 30 days, the periodical will be downloaded every 30\n"
@@ -11547,19 +11579,19 @@ msgstr ""
 "                het tijdschrift meerdere keren per dag te downloaden.\n"
 "            "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "&Download every:"
 msgstr "&Download elke:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "every hour"
 msgstr "elk uur"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:160
 msgid "days"
 msgstr "dagen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:164
 msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
 msgstr ""
@@ -11567,82 +11599,82 @@ msgstr ""
 "handmatig in te voeren."
 
 #. NOTE: Number of news sources
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:200
 #, python-format
 msgid "%s news sources"
 msgstr "%s nieuwsbronnen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:220
 msgid "&Download now"
 msgstr "Nu &downloaden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:314
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:317
 msgid "Need username and password"
 msgstr "Gebruikersnaam en wachtwoord zijn vereist"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:315
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
 msgid "You must provide a username and/or password to use this news source."
 msgstr ""
 "Een gebruikersnaam en/of wachtwoord zijn vereist om deze nieuwsbron te "
 "benaderen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:357
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:360
 msgid "Account"
 msgstr "Account"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:361
 msgid "(optional)"
 msgstr "(optioneel)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:359
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:362
 msgid "(required)"
 msgstr "(verplicht)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:376
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "Created by: "
 msgstr "Gemaakt door: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:383
 #, python-format
 msgid "Download %s now"
 msgstr "Nu %s downloaden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:384
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:387
 msgid "Last downloaded: never"
 msgstr "Laatst gedownload: nooit"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:388
 msgid "never"
 msgstr "nooit"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:394
 #, python-format
 msgid "%(days)d days, %(hours)d hours and %(mins)d minutes ago"
 msgstr "%(days)d dagen, %(hours)d uren en %(mins)d minuten geleden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:407
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:410
 msgid "Last downloaded:"
 msgstr "Laatste download:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:431
 msgid "Cannot download news as no internet connection is active"
 msgstr ""
 "Kan geen nieuws downloaden, omdat er geen actieve internetverbinding is"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:431
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:434
 msgid "No internet connection"
 msgstr "Geen Internetverbinding"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:442
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:445
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Schedule news download"
 msgstr "Plan nieuwsdownload"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:445
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:448
 msgid "Add a custom news source"
 msgstr "Een aangepaste nieuwsbron toevoegen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:450
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 msgid "Download all scheduled news sources"
 msgstr "Download alle geplande nieuwsbronnen"
 
@@ -11940,7 +11972,7 @@ msgstr "Tit&el/Auteur/Reeks …"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:38
 #, python-format
 msgid "There are %(count)d book(s) with the %(fmt)s format"
-msgstr ""
+msgstr "Er is/zijn %(count)d boek(en) met de %(fmt)s opmaak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:54
 msgid "Choose formats"
@@ -12844,13 +12876,13 @@ msgstr "Zoek naar een snelkoppeling op naam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:247
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:413
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:337
 msgid "No matches"
 msgstr "Geen resultaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:647
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:414
 #, python-format
 msgid "Could not find any shortcuts matching %s"
 msgstr "Kon geen sneltoetsen vinden overeenkomstig %s"
@@ -13088,12 +13120,12 @@ msgid "LRF Viewer toolbar"
 msgstr "LRF-leesvenster werkbalk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:524
 msgid "Next Page"
 msgstr "Volgende pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:525
 msgid "Previous Page"
 msgstr "Vorige pagina"
 
@@ -14332,7 +14364,7 @@ msgstr "U kunt een voorwaarde uitschakelen door alle velden leeg te maken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:327
 msgid "Sample Text"
-msgstr ""
+msgstr "Voorbeeldtekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:369
 msgid "Invalid condition"
@@ -15422,7 +15454,7 @@ msgstr "Max. wacht&tijd na het vinden van het eerste resultaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:209
 msgid " secs"
 msgstr " seconden"
 
@@ -16531,15 +16563,15 @@ msgstr "Geselecteerde actie omhoog verplaatsen"
 msgid "Move selected action down"
 msgstr "Geselecteerde actie omlaag verplaatsen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:122
 msgid "This tweak has it default value"
 msgstr "Deze tweak heeft zijn standaardwaarde"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:124
 msgid "This tweak has been customized"
 msgstr "Deze tweak is aangepast"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:293
 msgid ""
 "Add/edit tweaks for any custom plugins you have installed. Documentation for "
 "these tweaks should be available on the website from where you downloaded "
@@ -16548,22 +16580,22 @@ msgstr ""
 "Maak/bewerk aanpassingen voor plug-ins die u geïnstalleerd heeft. "
 "Documentatie daarvoor kunt u op de website van de plug-ins vinden."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:326
 msgid "Search for tweak"
 msgstr "Zoek een aanpassing"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:338
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:380
 msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr "Syntaxfout in uw tweak. Klik op ‘Toon details’ voor meer informatie."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:393
 msgid "Invalid tweaks"
 msgstr "Ongeldige aanpassingen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:394
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
@@ -17747,69 +17779,69 @@ msgstr "Exporteren"
 msgid "Import"
 msgstr "Importeren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:188
 msgid "Configure Ebook viewer"
 msgstr "E-book leesvenster instellen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:189
 msgid "&Font options"
 msgstr "&Lettertype-opties"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:190
 msgid "Se&rif family:"
 msgstr "Lettertype met sch&reef:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:188
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "&Sans family:"
 msgstr "&Schreefloos lettertype:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "&Monospace family:"
 msgstr "Niet-proportionele familie (&Monospace):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "&Default font size:"
 msgstr "Stan&daard lettergrootte:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:194
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:212
 msgid " px"
 msgstr " px"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
 msgid "Monospace &font size:"
 msgstr "&Lettergrootte niet-proportionele letters:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:194
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "S&tandard font:"
 msgstr "S&tandaardlettertype:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Serif"
 msgstr "Schreef"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Sans-serif"
 msgstr "Schreefloos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Monospace"
 msgstr "Niet-proportioneel"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:201
 msgid "Remember last used &window size and layout"
 msgstr "Onthoud de laatste afmetingen en lay-out van het venster"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Remember the &current page when quitting"
 msgstr "&Huidige pagina bij afsluiten onthouden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "H&yphenate (break line in the middle of large words)"
 msgstr "H&yphenate (regelafbreking in het midden van lange woorden)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
@@ -17817,28 +17849,28 @@ msgstr ""
 "De standaardtaal voor de afbreekregels. Deze zal gebruikt worden als het "
 "boek geen taal specificeert."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "Default &language for hyphenation:"
 msgstr "Standaardtaa&l voor woordafbreken:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:206
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
 "He&rschaal afbeeldingen groter dan het leesvenster (vereist herstart)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "Page flip &duration:"
 msgstr "&Duur omslaan pagina:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:208
 msgid "disabled"
 msgstr "uitgeschakeld"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Mouse &wheel flips pages"
 msgstr "Pagina met muis&wiel omdraaien"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:51
 msgid ""
 "Set the maximum width that the book's text and pictures will take when in "
@@ -17849,15 +17881,15 @@ msgstr ""
 "volledige schermweergave. Hiermee kun je een boek lezen zonder dat de inhoud "
 "te breed wordt."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "Maximum text width in &fullscreen:"
 msgstr "Maximale tekstbreedte in volledig scherm:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "Font &magnification step size:"
 msgstr "Lettertype &vergroting stap grootte:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:215
 msgid ""
 "The amount by which the font size is increased/decreased\n"
 " when you click the font size larger/smaller buttons"
@@ -17865,23 +17897,27 @@ msgstr ""
 "De vergroting/verkleining van de lettergrootte als u op\n"
 " de knoppen drukt om tekst te vergroten of te verkleinen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:217
 msgid "%"
 msgstr "%"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:218
+msgid "Line &scrolling stops at page breaks"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:219
 msgid "&General"
 msgstr "Al&gemeen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:220
 msgid "Double click to change a keyboard shortcut"
 msgstr "Dubbelklik om een sneltoetscombinatie te veranderen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:221
 msgid "&Keyboard shortcuts"
 msgstr "Sneltoetsen/&knoppen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:222
 msgid ""
 "<p>A CSS stylesheet that can be used to control the look and feel of books. "
 "For examples, click <a "
@@ -17892,7 +17928,7 @@ msgstr ""
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">hier</a> "
 "(Engelstalig)."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:223
 msgid "User &Stylesheet"
 msgstr "&Stylesheet gebuiker"
 
@@ -17910,7 +17946,7 @@ msgid "Remember last used window size"
 msgstr "De laatstgebruikte venstergrootte onthouden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:111
 msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
@@ -17940,13 +17976,17 @@ msgid "Have the mouse wheel turn pages"
 msgstr "Pagina's omslaan met muiswiel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:64
+msgid "Prevent the up and down arrow keys from scrolling past page breaks"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
 "Tijd, in seconden, voor animatie bij het omslaan van een pagina. Standaard: "
 "een halve seconde."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:70
 msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
@@ -17954,39 +17994,39 @@ msgstr ""
 "De vergroting/verkleining waarmee de lettergrootte moet veranderen als u op "
 "de knop klikt. Vul een waarde in tussen 0 en 1."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:74
 msgid "Font options"
 msgstr "Lettertype opties"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:76
 msgid "The serif font family"
 msgstr "Lettertypefamilie voor letters met schreef (serif)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:78
 msgid "The sans-serif font family"
 msgstr "Lettertypefamilie voor schreefloze letters (sans-serif)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:80
 msgid "The monospaced font family"
 msgstr "Lettertypefamilie voor letters met vaste breedte (monospace)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:81
 msgid "The standard font size in px"
 msgstr "De standaard lettergrootte in px"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:82
 msgid "The monospaced font size in px"
 msgstr "De niet-proportionele lettergrootte in px"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:83
 msgid "The standard font type"
 msgstr "Het standaardlettertype"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:140
 msgid "Still editing"
 msgstr "Nog aan het bewerken"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:141
 msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
@@ -17994,40 +18034,40 @@ msgstr ""
 "U bent halverwege de definitie van een sneltoetscombinatie. Voltooi deze "
 "eerst door buiten het definitievakje te klikken."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:493
 msgid "&Lookup in dictionary"
 msgstr "Woordenboek raadp&legen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:490
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:498
 msgid "&Search for next occurrence"
 msgstr "&Zoek naar volgende voorkomen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:131
 msgid "Go to..."
 msgstr "Ga naar…"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:515
 msgid "Next Section"
 msgstr "Volgende paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:516
 msgid "Previous Section"
 msgstr "Vorige paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:510
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:518
 msgid "Document Start"
 msgstr "Begin van document"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:519
 msgid "Document End"
 msgstr "Einde van document"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:521
 msgid "Section Start"
 msgstr "Begin van paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:522
 msgid "Section End"
 msgstr "Einde van paragraaf"
 
@@ -21427,7 +21467,7 @@ msgstr "Engels"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "Engels (Argentijns)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -21698,7 +21738,7 @@ msgstr "Onbekende nieuwsbron"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:672
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "Het ophalen van %s is mislukt."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:768
 #, python-format
@@ -23061,6 +23101,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:508
 msgid "What format to default to when using the Tweak feature"
 msgstr ""
+"Welke indeling moet standaard worden bij het gebruik van de Tweak functie"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:509
 msgid ""
