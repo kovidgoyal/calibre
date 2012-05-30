@@ -75,7 +75,7 @@ class TagsView(QTreeView): # {{{
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
-        self.tag_match = None
+        self.alter_tb = None
         self.disable_recounting = False
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
@@ -139,27 +139,25 @@ class TagsView(QTreeView): # {{{
     def reread_collapse_parameters(self):
         self._model.reread_collapse_model(self.get_state()[1])
 
-    def set_database(self, db, tag_match, sort_by):
+    def set_database(self, db, alter_tb):
         self._model.set_database(db)
-
+        self.alter_tb = alter_tb
         self.pane_is_visible = True # because TagsModel.set_database did a recount
-        self.sort_by = sort_by
-        self.tag_match = tag_match
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        pop = config['sort_tags_by']
-        self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        pop = self.db.CATEGORY_SORTS.index(config['sort_tags_by'])
+        self.alter_tb.sort_menu.actions()[pop].setChecked(True)
         try:
             match_pop = self.db.MATCH_TYPE.index(config['match_tags_type'])
         except ValueError:
             match_pop = 0
-        self.tag_match.setCurrentIndex(match_pop)
+        self.alter_tb.match_menu.actions()[match_pop].setChecked(True)
         if not self.made_connections:
             self.clicked.connect(self.toggle)
             self.customContextMenuRequested.connect(self.show_context_menu)
             self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
-            self.sort_by.currentIndexChanged.connect(self.sort_changed)
-            self.tag_match.currentIndexChanged.connect(self.match_changed)
+            self.alter_tb.sort_menu.triggered.connect(self.sort_changed)
+            self.alter_tb.match_menu.triggered.connect(self.match_changed)
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
@@ -179,15 +177,21 @@ class TagsView(QTreeView): # {{{
 
     @property
     def match_all(self):
-        return self.tag_match and self.tag_match.currentIndex() > 0
+        return (self.alter_tb and
+                self.alter_tb.match_menu.actions()[1].isChecked())
 
-    def sort_changed(self, pop):
-        config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
-        self.recount()
+    def sort_changed(self, action):
+        for i, ac in enumerate(self.alter_tb.sort_menu.actions()):
+            if ac is action:
+                config.set('sort_tags_by', self.db.CATEGORY_SORTS[i])
+                self.recount()
+                break
 
-    def match_changed(self, pop):
+    def match_changed(self, action):
         try:
-            config.set('match_tags_type', self.db.MATCH_TYPE[pop])
+            for i, ac in enumerate(self.alter_tb.match_menu.actions()):
+                if ac is action:
+                    config.set('match_tags_type', self.db.MATCH_TYPE[i])
         except:
             pass
 

@@ -10,8 +10,8 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import (Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QShortcut,
-        QKeySequence, QToolButton, QString, QLabel, QFrame, QTimer, QComboBox,
-        QMenu, QPushButton)
+        QKeySequence, QToolButton, QString, QLabel, QFrame, QTimer,
+        QMenu, QPushButton, QActionGroup)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import HistoryLineEdit
@@ -27,7 +27,7 @@ class TagBrowserMixin(object): # {{{
 
     def __init__(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
-        self.tags_view.set_database(db, self.tag_match, self.sort_by)
+        self.tags_view.set_database(db, self.alter_tb)
         self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tags_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.edit_user_category.connect(self.do_edit_user_categories)
@@ -59,9 +59,9 @@ class TagBrowserMixin(object): # {{{
              (_('Manage Saved Searches'),
                         self.do_saved_search_edit, (None,), 'search')
             ):
-            self.manage_items_button.menu().addAction(
-                                        QIcon(I(category_icon_map[cat_name])),
-                                        text, partial(func, *args))
+            m = self.alter_tb.manage_menu
+            m.addAction( QIcon(I(category_icon_map[cat_name])), text,
+                    partial(func, *args))
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -387,37 +387,50 @@ class TagBrowserWidget(QWidget): # {{{
         self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event,
                                                    type=Qt.QueuedConnection)
 
-        parent.sort_by = QComboBox(parent)
-        # Must be in the same order as db2.CATEGORY_SORTS
-        for x in (_('Sort by name'), _('Sort by popularity'),
-                  _('Sort by average rating')):
-            parent.sort_by.addItem(x)
-        parent.sort_by.setToolTip(
-                _('Set the sort order for entries in the Tag Browser'))
-        parent.sort_by.setStatusTip(parent.sort_by.toolTip())
-        parent.sort_by.setCurrentIndex(0)
-        self._layout.addWidget(parent.sort_by)
-
-        # Must be in the same order as db2.MATCH_TYPE
-        parent.tag_match = QComboBox(parent)
-        for x in (_('Match any'), _('Match all')):
-            parent.tag_match.addItem(x)
-        parent.tag_match.setCurrentIndex(0)
-        self._layout.addWidget(parent.tag_match)
-        parent.tag_match.setToolTip(
-                _('When selecting multiple entries in the Tag Browser '
-                    'match any or all of them'))
-        parent.tag_match.setStatusTip(parent.tag_match.toolTip())
-
-
-        l = parent.manage_items_button = QPushButton(self)
-        l.setStyleSheet('QPushButton {text-align: left; }')
-        l.setText(_('Manage authors, tags, etc'))
-        l.setToolTip(_('All of these category_managers are available by right-clicking '
-                       'on items in the tag browser above'))
+        parent.alter_tb = l = QPushButton(parent)
+        l.setText(_('&Alter Tag Browser'))
+        l.setIcon(QIcon(I('tags.png')))
         l.m = QMenu()
         l.setMenu(l.m)
         self._layout.addWidget(l)
+
+        sb = l.m.addAction(_('Sort by'))
+        sb.m = l.sort_menu = QMenu(l.m)
+        sb.setMenu(sb.m)
+        sb.bg = QActionGroup(sb)
+
+        # Must be in the same order as db2.CATEGORY_SORTS
+        for i, x in enumerate((_('Sort by name'), _('Sort by popularity'),
+                  _('Sort by average rating'))):
+            a = sb.m.addAction(x)
+            sb.bg.addAction(a)
+            a.setCheckable(True)
+            if i == 0: a.setChecked(True)
+        sb.setToolTip(
+                _('Set the sort order for entries in the Tag Browser'))
+        sb.setStatusTip(sb.toolTip())
+
+        ma = l.m.addAction(_('Match type'))
+        ma.m = l.match_menu = QMenu(l.m)
+        ma.setMenu(ma.m)
+        ma.ag = QActionGroup(ma)
+
+        # Must be in the same order as db2.MATCH_TYPE
+        for i, x in enumerate((_('Match any'), _('Match all'))):
+            a = ma.m.addAction(x)
+            ma.ag.addAction(a)
+            a.setCheckable(True)
+            if i == 0: a.setChecked(True)
+        ma.setToolTip(
+                _('When selecting multiple entries in the Tag Browser '
+                    'match any or all of them'))
+        ma.setStatusTip(ma.toolTip())
+
+        mt = l.m.addAction(_('Manage authors, tags, etc'))
+        mt.setToolTip(_('All of these category_managers are available by right-clicking '
+                       'on items in the tag browser above'))
+        mt.m = l.manage_menu = QMenu(l.m)
+        mt.setMenu(mt.m)
 
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
