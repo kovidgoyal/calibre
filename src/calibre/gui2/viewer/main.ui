@@ -201,7 +201,7 @@
   <action name="action_table_of_contents">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
+     <normaloff>:/images/highlight_only_on.png</normaloff>:/images/highlight_only_on.png</iconset>
    </property>
    <property name="text">
     <string>Table of Contents</string>
