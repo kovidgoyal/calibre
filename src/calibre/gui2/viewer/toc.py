@@ -21,6 +21,7 @@ class TOCView(QTreeView):
                 QTreeView {
                     background-color: palette(window);
                     color: palette(text);
+                    border: none;
                 }
                 QTreeView::item {
                     border: none;
@@ -38,6 +39,8 @@ class TOCView(QTreeView):
                                                     stop: 0.6 #434343, stop:1 #656565);
                     color: white;
                     padding-left: 4px;
+                    padding-top: 0.5ex;
+                    padding-bottom: 0.5ex;
                     border: 1px solid #6c6c6c;
                     font-weight: bold;
                 }
