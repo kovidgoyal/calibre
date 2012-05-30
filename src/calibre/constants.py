@@ -82,7 +82,6 @@ class Plugins(collections.Mapping):
                 'podofo',
                 'cPalmdoc',
                 'fontconfig',
-                'pdfreflow',
                 'progress_indicator',
                 'chmlib',
                 'chm_extra',

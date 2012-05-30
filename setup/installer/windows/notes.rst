@@ -293,9 +293,7 @@ In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable qt4,
 
 NOTE: poppler must be built as a static library, unless you build the qt4 bindings
 
-Now do the same for the pdftohtml project
-
-cp poppler/*.h ~/sw/include/poppler && cp goo/*.h ~/sw/include/poppler/goo && cp splash/*.h ~/sw/include/poppler/splash && cp build/Release/poppler.lib ../../lib/ && cp build/utils/Release/pdftohtml.exe ../../bin/
+cp build/utils/Release/*.exe ../../bin/
 
 
 podofo

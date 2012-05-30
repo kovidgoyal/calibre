@@ -22,6 +22,8 @@ QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 
 MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
+                '/usr/bin/pdfinfo',
+                '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',
                 '/usr/lib/liblzma.so.0',
