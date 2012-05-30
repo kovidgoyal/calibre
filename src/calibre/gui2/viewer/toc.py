@@ -17,7 +17,6 @@ class TOCView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
         self.setStyleSheet('''
                 QTreeView {
                     background-color: palette(window);
