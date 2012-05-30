@@ -13,7 +13,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.date import isoformat, format_date
+from calibre.utils.date import isoformat, format_date, parse_only_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
 
@@ -798,4 +798,37 @@ class Metadata(object):
         return bool(self.title or self.author or self.comments or self.tags)
 
     # }}}
+
+def field_from_string(field, raw, field_metadata):
+    ''' Parse the string raw to return an object that is suitable for calling
+    set() on a Metadata object. '''
+    dt = field_metadata['datatype']
+    val = object
+    if dt in {'int', 'float'}:
+        val = int(raw) if dt == 'int' else float(raw)
+    elif dt == 'rating':
+        val = float(raw) * 2
+    elif dt == 'datetime':
+        val = parse_only_date(raw)
+    elif dt == 'bool':
+        if raw.lower() in {'true', 'yes', 'y'}:
+            val = True
+        elif raw.lower() in {'false', 'no', 'n'}:
+            val = False
+        else:
+            raise ValueError('Unknown value for %s: %s'%(field, raw))
+    elif dt == 'text':
+        ism = field_metadata['is_multiple']
+        if ism:
+            val = [x.strip() for x in raw.split(ism['ui_to_list'])]
+            if field == 'identifiers':
+                val = {x.partition(':')[0]:x.partition(':')[-1] for x in val}
+            elif field == 'languages':
+                from calibre.utils.localization import canonicalize_lang
+                val = [canonicalize_lang(x) for x in val]
+                val = [x for x in val if x]
+    if val is object:
+        val = raw
+    return val
+
 
