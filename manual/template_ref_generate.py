@@ -55,7 +55,7 @@ The python implementation of the template functions is passed in a Metadata obje
 
     The set of standard metadata fields.
 
-.. literalinclude:: ../ebooks/metadata/book/__init__.py
+.. literalinclude:: ../src/calibre/ebooks/metadata/book/__init__.py
    :lines: 7-
 '''
 

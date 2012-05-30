@@ -66,7 +66,7 @@ class Manual(Command):
 
     def run(self, opts):
         cwd = os.path.abspath(os.getcwd())
-        os.chdir(os.path.join(self.SRC, 'calibre', 'manual'))
+        os.chdir(os.path.join(self.SRC, '..', 'manual'))
         try:
             for d in ('.build', 'cli'):
                 if os.path.exists(d):

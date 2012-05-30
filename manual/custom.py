@@ -5,9 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, re, textwrap
 
-sys.path.insert(0, os.path.abspath('../../'))
-sys.extensions_location = '../plugins'
-sys.resources_location  = '../../../resources'
+sys.path.insert(0, os.path.abspath('../src'))
+sys.extensions_location = '../src/calibre/plugins'
+sys.resources_location  = '../resources'
 
 from sphinx.util.console import bold
 

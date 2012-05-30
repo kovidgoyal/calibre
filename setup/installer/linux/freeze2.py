@@ -189,7 +189,7 @@ class LinuxFreeze(Command):
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
                     ignore=ignore_in_lib)
-        for x in ('manual', 'trac'):
+        for x in ('trac',):
             x = self.j(dest, 'calibre', x)
             if os.path.exists(x):
                 shutil.rmtree(x)
