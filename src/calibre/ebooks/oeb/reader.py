@@ -363,13 +363,24 @@ class OEBReader(object):
             title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
             title = COLLAPSE_RE.sub(' ', title.strip())
             href = xpath(child, 'ncx:content/@src')
-            if not title or not href:
+            if not title:
+                self._toc_from_navpoint(item, toc, child)
                 continue
+            if not href:
+                gc = xpath(child, 'ncx:navPoint')
+                if not gc:
+                    # This node is useless
+                    continue
+                href = 'missing.html'
+
             href = item.abshref(urlnormalize(href[0]))
             path, _ = urldefrag(href)
             if path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
-                continue
+                gc = xpath(child, 'ncx:navPoint')
+                if not gc:
+                    # This node is useless
+                    continue
             id = child.get('id')
             klass = child.get('class', 'chapter')
 
