@@ -18,14 +18,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-04-21 14:42+0000\n"
-"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2012-05-29 09:12+0000\n"
+"Last-Translator: Moritz Höwer <moritzhoewermail@gmx.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-22 04:43+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-05-30 05:20+0000\n"
+"X-Generator: Launchpad (build 15316)\n"
 "Language: de\n"
 
 #. name for aaa
@@ -46,7 +46,7 @@ msgstr "Amal"
 
 #. name for aae
 msgid "Albanian; Arbëreshë"
-msgstr ""
+msgstr "Albanisch; Arbëreshë"
 
 #. name for aaf
 msgid "Aranadan"
@@ -82,7 +82,7 @@ msgstr "Anambé"
 
 #. name for aao
 msgid "Arabic; Algerian Saharan"
-msgstr ""
+msgstr "Arabisch; algerische Sahara"
 
 #. name for aap
 msgid "Arára; Pará"
@@ -98,7 +98,7 @@ msgstr "Afar"
 
 #. name for aas
 msgid "Aasáx"
-msgstr ""
+msgstr "Aasáx"
 
 #. name for aat
 msgid "Albanian; Arvanitika"
@@ -106,7 +106,7 @@ msgstr ""
 
 #. name for aau
 msgid "Abau"
-msgstr ""
+msgstr "Abau"
 
 #. name for aaw
 msgid "Solong"

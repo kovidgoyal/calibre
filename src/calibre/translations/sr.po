@@ -2,22 +2,23 @@
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the calibre package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-#
+# Ozzii <ozzii.translate@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-05-28 13:49+0000\n"
-"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
-"Language-Team: Serbian <sr@li.org>\n"
+"PO-Revision-Date: 2012-05-29 20:18+0000\n"
+"Last-Translator: Ozzii <Unknown>\n"
+"Language-Team: Ozzii\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-29 04:44+0000\n"
+"X-Launchpad-Export-Date: 2012-05-30 05:20+0000\n"
 "X-Generator: Launchpad (build 15316)\n"
+"Language: sr\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -261,7 +262,7 @@ msgstr "Складиштe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr "Продавница  е-књига."
+msgstr "Продавница е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -1332,7 +1333,7 @@ msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr "Повежи се са  Entourage Edge."
+msgstr "Повежи се са Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -1390,7 +1391,7 @@ msgstr "Повежи се са SpringDesign Alex eBook читачем."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:132
 msgid "Communicate with the Azbooka"
-msgstr "Повежи се са  Azbooka"
+msgstr "Повежи се са Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:151
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -2098,6 +2099,8 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Унети фасциклу где су књиге сачуване. Та фасцикла је у било који "
+"send_to_device шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
@@ -2669,6 +2672,8 @@ msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
 msgstr ""
+"Екстрактуј садржаји MOBI датотеке у наведену фасциклу. Ако фасцикла већ "
+"постоји, биће избрисана."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:78
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:272
@@ -2764,6 +2769,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
 msgstr ""
+"Задржи однос корице, у место да се истегне да би попунио прву страницу "
+"генерисаног pdf-а."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3219,6 +3226,8 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Поставити горњу маргину у тачкама. Стандардно је %default. Ако поставите "
+"мање од нуле, маргина неће бити постављена. Белешка: 72 тачке је 1 инч"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3226,6 +3235,8 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Поставити доњу маргину у тачкама. Стандардно је %default. Ако поставите мање "
+"од нуле, маргина неће бити постављена. Белешка: 72 тачке је 1 инч"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3233,6 +3244,8 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Поставити леву маргину у тачкама. Стандардно је %default. Ако поставите мање "
+"од нуле, маргина неће бити постављена. Белешка: 72 тачке је 1 инч"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3240,6 +3253,8 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Поставити десну маргину у тачкама. Стандардно је %default. Ако поставите "
+"мање од нуле, маргина неће бити постављена. Белешка: 72 тачке је 1 инч"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -4117,7 +4132,7 @@ msgstr ""
 "\n"
 "%prog [могућности] ISBN\n"
 "\n"
-"Преузми омот и метаподатке за књигу идентификовану ISBN бројем са "
+"Преузми корицу и метаподатке за књигу идентификовану ISBN бројем са "
 "LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1434
@@ -4167,6 +4182,7 @@ msgstr "Амазон вебсајт који се користи:"
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr ""
+"Метаподаци Амазона ће бити преузети помоћу Амазон веб сајта ове земље."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:744
 msgid "Amazon timed out. Try again later."
@@ -4181,6 +4197,7 @@ msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
 msgstr ""
+"Скида додатне податке и корице са Douban.com. Корисно само за Кинеске књиге."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
@@ -4192,13 +4209,15 @@ msgstr "Preuzmi metapodatke s isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:34
 msgid "IsbnDB key:"
-msgstr "IsbnDB кључ"
+msgstr "IsbnDB кључ:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:35
 msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
 msgstr ""
+"Да би користили isbndb.com youтребате да се упишете за бесплатан налог на "
+"isbndb.com и да узмете кључ приступа."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:39
 msgid ""
@@ -4238,7 +4257,7 @@ msgstr "Скида додатне податке и корице са OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:56
 msgid "Sample Book"
-msgstr ""
+msgstr "Пример Књига"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4246,15 +4265,15 @@ msgstr "Ово је Amazon Topaz књига. Њу није могуће обра
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "Ово није MOBI датотека него Topaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "Ово није MOBI датотека."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Датотека је блокирана са правима. Не може да се подеси."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4731,6 +4750,8 @@ msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr ""
+"Почни претрагу како се уноси. Ако је искључено, тражиће се само после "
+"стискање Enter или Return типка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:165
 msgid ""
@@ -4850,7 +4871,7 @@ msgstr "Архиве"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "Wordprocessor датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -5118,7 +5139,7 @@ msgstr "Ново мјесто библиотеке"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:129
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr ""
+msgstr "Нема постојеће calibre библиотеке на %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Choose Library"
@@ -5295,6 +5316,7 @@ msgstr "Није успело"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:404
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
+"Провера интегритета базе није успела, кликнути Покажи детаље за детаље."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:408
 msgid "Starting library scan, this may take a while"
@@ -5368,7 +5390,7 @@ msgstr "Празна излазна датотека - процес претва
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:221
 #, python-format
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s по %(author)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:131
 msgid "Copy to library"
@@ -5407,7 +5429,7 @@ msgstr "Нисам успео да умножим књиге: "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:201
 #, python-format
 msgid "Copied %(num)d books to %(loc)s"
-msgstr ""
+msgstr "Копирано %(num)d књига у %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:205
 msgid "Auto merged"
@@ -5608,11 +5630,11 @@ msgstr "Заустави сервер садржаја"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:109
 msgid "Email to"
-msgstr "Пошаљи е- поштом на"
+msgstr "Пошаљи е-поштом на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:94
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Пошаљи Е-поштом и избриши из библиотеке."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:103
 msgid "(delete from library)"
@@ -6194,7 +6216,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "&Preview Book"
-msgstr ""
+msgstr "&Преглед кљиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6214,15 +6236,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "Преглед резултата ваших подешавања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:113
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Поништи без сачувавања промена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:115
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "Сачувати промене и ажурирати књигу у calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:155
 msgid "Exploding, please wait..."
@@ -6231,7 +6253,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:187
 msgid "Failed to unpack"
-msgstr ""
+msgstr "Не могу да рапакујем"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:178
 #, python-format
@@ -6246,7 +6268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:222
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "Не могу да поново саградим датотеку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:223
 #, python-format
@@ -6256,7 +6278,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:240
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "Саграђивање, молим сачекајте..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:289
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
@@ -6613,7 +6635,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:245
 #, python-format
 msgid "Added %(num)d book(s) automatically from %(src)s"
-msgstr ""
+msgstr "Аутоматски додато %(num)d кљига(е) од %(src)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
@@ -6667,7 +6689,7 @@ msgstr "Путања"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
-msgstr ""
+msgstr "Величина корице: %(width)d x %(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -6938,7 +6960,7 @@ msgstr "Шири&на иконе."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
-msgstr "Предлог за величину иконе за омот описа."
+msgstr "Предлог за величину иконе за корице описа."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
@@ -17964,7 +17986,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"Предлог величине (у инчима) за омот књига у каталогу:\n"
+"Предлог величине (у инчима) за корицу књига у каталогу:\n"
 "Опсег: 1.0 - 2.0\n"
 "Подразумева се: '%default'\n"
 "Важи за ePub и MOBI излазне формате."
@@ -19913,7 +19935,7 @@ msgstr "Чекам..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "Прекинуто, предуго"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
@@ -20253,7 +20275,7 @@ msgstr "\tНеуспеле везе:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:989
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Не може да се нађе артикал."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:991
 msgid "The debug traceback is available earlier in this log"
@@ -20261,7 +20283,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:993
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "Покренути са -vv да би видели разлог"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1016
 msgid "Fetching feeds..."
@@ -20571,7 +20593,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:43
 msgid "Add separator after completing an author name"
-msgstr ""
+msgstr "Додати раздвајање наком попуњавањем  име аутора"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid ""
@@ -20584,7 +20606,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:51
 msgid "Author sort name algorithm"
-msgstr ""
+msgstr "Алгоритам сортирање имена аутора"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid ""
@@ -20611,7 +20633,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
-msgstr ""
+msgstr "Раздвојити више ауторски имена"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:77
 msgid ""
@@ -20730,7 +20752,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:151
 msgid "Control how dates are displayed"
-msgstr ""
+msgstr "Контролише како су датуми приказани"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:152
 msgid ""
@@ -20769,7 +20791,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:185
 msgid "Control sorting of titles and series in the library display"
-msgstr ""
+msgstr "Контролише сортирање наслова и серија у приказу библиотеке"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:186
 msgid ""
@@ -20793,7 +20815,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:199
 msgid "Control formatting of title and series when used in templates"
-msgstr ""
+msgstr "Контролише обликовање наслова и серије када се користе у шаблонима"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:200
 msgid ""
@@ -20817,7 +20839,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:214
 msgid "Set the list of words considered to be \"articles\" for sort strings"
-msgstr ""
+msgstr "Поставити списак речи који су \"чланци\" за сортирање низова"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:215
 msgid ""
@@ -20932,7 +20954,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:329
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "Наведите како су SONY колекције сортиране"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid ""
@@ -20964,6 +20986,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:347
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
+"Контролише како су етикете постављене када се копирају књиге у другу "
+"библиотеку"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:348
 msgid ""
@@ -21017,7 +21041,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Изаберите да ли датуми су сортирани помоћу видљивих поља"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:382
 msgid ""

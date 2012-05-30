@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-25 05:57+0000\n"
-"PO-Revision-Date: 2012-05-28 18:19+0000\n"
+"PO-Revision-Date: 2012-05-29 20:06+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-29 04:43+0000\n"
+"X-Launchpad-Export-Date: 2012-05-30 05:19+0000\n"
 "X-Generator: Launchpad (build 15316)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3762,6 +3762,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Elérési útvonal a keresés és csere reguláris kifejezést tartalmazó fájlhoz. "
+"A fájlban minden kereső reguláris kifejezés külön sorban legyen, melyet a "
+"csere sora kövessen (ez lehet üres sor is). A reguláris kifejezések a python "
+"nyelv reguláris kifejezés szabályai szerint készüljenek. A fájl kódolása "
+"legyen UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:746
 msgid "Could not find an ebook inside the archive"
@@ -6581,15 +6586,18 @@ msgstr "Sikertelen a fájl újraépítése"
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
 msgstr ""
+"A(z) %s újraépítése nem sikerült. Kattintson a „Részletek megjelenítésé”-re "
+"a további információkért."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:240
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "Újraépítés. Kérem, várjon…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:289
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
 msgstr ""
+"Kisebb módosítások végrehajtása ePub, HTMLZ és AZW3 formátumú könyveken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:290
 msgid "T"
@@ -6601,7 +6609,7 @@ msgstr "Nem lehet a könyvet szerkeszteni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:310
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Nem lehetséges a könyv finomhangolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:311
 msgid ""
@@ -6609,6 +6617,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"A könyvnek ePub, HTMLZ vagy AZW3 formátumúnak kell lennie.\n"
+"\n"
+"Először konvertálja ezek valamelyikébe a könyvet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -8528,16 +8539,16 @@ msgstr "Kereső reguláris kifejezés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Calibre „Keresés és Csere” definíciókat tartalmazó fájl betöltése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:122
 msgid "Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Calibre „Keresés és Csere” definíciókat tartalmazó fájl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:113
 msgid "Failed to read"
-msgstr ""
+msgstr "Az olvasás nem sikerült"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:114
 #, python-format
@@ -8546,11 +8557,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:120
 msgid "Save Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Calibre „Keresés és Csere” definíciókat tartalmazó fájl mentése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:196
 msgid "Unused Search & Replace definition"
-msgstr ""
+msgstr "Nem használt Keresés és Csere definíció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:197
 msgid ""
@@ -11822,7 +11833,7 @@ msgstr "&Cím/Szerző/Sorozat ..."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:38
 #, python-format
 msgid "There are %(count)d book(s) with the %(fmt)s format"
-msgstr ""
+msgstr "%(count)d darab %(fmt)s formátumú könyv van"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:54
 msgid "Choose formats"
@@ -15157,6 +15168,8 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
 msgstr ""
+"Az elvégzett változtatások miatt azonnal újra kell indítania a calibre-t. Az "
+"újraindítás előtt további beállítás már nem lehetséges."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
@@ -17470,7 +17483,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
-msgstr ""
+msgstr "A konvertálás nem sikerült"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:650
 msgid "Recipe Disabled"
@@ -21308,7 +21321,7 @@ msgstr "angol"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "angol (Argentína)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -21579,7 +21592,7 @@ msgstr "Ismeretlen Hírforrás"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:672
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "A következő letöltése nem sikerült: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:768
 #, python-format
