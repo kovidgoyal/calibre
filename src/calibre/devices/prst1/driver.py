@@ -275,7 +275,7 @@ class PRST1(USBMS):
         debug_print('PRST1: finished update_device_database')
     
     def get_database_min_id(self, source_id):
-		sequence_min = 700000000
+		sequence_min = 0
 		if source_id == '1':
 			sequence_min = 4294967296
 			
