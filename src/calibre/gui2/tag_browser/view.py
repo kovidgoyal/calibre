@@ -110,8 +110,8 @@ class TagsView(QTreeView): # {{{
 
                 QTreeView::item {
                     border: 1px solid transparent;
-                    padding-top:1ex;
-                    padding-bottom:1ex;
+                    padding-top:0.9ex;
+                    padding-bottom:0.9ex;
                 }
 
                 QTreeView::item:hover {
