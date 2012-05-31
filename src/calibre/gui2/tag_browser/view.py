@@ -36,15 +36,16 @@ class TagDelegate(QStyledItemDelegate): # {{{
                     option, widget)
             icon = option.icon
             painter.save()
-            painter.setClipRect(r)
+            rating = item.tag.avg_rating
+            nr = r.adjusted(0, 0, 0, 0)
+            nr.setBottom(r.bottom()-int(r.height()*(rating/5.0)))
+            painter.setClipRect(nr)
+            painter.fillRect(r, widget.palette().window())
+            style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option,
+                    painter, widget)
             painter.setOpacity(0.3)
             icon.paint(painter, r, option.decorationAlignment, icon.Normal,
                     icon.On)
-            painter.setOpacity(1)
-            rating = item.tag.avg_rating
-            painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
-                    r.width(), r.height())
-            icon.paint(painter, r, Qt.AlignLeft)
             painter.restore()
 
     # }}}
