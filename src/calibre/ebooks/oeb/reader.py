@@ -256,7 +256,7 @@ class OEBReader(object):
             media_type = elem.get('media-type', None)
             if media_type is None:
                 media_type = elem.get('mediatype', None)
-            if media_type is None or media_type == 'text/xml':
+            if not media_type or media_type == 'text/xml':
                 guessed = guess_type(href)[0]
                 media_type = guessed or media_type or BINARY_MIME
             if hasattr(media_type, 'lower'):
@@ -291,7 +291,10 @@ class OEBReader(object):
                     href, _ = urldefrag(href)
                     if not href:
                         continue
-                    href = item.abshref(urlnormalize(href))
+                    try:
+                        href = item.abshref(urlnormalize(href))
+                    except ValueError: # Malformed URL
+                        continue
                     if href not in manifest.hrefs:
                         continue
                     found = manifest.hrefs[href]
@@ -360,13 +363,24 @@ class OEBReader(object):
             title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
             title = COLLAPSE_RE.sub(' ', title.strip())
             href = xpath(child, 'ncx:content/@src')
-            if not title or not href:
+            if not title:
+                self._toc_from_navpoint(item, toc, child)
                 continue
+            if not href:
+                gc = xpath(child, 'ncx:navPoint')
+                if not gc:
+                    # This node is useless
+                    continue
+                href = 'missing.html'
+
             href = item.abshref(urlnormalize(href[0]))
             path, _ = urldefrag(href)
             if path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
-                continue
+                gc = xpath(child, 'ncx:navPoint')
+                if not gc:
+                    # This node is useless
+                    continue
             id = child.get('id')
             klass = child.get('class', 'chapter')
 

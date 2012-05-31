@@ -119,6 +119,15 @@ class TheIndependentNew(BasicNewsRecipe):
                 if len(para.contents) and isinstance(para.contents[0],NavigableString) \
                 and para.contents[0] == 'ADVERTORIAL FEATURE':
                     return None
+        
+        # remove Suggested Topics           
+        items_to_extract = []
+        
+        for item in soup.findAll('div',attrs={'class' : re.compile('.*RelatedArtTag.*')}):
+            items_to_extract.append(item)
+              
+        for item in items_to_extract:
+            item.extract()             
 
         items_to_extract = []
         slideshow_elements = []
@@ -308,6 +317,11 @@ class TheIndependentNew(BasicNewsRecipe):
 
         for item in items_to_extract:
             item.extract()
+        
+        # nickredding's fix for non-justified text   
+        for ptag in soup.findAll('p',attrs={'align':'left'}):
+            del(ptag['align'])
+                        
         return soup
 
     def _recurisvely_linearise_tag_tree(

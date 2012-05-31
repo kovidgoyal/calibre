@@ -349,7 +349,8 @@ class Text(Base):
         return d.exec_()
 
     def edit(self):
-        if self.getter() != self.initial_val:
+        if (self.getter() != self.initial_val and (self.getter() or
+            self.initial_val)):
             d = self._save_dialog(self.parent, _('Values changed'),
                     _('You have changed the values. In order to use this '
                        'editor, you must either discard or apply these '

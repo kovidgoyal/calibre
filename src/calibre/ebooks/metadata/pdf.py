@@ -4,25 +4,84 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
 #import re
+import os, subprocess, shutil
 from functools import partial
 
 from calibre import prints
-from calibre.constants import plugins
+from calibre.constants import iswindows
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-
-pdfreflow, pdfreflow_error = plugins['pdfreflow']
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
 
+def read_info(outputdir, get_cover):
+    ''' Read info dict and cover from a pdf file named src.pdf in outputdir.
+    Note that this function changes the cwd to outputdir and is therefore not
+    thread safe. Run it using fork_job. This is necessary as there is no safe
+    way to pass unicode paths via command line arguments. This also ensures
+    that if poppler crashes, no stale file handles are left for the original
+    file, only for src.pdf.'''
+
+    from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
+    os.chdir(outputdir)
+    base = os.path.dirname(PDFTOHTML)
+    suffix = '.exe' if iswindows else ''
+    pdfinfo = os.path.join(base, 'pdfinfo') + suffix
+    pdftoppm = os.path.join(base, 'pdftoppm') + suffix
+
+    try:
+        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', 'src.pdf'])
+    except subprocess.CalledProcessError as e:
+        prints('pdfinfo errored out with return code: %d'%e.returncode)
+        return None
+    try:
+        raw = raw.decode('utf-8')
+    except UnicodeDecodeError:
+        prints('pdfinfo returned no UTF-8 data')
+        return None
+
+    ans = {}
+    for line in raw.splitlines():
+        if u':' not in line: continue
+        field, val = line.partition(u':')[::2]
+        val = val.strip()
+        if field and val:
+            ans[field] = val.strip()
+
+    if get_cover:
+        try:
+            subprocess.check_call([pdftoppm, '-singlefile', '-jpeg',
+                'src.pdf', 'cover'])
+        except subprocess.CalledProcessError as e:
+            prints('pdftoppm errored out with return code: %d'%e.returncode)
+
+    return ans
+
 def get_metadata(stream, cover=True):
-    if pdfreflow is None:
-        raise RuntimeError(pdfreflow_error)
-    stream.seek(0)
-    raw = stream.read()
-    #isbn = _isbn_pat.search(raw)
-    #if isbn is not None:
-    #    isbn = isbn.group(1).replace('-', '').replace(' ', '')
-    info = pdfreflow.get_metadata(raw, cover)
+    with TemporaryDirectory('_pdf_metadata_read') as pdfpath:
+        stream.seek(0)
+        with open(os.path.join(pdfpath, 'src.pdf'), 'wb') as f:
+            shutil.copyfileobj(stream, f)
+        try:
+            res = fork_job('calibre.ebooks.metadata.pdf', 'read_info',
+                    (pdfpath, bool(cover)))
+        except WorkerError as e:
+            prints(e.orig_tb)
+            raise RuntimeError('Failed to run pdfinfo')
+        info = res['result']
+        with open(res['stdout_stderr'], 'rb') as f:
+            raw = f.read().strip()
+            if raw:
+                prints(raw)
+        if not info:
+            raise ValueError('Could not read info dict from PDF')
+        covpath = os.path.join(pdfpath, 'cover.jpg')
+        cdata = None
+        if cover and os.path.exists(covpath):
+            with open(covpath, 'rb') as f:
+                cdata = f.read()
+
     title = info.get('Title', None)
     au = info.get('Author', None)
     if au is None:
@@ -46,12 +105,8 @@ def get_metadata(stream, cover=True):
     if subject:
         mi.tags.insert(0, subject)
 
-    if cover and 'cover' in info:
-        data = info['cover']
-        if data is None:
-            prints(title, 'has no pages, cover extraction impossible.')
-        else:
-            mi.cover_data = ('png', data)
+    if cdata:
+        mi.cover_data = ('jpeg', cdata)
 
     return mi
 

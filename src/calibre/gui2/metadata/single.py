@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, errno
-from functools import partial
 from datetime import datetime
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
@@ -66,14 +65,14 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
                 self)
         self.next_button.setShortcut(QKeySequence('Alt+Right'))
-        self.next_button.clicked.connect(partial(self.do_one, delta=1))
+        self.next_button.clicked.connect(self.next_clicked)
         self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
         self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
         self.button_box.addButton(self.next_button, self.button_box.ActionRole)
-        self.prev_button.clicked.connect(partial(self.do_one, delta=-1))
+        self.prev_button.clicked.connect(self.prev_clicked)
 
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setFrameShape(QScrollArea.NoFrame)
@@ -358,7 +357,9 @@ class MetadataSingleDialogBase(ResizableDialog):
             old_tags = self.tags.current_val
             tags = mi.tags if mi.tags else []
             if old_tags and merge_tags:
-                tags += old_tags
+                ltags, lotags = {t.lower() for t in tags}, {t.lower() for t in
+                        old_tags}
+                tags = [t for t in tags if t.lower() in ltags-lotags] + old_tags
             self.tags.current_val = tags
         if not mi.is_null('identifiers'):
             current = self.identifiers.current_val
@@ -464,7 +465,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         ResizableDialog.reject(self)
 
     def save_state(self):
-        gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+        try:
+            gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+        except:
+            # Weird failure, see https://bugs.launchpad.net/bugs/995271
+            import traceback
+            traceback.print_exc()
 
     # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None,
@@ -478,6 +484,16 @@ class MetadataSingleDialogBase(ResizableDialog):
         ret = self.exec_()
         self.break_cycles()
         return ret
+
+    def next_clicked(self):
+        if not self.apply_changes():
+            return
+        self.do_one(delta=1, apply_changes=False)
+
+    def prev_clicked(self):
+        if not self.apply_changes():
+            return
+        self.do_one(delta=-1, apply_changes=False)
 
     def do_one(self, delta=0, apply_changes=True):
         if apply_changes:

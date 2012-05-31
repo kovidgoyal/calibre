@@ -6,11 +6,12 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import re
-import operator
-import math
+import re, operator, math
 from collections import defaultdict
+
 from lxml import etree
+import cssutils
+
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
@@ -101,12 +102,13 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
 
 class CSSFlattener(object):
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
-                 untable=False, page_break_on_body=False):
+                 untable=False, page_break_on_body=False, specializer=None):
         self.fbase = fbase
         self.fkey = fkey
         self.lineh = lineh
         self.unfloat = unfloat
         self.untable = untable
+        self.specializer = specializer
         self.page_break_on_body = page_break_on_body
 
     @classmethod
@@ -133,6 +135,13 @@ class CSSFlattener(object):
                 self.oeb.log.debug('Filtering CSS properties: %s'%
                     ', '.join(self.filter_css))
 
+        for item in oeb.manifest.values():
+            # Make all links to resources absolute, as these sheets will be
+            # consolidated into a single stylesheet at the root of the document
+            if item.media_type in OEB_STYLES:
+                cssutils.replaceUrls(item.data, item.abshref,
+                        ignoreImportRules=True)
+
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
@@ -148,10 +157,12 @@ class CSSFlattener(object):
             bs = body.get('style', '').split(';')
             bs.append('margin-top: 0pt')
             bs.append('margin-bottom: 0pt')
-            bs.append('margin-left : %fpt'%\
-                    float(self.context.margin_left))
-            bs.append('margin-right : %fpt'%\
-                    float(self.context.margin_right))
+            if float(self.context.margin_left) >= 0:
+                bs.append('margin-left : %gpt'%\
+                        float(self.context.margin_left))
+            if float(self.context.margin_right) >= 0:
+                bs.append('margin-right : %gpt'%\
+                        float(self.context.margin_right))
             bs.extend(['padding-left: 0pt', 'padding-right: 0pt'])
             if self.page_break_on_body:
                 bs.extend(['page-break-before: always'])
@@ -210,7 +221,7 @@ class CSSFlattener(object):
                         value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
-    def flatten_node(self, node, stylizer, names, styles, psize, item_id, left=0):
+    def flatten_node(self, node, stylizer, names, styles, psize, item_id):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
                return
@@ -305,16 +316,6 @@ class CSSFlattener(object):
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
-            margin = asfloat(style['margin-left'], 0)
-            indent = asfloat(style['text-indent'], 0)
-            left += margin
-            if (left + indent) < 0:
-                try:
-                    percent = (margin - indent) / style['width']
-                    cssdict['margin-left'] = "%d%%" % (percent * 100)
-                except ZeroDivisionError:
-                    pass
-                left -= indent
             if 'display' in cssdict and cssdict['display'] == 'in-line':
                 cssdict['display'] = 'inline'
             if self.unfloat and 'float' in cssdict \
@@ -367,9 +368,9 @@ class CSSFlattener(object):
         if 'style' in node.attrib:
             del node.attrib['style']
         for child in node:
-            self.flatten_node(child, stylizer, names, styles, psize, item_id, left)
+            self.flatten_node(child, stylizer, names, styles, psize, item_id)
 
-    def flatten_head(self, item, stylizer, href):
+    def flatten_head(self, item, href, global_href):
         html = item.data
         head = html.find(XHTML('head'))
         for node in head:
@@ -381,30 +382,60 @@ class CSSFlattener(object):
                  and node.get('type', CSS_MIME) in OEB_STYLES:
                 head.remove(node)
         href = item.relhref(href)
-        etree.SubElement(head, XHTML('link'),
+        l = etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
-        stylizer.page_rule['margin-top'] = '%fpt'%\
-                float(self.context.margin_top)
-        stylizer.page_rule['margin-bottom'] = '%fpt'%\
-                float(self.context.margin_bottom)
-
-        items = stylizer.page_rule.items()
-        items.sort()
-        css = '; '.join("%s: %s" % (key, val) for key, val in items)
-        style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
-        style.text = "\n\t\t@page { %s; }" % css
-        rules = [r.cssText for r in stylizer.font_face_rules]
-        for r in rules:
-            style.text += '\n\t\t'+r+'\n'
+        l.tail='\n'
+        if global_href:
+            href = item.relhref(global_href)
+            l = etree.SubElement(head, XHTML('link'),
+                rel='stylesheet', type=CSS_MIME, href=href)
+            l.tail = '\n'
 
     def replace_css(self, css):
         manifest = self.oeb.manifest
-        id, href = manifest.generate('css', 'stylesheet.css')
         for item in manifest.values():
             if item.media_type in OEB_STYLES:
                 manifest.remove(item)
-        item = manifest.add(id, href, CSS_MIME, data=css)
+        id, href = manifest.generate('css', 'stylesheet.css')
+        item = manifest.add(id, href, CSS_MIME, data=cssutils.parseString(css,
+            validate=False))
+        self.oeb.manifest.main_stylesheet = item
         return href
+
+    def collect_global_css(self):
+        global_css = defaultdict(list)
+        for item in self.oeb.spine:
+            stylizer = self.stylizers[item]
+            if float(self.context.margin_top) >= 0:
+                stylizer.page_rule['margin-top'] = '%gpt'%\
+                        float(self.context.margin_top)
+            if float(self.context.margin_bottom) >= 0:
+                stylizer.page_rule['margin-bottom'] = '%gpt'%\
+                        float(self.context.margin_bottom)
+            items = stylizer.page_rule.items()
+            items.sort()
+            css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
+            css = ('@page {\n%s\n}\n'%css) if items else ''
+            rules = [r.cssText for r in stylizer.font_face_rules]
+            raw = '\n\n'.join(rules)
+            css += '\n\n' + raw
+            global_css[css].append(item)
+
+        gc_map = {}
+        manifest = self.oeb.manifest
+        for css in global_css:
+            href = None
+            if css.strip():
+                id_, href = manifest.generate('page_css', 'page_styles.css')
+                manifest.add(id_, href, CSS_MIME, data=cssutils.parseString(css,
+                    validate=False))
+            gc_map[css] = href
+
+        ans = {}
+        for css, items in global_css.iteritems():
+            for item in items:
+                ans[item] = gc_map[css]
+        return ans
 
     def flatten_spine(self):
         names = defaultdict(int)
@@ -412,6 +443,8 @@ class CSSFlattener(object):
         for item in self.oeb.spine:
             html = item.data
             stylizer = self.stylizers[item]
+            if self.specializer is not None:
+                self.specializer(item, stylizer)
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
             self.flatten_node(body, stylizer, names, styles, fsize, item.id)
@@ -419,7 +452,8 @@ class CSSFlattener(object):
         items.sort()
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
         href = self.replace_css(css)
+        global_css = self.collect_global_css()
         for item in self.oeb.spine:
             stylizer = self.stylizers[item]
-            self.flatten_head(item, stylizer, href)
+            self.flatten_head(item, href, global_css[item])
 

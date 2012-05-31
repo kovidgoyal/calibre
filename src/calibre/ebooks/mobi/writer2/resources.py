@@ -7,8 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import imghdr
+
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
-from calibre.ebooks.mobi.utils import (rescale_image, mobify_image)
+from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
+        write_font_record)
 from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
@@ -16,12 +19,15 @@ PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\
 
 class Resources(object):
 
-    def __init__(self, oeb, opts, is_periodical, add_fonts=False):
+    def __init__(self, oeb, opts, is_periodical, add_fonts=False,
+            process_images=True):
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
         self.is_periodical = is_periodical
+        self.process_images = process_images
 
         self.item_map = {}
         self.records = []
+        self.mime_map = {}
         self.masthead_offset = 0
         self.used_image_indices = set()
         self.image_indices = set()
@@ -30,6 +36,8 @@ class Resources(object):
         self.add_resources(add_fonts)
 
     def process_image(self, data):
+        if not self.process_images:
+            return data
         return (mobify_image(data) if self.opts.mobi_keep_original_images else
                 rescale_image(data))
 
@@ -75,6 +83,7 @@ class Resources(object):
                 self.image_indices.add(len(self.records))
                 self.records.append(data)
                 self.item_map[item.href] = index
+                self.mime_map[item.href] = 'image/%s'%imghdr.what(None, data)
                 index += 1
 
                 if cover_href and item.href == cover_href:
@@ -93,6 +102,13 @@ class Resources(object):
                         index += 1
             finally:
                 item.unload_data_from_memory()
+
+        if add_fonts:
+            for item in self.oeb.manifest.values():
+                if item.href and item.href.rpartition('.')[-1].lower() in {
+                        'ttf', 'otf'} and isinstance(item.data, bytes):
+                    self.records.append(write_font_record(item.data))
+                    self.item_map[item.href] = len(self.records)
 
     def add_extra_images(self):
         '''

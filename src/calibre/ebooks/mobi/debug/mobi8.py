@@ -2,17 +2,20 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, imghdr, struct
+import sys, os, imghdr, struct, textwrap
 from itertools import izip
 
+from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex)
-from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
+        GuideIndex)
+from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 
@@ -43,6 +46,24 @@ class FDST(object):
 
         return '\n'.join(ans)
 
+class File(object):
+
+    def __init__(self, skel, skeleton, text, first_aid, sections):
+        self.name = 'part%04d'%skel.file_number
+        self.skeleton, self.text, self.first_aid = skeleton, text, first_aid
+        self.sections = sections
+
+    def dump(self, ddir):
+        with open(os.path.join(ddir, self.name + '.html'), 'wb') as f:
+            f.write(self.text)
+        base = os.path.join(ddir, self.name + '-parts')
+        os.mkdir(base)
+        with CurrentDir(base):
+            with open('skeleton.html', 'wb') as f:
+                f.write(self.skeleton)
+            for i, text in enumerate(self.sections):
+                with open('sect-%04d.html'%i, 'wb') as f:
+                    f.write(text)
 
 class MOBIFile(object):
 
@@ -67,6 +88,8 @@ class MOBIFile(object):
         self.extract_resources()
         self.read_fdst()
         self.read_indices()
+        self.build_files()
+        self.read_tbs()
 
     def print_header(self, f=sys.stdout):
         print (str(self.mf.palmdb).encode('utf-8'), file=f)
@@ -94,6 +117,38 @@ class MOBIFile(object):
                 self.header.encoding)
         self.ncx_index = NCXIndex(self.header.primary_index_record,
                 self.mf.records, self.header.encoding)
+        self.guide_index = GuideIndex(self.header.oth_idx, self.mf.records,
+                self.header.encoding)
+
+    def build_files(self):
+        text = self.raw_text
+        self.files = []
+        for skel in self.skel_index.records:
+            sects = [x for x in self.sect_index.records if x.file_number
+                    == skel.file_number]
+            skeleton = text[skel.start_position:skel.start_position+skel.length]
+            ftext = skeleton
+            first_aid = sects[0].toc_text
+            sections = []
+
+            for sect in sects:
+                start_pos = skel.start_position + skel.length + sect.start_pos
+                sect_text = text[start_pos:start_pos+sect.length]
+                insert_pos = sect.insert_pos - skel.start_position
+                ftext = ftext[:insert_pos] + sect_text + ftext[insert_pos:]
+                sections.append(sect_text)
+
+            self.files.append(File(skel, skeleton, ftext, first_aid, sections))
+
+    def dump_flows(self, ddir):
+        boundaries = [(0, len(self.raw_text))]
+        if self.fdst is not None:
+            boundaries = self.fdst.sections
+        for i, x in enumerate(boundaries):
+            start, end = x
+            raw = self.raw_text[start:end]
+            with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
+                f.write(raw)
 
     def extract_resources(self):
         self.resource_map = []
@@ -131,6 +186,76 @@ class MOBIFile(object):
             self.resource_map.append(('%s/%06d%s.%s'%(prefix, i, suffix, ext),
                 payload))
 
+    def read_tbs(self):
+        from calibre.ebooks.mobi.writer8.tbs import (Entry, DOC,
+                collect_indexing_data, encode_strands_as_sequences,
+                sequences_to_bytes, calculate_all_tbs, NegativeStrandIndex)
+        entry_map = []
+        for index in self.ncx_index:
+            vals = list(index)[:-1] + [None, None, None, None]
+            entry_map.append(Entry(*(vals[:12])))
+
+
+        indexing_data = collect_indexing_data(entry_map, list(map(len,
+            self.text_records)))
+        self.indexing_data = [DOC + '\n' +textwrap.dedent('''\
+                Index Entry lines are of the form:
+                depth:index_number [action] parent (index_num-parent) Geometry
+
+                Where Geometry is the start and end of the index entry w.r.t
+                the start of the text record.
+
+                ''')]
+
+        tbs_type = 8
+        try:
+            calculate_all_tbs(indexing_data)
+        except NegativeStrandIndex:
+            calculate_all_tbs(indexing_data, tbs_type=5)
+            tbs_type = 5
+
+        for i, strands in enumerate(indexing_data):
+            rec = self.text_records[i]
+            tbs_bytes = rec.trailing_data.get('indexing', b'')
+            desc = ['Record #%d'%i]
+            for s, strand in enumerate(strands):
+                desc.append('Strand %d'%s)
+                for entries in strand.itervalues():
+                    for e in entries:
+                        desc.append(
+                        ' %s%d [%-9s] parent: %s (%d) Geometry: (%d, %d)'%(
+                            e.depth * ('  ') + '- ', e.index, e.action, e.parent,
+                            e.index-(e.parent or 0), e.start-i*RECORD_SIZE,
+                            e.start+e.length-i*RECORD_SIZE))
+            desc.append('TBS Bytes: ' + format_bytes(tbs_bytes))
+            flag_sz = 3
+            sequences = []
+            otbs = tbs_bytes
+            while tbs_bytes:
+                try:
+                    val, extra, consumed = decode_tbs(tbs_bytes, flag_size=flag_sz)
+                except:
+                    break
+                flag_sz = 4
+                tbs_bytes = tbs_bytes[consumed:]
+                extra = {bin(k):v for k, v in extra.iteritems()}
+                sequences.append((val, extra))
+            for j, seq in enumerate(sequences):
+                desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))
+            if tbs_bytes:
+                desc.append('Remaining bytes: %s'%format_bytes(tbs_bytes))
+            calculated_sequences = encode_strands_as_sequences(strands,
+                    tbs_type=tbs_type)
+            try:
+                calculated_bytes = sequences_to_bytes(calculated_sequences)
+            except:
+                calculated_bytes = b'failed to calculate tbs bytes'
+            if calculated_bytes != otbs:
+                print ('WARNING: TBS mismatch for record %d'%i)
+                desc.append('WARNING: TBS mismatch!')
+                desc.append('Calculated sequences: %r'%calculated_sequences)
+            desc.append('')
+            self.indexing_data.append('\n'.join(desc))
 
 def inspect_mobi(mobi_file, ddir):
     f = MOBIFile(mobi_file)
@@ -141,7 +266,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows'):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -158,9 +283,21 @@ def inspect_mobi(mobi_file, ddir):
     with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
         fo.write(str(f.skel_index).encode('utf-8'))
 
-    with open(os.path.join(ddir, 'sect.record'), 'wb') as fo:
+    with open(os.path.join(ddir, 'chunks.record'), 'wb') as fo:
         fo.write(str(f.sect_index).encode('utf-8'))
 
     with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
         fo.write(str(f.ncx_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'guide.record'), 'wb') as fo:
+        fo.write(str(f.guide_index).encode('utf-8'))
+
+    with open(os.path.join(ddir, 'tbs.txt'), 'wb') as fo:
+        fo.write(('\n'.join(f.indexing_data)).encode('utf-8'))
+
+    for part in f.files:
+        part.dump(os.path.join(ddir, 'files'))
+
+    f.dump_flows(os.path.join(ddir, 'flows'))
+
 

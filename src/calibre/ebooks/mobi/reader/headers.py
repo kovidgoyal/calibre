@@ -45,8 +45,15 @@ class EXTHHeader(object): # {{{
             elif idx == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
             elif idx == 501:
+                try:
+                    self.cdetype = content.decode('ascii')
+                except UnicodeDecodeError:
+                    self.cdetype = None
                 # cdetype
-                pass
+                if content == b'EBSP':
+                    if not self.mi.tags:
+                        self.mi.tags = []
+                    self.mi.tags.append(_('Sample Book'))
             elif idx == 502:
                 # last update time
                 pass
@@ -106,8 +113,11 @@ class EXTHHeader(object): # {{{
                         self.mi.isbn = raw
             except:
                 pass
-        elif idx == 113:
-            pass # ASIN or UUID
+        elif idx == 113: # ASIN or other id
+            try:
+                self.uuid = content.decode('ascii')
+            except:
+                self.uuid = None
         elif idx == 116:
             self.start_offset, = struct.unpack(b'>L', content)
         elif idx == 121:
@@ -230,6 +240,22 @@ class MetadataHeader(BookHeader):
             BookHeader.__init__(self, header, self.ident, None, log)
         else:
             self.exth = None
+
+    @property
+    def kf8_type(self):
+        if (self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) !=
+                NULL_INDEX):
+            return u'standalone'
+
+        kf8_header_index = getattr(self.exth, 'kf8_header', None)
+        if kf8_header_index is None:
+            return None
+        try:
+            if self.section_data(kf8_header_index-1) == b'BOUNDARY':
+                return u'joint'
+        except:
+            pass
+        return None
 
     def identity(self):
         self.stream.seek(60)

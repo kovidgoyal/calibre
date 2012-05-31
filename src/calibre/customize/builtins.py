@@ -421,6 +421,16 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.epub import set_metadata
         set_metadata(stream, mi, apply_null=self.apply_null)
 
+class FB2MetadataWriter(MetadataWriterPlugin):
+
+    name = 'Set FB2 metadata'
+    file_types = set(['fb2'])
+    description = _('Set metadata in %s files')%'FB2'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.fb2 import set_metadata
+        set_metadata(stream, mi, apply_null=self.apply_null)
+
 class HTMLZMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set HTMLZ metadata'
@@ -445,7 +455,7 @@ class LRFMetadataWriter(MetadataWriterPlugin):
 class MOBIMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw4'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw3', 'azw4'])
     description = _('Set metadata in %s files')%'MOBI'
     author      = 'Marshall T. Vandegrift'
 
@@ -539,7 +549,8 @@ from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
 from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
 from calibre.ebooks.conversion.plugins.lit_output import LITOutput
 from calibre.ebooks.conversion.plugins.lrf_output import LRFOutput
-from calibre.ebooks.conversion.plugins.mobi_output import MOBIOutput
+from calibre.ebooks.conversion.plugins.mobi_output import (MOBIOutput,
+        AZW3Output)
 from calibre.ebooks.conversion.plugins.oeb_output import OEBOutput
 from calibre.ebooks.conversion.plugins.pdb_output import PDBOutput
 from calibre.ebooks.conversion.plugins.pdf_output import PDFOutput
@@ -580,7 +591,7 @@ plugins += [
     FB2Output,
     LITOutput,
     LRFOutput,
-    MOBIOutput,
+    MOBIOutput, AZW3Output,
     OEBOutput,
     PDBOutput,
     PDFOutput,
@@ -1253,6 +1264,15 @@ class StoreBeWriteStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StoreBiblioStore(StoreBase):
+    name = u'Библио.бг'
+    author = 'Alex Stanev'
+    description = u'Електронна книжарница за книги и списания във формати ePUB и PDF. Част от заглавията са с активна DRM защита.'
+    actual_plugin = 'calibre.gui2.store.stores.biblio_plugin:BiblioStore'
+
+    headquarters = 'BG'
+    formats = ['EPUB, PDF']
+
 class StoreBookotekaStore(StoreBase):
     name = 'Bookoteka'
     author = u'Tomasz Długosz'
@@ -1311,15 +1331,15 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-class StoreEBookShoppeUKStore(StoreBase):
-    name = 'ebookShoppe UK'
-    author = u'Charles Haley'
-    description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
-    actual_plugin = 'calibre.gui2.store.stores.ebookshoppe_uk_plugin:EBookShoppeUKStore'
-
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-    affiliate = True
+# class StoreEBookShoppeUKStore(StoreBase):
+#     name = 'ebookShoppe UK'
+#     author = u'Charles Haley'
+#     description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
+#     actual_plugin = 'calibre.gui2.store.stores.ebookshoppe_uk_plugin:EBookShoppeUKStore'
+#
+#     headquarters = 'UK'
+#     formats = ['EPUB', 'PDF']
+#     affiliate = True
 
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
@@ -1538,7 +1558,7 @@ class StoreWaterstonesUKStore(StoreBase):
 
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
-    affiliate = True
+    affiliate = False
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
@@ -1596,13 +1616,13 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
+    StoreBiblioStore,
     StoreBookotekaStore,
     StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
-    StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
     StoreEscapeMagazineStore,

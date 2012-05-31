@@ -182,7 +182,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         global box_values
         box_values = copy.deepcopy(self.box_last_values)
         if general:
-            ans.append(unicode(self.general_combo.currentText()) + ':"' + general + '"')
+            ans.append(unicode(self.general_combo.currentText()) + ':"' +
+                    self.mc + general + '"')
         if ans:
             return ' and '.join(ans)
         return ''

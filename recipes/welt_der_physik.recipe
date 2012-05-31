@@ -1,20 +1,30 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+'''
+Fetch weltderphysik.de.
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+class WeltDerPhysikDe(BasicNewsRecipe):
 
-    title          = u'Welt der Physik'
-    __author__  = 'schuster'
-    remove_tags_befor = [dict(name='div', attrs={'class':'inhalt_bild_text_printonly'})]
-    remove_tags_after = [dict(name='span', attrs={'class':'clearinhalt_bild'})]
-    remove_tags = [dict(attrs={'class':['invisible', 'searchfld', 'searchbtn', 'topnavi', 'topsearch']}),
-	dict(id=['naservice', 'phservicemenu', '',]),
-	dict(name=['naservice'])]
-    oldest_article = 7
-    max_articles_per_feed = 100
-    no_stylesheets         = True
+    title = 'Welt der Physik'
+    description = 'Welt der Physik - heute schon geforscht?'
+    __author__ = 'Bernd Kunze'
     use_embedded_content   = False
-    language               = 'de'
-    remove_javascript      = True
+    language = 'de'
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    oldest_article = 7
 
+    remove_tags = [
+	dict(name='div', attrs={'id':'header-top'}),
+	dict(name='div', attrs={'id':'logos'}),
+	dict(name='div', attrs={'id':'breadcrumb'}),
+	dict(name='nav', attrs={'id':'main-menu'}),
+	dict(name='footer')
+    ]
 
-    feeds          = [(u'Nachrichten und Neuigkeiten', u'http://www.weltderphysik.de/rss/alles.xml')]
+    feeds          = [ ('Welt der Physik', 'http://www.weltderphysik.de/RSS-alles/') ]

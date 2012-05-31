@@ -115,14 +115,12 @@ class EditMetadataAction(InterfaceAction):
                     ' "Show details" to see which books.')%num
 
         payload = (id_map, tdir, log_file, lm_map)
-        from calibre.gui2.dialogs.message_box import ProceedNotification
-        p = ProceedNotification(self.apply_downloaded_metadata,
+        self.gui.proceed_question(self.apply_downloaded_metadata,
                 payload, log_file,
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 cancel_callback=lambda x:self.cleanup_bulk_download(tdir),
-                parent=self.gui, log_is_file=True)
-        p.show()
+                log_is_file=True)
 
     def apply_downloaded_metadata(self, payload):
         good_ids, tdir, log_file, lm_map = payload
@@ -134,7 +132,7 @@ class EditMetadataAction(InterfaceAction):
 
         for i in good_ids:
             lm = db.metadata_last_modified(i, index_is_id=True)
-            if lm > lm_map[i]:
+            if lm is not None and lm_map[i] is not None and lm > lm_map[i]:
                 title = db.title(i, index_is_id=True)
                 authors = db.authors(i, index_is_id=True)
                 if authors:
@@ -518,18 +516,19 @@ class EditMetadataAction(InterfaceAction):
             return self.finalize_apply()
 
         i, mi = self.apply_id_map[self.apply_current_idx]
-        if isinstance(mi, tuple):
-            opf, cover = mi
-            if opf:
-                mi = OPF(open(opf, 'rb'), basedir=os.path.dirname(opf),
-                        populate_spine=False).to_book_metadata()
+        if self.gui.current_db.has_id(i):
+            if isinstance(mi, tuple):
+                opf, cover = mi
+                if opf:
+                    mi = OPF(open(opf, 'rb'), basedir=os.path.dirname(opf),
+                            populate_spine=False).to_book_metadata()
+                    self.apply_mi(i, mi)
+                if cover:
+                    self.gui.current_db.set_cover(i, open(cover, 'rb'),
+                            notify=False, commit=False)
+                    self.applied_ids.add(i)
+            else:
                 self.apply_mi(i, mi)
-            if cover:
-                self.gui.current_db.set_cover(i, open(cover, 'rb'),
-                        notify=False, commit=False)
-                self.applied_ids.add(i)
-        else:
-            self.apply_mi(i, mi)
 
         self.apply_current_idx += 1
         if self.apply_pd is not None:

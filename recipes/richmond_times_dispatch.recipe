@@ -1,0 +1,59 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AdvancedUserRecipe1335532466(BasicNewsRecipe):
+    title                = u'Richmond Times-Dispatch'
+    description      = 'News from Richmond, Virginia, USA'
+    __author__     = 'jde'
+    cover_url        = 'http://static2.dukecms.com/va_tn/timesdispatch_com/site-media/img/icons/logo252x97.png'
+    language        = 'en'
+    encoding        = 'utf8'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    needs_subscription = False
+    remove_javascript = True
+    recursions      = 0
+    use_embedded_content = False
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          =   [
+
+('News',
+'http://www2.timesdispatch.com/list/feed/rss/news-archive'),
+('Breaking News',
+'http://www2.timesdispatch.com/list/feed/rss/breaking-news'),
+('National News',
+'http://www2.timesdispatch.com/list/feed/rss/national-news'),
+('Local News',
+'http://www2.timesdispatch.com/list/feed/rss/local-news'),
+('Business',
+'http://www2.timesdispatch.com/list/feed/rss/business'),
+('Local Business',
+'http://www2.timesdispatch.com/list/feed/rss/local-business'),
+('Politics',
+'http://www2.timesdispatch.com/list/feed/rss/politics'),
+('Virginia Politics',
+'http://www2.timesdispatch.com/list/feed/rss/virginia-politics'),
+('Editorials',
+'http://www2.timesdispatch.com/list/feed/rss/editorial-desk'),
+('Columnists and Blogs',
+'http://www2.timesdispatch.com/list/feed/rss/news-columnists-blogs'),
+('Opinion Columnists',
+'http://www2.timesdispatch.com/list/feed/rss/opinion-editorial-columnists'),
+('Letters to the Editor',
+'http://www2.timesdispatch.com/list/feed/rss/opinion-letters'),
+('Traffic',
+'http://www2.timesdispatch.com/list/feed/rss/traffic'),
+('Sports',
+'http://www2.timesdispatch.com/list/feed/rss/sports2'),
+('Entertainment/Life',
+'http://www2.timesdispatch.com/list/feed/rss/entertainment'),
+('Movies',
+'http://www2.timesdispatch.com/list/feed/rss/movies'),
+('Music',
+'http://www2.timesdispatch.com/list/feed/rss/music'),
+('Dining & Food',
+'http://www2.timesdispatch.com/list/feed/rss/dining'),
+
+    ]
+

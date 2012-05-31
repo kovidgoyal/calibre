@@ -31,7 +31,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         if random.randint(1, 10) in (1, 2, 3):
             h_click = 'click-4913808-10762497'
             d_click = 'click-4913808-10772898'
-        
+
         url = m_url + h_click
         detail_url = None
         if detail_item:
@@ -47,9 +47,9 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.kobobooks.com/search/search.html?q=' + urllib2.quote(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -61,18 +61,18 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//li[@class="OurPrice"]/strong/text()'))
+                price = ''.join(data.xpath('.//span[@class="OurPrice"]/strong/text()'))
                 if not price:
                     price = '$0.00'
-                
+
                 cover_url = ''.join(data.xpath('.//div[@class="SearchImageContainer"]//img[1]/@src'))
-                
+
                 title = ''.join(data.xpath('.//div[@class="SCItemHeader"]/h1/a[1]/text()'))
                 author = ', '.join(data.xpath('.//div[@class="SCItemSummary"]//span//a/text()'))
-                drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and contains(text(), "DRM")])')
+                drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and not(contains(text(), "DRM-Free"))])')
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
@@ -81,5 +81,5 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = '?url=http://www.kobobooks.com/' + id.strip()
                 s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
                 s.formats = 'EPUB'
-                
+
                 yield s

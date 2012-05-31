@@ -57,6 +57,8 @@ class RescaleImages(object):
                     try:
                         img.size = (new_width, new_height)
                         data = img.export(ext.lower())
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         self.log.exception('Failed to rescale image')
                     else:

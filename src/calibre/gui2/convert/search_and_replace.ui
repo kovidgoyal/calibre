@@ -78,7 +78,7 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="buttonsLayout">
      <property name="spacing">
       <number>-1</number>
      </property>
@@ -87,8 +87,11 @@
      </property>
      <item>
       <widget class="QPushButton" name="sr_add">
+       <property name="toolTip">
+        <string>Add the current expression to the list of expressions that will be applied</string>
+       </property>
        <property name="text">
-        <string>Add</string>
+        <string>&amp;Add</string>
        </property>
       </widget>
      </item>
@@ -97,8 +100,11 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Edit the currently selected expression</string>
+       </property>
        <property name="text">
-        <string>Change</string>
+        <string>&amp;Change</string>
        </property>
       </widget>
      </item>
@@ -107,36 +113,127 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Remove the currently selected expression</string>
+       </property>
        <property name="text">
-        <string>Remove</string>
+        <string>&amp;Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="sr_load">
+       <property name="toolTip">
+        <string>Load a list of expressions from a previously saved file</string>
+       </property>
        <property name="text">
-        <string>Load</string>
+        <string>&amp;Load</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="sr_save">
-       <property name="text">
-        <string>Save</string>
-       </property>
+	    <property name="enabled">
+		  <bool>false</bool>
+	    </property>
+        <property name="toolTip">
+          <string>Save this list of expressions so that you can re-use it easily</string>
+        </property>
+        <property name="text">
+          <string>&amp;Save</string>
+        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item row="3" column="0">
-    <widget class="QTableWidget" name="search_replace">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-    </widget>
+     <layout class="QHBoxLayout" name="searchReplaceLayout">
+	   <property name="spacing">
+	     <number>-1</number>
+	   </property>
+	   <property name="leftMargin">
+	     <number>0</number>
+	   </property>
+	   <item>
+         <widget class="QTableWidget" name="search_replace">
+           <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+         </widget>
+	   </item>
+	   <item>
+	     <layout class="QVBoxLayout" name="positionLayout">
+		   <item>
+             <widget class="QPushButton" name="sr_up">
+			   <property name="sizePolicy">
+			     <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                 </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                 <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                 </size>
+			   </property> 
+			   <property name="enabled">
+                 <bool>false</bool>
+               </property>
+               <property name="toolTip">
+				 <string>Move expression up.</string>
+			   </property>
+               <property name="icon">
+                 <iconset>
+                    <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+               </property>
+             </widget>
+           </item>
+		   <item>
+             <widget class="QPushButton" name="sr_down">
+			   <property name="sizePolicy">
+			     <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                 </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                 <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                 </size>
+			   </property>
+			   <property name="enabled">
+                 <bool>false</bool>
+               </property>
+ 			   <property name="toolTip">
+				  <string>Move expression down.</string>
+			   </property>
+			   <property name="icon">
+                 <iconset>
+                    <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+               </property>
+             </widget>
+           </item>
+		 </layout>
+	   </item>
+	 </layout>   
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
@@ -161,6 +258,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

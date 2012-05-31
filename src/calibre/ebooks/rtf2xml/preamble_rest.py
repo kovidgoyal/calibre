@@ -11,16 +11,24 @@
 #                                                                       #
 #########################################################################
 import sys,os
+
 from calibre.ebooks.rtf2xml import copy
+
 class Preamble:
     """
     Fix the reamaing parts of the preamble. This module does very little. It
     makes sure that no text gets put in the revision of list table. In the
-    future, when I understand how to interprett he revision table and list
+    future, when I understand how to interpret the revision table and list
     table, I will make these methods more functional.
     """
-    def __init__(self, file, bug_handler,  platform, default_font, code_page,
-    copy=None, temp_dir=None):
+    def __init__(self, file,
+                bug_handler,
+                platform,
+                default_font,
+                code_page,
+                copy=None,
+                temp_dir=None,
+                ):
         """
         Required:
             file--file to parse
@@ -44,6 +52,7 @@ class Preamble:
             self.__write_to = os.path.join(temp_dir,"info_table_info.data")
         else:
             self.__write_to = "info_table_info.data"
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -62,12 +71,14 @@ class Preamble:
         'mi<mk<revtbl-beg'      : self.__found_revision_table_func,
         'mi<mk<body-open_'      : self.__found_body_func,
         }
+
     def __default_func(self, line):
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __found_rtf_head_func(self, line):
         """
         Requires:
@@ -84,8 +95,10 @@ class Preamble:
             '<platform>%s\n' % (self.__default_font, self.__code_page,
             self.__platform)
         )
+
     def __found_list_table_func(self, line):
         self.__state = 'list_table'
+
     def __list_table_func(self, line):
         if self.__token_info == 'mi<mk<listabend_':
             self.__state = 'default'
@@ -93,8 +106,10 @@ class Preamble:
             pass
         else:
             self.__write_obj.write(line)
+
     def __found_revision_table_func(self, line):
         self.__state = 'revision'
+
     def __revision_table_func(self, line):
         if self.__token_info == 'mi<mk<revtbl-end':
             self.__state = 'default'
@@ -102,11 +117,14 @@ class Preamble:
             pass
         else:
             self.__write_obj.write(line)
+
     def __found_body_func(self, line):
         self.__state = 'body'
         self.__write_obj.write(line)
+
     def __body_func(self, line):
         self.__write_obj.write(line)
+
     def fix_preamble(self):
         """
         Requires:
@@ -119,20 +137,15 @@ class Preamble:
             the list table.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('no no matching state in module preamble_rest.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write(
+                        'no matching state in module preamble_rest.py\n' + self.__state + '\n')
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "preamble_div.data")

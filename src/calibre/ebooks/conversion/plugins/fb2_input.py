@@ -5,12 +5,12 @@ __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 Convert .fb2 files to .lrf
 """
 import os, re
-from base64 import b64decode
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import guess_type
 
 FB2NS = 'http://www.gribuser.ru/xml/fictionbook/2.0'
+
 
 class FB2Input(InputFormatPlugin):
 
@@ -41,6 +41,7 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
         from calibre.ebooks.chardet import xml_to_unicode
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
+        self.log = log
         log.debug('Parsing XML...')
         raw = stream.read().replace('\0', '')
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -123,6 +124,7 @@ class FB2Input(InputFormatPlugin):
         return os.path.join(os.getcwdu(), u'metadata.opf')
 
     def extract_embedded_content(self, doc):
+        from calibre.ebooks.fb2 import base64_decode
         self.binary_map = {}
         for elem in doc.xpath('./*'):
             if elem.text and 'binary' in elem.tag and elem.attrib.has_key('id'):
@@ -130,8 +132,17 @@ class FB2Input(InputFormatPlugin):
                 fname = elem.attrib['id']
                 ext = ct.rpartition('/')[-1].lower()
                 if ext in ('png', 'jpeg', 'jpg'):
-                    fname += '.' + ext
+                    if fname.lower().rpartition('.')[-1] not in {'jpg', 'jpeg',
+                            'png'}:
+                        fname += '.' + ext
                     self.binary_map[elem.get('id')] = fname
-                data = b64decode(elem.text.strip())
-                open(fname, 'wb').write(data)
+                raw = elem.text.strip()
+                try:
+                    data = base64_decode(raw)
+                except TypeError:
+                    self.log.exception('Binary data with id=%s is corrupted, ignoring'%(
+                        elem.get('id')))
+                else:
+                    with open(fname, 'wb') as f:
+                        f.write(data)
 

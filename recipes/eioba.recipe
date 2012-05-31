@@ -21,3 +21,8 @@ class eioba(BasicNewsRecipe):
 	(u'Rozrywka', u'http://www.eioba.pl/feed/categories/10.xml'),
 	(u'Rożne', u'http://www.eioba.pl/feed/categories/9.xml')
 	]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

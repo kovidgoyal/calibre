@@ -385,9 +385,10 @@ class Py2App(object):
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.7.dylib',):
+        for x in ('libpoppler.25.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
-        self.install_dylib(os.path.join(SW, 'bin', 'pdftohtml'), False)
+        for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
+            self.install_dylib(os.path.join(SW, 'bin', x), False)
 
     @flush
     def add_libjpeg(self):
@@ -429,7 +430,7 @@ class Py2App(object):
     def add_imagemagick(self):
         info('\nAdding ImageMagick')
         for x in ('Wand', 'Core'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.4.dylib'%x))
+            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.5.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
         dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):

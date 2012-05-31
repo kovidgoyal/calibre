@@ -295,3 +295,17 @@ class OutputFormatPlugin(Plugin):
         return self.oeb.metadata.publication_type and \
             unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        '''
+        Can be used to make changes to the css during the CSS flattening
+        process.
+
+        :param item: The item (HTML file) being processed
+        :param stylizer: A Stylizer object containing the flattened styles for
+                         item. You can get the style for any element by
+                         stylizer.style(element).
+
+        '''
+        pass
+
+

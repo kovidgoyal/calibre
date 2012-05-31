@@ -13,6 +13,7 @@ import datetime, os, re, sys, json, hashlib
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime
+from calibre.utils.logging import default_log
 
 '''
 Notes on collections:
@@ -324,6 +325,11 @@ class KINDLE2(KINDLE):
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
     OPT_APNX_CUST_COL  = 2
+    THUMBNAIL_HEIGHT = 180
+
+    def formats_to_scan_for(self):
+        ans = USBMS.formats_to_scan_for(self) | {'azw3'}
+        return ans
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -371,8 +377,36 @@ class KINDLE2(KINDLE):
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
-        Hijacking this function to write the apnx file.
+        Upload sidecar files: cover thumbnails and page count
         '''
+        # Upload the cover thumbnail
+        try:
+            self.upload_kindle_thumbnail(metadata, filepath)
+        except:
+            import traceback
+            traceback.print_exc()
+        # Upload the apnx file
+        self.upload_apnx(path, filename, metadata, filepath)
+
+    def upload_kindle_thumbnail(self, metadata, filepath):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if not coverdata or not coverdata[2]:
+            return
+        thumb_dir = os.path.join(self._main_prefix, 'system', 'thumbnails')
+        if not os.path.exists(thumb_dir): return
+
+        from calibre.ebooks.mobi.reader.headers import MetadataHeader
+        with lopen(filepath, 'rb') as f:
+            mh = MetadataHeader(f, default_log)
+        if mh.exth is None or not mh.exth.uuid or not mh.exth.cdetype:
+            return
+        thumbfile = os.path.join(thumb_dir,
+                'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
+                    uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
+        with open(thumbfile, 'wb') as f:
+            f.write(coverdata[2])
+
+    def upload_apnx(self, path, filename, metadata, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder
 
         opts = self.settings()
@@ -418,11 +452,16 @@ class KINDLE_DX(KINDLE2):
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
+    def upload_kindle_thumbnail(self, metadata, filepath):
+        pass
+
 class KINDLE_FIRE(KINDLE2):
 
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
+    FORMATS = list(KINDLE2.FORMATS)
+    FORMATS.insert(0, 'azw3')
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]
@@ -434,4 +473,6 @@ class KINDLE_FIRE(KINDLE2):
     VENDOR_NAME = 'AMAZON'
     WINDOWS_MAIN_MEM = 'KINDLE'
 
+    def upload_kindle_thumbnail(self, metadata, filepath):
+        pass
 

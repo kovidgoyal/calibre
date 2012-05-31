@@ -1,0 +1,41 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__copyright__   = '2012, faber1971'
+__version__     = 'v1.01'
+__date__        = '29, May 2012'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1324038402(BasicNewsRecipe):
+    title          = u'La Gazzetta del Mezzogiorno'
+    __author__      = 'faber1971'
+    description = 'Italian regional magazine - Apulia'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    masthead_url = 'http://www.lagazzettadelmezzogiorno.it/images/GdM_Nuova_Testata_Interna.gif'
+    feeds          = [(u'Home page', u'http://www.lagazzettadelmezzogiorno.it/rss.php?IDCategoria=1')]
+    remove_tags = [
+                            dict(name='table', attrs={'width':'100%'})
+                           ,dict(name='div', attrs={'style':['text-align:center; padding:5px; background-color:#B51C1F;', 'float:right; margin:0px 0px 4px 7px; border-left:2px dotted #B0CBE6; width:200px;']})
+                           ,dict(name='td', attrs={'colspan':'5'})
+                           ,dict(name='td', attrs={'width':'300'})
+                           ]
+    def get_article_url(self, article):
+	link = BasicNewsRecipe.get_article_url(self, article)
+	if link.split('/')[-1]=="story01.htm":
+		link=link.split('/')[-2]
+		a=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'L'      , 'N'   , 'S'   ]
+		b=['0', '.', '/', '?', '-', '=', '&', '_', 'http://', '.com', 'www.']
+		for i in range(0,len(a)):
+			link=link.replace('0'+a[-i],b[-i])
+	return link
+
+    remove_javascript = True
+    conversion_options = {'linearize_tables': True}
+    extra_css = '''
+        .font7 {color: #555555; font-family: "Verdana"; font-size: 23px; font-weight: 700; height: auto; text-align: left; text-decoration: none; }
+        .font16 { color: #000000; font-family: "Arial"; font-size: 14px; font-weight: 400; text-align: left; }
+        img { border-bottom-style: solid; border-bottom-width: 0px; border-left-style: solid; border-left-width: 0px; border-right-style: solid; border-right-width: 0px; border-top-style: solid; border-top-width: 0px; float: left; }
+        .fontbox { color: #2D6F51; font-family: "Verdana"; font-size: 11px; font-weight: 700; text-decoration: none; text-transform: uppercase; }
+                '''

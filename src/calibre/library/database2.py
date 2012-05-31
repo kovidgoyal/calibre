@@ -1023,6 +1023,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
 
+    def has_id(self, id_):
+        return self.data._data[id_] is not None
+
     def books_with_same_title(self, mi, all_matches=True):
         title = mi.title
         ans = set()
@@ -2653,6 +2656,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
         new_name = new_name.replace(',', '|').strip()
+        if not new_name:
+            new_name = _('Unknown')
 
         # Get the list of books we must fix up, one way or the other
         # Save the list so we can use it twice

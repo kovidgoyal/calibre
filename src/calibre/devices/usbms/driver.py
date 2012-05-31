@@ -128,6 +128,9 @@ class USBMS(CLI, Device):
         elif location_code == 'B':
             self._update_driveinfo_file(self._card_b_prefix, location_code, name)
 
+    def formats_to_scan_for(self):
+        return set(self.settings().format_map) | set(self.FORMATS)
+
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -166,7 +169,7 @@ class USBMS(CLI, Device):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        all_formats = set(self.settings().format_map) | set(self.FORMATS)
+        all_formats = self.formats_to_scan_for()
 
         def update_booklist(filename, path, prefix):
             changed = False

@@ -13,6 +13,7 @@ from textwrap import TextWrapper
 from calibre import preferred_encoding, prints, isbytestring
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata.book.base import field_from_string
 from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.date import isoformat
@@ -498,10 +499,6 @@ def command_show_metadata(args, dbpath):
 def do_set_metadata(db, id, stream):
     mi = OPF(stream).to_book_metadata()
     db.set_metadata(id, mi)
-    db.clean()
-    do_show_metadata(db, id, False)
-    write_dirtied(db)
-    send_message()
 
 def set_metadata_option_parser():
     return get_parser(_(
@@ -511,19 +508,94 @@ def set_metadata_option_parser():
 Set the metadata stored in the calibre database for the book identified by id
 from the OPF file metadata.opf. id is an id number from the list command. You
 can get a quick feel for the OPF format by using the --as-opf switch to the
-show_metadata command.
+show_metadata command. You can also set the metadata of individual fields with
+the --field option.
 '''))
 
 def command_set_metadata(args, dbpath):
     parser = set_metadata_option_parser()
-    opts, args = parser.parse_args(sys.argv[1:]+args)
-    if len(args) < 3:
+    parser.add_option('-f', '--field', action='append', default=[], help=_(
+        'The field to set. Format is field_name:value, for example: '
+        '{0} tags:tag1,tag2. Use {1} to get a list of all field names. You '
+        'can specify this option multiple times to set multiple fields. '
+        'Note: For languages you must use the ISO639 language codes (e.g. '
+        'en for English, fr for French and so on). For identifiers, the '
+        'syntax is {0} {2}. For boolean (yes/no) fields use true and false '
+        'or yes and no.'
+        ).format('--field', '--list-fields', 'identifiers:isbn:XXXX,doi:YYYYY')
+        )
+    parser.add_option('-l', '--list-fields', action='store_true',
+        default=False, help=_('List the metadata field names that can be used'
+        ' with the --field option'))
+    opts, args = parser.parse_args(sys.argv[0:1]+args)
+    db = get_db(dbpath, opts)
+
+    def fields():
+        for key in sorted(db.field_metadata.all_field_keys()):
+            m = db.field_metadata[key]
+            if (key not in {'formats', 'series_sort', 'ondevice', 'path',
+                'last_modified'} and m['is_editable'] and m['name']):
+                yield key, m
+                if m['datatype'] == 'series':
+                    si = m.copy()
+                    si['name'] = m['name'] + ' Index'
+                    si['datatype'] = 'float'
+                    yield key+'_index', si
+        c = db.field_metadata['cover'].copy()
+        c['datatype'] = 'text'
+        yield 'cover', c
+
+    if opts.list_fields:
+        prints('%-40s'%_('Title'), _('Field name'), '\n')
+        for key, m in fields():
+            prints('%-40s'%m['name'], key)
+
+        return 0
+
+    def verify_int(x):
+        try:
+            int(x)
+            return True
+        except:
+            return False
+
+    if len(args) < 2 or not verify_int(args[1]):
         parser.print_help()
         print
-        print >>sys.stderr, _('You must specify an id and a metadata file')
+        print >>sys.stderr, _('You must specify a record id as the '
+                'first argument')
         return 1
-    id, opf = int(args[1]), open(args[2], 'rb')
-    do_set_metadata(get_db(dbpath, opts), id, opf)
+    if len(args) < 3 and not opts.field:
+        parser.print_help()
+        print
+        print >>sys.stderr, _('You must specify either a field or an opf file')
+        return 1
+    book_id = int(args[1])
+
+    if len(args) > 2:
+        opf = args[2]
+        do_set_metadata(db, book_id, opf)
+
+    if opts.field:
+        fields = {k:v for k, v in fields()}
+        vals = {}
+        for x in opts.field:
+            field, val = x.partition(':')[::2]
+            if field not in fields:
+                print >>sys.stderr, _('%s is not a known field'%field)
+                return 1
+            val = field_from_string(field, val, fields[field])
+            vals[field] = val
+        mi = db.get_metadata(book_id, index_is_id=True, get_cover=False)
+        for field, val in sorted(vals.iteritems(), key=lambda k: 1 if
+                k[0].endswith('_index') else 0):
+            mi.set(field, val)
+        db.set_metadata(book_id, mi, force_changes=True)
+    db.clean()
+    do_show_metadata(db, book_id, False)
+    write_dirtied(db)
+    send_message()
+
     return 0
 
 def do_export(db, ids, dir, opts):

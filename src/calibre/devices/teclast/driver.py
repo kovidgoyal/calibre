@@ -50,17 +50,18 @@ class ARCHOS7O(TECLAST_K3):
     FORMATS = ['epub', 'mobi', 'fb2', 'rtf', 'ap', 'html', 'pdf', 'txt']
 
     VENDOR_NAME      = 'ARCHOS'
-    WINDOWS_MAIN_MEM = 'USB-MSC'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB-MSC'
 
 class PICO(NEWSMY):
     name = 'Pico device interface'
     gui_name = 'Pico'
     description    = _('Communicate with the Pico reader.')
 
-    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'LASER-']
+    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'LASER-', '']
     WINDOWS_MAIN_MEM = ['USBDISK__USER', 'EB720']
     EBOOK_DIR_MAIN = 'Books'
     FORMATS = ['EPUB', 'FB2', 'TXT', 'LRC', 'PDB', 'PDF', 'HTML', 'WTXT']
+    SCAN_FROM_ROOT = True
 
 class IPAPYRUS(TECLAST_K3):
 

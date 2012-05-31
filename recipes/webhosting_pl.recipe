@@ -8,6 +8,7 @@ class webhosting_pl(BasicNewsRecipe):
     cover_url='http://webhosting.pl/images/logo.png'
     masthead_url='http://webhosting.pl/images/logo.png'
     oldest_article = 7
+    index='http://webhosting.pl'
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_empty_feeds = True
@@ -37,3 +38,9 @@ class webhosting_pl(BasicNewsRecipe):
 
     def print_version(self, url):
         return url.replace('webhosting.pl', 'webhosting.pl/print')
+
+    def preprocess_html(self, soup):
+        for a in soup('a'):
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href']=self.index + a['href']
+        return soup

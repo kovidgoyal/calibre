@@ -18,7 +18,7 @@ QT_DIR = 'Q:\\Qt\\4.8.1'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
         'VisualMagick', 'bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 
@@ -260,7 +260,8 @@ class Win32Freeze(Command, WixMixIn):
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
-        shutil.copy2(os.path.join(bindir, 'pdftohtml.exe'), self.base)
+        for x in ('pdftohtml', 'pdfinfo', 'pdftoppm'):
+            shutil.copy2(os.path.join(bindir, x+'.exe'), self.base)
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
                 ok = True

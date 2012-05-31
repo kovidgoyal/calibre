@@ -11,6 +11,7 @@ import os, zipfile
 
 import calibre
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.resources import compiled_coffeescript
 
 class JavaScriptLoader(object):
 
@@ -27,11 +28,12 @@ class JavaScriptLoader(object):
         }.iteritems()}
 
     CS = {
-            'cfi':('ebooks/oeb/display/cfi.coffee', 'display/cfi.js'),
+            'cfi':'ebooks.oeb.display.cfi',
+            'indexing':'ebooks.oeb.display.indexing',
         }
 
     ORDER = ('jquery', 'jquery_scrollTo', 'bookmarks', 'referencing', 'images',
-            'hyphenation', 'hyphenator', 'cfi',)
+            'hyphenation', 'hyphenator', 'cfi', 'indexing',)
 
 
     def __init__(self, dynamic_coffeescript=False):
@@ -59,22 +61,11 @@ class JavaScriptLoader(object):
                 ans = P(src, data=True,
                         allow_user_override=False).decode('utf-8')
             else:
-                f = getattr(calibre, '__file__', None)
-                if self._dynamic_coffeescript and f and os.path.exists(f):
-                    src = src[0]
-                    src = os.path.join(os.path.dirname(f), *(src.split('/')))
-                    from calibre.utils.serve_coffee import compile_coffeescript
-                    with open(src, 'rb') as f:
-                        cs, errors = compile_coffeescript(f.read(), src)
-                        if errors:
-                            for line in errors:
-                                print (line)
-                            raise Exception('Failed to compile coffeescript'
-                                    ': %s'%src)
-                        ans = cs
-                else:
-                    ans = P(src[1], data=True, allow_user_override=False)
+                dynamic = (self._dynamic_coffeescript and
+                        os.path.exists(calibre.__file__))
+                ans = compiled_coffeescript(src, dynamic=dynamic).decode('utf-8')
             self._cache[name] = ans
+
         return ans
 
     def __call__(self, evaljs, lang, default_lang):

@@ -312,13 +312,9 @@ class EPUBOutput(OutputFormatPlugin):
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         '''
-        from calibre.ebooks.oeb.base import XPath, XHTML, OEB_STYLES, barename, urlunquote
+        from calibre.ebooks.oeb.base import XPath, XHTML, barename, urlunquote
 
-        stylesheet = None
-        for item in self.oeb.manifest:
-            if item.media_type.lower() in OEB_STYLES:
-                stylesheet = item
-                break
+        stylesheet = self.oeb.manifest.main_stylesheet
 
         # ADE cries big wet tears when it encounters an invalid fragment
         # identifier in the NCX toc.
@@ -397,8 +393,14 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)
 
+            formchildren = XPath('./h:input|./h:button|./h:textarea|'
+                    './h:label|./h:fieldset|./h:legend')
             for tag in XPath('//h:form')(root):
-                tag.getparent().remove(tag)
+                if formchildren(tag):
+                    tag.getparent().remove(tag)
+                else:
+                    # Not a real form
+                    tag.tag = XHTML('div')
 
             for tag in XPath('//h:center')(root):
                 tag.tag = XHTML('div')
