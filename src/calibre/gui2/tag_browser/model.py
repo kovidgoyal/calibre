@@ -1175,7 +1175,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         k = 'author_sort' if key == 'authors' else key
                         letters_seen = {}
                         for subnode in tag_item.children:
-                            letters_seen[subnode.tag.sort[0]] = True
+                            if subnode.tag.sort:
+                                letters_seen[subnode.tag.sort[0]] = True
                         charclass = ''.join(letters_seen)
                         if k == 'author_sort':
                             expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
