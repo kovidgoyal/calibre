@@ -11,7 +11,7 @@ from calibre import prints
 from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from calibre.utils.ipc.simple_worker import fork_job
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
 
@@ -63,8 +63,12 @@ def get_metadata(stream, cover=True):
         stream.seek(0)
         with open(os.path.join(pdfpath, 'src.pdf'), 'wb') as f:
             shutil.copyfileobj(stream, f)
-        res = fork_job('calibre.ebooks.metadata.pdf', 'read_info', (pdfpath,
-            bool(cover)))
+        try:
+            res = fork_job('calibre.ebooks.metadata.pdf', 'read_info',
+                    (pdfpath, bool(cover)))
+        except WorkerError as e:
+            prints(e.orig_tb)
+            raise RuntimeError('Failed to run pdfinfo')
         info = res['result']
         with open(res['stdout_stderr'], 'rb') as f:
             raw = f.read().strip()
