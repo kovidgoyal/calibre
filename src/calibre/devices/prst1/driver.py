@@ -363,7 +363,7 @@ class PRST1(USBMS):
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
         use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
 
-        db_books = self.read_device_books(connection, source_id)
+		db_books = self.read_device_books(connection, source_id)
 		cursor = connection.cursor()
 			
         for book in booklist:
