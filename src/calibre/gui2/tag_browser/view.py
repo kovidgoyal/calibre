@@ -109,7 +109,7 @@ class TagsView(QTreeView): # {{{
                 }
 
                 QTreeView::item {
-                    border: none;
+                    border: 1px solid transparent;
                     padding-top:1ex;
                     padding-bottom:1ex;
                 }
