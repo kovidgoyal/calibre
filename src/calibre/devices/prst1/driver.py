@@ -275,7 +275,7 @@ class PRST1(USBMS):
         debug_print('PRST1: finished update_device_database')
     
     def get_database_min_id(self, source_id):
-		sequence_min = 0
+		sequence_min = 700000000
 		if source_id == '1':
 			sequence_min = 4294967296
 			
@@ -344,9 +344,27 @@ class PRST1(USBMS):
 					t = (db_books[book], book,)
 					cursor.execute(query, t)
 					
-					# Fix any references in existing collections
-					query = 'UPDATE collections SET content_id = ? WHERE content_id = ?'
+					# Fix any references so that they point back to the right book
 					t = (db_books[book], bookId,)
+					query = 'UPDATE collections SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE annotation SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE bookmark SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE current_position SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE deleted_markups SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE dic_histories SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE freehand SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE history SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE layout_cache SET content_id = ? WHERE content_id = ?'
+					cursor.execute(query, t)
+					query = 'UPDATE preference SET content_id = ? WHERE content_id = ?'
 					cursor.execute(query, t)
 			
 			self.set_database_sequence_id(connection, 'books', sequence_max)
