@@ -19,6 +19,52 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.54
+  date: 2012-05-31
+
+  new features:
+    - title: "E-book viewer: The Table of contents panel now tracks the current position in the book. As you scroll through the book, the entry you are currently on is highlighted."
+      type: major
+      description: "To see this feature in action, open the Table of Contents panel in the viewer by clicking the button with three blue lines on it. As you page through the book, the chapter you are reading currently is highlighted in the Table of Contents Panel. Obviously, this will only work if the book you are reading has a Table of Contents. You can also use the Ctrl+PgUp and Ctrl+PgDn keys to quickly skip between chapters."
+
+    - title: "calibredb: Allow setting metadata for individual fields with the set_metadata command"
+
+    - title: "Make it a little harder to accidentally change the sorting of items in the Tag Browser. Also frees up more vertical space for the Tag Browser itself."
+
+    - title: "The calibre user manual is now available in AZW3 format as well as EPUB"
+
+  bug fixes:
+    - title: "Automatic titlecasing: No longer try to capitalize scottish names, as there are too many special cases." 
+      tickets: [775825] 
+
+    - title: "Never crash when reading metadata from PDF files (reading now always happens in a worker process)"
+      tickets: [1006452]
+
+    - title: "EPUB Input: Do no skip the valid children of an NCX node that has no text/href"
+
+    - title: "Archos driver: Detect SD card"
+      tickets: [1005650] 
+
+    - title: "When bulk downloading metadata and the user deletes one of the books for which metadata is being downloaded, just ignore it, instead of erroring out"
+
+    - title: "When deleting books from the bottom of the booklist, ensure that the bottom book after deleting is selected"
+
+    - title: "Fix regression in 0.8.53 that broke sending APNX files to older Kindle devices"
+
+    - title: "Use correct text color for selected rows in the list of matches when downloading metadata and showing results in get books."
+      tickets: [1004568]
+
+  improved recipes:
+    - The Independent
+    - Welt der Physik
+    - China Daily
+    - The Grid
+    - Prospect Magazine
+
+  new recipes:
+    - title: La gazetta del Mezzogiorno 
+      author: faber1971
+
 - version: 0.8.53
   date: 2012-05-25
 
