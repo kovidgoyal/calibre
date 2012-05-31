@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt, QIcon, QKeySequence)
+        QAbstractListModel, Qt, QIcon, QKeySequence, QStyleFactory)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -104,6 +104,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('widget_style', gprefs, restart_required=True, choices=
                 [(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
+        styles = set(map(unicode, QStyleFactory.keys()))
+        if 'QtCurve' not in styles:
+            # Can happen in linux
+            for x in ('opt', 'label'):
+                getattr(self, x+'_widget_style').setVisible(False)
 
         r('cover_flow_queue_length', config, restart_required=True)
 

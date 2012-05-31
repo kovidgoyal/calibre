@@ -753,7 +753,10 @@ class Application(QApplication):
             if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
                 from PyQt4.Qt import QStyleFactory
                 styles = set(map(unicode, QStyleFactory.keys()))
-                if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                if 'QtCurve' in styles and os.environ.get('KDE_FULL_SESSION',
+                        False):
+                    self.setStyle('QtCurve')
+                elif 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
                         False):
                     self.setStyle('Plastique')
                 elif 'Cleanlooks' in styles:
