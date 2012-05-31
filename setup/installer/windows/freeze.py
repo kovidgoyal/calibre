@@ -16,6 +16,7 @@ from setup.installer.windows.wix import WixMixIn
 OPENSSL_DIR = r'Q:\openssl'
 QT_DIR = 'Q:\\Qt\\4.8.1'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
+QTCURVE = r'C:\plugins\styles'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
@@ -247,6 +248,14 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+        self.info('\nAdding QtCurve...')
+        qtcurve = self.j(QTCURVE, 'qtcurve.dll')
+        tg = self.j(tdir, 'styles')
+        if os.path.exists(tg):
+            shutil.rmtree(tg)
+        os.mkdir(tg)
+        shutil.copy2(qtcurve, tg)
+
         for dirpath, dirnames, filenames in os.walk(tdir):
             for x in filenames:
                 if not x.endswith('.dll'):
