@@ -24,7 +24,7 @@ class TOCView(QTreeView):
                     border: none;
                 }
                 QTreeView::item {
-                    border: none;
+                    border: 1px solid transparent;
                     padding-top:0.5ex;
                     padding-bottom:0.5ex;
                 }
