@@ -11,8 +11,8 @@ import cPickle
 from functools import partial
 from itertools import izip
 
-from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
-        QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
+from PyQt4.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
+        QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -20,37 +20,32 @@ from calibre.gui2 import config, gprefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
-class TagDelegate(QItemDelegate): # {{{
+class TagDelegate(QStyledItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         item = index.data(Qt.UserRole).toPyObject()
+        QStyledItemDelegate.paint(self, painter, option, index)
         if item.type != TagTreeItem.TAG:
-            QItemDelegate.paint(self, painter, option, index)
             return
-        r = option.rect
-        model = self.parent().model()
-        icon = model.data(index, Qt.DecorationRole).toPyObject()
-        painter.save()
-        if item.tag.state != 0 or not config['show_avg_rating'] or \
-                item.tag.avg_rating is None:
-            icon.paint(painter, r, Qt.AlignLeft)
-        else:
+        if (item.tag.state == 0 and config['show_avg_rating'] and
+                item.tag.avg_rating is not None):
+            self.initStyleOption(option, index)
+            widget = self.parent()
+            style = QApplication.style() if widget is None else widget.style()
+            r = style.subElementRect(style.SE_ItemViewItemDecoration,
+                    option, widget)
+            icon = option.icon
+            painter.save()
+            painter.setClipRect(r)
             painter.setOpacity(0.3)
-            icon.paint(painter, r, Qt.AlignLeft)
+            icon.paint(painter, r, option.decorationAlignment, icon.Normal,
+                    icon.On)
             painter.setOpacity(1)
             rating = item.tag.avg_rating
             painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
                     r.width(), r.height())
             icon.paint(painter, r, Qt.AlignLeft)
-            painter.setClipRect(r)
-
-        # Paint the text
-        if item.boxed:
-            painter.drawRoundedRect(r.adjusted(1,1,-1,-1), 5, 5)
-        r.setLeft(r.left()+r.height()+3)
-        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                        model.data(index, Qt.DisplayRole).toString())
-        painter.restore()
+            painter.restore()
 
     # }}}
 
@@ -79,9 +74,8 @@ class TagsView(QTreeView): # {{{
         self.disable_recounting = False
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
-        self.setIconSize(QSize(30, 30))
+        self.setIconSize(QSize(20, 20))
         self.setTabKeyNavigation(True)
-        self.setAlternatingRowColors(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
@@ -106,6 +100,24 @@ class TagsView(QTreeView): # {{{
         self._model.user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
+        self.setStyleSheet('''
+                QTreeView {
+                    background-color: palette(window);
+                    color: palette(text);
+                    border: none;
+                }
+
+                QTreeView::item {
+                    border: none;
+                    padding-top:1ex;
+                    padding-bottom:1ex;
+                }
+
+                QTreeView::item:hover {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+                    border: 1px solid #bfcde4;
+                }
+        ''')
 
     @property
     def hidden_categories(self):

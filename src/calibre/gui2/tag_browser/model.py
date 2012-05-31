@@ -45,6 +45,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None, temporary=False):
         self.parent = parent
         self.children = []
+        self.blank = QIcon()
         self.id_set = set()
         self.is_gst = False
         self.boxed = False
@@ -1020,7 +1021,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return NONE
 
     def flags(self, index, *args):
-        ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+        ans = Qt.ItemIsEnabled|Qt.ItemIsEditable
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
