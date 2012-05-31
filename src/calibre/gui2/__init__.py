@@ -719,9 +719,9 @@ qt_app = None
 class Application(QApplication):
 
     def __init__(self, args):
+        self.file_event_hook = None
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
-        self.file_event_hook = None
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
         self._translator = None
