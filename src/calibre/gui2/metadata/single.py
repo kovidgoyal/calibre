@@ -785,7 +785,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
             gb.setLayout(gbl)
             sr = QScrollArea(tab0)
             sr.setWidgetResizable(True)
-            sr.setBackgroundRole(QPalette.Base)
             sr.setFrameStyle(QFrame.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
