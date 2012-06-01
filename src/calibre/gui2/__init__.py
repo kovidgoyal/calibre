@@ -471,6 +471,7 @@ class FileIconProvider(QFileIconProvider):
              'djvu'    : 'djvu',
              'xps'     : 'xps',
              'oxps'    : 'xps',
+             'docx'    : 'docx',
              }
 
     def __init__(self):
