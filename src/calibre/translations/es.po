@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-31 04:12+0000\n"
-"PO-Revision-Date: 2012-05-25 16:42+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2012-06-01 03:41+0000\n"
+"Last-Translator: Meme de la Torre <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-31 04:48+0000\n"
-"X-Generator: Launchpad (build 15322)\n"
+"X-Launchpad-Export-Date: 2012-06-01 05:26+0000\n"
+"X-Generator: Launchpad (build 15342)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
 msgid ""
@@ -17407,7 +17407,7 @@ msgstr "Establece el orden de las entradas en el navegador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Tipo de coincidencia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
 msgid "Match all"
@@ -19664,23 +19664,25 @@ msgstr ""
 msgid ""
 "List the metadata field names that can be used with the --field option"
 msgstr ""
+"Lista los nombres de campo de los metadatos que pueden ser utilizados con la "
+"opción --field"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:549
 msgid "Field name"
-msgstr ""
+msgstr "Nombre de campo"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
 msgid "You must specify a record id as the first argument"
-msgstr ""
+msgstr "Usted debe especificar un ID de registro como el primer argumento"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:571
 msgid "You must specify either a field or an opf file"
-msgstr ""
+msgstr "Usted debe especificar ya sea un campo o un archivo opf"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "%s is not a known field"
-msgstr ""
+msgstr "%s no es un campo conocido"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:615
 msgid ""
@@ -23384,26 +23386,3 @@ msgstr ""
 "default_tweak_format = None (Usar el formato de salida)\n"
 "default_tweak_format = 'EPUB'\n"
 "default_tweak_format = 'remember'"
-
-#~ msgid "You must specify an id and a metadata file"
-#~ msgstr "Debe especificar un ID y un fichero de metadatos"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog set_metadata [options] id /path/to/metadata.opf\n"
-#~ "\n"
-#~ "Set the metadata stored in the calibre database for the book identified by "
-#~ "id\n"
-#~ "from the OPF file metadata.opf. id is an id number from the list command. "
-#~ "You\n"
-#~ "can get a quick feel for the OPF format by using the --as-opf switch to the\n"
-#~ "show_metadata command.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog set_metadata [opciones] ID /ruta/a/metadatos.opf\n"
-#~ "\n"
-#~ "Asignar los metadatos del libro identificado por ID a partir del fichero "
-#~ "OPF\n"
-#~ "metadatos.opf. El ID es un identificador de orden «list». Puede ver en qué\n"
-#~ "consiste el formato OPF usando la opción --as-opf en la orden "
-#~ "show_metadata.\n"

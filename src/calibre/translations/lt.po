@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-31 04:43+0000\n"
-"X-Generator: Launchpad (build 15322)\n"
+"X-Launchpad-Export-Date: 2012-06-01 05:21+0000\n"
+"X-Generator: Launchpad (build 15342)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"

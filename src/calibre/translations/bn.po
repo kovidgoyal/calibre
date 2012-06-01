@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-05-31 04:35+0000\n"
-"X-Generator: Launchpad (build 15322)\n"
+"X-Launchpad-Export-Date: 2012-06-01 05:14+0000\n"
+"X-Generator: Launchpad (build 15342)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"

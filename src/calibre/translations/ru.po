@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-05-31 04:12+0000\n"
-"PO-Revision-Date: 2012-05-27 15:04+0000\n"
+"PO-Revision-Date: 2012-05-31 20:24+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-05-31 04:47+0000\n"
-"X-Generator: Launchpad (build 15322)\n"
+"X-Launchpad-Export-Date: 2012-06-01 05:24+0000\n"
+"X-Generator: Launchpad (build 15342)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -17192,7 +17192,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "&Alter Tag Browser"
-msgstr ""
+msgstr "Настроить обозреватель тэгов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -17217,7 +17217,7 @@ msgstr "Задать порядок сортировки для записей �
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Тип совпадения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
 msgid "Match all"
@@ -18901,6 +18901,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"поле:шаблон указанное пользовательское поле/содержание означает исключаемую "
+"книгу.\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:62
 #, python-format
@@ -19014,6 +19018,14 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<custom field>:[before|after]:[True|False] указывает:\n"
+" <custom field> Пользовательское поле содержащее записи для объединения с "
+"Комментариями\n"
+" [before|after] Положение записей по отношению к Комментариям\n"
+" [True|False] - Горизонтальная линия, вставляемая между записями и "
+"Комментариями\n"
+"По умолчанию: '%default'\n"
+"Относится к: выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
 #, python-format
@@ -19420,6 +19432,15 @@ msgid ""
 "with\n"
 "the --field option.\n"
 msgstr ""
+"\n"
+"%prog set_metadata [options] id /path/to/metadata.opf\n"
+"\n"
+"Устанавливает метаданные, хранящиеся в базе данных calibre для книги \n"
+"найденной по идентификатору из OPF файла metadata.opf. Номер идентификатора "
+"\n"
+"берётся из списка команд. Вы можете быстро почувствовать OPF формат \n"
+"используя переключатель --as-opf для команды show_metadata. Вы так \n"
+"же можете установить метаданные каждого поля с помощью настройки --field.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:518
 msgid ""
@@ -19430,28 +19451,36 @@ msgid ""
 "so on). For identifiers, the syntax is {0} {2}. For boolean (yes/no) fields "
 "use true and false or yes and no."
 msgstr ""
+"Поле для установки. Формат название_поля:значение. Например: {0} "
+"tags:tag1,tag2. Используйте {1} что бы получить список названий полей. Вы "
+"можете указать эту настройку несколько раз для установки нескольких полей. "
+"Помните: для языков вы должны использовать ISO639 языковую кодировку (тоесть "
+"en для English, fr для French и т.д.). Для идентификаторов, синтаксис {0} "
+"{2}. Для булевых (да/нет) полей используйте true и false или yes и no."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:528
 msgid ""
 "List the metadata field names that can be used with the --field option"
 msgstr ""
+"Список названий полей метаданных, которые могут быть использованы с опцией --"
+"field."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:549
 msgid "Field name"
-msgstr ""
+msgstr "Название поля"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
 msgid "You must specify a record id as the first argument"
-msgstr ""
+msgstr "Вы должны указать идентификатор записи первым аргументом"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:571
 msgid "You must specify either a field or an opf file"
-msgstr ""
+msgstr "Вы должны указать поле или opf файл"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "%s is not a known field"
-msgstr ""
+msgstr "%s не известное поле"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:615
 msgid ""
@@ -20945,6 +20974,11 @@ msgid ""
 "function to get the size for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_sizes() -- возвращает разделённый запятыми список colon_separated "
+"(постолбцовых) элементов представляющих размеры форматов книг в байтах. Вы "
+"можете использовать функцию select что бы получить размер отдельного "
+"формата. Помните, что названия форматов всегда в верхнем регистре, например "
+"EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:634
 msgid ""
@@ -21994,6 +22028,24 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"Алгоритм используется для превращения имён авторов в сортировочные имена\n"
+"Возможные значения:\n"
+"инвертирование: используйте \"fn ln\" -> \"ln, fn\" (\"Имя Фамилия\" -> "
+"\"Фамилия, Имя\")\n"
+"копирование: копировать author в author_sort без изменений\n"
+"запятая: используйте 'копирование' если есть ',' в имени, иначе используйте "
+"'инвертирование'\n"
+"без запятой: \"fn ln\" -> \"ln fn\" (если нет запятой)\n"
+"Когда эта настройка изменена, значение сортировочного имени записаное с "
+"каждым автором должно быть перевычилено нажатием правой кнопки мыши на "
+"авторе в левой панели тэгов, выбрав управление авторами и нажав \"Переделать "
+"все сортировочные имена авторов\". Суффиксы имени автора - слова находящиеся "
+"после имени автора, игнорируются. The case of the suffix is ignored and "
+"trailing periods are automatically handled. The same is true for prefixes.\n"
+"The author name copy words are a set of words which if they occur in an "
+"author name cause the automatically generated author sort string to be "
+"identical to the author name. This means that the sort for a string like "
+"Acme Inc. will be Acme Inc. instead of Inc., Acme"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
@@ -22693,25 +22745,3 @@ msgid ""
 "default_tweak_format = 'EPUB'\n"
 "default_tweak_format = 'remember'"
 msgstr ""
-
-#~ msgid "You must specify an id and a metadata file"
-#~ msgstr "Вы должны указать id и файл метаданных"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog set_metadata [options] id /path/to/metadata.opf\n"
-#~ "\n"
-#~ "Set the metadata stored in the calibre database for the book identified by "
-#~ "id\n"
-#~ "from the OPF file metadata.opf. id is an id number from the list command. "
-#~ "You\n"
-#~ "can get a quick feel for the OPF format by using the --as-opf switch to the\n"
-#~ "show_metadata command.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog set_metadata [options] id /path/to/metadata.opf\n"
-#~ "\n"
-#~ "Установить метаданные из базы данных calibre для книги с id.\n"
-#~ "из файла OPF metadata.opf. id это номер из команды list. Вы\n"
-#~ "можете быстро заполнить OPF формат используя --as-opf опцию для\n"
-#~ "команды show_metadata.\n"

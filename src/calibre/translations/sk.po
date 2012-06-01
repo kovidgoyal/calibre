@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-05-31 04:12+0000\n"
-"PO-Revision-Date: 2012-05-28 19:15+0000\n"
+"PO-Revision-Date: 2012-05-31 10:38+0000\n"
 "Last-Translator: Michal Kaliňák <michal.kalinak@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-05-31 04:48+0000\n"
-"X-Generator: Launchpad (build 15322)\n"
+"X-Launchpad-Export-Date: 2012-06-01 05:26+0000\n"
+"X-Generator: Launchpad (build 15342)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3642,6 +3642,10 @@ msgid ""
 "the median line length.  If only a few lines in the document require "
 "unwrapping this value should be reduced"
 msgstr ""
+"Mierka používaná na určenie dĺžky, od ktorej sa riadok nemá zalomiť. Platné "
+"hodnoty sú desatinné čísla medzi 0 a 1. Štandard je 0,4; tesne pod strednou "
+"dĺžkou riadka. Ak iba niekoľko riadkov v dokumente nevyžadujú zalomenie, "
+"mala by sa táto hodnota znížiť."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:578
 msgid "Unwrap lines using punctuation and other formatting clues."
@@ -3723,6 +3727,10 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Cesta k súboru obsahujúcom vyhľadanie a nahradenie regulárnych výrazov. "
+"Súbor musí obsahovať striedajúce sa riadky regulárnych výrazov nasledované "
+"nahradzujúcim vzorom (môže byť prázdny riadok). Regulárne výrazy musia byť v "
+"python-ovom regex syntaxe a súbor musí byť kódovaný v UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:746
 msgid "Could not find an ebook inside the archive"
@@ -3806,10 +3814,12 @@ msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
+"Oprav súbory bez manifestu. epub-fix ich môže buď pridať k manifestu alebo "
+"ich zmazať toho, ako je to určené vo voľbe \"zmazať bez manifestu\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:36
 msgid "Delete unmanifested files instead of adding them to the manifest"
-msgstr ""
+msgstr "Zmazať súbory bez manifestu namiesto pridania k manifestu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:18
 msgid ""
@@ -4438,7 +4448,7 @@ msgstr "Stiahnuť metadáta a obálky z OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:56
 msgid "Sample Book"
-msgstr ""
+msgstr "Vzorová kniha"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4446,15 +4456,15 @@ msgstr "Toto je Amazon Topaz kniha. Nemôže byť spracovaná."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "Toto nie je súbor MOBI. Je to súbor Topaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "Toto nie je súbor MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "Súbor je chránený DRM. Nemôže byť upravovaný."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4462,6 +4472,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"Súbor MOBI neobsahuje formát knihy KF8. KF8 je nový formát od Amazonu. "
+"calibre môže upravovať iba MOBI súbory, ktoré obsahujú knihy KF8. Staršie "
+"súbory MOBI bez KF8 sa nedajú upravovať."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4469,6 +4482,9 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
+"Súbor MOBI obsahuje KF8 aj staršie Mobi6 dáta. Úprava odstráni Mobi6 dáta, "
+"čo spôsobí, že súbor nebude použiteľný na starších zariadeniach Kindle. Ste "
+"si istý?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -4777,10 +4793,13 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
+"[options] subor.pdf\n"
+"\n"
+"Revertuj PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
-msgstr ""
+msgstr "Možnosti reverzie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:24
 msgid ""
@@ -5106,7 +5125,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Skontroluj pridávanie kníh."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -5279,7 +5298,7 @@ msgstr "Vytváranie %s katalógu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:71
 msgid "Catalog generation complete, with warnings."
-msgstr ""
+msgstr "Tvorba katalógu ukončená, s varovaním."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
@@ -5631,7 +5650,7 @@ msgstr "%(num)d kníh skopírovaných do %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:205
 msgid "Auto merged"
-msgstr ""
+msgstr "Automatické spojenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:206
 msgid ""
@@ -6414,7 +6433,7 @@ msgstr "Vylepšiť knihu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:64
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Vyberte formát na úpravu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:74
 msgid ""
@@ -6442,6 +6461,23 @@ msgid ""
 "            library.</li>\n"
 "            </ol>"
 msgstr ""
+"            <h2>O knihe úprav</h2>\n"
+"            <p>Kniha úprav umožňuje doladiť výzor e-knihy\n"
+"            malými zmenami jej vnútra. Na použitie Knihy úprav\n"
+"            potrebujete vedieť niečo o HTML a CSS, technológiách,\n"
+"            ktoré sú použité v e-knihách. Nasledujte kroky:</p>\n"
+"            <br>\n"
+"            <ol>\n"
+"            <li>Kliknite \"Rozbaliť knihu\": toto \"rozbalí\" knihu do jej\n"
+"            jednotlivých vnútorných zložiek.<br></li>\n"
+"            <li>Pravým klikom na jednotlivý súbor vyberte \"Otvor s...\"\n"
+"            a zeditujte ho v obľúbenom textovom editore.<br></li>\n"
+"            <li>Keď skončíte úpravy: <b>zavrite okno prehliadača súborov\n"
+"            a okná editora, v ktorom ste robili zmeny</b>. Potom kliknite\n"
+"            na tlačítko \"Prestavať knihu\", aby sa zaktualizovala kniha v "
+"knižnici\n"
+"            calibre.</li>\n"
+"            </ol>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
@@ -6465,7 +6501,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "Na editáciu zložiek knihy ju rozbaľte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
@@ -22519,26 +22555,3 @@ msgid ""
 "default_tweak_format = 'EPUB'\n"
 "default_tweak_format = 'remember'"
 msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog set_metadata [options] id /path/to/metadata.opf\n"
-#~ "\n"
-#~ "Set the metadata stored in the calibre database for the book identified by "
-#~ "id\n"
-#~ "from the OPF file metadata.opf. id is an id number from the list command. "
-#~ "You\n"
-#~ "can get a quick feel for the OPF format by using the --as-opf switch to the\n"
-#~ "show_metadata command.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog set_metadata [možnosti] ID /cesta/k/metadátam.opf\n"
-#~ "\n"
-#~ "Aktualizovať metadáta uložené v databáze calibre pre knihu s identifikačným\n"
-#~ "kódom ID, z uvedeného OPF súboru. Identifikačný kód získate pomocou\n"
-#~ "príkazu \"list\". Prehľad o formáte OPF vám poskytne príkaz "
-#~ "\"show_metadata\"\n"
-#~ "s prepínačom --as-opf.\n"
-
-#~ msgid "You must specify an id and a metadata file"
-#~ msgstr "Musíte zadať identifikačný kód a súbor s metadátami"
