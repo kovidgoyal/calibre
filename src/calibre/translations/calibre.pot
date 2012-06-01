@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.54\n"
-"POT-Creation-Date: 2012-06-01 21:10+IST\n"
-"PO-Revision-Date: 2012-06-01 21:10+IST\n"
+"POT-Creation-Date: 2012-06-01 23:16+IST\n"
+"PO-Revision-Date: 2012-06-01 23:16+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -3072,7 +3072,7 @@ msgid "Producer"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:773
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:939
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:937
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:157
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:245
 msgid "Comments"
@@ -3218,7 +3218,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1434
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:951
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:949
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Cover"
 msgstr ""
@@ -8397,7 +8397,7 @@ msgid "Standard metadata"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:920
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:919
 msgid "Custom metadata"
 msgstr ""
 
@@ -11299,7 +11299,7 @@ msgid "Save changes and edit the metadata of %s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:610
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:814
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:813
 msgid "Change cover"
 msgstr ""
 
@@ -11308,7 +11308,7 @@ msgid "Co&mments"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:708
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:855
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:854
 msgid "&Metadata"
 msgstr ""
 
@@ -11320,11 +11320,11 @@ msgstr ""
 msgid "C&ustom metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:795
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:794
 msgid "&Comments"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:861
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:860
 msgid "Basic metadata"
 msgstr ""
 
@@ -15765,6 +15765,10 @@ msgstr ""
 msgid "Folders raising exception"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:43
+msgid "GLOBAL OPTIONS"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:44
 msgid "Path to the calibre library. Default is to use the path stored in the settings."
 msgstr ""
@@ -16689,11 +16693,15 @@ msgstr ""
 msgid "Whenever you pass arguments to %prog that have spaces in them, enclose the arguments in quotation marks."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:92
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:94
+msgid "Options"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:95
 msgid "show this help message and exit"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:93
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:96
 msgid "show program's version number and exit"
 msgstr ""
 
