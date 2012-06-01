@@ -193,7 +193,7 @@ class MOBIFile(object):
         entry_map = []
         for index in self.ncx_index:
             vals = list(index)[:-1] + [None, None, None, None]
-            entry_map.append(Entry(*vals))
+            entry_map.append(Entry(*(vals[:12])))
 
 
         indexing_data = collect_indexing_data(entry_map, list(map(len,

@@ -535,7 +535,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
-        self.tags_view.set_database(db, self.tag_match, self.sort_by)
+        self.tags_view.set_database(db, self.alter_tb)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
         self.search.clear()

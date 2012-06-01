@@ -909,6 +909,24 @@ magick_Image_rotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
 }
 // }}}
 
+// Image.rotate {{{
+
+static PyObject *
+magick_Image_flip(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    PyObject *obj = NULL;
+    MagickBooleanType ret = 0;
+    
+    NULL_CHECK(NULL)
+
+    if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+    ret = (obj != NULL && PyObject_IsTrue(obj)) ? MagickFlopImage(self->wand) : MagickFlipImage(self->wand);
+    if (!ret) { PyErr_SetString(PyExc_ValueError, "Failed to flip image"); return NULL; }
+
+    Py_RETURN_NONE;
+}
+// }}}
+
+
 // Image.set_page {{{
 
 static PyObject *
@@ -1174,6 +1192,10 @@ static PyMethodDef magick_Image_methods[] = {
     {"rotate", (PyCFunction)magick_Image_rotate, METH_VARARGS,
      "rotate(background_pixel_wand, degrees) \n\n Rotate image by specified degrees."
     },
+    {"flip", (PyCFunction)magick_Image_flip, METH_VARARGS,
+     "flip(horizontal=False) \n\n Flip image about a vertical axis. If horizontal is True, flip about horizontal axis instead."
+    },
+
 
     {"normalize", (PyCFunction)magick_Image_normalize, METH_VARARGS,
      "normalize() \n\n enhances the contrast of a color image by adjusting the pixels color to span the entire range of colors available."

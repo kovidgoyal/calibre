@@ -17,7 +17,7 @@ To get started with more advanced usage, you should read about the :ref:`Graphic
 
 .. only:: online
     
-    **An ebook version of this user manual is available in** `EPUB format <calibre.epub>`_.
+    **An ebook version of this user manual is available in** `EPUB format <calibre.epub>`_ and `AZW3 (Kindle Fire) format <calibre.azw3>`_.
     
 Sections
 ------------

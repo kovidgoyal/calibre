@@ -1,8 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class TheGridTO(BasicNewsRecipe):
+class TheGrid(BasicNewsRecipe):
     #: The title to use for the ebook
-    title               = u'The Grid TO'
+    title               = u'The Grid'
 
     #: A couple of lines that describe the content this recipe downloads.
     #: This will be used primarily in a GUI that presents a list of recipes.
@@ -67,9 +67,7 @@ class TheGridTO(BasicNewsRecipe):
             div = soup.find(attrs={'class': section_class})
 
             articles = []
-            for tag in div.findAllNext(attrs={'class':'search-block'}):
-                a = tag.findAll('a', href=True)[1]
-
+            for a in div.findAll(attrs={'class':'post-title'}):
                 title = self.tag_to_string(a)
                 url = a['href']
 

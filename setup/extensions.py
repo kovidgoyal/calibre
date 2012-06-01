@@ -12,14 +12,11 @@ from distutils import sysconfig
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows
-from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs,
-        fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc,
-        podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE,
-        QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk,
-        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs,
-        magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs,
-        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, poppler_cflags)
+from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
+        podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
+        msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
+        magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
+        icu_lib_dirs)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -51,7 +48,6 @@ class Extension(object):
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
-reflow_error = poppler_error if poppler_error else magick_error
 
 pdfreflow_libs = []
 if iswindows:
@@ -106,16 +102,6 @@ extensions = [
         lib_dirs=magick_lib_dirs,
         inc_dirs=magick_inc_dirs
         ),
-
-    Extension('pdfreflow',
-                reflow_sources,
-                headers=reflow_headers,
-                libraries=poppler_libs+magick_libs+png_libs+ft_libs+jpg_libs+pdfreflow_libs,
-                lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs+ft_lib_dirs+jpg_lib_dirs,
-                inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
-                error=reflow_error,
-                cflags=poppler_cflags
-                ),
 
     Extension('lzx',
             ['calibre/utils/lzx/lzxmodule.c',
@@ -444,49 +430,6 @@ class Build(Command):
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
 
-
-class BuildPDF2XML(Command):
-
-    description = 'Build command line pdf2xml utility'
-
-    def run(self, opts):
-        dest = os.path.expanduser('~/bin/pdf2xml')
-        if iswindows:
-            dest = r'C:\cygwin\home\kovid\sw\bin\pdf2xml.exe'
-        odest = self.j(self.d(self.SRC), 'build', 'objects', 'pdf2xml')
-        if not os.path.exists(odest):
-            os.makedirs(odest)
-
-        objects = []
-        for src in reflow_sources:
-            if src.endswith('python.cpp'):
-                continue
-            obj = self.j(odest, self.b(src+('.obj' if iswindows else '.o')))
-            if self.newer(obj, [src]+reflow_headers):
-                cmd = [cxx, '-pthread', '-pedantic', '-ggdb', '-c', '-Wall', '-I/usr/include/poppler',
-                        '-I/usr/include/ImageMagick',
-                        '-DPDF2XML', '-o', obj, src]
-                if iswindows:
-                    cmd = [cxx, '/c', '/MD', '/W3', '/EHsc', '/Zi', '/DPDF2XML']
-                    cmd += ['-I'+x for x in poppler_inc_dirs+magick_inc_dirs]
-                    cmd += ['/Fo'+obj, src]
-                self.info(*cmd)
-                self.check_call(cmd)
-            objects.append(obj)
-
-        if self.newer(dest, objects):
-            cmd = ['g++', '-ggdb', '-o', dest]+objects+['-lpoppler', '-lMagickWand',
-            '-lpng', '-lpthread']
-            if iswindows:
-                cmd = [msvc.linker] + '/INCREMENTAL:NO /DEBUG /NODEFAULTLIB:libcmt.lib'.split()
-                cmd += ['/LIBPATH:'+x for x in magick_lib_dirs+poppler_lib_dirs]
-                cmd += [x+'.lib' for x in
-                        png_libs+magick_libs+poppler_libs+ft_libs+jpg_libs+pdfreflow_libs]
-                cmd += ['/OUT:'+dest] + objects
-            self.info(*cmd)
-            self.check_call(cmd)
-
-        self.info('Binary installed as', dest)
 
 
 

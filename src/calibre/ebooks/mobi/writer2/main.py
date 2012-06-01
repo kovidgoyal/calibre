@@ -411,6 +411,7 @@ class MobiWriter(object):
         header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
         header_fields['flis_record'] = flis_number
         header_fields['fcis_record'] = fcis_number
+        header_fields['text_length'] = self.text_length
         extra_data_flags = 0b1 # Has multibyte overlap bytes
         if self.primary_index_record_idx is not None:
             extra_data_flags |= 0b10

@@ -4,11 +4,6 @@ License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
-Files: src/calibre/ebooks/pdf/*.h,*.cpp
-License: GPL-2 or later
- The full text of the GPL is distributed as in
- /usr/share/common-licenses/GPL-2 on Debian systems.
-
 Files: setup/iso_639/*
 Copyright: Various
 License: LGPL 2.1

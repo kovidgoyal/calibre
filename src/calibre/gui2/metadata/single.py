@@ -45,7 +45,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args): # {{{
-        self.resize(990, 650)
+        self.resize(990, 670)
 
         self.download_shortcut = QShortcut(self)
         self.download_shortcut.setKey(QKeySequence('Ctrl+D',
@@ -82,7 +82,6 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
-        self.l.setMargin(0)
         self.l.addWidget(self.scroll_area)
         ll = self.button_box_layout = QHBoxLayout()
         self.l.addLayout(ll)
@@ -623,7 +622,6 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].middle = w = QWidget(self)
         w.l = l = QGridLayout()
         w.setLayout(w.l)
-        l.setMargin(0)
         self.splitter.addWidget(w)
         def create_row2(row, widget, button=None, front_button=None):
             row += 1

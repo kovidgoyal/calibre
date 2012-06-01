@@ -45,6 +45,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None, temporary=False):
         self.parent = parent
         self.children = []
+        self.blank = QIcon()
         self.id_set = set()
         self.is_gst = False
         self.boxed = False
@@ -1020,7 +1021,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return NONE
 
     def flags(self, index, *args):
-        ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+        ans = Qt.ItemIsEnabled|Qt.ItemIsEditable
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
@@ -1175,7 +1176,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         k = 'author_sort' if key == 'authors' else key
                         letters_seen = {}
                         for subnode in tag_item.children:
-                            letters_seen[subnode.tag.sort[0]] = True
+                            if subnode.tag.sort:
+                                letters_seen[subnode.tag.sort[0]] = True
                         charclass = ''.join(letters_seen)
                         if k == 'author_sort':
                             expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)

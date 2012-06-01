@@ -32,6 +32,8 @@ class RemoveAdobeMargins(object):
                         attr = 'margin-'+margin
                         elem.attrib.pop(attr, None)
 
+class NegativeTextIndent(Exception):
+    pass
 
 class RemoveFakeMargins(object):
 
@@ -66,13 +68,25 @@ class RemoveFakeMargins(object):
         self.find_levels()
 
         for level in self.levels:
-            self.process_level(level)
+            try:
+                self.process_level(level)
+            except NegativeTextIndent:
+                self.log.debug('Negative text indent detected at level '
+                        ' %s, ignoring this level'%level)
 
     def get_margins(self, elem):
         cls = elem.get('class', None)
         if cls:
             style = self.selector_map.get('.'+cls, None)
             if style:
+                try:
+                    ti = style['text-indent']
+                except:
+                    pass
+                else:
+                    if ( (hasattr(ti, 'startswith') and ti.startswith('-')) or
+                            isinstance(ti, (int, float)) and ti < 0):
+                        raise NegativeTextIndent()
                 return style.marginLeft, style.marginRight, style
         return '', '', None
 

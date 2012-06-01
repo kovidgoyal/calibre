@@ -25,9 +25,9 @@ class ProspectMagUK(BasicNewsRecipe):
 	needs_subscription      = True
 
 	auto_cleanup_keep = '//div[@class="lead_image"]'
-	remove_tags       = [{'class':['shareinpost','postutils','postinfo']}]
+	#remove_tags       = [{'class':['shareinpost','postutils','postinfo']}]
 
-	INDEX             = 'http://www.prospectmagazine.co.uk/current-issue'
+	INDEX             = 'http://www.prospectmagazine.co.uk/issue/'
 
 	def get_browser(self):
 		br = BasicNewsRecipe.get_browser()
@@ -77,3 +77,4 @@ class ProspectMagUK(BasicNewsRecipe):
 
 			feeds.append((fname, articles))
 		return feeds
+ 

@@ -154,7 +154,7 @@ class FB2Output(OutputFormatPlugin):
         OptionRecommendation(name='fb2_genre',
             recommended_value='antique', level=OptionRecommendation.LOW,
             choices=FB2_GENRES,
-            help=(_('Genre for the book. Choices: %s\n\n See: ') % FB2_GENRES) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' \
+            help=(_('Genre for the book. Choices: %s\n\n See: ') % ', '.join(FB2_GENRES)) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' \
                 + _('for a complete list with descriptions.')),
     ])
 

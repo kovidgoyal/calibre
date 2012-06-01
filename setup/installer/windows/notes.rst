@@ -101,6 +101,14 @@ Now, run configure and make::
 
 Add the path to the bin folder inside the Qt dir to your system PATH.
 
+Now build QtCurve
+cd qmake
+edit the qmake.pro file setting the TARGET to Release
+
+qmake && nmake
+
+The plugin will be in c:\plugins\styles
+
 SIP
 -----
 
@@ -293,9 +301,7 @@ In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable qt4,
 
 NOTE: poppler must be built as a static library, unless you build the qt4 bindings
 
-Now do the same for the pdftohtml project
-
-cp poppler/*.h ~/sw/include/poppler && cp goo/*.h ~/sw/include/poppler/goo && cp splash/*.h ~/sw/include/poppler/splash && cp build/Release/poppler.lib ../../lib/ && cp build/utils/Release/*.exe ../../bin/
+cp build/utils/Release/*.exe ../../bin/
 
 
 podofo

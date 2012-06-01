@@ -210,6 +210,7 @@ class Preferences(QMainWindow):
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard,
                 type=Qt.QueuedConnection)
+        self.bb.button(self.bb.Close).setDefault(True)
         self.cw.layout().addWidget(self.bb)
         self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
         self.setCentralWidget(self.cw)

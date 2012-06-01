@@ -316,6 +316,9 @@ class NCXIndex(Index):
             desc = entry.get('description', None)
             if desc:
                 strings.append(desc)
+            kind = entry.get('kind', None)
+            if kind:
+                strings.append(kind)
         self.cncx = CNCX(strings)
 
         def to_entry(x):
@@ -324,12 +327,29 @@ class NCXIndex(Index):
                     'first_child', 'last_child'):
                 if f in x:
                     ans[f] = x[f]
-            for f in ('label', 'description', 'author'):
+            for f in ('label', 'description', 'author', 'kind'):
                 if f in x:
                     ans[f] = self.cncx[x[f]]
             return ('%02x'%x['index'], ans)
 
         self.entries = list(map(to_entry, toc_table))
 
+
+
+class NonLinearNCXIndex(NCXIndex):
+    control_byte_count = 2
+    tag_types = tuple(map(TagMeta, (
+        ('offset',             1, 1, 1, 0),
+        ('length',             2, 1, 2, 0),
+        ('label',              3, 1, 4, 0),
+        ('depth',              4, 1, 8, 0),
+        ('kind',               5, 1, 16, 0),
+        ('parent',             21, 1, 32, 0),
+        ('first_child',        22, 1, 64, 0),
+        ('last_child',         23, 1, 128, 0),
+        EndTagTable,
+        ('pos_fid',            6, 2, 1, 0),
+        EndTagTable
+    )))
 
 

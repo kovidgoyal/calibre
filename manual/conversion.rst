@@ -669,7 +669,6 @@ Some limitations of PDF input are:
     * Complex, multi-column, and image based documents are not supported.
     * Extraction of vector images and tables from within the document is also not supported.
     * Some PDFs use special glyphs to represent ll or ff or fi, etc. Conversion of these may or may not work depending on just how they are represented internally in the PDF.
-    * Some PDFs store their images upside down with a rotation instruction, |app| currently doesn't support that instruction, so the images will be rotated in the output as well. 
     * Links and Tables of Contents are not supported
     * PDFs that use embedded non-unicode fonts to represent non-English characters will result in garbled output for those characters
     * Some PDFs are made up of photographs of the page with OCRed text behind them. In such cases |app| uses the OCRed text, which can be very different from what you see when you view the PDF file

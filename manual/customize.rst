@@ -39,7 +39,7 @@ Tweaks
 Tweaks are small changes that you can specify to control various aspects of |app|'s behavior. You can change them by going to Preferences->Advanced->Tweaks.
 The default values for the tweaks are reproduced below
 
-.. literalinclude:: ../../../resources/default_tweaks.py
+.. literalinclude:: ../resources/default_tweaks.py
 
 
 Overriding icons, templates, et cetera
