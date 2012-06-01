@@ -922,7 +922,6 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
             sr = QScrollArea(gb)
             sr.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             sr.setWidgetResizable(True)
-            sr.setBackgroundRole(QPalette.Base)
             sr.setFrameStyle(QFrame.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
