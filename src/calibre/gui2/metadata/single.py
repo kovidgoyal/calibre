@@ -13,7 +13,7 @@ from datetime import datetime
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu, QShortcut)
+        QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
@@ -45,7 +45,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args): # {{{
-        self.resize(990, 650)
+        self.resize(990, 670)
 
         self.download_shortcut = QShortcut(self)
         self.download_shortcut.setKey(QKeySequence('Ctrl+D',
@@ -82,7 +82,6 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
-        self.l.setMargin(0)
         self.l.addWidget(self.scroll_area)
         ll = self.button_box_layout = QHBoxLayout()
         self.l.addLayout(ll)
@@ -623,7 +622,6 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].middle = w = QWidget(self)
         w.l = l = QGridLayout()
         w.setLayout(w.l)
-        l.setMargin(0)
         self.splitter.addWidget(w)
         def create_row2(row, widget, button=None, front_button=None):
             row += 1
@@ -787,7 +785,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
             gb.setLayout(gbl)
             sr = QScrollArea(tab0)
             sr.setWidgetResizable(True)
-            sr.setBackgroundRole(QPalette.Base)
             sr.setFrameStyle(QFrame.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
@@ -925,7 +922,6 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
             sr = QScrollArea(gb)
             sr.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             sr.setWidgetResizable(True)
-            sr.setBackgroundRole(QPalette.Base)
             sr.setFrameStyle(QFrame.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)

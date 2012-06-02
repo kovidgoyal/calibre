@@ -71,6 +71,14 @@ def explode(path, dest, question=lambda x:True):
     return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path,
             dest), no_output=True)['result']
 
+def set_cover(oeb):
+    if 'cover' not in oeb.guide or oeb.metadata['cover']: return
+    cover = oeb.guide['cover']
+    if cover.href in oeb.manifest.hrefs:
+        item = oeb.manifest.hrefs[cover.href]
+        oeb.metadata.clear('cover')
+        oeb.metadata.add('cover', item.id)
+
 def do_rebuild(opf, dest_path):
     plumber = Plumber(opf, dest_path, default_log)
     plumber.setup_options()
@@ -79,6 +87,7 @@ def do_rebuild(opf, dest_path):
 
     plumber.opts.mobi_passthrough = True
     oeb = create_oebbook(default_log, opf, plumber.opts)
+    set_cover(oeb)
     outp.convert(oeb, dest_path, inp, plumber.opts, default_log)
 
 def rebuild(src_dir, dest_path):
@@ -86,6 +95,8 @@ def rebuild(src_dir, dest_path):
     if not opf:
         raise ValueError('No OPF file found in %s'%src_dir)
     opf = opf[0]
+    # For debugging, uncomment the following line
+    # def fork_job(a, b, args=None, no_output=True): do_rebuild(*args)
     fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
             no_output=True)
 

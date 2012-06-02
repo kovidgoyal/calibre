@@ -186,7 +186,13 @@ def main():
             args = conn.recv()
         try:
             mod, func, args, kwargs = args
-            mod = importlib.import_module(mod)
+            try:
+                mod = importlib.import_module(mod)
+            except ImportError:
+                # Load plugins incase fork_job() is being used in a plugin
+                import calibre.customize.ui as u
+                u
+                mod = importlib.import_module(mod)
             func = getattr(mod, func)
             res = {'result':func(*args, **kwargs)}
         except:

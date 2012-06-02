@@ -6,7 +6,6 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import datetime
 from urllib import quote_plus
 from Queue import Queue, Empty
 
@@ -14,6 +13,7 @@ from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.date import parse_only_date
 
 class Ozon(Source):
     name = 'OZON.ru'
@@ -454,9 +454,7 @@ def toPubdate(log, yearAsString): # {{{
     res = None
     if yearAsString:
         try:
-            year = int(yearAsString)
-            # only year is available, so use 1-st of Jan
-            res = datetime.datetime(year, 1, 1)
+            res = parse_only_date(yearAsString)
         except:
             log.error('cannot parse to date %s'%yearAsString)
     return res

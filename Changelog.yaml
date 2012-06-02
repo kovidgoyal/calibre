@@ -19,6 +19,191 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.54
+  date: 2012-05-31
+
+  new features:
+    - title: "E-book viewer: The Table of contents panel now tracks the current position in the book. As you scroll through the book, the entry you are currently on is highlighted."
+      type: major
+      description: "To see this feature in action, open the Table of Contents panel in the viewer by clicking the button with three blue lines on it. As you page through the book, the chapter you are reading currently is highlighted in the Table of Contents Panel. Obviously, this will only work if the book you are reading has a Table of Contents. You can also use the Ctrl+PgUp and Ctrl+PgDn keys to quickly skip between chapters."
+
+    - title: "calibredb: Allow setting metadata for individual fields with the set_metadata command"
+
+    - title: "Make it a little harder to accidentally change the sorting of items in the Tag Browser. Also frees up more vertical space for the Tag Browser itself."
+
+    - title: "The calibre user manual is now available in AZW3 format as well as EPUB"
+
+  bug fixes:
+    - title: "Automatic titlecasing: No longer try to capitalize scottish names, as there are too many special cases." 
+      tickets: [775825] 
+
+    - title: "Never crash when reading metadata from PDF files (reading now always happens in a worker process)"
+      tickets: [1006452]
+
+    - title: "EPUB Input: Do no skip the valid children of an NCX node that has no text/href"
+
+    - title: "Archos driver: Detect SD card"
+      tickets: [1005650] 
+
+    - title: "When bulk downloading metadata and the user deletes one of the books for which metadata is being downloaded, just ignore it, instead of erroring out"
+
+    - title: "When deleting books from the bottom of the booklist, ensure that the bottom book after deleting is selected"
+
+    - title: "Fix regression in 0.8.53 that broke sending APNX files to older Kindle devices"
+
+    - title: "Use correct text color for selected rows in the list of matches when downloading metadata and showing results in get books."
+      tickets: [1004568]
+
+  improved recipes:
+    - The Independent
+    - Welt der Physik
+    - China Daily
+    - The Grid
+    - Prospect Magazine
+
+  new recipes:
+    - title: La gazetta del Mezzogiorno 
+      author: faber1971
+
+- version: 0.8.53
+  date: 2012-05-25
+
+  new features:
+    - title: "Kindle Touch/4 driver: Upload cover thumbnails when sending books to device by USB to workaround Amazon bug of not displaying covers for sync-enabled books"
+
+    - title: "Support for updating metadata in FB2 files"
+
+    - title: "Set a different background color when choosing formats to not delete as opposed to choosing format to delete."
+      tickets: [ 1001741 ] 
+
+    - title: "E-book viewer: Add an option to prevent the up and down arrow keys from scrolling past page breaks"
+
+    - title: "Get Books: Remove ebookshoppe.com at the website's request"
+ 
+  bug fixes:
+    - title: "PDF Input: Support image rotation commands in PDF files. Fixes the long standing problem of some  images being flipped when converting from PDF in calibre."
+
+    - title: "Fix a regression in 0.8.51 that caused conversion to HTMLZ to not have any CSS"
+
+    - title: "Get Books: Fix website change at kobo.com causing prices not to be found"
+
+    - title: "Edit the time in the 24 hour clock when calibre's interface language is set to German."
+      tickets: [ 1001809 ] 
+
+    - title: "MOBI Output: When generating joint KF8/MOBI6 .mobi files set the text length field in the MOBI 6 header correctly. "
+      tickets: [ 1003489 ] 
+
+    - title: "ODT Input: More workarounds for LibreOffice 3.5's habit of inserting pointless margin:100% directives everywhere."
+      tickets: [ 1002702 ] 
+
+    - title: "Fix regression that broke smarten punctuation when quotes were next to html tags."
+      tickets: [ 998900 ] 
+
+    - title: "Fix published date from ozon.ru wrong in some timezones"
+      tickets: [ 975338 ]
+
+    - title: "Catalogs: Handle the use of custom columns with non-ascii names correctly"
+      tickets: [1001437]
+
+    - title: "Conversion pipeline: Remove the attempt to detect and autocorrect if text will go off the left edge of the page, as it was a rather crude heuristic. Also do not remove fake margins if the book uses negative text indents on the margined elements."
+
+    - title: "KF8 Output: Set offsets to tags in the skeleton the same way kindlegen does. Also linearize non linear ToCs to ensure section to section jumping works."
+
+    - title: "Conversion pipeline: Use correct default value of 'inherit' for font-family and font-size when normalizing the shorthand font property."
+
+    - title: "When running python scripts via calibre-debug ensure that user plugins are loaded"
+
+  improved recipes:
+    - Business Week Magazine
+    - Metro Nieuws NL
+
+  new recipes:
+    - title: Attac.es 
+      author: Marc Busque
+
+    - title: Drytooling.com
+      author: Damian Granowski
+
+    - title: Shortlist.com 
+      author: Dave ASbury
+
+    - title: National Geographic (es) 
+      author: vakya
+
+- version: 0.8.52
+  date: 2012-05-18
+
+  new features:
+    - title: "EPUB Input: When setting the cover for a book that identifies its cover image, but not the html wrapper around the cover, try to detect and remove that wrapper automatically."
+      tickets: [ 999959 ] 
+
+    - title: "When deleting books of a specific format, show the number of books with each format available"
+
+    - title: "Linux install: No longer create MAN pages as all utilities have more comprehensive command line --help anyway"
+
+    - title: "Add a tweak Preferences->Tweaks to control the default choice of format for the Tweak Book feature"
+
+    - title: "Conversion: Allow setting negative page margins. A negative page margin means that calibre will not specify any page margin in the output document (for formats that support this)"
+ 
+  bug fixes:
+    - title: "Tweak book: Fix handling of covers when tweaking KF8 books"
+
+    - title: "KF8 Output: Handle input documents with out of sequence ToC entries. Note that currently section jumping in the KF8 output produced by calibre for such files does not work."
+      tickets: [1000493]
+
+    - title: "Edit metadata dialog: Fix the edit values button for custom tag-like columns showing a unneeded warning about changed values"
+
+    - title: "EPUB Output: Be a little more conservative when removing <form> tags. Only remove them if they have actual forms inside. "
+      tickets: [ 1000384 ]
+
+    - title: "EPUB Input: Correctly update the Cover entry in the ToC even when the entry has a fragment reference. "
+      tickets: [ 999973 ]
+
+    - title: "Update ImagMagick DLLs in all calibre binary builds to fix security vulnerabilities in ImageMagick"
+      tickets: [ 999496 ] 
+
+    - title: "Advanced search dialog: Fix equals and regex matching not being applied for custom column searches."
+      tickets: [ 980221 ] 
+
+    - title: "RTF Input: Handle old RTF files that have commands without braces."
+      tickets: [ 994133 ] 
+
+    - title: "Get Books: Diesel, fix results not showing when only a single match is found"
+
+    - title: "Get Books: Fix DRM status indicators for Kobo and Diesel stores. Fix smashwords not returning results."
+      tickets: [ 993755 ] 
+
+    - title: "Fix regression in 0.8.51 that broke viewing of LIT and some EPUB files"
+      tickets: [998248, 998216] 
+
+  improved recipes:
+    - Clarin
+    - Spiegel
+    - Spiegel International
+    - Montreal Gazette
+    - Gosc Niedzelny
+    - Ars Technica
+
+  new recipes:
+    - title: "Army/Navy/Air force/Marine Times and News busters" 
+      author: jde
+
+    - title: "Ads of the World, Heavy Meta (Italian) and Juve La Stampa"
+      author: faber1971
+
+    - title: "Revista Summa"
+      author: Vakya
+
+    - title: "Strategic culture"
+      author: Darko Miletic
+
+    - title: Stars and Stripes 
+      author: adoucette
+
+    - title: Nackdenkseiten 
+      author: jrda
+
+
 - version: 0.8.51
   date: 2012-05-11
 

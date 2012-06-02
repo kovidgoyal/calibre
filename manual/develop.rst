@@ -45,6 +45,16 @@ All the |app| python code is in the ``calibre`` package. This package contains t
       The format independent code is all in ebooks.oeb and the format dependent code is in ebooks.format_name.
 
         * Metadata reading, writing, and downloading is all in ebooks.metadata
+        * Conversion happens in a pipeline, for the structure of the pipeline,
+          see :ref:`conversion-introduction`. The pipeline consists of an input
+          plugin, various transforms and an output plugin. The code constructs
+          and drives the pipeline is in plumber.py. The pipeline works on a
+          representation of an ebook that is like an unzipped epub, with
+          manifest, spine, toc, guide, html content, etc. The
+          class that manages this representation is OEBBook in oeb/base.py. The
+          various transformations that are applied to the book during
+          conversions live in `oeb/transforms/*.py`. And the input and output
+          plugins live in `conversion/plugins/*.py`.
 
     * library - The database back-end and the content server. See library.database2 for the interface to the |app| library. library.server is the |app| Content Server.
     * gui2 - The Graphical User Interface. GUI initialization happens in gui2.main and gui2.ui. The ebook-viewer is in gui2.viewer.

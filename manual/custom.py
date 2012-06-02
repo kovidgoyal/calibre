@@ -5,9 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, re, textwrap
 
-sys.path.insert(0, os.path.abspath('../../'))
-sys.extensions_location = '../plugins'
-sys.resources_location  = '../../../resources'
+sys.path.insert(0, os.path.abspath('../src'))
+sys.extensions_location = '../src/calibre/plugins'
+sys.resources_location  = '../resources'
 
 from sphinx.util.console import bold
 
@@ -116,44 +116,42 @@ def generate_ebook_convert_help(preamble, info):
     from calibre.utils.logging import default_log
     preamble = re.sub(r'http.*\.html', ':ref:`conversion`', preamble)
     raw = preamble + textwrap.dedent('''
-    Since the options supported by ebook-convert vary depending on both the
-    input and the output formats, the various combinations are listed below:
+    The options and default values for the options change depending on both the
+    input and output formats, so you should always check with::
+
+        ebook-convert myfile.input_format myfile.output_format -h
+
+    Below are the options that are common to all conversion, followed by the
+    options specific to every input and output format
 
     ''')
-    toc = {}
-    sec_templ = textwrap.dedent('''\
-        .. include:: ../global.rst
+    parser, plumber = create_option_parser(['ebook-convert',
+        'dummyi.mobi', 'dummyo.epub', '-h'], default_log)
+    groups = [(None, None, parser.option_list)]
+    for grp in parser.option_groups:
+        if grp.title not in {'INPUT OPTIONS', 'OUTPUT OPTIONS'}:
+            groups.append((grp.title.title(), grp.description, grp.option_list))
+    options = '\n'.join(render_options('ebook-convert', groups, False))
 
-        {0}
-        ================================================================
+    raw += '\n\n.. contents::\n  :local:'
 
-        .. contents:: Contents
-          :depth: 1
-          :local:
+    raw += '\n\n' + options
+    for pl in sorted(input_format_plugins(), key=lambda x:x.name):
+        parser, plumber = create_option_parser(['ebook-convert',
+            'dummyi.'+list(pl.file_types)[0], 'dummyo.epub', '-h'], default_log)
+        groups = [(pl.name+ ' Options', '', g.option_list) for g in
+                parser.option_groups if g.title == "INPUT OPTIONS"]
+        prog = 'ebook-convert-'+(pl.name.lower().replace(' ', '-'))
+        raw += '\n\n' + '\n'.join(render_options(prog, groups, False, True))
+    for pl in sorted(output_format_plugins(), key=lambda x: x.name):
+        parser, plumber = create_option_parser(['ebook-convert', 'd.epub',
+            'dummyi.'+pl.file_type, '-h'], default_log)
+        groups = [(pl.name+ ' Options', '', g.option_list) for g in
+                parser.option_groups if g.title == "OUTPUT OPTIONS"]
+        prog = 'ebook-convert-'+(pl.name.lower().replace(' ', '-'))
+        raw += '\n\n' + '\n'.join(render_options(prog, groups, False, True))
 
-    ''')
-    for i, ip in enumerate(input_format_plugins()):
-        sraw = sec_templ.format(ip.name)
-        toc[ip.name] = 'ebook-convert-%d'%i
-        for op in output_format_plugins():
-            title = ip.name + ' to ' + op.name
-            parser, plumber = create_option_parser(['ebook-convert',
-                'dummyi.'+list(ip.file_types)[0],
-                'dummyo.'+op.file_type, '-h'], default_log)
-            cmd = 'ebook-convert '+list(ip.file_types)[0]+' '+op.file_type
-            groups = [(None, None, parser.option_list)]
-            for grp in parser.option_groups:
-                groups.append((grp.title, grp.description, grp.option_list))
-            options = '\n'.join(render_options(cmd, groups, False))
-            sraw += title+'\n------------------------------------------------------\n\n'
-            sraw += options + '\n\n'
-        update_cli_doc(os.path.join('cli', toc[ip.name]+'.rst'), sraw, info)
 
-    toct = '\n\n.. toctree::\n    :maxdepth: 2\n\n'
-    for ip in sorted(toc):
-        toct += '    ' + toc[ip]+'\n'
-
-    raw += toct+'\n\n'
     update_cli_doc(os.path.join('cli', 'ebook-convert.rst'), raw, info)
 
 def update_cli_doc(path, raw, info):

@@ -8,7 +8,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings,
-                    QIcon, QApplication, QDialog, QUrl, QFont)
+                    QIcon, QApplication, QDialog, QUrl, QFont, QPalette)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -106,6 +106,7 @@ gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
 gprefs.defaults['auto_add_auto_convert'] = True
+gprefs.defaults['widget_style'] = 'system'
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -470,6 +471,7 @@ class FileIconProvider(QFileIconProvider):
              'djvu'    : 'djvu',
              'xps'     : 'xps',
              'oxps'    : 'xps',
+             'docx'    : 'docx',
              }
 
     def __init__(self):
@@ -719,9 +721,9 @@ qt_app = None
 class Application(QApplication):
 
     def __init__(self, args):
+        self.file_event_hook = None
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
-        self.file_event_hook = None
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
         self._translator = None
@@ -737,17 +739,29 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
-        st = self.style()
-        if st is not None:
-            st = unicode(st.objectName()).lower()
-        if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
-            from PyQt4.Qt import QStyleFactory
-            styles = set(map(unicode, QStyleFactory.keys()))
-            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
-                    False):
-                self.setStyle('Plastique')
-            elif 'Cleanlooks' in styles:
-                self.setStyle('Cleanlooks')
+        self.setup_styles()
+
+    def setup_styles(self):
+        if gprefs['widget_style'] != 'system':
+            # On OS X QtCurve resets the palette, so we preserve it explicitly
+            orig_pal = QPalette(self.palette())
+            QApplication.setStyle('QtCurve')
+            self.setPalette(orig_pal)
+        else:
+            st = self.style()
+            if st is not None:
+                st = unicode(st.objectName()).lower()
+            if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
+                from PyQt4.Qt import QStyleFactory
+                styles = set(map(unicode, QStyleFactory.keys()))
+                if 'QtCurve' in styles and os.environ.get('KDE_FULL_SESSION',
+                        False):
+                    self.setStyle('QtCurve')
+                elif 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                        False):
+                    self.setStyle('Plastique')
+                elif 'Cleanlooks' in styles:
+                    self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:

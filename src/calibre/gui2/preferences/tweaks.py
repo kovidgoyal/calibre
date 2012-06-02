@@ -42,7 +42,9 @@ class Tweak(object): # {{{
     def __init__(self, name, doc, var_names, defaults, custom):
         translate = _
         self.name = translate(name)
-        self.doc = translate(doc.strip())
+        self.doc = doc.strip()
+        if self.doc:
+            self.doc = translate(self.doc)
         self.var_names = var_names
         self.default_values = {}
         for x in var_names:

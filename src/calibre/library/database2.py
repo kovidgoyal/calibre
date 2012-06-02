@@ -1023,6 +1023,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
 
+    def has_id(self, id_):
+        return self.data._data[id_] is not None
+
     def books_with_same_title(self, mi, all_matches=True):
         title = mi.title
         ans = set()

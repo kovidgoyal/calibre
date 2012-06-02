@@ -377,6 +377,7 @@ class MOBIHeader(object): # {{{
 
         a('Compression: %s'%self.compression)
         a('Unused: %r'%self.unused)
+        a('Text length: %d'%self.text_length)
         a('Number of text records: %d'%self.number_of_text_records)
         a('Text record size: %d'%self.text_record_size)
         a('Encryption: %s'%self.encryption_type)

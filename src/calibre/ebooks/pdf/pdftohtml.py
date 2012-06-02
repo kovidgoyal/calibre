@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>, ' \
                 '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import errno, os, sys, subprocess, shutil
+import errno, os, sys, subprocess, shutil, re
 from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError
@@ -24,7 +24,7 @@ if iswindows and hasattr(sys, 'frozen'):
 if (islinux or isbsd) and getattr(sys, 'frozen', False):
     PDFTOHTML = os.path.join(sys.executables_location, 'bin', 'pdftohtml')
 
-def pdftohtml(output_dir, pdf_path, no_images):
+def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
     '''
     Convert the pdf into html using the pdftohtml app.
     This will write the html as index.html into output_dir.
@@ -32,7 +32,7 @@ def pdftohtml(output_dir, pdf_path, no_images):
     '''
 
     pdfsrc = os.path.join(output_dir, u'src.pdf')
-    index = os.path.join(output_dir, u'index.html')
+    index = os.path.join(output_dir, u'index.'+('xml' if as_xml else 'html'))
 
     with open(pdf_path, 'rb') as src, open(pdfsrc, 'wb') as dest:
         shutil.copyfileobj(src, dest)
@@ -58,6 +58,8 @@ def pdftohtml(output_dir, pdf_path, no_images):
             cmd.remove(b'-nodrm')
         if no_images:
             cmd.append(b'-i')
+        if as_xml:
+            cmd.append('-xml')
 
         logf = PersistentTemporaryFile(u'pdftohtml_log')
         try:
@@ -94,10 +96,39 @@ def pdftohtml(output_dir, pdf_path, no_images):
         if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise DRMError()
 
-        with open(index, 'r+b') as i:
-            raw = i.read()
-            raw = '<!-- created by calibre\'s pdftohtml -->\n' + raw
-            i.seek(0)
-            i.truncate()
-            i.write(raw)
+        if not as_xml:
+            with open(index, 'r+b') as i:
+                raw = i.read()
+                raw = flip_images(raw)
+                raw = '<!-- created by calibre\'s pdftohtml -->\n' + raw
+                i.seek(0)
+                i.truncate()
+                # versions of pdftohtml >= 0.20 output self closing <br> tags, this
+                # breaks the pdf heuristics regexps, so replace them
+                i.write(raw.replace(b'<br/>', b'<br>'))
+
+def flip_image(img, flip):
+    from calibre.utils.magick import Image
+    im = Image()
+    im.open(img)
+    if b'x' in flip:
+        im.flip(True)
+    if b'y' in flip:
+        im.flip()
+    im.save(img)
+
+def flip_images(raw):
+    for match in re.finditer(b'<IMG[^>]+/?>', raw):
+        img = match.group()
+        m = re.search(br'class="(x|y|xy)flip"', img)
+        if m is None: continue
+        flip = m.group(1)
+        src = re.search(br'src="([^"]+)"', img)
+        if src is None: continue
+        img = src.group(1)
+        if not os.path.exists(img): continue
+        print ('Flipping image %s: %s'%(img, flip))
+        flip_image(img, flip)
+    raw = re.sub(br'<STYLE.+?</STYLE>\s*', b'', raw, flags=re.I|re.DOTALL)
+    return raw
 
