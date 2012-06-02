@@ -1,9 +1,13 @@
-#v2 2011-07-25
+# Calibre recipe for Instapaper.com (Stable version)
+#
+# Homepage: http://khromov.wordpress.com/projects/instapaper-calibre-recipe/
+# Code Repository: https://bitbucket.org/khromov/calibre-instapaper
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     title                             = u'Instapaper'
-    __author__                  = 'Darko Miletic, Stanislav Khromov'
+    __author__                    = 'Darko Miletic, Stanislav Khromov, Jim Ramsay'
     publisher                     = 'Instapaper.com'
     category                      = 'info, custom, Instapaper'
     oldest_article               = 365
@@ -11,24 +15,26 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
     remove_tags              = [
-	dict(name='div', attrs={'id':'text_controls_toggle'})
-	,dict(name='script')
-	,dict(name='div', attrs={'id':'text_controls'})
-	,dict(name='div', attrs={'id':'editing_controls'})
-	,dict(name='div', attrs={'class':'bar bottom'})
+    dict(name='div', attrs={'id':'text_controls_toggle'})
+    ,dict(name='script')
+    ,dict(name='div', attrs={'id':'text_controls'})
+    ,dict(name='div', attrs={'id':'editing_controls'})
+    ,dict(name='div', attrs={'class':'bar bottom'})
     ,dict(name='div', attrs={'id':'controlbar_container'})
     ,dict(name='div', attrs={'id':'footer'})
-	 ]
+     ]
     use_embedded_content  = False
     needs_subscription    = True
     INDEX                 = u'http://www.instapaper.com'
     LOGIN                 = INDEX + u'/user/login'
 
-
     feeds          = [
-            (u'Instapaper Unread', u'http://www.instapaper.com/u'),
+            (u'Instapaper Unread', u'http://www.instapaper.com/u')
             (u'Instapaper Starred', u'http://www.instapaper.com/starred')
             ]
+
+    #Adds the title tag to the body of the recipe. Use this if your articles miss headings.
+    add_title_tag = False;
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -67,7 +73,10 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         article.title  = soup.find('title').contents[0].strip()
 
     def postprocess_html(self, soup, first_fetch):
-        for link_tag in soup.findAll(attrs={"id" : "story"}):
-            link_tag.insert(0,'<h1>'+soup.find('title').contents[0].strip()+'</h1>')
+        #adds the title to each story, as it is not always included
+        if self.add_title_tag:
+            for link_tag in soup.findAll(attrs={"id" : "story"}):
+                link_tag.insert(0,'<h1>'+soup.find('title').contents[0].strip()+'</h1>')
 
+        #print repr(soup)
         return soup
