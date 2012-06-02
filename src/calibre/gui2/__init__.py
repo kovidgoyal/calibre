@@ -763,13 +763,6 @@ class Application(QApplication):
                     self.setStyle('Plastique')
                 elif 'Cleanlooks' in styles:
                     self.setStyle('Cleanlooks')
-        # Ensure that pushbuttons with no icons are not narrower than
-        # pushbuttons with icons
-        from PyQt4.Qt import QPushButton
-        w = QPushButton()
-        self.setStyleSheet('QPushButton { min-height: %dpx }'%
-                (w.iconSize().height()))
-
 
     def _send_file_open_events(self):
         with self._file_open_lock:

@@ -96,11 +96,21 @@ class MetadataSingleDialogBase(ResizableDialog):
         if len(self.db.custom_column_label_map):
             self.create_custom_metadata_widgets()
 
-
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.title.resizeEvent = self.fix_push_buttons
+
+    def fix_push_buttons(self, *args):
+        # Ensure all PushButtons stay the same consistent height throughout this
+        # dialog. Without this, the buttons inside scrollareas get shrunk,
+        # while the buttons outside them do not, leading to weirdness.
+        ht = self.title.height()
+        for but in self.findChildren(QPushButton):
+            but.setMaximumHeight(ht)
+            but.setMinimumHeight(ht)
+        return TitleEdit.resizeEvent(self.title, *args)
     # }}}
 
     def create_basic_metadata_widgets(self): # {{{
