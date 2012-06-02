@@ -28,6 +28,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
 from calibre.ptempfile import reset_base_dir
+from calibre.utils.zipfile import BadZipfile
 
 vprefs = JSONConfig('viewer')
 
@@ -37,6 +38,11 @@ class Worker(Thread):
         try:
             Thread.run(self)
             self.exception = self.traceback = None
+        except BadZipfile:
+            self.exception = _(
+                'This ebook is corrupted and cannot be opened. If you '
+                'downloaded it from somewhere, try downloading it again.')
+            self.traceback = ''
         except Exception as err:
             self.exception = err
             self.traceback = traceback.format_exc()
