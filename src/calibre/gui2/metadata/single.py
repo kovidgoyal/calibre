@@ -106,6 +106,8 @@ class MetadataSingleDialogBase(ResizableDialog):
         # Ensure all PushButtons stay the same consistent height throughout this
         # dialog. Without this, the buttons inside scrollareas get shrunk,
         # while the buttons outside them do not, leading to weirdness.
+        # Further, buttons with and without icons have different minimum sizes
+        # so things look even more out of whack.
         ht = self.title.height()
         for but in self.findChildren(QPushButton):
             but.setMaximumHeight(ht)
