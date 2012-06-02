@@ -57,9 +57,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             if sc:
                 self.download_shortcut.setKey(sc[0])
 
-        self.button_box = QDialogButtonBox(
-                QDialogButtonBox.Ok|QDialogButtonBox.Cancel, Qt.Horizontal,
-                self)
+        self.button_box = bb = QDialogButtonBox(self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
@@ -70,9 +68,11 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
-        self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
-        self.button_box.addButton(self.next_button, self.button_box.ActionRole)
+        self.button_box.addButton(self.prev_button, bb.ActionRole)
+        self.button_box.addButton(self.next_button, bb.ActionRole)
         self.prev_button.clicked.connect(self.prev_clicked)
+        bb.setStandardButtons(bb.Ok|bb.Cancel)
+        bb.button(bb.Ok).setDefault(True)
 
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setFrameShape(QScrollArea.NoFrame)
@@ -508,14 +508,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             tip = (_('Save changes and edit the metadata of %s')+
                     ' [Alt+Right]')%next_
             self.next_button.setToolTip(tip)
-        self.next_button.setVisible(next_ is not None)
+        self.next_button.setEnabled(next_ is not None)
         if prev is not None:
             tip = (_('Save changes and edit the metadata of %s')+
                     ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
-        self.prev_button.setVisible(prev is not None)
+        self.prev_button.setEnabled(prev is not None)
         self(self.db.id(self.row_list[self.current_row]))
-
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python
