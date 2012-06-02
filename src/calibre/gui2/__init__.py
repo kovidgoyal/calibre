@@ -731,6 +731,9 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+        self.setup_styles()
+
+    def setup_styles(self):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
@@ -739,9 +742,7 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
-        self.setup_styles()
 
-    def setup_styles(self):
         if gprefs['widget_style'] != 'system':
             # On OS X QtCurve resets the palette, so we preserve it explicitly
             orig_pal = QPalette(self.palette())
@@ -766,7 +767,9 @@ class Application(QApplication):
         # pushbuttons with icons
         from PyQt4.Qt import QPushButton
         w = QPushButton()
-        self.setStyleSheet('QPushButton { min-height: %dpx }'%w.iconSize().height())
+        self.setStyleSheet('QPushButton { min-height: %dpx }'%
+                (w.iconSize().height()))
+
 
     def _send_file_open_events(self):
         with self._file_open_lock:

@@ -87,7 +87,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.l.addLayout(ll)
         ll.addSpacing(10)
         ll.addWidget(self.button_box)
-        ll.addSpacing(10)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
         self.setWindowTitle(BASE_TITLE)
