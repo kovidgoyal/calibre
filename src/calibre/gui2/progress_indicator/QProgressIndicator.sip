@@ -6,6 +6,10 @@
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip
 
+%ModuleHeaderCode
+int load_style(QString &path, QString &name);
+%End
+
 class QProgressIndicator : QWidget {
 
 %TypeHeaderCode
@@ -50,3 +54,6 @@ protected:
     virtual void paintEvent(QPaintEvent * event);
 
 };
+
+int load_style(QString &path, QString &name);
+
