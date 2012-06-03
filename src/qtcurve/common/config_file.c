@@ -2611,7 +2611,12 @@ void qtcDefaultSettings(Options *opts)
     opts->gbFactor=DEF_GB_FACTOR;
     opts->gbLabel=GB_LBL_BOLD|GB_LBL_OUTSIDE;
 #if defined CONFIG_DIALOG || (defined QT_VERSION && (QT_VERSION >= 0x040000))
+#if defined _WIN32 || defined __APPLE__
+    // Changed by Kovid to use standard button sizes on Windows/OS X
+    opts->stdBtnSizes=true;
+#else
     opts->stdBtnSizes=false;
+#endif
     opts->titlebarButtons=TITLEBAR_BUTTON_ROUND|TITLEBAR_BUTTON_HOVER_SYMBOL;
     opts->titlebarIcon=TITLEBAR_ICON_NEXT_TO_TITLE;
 #endif

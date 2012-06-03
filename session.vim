@@ -9,6 +9,7 @@ let g:syntastic_cpp_include_dirs = [
             \'/usr/include/qt4',
             \'src/qtcurve/common', 'src/qtcurve',
             \]
+let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
 
 fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to

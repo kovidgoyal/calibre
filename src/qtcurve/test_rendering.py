@@ -8,7 +8,8 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import Application
-from PyQt4.Qt import (QDialog, QGridLayout, QListWidget, QDialogButtonBox)
+from PyQt4.Qt import (QDialog, QGridLayout, QListWidget, QDialogButtonBox,
+        QPushButton, QTimer)
 
 app = Application([], force_calibre_style=True)
 
@@ -24,5 +25,12 @@ bb.accepted.connect(d.accept)
 bb.rejected.connect(d.reject)
 l.addWidget(bb, 2, 0, 1, 2)
 
+b = QPushButton('Normal')
+l.addWidget(b, 0, 1, 1, 1)
+
+def print_button_sizes():
+    for b in d.findChildren(QPushButton):
+        print (unicode(b.text()), b.height())
+QTimer.singleShot(5, print_button_sizes)
 d.exec_()
 
