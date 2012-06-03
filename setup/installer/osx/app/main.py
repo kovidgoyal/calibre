@@ -296,10 +296,6 @@ class Py2App(object):
             self.add_qt_framework(f)
         for d in glob.glob(join(SW, 'qt', 'plugins', '*')):
             shutil.copytree(d, join(self.contents_dir, 'MacOS', basename(d)))
-        sty = join(self.contents_dir, 'MacOS', 'styles')
-        os.mkdir(sty)
-        shutil.copyfile(glob.glob(join(SW, 'build', 'QtCurve*', 'build', 'style',
-            'qtcurve.so'))[-1], join(sty, 'qtcurve.dylib'))
         for l in glob.glob(join(self.contents_dir, 'MacOS', '*/*.dylib')):
             self.fix_dependencies_in_lib(l)
             x = os.path.relpath(l, join(self.contents_dir, 'MacOS'))

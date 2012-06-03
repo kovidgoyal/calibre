@@ -733,6 +733,16 @@ class Application(QApplication):
         self._file_open_lock = RLock()
         self.setup_styles()
 
+    def load_calibre_style(self):
+        # On OS X QtCurve resets the palette, so we preserve it explicitly
+        orig_pal = QPalette(self.palette())
+        from calibre.constants import plugins
+        pi = plugins['progress_indicator'][0]
+        path = os.path.join(sys.extensions_location, 'calibre_style.'+(
+            'pyd' if iswindows else 'so'))
+        pi.load_style(path, 'Calibre')
+        self.setPalette(orig_pal)
+
     def setup_styles(self):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
@@ -744,10 +754,7 @@ class Application(QApplication):
             QApplication.setFont(font)
 
         if gprefs['widget_style'] != 'system':
-            # On OS X QtCurve resets the palette, so we preserve it explicitly
-            orig_pal = QPalette(self.palette())
-            QApplication.setStyle('QtCurve')
-            self.setPalette(orig_pal)
+            self.load_calibre_style()
         else:
             st = self.style()
             if st is not None:
@@ -755,12 +762,8 @@ class Application(QApplication):
             if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
                 from PyQt4.Qt import QStyleFactory
                 styles = set(map(unicode, QStyleFactory.keys()))
-                if 'QtCurve' in styles and os.environ.get('KDE_FULL_SESSION',
-                        False):
-                    self.setStyle('QtCurve')
-                elif 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
-                        False):
-                    self.setStyle('Plastique')
+                if os.environ.get('KDE_FULL_SESSION', False):
+                    self.load_calibre_style()
                 elif 'Cleanlooks' in styles:
                     self.setStyle('Cleanlooks')
 
