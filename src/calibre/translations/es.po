@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-01 17:51+0000\n"
-"PO-Revision-Date: 2012-06-01 17:55+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2012-06-02 17:43+0000\n"
+"Last-Translator: Javier García Díaz <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-02 05:28+0000\n"
+"X-Launchpad-Export-Date: 2012-06-03 04:45+0000\n"
 "X-Generator: Launchpad (build 15342)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
@@ -244,7 +244,7 @@ msgstr "No se puede configurar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Tipo de fichero"
+msgstr "Tipo de archivo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
@@ -303,7 +303,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Extraer la portada de los ficheros de cómic"
+msgstr "Extraer portada de los archivos del cómic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -328,7 +328,7 @@ msgstr "Extraer la portada de los ficheros de cómic"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:390
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Leer metadatos desde ficheros %s"
+msgstr "Leer metadatos desde archivos %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:327
 msgid "Read metadata from ebooks in RAR archives"
@@ -347,14 +347,14 @@ msgstr "Leer metadatos de libros electrónicos en archivos ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:502
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Asignar metadatos a los ficheros %s"
+msgstr "Asignar metadatos a los archivos %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:470
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:513
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Asignar metadatos desde ficheros %s"
+msgstr "Asignar metadatos desde archivos %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Add books to calibre or the connected device"
