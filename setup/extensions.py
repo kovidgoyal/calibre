@@ -368,7 +368,7 @@ class Build(Command):
         self.info('\n####### Building calibre style', '#'*7)
         sdir = self.j(self.SRC, 'qtcurve')
         def path(x):
-            if x: x=self.j(sdir, x)
+            x=self.j(sdir, x)
             return ('"%s"'%x).replace(os.sep, '/')
         headers = [
            "common/colorutils.h",
