@@ -165,6 +165,9 @@ class ANDROID(USBMS):
             # Lenovo
             0x17ef : { 0x7421 : [0x0216] },
 
+            # Pantech
+            0x10a9 : { 0x6050 : [0x227] },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
