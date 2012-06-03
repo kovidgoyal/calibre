@@ -89,11 +89,11 @@ class OptionParser(_OptionParser):
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
         self.gui_mode = gui_mode
-        for o, msg in {'-h':_('show this help message and exit'), '--version':
-                _("show program's version number and exit")}.iteritems():
-            opt = self.get_option(o)
-            if opt is not None:
-                opt.help = msg
+        if False:
+            # Translatable string from optparse
+            _("Options")
+            _("show this help message and exit")
+            _("show program's version number and exit")
 
     def error(self, msg):
         if self.gui_mode:

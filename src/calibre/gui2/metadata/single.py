@@ -57,9 +57,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             if sc:
                 self.download_shortcut.setKey(sc[0])
 
-        self.button_box = QDialogButtonBox(
-                QDialogButtonBox.Ok|QDialogButtonBox.Cancel, Qt.Horizontal,
-                self)
+        self.button_box = bb = QDialogButtonBox(self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
@@ -70,9 +68,11 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
-        self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
-        self.button_box.addButton(self.next_button, self.button_box.ActionRole)
+        self.button_box.addButton(self.prev_button, bb.ActionRole)
+        self.button_box.addButton(self.next_button, bb.ActionRole)
         self.prev_button.clicked.connect(self.prev_clicked)
+        bb.setStandardButtons(bb.Ok|bb.Cancel)
+        bb.button(bb.Ok).setDefault(True)
 
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setFrameShape(QScrollArea.NoFrame)
@@ -87,7 +87,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.l.addLayout(ll)
         ll.addSpacing(10)
         ll.addWidget(self.button_box)
-        ll.addSpacing(10)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
         self.setWindowTitle(BASE_TITLE)
@@ -97,11 +96,23 @@ class MetadataSingleDialogBase(ResizableDialog):
         if len(self.db.custom_column_label_map):
             self.create_custom_metadata_widgets()
 
-
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.title.resizeEvent = self.fix_push_buttons
+
+    def fix_push_buttons(self, *args):
+        # Ensure all PushButtons stay the same consistent height throughout this
+        # dialog. Without this, the buttons inside scrollareas get shrunk,
+        # while the buttons outside them do not, leading to weirdness.
+        # Further, buttons with and without icons have different minimum sizes
+        # so things look even more out of whack.
+        ht = self.title.height()
+        for but in self.findChildren(QPushButton):
+            but.setMaximumHeight(ht)
+            but.setMinimumHeight(ht)
+        return TitleEdit.resizeEvent(self.title, *args)
     # }}}
 
     def create_basic_metadata_widgets(self): # {{{
@@ -508,14 +519,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             tip = (_('Save changes and edit the metadata of %s')+
                     ' [Alt+Right]')%next_
             self.next_button.setToolTip(tip)
-        self.next_button.setVisible(next_ is not None)
+        self.next_button.setEnabled(next_ is not None)
         if prev is not None:
             tip = (_('Save changes and edit the metadata of %s')+
                     ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
-        self.prev_button.setVisible(prev is not None)
+        self.prev_button.setEnabled(prev is not None)
         self(self.db.id(self.row_list[self.current_row]))
-
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python

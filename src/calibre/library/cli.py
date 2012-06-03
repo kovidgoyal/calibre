@@ -40,7 +40,7 @@ def write_dirtied(db):
 
 def get_parser(usage):
     parser = OptionParser(usage)
-    go = parser.add_option_group('GLOBAL OPTIONS')
+    go = parser.add_option_group(_('GLOBAL OPTIONS'))
     go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
 
     return parser

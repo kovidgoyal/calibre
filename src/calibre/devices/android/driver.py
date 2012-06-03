@@ -122,9 +122,9 @@ class ANDROID(USBMS):
 
             # LG
             0x1004 : {
-                    0x61c5 : [0x100, 0x226, 0x9999],
-                    0x61cc : [0x100],
-                    0x61ce : [0x100],
+                    0x61c5 : [0x100, 0x226, 0x227, 0x9999],
+                    0x61cc : [0x226, 0x227, 0x9999, 0x100],
+                    0x61ce : [0x226, 0x227, 0x9999, 0x100],
                     0x618e : [0x226, 0x227, 0x9999, 0x100],
                     0x6205 : [0x226, 0x227, 0x9999, 0x100],
                     },
@@ -164,6 +164,9 @@ class ANDROID(USBMS):
 
             # Lenovo
             0x17ef : { 0x7421 : [0x0216] },
+
+            # Pantech
+            0x10a9 : { 0x6050 : [0x227] },
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',

@@ -101,14 +101,6 @@ Now, run configure and make::
 
 Add the path to the bin folder inside the Qt dir to your system PATH.
 
-Now build QtCurve
-cd qmake
-edit the qmake.pro file setting the TARGET to Release
-
-qmake && nmake
-
-The plugin will be in c:\plugins\styles
-
 SIP
 -----
 
