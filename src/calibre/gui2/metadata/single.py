@@ -108,7 +108,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         # while the buttons outside them do not, leading to weirdness.
         # Further, buttons with and without icons have different minimum sizes
         # so things look even more out of whack.
-        ht = self.title.height()
+        ht = self.title.height() + 2
         for but in self.findChildren(QPushButton):
             but.setMaximumHeight(ht)
             but.setMinimumHeight(ht)
