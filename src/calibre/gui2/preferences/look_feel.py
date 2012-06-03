@@ -105,7 +105,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 [(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
         styles = set(map(unicode, QStyleFactory.keys()))
-        if 'QtCurve' not in styles:
+        if 'Calibre' not in styles:
             # Can happen in linux
             for x in ('opt', 'label'):
                 getattr(self, x+'_widget_style').setVisible(False)
