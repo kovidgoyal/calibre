@@ -30,7 +30,7 @@ l.addWidget(b, 0, 1, 1, 1)
 
 def print_button_sizes():
     for b in d.findChildren(QPushButton):
-        print (unicode(b.text()), b.height())
+        print (unicode(b.text()), b.height(), b.iconSize())
 QTimer.singleShot(5, print_button_sizes)
 d.exec_()
 
