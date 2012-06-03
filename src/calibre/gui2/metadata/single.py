@@ -27,6 +27,7 @@ from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.date import local_tz
+from calibre.constants import iswindows, isosx
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -108,7 +109,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         # while the buttons outside them do not, leading to weirdness.
         # Further, buttons with and without icons have different minimum sizes
         # so things look even more out of whack.
-        ht = self.title.height() + 2
+        ht = self.next_button.height() if iswindows or isosx else self.title.height() + 1
         for but in self.findChildren(QPushButton):
             but.setMaximumHeight(ht)
             but.setMinimumHeight(ht)
