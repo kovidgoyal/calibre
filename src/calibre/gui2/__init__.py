@@ -720,7 +720,7 @@ gui_thread = None
 qt_app = None
 class Application(QApplication):
 
-    def __init__(self, args):
+    def __init__(self, args, force_calibre_style=False):
         self.file_event_hook = None
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
@@ -731,7 +731,7 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-        self.setup_styles()
+        self.setup_styles(force_calibre_style)
 
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
@@ -743,7 +743,7 @@ class Application(QApplication):
         pi.load_style(path, 'Calibre')
         self.setPalette(orig_pal)
 
-    def setup_styles(self):
+    def setup_styles(self, force_calibre_style):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
@@ -753,7 +753,7 @@ class Application(QApplication):
                 font.setStretch(s)
             QApplication.setFont(font)
 
-        if gprefs['widget_style'] != 'system':
+        if force_calibre_style or gprefs['widget_style'] != 'system':
             self.load_calibre_style()
         else:
             st = self.style()

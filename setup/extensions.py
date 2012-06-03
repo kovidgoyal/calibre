@@ -368,7 +368,8 @@ class Build(Command):
         self.info('\n####### Building calibre style', '#'*7)
         sdir = self.j(self.SRC, 'qtcurve')
         def path(x):
-            return '"%s"'%self.j(sdir, x).replace(os.sep, '/')
+            if x: x=self.j(sdir, x)
+            return ('"%s"'%x).replace(os.sep, '/')
         headers = [
            "common/colorutils.h",
            "common/common.h",
@@ -404,7 +405,7 @@ class Build(Command):
         DESTDIR = .
         TARGET = calibre
         QT *= svg
-        INCLUDEPATH *= . {inc}
+        INCLUDEPATH *= {conf} {inc}
         win32-msvc*:DEFINES *= _CRT_SECURE_NO_WARNINGS
 
         # Force C++ language
@@ -412,7 +413,7 @@ class Build(Command):
         *msvc*:QMAKE_CFLAGS *= -TP
         *msvc*:QMAKE_CXXFLAGS += /MP
 
-        ''').format(inc=path('common'))
+        ''').format(conf=path(''), inc=path('common'))
         if isosx:
             pro += '\nCONFIG += x86 x86_64\n'
         else:
@@ -422,18 +423,6 @@ class Build(Command):
             pro += 'HEADERS += %s\n'%path(x)
         for x in sources:
             pro += 'SOURCES += %s\n'%path(x)
-        config = textwrap.dedent('''
-        #pragma once
-
-        /* #define VERSION "1.5.3" */
-        #define KDE3PREFIX        "/usr"
-        #define KDE4PREFIX        "/usr"
-
-        #define QTC_QT_ONLY
-        /* #undef QTC_OLD_NVIDIA_ARROW_FIX */
-        #undef QTC_STYLE_SUPPORT
-        /* #undef QTC_KWIN_MAX_BUTTON_HACK */
-        ''')
         odir = self.j(self.d(self.SRC), 'build', 'qtcurve')
         if not os.path.exists(odir):
             os.makedirs(odir)
@@ -444,10 +433,6 @@ class Build(Command):
                 'rb').read() != pro):
                 with open('qtcurve.pro', 'wb') as f:
                     f.write(pro)
-            if not os.path.exists('config.h') or (open('config.h',
-                'rb').read() != config):
-                with open('config.h', 'wb') as f:
-                    f.write(config)
             qmc = [QMAKE, '-o', 'Makefile']
             if iswindows:
                 qmc += ['-spec', 'win32-msvc2008']
