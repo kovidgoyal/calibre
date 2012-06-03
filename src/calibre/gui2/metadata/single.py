@@ -27,7 +27,6 @@ from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.date import local_tz
-from calibre.constants import iswindows, isosx
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -101,19 +100,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         geom = gprefs.get('metasingle_window_geometry3', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
-        self.title.resizeEvent = self.fix_push_buttons
-
-    def fix_push_buttons(self, *args):
-        # Ensure all PushButtons stay the same consistent height throughout this
-        # dialog. Without this, the buttons inside scrollareas get shrunk,
-        # while the buttons outside them do not, leading to weirdness.
-        # Further, buttons with and without icons have different minimum sizes
-        # so things look even more out of whack.
-        ht = self.next_button.height() if iswindows or isosx else self.title.height() + 1
-        for but in self.findChildren(QPushButton):
-            but.setMaximumHeight(ht)
-            but.setMinimumHeight(ht)
-        return TitleEdit.resizeEvent(self.title, *args)
     # }}}
 
     def create_basic_metadata_widgets(self): # {{{

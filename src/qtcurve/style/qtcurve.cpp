@@ -9685,13 +9685,14 @@ QSize Style::sizeFromContents(ContentsType type, const QStyleOption *option, con
 
             if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option))
             {
+                // Added by Kovid to ensure that pushbuttons without icons are never narrower than push buttons with icons at small font sizes
+                int min_pb_height = (btn->iconSize.height() > 16) ? btn->iconSize.height() : 16;
+                if (newSize.height() < min_pb_height) newSize.setHeight(min_pb_height);
+
                 if(!opts.stdBtnSizes)
                 {
-                    bool dialogButton=
-                            // Cant rely on AutoDefaultButton - as VirtualBox does not set this!!!
-                            // btn->features&QStyleOptionButton::AutoDefaultButton &&
-                            widget && widget->parentWidget() &&
-                            (::qobject_cast<const QDialogButtonBox *>(widget->parentWidget()) || widget->parentWidget()->inherits("KFileWidget"));
+                    // Changed by Kovid since we dont care about VirtualBox
+                    bool dialogButton = btn->features&QStyleOptionButton::AutoDefaultButton;
 
                     if(dialogButton)
                     {
