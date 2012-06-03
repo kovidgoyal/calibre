@@ -29,7 +29,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     LOGIN                 = INDEX + u'/user/login'
 
     feeds          = [
-            (u'Instapaper Unread', u'http://www.instapaper.com/u')
+            (u'Instapaper Unread', u'http://www.instapaper.com/u'),
             (u'Instapaper Starred', u'http://www.instapaper.com/starred')
             ]
 
