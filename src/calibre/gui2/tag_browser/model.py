@@ -1187,13 +1187,16 @@ class TagsModel(QAbstractItemModel): # {{{
                         for subnode in tag_item.children:
                             if subnode.tag.sort:
                                 letters_seen[subnode.tag.sort[0]] = True
-                        charclass = ''.join(letters_seen)
-                        if k == 'author_sort':
-                            expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
-                        elif k == 'series':
-                            expr = r'series_sort:"~^[%s]"'%(charclass)
+                        if letters_seen:
+                            charclass = ''.join(letters_seen)
+                            if k == 'author_sort':
+                                expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                            elif k == 'series':
+                                expr = r'series_sort:"~^[%s]"'%(charclass)
+                            else:
+                                expr = r'%s:"~^[%s]"'%(k, charclass)
                         else:
-                            expr = r'%s:"~^[%s]"'%(k, charclass)
+                            expr = r'%s:false'%(k)
                         if node_searches[tag_item.tag.state] == 'true':
                             ans.append(expr)
                         else:
