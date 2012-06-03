@@ -2561,7 +2561,13 @@ void qtcDefaultSettings(Options *opts)
     opts->shadeMenubarOnlyWhenActive=false;
     opts->thin=THIN_BUTTONS;
     opts->tbarBtns=TBTN_STANDARD;
+#ifdef _WIN32
+    opts->scrollbarType=SCROLLBAR_WINDOWS;
+#elif defined __APPLE__
+    opts->scrollbarType=SCROLLBAR_NONE;
+#else
     opts->scrollbarType=SCROLLBAR_KDE;
+#endif
     opts->buttonEffect=EFFECT_SHADOW;
     opts->focus=FOCUS_GLOW;
     opts->lvButton=false;
