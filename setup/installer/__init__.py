@@ -67,6 +67,7 @@ class VMInstaller(Command):
     INSTALLER_EXT = None
     VM = None
     VM_NAME = None
+    VM_CHECK = None
     FREEZE_COMMAND = None
     FREEZE_TEMPLATE = 'python setup.py {freeze_command}'
     SHUTDOWN_CMD = ['sudo', 'poweroff']
@@ -117,6 +118,13 @@ class VMInstaller(Command):
 
 
     def run_vm(self):
+        pat = '/%s/'%(self.VM_CHECK or self.VM_NAME)
+        pids= [pid for pid in os.listdir('/proc') if pid.isdigit()]
+        for pid in pids:
+            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
+            if 'vmware-vmx' in cmdline and pat in cmdline:
+                return
+
         self.__p = subprocess.Popen([self.vm])
 
     def start_vm(self, sleep=75):

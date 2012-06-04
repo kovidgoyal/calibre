@@ -28,6 +28,7 @@ class Win32(VMInstaller):
     INSTALLER_EXT = 'exe'
     VM_NAME = 'xp_build'
     VM = '/vmware/bin/%s'%VM_NAME
+    VM_CHECK = 'calibre_windows_xp_home'
     FREEZE_COMMAND = 'win32_freeze'
     FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command} --no-ice'
     INSTALLER_EXT = 'msi'

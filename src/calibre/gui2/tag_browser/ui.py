@@ -388,7 +388,7 @@ class TagBrowserWidget(QWidget): # {{{
                                                    type=Qt.QueuedConnection)
 
         parent.alter_tb = l = QPushButton(parent)
-        l.setText(_('&Alter Tag Browser'))
+        l.setText(_('Alter Tag Browser'))
         l.setIcon(QIcon(I('tags.png')))
         l.m = QMenu()
         l.setMenu(l.m)

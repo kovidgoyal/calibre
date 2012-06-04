@@ -8,30 +8,11 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QMenu, pyqtSignal
 
 from calibre.utils.config import prefs
 from calibre.gui2 import (error_dialog, Dispatcher, gprefs,
     choose_dir, warning_dialog, open_local_file)
 from calibre.gui2.actions import InterfaceAction
-from calibre.ebooks import BOOK_EXTENSIONS
-
-class SaveMenu(QMenu): # {{{
-
-    save_fmt = pyqtSignal(object)
-
-    def __init__(self, parent):
-        QMenu.__init__(self, _('Save single format to disk...'), parent)
-        for ext in sorted(BOOK_EXTENSIONS):
-            action = self.addAction(ext.upper())
-            setattr(self, 'do_'+ext, partial(self.do, ext))
-            action.triggered.connect(
-                    getattr(self, 'do_'+ext))
-
-    def do(self, ext, *args):
-        self.save_fmt.emit(ext)
-
-# }}}
 
 class SaveToDiskAction(InterfaceAction):
 
@@ -54,9 +35,8 @@ class SaveToDiskAction(InterfaceAction):
                 _('Save only %s format to disk in a single directory')%
                 prefs['output_format'].upper(),
                 triggered=partial(self.save_single_fmt_to_single_dir, False))
-        self.save_sub_menu = SaveMenu(self.gui)
-        self.save_sub_menu_action = self.save_menu.addMenu(self.save_sub_menu)
-        self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
+        cm('specific format', _('Save single format to disk...'),
+                triggered=self.save_specific_format_disk)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
@@ -74,8 +54,17 @@ class SaveToDiskAction(InterfaceAction):
     def save_single_format_to_disk(self, checked):
         self.save_to_disk(checked, False, prefs['output_format'])
 
-    def save_specific_format_disk(self, fmt):
-        self.save_to_disk(False, False, fmt)
+    def save_specific_format_disk(self):
+        rb = self.gui.iactions['Remove Books']
+        ids = rb._get_selected_ids(err_title=
+            _('Cannot save to disk'))
+        if not ids: return
+        fmts = rb._get_selected_formats(
+                _('Choose format to save to disk'), ids,
+                single=True)
+        if not fmts:
+            return
+        self.save_to_disk(False, False, list(fmts)[0])
 
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)

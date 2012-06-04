@@ -16,6 +16,12 @@ License: BSD
  The full text of the BSD license is distributed as in
  /usr/share/common-licenses/BSD on Debian systems.
 
+Files: src/qtcurve/*
+Copyright: Craig Drummond, 2007 - 2010 craig.p.drummond@gmail.com
+License: GPL-2
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-2 on Debian systems.
+
 Files: src/calibre/ebooks/chardet/*
 Copyright: Copyright (C) 1998-2001 Netscape Communications Corporation
 License: LGPL-2.1+

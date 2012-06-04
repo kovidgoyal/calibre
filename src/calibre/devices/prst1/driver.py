@@ -298,6 +298,8 @@ class PRST1(USBMS):
         cursor.close()
         
     def read_device_books(self, connection, source_id):
+        from sqlite3 import DatabaseError
+        
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0
@@ -463,6 +465,8 @@ class PRST1(USBMS):
         cursor.close()
 
     def read_device_collections(self, connection, source_id):
+        from sqlite3 import DatabaseError
+    
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0

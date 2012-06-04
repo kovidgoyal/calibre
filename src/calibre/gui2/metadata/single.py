@@ -13,7 +13,7 @@ from datetime import datetime
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu, QShortcut)
+        QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
@@ -45,7 +45,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args): # {{{
-        self.resize(990, 650)
+        self.resize(990, 670)
 
         self.download_shortcut = QShortcut(self)
         self.download_shortcut.setKey(QKeySequence('Ctrl+D',
@@ -57,9 +57,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             if sc:
                 self.download_shortcut.setKey(sc[0])
 
-        self.button_box = QDialogButtonBox(
-                QDialogButtonBox.Ok|QDialogButtonBox.Cancel, Qt.Horizontal,
-                self)
+        self.button_box = bb = QDialogButtonBox(self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
@@ -70,9 +68,11 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
-        self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
-        self.button_box.addButton(self.next_button, self.button_box.ActionRole)
+        self.button_box.addButton(self.prev_button, bb.ActionRole)
+        self.button_box.addButton(self.next_button, bb.ActionRole)
         self.prev_button.clicked.connect(self.prev_clicked)
+        bb.setStandardButtons(bb.Ok|bb.Cancel)
+        bb.button(bb.Ok).setDefault(True)
 
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setFrameShape(QScrollArea.NoFrame)
@@ -82,13 +82,11 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
-        self.l.setMargin(0)
         self.l.addWidget(self.scroll_area)
         ll = self.button_box_layout = QHBoxLayout()
         self.l.addLayout(ll)
         ll.addSpacing(10)
         ll.addWidget(self.button_box)
-        ll.addSpacing(10)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
         self.setWindowTitle(BASE_TITLE)
@@ -97,7 +95,6 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         if len(self.db.custom_column_label_map):
             self.create_custom_metadata_widgets()
-
 
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
@@ -509,14 +506,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             tip = (_('Save changes and edit the metadata of %s')+
                     ' [Alt+Right]')%next_
             self.next_button.setToolTip(tip)
-        self.next_button.setVisible(next_ is not None)
+        self.next_button.setEnabled(next_ is not None)
         if prev is not None:
             tip = (_('Save changes and edit the metadata of %s')+
                     ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
-        self.prev_button.setVisible(prev is not None)
+        self.prev_button.setEnabled(prev is not None)
         self(self.db.id(self.row_list[self.current_row]))
-
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python
@@ -623,7 +619,6 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].middle = w = QWidget(self)
         w.l = l = QGridLayout()
         w.setLayout(w.l)
-        l.setMargin(0)
         self.splitter.addWidget(w)
         def create_row2(row, widget, button=None, front_button=None):
             row += 1
@@ -787,7 +782,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
             gb.setLayout(gbl)
             sr = QScrollArea(tab0)
             sr.setWidgetResizable(True)
-            sr.setBackgroundRole(QPalette.Base)
             sr.setFrameStyle(QFrame.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
@@ -925,7 +919,6 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
             sr = QScrollArea(gb)
             sr.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             sr.setWidgetResizable(True)
-            sr.setBackgroundRole(QPalette.Base)
             sr.setFrameStyle(QFrame.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
