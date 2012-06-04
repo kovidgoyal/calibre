@@ -275,34 +275,34 @@ class PRST1(USBMS):
         debug_print('PRST1: finished update_device_database')
     
     def get_database_min_id(self, source_id):
-		sequence_min = 0
-		if source_id == '1':
-			sequence_min = 4294967296
-			
-		return sequence_min
-		
-	def set_database_sequence_id(self, connection, table, sequence_id):
-		cursor = connection.cursor()
-		
-		# Update the sequence Id if it exists
+        sequence_min = 0L
+        if source_id == '1':
+            sequence_min = 4294967296L
+            
+        return sequence_min
+        
+    def set_database_sequence_id(self, connection, table, sequence_id):
+        cursor = connection.cursor()
+        
+        # Update the sequence Id if it exists
         query = 'UPDATE sqlite_sequence SET seq = ? WHERE name = ?'
         t = (sequence_id, table,)
         cursor.execute(query, t)
 
-		# Insert the sequence Id if it doesn't
-		query = ('INSERT INTO sqlite_sequence (name, seq) ' 
-				'SELECT ?, ? '
-			    'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
-		cursor.execute(query, (table, sequence_id, table,))
-		
-		cursor.close()
-		
+        # Insert the sequence Id if it doesn't
+        query = ('INSERT INTO sqlite_sequence (name, seq) ' 
+                'SELECT ?, ? '
+                'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
+        cursor.execute(query, (table, sequence_id, table,))
+        
+        cursor.close()
+        
     def read_device_books(self, connection, source_id):
-	    sequence_min = self.get_database_min_id(source_id)
-	    sequence_max = sequence_min
-	    sequence_dirty = 0
-	
-	    try:
+        sequence_min = self.get_database_min_id(source_id)
+        sequence_max = sequence_min
+        sequence_dirty = 0
+    
+        try:
             cursor = connection.cursor()
 
             # Get existing books
@@ -319,58 +319,58 @@ class PRST1(USBMS):
                     ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
                     '\n'+tb)
 
-		# Get the books themselves, but keep track of any that are less than the minimum.
-		# Record what the max id being used is as well.
+        # Get the books themselves, but keep track of any that are less than the minimum.
+        # Record what the max id being used is as well.
         db_books = {}
         for i, row in enumerate(cursor):
             lpath = row[0].replace('\\', '/')
-			db_books[lpath] = row[1]
-			if row[1] < sequence_min:
-				sequence_dirty = 1
-			else:
+            db_books[lpath] = row[1]
+            if row[1] < sequence_min:
+                sequence_dirty = 1
+            else:
                 sequence_max = max(sequence_max, row[1])
 
-		# If the database is 'dirty', then we should fix up the Ids and the sequence number
-		if sequence_dirty == 1:
-			sequence_max = sequence_max + 1
-			for book, bookId in db_books.items():
-				if bookId < sequence_min:
-					# Record the new Id and write it to the DB
-					db_books[book] = sequence_max
-					sequence_max = sequence_max + 1
-					
-					# Fix the Books DB
-					query = 'UPDATE books SET _id = ? WHERE file_path = ?'
-					t = (db_books[book], book,)
-					cursor.execute(query, t)
-					
-					# Fix any references so that they point back to the right book
-					t = (db_books[book], bookId,)
-					query = 'UPDATE collections SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE annotation SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE bookmark SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE current_position SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE deleted_markups SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE dic_histories SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE freehand SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE history SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE layout_cache SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-					query = 'UPDATE preference SET content_id = ? WHERE content_id = ?'
-					cursor.execute(query, t)
-			
-			self.set_database_sequence_id(connection, 'books', sequence_max)
+        # If the database is 'dirty', then we should fix up the Ids and the sequence number
+        if sequence_dirty == 1:
+            sequence_max = sequence_max + 1
+            for book, bookId in db_books.items():
+                if bookId < sequence_min:
+                    # Record the new Id and write it to the DB
+                    db_books[book] = sequence_max
+                    sequence_max = sequence_max + 1
+                    
+                    # Fix the Books DB
+                    query = 'UPDATE books SET _id = ? WHERE file_path = ?'
+                    t = (db_books[book], book,)
+                    cursor.execute(query, t)
+                    
+                    # Fix any references so that they point back to the right book
+                    t = (db_books[book], bookId,)
+                    query = 'UPDATE collections SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE annotation SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE bookmark SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE current_position SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE deleted_markups SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE dic_histories SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE freehand SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE history SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE layout_cache SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE preference SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+            
+            self.set_database_sequence_id(connection, 'books', sequence_max)
 
-		cursor.close()
-		return db_books
+        cursor.close()
+        return db_books
 
     def update_device_books(self, connection, booklist, source_id, plugboard,
             dbpath):
@@ -381,9 +381,9 @@ class PRST1(USBMS):
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
         use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
 
-		db_books = self.read_device_books(connection, source_id)
-		cursor = connection.cursor()
-			
+        db_books = self.read_device_books(connection, source_id)
+        cursor = connection.cursor()
+            
         for book in booklist:
             # Run through plugboard if needed
             if plugboard is not None:
@@ -462,12 +462,12 @@ class PRST1(USBMS):
         connection.commit()
         cursor.close()
 
-	def read_device_collections(self, connection, source_id):
-	    sequence_min = self.get_database_min_id(source_id)
-	    sequence_max = sequence_min
-	    sequence_dirty = 0
-	
-	    try:
+    def read_device_collections(self, connection, source_id):
+        sequence_min = self.get_database_min_id(source_id)
+        sequence_max = sequence_min
+        sequence_dirty = 0
+    
+        try:
             cursor = connection.cursor()
 
             # Get existing collections
@@ -487,68 +487,68 @@ class PRST1(USBMS):
         db_collections = {}
         for i, row in enumerate(cursor):
             db_collections[row[1]] = row[0]
-			if row[0] < sequence_min:
-				sequence_dirty = 1
-			else:
-                sequence_max = max(sequence_max, row[0])	
+            if row[0] < sequence_min:
+                sequence_dirty = 1
+            else:
+                sequence_max = max(sequence_max, row[0])    
 
-		# If the database is 'dirty', then we should fix up the Ids and the sequence number
-		if sequence_dirty == 1:
-			sequence_max = sequence_max + 1
-			for collection, collectionId in db_collections.items():
-				if collectionId < sequence_min:
-					# Record the new Id and write it to the DB
-					db_collections[collection] = sequence_max
-					sequence_max = sequence_max + 1
-					
-					# Fix the collection DB
-					query = 'UPDATE collection SET _id = ? WHERE title = ?'
-					t = (db_collections[collection], collection, )
-					cursor.execute(query, t)
-					
-					# Fix any references in existing collections
-					query = 'UPDATE collections SET collection_id = ? WHERE collection_id = ?'
-					t = (db_collections[collection], collectionId,)
-					cursor.execute(query, t)
-			
-			self.set_database_sequence_id(connection, 'collection', sequence_max)
-		
-		# Fix up the collections table now...
-		sequence_dirty = 0
-		sequence_max = sequence_min
-		
-		query = 'SELECT _id FROM collections'
-		cursor.execute(query)
-		
-		db_collection_pairs = []
-		for i, row in enumerate(cursor):
-			db_collection_pairs.append(row[0])
-			if row[0] < sequence_min:
-				sequence_dirty = 1
-			else:
+        # If the database is 'dirty', then we should fix up the Ids and the sequence number
+        if sequence_dirty == 1:
+            sequence_max = sequence_max + 1
+            for collection, collectionId in db_collections.items():
+                if collectionId < sequence_min:
+                    # Record the new Id and write it to the DB
+                    db_collections[collection] = sequence_max
+                    sequence_max = sequence_max + 1
+                    
+                    # Fix the collection DB
+                    query = 'UPDATE collection SET _id = ? WHERE title = ?'
+                    t = (db_collections[collection], collection, )
+                    cursor.execute(query, t)
+                    
+                    # Fix any references in existing collections
+                    query = 'UPDATE collections SET collection_id = ? WHERE collection_id = ?'
+                    t = (db_collections[collection], collectionId,)
+                    cursor.execute(query, t)
+            
+            self.set_database_sequence_id(connection, 'collection', sequence_max)
+        
+        # Fix up the collections table now...
+        sequence_dirty = 0
+        sequence_max = sequence_min
+        
+        query = 'SELECT _id FROM collections'
+        cursor.execute(query)
+        
+        db_collection_pairs = []
+        for i, row in enumerate(cursor):
+            db_collection_pairs.append(row[0])
+            if row[0] < sequence_min:
+                sequence_dirty = 1
+            else:
                 sequence_max = max(sequence_max, row[0])
 
-		if sequence_dirty == 1:
-			sequence_max = sequence_max + 1
-			for pairId in db_collection_pairs:
-				if pairId < sequence_min:
-					# Record the new Id and write it to the DB
-					query = 'UPDATE collections SET _id = ? WHERE _id = ?'
-					t = (sequence_max, pairId,)
-					cursor.execute(query, t)
-					sequence_max = sequence_max + 1
-			
-			self.set_database_sequence_id(connection, 'collection', sequence_max)
-		
-		cursor.close()
-		return db_collections
-		
+        if sequence_dirty == 1:
+            sequence_max = sequence_max + 1
+            for pairId in db_collection_pairs:
+                if pairId < sequence_min:
+                    # Record the new Id and write it to the DB
+                    query = 'UPDATE collections SET _id = ? WHERE _id = ?'
+                    t = (sequence_max, pairId,)
+                    cursor.execute(query, t)
+                    sequence_max = sequence_max + 1
+            
+            self.set_database_sequence_id(connection, 'collections', sequence_max)
+        
+        cursor.close()
+        return db_collections
+        
     def update_device_collections(self, connection, booklist, collections,
             source_id):
         cursor = connection.cursor()
 
         if collections:
-			db_collections = self.read_device_collections(connection, source_id)
+            db_collections = self.read_device_collections(connection, source_id)
 
             for collection, books in collections.items():
                 if collection not in db_collections:
