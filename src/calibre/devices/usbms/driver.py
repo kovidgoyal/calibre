@@ -382,7 +382,8 @@ class USBMS(CLI, Device):
             os.makedirs(self.normalize_path(self._main_prefix))
 
         def write_prefix(prefix, listid):
-            if prefix is not None and isinstance(booklists[listid], self.booklist_class):
+            if (prefix is not None and len(booklists) > listid and
+                    isinstance(booklists[listid], self.booklist_class)):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))
                 with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
