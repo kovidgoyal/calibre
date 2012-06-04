@@ -276,7 +276,7 @@ class PRST1(USBMS):
 
     def get_database_min_id(self, source_id):
         sequence_min = 0L
-        if source_id == '1':
+        if source_id == 1:
             sequence_min = 4294967296L
 
         return sequence_min
@@ -303,6 +303,8 @@ class PRST1(USBMS):
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0
+
+        debug_print("Book Sequence Min: %d, Source Id: %d"%(sequence_min,source_id))
 
         try:
             cursor = connection.cursor()
@@ -334,6 +336,7 @@ class PRST1(USBMS):
 
         # If the database is 'dirty', then we should fix up the Ids and the sequence number
         if sequence_dirty == 1:
+            debug_print("Book Sequence Dirty for Source Id: %d"%source_id)
             sequence_max = sequence_max + 1
             for book, bookId in db_books.items():
                 if bookId < sequence_min:
@@ -370,6 +373,7 @@ class PRST1(USBMS):
                     cursor.execute(query, t)
 
             self.set_database_sequence_id(connection, 'books', sequence_max)
+            debug_print("Book Sequence Max: %d, Source Id: %d"%(sequence_max,source_id))
 
         cursor.close()
         return db_books
@@ -469,6 +473,8 @@ class PRST1(USBMS):
         sequence_max = sequence_min
         sequence_dirty = 0
 
+        debug_print("Collection Sequence Min: %d, Source Id: %d"%(sequence_min,source_id))
+
         try:
             cursor = connection.cursor()
 
@@ -496,6 +502,7 @@ class PRST1(USBMS):
 
         # If the database is 'dirty', then we should fix up the Ids and the sequence number
         if sequence_dirty == 1:
+            debug_print("Collection Sequence Dirty for Source Id: %d"%source_id)
             sequence_max = sequence_max + 1
             for collection, collectionId in db_collections.items():
                 if collectionId < sequence_min:
@@ -514,10 +521,13 @@ class PRST1(USBMS):
                     cursor.execute(query, t)
 
             self.set_database_sequence_id(connection, 'collection', sequence_max)
+            debug_print("Collection Sequence Max: %d, Source Id: %d"%(sequence_max,source_id))
 
         # Fix up the collections table now...
         sequence_dirty = 0
         sequence_max = sequence_min
+
+        debug_print("Collections Sequence Min: %d, Source Id: %d"%(sequence_min,source_id))
 
         query = 'SELECT _id FROM collections'
         cursor.execute(query)
@@ -531,6 +541,7 @@ class PRST1(USBMS):
                 sequence_max = max(sequence_max, row[0])
 
         if sequence_dirty == 1:
+            debug_print("Collections Sequence Dirty for Source Id: %d"%source_id)
             sequence_max = sequence_max + 1
             for pairId in db_collection_pairs:
                 if pairId < sequence_min:
@@ -541,6 +552,7 @@ class PRST1(USBMS):
                     sequence_max = sequence_max + 1
 
             self.set_database_sequence_id(connection, 'collections', sequence_max)
+            debug_print("Collections Sequence Max: %d, Source Id: %d"%(sequence_max,source_id))
 
         cursor.close()
         return db_collections
