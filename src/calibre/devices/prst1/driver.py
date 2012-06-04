@@ -273,37 +273,37 @@ class PRST1(USBMS):
             self.update_device_collections(connection, booklist, collections, source_id, dbpath)
 
         debug_print('PRST1: finished update_device_database')
-    
+
     def get_database_min_id(self, source_id):
         sequence_min = 0L
         if source_id == '1':
             sequence_min = 4294967296L
-            
+
         return sequence_min
-        
+
     def set_database_sequence_id(self, connection, table, sequence_id):
         cursor = connection.cursor()
-        
+
         # Update the sequence Id if it exists
         query = 'UPDATE sqlite_sequence SET seq = ? WHERE name = ?'
         t = (sequence_id, table,)
         cursor.execute(query, t)
 
         # Insert the sequence Id if it doesn't
-        query = ('INSERT INTO sqlite_sequence (name, seq) ' 
+        query = ('INSERT INTO sqlite_sequence (name, seq) '
                 'SELECT ?, ? '
                 'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
         cursor.execute(query, (table, sequence_id, table,))
-        
+
         cursor.close()
-        
+
     def read_device_books(self, connection, source_id, dbpath):
         from sqlite3 import DatabaseError
-        
+
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0
-    
+
         try:
             cursor = connection.cursor()
 
@@ -340,12 +340,12 @@ class PRST1(USBMS):
                     # Record the new Id and write it to the DB
                     db_books[book] = sequence_max
                     sequence_max = sequence_max + 1
-                    
+
                     # Fix the Books DB
                     query = 'UPDATE books SET _id = ? WHERE file_path = ?'
                     t = (db_books[book], book,)
                     cursor.execute(query, t)
-                    
+
                     # Fix any references so that they point back to the right book
                     t = (db_books[book], bookId,)
                     query = 'UPDATE collections SET content_id = ? WHERE content_id = ?'
@@ -368,7 +368,7 @@ class PRST1(USBMS):
                     cursor.execute(query, t)
                     query = 'UPDATE preference SET content_id = ? WHERE content_id = ?'
                     cursor.execute(query, t)
-            
+
             self.set_database_sequence_id(connection, 'books', sequence_max)
 
         cursor.close()
@@ -383,7 +383,7 @@ class PRST1(USBMS):
 
         db_books = self.read_device_books(connection, source_id, dbpath)
         cursor = connection.cursor()
-            
+
         for book in booklist:
             # Run through plugboard if needed
             if plugboard is not None:
@@ -464,11 +464,11 @@ class PRST1(USBMS):
 
     def read_device_collections(self, connection, source_id, dbpath):
         from sqlite3 import DatabaseError
-    
+
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0
-    
+
         try:
             cursor = connection.cursor()
 
@@ -492,7 +492,7 @@ class PRST1(USBMS):
             if row[0] < sequence_min:
                 sequence_dirty = 1
             else:
-                sequence_max = max(sequence_max, row[0])    
+                sequence_max = max(sequence_max, row[0])
 
         # If the database is 'dirty', then we should fix up the Ids and the sequence number
         if sequence_dirty == 1:
@@ -502,26 +502,26 @@ class PRST1(USBMS):
                     # Record the new Id and write it to the DB
                     db_collections[collection] = sequence_max
                     sequence_max = sequence_max + 1
-                    
+
                     # Fix the collection DB
                     query = 'UPDATE collection SET _id = ? WHERE title = ?'
                     t = (db_collections[collection], collection, )
                     cursor.execute(query, t)
-                    
+
                     # Fix any references in existing collections
                     query = 'UPDATE collections SET collection_id = ? WHERE collection_id = ?'
                     t = (db_collections[collection], collectionId,)
                     cursor.execute(query, t)
-            
+
             self.set_database_sequence_id(connection, 'collection', sequence_max)
-        
+
         # Fix up the collections table now...
         sequence_dirty = 0
         sequence_max = sequence_min
-        
+
         query = 'SELECT _id FROM collections'
         cursor.execute(query)
-        
+
         db_collection_pairs = []
         for i, row in enumerate(cursor):
             db_collection_pairs.append(row[0])
@@ -539,12 +539,12 @@ class PRST1(USBMS):
                     t = (sequence_max, pairId,)
                     cursor.execute(query, t)
                     sequence_max = sequence_max + 1
-            
+
             self.set_database_sequence_id(connection, 'collections', sequence_max)
-        
+
         cursor.close()
         return db_collections
-        
+
     def update_device_collections(self, connection, booklist, collections,
             source_id, dbpath):
         cursor = connection.cursor()

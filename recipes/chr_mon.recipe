@@ -1,152 +1,111 @@
-#!/usr/bin/env  python
-__license__     = 'GPL v3'
-__author__      = 'Kovid Goyal and Sujata Raman, Lorenzo Vigentini'
-__copyright__   = '2009, Kovid Goyal and Sujata Raman'
-__version__     = 'v1.02'
-__date__        = '10, January 2010'
-__description__ = 'Providing context and clarity on national and international news, peoples and cultures'
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.csmonitor.com
+'''
 
-'''csmonitor.com'''
-
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-
-class ChristianScienceMonitor(BasicNewsRecipe):
-
-    __author__    = 'Kovid Goyal'
-    description   = 'Providing context and clarity on national and international news, peoples and cultures'
-
-    cover_url      = 'http://www.csmonitor.com/extension/csm_base/design/csm_design/images/csmlogo_179x46.gif'
-    title          = 'Christian Science Monitor'
-    publisher      = 'The Christian Science Monitor'
-    category       = 'News, politics, culture, economy, general interest'
-
-    language = 'en'
-    encoding = 'utf-8'
-    timefmt        = '[%a, %d %b, %Y]'
-
-    oldest_article        = 16
-    max_articles_per_feed = 20
+class CSMonitor(BasicNewsRecipe):
+    title                 = 'The Christian Science Monitor - daily'
+    __author__            = 'Darko Miletic'
+    description           = 'The Christian Science Monitor is an international news organization that delivers thoughtful, global coverage via its website, weekly magazine, daily news briefing, and email newsletters.'
+    publisher             = 'The Christian Science Monitor'
+    category              = 'news, politics, USA'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
     use_embedded_content  = False
-    recursion             = 10
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.csmonitor.com/extension/csm_base/design/csm_design/images/csmlogo_179x46.gif'
+    extra_css             = """
+                               body{font-family: Arial,Tahoma,Verdana,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                               .head {font-family: Georgia,"Times New Roman",Times,serif}
+                               .sByline,.caption{font-size: x-small}
+                               .hide{display: none}
+                               .sLoc{font-weight: bold}
+                               ul{list-style-type: none}
+                            """
 
-    remove_javascript     = True
-    no_stylesheets = True
-    requires_version = (0, 8, 39)
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
-    def preprocess_raw_html(self, raw, url):
-        try:
-            from html5lib import parse
-            root = parse(raw, namespaceHTMLElements=False,
-                    treebuilder='lxml').getroot()
-            from lxml import etree
-            for tag in root.xpath(
-                    '//script|//style|//noscript|//meta|//link|//object'):
-                tag.getparent().remove(tag)
-            for elem in list(root.iterdescendants(tag=etree.Comment)):
-                elem.getparent().remove(elem)
-            ans = etree.tostring(root, encoding=unicode)
-            ans = re.sub('.*<html', '<html', ans, flags=re.DOTALL)
-            return ans
-        except:
-            import traceback
-            traceback.print_exc()
-            raise
+    remove_tags = [
+                     dict(name=['meta','link','iframe','object','embed'])
+                    ,dict(attrs={'class':['podStoryRel','bottom-rel','hide']})
+                    ,dict(attrs={'id':['pgallerycarousel_enlarge','pgallerycarousel_related']})
+                  ]
+    keep_only_tags = [
+                        dict(name='h1', attrs={'class':'head'})
+                       ,dict(name='h2', attrs={'class':'subhead'})
+                       ,dict(attrs={'class':['sByline','podStoryGal','ui-body-header','sBody']})
+                     ]              
+    remove_attributes=['xmlns:fb']
 
-    def index_to_soup(self, url):
-        raw = BasicNewsRecipe.index_to_soup(self, url,
-                raw=True).decode('utf-8')
-        raw = self.preprocess_raw_html(raw, url)
-        return BasicNewsRecipe.index_to_soup(self, raw)
-
-    def append_page(self, soup, appendtag, position):
-        nav = soup.find('div',attrs={'class':'navigation'})
-        if nav:
-            pager = nav.findAll('a')
-            for part in pager:
-                if 'Next' in part:
-                    nexturl = ('http://www.csmonitor.com' +
-                           re.findall(r'href="(.*?)"', str(part))[0])
-                    soup2 = self.index_to_soup(nexturl)
-                    texttag = soup2.find('div',
-                                 attrs={'class': re.compile('list-article-.*')})
-                    trash_c = soup2.findAll(attrs={'class': 'list-description'})
-                    trash_h = soup2.h1
-                    for tc in trash_c: tc.extract()
-                    trash_h.extract()
-
-                    newpos = len(texttag.contents)
-                    self.append_page(soup2, texttag, newpos)
-                    texttag.extract()
-                    appendtag.insert(position, texttag)
+    feeds = [
+              (u'USA'           , u'http://rss.csmonitor.com/feeds/usa'        )
+             ,(u'World'         , u'http://rss.csmonitor.com/feeds/world'      )
+             ,(u'Politics'      , u'http://rss.csmonitor.com/feeds/politics'   )
+             ,(u'Business'      , u'http://rss.csmonitor.com/feeds/wam'        )
+             ,(u'Commentary'    , u'http://rss.csmonitor.com/feeds/commentary' )
+             ,(u'Books'         , u'http://rss.csmonitor.com/feeds/books'      )
+             ,(u'Arts'          , u'http://rss.csmonitor.com/feeds/arts'       )
+             ,(u'Environment'   , u'http://rss.csmonitor.com/feeds/environment')
+             ,(u'Innovation'    , u'http://rss.csmonitor.com/feeds/scitech'    )
+             ,(u'Living'        , u'http://rss.csmonitor.com/feeds/living'     )
+             ,(u'Science'       , u'http://rss.csmonitor.com/feeds/science'    )
+             ,(u'The Culture'   , u'http://rss.csmonitor.com/feeds/theculture' )
+             ,(u'The Home Forum', u'http://rss.csmonitor.com/feeds/homeforum'  )
+             ,(u'Articles'      , u'http://rss.csmonitor.com/feeds/csarticles' )
+            ]
+ 
+    def append_page(self, soup):
+        pager = soup.find('div', attrs={'class':'navigation'})
+        if pager:
+           nexttag = pager.find(attrs={'id':'next-button'})
+           if nexttag:
+              nurl = 'http://www.csmonitor.com' + nexttag['href']
+              soup2 = self.index_to_soup(nurl)
+              texttag = soup2.find(attrs={'class':'sBody'})              
+              if texttag:
+                  appendtag = soup.find(attrs={'class':'sBody'})    
+                  for citem in texttag.findAll(attrs={'class':['podStoryRel','bottom-rel','hide']}):
+                      citem.extract()
+                  self.append_page(soup2)
+                  texttag.extract()
+                  pager.extract()
+                  appendtag.append(texttag)
 
     def preprocess_html(self, soup):
-        PRINT_RE = re.compile(r'/layout/set/print/content/view/print/[0-9]*')
-        html = str(soup)
-        try:
-            print_found = PRINT_RE.findall(html)
-        except Exception:
-            pass
-        if print_found:
-            print_url = 'http://www.csmonitor.com' + print_found[0]
-            print_soup = self.index_to_soup(print_url)
-        else:
-            self.append_page(soup, soup.body, 3)
-
-            trash_a = soup.findAll(attrs={'class': re.compile('navigation.*')})
-            trash_b = soup.findAll(attrs={'style': re.compile('.*')})
-            trash_d = soup.findAll(attrs={'class': 'sByline'})
-            for ta in trash_a: ta.extract()
-            for tb in trash_b: tb.extract()
-            for td in trash_d: td.extract()
-
-            print_soup = soup
-        return print_soup
-
-    extra_css      = '''
-                        h1{ color:#000000;font-family: Georgia,Times,"Times New Roman",serif; font-size: large}
-                        .sub{ color:#000000;font-family: Georgia,Times,"Times New Roman",serif; font-size: small;}
-                        .byline{ font-family:Arial,Helvetica,sans-serif ; color:#999999; font-size: x-small;}
-                        .postdate{color:#999999 ;  font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
-                        h3{color:#999999 ;  font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
-                        .photoCutline{ color:#333333 ; font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
-                        .photoCredit{ color:#999999 ; font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
-                        #story{font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size: small; }
-                        #main{font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size: small; }
-                        #photo-details{ font-family:Arial,Helvetica,sans-serif ; color:#999999; font-size: x-small;}
-                        span.name{color:#205B87;font-family: Georgia,Times,"Times New Roman",serif; font-size: x-small}
-                        p#dateline{color:#444444 ;  font-family:Arial,Helvetica,sans-serif ; font-style:italic;} '''
-
-    feeds          = [(u'Top Stories', u'http://rss.csmonitor.com/feeds/top'),
-                        (u'World' , u'http://rss.csmonitor.com/feeds/world'),
-                        (u'USA' , u'http://rss.csmonitor.com/feeds/usa'),
-                        (u'Commentary' , u'http://rss.csmonitor.com/feeds/commentary'),
-                        (u'Money' , u'http://rss.csmonitor.com/feeds/wam'),
-                        (u'Learning' , u'http://rss.csmonitor.com/feeds/learning'),
-                        (u'Living', u'http://rss.csmonitor.com/feeds/living'),
-                        (u'Innovation', u'http://rss.csmonitor.com/feeds/scitech'),
-                        (u'Gardening', u'http://rss.csmonitor.com/feeds/gardening'),
-                        (u'Environment',u'http://rss.csmonitor.com/feeds/environment'),
-                        (u'Arts', u'http://rss.csmonitor.com/feeds/arts'),
-                        (u'Books', u'http://rss.csmonitor.com/feeds/books'),
-                        (u'Home Forum' , u'http://rss.csmonitor.com/feeds/homeforum')
-                     ]
-
-    keep_only_tags = [dict(name='div', attrs={'id':'mainColumn'}), ]
-
-    remove_tags    = [
-                        dict(name='div', attrs={'id':['story-tools','videoPlayer','storyRelatedBottom','enlarge-photo','photo-paginate']}),
-                        dict(name=['div','a'], attrs={'class':
-                            ['storyToolbar cfx','podStoryRel','spacer3',
-                                'divvy spacer7','comment','storyIncludeBottom',
-                                'hide', 'podBrdr']}),
-                        dict(name='ul', attrs={'class':[ 'centerliststories']}) ,
-                        dict(name='form', attrs={'id':[ 'commentform']}) ,
-          dict(name='div', attrs={'class': ['ui-comments']})
-                    ]
-
-    remove_tags_after = [ dict(name='div', attrs={'class':[ 'ad csmAd']}),
-              dict(name='div', attrs={'class': [re.compile('navigation.*')]}),
-              dict(name='div', attrs={'style': [re.compile('.*')]})
-                        ]
+        self.append_page(soup)
+        pager = soup.find('div', attrs={'class':'navigation'})
+        if pager:
+           pager.extract()
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if 'scorecardresearch' in item['src']:
+               item.extract()
+            else:
+                if not item.has_key('alt'):
+                   item['alt'] = 'image'
+        return soup
