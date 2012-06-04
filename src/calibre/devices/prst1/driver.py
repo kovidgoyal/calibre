@@ -559,10 +559,10 @@ class PRST1(USBMS):
 
     def update_device_collections(self, connection, booklist, collections,
             source_id, dbpath):
-        cursor = connection.cursor()
 
         if collections:
             db_collections = self.read_device_collections(connection, source_id, dbpath)
+            cursor = connection.cursor()
 
             for collection, books in collections.items():
                 if collection not in db_collections:
@@ -634,9 +634,8 @@ class PRST1(USBMS):
                     cursor.execute(query, t)
                     debug_print('Deleted Collection: ' + collection)
 
-
-        connection.commit()
-        cursor.close()
+            connection.commit()
+            cursor.close()
 
     def rebuild_collections(self, booklist, oncard):
         debug_print('PRST1: starting rebuild_collections')
