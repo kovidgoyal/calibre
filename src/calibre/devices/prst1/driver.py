@@ -268,11 +268,51 @@ class PRST1(USBMS):
         collections = booklist.get_collections(collections_attributes)
 
         with closing(sqlite.connect(dbpath)) as connection:
+			self.remove_orphaned_records(connection, dbpath)
             self.update_device_books(connection, booklist, source_id,
                     plugboard, dbpath)
             self.update_device_collections(connection, booklist, collections, source_id, dbpath)
 
         debug_print('PRST1: finished update_device_database')
+
+	def remove_orphaned_records(self, connection, dbpath):
+		from sqlite3 import DatabaseError
+
+        try:
+			cursor = connection.cursor()
+		
+			debug_print("Removing Orphaned Collection Records")
+		
+			# Purge any collections references that point into the abyss
+			query = 'DELETE FROM collections WHERE content_id NOT IN (SELECT _id FROM books)'
+			cursor.execute(query)
+			query = 'DELETE FROM collections WHERE collection_id NOT IN (SELECT _id FROM collection)'
+			cursor.execute(query)
+		
+			debug_print("Removing Orphaned Book Records")
+		
+			# Purge any references to books not in this database
+			# Idea is to prevent any spill-over where these wind up applying to some other book
+			query = 'DELETE FROM %s WHERE content_id NOT IN (SELECT _id FROM books)'
+			cursor.execute(query%'annotation')
+			cursor.execute(query%'bookmark')
+			cursor.execute(query%'current_position')
+			cursor.execute(query%'freehand')
+			cursor.execute(query%'history')
+			cursor.execute(query%'layout_cache')
+			cursor.execute(query%'preference')
+	
+			cursor.close()
+		except DatabaseError:
+            import traceback
+            tb = traceback.format_exc()
+            raise DeviceError((('The SONY database is corrupted. '
+                    ' Delete the file %s on your reader and then disconnect '
+                    ' reconnect it. If you are using an SD card, you '
+                    ' should delete the file on the card as well. Note that '
+                    ' deleting this file will cause your reader to forget '
+                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    '\n'+tb)
 
     def get_database_min_id(self, source_id):
         sequence_min = 0L
