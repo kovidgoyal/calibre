@@ -270,7 +270,7 @@ class PRST1(USBMS):
         with closing(sqlite.connect(dbpath)) as connection:
             self.update_device_books(connection, booklist, source_id,
                     plugboard, dbpath)
-            self.update_device_collections(connection, booklist, collections, source_id)
+            self.update_device_collections(connection, booklist, collections, source_id, dbpath)
 
         debug_print('PRST1: finished update_device_database')
     
@@ -297,7 +297,7 @@ class PRST1(USBMS):
         
         cursor.close()
         
-    def read_device_books(self, connection, source_id):
+    def read_device_books(self, connection, source_id, dbpath):
         from sqlite3 import DatabaseError
         
         sequence_min = self.get_database_min_id(source_id)
@@ -376,14 +376,12 @@ class PRST1(USBMS):
 
     def update_device_books(self, connection, booklist, source_id, plugboard,
             dbpath):
-        from sqlite3 import DatabaseError
-
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
         use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
 
-        db_books = self.read_device_books(connection, source_id)
+        db_books = self.read_device_books(connection, source_id, dbpath)
         cursor = connection.cursor()
             
         for book in booklist:
@@ -464,7 +462,7 @@ class PRST1(USBMS):
         connection.commit()
         cursor.close()
 
-    def read_device_collections(self, connection, source_id):
+    def read_device_collections(self, connection, source_id, dbpath):
         from sqlite3 import DatabaseError
     
         sequence_min = self.get_database_min_id(source_id)
@@ -548,11 +546,11 @@ class PRST1(USBMS):
         return db_collections
         
     def update_device_collections(self, connection, booklist, collections,
-            source_id):
+            source_id, dbpath):
         cursor = connection.cursor()
 
         if collections:
-            db_collections = self.read_device_collections(connection, source_id)
+            db_collections = self.read_device_collections(connection, source_id, dbpath)
 
             for collection, books in collections.items():
                 if collection not in db_collections:
