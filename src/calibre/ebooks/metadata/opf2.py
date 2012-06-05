@@ -991,6 +991,21 @@ class OPF(object): # {{{
         for item in self.identifier_path(self.metadata):
             yield item
 
+    @property
+    def unique_identifier(self):
+        uuid_elem = None
+        for attr in self.root.attrib:
+            if attr.endswith('unique-identifier'):
+                uuid_elem = self.root.attrib[attr]
+                break
+        if uuid_elem:
+            matches = self.root.xpath('//*[@id=%r]'%uuid_elem)
+            if matches:
+                for m in matches:
+                    raw = m.text
+                    if raw:
+                        return raw.rpartition(':')[-1]
+
     def guess_cover(self):
         '''
         Try to guess a cover. Needed for some old/badly formed OPF files.
