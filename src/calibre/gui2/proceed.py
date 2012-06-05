@@ -42,7 +42,7 @@ class ProceedQuestion(QDialog):
         ic.setMaximumHeight(100)
         ic.setScaledContents(True)
         ic.setStyleSheet('QLabel { margin-right: 10px }')
-        self.bb = QDialogButtonBox(QDialogButtonBox.Yes|QDialogButtonBox.No)
+        self.bb = QDialogButtonBox()
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
@@ -59,6 +59,7 @@ class ProceedQuestion(QDialog):
                 _('Show detailed information about this error'))
         self.det_msg = QPlainTextEdit(self)
         self.det_msg.setReadOnly(True)
+        self.bb.setStandardButtons(self.bb.Yes|self.bb.No)
         self.bb.button(self.bb.Yes).setDefault(True)
 
         l.addWidget(ic, 0, 0, 1, 1)
