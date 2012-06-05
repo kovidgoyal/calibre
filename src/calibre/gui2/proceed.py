@@ -165,8 +165,14 @@ class ProceedQuestion(QDialog):
             self.log_viewer = ViewLog(q.log_viewer_title, log,
                         parent=self)
 
-if __name__ == '__main__':
+def main():
     from calibre.gui2 import Application
     app = Application([])
-    ProceedQuestion(None).exec_()
+    p = ProceedQuestion(None)
+    p(lambda p:None, None, 'ass', 'ass', 'testing', 'testing')
+    p.exec_()
+    app
+
+if __name__ == '__main__':
+    main()
 
