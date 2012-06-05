@@ -6449,7 +6449,19 @@ void Style::drawControl(ControlElement element, const QStyleOption *option, QPai
                 // For OO.o 3.2 need to fill widget background!
                 if(isOOWidget(widget))
                     painter->fillRect(r, palette.brush(QPalette::Window));
-                drawControl(CE_PushButtonBevel, btn, painter, widget);
+                
+                // Changed by Kovid: Buttons in a ButtonBox have a default
+                // which is highlighted with a glow. If another button in the
+                // button box has input focus that will also be highlighted
+                // with a glow, resulting in two highlighted buttons. So nuke
+                // the has focus indicator. Interestingly, changing focus with
+                // the tab key still causes the focused button (and only the
+                // focussed button) to be highlighted. I dont really understand
+                // this, but whatever.
+                QStyleOptionButton foc_opt(*btn);
+                if (widget && widget->parent() && widget->parent()->inherits("QDialogButtonBox"))
+                    foc_opt.state &= ~State_HasFocus;
+                drawControl(CE_PushButtonBevel, &foc_opt, painter, widget);
 
                 QStyleOptionButton subopt(*btn);
 

@@ -512,6 +512,8 @@ class MetadataSingleDialogBase(ResizableDialog):
                     ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
+        self.button_box.button(self.button_box.Ok).setDefault(True)
+        self.button_box.button(self.button_box.Ok).setFocus(Qt.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
 
     def break_cycles(self):
@@ -980,7 +982,7 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
     return d.changed, d.rows_to_refresh
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from calibre.gui2 import Application as QApplication
     app = QApplication([])
     from calibre.library import db as db_
     db = db_()

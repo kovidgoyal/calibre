@@ -122,10 +122,10 @@ class ProceedQuestion(QDialog):
             self.det_msg.setVisible(False)
             self.det_msg_toggle.setVisible(bool(question.det_msg))
             self.det_msg_toggle.setText(self.show_det_msg)
-            self.bb.button(self.bb.Yes).setDefault(True)
             self.do_resize()
-            self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
             self.show()
+            self.bb.button(self.bb.Yes).setDefault(True)
+            self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
