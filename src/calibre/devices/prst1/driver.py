@@ -315,6 +315,8 @@ class PRST1(USBMS):
                     '\n'+tb)
 
 	def get_lastrowid(self, cursor):
+		# SQLite3 + Python has a fun issue on 32-bit systems with integer overflows.
+		# Issue a SQL query instead, getting the value as a string, and then converting to a long python int manually.
 		query = 'SELECT last_insert_rowid()'
 		cursor.execute(query)
 		row = cursor.fetchone()
