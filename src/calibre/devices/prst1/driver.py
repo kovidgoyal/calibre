@@ -314,6 +314,13 @@ class PRST1(USBMS):
                     ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
                     '\n'+tb)
 
+	def get_lastrowid(self, cursor):
+		query = 'SELECT last_insert_rowid()'
+		cursor.execute(query)
+		row = cursor.fetchone()
+		
+		return long(row[0])
+
     def get_database_min_id(self, source_id):
         sequence_min = 0L
         if source_id == 1:
@@ -471,10 +478,10 @@ class PRST1(USBMS):
                         modified_date, lpath,
                         os.path.basename(lpath), book.size, book.mime)
                 cursor.execute(query, t)
-                book.bookId = cursor.lastrowid
+                book.bookId = self.get_lastrowid(cursor)
                 if upload_covers:
                     self.upload_book_cover(connection, book, source_id)
-                debug_print('Inserted New Book: ' + book.title)
+                debug_print('Inserted New Book: (%u) '%book.bookId + book.title)
             else:
                 query = '''
                 UPDATE books
@@ -609,8 +616,8 @@ class PRST1(USBMS):
                     query = 'INSERT INTO collection (title, source_id) VALUES (?,?)'
                     t = (collection, source_id)
                     cursor.execute(query, t)
-                    db_collections[collection] = cursor.lastrowid
-                    debug_print('Inserted New Collection: ' + collection)
+                    db_collections[collection] = self.get_lastrowid(cursor)
+                    debug_print('Inserted New Collection: (%u) '%db_collections[collection] + collection)
 
                 # Get existing books in collection
                 query = '''
