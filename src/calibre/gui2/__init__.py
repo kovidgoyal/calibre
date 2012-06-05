@@ -13,7 +13,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        config_dir)
+        config_dir, filesystem_encoding)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -742,6 +742,35 @@ class Application(QApplication):
             'pyd' if iswindows else 'so'))
         pi.load_style(path, 'Calibre')
         self.setPalette(orig_pal)
+        style = self.style()
+        icon_map = {}
+        pcache = {}
+        for k, v in {
+                'DialogYesButton': u'ok.png',
+                'DialogNoButton': u'window-close.png',
+                'DialogCloseButton': u'window-close.png',
+                'DialogOkButton': u'ok.png',
+                'DialogCancelButton': u'window-close.png',
+                'DialogHelpButton': u'help.png',
+                'DialogOpenButton': u'document_open.png',
+                'DialogSaveButton': u'save.png',
+                'DialogApplyButton': u'ok.png',
+                'DialogDiscardButton': u'trash.png',
+                'MessageBoxInformation': u'dialog_information.png',
+                'MessageBoxWarning': u'dialog_warning.png',
+                'MessageBoxCritical': u'dialog_error.png',
+                'MessageBoxQuestion': u'dialog_question.png',
+                }.iteritems():
+            if v not in pcache:
+                p = I(v)
+                if isinstance(p, bytes):
+                    p = p.decode(filesystem_encoding)
+                # if not os.path.exists(p): raise ValueError(p)
+                pcache[v] = p
+            v = pcache[v]
+            icon_map[type('')(getattr(style, 'SP_'+k))] = v
+        style.setProperty(u'calibre_icon_map', icon_map)
+        self.__icon_map_memory_ = icon_map
 
     def setup_styles(self, force_calibre_style):
         self.original_font = QFont(QApplication.font())

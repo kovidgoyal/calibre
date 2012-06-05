@@ -176,6 +176,7 @@ class Style : public QCommonStyle
     QRect subControlRect(ComplexControl control, const QStyleOptionComplex *option, SubControl subControl, const QWidget *widget) const;
     SubControl hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                      const QPoint &pos, const QWidget *widget) const;
+    virtual bool event(QEvent *event);
 
     private:
 
@@ -353,6 +354,7 @@ class Style : public QCommonStyle
 #endif
     mutable QList<int>                 itsMdiButtons[2]; // 0=left, 1=right
     mutable int                        itsTitlebarHeight;
+    QHash<int,QString>                 calibre_icon_map;
 
     // Required for Q3Header hover...
     QPoint                             itsPos;

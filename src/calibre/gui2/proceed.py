@@ -166,6 +166,7 @@ class ProceedQuestion(QDialog):
                         parent=self)
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     ProceedQuestion(None).exec_()
 

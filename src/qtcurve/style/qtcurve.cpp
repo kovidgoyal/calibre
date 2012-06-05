@@ -19,6 +19,7 @@
 */
 
 #include <QtGui>
+#include <QDynamicPropertyChangeEvent>
 #ifdef Q_WS_X11
 #include <QtDBus/QtDBus>
 #endif
@@ -135,27 +136,6 @@ inline QPixmap getIconPixmap(const QIcon &icon, int size, int flags, QIcon::Stat
 inline QPixmap getIconPixmap(const QIcon &icon, const QSize &size, int flags, QIcon::State state=QIcon::Off)
 {
     return getIconPixmap(icon, size, flags&QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled, state);
-}
-
-static Style::Icon pix2Icon(QStyle::StandardPixmap pix)
-{
-    switch(pix)
-    {
-        case QStyle::SP_TitleBarNormalButton:
-            return Style::ICN_RESTORE;
-        case QStyle::SP_TitleBarShadeButton:
-            return Style::ICN_SHADE;
-        case QStyle::SP_ToolBarHorizontalExtensionButton:
-            return Style::ICN_RIGHT;
-        case QStyle::SP_ToolBarVerticalExtensionButton:
-            return Style::ICN_DOWN;
-        case QStyle::SP_TitleBarUnshadeButton:
-            return Style::ICN_UNSHADE;
-        default:
-        case QStyle::SP_DockWidgetCloseButton:
-        case QStyle::SP_TitleBarCloseButton:
-            return Style::ICN_CLOSE;
-    }
 }
 
 static Style::Icon subControlToIcon(QStyle::SubControl sc)
@@ -982,6 +962,7 @@ Style::Style()
         itsProgressBarAnimateTimer(0),
         itsAnimateStep(0),
         itsTitlebarHeight(0),
+        calibre_icon_map(QHash<int,QString>()),
         itsPos(-1, -1),
         itsHoverWidget(0L),
 #ifdef Q_WS_X11
@@ -3693,220 +3674,26 @@ QPalette Style::standardPalette() const
 #endif
 }
 
-#if defined QTC_QT_ONLY
-#include "dialogpixmaps.h"
-
-static QIcon load(const unsigned int len, const unsigned char *data)
-{
-    QImage img;
-    img.loadFromData(data, len);
-
-    return QIcon(QPixmap::fromImage(img));
+bool Style::event(QEvent *event) {
+    if (event->type() == QEvent::DynamicPropertyChange) {
+        QDynamicPropertyChangeEvent *e = static_cast<QDynamicPropertyChangeEvent*>(event);
+        if (e->propertyName() == QString("calibre_icon_map")) {
+            QMap<QString,QVariant> m = property("calibre_icon_map").toMap();
+            QMap<QString, QVariant>::const_iterator i = m.constBegin();
+            while (i != m.constEnd()) {
+                calibre_icon_map[i.key().toInt()] = i.value().toString();
+                ++i;
+            }
+            return true;
+        }
+    }
+    return BASE_STYLE::event(event);
 }
-#endif
 
 QIcon Style::standardIconImplementation(StandardPixmap pix, const QStyleOption *option, const QWidget *widget) const
 {
-    switch(pix)
-    {
-//         case SP_TitleBarMenuButton:
-//         case SP_TitleBarMinButton:
-//         case SP_TitleBarMaxButton:
-//         case SP_TitleBarContextHelpButton:
-        case SP_TitleBarNormalButton:
-        case SP_TitleBarShadeButton:
-        case SP_TitleBarUnshadeButton:
-        case SP_DockWidgetCloseButton:
-        case SP_TitleBarCloseButton:
-        {
-            QPixmap pm(13, 13);
-
-            pm.fill(Qt::transparent);
-
-            QPainter painter(&pm);
-
-            drawIcon(&painter, Qt::color1, QRect(0, 0, pm.width(), pm.height()), false, pix2Icon(pix),
-                     SP_TitleBarShadeButton==pix || SP_TitleBarUnshadeButton==pix);
-            return QIcon(pm);
-        }
-        case SP_ToolBarHorizontalExtensionButton:
-        case SP_ToolBarVerticalExtensionButton:
-        {
-            QPixmap pm(9, 9);
-
-            pm.fill(Qt::transparent);
-
-            QPainter painter(&pm);
-
-            drawIcon(&painter, Qt::color1, QRect(0, 0, pm.width(), pm.height()), false, pix2Icon(pix), true);
-            return QIcon(pm);
-        }
-#if defined QTC_QT_ONLY
-        case SP_MessageBoxQuestion:
-        case SP_MessageBoxInformation:
-        {
-            static QIcon icn(load(dialog_information_png_len, dialog_information_png_data));
-            return icn;
-        }
-        case SP_MessageBoxWarning:
-        {
-            static QIcon icn(load(dialog_warning_png_len, dialog_warning_png_data));
-            return icn;
-        }
-        case SP_MessageBoxCritical:
-        {
-            static QIcon icn(load(dialog_error_png_len, dialog_error_png_data));
-            return icn;
-        }
-/*
-        case SP_DialogYesButton:
-        case SP_DialogOkButton:
-        {
-            static QIcon icn(load(dialog_ok_png_len, dialog_ok_png_data));
-            return icn;
-        }
-        case SP_DialogNoButton:
-        case SP_DialogCancelButton:
-        {
-            static QIcon icn(load(dialog_cancel_png_len, dialog_cancel_png_data));
-            return icn;
-        }
-        case SP_DialogHelpButton:
-        {
-            static QIcon icn(load(help_contents_png_len, help_contents_png_data));
-            return icn;
-        }
-        case SP_DialogCloseButton:
-        {
-            static QIcon icn(load(dialog_close_png_len, dialog_close_png_data));
-            return icn;
-        }
-        case SP_DialogApplyButton:
-        {
-            static QIcon icn(load(dialog_ok_apply_png_len, dialog_ok_apply_png_data));
-            return icn;
-        }
-        case SP_DialogResetButton:
-        {
-            static QIcon icn(load(document_revert_png_len, document_revert_png_data));
-            return icn;
-        }
-*/
-#else
-        case SP_MessageBoxInformation:
-            return KIcon("dialog-information");
-        case SP_MessageBoxWarning:
-            return KIcon("dialog-warning");
-        case SP_MessageBoxCritical:
-            return KIcon("dialog-error");
-        case SP_MessageBoxQuestion:
-            return KIcon("dialog-information");
-        case SP_DesktopIcon:
-            return KIcon("user-desktop");
-        case SP_TrashIcon:
-            return KIcon("user-trash");
-        case SP_ComputerIcon:
-            return KIcon("computer");
-        case SP_DriveFDIcon:
-            return KIcon("media-floppy");
-        case SP_DriveHDIcon:
-            return KIcon("drive-harddisk");
-        case SP_DriveCDIcon:
-        case SP_DriveDVDIcon:
-            return KIcon("media-optical");
-        case SP_DriveNetIcon:
-            return KIcon("network-server");
-        case SP_DirOpenIcon:
-            return KIcon("document-open");
-        case SP_DirIcon:
-        case SP_DirClosedIcon:
-            return KIcon("folder");
-//         case SP_DirLinkIcon:
-        case SP_FileIcon:
-            return KIcon("application-x-zerosize");
-//         case SP_FileLinkIcon:
-        case SP_FileDialogStart:
-            return KIcon(Qt::RightToLeft==QApplication::layoutDirection() ? "go-edn" : "go-first");
-        case SP_FileDialogEnd:
-            return KIcon(Qt::RightToLeft==QApplication::layoutDirection() ? "go-first" : "go-end");
-        case SP_FileDialogToParent:
-            return KIcon("go-up");
-        case SP_FileDialogNewFolder:
-            return KIcon("folder-new");
-        case SP_FileDialogDetailedView:
-            return KIcon("view-list-details");
-//         case SP_FileDialogInfoView:
-//             return KIcon("dialog-ok");
-//         case SP_FileDialogContentsView:
-//             return KIcon("dialog-ok");
-        case SP_FileDialogListView:
-            return KIcon("view-list-icons");
-        case SP_FileDialogBack:
-            return KIcon(Qt::RightToLeft==QApplication::layoutDirection() ? "go-next" : "go-previous");
-        case SP_DialogOkButton:
-            return KIcon("dialog-ok");
-        case SP_DialogCancelButton:
-            return KIcon("dialog-cancel");
-        case SP_DialogHelpButton:
-            return KIcon("help-contents");
-        case SP_DialogOpenButton:
-            return KIcon("document-open");
-        case SP_DialogSaveButton:
-            return KIcon("document-save");
-        case SP_DialogCloseButton:
-            return KIcon("dialog-close");
-        case SP_DialogApplyButton:
-            return KIcon("dialog-ok-apply");
-        case SP_DialogResetButton:
-            return KIcon("document-revert");
-//         case SP_DialogDiscardButton:
-//              return KIcon("dialog-cancel");
-        case SP_DialogYesButton:
-            return KIcon("dialog-ok");
-        case SP_DialogNoButton:
-            return KIcon("dialog-cancel");
-        case SP_ArrowUp:
-            return KIcon("arrow-up");
-        case SP_ArrowDown:
-            return KIcon("arrow-down");
-        case SP_ArrowLeft:
-            return KIcon("arrow-left");
-        case SP_ArrowRight:
-            return KIcon("arrow-right");
-        case SP_ArrowBack:
-            return KIcon(Qt::RightToLeft==QApplication::layoutDirection() ? "go-next" : "go-previous");
-        case SP_ArrowForward:
-            return KIcon(Qt::RightToLeft==QApplication::layoutDirection() ? "go-previous" : "go-next");
-        case SP_DirHomeIcon:
-            return KIcon("user-home");
-//         case SP_CommandLink:
-//         case SP_VistaShield:
-        case SP_BrowserReload:
-            return KIcon("view-refresh");
-        case SP_BrowserStop:
-            return KIcon("process-stop");
-        case SP_MediaPlay:
-            return KIcon("media-playback-start");
-        case SP_MediaStop:
-            return KIcon("media-playback-stop");
-        case SP_MediaPause:
-            return KIcon("media-playback-pause");
-        case SP_MediaSkipForward:
-            return KIcon("media-skip-forward");
-        case SP_MediaSkipBackward:
-            return KIcon("media-skip-backward");
-        case SP_MediaSeekForward:
-            return KIcon("media-seek-forward");
-        case SP_MediaSeekBackward:
-            return KIcon("media-seek-backward");
-        case SP_MediaVolume:
-            return KIcon("player-volume");
-        case SP_MediaVolumeMuted:
-            return KIcon("player-volume-muted");
-#endif
-        default:
-            break;
-    }
+    if (calibre_icon_map.contains(pix))
+        return QIcon(calibre_icon_map.value(pix));
     return BASE_STYLE::standardIconImplementation(pix, option, widget);
 }
 
