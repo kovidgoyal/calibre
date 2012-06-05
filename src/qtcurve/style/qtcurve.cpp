@@ -3644,9 +3644,10 @@ int Style::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *
         case SH_FormLayoutWrapPolicy:
             return QFormLayout::DontWrapRows;
 #endif
-#if !defined QTC_QT_ONLY
+        // Changed by Kovid
         case SH_DialogButtonBox_ButtonsHaveIcons:
-            return KGlobalSettings::showIconsOnPushButtons();
+            return 1;
+#if !defined QTC_QT_ONLY
         case SH_ItemView_ActivateItemOnSingleClick:
             return KGlobalSettings::singleClick();
 #endif
