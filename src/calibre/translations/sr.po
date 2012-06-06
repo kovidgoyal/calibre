@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-01 17:51+0000\n"
-"PO-Revision-Date: 2012-06-01 17:32+0000\n"
+"PO-Revision-Date: 2012-06-05 08:07+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Ozzii\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-02 05:27+0000\n"
-"X-Generator: Launchpad (build 15342)\n"
+"X-Launchpad-Export-Date: 2012-06-06 04:36+0000\n"
+"X-Generator: Launchpad (build 15353)\n"
 "Language: sr\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1861,7 +1861,7 @@ msgstr "Ажурирајте неке корице у случају аутом�
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
-msgstr "Користи СОНИ Ауторски ФОРМАТ(Само Први Аутор)"
+msgstr "Користи СОНИ Ауторски ФОРМАТ (само први аутор)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
@@ -4909,7 +4909,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr "Додај празну књигу. (Улазна књига је  без формата)"
+msgstr "Додај празну књигу (улазна књига је без формата)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Shift+Ctrl+E"
@@ -6178,7 +6178,7 @@ msgstr "Покажи поново ову поруку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:153
 msgid "About Get Books"
-msgstr "О Get Books"
+msgstr "О преузимању књига"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -9304,7 +9304,7 @@ msgstr "Претворив"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:43
 msgid "Choose location for calibre library"
-msgstr "Изабери локацију за calibre библиотеку."
+msgstr "Изабери локацију за calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:50
 msgid "Same as current"
@@ -9313,7 +9313,7 @@ msgstr "Исто као тренутни избор."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 #, python-format
 msgid "The location %s contains the current calibre library"
-msgstr "Локација %s садржи тренутну calibre библиотеку."
+msgstr "Локација %s садржи тренутну calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:56
 msgid "No existing library found"
@@ -9354,7 +9354,7 @@ msgstr "Фасцикла %s не постоји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:77
 msgid "Choose your calibre library"
-msgstr "Изаберите вашу calibre библиотеку."
+msgstr "Изаберите вашу calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:78
 msgid "Your calibre library is currently located at {0}"
@@ -12171,7 +12171,7 @@ msgstr "Прикажи књиге на меморијској картици B."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:94
 msgid "Delete library"
-msgstr "Избриши библиотеку."
+msgstr "Избриши библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:148
 msgid "available"
@@ -12256,6 +12256,8 @@ msgid ""
 "Could not change the on disk location of this book. Is it open in another "
 "program?"
 msgstr ""
+"Није могуће променити локацију на диску за ову књигу. Да ли је отворити у "
+"другом програму ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:882
 msgid "Failed to set data"
@@ -12451,7 +12453,7 @@ msgstr "Изаберите место за вашу библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:104
 msgid "Failed to create library"
-msgstr "Нисам успео да направим библиотеку."
+msgstr "Нисам успео да направим библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 #, python-format
@@ -12461,7 +12463,7 @@ msgstr "Нисам успео да направим библиотеку на: %
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:170
 msgid "Choose a location for your new calibre e-book library"
-msgstr "Изаберите место за вашу нову calibre библиотеку."
+msgstr "Изаберите место за вашу нову calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:136
 msgid "Initializing user interface..."
@@ -15404,7 +15406,7 @@ msgstr "Раздвајач"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:59
 msgid "Choose library"
-msgstr "Изаберите библиотеку."
+msgstr "Изаберите библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:220
 msgid "The main toolbar"
@@ -15910,7 +15912,7 @@ msgstr "Преузми:"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
 msgid "Titl&e/Author/Price ..."
-msgstr ""
+msgstr "Насл&ов/Аутор/Цена ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "DRM"
@@ -15974,7 +15976,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:277
 msgid "Customize get books search"
-msgstr ""
+msgstr "Жељена претрага за добијање књига"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:287
 msgid "Configure search"
@@ -15982,7 +15984,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:337
 msgid "Couldn't find any books matching your query."
-msgstr ""
+msgstr "Није могуће пронаћи ни једну књигу одговарајућу вашем упиту."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:351
 msgid "Choose format to download to your library."
@@ -15991,7 +15993,7 @@ msgstr "Изабери формат за преузимање у вашу биб
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:141
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "Преузми књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:150
 msgid "Open a selected book in the system's web browser"
@@ -15999,7 +16001,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:151
 msgid "Open in &external browser"
-msgstr ""
+msgstr "Отвори у &спољашњем прегледачу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/ebooks_com_plugin.py:98
 msgid "Not Available"
@@ -17267,7 +17269,7 @@ msgstr "Премештам библиотеку..."
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:578
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:579
 msgid "Failed to move library"
-msgstr "Нисам успео да преместим библиотеку."
+msgstr "Нисам успео да преместим библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:633
 msgid "Invalid database"
@@ -17282,7 +17284,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:645
 msgid "Could not move library"
-msgstr "Нисам успео да преместим библиотеку."
+msgstr "Нисам успео да преместим библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:729
 msgid "Select location for books"
@@ -18248,7 +18250,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:310
 msgid "Add an empty book (a book with no formats)"
-msgstr "Додај празну књигу (књигу без иједног формата)"
+msgstr "Додај празну књигу (књига без формата)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:312
 msgid "Set the title of the added book(s)"
@@ -19407,7 +19409,7 @@ msgstr "Додај нове формате за постојеће књиге."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:406
 msgid "Tags to apply to books added to the library"
-msgstr "Етикете које ће бити примењене на књиге додате у библиотеку."
+msgstr "Етикете које ће бити примењене на књиге додате у библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:410
 msgid "List of named saved searches"
