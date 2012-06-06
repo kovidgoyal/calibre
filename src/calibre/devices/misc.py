@@ -224,16 +224,16 @@ class TREKSTOR(USBMS):
     FORMATS     = ['epub', 'txt', 'pdf']
 
     VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e,
-            0x003e # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
+    PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
+            0x003e, # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
             ]
-    BCD         = [0x0002]
+    BCD         = [0x0002, 0x100]
 
     EBOOK_DIR_MAIN = 'Ebooks'
 
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0']
+            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS']
 
 class EEEREADER(USBMS):
 
