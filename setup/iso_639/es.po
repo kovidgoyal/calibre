@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-06-02 17:42+0000\n"
-"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
+"PO-Revision-Date: 2012-06-06 17:20+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-03 04:46+0000\n"
-"X-Generator: Launchpad (build 15342)\n"
+"X-Launchpad-Export-Date: 2012-06-07 04:40+0000\n"
+"X-Generator: Launchpad (build 15353)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -23027,7 +23027,7 @@ msgstr ""
 
 #. name for sia
 msgid "Sami; Akkala"
-msgstr ""
+msgstr "Sami de Akkala"
 
 #. name for sib
 msgid "Sebop"
@@ -23127,11 +23127,11 @@ msgstr ""
 
 #. name for sjd
 msgid "Sami; Kildin"
-msgstr ""
+msgstr "Sami de Kildin"
 
 #. name for sje
 msgid "Sami; Pite"
-msgstr ""
+msgstr "Sami de Pite"
 
 #. name for sjg
 msgid "Assangori"
@@ -23139,7 +23139,7 @@ msgstr ""
 
 #. name for sjk
 msgid "Sami; Kemi"
-msgstr ""
+msgstr "Sami de Kemi"
 
 #. name for sjl
 msgid "Sajalong"
@@ -23171,11 +23171,11 @@ msgstr ""
 
 #. name for sjt
 msgid "Sami; Ter"
-msgstr ""
+msgstr "Sami de Ter"
 
 #. name for sju
 msgid "Sami; Ume"
-msgstr ""
+msgstr "Sami de Ume"
 
 #. name for sjw
 msgid "Shawnee"
@@ -23407,7 +23407,7 @@ msgstr ""
 
 #. name for smj
 msgid "Lule Sami"
-msgstr "Sami lule"
+msgstr "Sami de Lule"
 
 #. name for smk
 msgid "Bolinao"
@@ -23423,7 +23423,7 @@ msgstr ""
 
 #. name for smn
 msgid "Sami; Inari"
-msgstr ""
+msgstr "Sami de Inari"
 
 #. name for smo
 msgid "Samoan"
@@ -23443,7 +23443,7 @@ msgstr ""
 
 #. name for sms
 msgid "Sami; Skolt"
-msgstr ""
+msgstr "Sami de Skolt"
 
 #. name for smt
 msgid "Simte"
@@ -28235,7 +28235,7 @@ msgstr ""
 
 #. name for xal
 msgid "Kalmyk"
-msgstr ""
+msgstr "Calmuco"
 
 #. name for xam
 msgid "/Xam"

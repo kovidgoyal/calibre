@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-01 17:51+0000\n"
-"PO-Revision-Date: 2012-06-05 08:07+0000\n"
+"PO-Revision-Date: 2012-06-06 07:05+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Ozzii\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-06 04:36+0000\n"
+"X-Launchpad-Export-Date: 2012-06-07 04:39+0000\n"
 "X-Generator: Launchpad (build 15353)\n"
 "Language: sr\n"
 
@@ -2770,7 +2770,7 @@ msgid ""
 "full first page of the generated pdf."
 msgstr ""
 "Задржи однос корице, у место да се истегне да би попунио прву страницу "
-"генерисаног pdf-а."
+"генерисаног ПДФ-а."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -4656,7 +4656,7 @@ msgstr "Могућности за поделу:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr "Не могу да пронађем pdftohtml, проверите да ли је наведен у PATH."
+msgstr "Не могу да пронађем pdftohtml, проверите да ли је наведен у путањи."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -8037,7 +8037,7 @@ msgstr "Излазно кодирање:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
-msgstr "PDF улаз"
+msgstr "Улазни ПДФ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:44
 msgid "Line &Un-Wrapping Factor:"
@@ -8049,7 +8049,7 @@ msgstr "Занемари &слике"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:15
 msgid "PDF Output"
-msgstr "PDF излаз."
+msgstr "Излазни ПДФ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:55
 msgid "&Paper Size:"

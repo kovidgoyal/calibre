@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-01 17:51+0000\n"
-"PO-Revision-Date: 2012-06-02 17:43+0000\n"
-"Last-Translator: Javier García Díaz <Unknown>\n"
+"PO-Revision-Date: 2012-06-06 18:58+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-03 04:45+0000\n"
-"X-Generator: Launchpad (build 15342)\n"
+"X-Launchpad-Export-Date: 2012-06-07 04:40+0000\n"
+"X-Generator: Launchpad (build 15353)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
 msgid ""
@@ -244,7 +244,7 @@ msgstr "No se puede configurar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Tipo de archivo"
+msgstr "Tipo de fichero"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
@@ -303,7 +303,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Extraer portada de los archivos del cómic"
+msgstr "Extraer portada de los ficheros de cómic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -328,7 +328,7 @@ msgstr "Extraer portada de los archivos del cómic"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:390
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Leer metadatos desde archivos %s"
+msgstr "Leer metadatos desde ficheros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:327
 msgid "Read metadata from ebooks in RAR archives"
@@ -347,14 +347,14 @@ msgstr "Leer metadatos de libros electrónicos en archivos ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:502
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Asignar metadatos a los archivos %s"
+msgstr "Asignar metadatos a los ficheros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:470
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:513
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Asignar metadatos desde archivos %s"
+msgstr "Asignar metadatos desde ficheros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Add books to calibre or the connected device"
@@ -1662,9 +1662,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
-"Ahora \"Kobo\" muestra recomedaciones en el dispositivo.  En algunos casos "
-"son archivos, pero en ocasione son solamente direcciones a sitios de la red "
-"donde compar.  Si se desea, puede habilitar la vista o borrado"
+"Ahora el lector Kobo muestra recomedaciones en el dispositivo.  En algunos "
+"casos son ficheros, pero en ocasiones son solamente direcciones al sitio web "
+"para comprar. Active la opción si desea verlos o borrarlos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:392
@@ -2631,7 +2631,7 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
-"Normalmente, este complemento de entrada reorganiza todos los archivos de "
+"Normalmente, este complemento de entrada reorganiza todos los ficheros de "
 "entrada en una jerarquía de carpetas estándar. Use esta opción sólo si está "
 "seguro de lo que está haciendo, pues puede producir efectos indeseados en el "
 "resto de la cola de conversión."
@@ -3987,7 +3987,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "Creando archivo LIT a partir de EPUB..."
+msgstr "Creando fichero LIT a partir de EPUB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
@@ -3999,7 +3999,7 @@ msgstr "\tAnalizando HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr "\tSe detectó un archivo Baen. Analizando de nuevo..."
+msgstr "\tSe detectó un fichero Baen. Analizando de nuevo..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
@@ -4885,7 +4885,7 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
-"archivo.pdf ...\n"
+"fichero.pdf ...\n"
 "\n"
 "Obtener información sobre un PDF.\n"
 
@@ -4978,14 +4978,14 @@ msgid ""
 "Split a PDF.\n"
 msgstr ""
 "\n"
-"%prog %%name [opciones] archivo.pdf página_en_la_que_dividir ...\n"
-"%prog %%name [opciones] archivo.pdf rango_de_páginas_en_las_que_dividir ...\n"
+"%prog %%name [opciones] fichero.pdf página_en_la_que_dividir ...\n"
+"%prog %%name [opciones] fichero.pdf rango_de_páginas_en_las_que_dividir ...\n"
 "\n"
 "Ejs.\n"
 "\n"
-"%prog %%name archivo.pdf 6\n"
-"%prog %%name archivo.pdf 6-12\n"
-"%prog %%name archivo.pdf 6-12 8 10 9-20\n"
+"%prog %%name fichero.pdf 6\n"
+"%prog %%name fichero.pdf 6-12\n"
+"%prog %%name fichero.pdf 6-12 8 10 9-20\n"
 "\n"
 "Dividir un PDF.\n"
 
@@ -13960,7 +13960,7 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
-"<b>ADVERTENCIA:</b> Los archivos de %s se eliminarán automáticamente después "
+"<b>ADVERTENCIA:</b> Los ficheros de %s se eliminarán automáticamente después "
 "de añadirse a calibre. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:119
@@ -14103,7 +14103,7 @@ msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
-"Especifique una carpeta. Los archivos que ponga en esta carpeta se añadirán "
+"Especifique una carpeta. Los ficheros que ponga en esta carpeta se añadirán "
 "automáticamente a calibre (requiere reinicio)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
@@ -14111,7 +14111,7 @@ msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
-"<b>ADVERTENCIA:</b> Los archivos de la carpeta especificada se eliminarán "
+"<b>ADVERTENCIA:</b> Los ficheros de la carpeta especificada se eliminarán "
 "después de añadirse a calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
