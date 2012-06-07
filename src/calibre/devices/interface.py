@@ -178,7 +178,13 @@ class DevicePlugin(Plugin):
                     if cvid == vid:
                         if pid in products:
                             if hasattr(self.VENDOR_ID, 'keys'):
-                                cbcd = self.VENDOR_ID[vid][pid]
+                                try:
+                                    cbcd = self.VENDOR_ID[vid][pid]
+                                except KeyError:
+                                    # Vendor vid does not have product pid, pid
+                                    # exists for some other vendor in this
+                                    # device
+                                    continue
                             else:
                                 cbcd = self.BCD
                             if self.test_bcd(bcd, cbcd):
