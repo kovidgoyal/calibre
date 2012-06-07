@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 class Polska_times(BasicNewsRecipe):
     title          = u'Polska Times'
     __author__        = 'fenuks'

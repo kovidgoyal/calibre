@@ -5,7 +5,6 @@ www.csmonitor.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class CSMonitor(BasicNewsRecipe):
     title                 = 'The Christian Science Monitor - daily'
@@ -48,7 +47,7 @@ class CSMonitor(BasicNewsRecipe):
                         dict(name='h1', attrs={'class':'head'})
                        ,dict(name='h2', attrs={'class':'subhead'})
                        ,dict(attrs={'class':['sByline','podStoryGal','ui-body-header','sBody']})
-                     ]              
+                     ]
     remove_attributes=['xmlns:fb']
 
     feeds = [
@@ -67,7 +66,7 @@ class CSMonitor(BasicNewsRecipe):
              ,(u'The Home Forum', u'http://rss.csmonitor.com/feeds/homeforum'  )
              ,(u'Articles'      , u'http://rss.csmonitor.com/feeds/csarticles' )
             ]
- 
+
     def append_page(self, soup):
         pager = soup.find('div', attrs={'class':'navigation'})
         if pager:
@@ -75,9 +74,9 @@ class CSMonitor(BasicNewsRecipe):
            if nexttag:
               nurl = 'http://www.csmonitor.com' + nexttag['href']
               soup2 = self.index_to_soup(nurl)
-              texttag = soup2.find(attrs={'class':'sBody'})              
+              texttag = soup2.find(attrs={'class':'sBody'})
               if texttag:
-                  appendtag = soup.find(attrs={'class':'sBody'})    
+                  appendtag = soup.find(attrs={'class':'sBody'})
                   for citem in texttag.findAll(attrs={'class':['podStoryRel','bottom-rel','hide']}):
                       citem.extract()
                   self.append_page(soup2)
