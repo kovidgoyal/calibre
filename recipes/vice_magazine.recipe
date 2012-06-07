@@ -1,4 +1,5 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ViceESRecipe(BasicNewsRecipe):
@@ -7,11 +8,33 @@ class ViceESRecipe(BasicNewsRecipe):
     description = u'La página web oficial de la revista Vice España'
     category = u'noticias, fotografía, blogs, moda, arte, cine, música, literatura, tecnología'
     cover_url = 'http://www.seeklogo.com/images/V/Vice-logo-668578AC94-seeklogo.com.gif'
-    oldest_article = 20
-    max_articles_per_feed = 30
-    auto_cleanup = True
+    oldest_article = 14
+    max_articles_per_feed = 100
+    auto_cleanup = False
     no_stylesheets = True
     language = 'es'
+    use_embedded_content  = False
+    remove_javascript = True
+    publication_type = 'magazine'
+
+    recursions=10
+    match_regexps = [r'/read/.*\?Contentpage=[2-9]$']
+
+    keep_only_tags = [
+        dict(attrs={'class':['article_title','article_content','next']})
+    ]
+    remove_tags = [
+        dict(attrs={'class':['social_buttons','search','tweet','like','inline_socials'
+           ,'stumblebadge','plusone']})
+    ]
+
+    extra_css = '''
+        .author{font-size:small}
+        img{margin-bottom: 0.4em; display:block; margin-left:auto; margin-right: auto}
+    '''
+
+    preprocess_regexps = [
+        (re.compile(r'<img src="http://.*\.scorecardresearch\.com/'), lambda m: '')
+    ]
 
     feeds = [('Vice', 'http://www.vice.com/es/rss')]
-
