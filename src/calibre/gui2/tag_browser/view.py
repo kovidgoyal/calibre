@@ -104,7 +104,7 @@ class TagsView(QTreeView): # {{{
         self.setStyleSheet('''
                 QTreeView {
                     background-color: palette(window);
-                    color: palette(text);
+                    color: palette(window-text);
                     border: none;
                 }
 
