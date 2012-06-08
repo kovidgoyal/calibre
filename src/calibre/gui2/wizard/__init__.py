@@ -418,9 +418,17 @@ class KindlePage(QWizardPage, KindleUI):
 
     def initializePage(self):
         opts = smtp_prefs().parse()
-        for x in opts.accounts.keys():
+        accs = []
+        has_default = False
+        for x, ac in opts.accounts.iteritems():
+            default = ac[2]
             if x.strip().endswith('@kindle.com'):
-                self.to_address.setText(x)
+                accs.append((x, default))
+                if default: has_default = True
+        if has_default:
+            accs = [x for x in accs if x[1]]
+        if accs:
+            self.to_address.setText(accs[0])
         def x():
             t = unicode(self.to_address.text())
             if t.strip():

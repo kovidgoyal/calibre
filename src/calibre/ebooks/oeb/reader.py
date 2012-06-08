@@ -338,8 +338,15 @@ class OEBReader(object):
             href = elem.get('href')
             path = urlnormalize(urldefrag(href)[0])
             if path not in manifest.hrefs:
-                self.logger.warn(u'Guide reference %r not found' % href)
-                continue
+                corrected_href = None
+                for href in manifest.hrefs:
+                    if href.lower() == path.lower():
+                        corrected_href = href
+                        break
+                if corrected_href is None:
+                    self.logger.warn(u'Guide reference %r not found' % href)
+                    continue
+                href = corrected_href
             guide.add(elem.get('type'), elem.get('title'), href)
 
     def _find_ncx(self, opf):

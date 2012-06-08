@@ -276,6 +276,16 @@ class ODTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.odt import get_metadata
         return get_metadata(stream)
 
+class DocXMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read DOCX metadata'
+    file_types  = set(['docx'])
+    description = _('Read metadata from %s files')%'DOCX'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.docx import get_metadata
+        return get_metadata(stream)
+
 class OPFMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read OPF metadata'

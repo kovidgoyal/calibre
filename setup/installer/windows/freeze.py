@@ -248,13 +248,6 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
-        self.info('\nAdding QtCurve...')
-        qtcurve = self.j(QTCURVE, 'qtcurve.dll')
-        tg = self.j(tdir, 'styles')
-        if os.path.exists(tg):
-            shutil.rmtree(tg)
-        os.mkdir(tg)
-        shutil.copy2(qtcurve, tg)
 
         for dirpath, dirnames, filenames in os.walk(tdir):
             for x in filenames:
@@ -494,7 +487,8 @@ class Win32Freeze(Command, WixMixIn):
             # Add the .pyds from python and calibre to the zip file
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
-                    if pyd.endswith('.pyd') and pyd != 'sqlite_custom.pyd':
+                    if pyd.endswith('.pyd') and pyd not in {
+                            'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
                         self.add_to_zipfile(zf, pyd, x)

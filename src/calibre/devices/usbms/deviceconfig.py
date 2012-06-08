@@ -30,6 +30,8 @@ class DeviceConfig(object):
     SUPPORTS_SUB_DIRS = False
     SUPPORTS_SUB_DIRS_FOR_SCAN = False # This setting is used when scanning for
                                        # books when SUPPORTS_SUB_DIRS is False
+    SUPPORTS_SUB_DIRS_DEFAULT = True
+
     MUST_READ_METADATA = False
     SUPPORTS_USE_AUTHOR_SORT = False
 
@@ -57,7 +59,7 @@ class DeviceConfig(object):
         c = Config('device_drivers_%s' % name, _('settings for device drivers'))
         c.add_opt('format_map', default=cls.FORMATS,
                 help=_('Ordered list of formats the device will accept'))
-        c.add_opt('use_subdirs', default=True,
+        c.add_opt('use_subdirs', default=cls.SUPPORTS_SUB_DIRS_DEFAULT,
                 help=_('Place files in sub directories if the device supports them'))
         c.add_opt('read_metadata', default=True,
                 help=_('Read metadata from files on device'))

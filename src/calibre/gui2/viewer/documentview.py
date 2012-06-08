@@ -649,7 +649,7 @@ class DocumentView(QWebView): # {{{
     def current_page_image(self, overlap=-1):
         if overlap < 0:
             overlap = self.height()
-        img = QImage(self.width(), overlap, QImage.Format_ARGB32)
+        img = QImage(self.width(), overlap, QImage.Format_ARGB32_Premultiplied)
         painter = QPainter(img)
         self.document.mainFrame().render(painter, QRegion(0, 0, self.width(), overlap))
         painter.end()

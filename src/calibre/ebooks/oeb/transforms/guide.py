@@ -15,10 +15,10 @@ class Clean(object):
 
         if 'cover' not in self.oeb.guide:
             covers = []
-            for x in ('other.ms-coverimage-standard',
+            for x in ('other.ms-coverimage-standard', 'coverimagestandard',
                     'other.ms-titleimage-standard', 'other.ms-titleimage',
                     'other.ms-coverimage', 'other.ms-thumbimage-standard',
-                    'other.ms-thumbimage'):
+                    'other.ms-thumbimage', 'thumbimagestandard'):
                 if x in self.oeb.guide:
                     href = self.oeb.guide[x].href
                     item = self.oeb.manifest.hrefs[href]

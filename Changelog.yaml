@@ -19,6 +19,69 @@
 #   new recipes:
 #     - title: 
 
+
+- version: 0.8.55
+  date: 2012-06-08
+
+  new features:
+    - title: "Add a new 'Calibre style' interface look that is more modern than the default look. You can select it via Preferences->Look & Feel->User interface style."
+
+    - title: "New, subtler look for the Tag Browser"
+
+    - title: "Driver for Trekstor Pyrus and Pantech Android Tablet"
+      tickets: [1008946, 1007929]
+
+    - title: "Conversion pipeline: Handle guide elements with incorrectly cased hrefs. Also handle guide elements of type coverimagestandard and thumbimagestandard."
+
+    - title: "Allow user to customize trekstor plugin to send books into sub directories."
+      tickets: [1007646]
+
+    - title: "EPUB Input: Add support for EPUB files that use the IDPF font obfuscation algorithm. Apparently, people have started producing these now."
+      tickets: [1008810]
+
+    - title: "Save single format to disk: Only show the format available in the selected books."
+      tickets: [1007287]
+ 
+  bug fixes:
+    - title: "MOBI Output: When using the insert metadata at start of book option, do not use a table to layout the metadata, as the Kindle Fire crashes when rendering the table."
+      tickets: [1002119]
+
+    - title: "Device detection: Fix a bug that could cause device detection to fail completely if devices with certain vendor/product ids are connected."
+      tickets: [1009718]
+
+    - title: "MOBI Output: When rasterizing svgs only compute style information when an actual svg image is present. Small speedup when converting large svg-free documents to MOBI."
+
+    - title: "SONY T1 driver: Fix support for collections of books placed on the SD card"
+      tickets: [986044]
+
+    - title: "Fix partitioning problems in tag browser with fields that have no name, such as identifiers and formats"
+
+    - title: "Welcome wizard: Preferentially use the kindle email address set as default when more than one such address exists."
+      tickets: [1007932 ]
+
+    - title: "Fix regression in 0.8.54 that broke the use of the shortcut Alt+A to select books by the same author"
+
+  improved recipes:
+    - Various Polish recipes
+    - Vice Magazine
+    - EL Mundo Today
+    - Haaretz
+    - Good Housekeeping
+    - El Pais
+    - Christian Science Monitor
+    - Marketing Magazine
+    - Instapaper
+
+  new recipes:
+    - title: Various Philippine news sources 
+      author: jde
+
+    - title: Natemat.pl and wirtualnemedia.pl 
+      author: fenuks
+
+    - title: Rabble.ca
+      author: timtoo
+
 - version: 0.8.54
   date: 2012-05-31
 

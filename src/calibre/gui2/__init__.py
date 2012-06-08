@@ -13,7 +13,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        config_dir)
+        config_dir, filesystem_encoding)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -471,6 +471,7 @@ class FileIconProvider(QFileIconProvider):
              'djvu'    : 'djvu',
              'xps'     : 'xps',
              'oxps'    : 'xps',
+             'docx'    : 'docx',
              }
 
     def __init__(self):
@@ -719,7 +720,7 @@ gui_thread = None
 qt_app = None
 class Application(QApplication):
 
-    def __init__(self, args):
+    def __init__(self, args, force_calibre_style=False):
         self.file_event_hook = None
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
@@ -730,6 +731,48 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+        self.setup_styles(force_calibre_style)
+
+    def load_calibre_style(self):
+        # On OS X QtCurve resets the palette, so we preserve it explicitly
+        orig_pal = QPalette(self.palette())
+        from calibre.constants import plugins
+        pi = plugins['progress_indicator'][0]
+        path = os.path.join(sys.extensions_location, 'calibre_style.'+(
+            'pyd' if iswindows else 'so'))
+        pi.load_style(path, 'Calibre')
+        self.setPalette(orig_pal)
+        style = self.style()
+        icon_map = {}
+        pcache = {}
+        for k, v in {
+                'DialogYesButton': u'ok.png',
+                'DialogNoButton': u'window-close.png',
+                'DialogCloseButton': u'window-close.png',
+                'DialogOkButton': u'ok.png',
+                'DialogCancelButton': u'window-close.png',
+                'DialogHelpButton': u'help.png',
+                'DialogOpenButton': u'document_open.png',
+                'DialogSaveButton': u'save.png',
+                'DialogApplyButton': u'ok.png',
+                'DialogDiscardButton': u'trash.png',
+                'MessageBoxInformation': u'dialog_information.png',
+                'MessageBoxWarning': u'dialog_warning.png',
+                'MessageBoxCritical': u'dialog_error.png',
+                'MessageBoxQuestion': u'dialog_question.png',
+                }.iteritems():
+            if v not in pcache:
+                p = I(v)
+                if isinstance(p, bytes):
+                    p = p.decode(filesystem_encoding)
+                # if not os.path.exists(p): raise ValueError(p)
+                pcache[v] = p
+            v = pcache[v]
+            icon_map[type('')(getattr(style, 'SP_'+k))] = v
+        style.setProperty(u'calibre_icon_map', icon_map)
+        self.__icon_map_memory_ = icon_map
+
+    def setup_styles(self, force_calibre_style):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
@@ -738,14 +781,9 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
-        self.setup_styles()
 
-    def setup_styles(self):
-        if gprefs['widget_style'] != 'system':
-            # On OS X QtCurve resets the palette, so we preserve it explicitly
-            orig_pal = QPalette(self.palette())
-            QApplication.setStyle('QtCurve')
-            self.setPalette(orig_pal)
+        if force_calibre_style or gprefs['widget_style'] != 'system':
+            self.load_calibre_style()
         else:
             st = self.style()
             if st is not None:
@@ -753,12 +791,8 @@ class Application(QApplication):
             if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
                 from PyQt4.Qt import QStyleFactory
                 styles = set(map(unicode, QStyleFactory.keys()))
-                if 'QtCurve' in styles and os.environ.get('KDE_FULL_SESSION',
-                        False):
-                    self.setStyle('QtCurve')
-                elif 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
-                        False):
-                    self.setStyle('Plastique')
+                if os.environ.get('KDE_FULL_SESSION', False):
+                    self.load_calibre_style()
                 elif 'Cleanlooks' in styles:
                     self.setStyle('Cleanlooks')
 

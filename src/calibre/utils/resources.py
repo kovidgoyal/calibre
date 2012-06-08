@@ -70,6 +70,8 @@ def get_path(path, data=False, allow_user_override=True):
     return fpath
 
 def get_image_path(path, data=False, allow_user_override=True):
+    if not path:
+        return get_path('images')
     return get_path('images/'+path, data=data)
 
 def _compile_coffeescript(name):

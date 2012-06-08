@@ -49,7 +49,9 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         doc = QTextDocument()
         if option is not None and option.state & QStyle.State_Selected:
             p = option.palette
-            c = p.color(p.Active, p.HighlightedText)
+            group = (p.Active if option.state & QStyle.State_Active else
+                    p.Inactive)
+            c = p.color(group, p.HighlightedText)
             c = 'rgb(%d, %d, %d)'%c.getRgb()[:3]
             doc.setDefaultStyleSheet(' * { color: %s }'%c)
         doc.setHtml(index.data().toString())

@@ -8,6 +8,7 @@ manner.
 import sys, os, re
 from threading import RLock
 
+from calibre import prints, as_unicode
 from calibre.constants import iswindows, isosx, plugins, islinux, isfreebsd
 
 osx_scanner = win_scanner = linux_scanner = None
@@ -53,7 +54,10 @@ class WinPNPScanner(object):
                 ans = True
                 try:
                     win32file.GetDiskFreeSpaceEx(letter+':\\')
-                except:
+                except Exception as e:
+                    if debug:
+                        prints('Unable to get free space for drive:', letter)
+                        prints(as_unicode(e))
                     ans = False
                 return ans
             finally:
