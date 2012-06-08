@@ -4,8 +4,8 @@ class MalayaBusinessInsight(BasicNewsRecipe):
     title          		= u'Malaya Business Insight'
     custom_title 	= "Malaya Business Insight - " + time.strftime('%d %b %Y %I:%M %p')
     __author__             	= 'jde'
-    __date__                	= '06 June 2012'
-    __version__            	 = '1.0'
+    __date__                	= '07 June 2012'
+    __version__            	 = '1.2'
     description            	= "The Malaya Business Insight is a broadsheet newspaper in the Philippines.  The newspaper's name was derived from the Filipino word that means 'freedom'."
     language               	= 'en_PH'
     publisher              	= 'Malaya Business Insight'
@@ -39,6 +39,9 @@ class MalayaBusinessInsight(BasicNewsRecipe):
 	       ,dict(name='p', attrs={'class':'dnn'})
 	       ,dict(name='span', attrs={'class':'breadcrumbs pathway'})
 	       ,dict(name='dt', attrs={'class':'article-info-term'})
+	       ,dict(name='div', attrs={'class':'ja-articles-mainwrap'})
+	       ,dict(name='h1', attrs={'class':'componentheading'})
+	       ,dict(name='div', attrs={'id':'ja-content-mass-top'})
 	       ]
 
 
