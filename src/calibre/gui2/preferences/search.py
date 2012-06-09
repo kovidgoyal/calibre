@@ -12,6 +12,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
 from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.gui2 import config, error_dialog
 from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -70,6 +71,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_value.update_items_cache(fl)
         self.fill_gst_box(select=None)
 
+        self.set_similar_fields(initial=True)
+        self.similar_authors_search_key.currentIndexChanged[int].connect(self.something_changed)
+        self.similar_tags_search_key.currentIndexChanged[int].connect(self.something_changed)
+        self.similar_series_search_key.currentIndexChanged[int].connect(self.something_changed)
+        self.similar_publisher_search_key.currentIndexChanged[int].connect(self.something_changed)
+
         self.gst_delete_button.setEnabled(False)
         self.gst_save_button.setEnabled(False)
         self.gst_names.currentIndexChanged[int].connect(self.gst_index_changed)
@@ -85,6 +92,33 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.muc_changed = False
         self.opt_grouped_search_make_user_categories.editingFinished.connect(
                                                         self.muc_box_changed)
+
+    def set_similar_fields(self, initial=False):
+        self.set_similar('similar_authors_search_key', first_item='author', initial=initial)
+        self.set_similar('similar_tags_search_key', first_item='tags', initial=initial)
+        self.set_similar('similar_series_search_key', first_item='series', initial=initial)
+        self.set_similar('similar_publisher_search_key', first_item='publisher', initial=initial)
+
+    def set_similar(self, name, first_item, initial=False):
+        field = getattr(self, name)
+        if not initial:
+            val = field.currentText()
+        else:
+            val = self.db.prefs[name]
+        field.blockSignals(True)
+        field.clear()
+        choices = [first_item]
+        choices.extend(sorted(self.gst.keys(), key=sort_key))
+        field.addItems(choices)
+        dex = field.findText(val)
+        if dex >= 0:
+            field.setCurrentIndex(dex)
+        else:
+            field.setCurrentIndex(0)
+        field.blockSignals(False)
+
+    def something_changed(self, dex):
+        self.changed_signal.emit()
 
     def muc_box_changed(self):
         self.muc_changed = True
@@ -121,6 +155,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_changed = True
         self.gst[name] = val
         self.fill_gst_box(select=name)
+        self.set_similar_fields(initial=False)
         self.changed_signal.emit()
 
     def gst_delete_clicked(self):
@@ -133,9 +168,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.fill_gst_box(select='')
             self.changed_signal.emit()
             self.gst_changed = True
+            self.set_similar_fields(initial=False)
 
     def fill_gst_box(self, select=None):
-        terms = sorted(self.gst.keys())
+        terms = sorted(self.gst.keys(), key=sort_key)
         self.opt_grouped_search_make_user_categories.update_items_cache(terms)
         self.gst_names.blockSignals(True)
         self.gst_names.clear()
@@ -168,6 +204,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.gst_changed:
             self.db.prefs.set('grouped_search_terms', self.gst)
             self.db.field_metadata.add_grouped_search_terms(self.gst)
+        self.db.prefs.set('similar_authors_search_key',
+                          unicode(self.similar_authors_search_key.currentText()))
+        self.db.prefs.set('similar_tags_search_key',
+                          unicode(self.similar_tags_search_key.currentText()))
+        self.db.prefs.set('similar_series_search_key',
+                          unicode(self.similar_series_search_key.currentText()))
+        self.db.prefs.set('similar_publisher_search_key',
+                          unicode(self.similar_publisher_search_key.currentText()))
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
