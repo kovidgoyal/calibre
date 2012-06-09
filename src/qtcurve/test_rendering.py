@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import Application
 from PyQt4.Qt import (QDialog, QGridLayout, QListWidget, QDialogButtonBox,
-        QPushButton, QTimer)
+        QPushButton, QTimer, QIcon)
 
 app = Application([], force_calibre_style=True)
 
@@ -23,14 +23,17 @@ bb = QDialogButtonBox()
 bb.setStandardButtons(bb.Close)
 bb.accepted.connect(d.accept)
 bb.rejected.connect(d.reject)
+b = bb.addButton('Action', bb.ActionRole)
+b.setIcon(QIcon(I('wizard.png')))
 l.addWidget(bb, 2, 0, 1, 2)
+bb.button(bb.Close).setDefault(True)
 
 b = QPushButton('Normal')
 l.addWidget(b, 0, 1, 1, 1)
 
 def print_button_sizes():
     for b in d.findChildren(QPushButton):
-        print (unicode(b.text()), b.height())
+        print (unicode(b.text()), b.height(), b.iconSize())
 QTimer.singleShot(5, print_button_sizes)
 d.exec_()
 

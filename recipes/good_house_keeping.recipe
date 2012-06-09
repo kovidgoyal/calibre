@@ -8,12 +8,17 @@ class AdvancedUserRecipe1305547242(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets         = True
     use_embedded_content   = False
+    #auto_cleanup = True
     remove_javascript      = True
 
     def print_version(self,url):
-          segments = url.split('/')
-          printURL = '/'.join(segments[0:3]) + '/print-this/' + '/'.join(segments[4:])
-          return printURL
+       if '/tips-for-making-desserts?' in url:
+           return None
+       segments = url.split('/')
+       segments[-1] = segments[-1].split('?')[0]
+       segments[-1] +='?page=all'
+       printURL = '/'.join(segments[0:3]) + '/print-this/' + segments[-1]
+       return printURL
 
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
@@ -22,10 +27,19 @@ class AdvancedUserRecipe1305547242(BasicNewsRecipe):
                alink.replaceWith(tstr)
         return soup
 
-    feeds  = [	(u'Recipes & Entertaining', u'http://www.goodhousekeeping.com/food/food-rss/?src=rss'),
-	(u'Home & House', u'http://www.goodhousekeeping.com/home/home-rss/?src=rss'),
-	(u'Diet & Health', u'http://www.goodhousekeeping.com/health/health-rss/?src=rss'),
-	(u'Beauty & Style', u'http://www.goodhousekeeping.com/beauty/beauty-rss/?src=rss'),
-	(u'Family & Pets', u'http://www.goodhousekeeping.com/family/family-rss/?src=rss'),
-	(u'Saving Money', u'http://www.goodhousekeeping.com/money/money-rss/?src=rss'),
-	]
+
+    #feeds          = [
+#(u'Food and Recipes', u'http://www.goodhousekeeping.com/rss/recipes/'),
+#]
+
+
+    feeds          = [
+(u'Food and Recipes', u'http://www.goodhousekeeping.com/rss/recipes/'),
+(u'Home and Organizing', u'http://www.goodhousekeeping.com/rss/home/'),
+(u'Diet and Health', u'http://www.goodhousekeeping.com/rss/health/'),
+(u'Beauty and Anti-Aging', u'http://www.goodhousekeeping.com/rss/beauty/'),
+(u'Family and Relationships', u'http://www.goodhousekeeping.com/rss/family/'),
+(u'Holidays', u'http://www.goodhousekeeping.com/rss/holidays/'),
+(u'In the Test Kitchen', 'http://www.goodhousekeeping.com/rss/test-kitchen-blog/'),
+]
+

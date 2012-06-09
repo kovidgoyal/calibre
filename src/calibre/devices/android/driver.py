@@ -72,6 +72,7 @@ class ANDROID(USBMS):
             # Sony Ericsson
             0xfce : {
                 0xd12e : [0x0100],
+                0xe156 : [0x226],
                 0xe15d : [0x226],
                 0xe14f : [0x0226],
                 0x614f : [0x0226, 0x100],

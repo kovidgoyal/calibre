@@ -375,7 +375,6 @@ class Build(Command):
            "common/common.h",
            "common/config_file.h",
            "style/blurhelper.h",
-           "style/dialogpixmaps.h",
            "style/fixx11h.h",
            "style/pixmaps.h",
            "style/qtcurve.h",

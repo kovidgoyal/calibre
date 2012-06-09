@@ -1,0 +1,97 @@
+
+'''
+www.philstar.com
+'''
+
+import time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class PhilippineStar(BasicNewsRecipe):
+    title                  	= 'The Philippine Star'
+    custom_title 	= "The Philippine Star - " + time.strftime('%d %b %Y %I:%M %p')
+    __author__             	= 'jde'
+    __date__                       = '31 May 2012'
+    __version__                   = '1.0'
+    description            	= 'The Philippine Star is a daily English-language broadsheet newspaper based in Manila. It has the most subscribers of any newspaper in the Philippines - philstar.com is a Philippine news and entertainment portal for the Filipino global community.   It is the online presence of the STAR Group of Publications, a leading publisher of newspapers and magazines in the Philippines.'
+    language               	= 'en_PH'
+    publisher              	= 'The Philippine STAR'
+    category               	= 'news, Philippines'
+    tags 		= 'news, Philippines'
+    cover_url        	= 'http://www.philstar.com/images/philstar-logo-white.jpg'
+    masthead_url        	= 'http://www.philstar.com/images/philstar-logo-white.jpg'
+    oldest_article 	= 1 #days
+    max_articles_per_feed  	= 25
+    simultaneous_downloads = 20
+    publication_type 	= 'newspaper'
+    timefmt 		= ' [%a, %d %b %Y %I:%M %p]'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= False
+
+    remove_tags = [dict(name='img',  attrs={'id':'Image1'})    #Logo
+	       ,dict(name='span', attrs={'id':'ControlArticle1_LabelHeader'})   #Section (Headlines, Nation, Metro, ...)
+	       ,dict(name='a',      attrs={'id':'ControlArticle1_FormView1_hlComments'})   #Comments
+	       ,dict(name='img',  attrs={'src':'images/post-comments.jpg'})   #View Comments
+	       ,dict(name='a',      attrs={'id':'ControlArticle1_FormView1_ControlPhotoAndCaption1_hlImageCaption'})  #Zoom
+	]
+    conversion_options = { 'title'   : custom_title,
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                         }
+
+    feeds = [
+               ('Headlines'      		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=63' )
+              ,('Breaking News'       	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=200' )
+              ,('News Feature'     	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=68' )
+              ,('Nation'          		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=67' )
+              ,('Metro'            		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=65' )
+              ,('Business'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=66' )
+              ,('Sports'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=69' )
+              ,('Entertainment'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=70' )
+              ,('Science & Technology'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=75' )
+              ,('Networks'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=71' )
+              ,('Business as Usual'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=78' )
+              ,('Banking'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=74' )
+              ,('Motoring'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=72' )
+              ,('Real Estate'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=76' )
+              ,('Telecoms'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=73' )
+              ,('Agriculture'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=77' )
+              ,('Arts & Culture'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=79' )
+              ,('Food & Leisure'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=81' )
+              ,('Health & Family'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=80' )
+              ,('Education & Home'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=442' )
+              ,('Travel & Tourism'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=87' )
+              ,('Newsmakers'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=88' )
+              ,('Business Life'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=82' )
+              ,('Fashion & Beauty'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=83' )
+              ,('For Men'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=446' )
+              ,('Gadgets'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=449' )
+              ,('Sunday Life'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=86' )
+              ,('Supreme'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=448' )
+              ,('Opinion'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=64' )
+              ,('Letters to the Editor'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=135' )
+              ,('Starweek Magazine'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=90' )
+              ,('Modern Living'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=85' )
+              ,('YStyle'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=451' )
+              ,('Allure'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=89' )
+              ,('Weather'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=116' )
+           	 ]
+
+# process the printer friendly version of article
+    def print_version(self, url):
+          return url.replace('/Article', '/ArticlePrinterFriendly')
+
+# obtain title from printer friendly version of article; avoiding  add_toc_thumbnail changing title when article has image
+    def populate_article_metadata(self, article, soup, first):
+          article.title = soup.find('span', {'id': 'ControlArticle1_FormView1_ArticleHeaderLabel'}).contents[0].strip()
+
+

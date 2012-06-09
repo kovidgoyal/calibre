@@ -100,19 +100,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         geom = gprefs.get('metasingle_window_geometry3', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
-        self.title.resizeEvent = self.fix_push_buttons
-
-    def fix_push_buttons(self, *args):
-        # Ensure all PushButtons stay the same consistent height throughout this
-        # dialog. Without this, the buttons inside scrollareas get shrunk,
-        # while the buttons outside them do not, leading to weirdness.
-        # Further, buttons with and without icons have different minimum sizes
-        # so things look even more out of whack.
-        ht = self.title.height() + 2
-        for but in self.findChildren(QPushButton):
-            but.setMaximumHeight(ht)
-            but.setMinimumHeight(ht)
-        return TitleEdit.resizeEvent(self.title, *args)
     # }}}
 
     def create_basic_metadata_widgets(self): # {{{
@@ -525,6 +512,8 @@ class MetadataSingleDialogBase(ResizableDialog):
                     ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
+        self.button_box.button(self.button_box.Ok).setDefault(True)
+        self.button_box.button(self.button_box.Ok).setFocus(Qt.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
 
     def break_cycles(self):
@@ -993,7 +982,7 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
     return d.changed, d.rows_to_refresh
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from calibre.gui2 import Application as QApplication
     app = QApplication([])
     from calibre.library import db as db_
     db = db_()

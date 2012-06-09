@@ -104,7 +104,7 @@ class TagsView(QTreeView): # {{{
         self.setStyleSheet('''
                 QTreeView {
                     background-color: palette(window);
-                    color: palette(text);
+                    color: palette(window-text);
                     border: none;
                 }
 
@@ -117,7 +117,7 @@ class TagsView(QTreeView): # {{{
                 QTreeView::item:hover {
                     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
                     border: 1px solid #bfcde4;
-                    border-radius: 8px;
+                    border-radius: 6px;
                 }
         ''')
 
