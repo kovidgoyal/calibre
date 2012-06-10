@@ -71,6 +71,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_value.update_items_cache(fl)
         self.fill_gst_box(select=None)
 
+        self.category_fields = fl
+        ml = [_('Match any'), _('Match all')]
+        r('similar_authors_match_kind', db.prefs, choices=ml)
+        r('similar_tags_match_kind', db.prefs, choices=ml)
+        r('similar_series_match_kind', db.prefs, choices=ml)
+        r('similar_publisher_match_kind', db.prefs, choices=ml)
         self.set_similar_fields(initial=True)
         self.similar_authors_search_key.currentIndexChanged[int].connect(self.something_changed)
         self.similar_tags_search_key.currentIndexChanged[int].connect(self.something_changed)
@@ -107,7 +113,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             val = self.db.prefs[name]
         field.blockSignals(True)
         field.clear()
-        choices = [first_item]
+        choices = []
+        choices.extend(self.category_fields)
         choices.extend(sorted(self.gst.keys(), key=sort_key))
         field.addItems(choices)
         dex = field.findText(val)

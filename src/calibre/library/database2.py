@@ -237,9 +237,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['column_color_rules'] = []
         defs['grouped_search_make_user_categories'] = []
         defs['similar_authors_search_key'] = 'author'
+        defs['similar_authors_match_kind'] = _('Match any')
         defs['similar_publisher_search_key'] = 'publisher'
+        defs['similar_publisher_match_kind'] = _('Match any')
         defs['similar_tags_search_key'] = 'tags'
+        defs['similar_tags_match_kind'] = _('Match all')
         defs['similar_series_search_key'] = 'series'
+        defs['similar_series_match_kind'] = _('Match any')
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
