@@ -40,29 +40,25 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
         url = 'http://virtualo.pl/?q=' + urllib.quote(query) + '&f=format_id:4,6,3'
 
         br = browser()
-        drm_pattern = re.compile("ADE")
+        no_drm_pattern = re.compile("Znak wodny")
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="product_list"]/div/div[@class="column"]'):
+            for data in doc.xpath('//div[@id="content"]//div[@class="list_box list_box_border"]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//table/tr[1]/td[1]/a/@href'))
+                id = ''.join(data.xpath('.//div[@class="list_middle_left"]//a/@href'))
                 if not id:
                     continue
 
                 price = ''.join(data.xpath('.//span[@class="price"]/text() | .//span[@class="price abbr"]/text()'))
-                cover_url = ''.join(data.xpath('.//table/tr[1]/td[1]/a/img/@src'))
-                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
-                title = re.sub(r'\ WM', '', title)
-                author = ', '.join(data.xpath('.//div[@class="authors"]/a/text()'))
-                formats = ', '.join(data.xpath('.//span[@class="format"]/a/text()'))
-                formats = re.sub(r'(, )?ONLINE(, )?', '', formats)
-                drm = drm_pattern.search(formats)
-                formats = re.sub(r'(, )?ADE(, )?', '', formats)
-                formats = re.sub(r'\ WM', '', formats)
+                cover_url = ''.join(data.xpath('.//div[@class="list_middle_left"]//a/img/@src'))
+                title = ''.join(data.xpath('.//div[@class="list_title list_text_left"]/a/text()'))
+                author = ', '.join(data.xpath('.//div[@class="list_authors list_text_left"]/a/text()'))
+                formats = ', '#.join(data.xpath('.//div[2]/div[3]//div[@class="list_vertical_wrap_middle"]/img/@src()'))
+                drm = not no_drm_pattern.search(formats)
 
                 counter -= 1
 
