@@ -1,0 +1,21 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ElMundoTodayRecipe(BasicNewsRecipe):
+    title = 'El Mundo Today'
+    __author__ = 'atordo'
+    description = u'La actualidad del mañana'
+    category = 'Noticias, humor'
+    cover_url = 'http://www.elmundotoday.com/wp-content/themes/EarthlyTouch/images/logo.png'
+    oldest_article = 30
+    max_articles_per_feed = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    language = 'es'
+    use_embedded_content  = True
+
+    feeds = [('El Mundo Today', 'http://www.elmundotoday.com/feed/')]
+
+    def get_broser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.set_handle_gzip(True)
+        return br

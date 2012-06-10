@@ -1,52 +1,30 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
     description = 'News as provide by The Metro -UK'
-
+    #timefmt = ''
     __author__ = 'Dave Asbury'
-    #last update 3/12/11
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
-    no_stylesheets = True
+    #no_stylesheets = True
     oldest_article = 1
-    max_articles_per_feed = 20
+    max_articles_per_feed = 10
     remove_empty_feeds = True
     remove_javascript     = True
+    auto_cleanup = True
 
-    #preprocess_regexps = [(re.compile(r'Tweet'), lambda  a : '')]
-    preprocess_regexps = [
-    (re.compile(r'<span class="img-cap legend">', re.IGNORECASE | re.DOTALL), lambda match: '<p></p><span class="img-cap legend"> ')]
-    preprocess_regexps = [
-    (re.compile(r'tweet', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
     language = 'en_GB'
-
-
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
-
-
     keep_only_tags = [
-    dict(name='h1'),dict(name='h2', attrs={'class':'h2'}),
-                    dict(attrs={'class':['img-cnt figure']}),
-        dict(attrs={'class':['art-img']}),
-                    dict(name='div', attrs={'class':'art-lft'}),
-                    dict(name='p')
+
     ]
     remove_tags    = [
-                             dict(name = 'div',attrs={'id' : ['comments-news','formSubmission']}),
-                             dict(name='div', attrs={'class':[ 'news m12 clrd clr-b p5t shareBtm', 'commentForm', 'metroCommentInnerWrap',
-                             'art-rgt','pluck-app pluck-comm','news m12 clrd clr-l p5t', 'flt-r','username','clrd' ]}),
-              dict(attrs={'class':['username', 'metroCommentFormWrap','commentText','commentsNav','avatar','submDateAndTime','addYourComment','displayName']})
-                              ,dict(name='div', attrs={'class' : 'clrd art-fd fd-gr1-b'})
+
                                ]
+
+
     feeds          = [
         (u'News', u'http://www.metro.co.uk/rss/news/'), (u'Money', u'http://www.metro.co.uk/rss/money/'), (u'Sport', u'http://www.metro.co.uk/rss/sport/'), (u'Film', u'http://www.metro.co.uk/rss/metrolife/film/'), (u'Music', u'http://www.metro.co.uk/rss/metrolife/music/'), (u'TV', u'http://www.metro.co.uk/rss/tv/'), (u'Showbiz', u'http://www.metro.co.uk/rss/showbiz/'), (u'Weird News', u'http://www.metro.co.uk/rss/weird/'), (u'Travel', u'http://www.metro.co.uk/rss/travel/'), (u'Lifestyle', u'http://www.metro.co.uk/rss/lifestyle/'), (u'Books', u'http://www.metro.co.uk/rss/lifestyle/books/'), (u'Food', u'http://www.metro.co.uk/rss/lifestyle/restaurants/')]
-
     extra_css  = '''
-                    body {font: sans-serif medium;}'
-    h1 {text-align : center; font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;}
-                h2 {text-align : center;color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; }
-                    span{ font-size:9.5px; font-weight:bold;font-style:italic}
-                    p { text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-
-     '''
+	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
+                	 '''

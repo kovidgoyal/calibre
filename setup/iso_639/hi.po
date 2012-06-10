@@ -10,14 +10,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-03-28 16:15+0000\n"
+"PO-Revision-Date: 2012-04-04 08:54+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: Hindi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-03-29 04:35+0000\n"
-"X-Generator: Launchpad (build 15032)\n"
+"X-Launchpad-Export-Date: 2012-04-05 04:42+0000\n"
+"X-Generator: Launchpad (build 15060)\n"
 "Language: \n"
 
 #. name for aaa
@@ -78,7 +78,7 @@ msgstr "अरबी भाषा; अल्जीरियाई सहार�
 
 #. name for aap
 msgid "Arára; Pará"
-msgstr ""
+msgstr "अरारा; पारा"
 
 #. name for aaq
 msgid "Abnaki; Eastern"
@@ -314,7 +314,7 @@ msgstr "अडाबे"
 
 #. name for add
 msgid "Dzodinka"
-msgstr ""
+msgstr "ड्ज़ोदिन्का"
 
 #. name for ade
 msgid "Adele"
@@ -338,7 +338,7 @@ msgstr "अदि"
 
 #. name for adj
 msgid "Adioukrou"
-msgstr ""
+msgstr "अडिओउक्रोउ"
 
 #. name for adl
 msgid "Galo"
@@ -382,7 +382,7 @@ msgstr "अमुनडावा"
 
 #. name for adx
 msgid "Tibetan; Amdo"
-msgstr ""
+msgstr "तिब्बती; अम्डो"
 
 #. name for ady
 msgid "Adyghe"
@@ -446,7 +446,7 @@ msgstr "अकेऊ"
 
 #. name for aew
 msgid "Ambakich"
-msgstr ""
+msgstr "अम्बाकिच"
 
 #. name for aey
 msgid "Amele"
@@ -458,7 +458,7 @@ msgstr "ऐका"
 
 #. name for afb
 msgid "Arabic; Gulf"
-msgstr ""
+msgstr "अरबीअ; खाड़ी"
 
 #. name for afd
 msgid "Andai"
@@ -470,7 +470,7 @@ msgstr "पुटुक्वाम"
 
 #. name for afg
 msgid "Afghan Sign Language"
-msgstr ""
+msgstr "अफ़्गानी संकेत"
 
 #. name for afh
 msgid "Afrihili"
@@ -514,11 +514,11 @@ msgstr "अवुटु"
 
 #. name for afz
 msgid "Obokuitai"
-msgstr ""
+msgstr "ओबोकुइताइ"
 
 #. name for aga
 msgid "Aguano"
-msgstr ""
+msgstr "अगुआनो"
 
 #. name for agb
 msgid "Legbo"
@@ -558,7 +558,7 @@ msgstr "अर्गोब्बा"
 
 #. name for agk
 msgid "Agta; Isarog"
-msgstr ""
+msgstr "अग्ता; इसारोग"
 
 #. name for agl
 msgid "Fembe"
@@ -566,11 +566,11 @@ msgstr "फ़ेम्बे"
 
 #. name for agm
 msgid "Angaataha"
-msgstr ""
+msgstr "अन्गाताहा"
 
 #. name for agn
 msgid "Agutaynen"
-msgstr ""
+msgstr "अगुतायेन"
 
 #. name for ago
 msgid "Tainae"
@@ -594,7 +594,7 @@ msgstr ""
 
 #. name for agu
 msgid "Aguacateco"
-msgstr ""
+msgstr "अगुआकातेको"
 
 #. name for agv
 msgid "Dumagat; Remontado"
@@ -678,7 +678,7 @@ msgstr "अरोसा"
 
 #. name for aib
 msgid "Ainu (China)"
-msgstr ""
+msgstr "ऐनु (चीन)"
 
 #. name for aic
 msgid "Ainbai"
@@ -726,7 +726,7 @@ msgstr "ऐमोल"
 
 #. name for ain
 msgid "Ainu (Japan)"
-msgstr ""
+msgstr "ऐनु (जापान)"
 
 #. name for aio
 msgid "Aiton"
@@ -742,7 +742,7 @@ msgstr "ऐमाक़"
 
 #. name for air
 msgid "Airoran"
-msgstr ""
+msgstr "ऐरोरान"
 
 #. name for ais
 msgid "Amis; Nataoran"
@@ -878,7 +878,7 @@ msgstr "अकुम"
 
 #. name for akv
 msgid "Akhvakh"
-msgstr ""
+msgstr "अख्वाख"
 
 #. name for akw
 msgid "Akwa"
@@ -902,7 +902,7 @@ msgstr "अलागो"
 
 #. name for alc
 msgid "Qawasqar"
-msgstr ""
+msgstr "क़ावास्क़ार"
 
 #. name for ald
 msgid "Alladian"
@@ -922,7 +922,7 @@ msgstr "अलावा"
 
 #. name for ali
 msgid "Amaimon"
-msgstr ""
+msgstr "अमामौन"
 
 #. name for alj
 msgid "Alangan"
@@ -982,7 +982,7 @@ msgstr "अमोल"
 
 #. name for aly
 msgid "Alyawarr"
-msgstr ""
+msgstr "अल्यावार्र"
 
 #. name for alz
 msgid "Alur"
@@ -1090,7 +1090,7 @@ msgstr "अटाम्पाया"
 
 #. name for ana
 msgid "Andaqui"
-msgstr ""
+msgstr "अन्डाक़ुइ"
 
 #. name for anb
 msgid "Andoa"
@@ -1102,7 +1102,7 @@ msgstr "न्गास"
 
 #. name for and
 msgid "Ansus"
-msgstr ""
+msgstr "अन्सुस"
 
 #. name for ane
 msgid "Xârâcùù"
@@ -1130,7 +1130,7 @@ msgstr "अनोर"
 
 #. name for ank
 msgid "Goemai"
-msgstr ""
+msgstr "गोएमै"
 
 #. name for anl
 msgid "Anu"
@@ -1146,7 +1146,7 @@ msgstr "ओबोलो"
 
 #. name for ano
 msgid "Andoque"
-msgstr ""
+msgstr "अन्डोक़ुई"
 
 #. name for anp
 msgid "Angika"
@@ -1162,7 +1162,7 @@ msgstr "अनढ"
 
 #. name for ans
 msgid "Anserma"
-msgstr ""
+msgstr "अन्सेर्मा"
 
 #. name for ant
 msgid "Antakarinya"
@@ -1206,11 +1206,11 @@ msgstr "पेनोम"
 
 #. name for aod
 msgid "Andarum"
-msgstr ""
+msgstr "अन्डारुम"
 
 #. name for aoe
 msgid "Angal Enen"
-msgstr ""
+msgstr "अन्गाल एनेन"
 
 #. name for aof
 msgid "Bragat"
@@ -1266,7 +1266,7 @@ msgstr "अटोराडा"
 
 #. name for aoz
 msgid "Uab Meto"
-msgstr ""
+msgstr "उआब मेटो"
 
 #. name for apb
 msgid "Sa'a"
@@ -1298,7 +1298,7 @@ msgstr ""
 
 #. name for api
 msgid "Apiaká"
-msgstr ""
+msgstr "अपिअका"
 
 #. name for apj
 msgid "Apache; Jicarilla"

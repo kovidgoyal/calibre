@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, errno
-from functools import partial
 from datetime import datetime
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
@@ -66,14 +65,14 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
                 self)
         self.next_button.setShortcut(QKeySequence('Alt+Right'))
-        self.next_button.clicked.connect(partial(self.do_one, delta=1))
+        self.next_button.clicked.connect(self.next_clicked)
         self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
         self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
         self.button_box.addButton(self.next_button, self.button_box.ActionRole)
-        self.prev_button.clicked.connect(partial(self.do_one, delta=-1))
+        self.prev_button.clicked.connect(self.prev_clicked)
 
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setFrameShape(QScrollArea.NoFrame)
@@ -161,10 +160,10 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
         self.series = SeriesEdit(self)
-        self.remove_unused_series_button = QToolButton(self)
-        self.remove_unused_series_button.setToolTip(
-               _('Remove unused series (Series that have no books)') )
-        self.remove_unused_series_button.clicked.connect(self.remove_unused_series)
+        self.clear_series_button = QToolButton(self)
+        self.clear_series_button.setToolTip(
+               _('Clear series') )
+        self.clear_series_button.clicked.connect(self.series.clear)
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
@@ -198,6 +197,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.append(self.identifiers)
         self.clear_identifiers_button = QToolButton(self)
         self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
+        self.clear_identifiers_button.setToolTip(_('Clear Ids'))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
         self.paste_isbn_button = QToolButton(self)
         self.paste_isbn_button.setToolTip('<p>' +
@@ -303,17 +303,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.title_sort.auto_generate()
         self.author_sort.auto_generate()
 
-    def remove_unused_series(self, *args):
-        self.db.remove_unused_series()
-        idx = self.series.current_val
-        self.series.clear()
-        self.series.initialize(self.db, self.book_id)
-        if idx:
-            for i in range(self.series.count()):
-                if unicode(self.series.itemText(i)) == idx:
-                    self.series.setCurrentIndex(i)
-                    break
-
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
 
@@ -368,7 +357,9 @@ class MetadataSingleDialogBase(ResizableDialog):
             old_tags = self.tags.current_val
             tags = mi.tags if mi.tags else []
             if old_tags and merge_tags:
-                tags += old_tags
+                ltags, lotags = {t.lower() for t in tags}, {t.lower() for t in
+                        old_tags}
+                tags = [t for t in tags if t.lower() in ltags-lotags] + old_tags
             self.tags.current_val = tags
         if not mi.is_null('identifiers'):
             current = self.identifiers.current_val
@@ -474,7 +465,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         ResizableDialog.reject(self)
 
     def save_state(self):
-        gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+        try:
+            gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+        except:
+            # Weird failure, see https://bugs.launchpad.net/bugs/995271
+            import traceback
+            traceback.print_exc()
 
     # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None,
@@ -488,6 +484,16 @@ class MetadataSingleDialogBase(ResizableDialog):
         ret = self.exec_()
         self.break_cycles()
         return ret
+
+    def next_clicked(self):
+        if not self.apply_changes():
+            return
+        self.do_one(delta=1, apply_changes=False)
+
+    def prev_clicked(self):
+        if not self.apply_changes():
+            return
+        self.do_one(delta=-1, apply_changes=False)
 
     def do_one(self, delta=0, apply_changes=True):
         if apply_changes:
@@ -591,7 +597,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         sto(self.title_sort, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
         sto(self.author_sort, self.series)
-        create_row(2, self.series, self.remove_unused_series_button,
+        create_row(2, self.series, self.clear_series_button,
                 self.series_index, icon='trash.png')
         sto(self.series_index, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
@@ -756,7 +762,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    span=2, icon='auto_author_sort.png')
         create_row(3, self.author_sort, self.series)
         create_row(4, self.series, self.series_index,
-                   button=self.remove_unused_series_button, icon='trash.png')
+                   button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.tags_editor_button)
         create_row(7, self.rating, self.pubdate)
@@ -892,7 +898,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    span=2, icon='auto_author_sort.png')
         create_row(3, self.author_sort, self.series)
         create_row(4, self.series, self.series_index,
-                   button=self.remove_unused_series_button, icon='trash.png')
+                   button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.tags_editor_button)
         create_row(7, self.rating, self.pubdate)

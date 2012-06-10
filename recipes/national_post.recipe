@@ -1,5 +1,4 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class NYTimes(BasicNewsRecipe):
 
@@ -11,22 +10,8 @@ class NYTimes(BasicNewsRecipe):
     needs_subscription = False
 
     no_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    remove_tags_after  = dict(name='div', attrs={'class':'npStoryTools npWidth1-6 npRight npTxtStrong'})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['story-tools', 'npStoryTools npWidth1-6 npRight npTxtStrong']}),
-       #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
-       #dict(name='form', attrs={'onsubmit':''}),
-       dict(name='ul', attrs={'class':'npTxtAlt npGroup npTxtCentre npStoryShare npTxtStrong npTxtDim'}),
-    ]
-
-   # def preprocess_html(self, soup):
-        # table = soup.find('table')
-        # if table is not None:
-            # table.extract()
-        # return soup
-
+    auto_cleanup = True
+    auto_cleanup_keep = '//*[@class="npStoryPhoto npTxtPlain"]'
 
 
     #TO GET ARTICLE TOC
@@ -53,14 +38,14 @@ class NYTimes(BasicNewsRecipe):
                 if current_section is not None and x.name == 'h5':
                     # Article found
                     title = self.tag_to_string(x)
-                    a = x.find('a', href=lambda x: x and 'story' in x)
+                    a = x.find('a', href=True)
                     if a is None:
                         continue
                     url = a.get('href', False)
                     if not url or not title:
                         continue
                     #if url.startswith('story'):
-                    url = 'http://www.nationalpost.com/todays-paper/'+url
+                    #url = 'http://www.nationalpost.com/todays-paper/'+url
                     self.log('\t\tFound article:', title)
                     self.log('\t\t\t', url)
                     current_articles.append({'title': title, 'url':url,
@@ -70,11 +55,4 @@ class NYTimes(BasicNewsRecipe):
                 feeds.append((current_section, current_articles))
 
             return feeds
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id':'npContentMain'})
-        ##td = heading.findParent(name='td')
-        ##td.extract()
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        return soup
+

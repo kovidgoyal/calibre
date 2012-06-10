@@ -4,6 +4,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, sys, shutil, pprint
+from functools import partial
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
@@ -536,7 +537,7 @@ OptionRecommendation(name='pubdate',
 
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the book timestamp (used by the date column in calibre).')),
+    help=_('Set the book timestamp (no longer used anywhere)')),
 
 OptionRecommendation(name='enable_heuristics',
     recommended_value=False, level=OptionRecommendation.LOW,
@@ -626,6 +627,14 @@ OptionRecommendation(name='sr3_search',
 OptionRecommendation(name='sr3_replace',
     recommended_value='', level=OptionRecommendation.LOW,
     help=_('Replacement to replace the text found with sr3-search.')),
+
+OptionRecommendation(name='search_replace',
+    recommended_value=None, level=OptionRecommendation.LOW, help=_(
+        'Path to a file containing search and replace regular expressions. '
+        'The file must contain alternating lines of regular expression '
+        'followed by replacement pattern (which can be an empty line). '
+        'The regular expression must be in the python regex syntax and '
+        'the file must be UTF-8 encoded.')),
 ]
         # }}}
 
@@ -1002,6 +1011,13 @@ OptionRecommendation(name='sr3_replace',
         pr(0.35)
         self.flush()
 
+        if self.output_plugin.file_type != 'epub':
+            # Remove the toc reference to the html cover, if any, except for
+            # epub, as the epub output plugin will do the right thing with it.
+            item = getattr(self.oeb.toc, 'item_that_refers_to_cover', None)
+            if item is not None and item.count() == 0:
+                self.oeb.toc.remove(item)
+
         from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
         fbase = self.opts.base_font_size
         if fbase < 1e-4:
@@ -1053,7 +1069,9 @@ OptionRecommendation(name='sr3_replace',
                 untable=self.output_plugin.file_type in ('mobi','lit'),
                 unfloat=self.output_plugin.file_type in ('mobi', 'lit'),
                 page_break_on_body=self.output_plugin.file_type in ('mobi',
-                    'lit'))
+                    'lit'),
+                specializer=partial(self.output_plugin.specialize_css_for_output,
+                    self.log, self.opts))
         flattener(self.oeb, self.opts)
 
         self.opts.insert_blank_line = oibl

@@ -34,7 +34,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
     no_javascript = True
     remove_empty_feeds = True
     encoding = 'utf-8'
-    remove_tags = [{'class':'hcf-header'}, {'class':'hcf-atlas'}, {'class':'hcf-date hcf-separate'}]
+    remove_tags = [{'class':'hcf-header'}, {'class':'hcf-atlas'}, {'class':'hcf-colon'}, {'class':'hcf-date hcf-separate'}]
 
     def print_version(self, url):
         url = url.split('/')
@@ -51,6 +51,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
             return ''.join(div.findAll(text=True, recursive=False)).strip() if div is not None else None
 
         articles = {}
+        links = set()
         key = None
         ans = []
         maincol = soup.find('div', attrs={'class':re.compile('hcf-main-col')})
@@ -59,7 +60,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
 
              if div['class'] == 'hcf-header':
                  try:
-                     key = string.capwords(feed_title(div.em.a))
+                     key = string.capwords(feed_title(div.em))
                      articles[key] = []
                      ans.append(key)
                  except:
@@ -70,6 +71,12 @@ class TagesspiegelRSS(BasicNewsRecipe):
                  if not a:
                      continue
                  url = 'http://www.tagesspiegel.de' + a['href']
+
+                 # check for duplicates
+                 if url in links:
+                     continue	
+                 links.add(url)					 
+
                  title = self.tag_to_string(a, use_alt=True).strip()
                  description = ''
                  pubdate = strftime('%a, %d %b')

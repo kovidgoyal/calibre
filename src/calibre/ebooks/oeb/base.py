@@ -77,9 +77,26 @@ def XLINK(name):
 def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
-_css_url_re = re.compile(r'url\s*\((.*?)\)', re.I)
+_css_url_re = re.compile(r'url\s*\([\'"]{0,1}(.*?)[\'"]{0,1}\)', re.I)
 _css_import_re = re.compile(r'@import "(.*?)"')
 _archive_re = re.compile(r'[^ ]+')
+
+# Tags that should not be self closed in epub output
+self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
+'bdo', 'blockquote', 'body', 'button', 'cite', 'code', 'dd', 'del', 'details',
+'dfn', 'div', 'dl', 'dt', 'em', 'fieldset', 'figcaption', 'figure', 'footer',
+'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'i', 'ins', 'kbd',
+'label', 'legend', 'li', 'map', 'mark', 'meter', 'nav', 'ol', 'output', 'p',
+'pre', 'progress', 'q', 'rp', 'rt', 'samp', 'section', 'select', 'small',
+'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
+'video'}
+
+_self_closing_pat = re.compile(
+    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(self_closing_bad_tags)),
+    re.IGNORECASE)
+
+def close_self_closing_tags(raw):
+    return _self_closing_pat.sub(r'<\g<tag>\g<arg>></\g<tag>>', raw)
 
 def iterlinks(root, find_links_in_css=True):
     '''
@@ -197,13 +214,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 new = cur[:pos] + new_link + cur[pos+len(link):]
                 el.attrib[attrib] = new
 
-    def set_property(v):
-        if v.CSS_PRIMITIVE_VALUE == v.cssValueType and \
-           v.CSS_URI == v.primitiveType:
-                v.setStringValue(v.CSS_URI,
-                        link_repl_func(v.getStringValue()))
-
-    for el in root.iter():
+    for el in root.iter(etree.Element):
         try:
             tag = el.tag
         except UnicodeDecodeError:
@@ -212,7 +223,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if tag == XHTML('style') and el.text and \
                 (_css_url_re.search(el.text) is not None or '@import' in
                         el.text):
-            stylesheet = parseString(el.text)
+            stylesheet = parseString(el.text, validate=False)
             replaceUrls(stylesheet, link_repl_func)
             repl = stylesheet.cssText
             if isbytestring(repl):
@@ -223,17 +234,11 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
                 try:
-                    stext = parseStyle(text)
+                    stext = parseStyle(text, validate=False)
                 except:
                     # Parsing errors are raised by cssutils
                     continue
-                for p in stext.getProperties(all=True):
-                    v = p.cssValue
-                    if v.CSS_VALUE_LIST == v.cssValueType:
-                        for item in v:
-                            set_property(item)
-                    elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
-                        set_property(v)
+                replaceUrls(stext, link_repl_func)
                 repl = stext.cssText.replace('\n', ' ').replace('\r',
                         ' ')
                 if isbytestring(repl):
@@ -357,7 +362,21 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
-
+def extract(elem):
+    """
+    Removes this element from the tree, including its children and
+    text.  The tail text is joined to the previous element or
+    parent.
+    """
+    parent = elem.getparent()
+    if parent is not None:
+        if elem.tail:
+            previous = elem.getprevious()
+            if previous is None:
+                parent.text = (parent.text or '') + elem.tail
+            else:
+                previous.tail = (previous.tail or '') + elem.tail
+        parent.remove(elem)
 
 class DummyHandler(logging.Handler):
 
@@ -454,7 +473,14 @@ class DirContainer(object):
             path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars
             return False
-        return os.path.isfile(path)
+        try:
+            return os.path.isfile(path)
+        except UnicodeEncodeError:
+            # On linux, if LANG is unset, the os.stat call tries to encode the
+            # unicode path using ASCII
+            # To replicate try:
+            # LANG=en_US.ASCII python -c "import os; os.stat(u'Espa\xf1a')"
+            return os.path.isfile(path.encode(filesystem_encoding))
 
     def namelist(self):
         names = []
@@ -840,7 +866,7 @@ class Manifest(object):
             parser = CSSParser(loglevel=logging.WARNING,
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
-            data = parser.parseString(data, href=self.href)
+            data = parser.parseString(data, href=self.href, validate=False)
             data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
             return data
@@ -929,13 +955,10 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 ans = xml2str(data, pretty_print=self.oeb.pretty_print)
                 if self.media_type in OEB_DOCS:
-                    # Convert self closing div|span|a|video|audio|iframe tags
+                    # Convert self closing div|span|a|video|audio|iframe|etc tags
                     # to normally closed ones, as they are interpreted
                     # incorrectly by some browser based renderers
-                    ans = re.sub(
-                        # tag name followed by either a space or a /
-                        r'<(?P<tag>div|a|span|video|audio|iframe)(?=[\s/])(?P<arg>[^>]*)/>',
-                        r'<\g<tag>\g<arg>></\g<tag>>', ans)
+                    ans = close_self_closing_tags(ans)
                 return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
@@ -1133,6 +1156,19 @@ class Manifest(object):
             element(elem, OPF('item'), attrib=attrib)
         return elem
 
+    @dynamic_property
+    def main_stylesheet(self):
+        def fget(self):
+            ans = getattr(self, '_main_stylesheet', None)
+            if ans is None:
+                for item in self:
+                    if item.media_type.lower() in OEB_STYLES:
+                        ans = item
+                        break
+            return ans
+        def fset(self, item):
+            self._main_stylesheet = item
+        return property(fget=fget, fset=fset)
 
 class Spine(object):
     """Collection of manifest items composing an OEB data model book's main

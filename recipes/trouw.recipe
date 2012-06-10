@@ -1,71 +1,12 @@
-#!/usr/bin/python
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Trouw(BasicNewsRecipe):
+class BasicUserRecipe1333905513(BasicNewsRecipe):
     title          = u'Trouw'
-    __author__     = u'JvdW'
+    __author__ = 'asalet_r'
+    language = 'nl'
     description    = u'Trouw de Verdieping'
-    oldest_article = 7
+    oldest_article = 1
     max_articles_per_feed = 25
-    language       = u'nl'
-    simultaneous_downloads = 1
-    delay          = 1
-#    timefmt        = ' [%A, %d %B, %Y]'
-    timefmt        = ''
-    no_stylesheets = True
-    cover_url      = 'http://www.trouw.nl/template/ver2-0/images/trouw_logo.gif'
+    auto_cleanup = True
 
-#    keep_only_tags = [ dict(name='div', attrs={'id':'content'}) ]
-    remove_tags = [
-                     dict(name='div', attrs={'id'   :'leaderboard'     })
-					,dict(name='div', attrs={'class':'banner'          })
-                    ,dict(name='div', attrs={'id'   :'header'          })
-                    ,dict(name='div', attrs={'class':'options'         })
-                    ,dict(name='div', attrs={'id'   :'menu_main'       })
-                    ,dict(name='div', attrs={'id'   :'menu_sub'        })
-                    ,dict(name='div', attrs={'id'   :'column_right'    })
-					,dict(name='div', attrs={'class':'meta_information'})
-					,dict(name='div', attrs={'id'   :'comments_form'   })
-					,dict(name='div', attrs={'id'   :'mailfriend'      })
-					,dict(name='div', attrs={'id'   :'footer'          })
-					,dict(name='img', attrs={'id'   :'dot_clear'       })
-                   ]
-	
-    keep_only_tags = [dict(id=['columns'])]
-	
-    feeds          = [
-                        (u'Algemen', u'http://www.trouw.nl/?service=rss'),
-                        (u'Nederland', u'http://www.trouw.nl/nieuws/nederland/?service=rss'),
-                        (u'Europa', u'http://www.trouw.nl/nieuws/europa/?service=rss'),
-                        (u'Wereld', u'http://www.trouw.nl/nieuws/wereld/?service=rss'),
-                        (u'Economie', u'http://www.trouw.nl/nieuws/economie/?service=rss'),
-                        (u'Wetenschap', u'http://www.trouw.nl/nieuws/Wetenschap/?service=rss'),
-                        (u'Groen', u'http://www.trouw.nl/groen/?service=rss'),
-                        (u'Religie en Filosofie', u'http://www.trouw.nl/religie-filosofie/?service=rss'),
-                        (u'Politiek', u'http://www.trouw.nl/nieuws/politiek/?service=rss'),
-                        (u'Zorg', u'http://www.trouw.nl/nieuws/zorg/?service=rss'),
-                        (u'Onderwijs', u'http://www.trouw.nl/onderwijs/nieuws/?service=rss'),
-                        (u'Sport', u'http://www.trouw.nl/nieuws/sport/?service=rss'),
-                        (u'Achtergrond', u'http://www.trouw.nl/achtergrond/?service=rss'),
-                        (u'De Verdieping', u'http://www.trouw.nl/achtergrond/deverdieping/?service=rss'), 
-                        (u'Naschrift', u'http://www.trouw.nl/achtergrond/Naschrift/?service=rss'),
-                        (u'Opinie', u'http://www.trouw.nl/opinie/?service=rss'),
-                        (u'Podium', u'http://www.trouw.nl/opinie/podium/?service=rss'),
-                        (u'Commentaar', u'http://www.trouw.nl/opinie/commentaar/?service=rss'),
-                        (u'Cultuur', u'http://www.trouw.nl/cultuur/?service=rss'),
-                        (u'Boeken', u'http://www.trouw.nl/cultuur/boeken/?service=rss'),
-                        (u'Film', u'http://www.trouw.nl/cultuur/film/?service=rss'),
-                        (u'Beeldende kunst', u'http://www.trouw.nl/cultuur/beeldendekunst/?service=rss'),
-                        (u'Theater', u'http://www.trouw.nl/cultuur/theater/?service=rss'),
-                        (u'Muziek', u'http://www.trouw.nl/cultuur/muziek/?service=rss'),
-                        (u'Kinderen', u'http://www.trouw.nl/cultuur/kinderen/?service=rss'),
-                        (u'Ontspanning', u'http://www.trouw.nl/ontspanning/?service=rss'),
-                        (u'De Gids', u'http://www.trouw.nl/ontspanning/degids/?service=rss'),
-                        (u'Moderne manieren', u'http://www.trouw.nl/ontspanning/modernemanieren/?service=rss'),
-                        (u'Reizen', u'http://www.trouw.nl/ontspanning/reizen/?service=rss'),
-                        (u'Koken', u'http://www.trouw.nl/ontspanning/koken/?service=rss')
-					 ]
-
-    def print_version(self, url):
-        return url + '?all=true'
+    feeds          = [(u'Nederland', u'http://www.trouw.nl/nieuws/nederland/rss.xml'), (u'Buitenland', u'http://www.trouw.nl/nieuws/buitenland/rss.xml'), (u'Politiek', u'http://www.trouw.nl/nieuws/politiek/rss.xml'), (u'Economie', u'http://www.trouw.nl/nieuws/economie/rss.xml'), (u'Sport', u'http://www.trouw.nl/nieuws/sport/rss.xml'), (u'Cultuur', u'http://www.trouw.nl/nieuws/cultuur/rss.xml'), (u'Gezondheid', u'http://www.trouw.nl/nieuws/gezondheid/rss.xml'), (u'Onderwijs', u'http://www.trouw.nl/nieuws/onderwijs/rss.xml'), (u'Opinie', u'http://www.trouw.nl/opinie/rss.xml'), (u'Groen', u'http://www.trouw.nl/groen/rss.xml'), (u'Religie-Filosofie', u'http://www.trouw.nl/religie-filosofie/rss.xml'), (u'Schrijf', u'http://www.trouw.nl/schrijf/rss.xml'), (u'Moderne Manieren', u'http://www.trouw.nl/moderne-manieren/rss.xml')]

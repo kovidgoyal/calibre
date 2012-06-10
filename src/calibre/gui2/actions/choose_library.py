@@ -10,9 +10,9 @@ from functools import partial
 
 from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
-        QCoreApplication)
+        QCoreApplication, pyqtSignal)
 
-from calibre import isbytestring
+from calibre import isbytestring, sanitize_file_name_unicode
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.config import prefs
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
@@ -142,6 +142,7 @@ class ChooseLibraryAction(InterfaceAction):
     dont_add_to = frozenset(['context-menu-device'])
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library...')
+    restore_view_state = pyqtSignal(object)
 
     def genesis(self):
         self.base_text = _('%d books')
@@ -206,6 +207,17 @@ class ChooseLibraryAction(InterfaceAction):
         self.maintenance_menu.addAction(ac)
 
         self.choose_menu.addMenu(self.maintenance_menu)
+        self.view_state_map = {}
+        self.restore_view_state.connect(self._restore_view_state,
+                type=Qt.QueuedConnection)
+
+    @property
+    def preserve_state_on_switch(self):
+        ans = getattr(self, '_preserve_state_on_switch', None)
+        if ans is None:
+            self._preserve_state_on_switch = ans = \
+                self.gui.library_view.preserve_state(require_selected_ids=False)
+        return ans
 
     def pick_random(self, *args):
         self.gui.iactions['Pick Random Book'].pick_random()
@@ -221,6 +233,13 @@ class ChooseLibraryAction(InterfaceAction):
     def library_changed(self, db):
         self.stats.library_used(db)
         self.build_menus()
+        state = self.view_state_map.get(self.stats.canonicalize_path(
+            db.library_path), None)
+        if state is not None:
+            self.restore_view_state.emit(state)
+
+    def _restore_view_state(self, state):
+        self.preserve_state_on_switch.state = state
 
     def initialization_complete(self):
         self.library_changed(self.gui.library_view.model().db)
@@ -275,7 +294,7 @@ class ChooseLibraryAction(InterfaceAction):
                 '<p>'+_('Choose a new name for the library <b>%s</b>. ')%name +
                 '<p>'+_('Note that the actual library folder will be renamed.'),
                 text=name)
-        newname = unicode(newname)
+        newname = sanitize_file_name_unicode(unicode(newname))
         if not ok or not newname or newname == name:
             return
         newloc = os.path.join(base, newname)
@@ -401,8 +420,11 @@ class ChooseLibraryAction(InterfaceAction):
     def switch_requested(self, location):
         if not self.change_library_allowed():
             return
+        db = self.gui.library_view.model().db
+        current_lib = self.stats.canonicalize_path(db.library_path)
+        self.view_state_map[current_lib] = self.preserve_state_on_switch.state
         loc = location.replace('/', os.sep)
-        exists = self.gui.library_view.model().db.exists_at(loc)
+        exists = db.exists_at(loc)
         if not exists:
             d = MovedDialog(self.stats, location, self.gui)
             ret = d.exec_()

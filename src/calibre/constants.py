@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 45)
+numeric_version = (0, 8, 51)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -48,6 +48,18 @@ fcntl      = None if iswindows else importlib.import_module('fcntl')
 
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
+else:
+    try:
+        if codecs.lookup(filesystem_encoding).name == 'ascii':
+            filesystem_encoding = 'utf-8'
+            # On linux, unicode arguments to os file functions are coerced to an ascii
+            # bytestring if sys.getfilesystemencoding() == 'ascii', which is
+            # just plain dumb. So issue a warning.
+            print ('WARNING: You do not have the LANG environment variable set. '
+                    'This will cause problems with non-ascii filenames. '
+                    'Set it to something like en_US.UTF-8.\n')
+    except:
+        filesystem_encoding = 'utf-8'
 
 
 DEBUG = False

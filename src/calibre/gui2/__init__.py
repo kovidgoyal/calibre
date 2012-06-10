@@ -137,8 +137,9 @@ def _config(): # {{{
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB', 'HTMLZ'],
-              help=_('Formats that are viewed using the internal viewer'))
+        'MOBI', 'PRC', 'POBI', 'AZW', 'AZW3', 'HTML', 'FB2', 'PDB', 'RB',
+        'SNB', 'HTMLZ'], help=_(
+            'Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
     c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
@@ -640,6 +641,26 @@ def choose_files(window, name, title,
     if fd.accepted:
         return fd.get_files()
     return None
+
+def choose_save_file(window, name, title, filters=[], all_files=True):
+    '''
+    Ask user to choose a file to save to. Can be a non-existent file.
+    :param filters: list of allowable extensions. Each element of the list
+                     must be a 2-tuple with first element a string describing
+                     the type of files to be filtered and second element a list
+                     of extensions.
+    :param all_files: If True add All files to filters.
+    '''
+    mode = QFileDialog.AnyFile
+    fd = FileDialog(title=title, name=name, filters=filters,
+                    parent=window, add_all_files_filter=all_files, mode=mode)
+    fd.setParent(None)
+    ans = None
+    if fd.accepted:
+        ans = fd.get_files()
+        if ans:
+            ans = ans[0]
+    return ans
 
 def choose_images(window, name, title, select_only_single_file=True):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles

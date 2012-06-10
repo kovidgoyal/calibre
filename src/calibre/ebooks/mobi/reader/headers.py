@@ -46,7 +46,10 @@ class EXTHHeader(object): # {{{
                 self.thumbnail_offset, = struct.unpack('>L', content)
             elif idx == 501:
                 # cdetype
-                pass
+                if content == b'EBSP':
+                    if not self.mi.tags:
+                        self.mi.tags = []
+                    self.mi.tags.append(_('Sample Book'))
             elif idx == 502:
                 # last update time
                 pass
@@ -230,6 +233,22 @@ class MetadataHeader(BookHeader):
             BookHeader.__init__(self, header, self.ident, None, log)
         else:
             self.exth = None
+
+    @property
+    def kf8_type(self):
+        if (self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) !=
+                NULL_INDEX):
+            return u'standalone'
+
+        kf8_header_index = getattr(self.exth, 'kf8_header', None)
+        if kf8_header_index is None:
+            return None
+        try:
+            if self.section_data(kf8_header_index-1) == b'BOUNDARY':
+                return u'joint'
+        except:
+            pass
+        return None
 
     def identity(self):
         self.stream.seek(60)

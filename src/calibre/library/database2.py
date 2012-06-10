@@ -2653,6 +2653,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!
         new_name = new_name.replace(',', '|').strip()
+        if not new_name:
+            new_name = _('Unknown')
 
         # Get the list of books we must fix up, one way or the other
         # Save the list so we can use it twice
@@ -3289,7 +3291,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             paths    = list(duplicate[0] for duplicate in duplicates)
             formats  = list(duplicate[1] for duplicate in duplicates)
             metadata = list(duplicate[2] for duplicate in duplicates)
-            return (paths, formats, metadata), len(ids)
+            return (paths, formats, metadata), (ids if return_ids else
+                    len(ids))
         return None, (ids if return_ids else len(ids))
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,

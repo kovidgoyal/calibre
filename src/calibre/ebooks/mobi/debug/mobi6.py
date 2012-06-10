@@ -393,7 +393,7 @@ class IndexRecord(object): # {{{
 
             parse_index_record(table, record.raw,
                     index_header.tagx_control_byte_count, tags,
-                    index_header.index_encoding, strict=True)
+                    index_header.index_encoding, {}, strict=True)
 
         self.indices = []
 

@@ -10,9 +10,11 @@ __docformat__ = 'restructuredtext en'
 DEBUG_DIALOG = False
 
 # Imports {{{
+import os, time
 from threading import Thread, Event
 from operator import attrgetter
 from Queue import Queue, Empty
+from io import BytesIO
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
@@ -24,16 +26,17 @@ from PyQt4.QtWebKit import QWebView
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.logging import GUILog as Log
-from calibre.ebooks.metadata.sources.identify import (identify,
-        urls_from_identifiers)
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, NONE, rating_font
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 from calibre.utils.config import tweaks
-
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from calibre.ptempfile import TemporaryDirectory
 # }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
@@ -339,7 +342,7 @@ class Comments(QWebView): # {{{
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-family: %s; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-family: "%s"; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
@@ -357,7 +360,7 @@ class Comments(QWebView): # {{{
 
 class IdentifyWorker(Thread): # {{{
 
-    def __init__(self, log, abort, title, authors, identifiers):
+    def __init__(self, log, abort, title, authors, identifiers, caches):
         Thread.__init__(self)
         self.daemon = True
 
@@ -367,6 +370,7 @@ class IdentifyWorker(Thread): # {{{
 
         self.results = []
         self.error = None
+        self.caches = caches
 
     def sample_results(self):
         m1 = Metadata('The Great Gatsby', ['Francis Scott Fitzgerald'])
@@ -390,25 +394,38 @@ class IdentifyWorker(Thread): # {{{
             if DEBUG_DIALOG:
                 self.results = self.sample_results()
             else:
-                self.results = identify(self.log, self.abort, title=self.title,
-                        authors=self.authors, identifiers=self.identifiers)
+                res = fork_job(
+                        'calibre.ebooks.metadata.sources.worker',
+                        'single_identify', (self.title, self.authors,
+                            self.identifiers), no_output=True, abort=self.abort)
+                self.results, covers, caches, log_dump = res['result']
+                self.results = [OPF(BytesIO(r), basedir=os.getcwdu(),
+                    populate_spine=False).to_book_metadata() for r in self.results]
+                for r, cov in zip(self.results, covers):
+                    r.has_cached_cover_url = cov
+                self.caches.update(caches)
+                self.log.load(log_dump)
             for i, result in enumerate(self.results):
                 result.gui_rank = i
+        except WorkerError as e:
+            self.error = force_unicode(e.orig_tb)
         except:
             import traceback
             self.error = force_unicode(traceback.format_exc())
+
 # }}}
 
 class IdentifyWidget(QWidget): # {{{
 
     rejected = pyqtSignal()
     results_found = pyqtSignal()
-    book_selected = pyqtSignal(object)
+    book_selected = pyqtSignal(object, object)
 
     def __init__(self, log, parent=None):
         QWidget.__init__(self, parent)
         self.log = log
         self.abort = Event()
+        self.caches = {}
 
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -421,7 +438,7 @@ class IdentifyWidget(QWidget): # {{{
         l.addWidget(self.top, 0, 0)
 
         self.results_view = ResultsView(self)
-        self.results_view.book_selected.connect(self.book_selected.emit)
+        self.results_view.book_selected.connect(self.emit_book_selected)
         self.get_result = self.results_view.get_result
         l.addWidget(self.results_view, 1, 0)
 
@@ -455,6 +472,9 @@ class IdentifyWidget(QWidget): # {{{
                 </script>
                 ''')
 
+    def emit_book_selected(self, book):
+        self.book_selected.emit(book, self.caches)
+
     def start(self, title=None, authors=None, identifiers={}):
         self.log.clear()
         self.log('Starting download')
@@ -470,7 +490,7 @@ class IdentifyWidget(QWidget): # {{{
         self.log(unicode(self.query.text()))
 
         self.worker = IdentifyWorker(self.log, self.abort, title,
-                authors, identifiers)
+                authors, identifiers, self.caches)
 
         self.worker.start()
 
@@ -513,20 +533,20 @@ class IdentifyWidget(QWidget): # {{{
 
 class CoverWorker(Thread): # {{{
 
-    def __init__(self, log, abort, title, authors, identifiers):
+    def __init__(self, log, abort, title, authors, identifiers, caches):
         Thread.__init__(self)
         self.daemon = True
 
         self.log, self.abort = log, abort
         self.title, self.authors, self.identifiers = (title, authors,
                 identifiers)
+        self.caches = caches
 
         self.rq = Queue()
         self.error = None
 
     def fake_run(self):
         images = ['donate.png', 'config.png', 'column.png', 'eject.png', ]
-        import time
         time.sleep(2)
         for pl, im in zip(metadata_plugins(['cover']), images):
             self.rq.put((pl, 1, 1, 'png', I(im, data=True)))
@@ -536,12 +556,57 @@ class CoverWorker(Thread): # {{{
             if DEBUG_DIALOG:
                 self.fake_run()
             else:
-                from calibre.ebooks.metadata.sources.covers import run_download
-                run_download(self.log, self.rq, self.abort, title=self.title,
-                        authors=self.authors, identifiers=self.identifiers)
+                self.run_fork()
+        except WorkerError as e:
+            self.error = force_unicode(e.orig_tb)
         except:
             import traceback
             self.error = force_unicode(traceback.format_exc())
+
+    def run_fork(self):
+        with TemporaryDirectory('_single_metadata_download') as tdir:
+            self.keep_going = True
+            t = Thread(target=self.monitor_tdir, args=(tdir,))
+            t.daemon = True
+            t.start()
+
+            try:
+                res = fork_job('calibre.ebooks.metadata.sources.worker',
+                    'single_covers',
+                    (self.title, self.authors, self.identifiers, self.caches,
+                        tdir),
+                    no_output=True, abort=self.abort)
+                self.log.append_dump(res['result'])
+            finally:
+                self.keep_going = False
+                t.join()
+
+    def scan_once(self, tdir, seen):
+        for x in list(os.listdir(tdir)):
+            if x in seen: continue
+            if x.endswith('.cover') and os.path.exists(os.path.join(tdir,
+                    x+'.done')):
+                name = x.rpartition('.')[0]
+                try:
+                    plugin_name, width, height, fmt = name.split(',,')
+                    width, height = int(width), int(height)
+                    with open(os.path.join(tdir, x), 'rb') as f:
+                        data = f.read()
+                except:
+                    import traceback
+                    traceback.print_exc()
+                else:
+                    seen.add(x)
+                    self.rq.put((plugin_name, width, height, fmt, data))
+
+    def monitor_tdir(self, tdir):
+        seen = set()
+        while self.keep_going:
+            time.sleep(1)
+            self.scan_once(tdir, seen)
+        # One last scan after the download process has ended
+        self.scan_once(tdir, seen)
+
 # }}}
 
 class CoversModel(QAbstractListModel): # {{{
@@ -620,16 +685,19 @@ class CoversModel(QAbstractListModel): # {{{
         idx = self.plugin_map.get(plugin, 0)
         return self.index(idx)
 
-    def update_result(self, plugin, width, height, data):
-        try:
-            idx = self.plugin_map[plugin]
-        except:
+    def update_result(self, plugin_name, width, height, data):
+        idx = None
+        for plugin, i in self.plugin_map.iteritems():
+            if plugin.name == plugin_name:
+                idx = i
+                break
+        if idx is None:
             return
         pmap = QPixmap()
         pmap.loadFromData(data)
         if pmap.isNull():
             return
-        self.covers[idx] = self.get_item(plugin.name, pmap, waiting=False)
+        self.covers[idx] = self.get_item(plugin_name, pmap, waiting=False)
         self.dataChanged.emit(self.index(idx), self.index(idx))
 
     def cover_pixmap(self, index):
@@ -709,7 +777,7 @@ class CoversWidget(QWidget): # {{{
     def reset_covers(self):
         self.covers_view.reset_covers()
 
-    def start(self, book, current_cover, title, authors):
+    def start(self, book, current_cover, title, authors, caches):
         self.continue_processing = True
         self.abort.clear()
         self.book, self.current_cover = book, current_cover
@@ -721,7 +789,7 @@ class CoversWidget(QWidget): # {{{
         self.covers_view.start()
 
         self.worker = CoverWorker(self.log, self.abort, self.title,
-                self.authors, book.identifiers)
+                self.authors, book.identifiers, caches)
         self.worker.start()
         QTimer.singleShot(50, self.check)
         self.covers_view.setFocus(Qt.OtherFocusReason)
@@ -766,8 +834,8 @@ class CoversWidget(QWidget): # {{{
     def process_result(self, result):
         if not self.continue_processing:
             return
-        plugin, width, height, fmt, data = result
-        self.covers_view.model().update_result(plugin, width, height, data)
+        plugin_name, width, height, fmt, data = result
+        self.covers_view.model().update_result(plugin_name, width, height, data)
 
     def cleanup(self):
         self.covers_view.delegate.stop_animation()
@@ -887,14 +955,14 @@ class FullFetch(QDialog): # {{{
         # QWebView. Seems to only happen on windows, but keep it for all
         # platforms just in case.
         self.identify_widget.comments_view.setMaximumHeight(500)
-        self.resize(850, 550)
+        self.resize(850, 600)
 
         self.finished.connect(self.cleanup)
 
     def view_log(self):
         self._lv = LogViewer(self.log, self)
 
-    def book_selected(self, book):
+    def book_selected(self, book, caches):
         self.next_button.setVisible(False)
         self.ok_button.setVisible(True)
         self.prev_button.setVisible(True)
@@ -902,7 +970,7 @@ class FullFetch(QDialog): # {{{
         self.stack.setCurrentIndex(1)
         self.log('\n\n')
         self.covers_widget.start(book, self.current_cover,
-                self.title, self.authors)
+                self.title, self.authors, caches)
 
     def back_clicked(self):
         self.next_button.setVisible(True)
@@ -966,7 +1034,7 @@ class CoverFetch(QDialog): # {{{
         self.covers_widget.chosen.connect(self.accept)
         l.addWidget(self.covers_widget)
 
-        self.resize(850, 550)
+        self.resize(850, 600)
 
         self.finished.connect(self.cleanup)
 
@@ -993,7 +1061,7 @@ class CoverFetch(QDialog): # {{{
         book = Metadata(title, authors)
         book.identifiers = identifiers
         self.covers_widget.start(book, self.current_cover,
-                title, authors)
+                title, authors, {})
         return self.exec_()
 
     def view_log(self):

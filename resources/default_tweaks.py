@@ -490,12 +490,6 @@ save_original_format = True
 # how many should be shown, here.
 gui_view_history_size = 15
 
-#: When using the 'Tweak Book' action, which format to prefer
-# When tweaking a book that has multiple formats, calibre picks one
-# automatically. By default EPUB is preferred to HTMLZ. If you would like to
-# prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
-tweak_book_prefer = 'epub'
-
 #: Change the font size of book details in the interface
 # Change the font size at which book details are rendered in the side panel and
 # comments are rendered in the metadata edit dialog. Set it to a positive or

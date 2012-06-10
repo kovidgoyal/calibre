@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
+    <width>667</width>
     <height>451</height>
    </rect>
   </property>
@@ -32,14 +32,14 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>First expression</string>
+      <string>Search/Replace Definition Edit</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="sizeConstraint">
        <enum>QLayout::SetMinimumSize</enum>
       </property>
       <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr1_search" native="true">
+       <widget class="RegexEdit" name="sr_search" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -60,12 +60,12 @@
          <string>&amp;Replacement Text</string>
         </property>
         <property name="buddy">
-         <cstring>opt_sr1_replace</cstring>
+         <cstring>sr_replace</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLineEdit" name="opt_sr1_replace">
+       <widget class="QLineEdit" name="sr_replace">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -78,117 +78,167 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <layout class="QHBoxLayout" name="buttonsLayout">
+     <property name="spacing">
+      <number>-1</number>
      </property>
-     <property name="title">
-      <string>Second Expression</string>
+     <property name="leftMargin">
+      <number>0</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
-      </property>
-      <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr2_search" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+     <item>
+      <widget class="QPushButton" name="sr_add">
+       <property name="toolTip">
+        <string>Add the current expression to the list of expressions that will be applied</string>
+       </property>
+       <property name="text">
+        <string>&amp;Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_change">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Edit the currently selected expression</string>
+       </property>
+       <property name="text">
+        <string>&amp;Change</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_remove">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Remove the currently selected expression</string>
+       </property>
+       <property name="text">
+        <string>&amp;Remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_load">
+       <property name="toolTip">
+        <string>Load a list of expressions from a previously saved file</string>
+       </property>
+       <property name="text">
+        <string>&amp;Load</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sr_save">
+	    <property name="enabled">
+		  <bool>false</bool>
+	    </property>
+        <property name="toolTip">
+          <string>Save this list of expressions so that you can re-use it easily</string>
         </property>
         <property name="text">
-         <string>&amp;Replacement Text</string>
+          <string>&amp;Save</string>
         </property>
-        <property name="buddy">
-         <cstring>opt_sr2_replace</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLineEdit" name="opt_sr2_replace">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Third expression</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
-      </property>
-      <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr3_search" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>&amp;Replacement Text</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_sr3_replace</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLineEdit" name="opt_sr3_replace">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+     <layout class="QHBoxLayout" name="searchReplaceLayout">
+	   <property name="spacing">
+	     <number>-1</number>
+	   </property>
+	   <property name="leftMargin">
+	     <number>0</number>
+	   </property>
+	   <item>
+         <widget class="QTableWidget" name="search_replace">
+           <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+         </widget>
+	   </item>
+	   <item>
+	     <layout class="QVBoxLayout" name="positionLayout">
+		   <item>
+             <widget class="QPushButton" name="sr_up">
+			   <property name="sizePolicy">
+			     <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                 </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                 <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                 </size>
+			   </property> 
+			   <property name="enabled">
+                 <bool>false</bool>
+               </property>
+               <property name="toolTip">
+				 <string>Move expression up.</string>
+			   </property>
+               <property name="icon">
+                 <iconset>
+                    <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+               </property>
+             </widget>
+           </item>
+		   <item>
+             <widget class="QPushButton" name="sr_down">
+			   <property name="sizePolicy">
+			     <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                 </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                 <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                 </size>
+			   </property>
+			   <property name="enabled">
+                 <bool>false</bool>
+               </property>
+ 			   <property name="toolTip">
+				  <string>Move expression down.</string>
+			   </property>
+			   <property name="icon">
+                 <iconset>
+                    <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+               </property>
+             </widget>
+           </item>
+		 </layout>
+	   </item>
+	 </layout>   
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;Search and replace uses &lt;i&gt;regular expressions&lt;/i&gt;. See the &lt;a href=&quot;http://manual.calibre-ebook.com/regexp.html&quot;&gt;regular expressions tutorial&lt;/a&gt; to get started with regular expressions. Also clicking the wizard buttons below will allow you to test your regular expression against the current input document.</string>
+      <string>&lt;p&gt;Search and replace uses &lt;i&gt;regular expressions&lt;/i&gt;. See the &lt;a href=&quot;http://manual.calibre-ebook.com/regexp.html&quot;&gt;regular expressions tutorial&lt;/a&gt; to get started with regular expressions. Also clicking the wizard button below will allow you to test your regular expression against the current input document. When you are happy with an expression, click the Add button to add it to the list of expressions.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -208,6 +258,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

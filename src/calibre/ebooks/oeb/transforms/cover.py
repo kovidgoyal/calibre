@@ -167,5 +167,9 @@ class CoverManager(object):
             self.oeb.guide.refs['cover'].href = item.href
             if 'titlepage' in self.oeb.guide.refs:
                 self.oeb.guide.refs['titlepage'].href = item.href
+            titem = getattr(self.oeb.toc, 'item_that_refers_to_cover', None)
+            if titem is not None:
+                titem.href = item.href
+
 
 

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, cPickle, shutil, importlib
+import cPickle, shutil, importlib
 
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
@@ -36,17 +36,14 @@ class NoSupportedInputFormats(Exception):
     pass
 
 def sort_formats_by_preference(formats, prefs):
-    def fcmp(x, y):
+    uprefs = [x.upper() for x in prefs]
+    def key(x):
         try:
-            x = prefs.index(x.upper())
+            return uprefs.index(x.upper())
         except ValueError:
-            x = sys.maxint
-        try:
-            y = prefs.index(y.upper())
-        except ValueError:
-            y = sys.maxint
-        return cmp(x, y)
-    return sorted(formats, cmp=fcmp)
+            pass
+        return len(prefs)
+    return sorted(formats, key=key)
 
 class GroupModel(QAbstractListModel):
 
@@ -94,8 +91,19 @@ def get_supported_input_formats_for_book(db, book_id):
 
 
 def get_input_format_for_book(db, book_id, pref):
+    '''
+    Return (preferred input format, list of available formats) for the book
+    identified by book_id. Raises an error if the book has no input formats.
+
+    :param pref: If None, the format used as input for the last conversion, if
+    any, on this book is used. If not None, should be a lowercase format like
+    'epub' or 'mobi'. If you do not want the last converted format to be used,
+    set pref=False.
+    '''
     if pref is None:
         pref = get_preferred_input_format_for_book(db, book_id)
+    if hasattr(pref, 'lower'):
+        pref = pref.lower()
     input_formats = get_supported_input_formats_for_book(db, book_id)
     input_format = pref if pref in input_formats else \
         sort_formats_by_preference(input_formats, prefs['input_format_order'])[0]
@@ -234,7 +242,8 @@ class Config(ResizableDialog, Ui_Dialog):
             preferred_output_format):
         if preferred_output_format:
             preferred_output_format = preferred_output_format.lower()
-        output_formats = sorted(available_output_formats())
+        output_formats = sorted(available_output_formats(),
+                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x))
         output_formats.remove('oeb')
         input_format, input_formats = get_input_format_for_book(db, book_id,
                 preferred_input_format)

@@ -312,13 +312,9 @@ class EPUBOutput(OutputFormatPlugin):
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         '''
-        from calibre.ebooks.oeb.base import XPath, XHTML, OEB_STYLES, barename, urlunquote
+        from calibre.ebooks.oeb.base import XPath, XHTML, barename, urlunquote
 
-        stylesheet = None
-        for item in self.oeb.manifest:
-            if item.media_type.lower() in OEB_STYLES:
-                stylesheet = item
-                break
+        stylesheet = self.oeb.manifest.main_stylesheet
 
         # ADE cries big wet tears when it encounters an invalid fragment
         # identifier in the NCX toc.

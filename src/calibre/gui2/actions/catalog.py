@@ -68,8 +68,8 @@ class GenerateCatalogAction(InterfaceAction):
             # Subsequent strings are error messages
             dialog_title = job.result.pop(0)
             if re.match('warning:', job.result[0].lower()):
-                job.result.append("Catalog generation complete.")
-                warning_dialog(self.gui, dialog_title, '\n'.join(job.result), show=True)
+                msg = _("Catalog generation complete, with warnings.")
+                warning_dialog(self.gui, dialog_title, msg, det_msg='\n'.join(job.result), show=True)
             else:
                 job.result.append("Catalog generation terminated.")
                 error_dialog(self.gui, dialog_title,'\n'.join(job.result),show=True)

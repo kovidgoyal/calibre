@@ -14,11 +14,14 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.metadata.ereader import get_metadata as get_eReader
 from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
+from calibre.ebooks.metadata.haodoo import get_metadata as get_Haodoo
 
 MREADER = {
     'PNPdPPrs' : get_eReader,
     'PNRdPPrs' : get_eReader,
     'DataPlkr' : get_plucker,
+    'BOOKMTIT' : get_Haodoo,
+    'BOOKMTIU' : get_Haodoo,
 }
 
 from calibre.ebooks.metadata.ereader import set_metadata as set_eReader

@@ -24,9 +24,9 @@ from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
 from calibre.customize.ui import interface_actions, available_store_plugins
-from calibre.gui2 import error_dialog, GetMetadata, open_url, \
-        gprefs, max_available_height, config, info_dialog, Dispatcher, \
-        question_dialog
+from calibre.gui2 import (error_dialog, GetMetadata, open_url,
+        gprefs, max_available_height, config, info_dialog, Dispatcher,
+        question_dialog, warning_dialog)
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.update import UpdateMixin
@@ -43,6 +43,7 @@ from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
+from calibre.gui2.proceed import ProceedQuestion
 
 class Listener(Thread): # {{{
 
@@ -109,6 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.QueuedConnection)
+        self.proceed_question = ProceedQuestion(self)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
@@ -615,6 +617,31 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                     d.show()
                     self._modeless_dialogs.append(d)
                 return
+
+            if 'calibre.ebooks.oeb.transforms.split.SplitError' in job.details:
+                title = job.description.split(':')[-1].partition('(')[-1][:-1]
+                msg = _('<p><b>Failed to convert: %s')%title
+                msg += '<p>'+_('''
+                Many older ebook reader devices are incapable of displaying
+                EPUB files that have internal components over a certain size.
+                Therefore, when converting to EPUB, calibre automatically tries
+                to split up the EPUB into smaller sized pieces.  For some
+                files that are large undifferentiated blocks of text, this
+                splitting fails.
+                <p>You can <b>work around the problem</b> by either increasing the
+                maximum split size under EPUB Output in the conversion dialog,
+                or by turning on Heuristic Processing, also in the conversion
+                dialog. Note that if you make the maximum split size too large,
+                your ebook reader may have trouble with the EPUB.
+                        ''')
+                if not minz:
+                    d = error_dialog(self, _('Conversion Failed'), msg,
+                            det_msg=job.details)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
+                return
+
             if 'calibre.web.feeds.input.RecipeDisabled' in job.details:
                 if not minz:
                     msg = job.details
@@ -622,6 +649,23 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                     msg = msg.partition(':')[-1]
                     d = error_dialog(self, _('Recipe Disabled'),
                         '<p>%s</p>'%msg)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
+                return
+
+            if 'calibre.ebooks.conversion.ConversionUserFeedBack:' in job.details:
+                if not minz:
+                    import json
+                    payload = job.details.rpartition(
+                        'calibre.ebooks.conversion.ConversionUserFeedBack:')[-1]
+                    payload = json.loads('{' + payload.partition('{')[-1])
+                    d = {'info':info_dialog, 'warn':warning_dialog,
+                            'error':error_dialog}.get(payload['level'],
+                                    error_dialog)
+                    d = d(self, payload['title'],
+                            '<p>%s</p>'%payload['msg'],
+                            det_msg=payload['det_msg'])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)

@@ -122,6 +122,18 @@ class UnicodeHTMLStream(HTMLStream):
         end = self.normal if self.data else u''
         return u''.join(self.data) + end
 
+    def dump(self):
+        return [self.data, self.plain_text, self.last_col]
+
+    def load(self, dump):
+        self.data, self.plain_text, self.last_col = dump
+
+    def append_dump(self, dump):
+        d, p, lc = dump
+        self.data.extend(d)
+        self.plain_text.extend(p)
+        self.last_col = lc
+
 
 class Log(object):
 
@@ -185,5 +197,15 @@ class GUILog(ThreadSafeLog):
     @property
     def plain_text(self):
         return u''.join(self.outputs[0].plain_text)
+
+    def dump(self):
+        return self.outputs[0].dump()
+
+    def load(self, dump):
+        return self.outputs[0].load(dump)
+
+    def append_dump(self, dump):
+        return self.outputs[0].append_dump(dump)
+
 
 default_log = Log()
