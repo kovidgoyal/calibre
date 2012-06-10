@@ -207,13 +207,14 @@ to be shown as user categories</string>
       <string>What to search when searching similar books</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_22">
-      <item row="0" column="0" colspan="4">
+      <item row="0" column="0" colspan="6">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;p&gt;When you search for similar books by right clicking the book and selecting "Similar books...",
-         calibre constructs a search using the column lookup names defined below.
+         <string>&lt;p&gt;When you search for similar books by right clicking the
+         book and selecting "Similar books...",
+         calibre constructs a search using the column lookup names specified below.
          By changing the lookup name to a grouped search term you can
-         search multiple columns.&lt;/p&gt;</string>
+         search multiple columns at once.&lt;/p&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -238,13 +239,17 @@ to be shown as user categories</string>
        </widget>
       </item>
       <item row="1" column="2">
+       <widget class="QComboBox" name="opt_similar_authors_match_kind">
+       </widget>
+      </item>
+      <item row="1" column="3">
        <widget class="QLabel" name="label_222">
         <property name="text">
          <string>Similar series: </string>
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
+      <item row="1" column="4">
        <widget class="QComboBox" name="similar_series_search_key">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -252,6 +257,10 @@ to be shown as user categories</string>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QComboBox" name="opt_similar_series_match_kind">
        </widget>
       </item>
       <item row="2" column="0">
@@ -266,14 +275,22 @@ to be shown as user categories</string>
        </widget>
       </item>
       <item row="2" column="2">
+       <widget class="QComboBox" name="opt_similar_tags_match_kind">
+       </widget>
+      </item>
+      <item row="2" column="3">
        <widget class="QLabel" name="label_224">
         <property name="text">
          <string>Similar publishers: </string>
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
+      <item row="2" column="4">
        <widget class="QComboBox" name="similar_publisher_search_key">
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QComboBox" name="opt_similar_publisher_match_kind">
        </widget>
       </item>
      </layout>
