@@ -72,7 +72,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fill_gst_box(select=None)
 
         self.category_fields = fl
-        ml = [_('Match any'), _('Match all')]
+        ml = [(_('Match any'), 'match_any'), (_('Match all'), 'match_all')]
         r('similar_authors_match_kind', db.prefs, choices=ml)
         r('similar_tags_match_kind', db.prefs, choices=ml)
         r('similar_series_match_kind', db.prefs, choices=ml)
