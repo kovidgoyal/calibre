@@ -21,7 +21,7 @@ from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.utils.config import prefs, XMLConfig, tweaks
+from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog)
@@ -999,13 +999,6 @@ class SplitterHandle(QSplitterHandle):
         self.highlight = 0 in self.splitter().sizes()
         if oh != self.highlight:
             self.update()
-
-    def paintEvent(self, ev):
-        QSplitterHandle.paintEvent(self, ev)
-        if self.highlight and tweaks['draw_hidden_section_indicators']:
-            painter = QPainter(self)
-            painter.setClipRect(ev.rect())
-            painter.fillRect(self.rect(), Qt.yellow)
 
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
