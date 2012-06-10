@@ -43,7 +43,7 @@ class SimilarBooksAction(InterfaceAction):
         # Get the parameters for this search
         col = db.prefs['similar_' + typ + '_search_key']
         match = db.prefs['similar_' + typ + '_match_kind']
-        if match == _('Match all'):
+        if match == 'match_all':
             join = ' and '
         else:
             join = ' or '
