@@ -236,7 +236,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['categories_using_hierarchy'] = []
         defs['column_color_rules'] = []
         defs['grouped_search_make_user_categories'] = []
-        defs['similar_authors_search_key'] = 'author'
+        defs['similar_authors_search_key'] = 'authors'
         defs['similar_authors_match_kind'] = _('Match any')
         defs['similar_publisher_search_key'] = 'publisher'
         defs['similar_publisher_match_kind'] = _('Match any')
