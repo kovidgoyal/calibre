@@ -36,25 +36,28 @@ class SimilarBooksAction(InterfaceAction):
     def show_similar_books(self, type, *args):
         search, join = [], ' '
         idx = self.gui.library_view.currentIndex()
+        db = self.gui.library_view.model().db
         if not idx.isValid():
             return
         row = idx.row()
         if type == 'series':
             series = idx.model().db.series(row)
             if series:
-                search = ['series:"'+series+'"']
+                search = [db.prefs['similar_series_search_key'] + ':"'+series+'"']
         elif type == 'publisher':
             publisher = idx.model().db.publisher(row)
             if publisher:
-                search = ['publisher:"'+publisher+'"']
+                search = [db.prefs['similar_publisher_search_key'] + ':"'+publisher+'"']
         elif type == 'tag':
             tags = idx.model().db.tags(row)
             if tags:
-                search = ['tag:"='+t+'"' for t in tags.split(',')]
+                search = [db.prefs['similar_tags_search_key'] + ':"='+t+'"'
+                          for t in tags.split(',')]
         elif type in ('author', 'authors'):
             authors = idx.model().db.authors(row)
             if authors:
-                search = ['author:"='+a.strip().replace('|', ',')+'"' \
+                search = [db.prefs['similar_authors_search_key'] +
+                                    ':"='+a.strip().replace('|', ',')+'"' \
                                 for a in authors.split(',')]
                 join = ' or '
         if search:
