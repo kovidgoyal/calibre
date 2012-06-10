@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-08 07:12+0000\n"
-"PO-Revision-Date: 2012-05-26 06:07+0000\n"
+"PO-Revision-Date: 2012-06-09 10:47+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-09 05:22+0000\n"
+"X-Launchpad-Export-Date: 2012-06-10 04:36+0000\n"
 "X-Generator: Launchpad (build 15376)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -6362,7 +6362,7 @@ msgstr "Impossibile salvare sul disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:63
 msgid "Choose format to save to disk"
-msgstr ""
+msgstr "Scegli il formato da salvare su disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:82
 msgid "Choose destination directory"
@@ -14950,11 +14950,11 @@ msgstr "Largo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Stile Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "Predefinito del sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:137
 msgid "Off"
@@ -15058,7 +15058,7 @@ msgstr "Cam&bia carattere (richiede il riavvio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:242
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "&Stile dell'interfaccia utente (richiede il riavvio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:243
 msgid "Main Interface"
@@ -17253,7 +17253,7 @@ msgstr "Imposta l'ordinamento degli elementi nel navigatore dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Tipo di corrispondenza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
 msgid "Match all"
@@ -19155,7 +19155,7 @@ msgstr "Cartelle che lanciano eccezioni"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid "GLOBAL OPTIONS"
-msgstr ""
+msgstr "OPZIONI GLOBALI"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:44
 msgid ""
@@ -19433,7 +19433,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:549
 msgid "Field name"
-msgstr ""
+msgstr "Nome del campo"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
 msgid "You must specify a record id as the first argument"
@@ -19441,12 +19441,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:571
 msgid "You must specify either a field or an opf file"
-msgstr ""
+msgstr "Devi specificare un campo o un file opf"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "%s is not a known field"
-msgstr ""
+msgstr "%s non è un campo conosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:615
 msgid ""
@@ -20363,15 +20363,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:94
 msgid "Options"
-msgstr ""
+msgstr "Opzioni"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:95
 msgid "show this help message and exit"
-msgstr ""
+msgstr "mostra questo messaggio di aiuto ed esci"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:96
 msgid "show program's version number and exit"
-msgstr ""
+msgstr "mostra la versione del programma ed esci"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:377
 msgid "Path to the database in which books are stored"
@@ -21108,7 +21108,7 @@ msgstr "inglese"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "Inglese (Argentina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -21168,7 +21168,7 @@ msgstr "Inglese (Repubblica Ceca)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Philippines)"
-msgstr ""
+msgstr "Inglese (Filippine)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Pakistan)"
@@ -21381,7 +21381,7 @@ msgstr "Sorgente di notizie sconosciuta"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:672
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "Scaricamento di %s non riuscito"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:768
 #, python-format

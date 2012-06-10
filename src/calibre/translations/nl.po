@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-08 07:12+0000\n"
-"PO-Revision-Date: 2012-05-24 14:12+0000\n"
-"Last-Translator: J.R. van Wijk <j.wyk91@upcmail.nl>\n"
+"PO-Revision-Date: 2012-06-09 13:07+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-09 05:19+0000\n"
+"X-Launchpad-Export-Date: 2012-06-10 04:35+0000\n"
 "X-Generator: Launchpad (build 15376)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -6419,7 +6419,7 @@ msgstr "Kan niet op schijf opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:63
 msgid "Choose format to save to disk"
-msgstr ""
+msgstr "Kies formaat om op te slaan op disk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:82
 msgid "Choose destination directory"
@@ -15050,11 +15050,11 @@ msgstr "Breed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Calibre stijl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "Systeemstandaard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:137
 msgid "Off"
@@ -15159,7 +15159,7 @@ msgstr "&Lettertype wijzigen (herstart vereist)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:242
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "Gebruikersinterface &stijl (herstart nodig):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:243
 msgid "Main Interface"
@@ -17367,7 +17367,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Pas tagbrowser aan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -17392,7 +17392,7 @@ msgstr "Leg de sorteervolgorde vast voor de items in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Overeenkomend type"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
 msgid "Match all"
@@ -17863,6 +17863,7 @@ msgstr "Pagina's omslaan met muiswiel"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:45
 msgid "Prevent the up and down arrow keys from scrolling past page breaks"
 msgstr ""
+"Voorkom dat omhoog en omlaag pijlen voorbij de pagina eindes bladeren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:48
 msgid ""
@@ -18032,7 +18033,7 @@ msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:218
 msgid "Line &scrolling stops at page breaks"
-msgstr ""
+msgstr "Regel &bladeren stoppen bij pagina einde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:219
 msgid "&General"
@@ -18155,6 +18156,8 @@ msgid ""
 "This ebook is corrupted and cannot be opened. If you downloaded it from "
 "somewhere, try downloading it again."
 msgstr ""
+"Dit E-book is corrupt en kan niet worden geopend. Als u het heeft "
+"gedownload, probeer het dan nogmaals te doen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:98
 msgid "Book format"
@@ -18169,6 +18172,9 @@ msgid ""
 "Go to a reference. To get reference numbers, use the <i>reference mode</i>, "
 "by clicking the reference mode button in the toolbar."
 msgstr ""
+"Ga naar de verwijzing. Om verwijzingsnummers te verkrijgen, gebruik de "
+"<i>verwijzingsmodus</i>, door te klikken op de verwijzingsmodus knop in de "
+"werkbalk."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:190
 msgid "Search for text in book"
@@ -19349,7 +19355,7 @@ msgstr "Mappen die voor fouten zorgen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid "GLOBAL OPTIONS"
-msgstr ""
+msgstr "ALGEMENE OPTIES"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:44
 msgid ""
@@ -19632,23 +19638,24 @@ msgstr ""
 msgid ""
 "List the metadata field names that can be used with the --field option"
 msgstr ""
+"Toon de metadata veldnamen die kunnen worden gebruikt met de --field optie"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:549
 msgid "Field name"
-msgstr ""
+msgstr "Veldnaam"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
 msgid "You must specify a record id as the first argument"
-msgstr ""
+msgstr "U moet een item id specificeren als eerste parameter"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:571
 msgid "You must specify either a field or an opf file"
-msgstr ""
+msgstr "U moet een veld of opf-bestand specificeren"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "%s is not a known field"
-msgstr ""
+msgstr "%s is een onbekend veld"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:615
 msgid ""
@@ -20609,15 +20616,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:94
 msgid "Options"
-msgstr ""
+msgstr "Opties"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:95
 msgid "show this help message and exit"
-msgstr ""
+msgstr "toon dit helpbericht en stop"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:96
 msgid "show program's version number and exit"
-msgstr ""
+msgstr "toon programmaversie en stop"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:377
 msgid "Path to the database in which books are stored"
@@ -21599,7 +21606,7 @@ msgstr "Engels (Tsjechische Republiek)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Philippines)"
-msgstr ""
+msgstr "Engels (Filippijnen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Pakistan)"

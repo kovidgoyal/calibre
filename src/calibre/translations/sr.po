@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-08 07:12+0000\n"
-"PO-Revision-Date: 2012-06-08 19:52+0000\n"
+"PO-Revision-Date: 2012-06-09 16:39+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Ozzii\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-09 05:28+0000\n"
+"X-Launchpad-Export-Date: 2012-06-10 04:36+0000\n"
 "X-Generator: Launchpad (build 15376)\n"
 "Language: sr\n"
 
@@ -14163,7 +14163,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "Основно на систему"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:137
 msgid "Off"
@@ -14356,7 +14356,7 @@ msgstr "Прик&ажи средње оцене у излогу етикета."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Категорије са &хијерархијским ставкама:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:273
 msgid ""
@@ -14381,6 +14381,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:282
 msgid "When showing cover browser in separate window, show it &fullscreen"
 msgstr ""
+"Када се приказују корице у посебном прозору прегледача, показати у &пуном "
+"екрану"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:283
 #, python-format
@@ -14430,7 +14432,7 @@ msgstr "Потребно је поновно покретање."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:342
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Препокрени calibre сад"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -14438,11 +14440,11 @@ msgstr "Извор"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:50
 msgid "Cover priority"
-msgstr ""
+msgstr "Приоритет за корице"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:77
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "Овај извор је подешен и спреман да иде"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:78
 msgid "This source needs configuration"
@@ -14531,7 +14533,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:94
 msgid "Swap author names from FN LN to LN, FN"
-msgstr ""
+msgstr "Замени имена аутора из FN LN у LN, FN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:98
 msgid "Max. number of &tags to download:"
@@ -14834,7 +14836,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr ""
+msgstr "Прикажи само оне додатке који су инсталирани од вас"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
@@ -15548,23 +15550,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:117
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "Брзо подешавање додатка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:119
 msgid "Edit tweak"
-msgstr ""
+msgstr "Уреди подешављње"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:120
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Врати ова подешавања на подразумеване вредности"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:121
 msgid "Restore &default"
-msgstr ""
+msgstr "Врати на подразумевано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:122
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "Примени све промене које сте направили са овим подешавањима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:348
 msgid "Delete current search"
@@ -15572,7 +15574,7 @@ msgstr "Обриши тренутну претрагу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:349
 msgid "No search is selected"
-msgstr ""
+msgstr "Не тражи се изабрано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:351
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
@@ -15589,7 +15591,7 @@ msgstr "Покрени претрагу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:402
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "Омогући или онемогући истицање претраге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:457
 msgid "Saved Searches"
@@ -15609,7 +15611,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:470
 msgid "Create saved search"
-msgstr ""
+msgstr "Прављење сачуване претраге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:474
 msgid "Delete saved search"
@@ -15617,7 +15619,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:478
 msgid "Manage saved searches"
-msgstr ""
+msgstr "Управљање сачуваном претрагом"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:488
 msgid "*Current search"
@@ -15639,7 +15641,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:54
 msgid " or the search "
-msgstr ""
+msgstr " или претрагу "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:88
 msgid "({0} of {1})"
@@ -15681,11 +15683,11 @@ msgstr "Кликните за измену"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
 msgid "Added Tags:"
-msgstr ""
+msgstr "Додате ознаке:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
-msgstr ""
+msgstr "Отвори продавницу у спољнем веб прегледачу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
@@ -15706,7 +15708,7 @@ msgstr "Омогућено:"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:232
 msgid "DRM:"
-msgstr ""
+msgstr "DRM:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:228
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:230
@@ -15766,7 +15768,7 @@ msgstr "Седиште"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
-msgstr ""
+msgstr "Без DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:129
 msgid ""
@@ -15835,12 +15837,12 @@ msgstr "Приказ"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:103
 msgid "Maximum number of results to show per store"
-msgstr ""
+msgstr "Највећи број резултата приказан по продавници"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:104
 msgid "Open search result in system browser"
-msgstr ""
+msgstr "Отвори резултате претраге у прегледачу система"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:68
 msgid "Threads"
@@ -15868,7 +15870,7 @@ msgstr "Учинак"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:106
 msgid "Number of simultaneous searches"
-msgstr ""
+msgstr "Број истовремених претрага"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:107
 msgid "Number of simultaneous cache updates"
@@ -15916,7 +15918,7 @@ msgstr "Насл&ов/Аутор/Цена ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "DRM"
-msgstr ""
+msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Download"
@@ -15980,7 +15982,7 @@ msgstr "Жељена претрага за добијање књига"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:287
 msgid "Configure search"
-msgstr ""
+msgstr "Подешавање претраге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:337
 msgid "Couldn't find any books matching your query."
