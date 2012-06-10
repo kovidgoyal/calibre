@@ -57,7 +57,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     "can be useful to check for duplicates, to find which column contains "
     "a particular item, or to have hierarchical categories (categories "
     "that contain categories)."))
-        self.gst = db.prefs.get('grouped_search_terms', {})
+        self.gst = db.prefs.get('grouped_search_terms', {}).copy()
         self.orig_gst_keys = self.gst.keys()
 
         fl = []
@@ -100,12 +100,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                                         self.muc_box_changed)
 
     def set_similar_fields(self, initial=False):
-        self.set_similar('similar_authors_search_key', first_item='author', initial=initial)
-        self.set_similar('similar_tags_search_key', first_item='tags', initial=initial)
-        self.set_similar('similar_series_search_key', first_item='series', initial=initial)
-        self.set_similar('similar_publisher_search_key', first_item='publisher', initial=initial)
+        self.set_similar('similar_authors_search_key', initial=initial)
+        self.set_similar('similar_tags_search_key', initial=initial)
+        self.set_similar('similar_series_search_key', initial=initial)
+        self.set_similar('similar_publisher_search_key', initial=initial)
 
-    def set_similar(self, name, first_item, initial=False):
+    def set_similar(self, name, initial=False):
         field = getattr(self, name)
         if not initial:
             val = field.currentText()
