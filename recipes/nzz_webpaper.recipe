@@ -1,0 +1,90 @@
+from calibre import strftime
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Bernd Leinfelder <skoll1975 at gmail.com> '
+
+'''
+webpaper.nzz.ch
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Nzz(BasicNewsRecipe):
+    title                 = 'NZZ Webpaper'
+    __author__            = 'Bernd Leinfelder'
+    description           = 'Neue Zuercher Zeitung Webpaper - Erfordert NZZ Digital Abonnement'
+    timefmt = ' [%a, %d %b, %Y]'
+    publisher             = 'NZZ AG'
+    needs_subscription = True
+    category              = 'news, politics, nachrichten, Switzerland'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'de'
+    extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
+
+    conversion_options = {
+                             'comments'  : description
+                            ,'tags'      : category
+                            ,'language'  : language
+                            ,'publisher' : publisher
+                         }
+
+    remove_tags = [dict(name='footer')]
+
+    remove_tags_before = dict(name='article')
+    remove_tags_after= dict(name='footer')
+
+    def parse_index(self):
+        baseref = 'https://webpaper.nzz.ch'
+        soup = self.index_to_soup(baseref)
+
+        articles = {}
+        key = None
+        ans = []
+
+        issuelist = soup.find(id="issueSelectorList")
+
+        feeds = issuelist.findAll("a")
+        for f in feeds:
+            section = f.string
+            sectionref = baseref + f['href']
+
+            # print "section is "+section +" and ref is "+sectionref
+            ans.append(section)
+
+            articlesoup = self.index_to_soup(sectionref)
+
+            articlesoup = articlesoup.findAll('article','article')
+            for a in articlesoup:
+                 artlink = a.find('a')
+
+                 arthref = baseref + artlink['href']
+                 arthead = a.find('h2')
+                 artcaption = arthead.string
+
+                 pubdate = strftime('%a, %d %b')
+
+                 if not artcaption is None:
+                         # print "     found article named "+artcaption+" at "+arthref
+                         if not articles.has_key(section):
+                             articles[section] = []
+                         articles[section].append(
+                               dict(title=artcaption, url=arthref, date=pubdate, description='', content=''))
+
+        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        return ans
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://webpaper.nzz.ch/login')
+            br.select_form(nr=0)
+            br['_username']   = self.username
+            br['_password'] = self.password
+            br.submit()
+        return br
+
+
