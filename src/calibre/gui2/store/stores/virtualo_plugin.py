@@ -57,18 +57,18 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//div[@class="list_middle_left"]//a/img/@src'))
                 title = ''.join(data.xpath('.//div[@class="list_title list_text_left"]/a/text()'))
                 author = ', '.join(data.xpath('.//div[@class="list_authors list_text_left"]/a/text()'))
-                formats = ', '#.join(data.xpath('.//div[2]/div[3]//div[@class="list_vertical_wrap_middle"]/img/@src()'))
-                drm = not no_drm_pattern.search(formats)
+                formats = [ form.split('_')[-1].replace('.png', '') for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//img/@src')]
+                nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@style="width:45%;float:right;text-align:right;height:18px;"]/div/div/text()')))
 
                 counter -= 1
 
                 s = SearchResult()
                 s.cover_url = cover_url.split('.jpg')[0] + '.jpg'
-                s.title = title.strip() + ' ' + formats
+                s.title = title.strip()
                 s.author = author.strip()
                 s.price = price + ' zł'
                 s.detail_item = 'http://virtualo.pl' + id.strip().split('http://')[0]
-                s.formats = formats.upper().strip()
-                s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+                s.formats = ', '.join(formats).upper()
+                s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_UNKNOWN
 
                 yield s
