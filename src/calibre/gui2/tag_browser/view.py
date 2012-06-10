@@ -25,13 +25,19 @@ class TagDelegate(QStyledItemDelegate): # {{{
     def paint(self, painter, option, index):
         item = index.data(Qt.UserRole).toPyObject()
         QStyledItemDelegate.paint(self, painter, option, index)
+        widget = self.parent()
+        style = QApplication.style() if widget is None else widget.style()
+        self.initStyleOption(option, index)
+        if item.boxed:
+            r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
+                    widget)
+            painter.save()
+            painter.drawLine(r.bottomLeft(), r.bottomRight())
+            painter.restore()
         if item.type != TagTreeItem.TAG:
             return
         if (item.tag.state == 0 and config['show_avg_rating'] and
                 item.tag.avg_rating is not None):
-            self.initStyleOption(option, index)
-            widget = self.parent()
-            style = QApplication.style() if widget is None else widget.style()
             r = style.subElementRect(style.SE_ItemViewItemDecoration,
                     option, widget)
             icon = option.icon
@@ -47,6 +53,7 @@ class TagDelegate(QStyledItemDelegate): # {{{
             icon.paint(painter, r, option.decorationAlignment, icon.Normal,
                     icon.On)
             painter.restore()
+
 
     # }}}
 
