@@ -963,6 +963,7 @@ Style::Style()
         itsAnimateStep(0),
         itsTitlebarHeight(0),
         calibre_icon_map(QHash<int,QString>()),
+        is_kde_session(False),
         itsPos(-1, -1),
         itsHoverWidget(0L),
 #ifdef Q_WS_X11
@@ -977,6 +978,7 @@ Style::Style()
         , itsName(name)
 #endif
 {
+    is_kde_session = (getenv("KDE_FULL_SESSION") != NULL);
     const char *env=getenv(QTCURVE_PREVIEW_CONFIG);
     if(env && 0==strcmp(env, QTCURVE_PREVIEW_CONFIG))
     {
@@ -3602,7 +3604,14 @@ int Style::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *
 #endif
             return 0;
         case SH_DialogButtonLayout:
-            return opts.gtkButtonOrder ? QDialogButtonBox::GnomeLayout : QDialogButtonBox::KdeLayout;
+// Changed by Kovid to use platform specific button orders.
+#ifdef _WIN32
+            return QDialogButtonBox::WinLayout;
+#elif defined(__APPLE__)
+            return QDialogButtonBox::MacLayout;
+#else
+            return is_kde_session ? QDialogButtonBox::KdeLayout : QDialogButtonBox::GnomeLayout;
+#endif
         case SH_MessageBox_TextInteractionFlags:
             return Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse;
         case SH_LineEdit_PasswordCharacter:
