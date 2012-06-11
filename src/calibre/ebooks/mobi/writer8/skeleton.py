@@ -372,6 +372,11 @@ class Chunker(object):
                     # the chunk immediately after
                     pos_fid = (chunk.sequence_number, 0, offset)
                     break
+                if chunk is self.chunk_table[-1]:
+                    # This can happen for aids very close to the end of the the
+                    # end of the text (https://bugs.launchpad.net/bugs/1011330)
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
+                            offset)
             if pos_fid is None:
                 raise ValueError('Could not find chunk for aid: %r'%
                         match.group(1))
