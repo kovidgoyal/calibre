@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-08 07:12+0000\n"
-"PO-Revision-Date: 2012-06-09 16:39+0000\n"
+"PO-Revision-Date: 2012-06-10 06:42+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Ozzii\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-10 04:36+0000\n"
+"X-Launchpad-Export-Date: 2012-06-11 04:45+0000\n"
 "X-Generator: Launchpad (build 15376)\n"
 "Language: sr\n"
 
@@ -16031,12 +16031,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:61
 msgid "Processing books."
-msgstr ""
+msgstr "Обрада књига."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:71
 #, python-format
 msgid "%(num)s of %(tot)s books processed."
-msgstr ""
+msgstr "%(num)s од %(tot)s књига обрађено."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:67
 msgid "Updating MobileRead book cache..."
@@ -16058,7 +16058,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:88
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr ""
+msgstr "Тип е-књиге није подржан. Сачувај на диску?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
@@ -16096,7 +16096,7 @@ msgstr "Претраге"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:933
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:942
 msgid "Rename user category"
-msgstr ""
+msgstr "Преименуј категорију корисника"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:914
 msgid "You cannot use periods in the name when renaming user categories"
@@ -16106,7 +16106,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:943
 #, python-format
 msgid "The name %s is already used"
-msgstr ""
+msgstr "Име %s iсе већ користи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:962
 msgid "Duplicate search name"
@@ -16146,7 +16146,7 @@ msgstr "Уреди сачуване претраге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:67
 msgid "Invalid search restriction"
-msgstr ""
+msgstr "Неважеће ограничење претраге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:68
 msgid "The current search restriction is invalid"
@@ -16159,35 +16159,35 @@ msgstr "Нова категорија"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:138
 msgid "Delete user category"
-msgstr ""
+msgstr "Обриши категорију корисника"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:136
 #, python-format
 msgid "%s is not a user category"
-msgstr ""
+msgstr "%s није корисник категорије"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:139
 #, python-format
 msgid "%s contains items. Do you really want to delete it?"
-msgstr ""
+msgstr "%s садржи ставке. Да ли заиста желите да обришете?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:160
 msgid "Remove category"
-msgstr ""
+msgstr "Уклони категорију"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:161
 #, python-format
 msgid "User category %s does not exist"
-msgstr ""
+msgstr "Категорија корисника %s не постоји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:180
 msgid "Add to user category"
-msgstr ""
+msgstr "Додај корисника категорији"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:181
 #, python-format
 msgid "A user category %s does not exist"
-msgstr ""
+msgstr "Категорија корисника %s не постоји"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:253
 msgid "Delete item"
@@ -16196,7 +16196,7 @@ msgstr "Обриши ставку"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:255
 #, python-format
 msgid "%s will be deleted from all books. Are you sure?"
-msgstr ""
+msgstr "%s ће бити избрисана из свих књига. Јесте ли сигурни?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
 msgid "Find item in tag browser"
@@ -16295,7 +16295,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:436
 #, python-format
 msgid "Rename %s"
-msgstr ""
+msgstr "Преименуј %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:373
 #, python-format
@@ -16305,27 +16305,27 @@ msgstr "Обриши %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:377
 #, python-format
 msgid "Edit sort for %s"
-msgstr ""
+msgstr "Уреди разврставање за %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:380
 #, python-format
 msgid "Edit link for %s"
-msgstr ""
+msgstr "Уреди везу за %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Add %s to user category"
-msgstr ""
+msgstr "Додај %s корисника категорији"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:400
 #, python-format
 msgid "Children of %s"
-msgstr ""
+msgstr "Дечје %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:410
 #, python-format
 msgid "Delete search %s"
-msgstr ""
+msgstr "Обриши претрагу %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:415
 #, python-format
@@ -16335,22 +16335,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:423
 #, python-format
 msgid "Search for %s"
-msgstr ""
+msgstr "Потражи %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:428
 #, python-format
 msgid "Search for everything but %s"
-msgstr ""
+msgstr "Трагање за свим, али %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:440
 #, python-format
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "Додај под- категорију %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:444
 #, python-format
 msgid "Delete user category %s"
-msgstr ""
+msgstr "Обриши категорију корисника %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:449
 #, python-format
@@ -16364,12 +16364,12 @@ msgstr "Прикажи категорију"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:463
 #, python-format
 msgid "Search for books in category %s"
-msgstr ""
+msgstr "Претрага за књигама у категорији %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
 #, python-format
 msgid "Search for books not in category %s"
-msgstr ""
+msgstr "Претрага за књигама које нису у категорији %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:478
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:483
@@ -16387,15 +16387,15 @@ msgstr "Промени шему подкатегорије"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:509
 msgid "Disable"
-msgstr ""
+msgstr "Искључи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:513
 msgid "Partition"
-msgstr ""
+msgstr "Партиција"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:528
 msgid "First letter is usable only when sorting by name"
-msgstr ""
+msgstr "Прво слово је употребљива само када је разврставање по називу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
@@ -16459,7 +16459,7 @@ msgstr "Искључи пов&езани уређај."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:250
 msgid "Quit calibre"
-msgstr ""
+msgstr "Искључи calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:263
 msgid "Clear the current search"
@@ -16482,7 +16482,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:386
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "Неуспех при покретању садржај сервера"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:387
 #, python-format
@@ -16491,6 +16491,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Није могуће покренути  садржај сервера. Грешка:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:518
 #, python-format
@@ -16507,7 +16510,7 @@ msgstr "Грешка претварања"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Неуспешно претварање: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -16534,7 +16537,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Conversion Failed"
-msgstr ""
+msgstr "Неуспешно претварање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:650
 msgid "Recipe Disabled"
@@ -16562,7 +16565,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:724
 msgid "Active jobs"
-msgstr ""
+msgstr "Активни послови"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:793
 msgid ""
@@ -16595,7 +16598,7 @@ msgstr "&Преузми исправке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
-msgstr ""
+msgstr "Ажурирај &додатке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
@@ -16608,21 +16611,21 @@ msgstr "Пронађено је ново издање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
-msgstr ""
+msgstr "ажурирано додатака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:190
 msgid "Plugin Updates"
-msgstr ""
+msgstr "Ажурирање додатака"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:188
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Доступни су %d додаци за ажурирање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Инсталирај и подеси корисничке додатке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:44
 msgid "Edit bookmark"
@@ -16766,7 +16769,7 @@ msgstr "Стандардна врста слова"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:121
 msgid "Still editing"
-msgstr ""
+msgstr "Још уређивања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:122
 msgid ""
@@ -16924,7 +16927,7 @@ msgstr "&Пронађи у речнику."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:399
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "Трагање за следећим случајем"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:137
@@ -17034,19 +17037,19 @@ msgstr "Пребаци на приказ  целог екрана (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:268
 msgid "Full screen mode"
-msgstr ""
+msgstr "Режим целог екрана"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:269
 msgid "Right click to show controls"
-msgstr ""
+msgstr "Десни клик за приказ контроле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:270
 msgid "Press Esc to quit"
-msgstr ""
+msgstr "Притисните Esc да затворите"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:284
 msgid "Show/hide controls"
-msgstr ""
+msgstr "Прикажи/сакриј контролу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:296
 msgid "Print Preview"
@@ -17054,7 +17057,7 @@ msgstr "Преглед пре штампања"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:306
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "Очисти листу недавно отворених књига"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:396
 #, python-format
@@ -17063,11 +17066,11 @@ msgstr "Повежи се са dict.org да пронађеш: <b>%s</b>&hellip;
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:507
 msgid "No such location"
-msgstr ""
+msgstr "Не постоји таква локација"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:508
 msgid "The location pointed to by this item does not exist."
-msgstr ""
+msgstr "Локација указује да  ова ставка не постоји."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:559
 msgid "Choose ebook"
@@ -17088,7 +17091,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:582
 msgid "larger"
-msgstr ""
+msgstr "веће"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid "smaller"
@@ -17236,7 +17239,7 @@ msgstr "Штампај е-књигу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 msgid "Test name invalid"
-msgstr ""
+msgstr "Име теста је неважеће"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:105
 #, python-format
@@ -17301,7 +17304,7 @@ msgstr "Изаберите путању за књиге."
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:750
 #, python-format
 msgid "Failed to create a folder at %s"
-msgstr ""
+msgstr "Није успело да направи фасциклу у %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:765
 #, python-format
@@ -17488,16 +17491,18 @@ msgstr "Погрешно корисничко име"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 #, python-format
 msgid "%s needs the full email address as your username"
-msgstr ""
+msgstr "%s треба пуна е-адреса као корисничко име"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
-msgstr ""
+msgstr "У реду да наставите?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
 msgstr ""
+"Ово ће приказати вашу лозинку е-адресе на екрану. Да ли је У реду да "
+"наставите?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid ""
@@ -17729,7 +17734,7 @@ msgstr "празно"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:598
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Неисправан булов упит \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:36
 #, python-format
@@ -18055,7 +18060,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:503
 msgid "No books available to catalog"
-msgstr ""
+msgstr "Нема књига на располагању у каталогу"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:579
 msgid ""
@@ -18083,7 +18088,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:793
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "Нема књига на располагању да укључите у каталог"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -18115,11 +18120,11 @@ msgstr "Непознате датотеке у књизи."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "Недостају корице"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr ""
+msgstr "Корице које нису у бази података"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -18127,7 +18132,7 @@ msgstr "Фасцикле с грешком."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid "GLOBAL OPTIONS"
-msgstr ""
+msgstr "ГЛОБАЛНЕ МОГУЋНОСТИ"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:44
 msgid ""
@@ -18262,27 +18267,27 @@ msgstr "Додај празну књигу (књига без формата)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:312
 msgid "Set the title of the added book(s)"
-msgstr ""
+msgstr "Постави наслов за додату књигу"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:314
 msgid "Set the authors of the added book(s)"
-msgstr ""
+msgstr "Постави аутора за додату књигу"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:316
 msgid "Set the ISBN of the added book(s)"
-msgstr ""
+msgstr "Постави ISBN за додату књигу"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:318
 msgid "Set the tags of the added book(s)"
-msgstr ""
+msgstr "Постави ознаке за додату књигу"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:320
 msgid "Set the series of the added book(s)"
-msgstr ""
+msgstr "Постави серију за додату књигу"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:322
 msgid "Set the series number of the added book(s)"
-msgstr ""
+msgstr "Подесите број серије додате књиге"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:357
 msgid "You must specify at least one file to add"
@@ -18402,11 +18407,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:549
 msgid "Field name"
-msgstr ""
+msgstr "Име поља"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
 msgid "You must specify a record id as the first argument"
-msgstr ""
+msgstr "Морате навести ид запис као први аргумент"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:571
 msgid "You must specify either a field or an opf file"
@@ -18415,7 +18420,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "%s is not a known field"
-msgstr ""
+msgstr "%s није познато поље"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:615
 msgid ""
@@ -18599,7 +18604,7 @@ msgstr "Изгубићете све податке из колоне: %r. Да �
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:903
 msgid "y"
-msgstr ""
+msgstr "y"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:910
 msgid ""
@@ -18874,7 +18879,7 @@ msgstr "Разврстај по аутору"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
-msgstr ""
+msgstr "Поређај серије"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
@@ -19352,15 +19357,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:94
 msgid "Options"
-msgstr ""
+msgstr "Могућности"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:95
 msgid "show this help message and exit"
-msgstr ""
+msgstr "прикажи ову поруку помоћи па изађи"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:96
 msgid "show program's version number and exit"
-msgstr ""
+msgstr "прикажи број верзије програма и изађи"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:377
 msgid "Path to the database in which books are stored"
@@ -19456,7 +19461,7 @@ msgstr " близу "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:45
 msgid "end of program"
-msgstr ""
+msgstr "крај програма"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:107
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:197
@@ -19496,7 +19501,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:479
 #, python-format
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s: непозната функција"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:541
 msgid "No such variable "
@@ -19504,7 +19509,7 @@ msgstr "Нема овакве променљиве. "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:77
 msgid "No documentation provided"
-msgstr ""
+msgstr "Није омогућена документација"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:110
 msgid ""
@@ -20049,7 +20054,7 @@ msgstr "Енглески"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "Енглески (Аргентина)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -20109,7 +20114,7 @@ msgstr "Енглески (Чешка Република)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Philippines)"
-msgstr ""
+msgstr "Енглески (Филипини)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Pakistan)"
@@ -20405,7 +20410,7 @@ msgstr "Преузео сам слику за импресум"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1273
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Текстови у овом броју: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1345
 msgid "Untitled Article"
@@ -20798,7 +20803,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Control order of categories in the tag browser"
-msgstr ""
+msgstr "Контрола редоследа категорија у овом означеном прегледачу"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -20815,7 +20820,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:141
 msgid "Specify columns to sort the booklist by on startup"
-msgstr ""
+msgstr "Наведите колоне да бисте поређали по списку књига при покретању"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:142
 msgid ""
@@ -20940,7 +20945,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:266
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Одредите calibre фасциклу  коју треба да повежете при покретању"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:267
 msgid ""

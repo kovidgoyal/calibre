@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-08 07:12+0000\n"
-"PO-Revision-Date: 2012-06-09 11:27+0000\n"
+"PO-Revision-Date: 2012-06-10 13:43+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-10 04:35+0000\n"
+"X-Launchpad-Export-Date: 2012-06-11 04:45+0000\n"
 "X-Generator: Launchpad (build 15376)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -445,8 +445,8 @@ msgstr "Ein Buch aus einer Calibre Bibliothek in eine andere kopieren"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
-"Macht kleinere Optimierungen an epub- oder htmlz-Dateien in der calibre "
-"Bibliothek."
+"Kleinere Optimierungen an epub- oder htmlz-Dateien in der Calibre Bibliothek "
+"vornehmen."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
 msgid ""
@@ -517,7 +517,7 @@ msgstr "Suche..."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:979
 msgid "Customize the way searching for books works in calibre"
-msgstr "Einstellung der calibre-Vorgehensweise bei der Büchersuche"
+msgstr "Anpassen, wie in Calibre nach Büchern gesucht werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:984
 msgid "Input Options"
@@ -564,8 +564,7 @@ msgstr "Import/Export"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1023
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Stellt ein, wie Calibre mit den Metadaten aus den Dateien beim Einlesen von "
-"Büchern verfährt."
+"Stellt ein, wie Calibre die Metadaten beim Hinzufügen von Büchern verarbeitet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1029
 msgid "Saving books to disk"
@@ -631,15 +630,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1087
 msgid "Sharing over the net"
-msgstr "Versand über Netzwerk"
+msgstr "Netzwerk-Server"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1093
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Einrichten des Content Servers, der Zugriff auf die Bibliothek von überall, "
-"mit jedem Gerät, via Internet ermöglicht."
+"Einrichten des Netzwerk-Servers, der den Zugriff auf die Bibliothek über das "
+"Internet ermöglicht"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
 msgid "Metadata download"
@@ -647,9 +646,7 @@ msgstr "Metadaten laden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
-"Konfiguration der Strategie, mit der Metadaten aus dem Netz heruntergeladen "
-"werden"
+msgstr "Legt fest, wie Calibre Metadaten aus dem Netz herunterladen soll"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -1910,8 +1907,8 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
-"Das Setzen diese Option erlaubt calibre nach Büchern in allen Ordnern des "
-"Geräts und dessen Speicherkarten zu suchen. Dies erlaubt calibre Bücher zu "
+"Das Setzen diese Option erlaubt Calibre nach Büchern in allen Ordnern des "
+"Geräts und dessen Speicherkarten zu suchen. Dies erlaubt Calibre Bücher zu "
 "finden, die durch andere Software und kabellosem Herunterladen auf das Gerät "
 "gebracht wurden."
 
@@ -6362,7 +6359,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr "Plugin aktualisierer"
+msgstr "Plugins aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -8153,7 +8150,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:195
 msgid "Minimum &line height:"
-msgstr "Minimale &line Höhe"
+msgstr "Minimale Zei&lenhöhe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:196
 msgid " %"
@@ -14175,7 +14172,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "&Tags to apply when adding a book:"
-msgstr "&Tags verwenden beim hinzufügen von einem Buch:"
+msgstr "&Tags, die beim Hinzufügen von einem Buch verwendet werden sollen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid ""
@@ -14215,7 +14212,7 @@ msgid ""
 "added to calibre (restart required)."
 msgstr ""
 "Geben Sie einen Ordner an. Alle Dateien die Sie in diesem Ordner speichern, "
-"werden automatisch zu calibre hinzugefügt (Neustart erforderlich)."
+"werden automatisch zu Calibre hinzugefügt (Neustart erforderlich)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
 msgid ""
@@ -14223,7 +14220,7 @@ msgid ""
 "to calibre."
 msgstr ""
 "<b>ACHTUNG:</b> Dateien in dem oben genannten Ordner werden gelöscht, "
-"nachdem sie zu calibre hinzugefügt wurden."
+"nachdem sie zu Calibre hinzugefügt wurden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "Ignore files with the following extensions when automatically adding "
@@ -15509,7 +15506,7 @@ msgstr "Neustart erforderlich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:342
 msgid "Restart calibre now"
-msgstr "Starten Sie calibre jetzt neu"
+msgstr "Starten Sie Calibre jetzt neu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -16394,7 +16391,7 @@ msgstr "Passwort mit einigen Geräten nicht kompatibel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
-msgstr "&URL Prefix:"
+msgstr "&URL Präfix:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
 msgid ""
@@ -17827,8 +17824,8 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
-"Die Bibliothek Datenbank bei %s scheint beschädigt zu sein. Möchtest du, "
-"dass calibre versucht diese automatisch wiederherzustellen? Die "
+"Die Bibliothek Datenbank bei %s scheint beschädigt zu sein. Möchten Sie, "
+"dass Calibre versucht diese automatisch wiederherzustellen? Die "
 "Wiederherstellung könnte nicht komplett erfolgreich sein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:602
@@ -21351,6 +21348,10 @@ msgid ""
 "with the items being \"id:value\". Find the pair with the id equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, key) -- Interpretiert den Wert (value) als eine, durch Komma "
+"getrennte Liste von Elementen, wobei die Elemente \"id:value\" sind. Findet "
+"das Paar, bei dem die id gleich key ist, und gibt den entsprechenden Wert "
+"aus."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:598
 msgid ""
@@ -21617,6 +21618,9 @@ msgid ""
 "calibre library. This function can be called in template program mode using "
 "the template \"{:'current_library_name()'}\"."
 msgstr ""
+"current_library_name() -- gibt den letzten Namen das Pfades zur aktuellen "
+"Calibre Bibliothek aus. Diese Funktion kann im Vorlagen-Programmmodus durch "
+"die Vorlage \"{:'current_library_name()'}\" geladen werden."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1145
 msgid ""
@@ -22059,7 +22063,7 @@ msgid ""
 "Periodicals service."
 msgstr ""
 "Login fehlgeschlagen, überprüfen Sie Ihren Benutzername und Passwort für den "
-"calibre Magazin Service."
+"Calibre Magazin Service."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1604
 msgid ""
