@@ -731,6 +731,7 @@ inline int numButtons(EScrollbar type)
         case SCROLLBAR_NONE:
             return 0;
     }
+    return 2;
 }
 
 static inline void drawRect(QPainter *p, const QRect &r)
@@ -963,6 +964,7 @@ Style::Style()
         itsAnimateStep(0),
         itsTitlebarHeight(0),
         calibre_icon_map(QHash<int,QString>()),
+        is_kde_session(0),
         itsPos(-1, -1),
         itsHoverWidget(0L),
 #ifdef Q_WS_X11
@@ -977,6 +979,9 @@ Style::Style()
         , itsName(name)
 #endif
 {
+#if !defined(_WIN32) && !defined(__APPLE__)
+    is_kde_session = (getenv("KDE_FULL_SESSION") != NULL);
+#endif
     const char *env=getenv(QTCURVE_PREVIEW_CONFIG);
     if(env && 0==strcmp(env, QTCURVE_PREVIEW_CONFIG))
     {
@@ -3602,7 +3607,14 @@ int Style::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *
 #endif
             return 0;
         case SH_DialogButtonLayout:
-            return opts.gtkButtonOrder ? QDialogButtonBox::GnomeLayout : QDialogButtonBox::KdeLayout;
+// Changed by Kovid to use platform specific button orders.
+#ifdef _WIN32
+            return QDialogButtonBox::WinLayout;
+#elif defined(__APPLE__)
+            return QDialogButtonBox::MacLayout;
+#else
+            return is_kde_session ? QDialogButtonBox::KdeLayout : QDialogButtonBox::GnomeLayout;
+#endif
         case SH_MessageBox_TextInteractionFlags:
             return Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse;
         case SH_LineEdit_PasswordCharacter:

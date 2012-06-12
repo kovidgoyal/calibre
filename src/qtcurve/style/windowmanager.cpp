@@ -680,6 +680,8 @@ namespace QtCurve
             NETRootInfo rootInfo(QX11Info::display(), NET::WMMoveResize);
             rootInfo.moveResizeRequest( widget->window()->winId(), position.x(), position.y(), NET::Move);
             #endif // QTC_QT_ONLY
+            #else
+            Q_UNUSED(position);
             #endif
 
         }
