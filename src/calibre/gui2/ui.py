@@ -532,6 +532,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc
+        prefs['library_path'] = self.library_path
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
@@ -541,7 +542,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.search.clear()
         self.saved_search.clear()
         self.book_details.reset_info()
-        prefs['library_path'] = self.library_path
         #self.library_view.model().count_changed()
         db = self.library_view.model().db
         self.iactions['Choose Library'].count_changed(db.count())
