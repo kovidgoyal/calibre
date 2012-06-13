@@ -53,6 +53,7 @@ class KF8Writer(object):
 
         self.log('\tGenerating KF8 markup...')
         self.dup_data()
+        self.cleanup_markup()
         self.replace_resource_links()
         self.extract_css_into_flows()
         self.extract_svg_into_flows()
@@ -88,6 +89,15 @@ class KF8Writer(object):
 
     def data(self, item):
         return self._data_cache.get(item.href, item.data)
+
+    def cleanup_markup(self):
+        for item in self.oeb.spine:
+            root = self.data(item)
+
+            # Remove empty script tags as they are pointless
+            for tag in XPath('//h:script')(root):
+                if not tag.text and not tag.get('src', False):
+                    tag.getparent().remove(tag)
 
     def replace_resource_links(self):
         ''' Replace links to resources (raster images/fonts) with pointers to
