@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-08 07:12+0000\n"
+"POT-Creation-Date: 2012-06-12 14:12+0000\n"
 "PO-Revision-Date: 2012-06-05 10:31+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-09 05:27+0000\n"
-"X-Generator: Launchpad (build 15376)\n"
+"X-Launchpad-Export-Date: 2012-06-13 04:48+0000\n"
+"X-Generator: Launchpad (build 15389)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -28,8 +28,8 @@ msgstr "Ta opcja zupełnie nic nie zmienia"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:326
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:327
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:328
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -67,6 +67,7 @@ msgstr "Ta opcja zupełnie nic nie zmienia"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:499
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:731
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:770
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/docx.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/extz.py:23
@@ -185,15 +186,15 @@ msgstr "Ta opcja zupełnie nic nie zmienia"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:178
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:235
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:561
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:569
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:580
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2090
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2244
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2660
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3308
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3310
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3447
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:577
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:588
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2098
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2252
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2668
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3316
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3318
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3455
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:245
@@ -301,102 +302,103 @@ msgstr "Wyodrębnij okładki z plików komiksów"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:273
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:283
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:293
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:304
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:316
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:337
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:348
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:303
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:314
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:326
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:347
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:358
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:369
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:368
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:379
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:390
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:389
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:400
 #, python-format
 msgid "Read metadata from %s files"
 msgstr "Odczytaj metadane z %s plików"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:327
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:337
 msgid "Read metadata from ebooks in RAR archives"
 msgstr "Odczyt metadanych z e-booków w archiwach RAR"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:401
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:411
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr "Odczyt metadanych z e-booków w archiwach ZIP"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:418
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:449
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:459
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:481
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:492
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:469
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:491
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:502
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:512
 #, python-format
 msgid "Set metadata in %s files"
 msgstr "Ustaw metadane w %s plikach"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:470
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:513
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:448
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:480
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:523
 #, python-format
 msgid "Set metadata from %s files"
 msgstr "Pobierz metadane z %s plików"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
 msgid "Add books to calibre or the connected device"
 msgstr "Dodaj książki do calibre lub podłączonego urządzenia"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:766
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 msgid "Fetch annotations from a connected Kindle (experimental)"
 msgstr ""
 "Ściągnij notatki z podłączonego czytnika Kindle (funkcja eksperymentalna)"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Generate a catalog of the books in your calibre library"
 msgstr "Generuj katalog książek w bieżącej bibliotece"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Convert books to various ebook formats"
 msgstr "Konwertuj książki na różne formaty"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Delete books from your calibre library or connected device"
 msgstr "Usuń książki z biblioteki calibre lub podłączonego urządzenia"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Edit the metadata of books in your calibre library"
 msgstr "Edytuj metadane książek z biblioteki calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Read books in your calibre library"
 msgstr "Czytaj ksiązki z biblioteki calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Download news from the internet in ebook form"
 msgstr "Pobierz wiadomości z Internetu w formie ebooka"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Show a list of related books quickly"
 msgstr "Pokaż szybko listę powiązanych książek"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
 msgid "Export books from your calibre library to the hard disk"
 msgstr "Ekspotuj książki z biblioteki calibre na dysk twardy"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid "Show book details in a separate popup"
 msgstr "Pokaż informacje o książce w nowym okienku"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
 msgid "Restart calibre"
 msgstr "Restartuj calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:831
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr "Otwórz katalog zawierający bibliotekę calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 msgid "Send books to the connected device"
 msgstr "Wyślij książki na podłączone urządzenie"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
@@ -404,42 +406,42 @@ msgstr ""
 "Wyślij książki poprzez email lub stronę oraz połącz się z iTunes lub "
 "katalogami na twoim komputerze tak jakby były urządzeniami"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
 msgstr "Przeglądaj Podręcznik Użytkownika calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Customize calibre"
 msgstr "Dostosuj calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
 msgid "Easily find books similar to the currently selected one"
 msgstr "Łatwo odszukaj książki podobne do aktualnie wybranej"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr "Przełącz się pomiędzy bibliotekami calibre i zarządzaj nimi"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Copy books from the devce to your calibre library"
 msgstr "Skopiuj książki z urządzenia do biblioteki calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Edit the collections in which books are placed on your device"
 msgstr "Edytuj kolekcje w których znajdują się książki na twoim urządzeniu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
 msgid "Copy a book from one calibre library to another"
 msgstr "Skopiuj książkę z jednej biblioteki calibre do drugiej"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
 "Wprowadź drobne zmiany do plików epub oraz htmlz w Twojej bibliotece Calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
@@ -447,56 +449,56 @@ msgstr ""
 "Pokaż następne lub poprzednie dopasowanie przy wyszukiwaniu w bibliotece w "
 "trybie podświetlania."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Choose a random book from your calibre library"
 msgstr "Wybierz losową książkę z biblioteki calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:892
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:902
 msgid "Search for books from different book sellers"
 msgstr "Szukaj książek w różnych księgarniach"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:908
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Get new calibre plugins or update your existing ones"
 msgstr "Pobierz nowe wtyczki do calibre lub zaktualizuj zainstalowane"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:927
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:937
 msgid "Look and Feel"
 msgstr "Wygląd"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:941
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:952
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:975
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:973
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 msgid "Interface"
 msgstr "Interfejs"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:933
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:943
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr "Dostosuj wygląd interfejsu calibre do indywidualnych upodobań"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:949
 msgid "Behavior"
 msgstr "Zachowanie"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:945
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:955
 msgid "Change the way calibre behaves"
 msgstr "Zmień zachowanie calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:950
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:960
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:267
 msgid "Add your own columns"
 msgstr "Dodaj własne kolumny"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:956
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:966
 msgid "Add/remove your own columns to the calibre book list"
 msgstr "Dodaj/usuń swoje kolumny do/z listy książek"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:961
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:971
 msgid "Toolbar"
 msgstr "Pasek narzędzi"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:967
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:977
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
@@ -504,66 +506,66 @@ msgstr ""
 "Dostosuj paski narzędzi i menu kontekstowe, wybierając, jakie polecenia są w "
 "nich dostępne"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:973
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:983
 msgid "Searching"
 msgstr "Szukanie"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:979
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:989
 msgid "Customize the way searching for books works in calibre"
 msgstr "Dostosuj sposób działania wyszukiwarki książek w calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:984
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:994
 msgid "Input Options"
 msgstr "Opcje wejścia"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:986
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:996
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1007
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1018
 msgid "Conversion"
 msgstr "Konwersja"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:990
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 msgid "Set conversion options specific to each input format"
 msgstr "Ustaw opcje konwersji dla poszczególnych formatów wejściowych"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:995
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1005
 msgid "Common Options"
 msgstr "Opcje wspólne"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1001
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1011
 msgid "Set conversion options common to all formats"
 msgstr "Ustaw opcje konwersji wspólne dla wszystkich formatów"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1006
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1016
 msgid "Output Options"
 msgstr "Opcje wyjściowe"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1012
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1022
 msgid "Set conversion options specific to each output format"
 msgstr "Ustaw opcje konwersji dla poszczególnych formatów wyjściowych"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1017
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1027
 msgid "Adding books"
 msgstr "Dodawanie książek"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1031
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1029
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1041
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1065
 msgid "Import/Export"
 msgstr "Importuj/Eksportuj"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1023
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
 "Skonfiguruj sposób, w jaki calibre odczytuje metadane z plików podczas "
 "dodawania książek"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1029
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1039
 msgid "Saving books to disk"
 msgstr "Zapisuje książki na dysku"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1035
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
@@ -571,49 +573,49 @@ msgstr ""
 "Skonfiguruj sposób, w jaki calibre eksportuje pliki ze swojej bazy danych "
 "podczas zapisywania na dysk"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1041
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1051
 msgid "Sending books to devices"
 msgstr "Przesyłanie książek na urządzenia"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1047
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1057
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr "Skonfiguruj sposób przesyłania książek do czytnika"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1063
 msgid "Metadata plugboards"
 msgstr "Panel kontrolny metadanych"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1059
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1069
 msgid "Change metadata fields before saving/sending"
 msgstr "Zmień pola metadanych przed zapisaniem/wysłaniem"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Template Functions"
 msgstr "Szablony funkcji"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1136
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1147
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1076
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1123
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1135
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1146
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1157
 msgid "Advanced"
 msgstr "Zaawansowane"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1070
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 msgid "Create your own template functions"
 msgstr "Stwórz własne Szablony Funkcji"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1075
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1085
 msgid "Sharing books by email"
 msgstr "Udostępnianie książek poprzez email"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1087
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Sharing"
 msgstr "Udostępnianie"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1081
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1091
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
@@ -621,11 +623,11 @@ msgstr ""
 "Skonfiguruj udostępnianie książek poprzez email. Możesz użyć tej opcji do "
 "automatycznego wysyłania newsów na swoje urządzenia"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1087
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1097
 msgid "Sharing over the net"
 msgstr "Współdzielenie poprzez sieć"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1093
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
@@ -633,45 +635,45 @@ msgstr ""
 "Skonfiguruj serwer calibre Content Server, aby z każdego miejsca i "
 "urządzenia mieć dostęp przez Internet do swojej biblioteki calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1110
 msgid "Metadata download"
 msgstr "Pobieranie metadanych"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1116
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr "Kontroluj sposób, w jaki calibre pobiera metadane z Sieci"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1121
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
 msgid "Plugins"
 msgstr "Wtyczki"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1117
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr "Dodaj/usuń/dostosuj różne funkcje calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1123
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1133
 msgid "Tweaks"
 msgstr "Parametry"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1139
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr "Dostosuj jak calibre zachowa się w różnych sytuacjach"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "Keyboard"
 msgstr "Klawiatura"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1140
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1150
 msgid "Customize the keyboard shortcuts used by calibre"
 msgstr "Dostosuj skróty klawiszowe używane w calibre"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1145
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1155
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
 msgstr "Różne"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1151
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1161
 msgid "Miscellaneous advanced configuration"
 msgstr "Zaawansowana konfiguracja (różne funkcje)"
 
@@ -964,26 +966,26 @@ msgstr "Zbyt długa ścieżka biblioteki. Nie może być dłuższa niż %d znak�
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:683
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1015
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1023
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:844
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:867
 msgid "Yes"
 msgstr "Tak"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1146
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1154
 msgid "Main"
 msgstr "Główna"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1148
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1156
 msgid "Card A"
 msgstr "Karta A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1150
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
 msgid "Card B"
 msgstr "Karta B"
 
@@ -995,7 +997,7 @@ msgstr "Dziennik debugowania"
 msgid "Communicate with Android phones."
 msgstr "Umożliwia komunikację z telefonami z Androidem."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:174
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:175
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -1003,11 +1005,11 @@ msgstr ""
 "Oddzielona przecinkami lista katalogów na urządzeniu, do których mają być "
 "wysyłane książki. Zostanie użyty pierwszy istniejący katalog"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 msgid "Communicate with S60 phones."
 msgstr "Umożliwia komunikację z telefonami S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:285
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:286
 msgid "Communicate with WebOS tablets."
 msgstr "Umożliwia komunikację z tabletami z systemem WebOS."
 
@@ -1161,9 +1163,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:469
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1173
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1175
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:346
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:359
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3165
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:354
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:367
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3173
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
 msgstr "Newsy"
@@ -1171,8 +1173,8 @@ msgstr "Newsy"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2727
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:65
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3121
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3139
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3129
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3147
 msgid "Catalog"
 msgstr "Katalog"
 
@@ -6426,20 +6428,21 @@ msgid "Search for ebooks"
 msgstr "Szukaj ebooków"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
-msgid "author"
-msgstr "autor"
+msgid "this author"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
-msgid "title"
-msgstr "tytuł"
+msgid "this title"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
-msgid "book"
-msgstr "książka"
+msgid "this book"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:430
 #, python-format
-msgid "Search for this %s"
+msgid "Search for %s"
 msgstr "Szukaj %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
@@ -6938,7 +6941,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:277
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:280
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:89
@@ -6951,7 +6954,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:103
@@ -7126,7 +7129,7 @@ msgstr "wyjście"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion_ui.py:54
@@ -7139,7 +7142,7 @@ msgstr "wyjście"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:21
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:95
@@ -8680,7 +8683,7 @@ msgid "Save this list of expressions so that you can re-use it easily"
 msgstr "Zapisz listę wyrażeń, aby móc ich łatwo użyć ponownie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:157
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:186
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Save"
 msgstr "&Zapisz"
@@ -13835,7 +13838,7 @@ msgstr ""
 "<b>UWAGA: </b> Wszystkie pliki, które umieścisz w %s zostaną automatycznie "
 "usunięte po dodaniu ich do biblioteki. Czy jesteś pewien?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:123
 msgid ""
 "Here you can control how calibre will read metadata from the files you add "
 "to it. calibre can either read metadata from the contents of the file, or "
@@ -13845,11 +13848,11 @@ msgstr ""
 "które dodasz do programu. calibre albo przeczyta metadane z zawartości pliku "
 "albo z nazwy pliku."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:124
 msgid "Read &metadata from file contents rather than file name"
 msgstr "Odczytaj metadane z pliku zamiast z nazwy pliku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:125
 msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
@@ -13857,17 +13860,17 @@ msgstr ""
 "Zamień pozycjami imię i nazwisko autora. To ma wpływ jedynie na metadane "
 "odczytywane z nazw plików."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:126
 msgid "&Swap author firstname and lastname"
 msgstr "&Zamień pozycjami imię i nazwisko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid ""
 "When using the  \"&Copy to library\" action to copy books between libraries, "
 "preserve the date"
 msgstr "Zachowaj datę przy kopiowaniu książek do innej biblioteki."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:128
 msgid ""
 "Automerge: If books with similar titles and authors found, merge the "
 "incoming formats automatically into\n"
@@ -13890,11 +13893,11 @@ msgstr ""
 "\"a\", \"an\"), interpunkcję, duże, małe litery itd. Porównanie autora jest "
 "dokładne."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automerge added books if they already exist in the calibre library:"
 msgstr "&Autoscal dodane książki jeśli już istnieją w bibliotece calibre:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:134
 msgid ""
 "Automerge: If books with similar titles and authors found, merge the "
 "incoming formats automatically into\n"
@@ -13930,11 +13933,11 @@ msgstr ""
 "\"a\", \"an\"), interpunkcję, duże, małe litery itd. Porównanie autora jest "
 "dokładne."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
 msgid "&Tags to apply when adding a book:"
 msgstr "E&tykiety do zastosowanie przy dodawaniu książki:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:145
 msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
@@ -13942,15 +13945,15 @@ msgstr ""
 "Lista etykiet oddzielonych przecinkiem, które zostaną zastosowane do książek "
 "dodawanych do biblioteki"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:146
 msgid "&Configure metadata from file name"
 msgstr "&Konfiguruj metadane pobierane z nazwy pliku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:147
 msgid "The Add &Process"
 msgstr "Dodawanie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:148
 msgid ""
 "If set, this option will causes calibre to check if a file\n"
 " being auto-added is already in the calibre library.\n"
@@ -13962,11 +13965,11 @@ msgstr ""
 "to zostanie wyświetlone okno dialogowe z pytaniem, \n"
 "czy rzeczywiście chcesz dodać ten plik."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:148
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Check for &duplicates when auto-adding files"
 msgstr "Sprawdzaj duplikaty przy automatycznym dodawaniu plików"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:153
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
@@ -13974,7 +13977,7 @@ msgstr ""
 "Podaj nazwę folderu. Wszystkie pliki, które umieścisz w tym folderze zostaną "
 "automatycznie dodane do calibre (wymagane ponowne uruchomienie)."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:154
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
@@ -13982,25 +13985,25 @@ msgstr ""
 "<b>UWAGA:</b> Pliki w powyższym folderze zostaną usunięte po dodaniu ich do "
 "biblioteki."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "Ignore files with the following extensions when automatically adding "
 msgstr ""
 "Ignoruj pliki z następującymi rozszerzeniami przy automatycznym dodawaniu "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "Folder to auto-add files from"
 msgstr "Folder automatycznego dodawania plików"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:157
 msgid "Browse for folder"
 msgstr "Przeglądaj foldery"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:159
 msgid "Automatically &convert added files to the current output format"
 msgstr ""
 "Automatycznie konwertuj dodawane książki do bieżącego formatu wyjściowego"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:160
 msgid "&Automatic Adding"
 msgstr "&Automatyczne dodawanie"
 
@@ -14969,7 +14972,7 @@ msgid "Never"
 msgstr "Nigdy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:145
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:518
 msgid "By first letter"
 msgstr "Od pierwszej litery"
 
@@ -15775,7 +15778,7 @@ msgstr "Zapisz metadane w pliku &OPF"
 msgid "&Show files in file browser after saving to disk"
 msgstr "Po zapisaniu na dysk otwórz folder z plikami"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:35
 msgid ""
 "<b>Grouped search terms</b> are search names that permit a query to "
 "automatically search across more than one column. For example, if you create "
@@ -15824,51 +15827,61 @@ msgstr ""
 "elementy lub do posiadania hierarchicznych kategorii (kategorii, które "
 "zawierają kategorie)."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:96
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:106
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:116
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+msgid "Match all"
+msgstr "Dopasuj wszystkie"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+msgid "Match any"
+msgstr "Dopasuj którykolwiek"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:174
 msgid "Grouped Search Terms"
 msgstr "Zgrupowane wyszukiwanie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:97
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:138
 msgid "The search term cannot be blank"
 msgstr "Wyszukiwanie nie może być puste"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:148
 msgid "That name is already used for a column or grouped search term"
 msgstr ""
 "Ta nazwa już jest wykorzystana dla kolumny lub zgrupowanego wyszukiwania"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:152
 msgid "That name is already used for user category"
 msgstr "Ta nazwa już jest wykorzystana dla kategorii użytkownika"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:158
 msgid "The value box cannot be empty"
 msgstr "Pole wartości nie może być puste"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:171
 msgid "The empty grouped search term cannot be deleted"
 msgstr "Puste zgrupowane wyszukiwanie nie może zostać skasowane"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:165
 msgid "Search as you &type"
 msgstr "Szukaj w &trakcie pisania"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:166
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
 "&Podświetlaj wyniki wyszukania zamiast ograniczać listę książek do wyników"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:167
 msgid "What to search by default"
 msgstr "Czego domyślnie szukać"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:168
 msgid ""
 "When you enter a search term without a prefix, by default calibre will "
 "search all metadata for matches. For example, entering, \"asimov\" will "
@@ -15881,15 +15894,15 @@ msgstr ""
 "tytule/etykiecie/cyklu/komentarzach/itd. Użyj tych opcji jeśli chcesz "
 "zmienić to zachowanie."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "&Limit the searched metadata"
 msgstr "&Ogranicz przeszukiwane metadane"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid "&Columns that non-prefixed searches are limited to:"
 msgstr "&Kolumny, do których jest ograniczone szukanie bez prefiksu:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:171
 msgid ""
 "Note that this option affects all searches, including saved searches and "
 "restrictions. Therefore, if you use this option, it is best to ensure that "
@@ -15902,7 +15915,7 @@ msgstr ""
 "zapisanych wyszukiwaniach. Na przykład użyj lepiej \"cykle:Fundacja\" niż "
 "samo \"Fundacja\" w zapisanych wyszukiwaniach"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:172
 msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
@@ -15910,15 +15923,15 @@ msgstr ""
 "Wyczyść historię wyszukiwania w całym calibre. Włącznie z listą książek, "
 "przeglądarką książek, pobieraniem newsów itd."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:173
 msgid "Clear search &histories"
 msgstr "Wyczyść &historię wyszukiwania"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:175
 msgid "&Names:"
 msgstr "&Nazwy:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:176
 msgid ""
 "Contains the names of the currently-defined group search terms.\n"
 "Create a new name by entering it into the empty box, then\n"
@@ -15932,11 +15945,11 @@ msgstr ""
 "zmień nazwę i naciśnij Zapisz. Zmień wartość wyszukiwania\n"
 "zmieniając wartość w polu, a następnie naciśnij Zapisz."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:181
 msgid "Delete the current search term"
 msgstr "Skasuj bieżące wyszukiwanie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:183
 msgid ""
 "Save the current search term. You can rename a search term by\n"
 "changing the name then pressing Save. You can change the value\n"
@@ -15946,17 +15959,47 @@ msgstr ""
 "zmieniając nazwę i naciskając Zapisz. Możesz zmienić wartość\n"
 "wyszukiwania zmieniając wartość pola, a następnie naciskając Zapisz."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:187
 msgid "Make &user categories from:"
 msgstr "Utwórz kategorie użytkownika z:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:188
 msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
 msgstr ""
 "Wpisz nazwy jakiegokolwiek zgrupowanego wyszukiwania,\n"
 "które chcesz wyświetlać w kategoriach użytkownika"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:190
+msgid "What to search when searching similar books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:191
+msgid ""
+"<p>When you search for similar books by right clicking the\n"
+"         book and selecting \"Similar books...\",\n"
+"         calibre constructs a search using the column lookup names specified "
+"below.\n"
+"         By changing the lookup name to a grouped search term you can\n"
+"         search multiple columns at once.</p>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:196
+msgid "Similar authors: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:197
+msgid "Similar series: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:198
+msgid "Similar tags: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:199
+msgid "Similar publishers: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -17087,7 +17130,7 @@ msgid ""
 msgstr "Zmiana metadanych dla tylu książek może chwilę zająć. Jesteś pewien?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:836
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:469
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:477
 msgid "Searches"
 msgstr "Wyszukiwania"
 
@@ -17134,13 +17177,13 @@ msgid "Manage Tags"
 msgstr "Zarządzaj etykietami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:494
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:498
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:505
 msgid "Manage User Categories"
 msgstr "Zarządzaj kategoriami użytkownika"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:486
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:493
 msgid "Manage Saved Searches"
 msgstr "Zarządzaj zapisanymi wyszukaniami"
 
@@ -17270,14 +17313,6 @@ msgstr "Ustaw porządek sortowania dla wpisów w przeglądarce etykiet"
 msgid "Match type"
 msgstr "Sposób dopasowania"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
-msgid "Match all"
-msgstr "Dopasuj wszystkie"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
-msgid "Match any"
-msgstr "Dopasuj którykolwiek"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
@@ -17297,110 +17332,105 @@ msgstr ""
 "Zarządzanie kategoriami jest dostępne po kliknięciu nazwy kategorii prawym "
 "klawiszem myszy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:367
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:406
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:436
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:443
 #, python-format
 msgid "Rename %s"
 msgstr "Zmień nazwę %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:380
 #, python-format
 msgid "Delete %s"
 msgstr "Usuń %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:384
 #, python-format
 msgid "Edit sort for %s"
 msgstr "Edytuj sortowanie dla %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Edit link for %s"
 msgstr "Edytuj odsyłacz do %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
 msgid "Add %s to user category"
 msgstr "Dodaj %s do kategorii użytkownika"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:400
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:407
 #, python-format
 msgid "Children of %s"
 msgstr "Dzieci %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:417
 #, python-format
 msgid "Delete search %s"
 msgstr "Skasuj wyszukiwania %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:422
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
 msgstr "Usuń %(item)s z kategorii %(cat)s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:423
-#, python-format
-msgid "Search for %s"
-msgstr "Szukaj %s"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:435
 #, python-format
 msgid "Search for everything but %s"
 msgstr "Szukaj wszystkiego oprócz %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:447
 #, python-format
 msgid "Add sub-category to %s"
 msgstr "Dodaj podkategorię do %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:444
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:451
 #, python-format
 msgid "Delete user category %s"
 msgstr "Skasuj kategorię użytkownika %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:456
 #, python-format
 msgid "Hide category %s"
 msgstr "Ukryj kategorię %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:453
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:460
 msgid "Show category"
 msgstr "Wyświetl kategorię"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:463
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:470
 #, python-format
 msgid "Search for books in category %s"
 msgstr "Szukaj książek w kategorii %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:476
 #, python-format
 msgid "Search for books not in category %s"
 msgstr "Szukaj książek nie w kategorii %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:478
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:483
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:490
 #, python-format
 msgid "Manage %s"
 msgstr "Zarządzaj %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:512
 msgid "Show all categories"
 msgstr "Wyświetl wszystkie kategorie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:515
 msgid "Change sub-categorization scheme"
 msgstr "Zmień schemat pod-kategoryzacji"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:509
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:516
 msgid "Disable"
 msgstr "Wyłącz"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:520
 msgid "Partition"
 msgstr "Partycja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:535
 msgid "First letter is usable only when sorting by name"
 msgstr "Pierwsza litera jest używana wyłącznie przy sortowaniu wg nazwy."
 
@@ -18297,15 +18327,15 @@ msgstr ""
 msgid "Drag to resize"
 msgstr "Przeciągnij, aby zmienić wielkość"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1030
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1023
 msgid "Show"
 msgstr "Wyświetl"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1037
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1030
 msgid "Hide"
 msgstr "Ukryj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1074
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1067
 msgid "Toggle"
 msgstr "Przełącz"
 
@@ -19990,18 +20020,18 @@ msgstr ""
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr "%(tt)sŚrednia ocena: %(rating)3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3473
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3481
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Przenoszenie starej bazy danych do biblioteki książek w %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3502
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3510
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "Kopiowanie <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3519
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3527
 msgid "Compacting database"
 msgstr "Kompaktowanie bazy danych"
 
@@ -23067,25 +23097,10 @@ msgstr ""
 "Zmiana tego parametru wymaga ponownego uruchomienia programu."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:444
-msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr "Znaczniki ukrytych paneli"
-
-#: /home/kovid/work/calibre/resources/default_tweaks.py:445
-msgid ""
-"Control whether the bright yellow lines at the edges of book list are drawn\n"
-"when a section of the user interface is hidden. Changes will take effect\n"
-"after a restart of calibre."
-msgstr ""
-"Ustawienie, czy na krawędziach listy książek mają być widoczne żółte linie w "
-"miejscach, \n"
-"gdzie znajdują się ukryte panele (przeglądarka, etykiety itp.). \n"
-"Zmiana parametru wymaga ponownego uruchomienia programu."
-
-#: /home/kovid/work/calibre/resources/default_tweaks.py:450
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr "Maksymalne rozmiary okładek zapisywanych w bibliotece"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:451
+#: /home/kovid/work/calibre/resources/default_tweaks.py:445
 msgid ""
 "All covers in the calibre library will be resized, preserving aspect ratio,\n"
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
@@ -23096,11 +23111,11 @@ msgstr ""
 "spowolnieniem, \n"
 "spowodowanym zbyt dużymi rozmiarami okładek."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:456
+#: /home/kovid/work/calibre/resources/default_tweaks.py:450
 msgid "Where to send downloaded news"
 msgstr "Gdzie zapisywać pobrane wiadomości"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:457
+#: /home/kovid/work/calibre/resources/default_tweaks.py:451
 msgid ""
 "When automatically sending downloaded news to a connected device, calibre\n"
 "will by default send it to the main memory. By changing this tweak, you can\n"
@@ -23117,11 +23132,11 @@ msgstr ""
 "pliki\n"
 "zostaną przesłane do pamięci z największą ilością wolnego miejsca."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:464
+#: /home/kovid/work/calibre/resources/default_tweaks.py:458
 msgid "What interfaces should the content server listen on"
 msgstr "Na jakim interfejsie ma działać serwer treści calibre"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:465
+#: /home/kovid/work/calibre/resources/default_tweaks.py:459
 msgid ""
 "By default, the calibre content server listens on '0.0.0.0' which means that "
 "it\n"
@@ -23138,11 +23153,11 @@ msgstr ""
 "lub na '::', aby akceptować wszystkie przychodzące połączenia IPv4 i IPv6\n"
 "(nie wszystkie systemy operacyne to umożliwiają)."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:472
+#: /home/kovid/work/calibre/resources/default_tweaks.py:466
 msgid "Unified toolbar on OS X"
 msgstr "Zunifikowany pasek narzędzi OS X"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:473
+#: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
 "If you enable this option and restart calibre, the toolbar will be "
 "'unified'\n"
@@ -23161,11 +23176,11 @@ msgstr ""
 "powodować inne \n"
 "niepożądane efekty. Używasz na własne ryzyko!"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:480
+#: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid "Save original file when converting from same format to same format"
 msgstr "Zachowaj oryginalny plik przy konwersji bez zmiany formatu"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:481
+#: /home/kovid/work/calibre/resources/default_tweaks.py:475
 msgid ""
 "When calibre does a conversion from the same format to the same format, for\n"
 "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
@@ -23180,11 +23195,11 @@ msgstr ""
 "Ustawienie tego parametru na False spowoduje, że oryginalny plik nie "
 "zostanie zachowany."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:487
+#: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid "Number of recently viewed books to show"
 msgstr "Pokazywana liczba ostatnio przeglądanych książek"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:488
+#: /home/kovid/work/calibre/resources/default_tweaks.py:482
 msgid ""
 "Right-clicking the View button shows a list of recently viewed books. "
 "Control\n"
@@ -23194,11 +23209,11 @@ msgstr ""
 "czytanych książek.\n"
 "Tu można określić ile ostatnich książek zostanie wyświetlonych na liście."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:492
+#: /home/kovid/work/calibre/resources/default_tweaks.py:486
 msgid "Change the font size of book details in the interface"
 msgstr "Zmień wielkość czcionki w szczgółach książki"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:493
+#: /home/kovid/work/calibre/resources/default_tweaks.py:487
 msgid ""
 "Change the font size at which book details are rendered in the side panel "
 "and\n"
@@ -23210,11 +23225,11 @@ msgstr ""
 "oraz komentarze w oknie edycji metadanych. Dodatnia lub ujemna wartość \n"
 "odpowiednia zwiększa lub zmniejsza czcionkę."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:498
+#: /home/kovid/work/calibre/resources/default_tweaks.py:492
 msgid "Compile General Program Mode templates to Python"
 msgstr "Skompiluj do Pythona szablony w trybie General Program"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:499
+#: /home/kovid/work/calibre/resources/default_tweaks.py:493
 msgid ""
 "Compiled general program mode templates are significantly faster than\n"
 "interpreted templates. Setting this tweak to True causes calibre to compile\n"
@@ -23236,11 +23251,11 @@ msgstr ""
 "Domyślnie:    compile_gpm_templates = True\n"
 "Nie kompiluj: compile_gpm_templates = False"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:508
+#: /home/kovid/work/calibre/resources/default_tweaks.py:502
 msgid "What format to default to when using the Tweak feature"
 msgstr "Jaki domyślny format zastosować przy poprawianiu książki"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:509
+#: /home/kovid/work/calibre/resources/default_tweaks.py:503
 msgid ""
 "The Tweak feature of calibre allows direct editing of a book format.\n"
 "If multiple formats are available, calibre will offer you a choice\n"
