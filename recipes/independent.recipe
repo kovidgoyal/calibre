@@ -15,6 +15,10 @@ class TheIndependentNew(BasicNewsRecipe):
     #Flag to enable/disable image fetching (not business)
     _FETCH_IMAGES = True
 
+    #Set max gallery images here (respects _FETCH_IMAGES)
+    # -1 for infinite
+    _MAX_GALLERY_IMAGES = -1
+
 
      #used for converting rating to stars
     _STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star.png'
@@ -41,6 +45,7 @@ class TheIndependentNew(BasicNewsRecipe):
                                dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
                                dict(attrs={'class' : ['autoplay','openBiogPopup']}),
                                dict(name='img',attrs={'alt' : ['Get Adobe Flash player']}),
+                               dict(name='img',attrs={'alt' : ['view gallery']}),
                                dict(attrs={'style' : re.compile('.*')}),
                              ]
 
@@ -120,6 +125,15 @@ class TheIndependentNew(BasicNewsRecipe):
                 and para.contents[0] == 'ADVERTORIAL FEATURE':
                     return None
 
+        # remove Suggested Topics
+        items_to_extract = []
+
+        for item in soup.findAll('div',attrs={'class' : re.compile('.*RelatedArtTag.*')}):
+            items_to_extract.append(item)
+
+        for item in items_to_extract:
+            item.extract()
+
         items_to_extract = []
         slideshow_elements = []
 
@@ -162,25 +176,43 @@ class TheIndependentNew(BasicNewsRecipe):
                 for item in element.findAll('a',attrs={'href' : re.compile('.*')}):
                     if item.img is not None:
                         #use full size image
+                        images = []
+
                         img = item.findNext('img')
 
-                        img['src'] = item['href']
-
-                        #insert caption if available
-                        if img.get('title') and (len(img['title']) > 1):
+                        if  not '?action=gallery' in item['href']:
+                            img['src'] = item['href']
                             tag = Tag(soup,'h3')
-                            text = NavigableString(img['title'])
+                            text = ''
+                            try:
+                                text = img['data-title']
+                            except:
+                                pass
+
+                            if img.get('title') and (len(img['title']) > 1):
+                                text = NavigableString(img['title'])
                             tag.insert(0,text)
-
-                            #picture before text
+                            images.append((img, tag))
+                        else:
+                            gallery_images, remove_link = self._get_gallery_images(item['href'])
+                            images = images + gallery_images
+                            if remove_link:
+                                gal_link = soup.find('a',attrs={'id' : 'view-gallery'})
+                                if gal_link:
+                                    gal_link.extract()
                             img.extract()
-                            item.insert(0,img)
-                            item.insert(1,tag)
+                        for (img, title) in images:
+                            #insert caption if available
+                            if title:
+                                #picture before text
+                                img.extract()
+                                item.insert(0,img)
+                                item.insert(1,title)
 
-                        # remove link
-                        item.name = "div"
-                        item["class"]='image'
-                        del item["href"]
+                            # remove link
+                            item.name = "div"
+                            item["class"]='image'
+                            del item["href"]
 
 
         #remove empty subtitles
@@ -308,7 +340,50 @@ class TheIndependentNew(BasicNewsRecipe):
 
         for item in items_to_extract:
             item.extract()
+
+        # nickredding's fix for non-justified text
+        for ptag in soup.findAll('p',attrs={'align':'left'}):
+            del(ptag['align'])
+
         return soup
+
+    def _get_gallery_images(self,url):
+        gallery_soup = self.index_to_soup(url)
+        images = []
+        remove_link = True
+        total = 1
+        try:
+            counter = gallery_soup.find('div',attrs={'id' : ['counter']})
+            total = counter.contents[0].split('/')
+            total = int(total[1].rstrip())
+        except:
+            total = 1
+
+        if self._MAX_GALLERY_IMAGES >= 0 and total > self._MAX_GALLERY_IMAGES:
+            total = self._MAX_GALLERY_IMAGES
+            remove_link = False
+
+        for i in range(1, total +1):
+            image, title = self._get_image_from_gallery(gallery_soup)
+            if image:
+                images.append((image,title))
+            next = url + '&ino=' + str(i + 1)
+            gallery_soup = self.index_to_soup(next)
+        images.reverse()
+        return images, remove_link
+
+    def _get_image_from_gallery(self,soup):
+        try:
+            container = soup.find('div',attrs={'id' : ['main-image']})
+            image = container.find('img')
+            if image:
+                title = soup.find('div',attrs={'id' : ['image-title']})
+            return image, title
+        except:
+            print 'error fetching gallery image'
+            return None
+
+
 
     def _recurisvely_linearise_tag_tree(
         self,

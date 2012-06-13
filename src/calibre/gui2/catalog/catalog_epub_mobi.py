@@ -291,8 +291,8 @@ class PluginWidget(QWidget,Ui_Form):
         Currently using QLineEdit for all field types
         Possible to modify to switch QWidget type
         '''
-        new_source = str(self.read_source_field.currentText())
-        read_source_spec = self.read_source_fields[str(new_source)]
+        new_source = unicode(self.read_source_field.currentText())
+        read_source_spec = self.read_source_fields[new_source]
         self.read_source_field_name = read_source_spec['field']
 
         # Change pattern input widget to match the source field datatype
@@ -314,7 +314,7 @@ class PluginWidget(QWidget,Ui_Form):
         new_source = str(self.exclude_source_field.currentText())
         self.exclude_source_field_name = new_source
         if new_source > '':
-            exclude_source_spec = self.exclude_source_fields[str(new_source)]
+            exclude_source_spec = self.exclude_source_fields[unicode(new_source)]
             self.exclude_source_field_name = exclude_source_spec['field']
             self.exclude_pattern.setEnabled(True)
 
@@ -360,17 +360,17 @@ class PluginWidget(QWidget,Ui_Form):
         new_source = str(self.header_note_source_field.currentText())
         self.header_note_source_field_name = new_source
         if new_source > '':
-            header_note_source_spec = self.header_note_source_fields[str(new_source)]
+            header_note_source_spec = self.header_note_source_fields[unicode(new_source)]
             self.header_note_source_field_name = header_note_source_spec['field']
 
     def merge_source_field_changed(self,new_index):
         '''
-        Process changes in the header_note_source_field combo box
+        Process changes in the merge_source_field combo box
         '''
         new_source = str(self.merge_source_field.currentText())
         self.merge_source_field_name = new_source
         if new_source > '':
-            merge_source_spec = self.merge_source_fields[str(new_source)]
+            merge_source_spec = self.merge_source_fields[unicode(new_source)]
             self.merge_source_field_name = merge_source_spec['field']
             if not self.merge_before.isChecked() and not self.merge_after.isChecked():
                 self.merge_after.setChecked(True)

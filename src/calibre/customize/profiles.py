@@ -672,6 +672,12 @@ class KindleFireOutput(KindleDXOutput):
     dpi                       = 169.0
     comic_screen_size = (570, 1016)
 
+    @classmethod
+    def tags_to_string(cls, tags):
+        # The idiotic fire doesn't obey the color:white directive
+        from xml.sax.saxutils import escape
+        return escape(', '.join(tags))
+
 class IlliadOutput(OutputProfile):
 
     name        = 'Illiad'

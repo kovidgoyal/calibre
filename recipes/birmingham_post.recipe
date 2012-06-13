@@ -5,11 +5,11 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     timefmt = ''
     __author__ = 'Dave Asbury'
     cover_url = 'http://1.bp.blogspot.com/_GwWyq5eGw9M/S9BHPHxW55I/AAAAAAAAB6Q/iGCWl0egGzg/s320/Birmingham+post+Lite+front.JPG'
-    oldest_article = 1
-    max_articles_per_feed = 20
+    oldest_article = 2
+    max_articles_per_feed = 12
     remove_empty_feeds = True
     remove_javascript     = True
-    auto_cleanup = True
+    #auto_cleanup = True
     language = 'en_GB'
 
 
@@ -17,9 +17,12 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
 
     keep_only_tags = [
-    #dict(name='h1',attrs={'id' : 'article-headline'}),
-                    #dict(attrs={'class':['article-meta-author','article-meta-date','article main','art-o art-align-center otm-1 ']}),
-    #dict(name='p')
+    	    dict(name='h1',attrs={'id' : 'article-headline'}),
+                        dict(attrs={'class':['article-meta-author','article-meta-date','article main','art-o art-align-center otm-1 ']}),
+	    dict(name='div',attrs={'class' : 'article-image full'}),
+	    dict(attrs={'clas' : 'art-o art-align-center otm-1 '}),
+    	    dict(name='div',attrs={'class' : 'article main'}),
+#dict(name='p')
     #dict(attrs={'id' : 'three-col'})
         ]
     remove_tags    = [
@@ -28,7 +31,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
                                ]
     feeds          = [
         #(u'News',u'http://www.birminghampost.net/news/rss.xml'),
-        (u'Local News', u'http://www.birminghampost.net/news/west-midlands-news/rss.xml'),
+        (u'West Mids. News', u'http://www.birminghampost.net/news/west-midlands-news/rss.xml'),
         (u'UK News', u'http://www.birminghampost.net/news/uk-news/rss.xml'),
         (u'Sports',u'http://www.birminghampost.net/midlands-birmingham-sport/rss.xml'),
         (u'Bloggs & Comments',u'http://www.birminghampost.net/comment/rss.xml')

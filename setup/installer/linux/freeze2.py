@@ -22,6 +22,8 @@ QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 
 MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
+                '/usr/bin/pdfinfo',
+                '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',
                 '/usr/lib/liblzma.so.0',
@@ -32,7 +34,7 @@ binary_includes = [
                 '/lib/libz.so.1',
                 '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',
-                '/usr/lib/libpoppler.so.7',
+                '/usr/lib/libpoppler.so.25',
                 '/usr/lib/libxml2.so.2',
                 '/usr/lib/libopenjpeg.so.2',
                 '/usr/lib/libxslt.so.1',
@@ -41,8 +43,8 @@ binary_includes = [
                 '/usr/lib/libgthread-2.0.so.0',
                 '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
-                MAGICK_PREFIX+'/lib/libMagickWand.so.4',
-                MAGICK_PREFIX+'/lib/libMagickCore.so.4',
+                MAGICK_PREFIX+'/lib/libMagickWand.so.5',
+                MAGICK_PREFIX+'/lib/libMagickCore.so.5',
                 '/usr/lib/libgcrypt.so.11',
                 '/usr/lib/libgpg-error.so.0',
                 '/usr/lib/libphonon.so.4',
@@ -189,7 +191,7 @@ class LinuxFreeze(Command):
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
                     ignore=ignore_in_lib)
-        for x in ('manual', 'trac'):
+        for x in ('trac',):
             x = self.j(dest, 'calibre', x)
             if os.path.exists(x):
                 shutil.rmtree(x)

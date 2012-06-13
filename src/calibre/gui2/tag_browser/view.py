@@ -11,8 +11,8 @@ import cPickle
 from functools import partial
 from itertools import izip
 
-from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
-        QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
+from PyQt4.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
+        QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -20,37 +20,40 @@ from calibre.gui2 import config, gprefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
-class TagDelegate(QItemDelegate): # {{{
+class TagDelegate(QStyledItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         item = index.data(Qt.UserRole).toPyObject()
-        if item.type != TagTreeItem.TAG:
-            QItemDelegate.paint(self, painter, option, index)
-            return
-        r = option.rect
-        model = self.parent().model()
-        icon = model.data(index, Qt.DecorationRole).toPyObject()
-        painter.save()
-        if item.tag.state != 0 or not config['show_avg_rating'] or \
-                item.tag.avg_rating is None:
-            icon.paint(painter, r, Qt.AlignLeft)
-        else:
-            painter.setOpacity(0.3)
-            icon.paint(painter, r, Qt.AlignLeft)
-            painter.setOpacity(1)
-            rating = item.tag.avg_rating
-            painter.setClipRect(r.left(), r.bottom()-int(r.height()*(rating/5.0)),
-                    r.width(), r.height())
-            icon.paint(painter, r, Qt.AlignLeft)
-            painter.setClipRect(r)
-
-        # Paint the text
+        QStyledItemDelegate.paint(self, painter, option, index)
+        widget = self.parent()
+        style = QApplication.style() if widget is None else widget.style()
+        self.initStyleOption(option, index)
         if item.boxed:
-            painter.drawRoundedRect(r.adjusted(1,1,-1,-1), 5, 5)
-        r.setLeft(r.left()+r.height()+3)
-        painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
-                        model.data(index, Qt.DisplayRole).toString())
-        painter.restore()
+            r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
+                    widget)
+            painter.save()
+            painter.drawLine(r.bottomLeft(), r.bottomRight())
+            painter.restore()
+        if item.type != TagTreeItem.TAG:
+            return
+        if (item.tag.state == 0 and config['show_avg_rating'] and
+                item.tag.avg_rating is not None):
+            r = style.subElementRect(style.SE_ItemViewItemDecoration,
+                    option, widget)
+            icon = option.icon
+            painter.save()
+            rating = item.tag.avg_rating
+            nr = r.adjusted(0, 0, 0, 0)
+            nr.setBottom(r.bottom()-int(r.height()*(rating/5.0)))
+            painter.setClipRect(nr)
+            painter.fillRect(r, widget.palette().window())
+            style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option,
+                    painter, widget)
+            painter.setOpacity(0.3)
+            icon.paint(painter, r, option.decorationAlignment, icon.Normal,
+                    icon.On)
+            painter.restore()
+
 
     # }}}
 
@@ -75,13 +78,12 @@ class TagsView(QTreeView): # {{{
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
-        self.tag_match = None
+        self.alter_tb = None
         self.disable_recounting = False
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
-        self.setIconSize(QSize(30, 30))
+        self.setIconSize(QSize(20, 20))
         self.setTabKeyNavigation(True)
-        self.setAlternatingRowColors(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
@@ -106,6 +108,25 @@ class TagsView(QTreeView): # {{{
         self._model.user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
+        self.setStyleSheet('''
+                QTreeView {
+                    background-color: palette(window);
+                    color: palette(window-text);
+                    border: none;
+                }
+
+                QTreeView::item {
+                    border: 1px solid transparent;
+                    padding-top:0.9ex;
+                    padding-bottom:0.9ex;
+                }
+
+                QTreeView::item:hover {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+                    border: 1px solid #bfcde4;
+                    border-radius: 6px;
+                }
+        ''')
 
     @property
     def hidden_categories(self):
@@ -139,27 +160,25 @@ class TagsView(QTreeView): # {{{
     def reread_collapse_parameters(self):
         self._model.reread_collapse_model(self.get_state()[1])
 
-    def set_database(self, db, tag_match, sort_by):
+    def set_database(self, db, alter_tb):
         self._model.set_database(db)
-
+        self.alter_tb = alter_tb
         self.pane_is_visible = True # because TagsModel.set_database did a recount
-        self.sort_by = sort_by
-        self.tag_match = tag_match
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        pop = config['sort_tags_by']
-        self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        pop = self.db.CATEGORY_SORTS.index(config['sort_tags_by'])
+        self.alter_tb.sort_menu.actions()[pop].setChecked(True)
         try:
             match_pop = self.db.MATCH_TYPE.index(config['match_tags_type'])
         except ValueError:
             match_pop = 0
-        self.tag_match.setCurrentIndex(match_pop)
+        self.alter_tb.match_menu.actions()[match_pop].setChecked(True)
         if not self.made_connections:
             self.clicked.connect(self.toggle)
             self.customContextMenuRequested.connect(self.show_context_menu)
             self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
-            self.sort_by.currentIndexChanged.connect(self.sort_changed)
-            self.tag_match.currentIndexChanged.connect(self.match_changed)
+            self.alter_tb.sort_menu.triggered.connect(self.sort_changed)
+            self.alter_tb.match_menu.triggered.connect(self.match_changed)
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
@@ -179,15 +198,21 @@ class TagsView(QTreeView): # {{{
 
     @property
     def match_all(self):
-        return self.tag_match and self.tag_match.currentIndex() > 0
+        return (self.alter_tb and
+                self.alter_tb.match_menu.actions()[1].isChecked())
 
-    def sort_changed(self, pop):
-        config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
-        self.recount()
+    def sort_changed(self, action):
+        for i, ac in enumerate(self.alter_tb.sort_menu.actions()):
+            if ac is action:
+                config.set('sort_tags_by', self.db.CATEGORY_SORTS[i])
+                self.recount()
+                break
 
-    def match_changed(self, pop):
+    def match_changed(self, action):
         try:
-            config.set('match_tags_type', self.db.MATCH_TYPE[pop])
+            for i, ac in enumerate(self.alter_tb.match_menu.actions()):
+                if ac is action:
+                    config.set('match_tags_type', self.db.MATCH_TYPE[i])
         except:
             pass
 

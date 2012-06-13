@@ -133,6 +133,7 @@ _extra_lang_codes = {
         'en_TR' : _('English (Turkey)'),
         'en_CY' : _('English (Cyprus)'),
         'en_CZ' : _('English (Czech Republic)'),
+        'en_PH' : _('English (Philippines)'),
         'en_PK' : _('English (Pakistan)'),
         'en_HR' : _('English (Croatia)'),
         'en_HK' : _('English (Hong Kong)'),

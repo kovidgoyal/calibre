@@ -268,20 +268,92 @@ class PRST1(USBMS):
         collections = booklist.get_collections(collections_attributes)
 
         with closing(sqlite.connect(dbpath)) as connection:
+            self.remove_orphaned_records(connection, dbpath)
             self.update_device_books(connection, booklist, source_id,
                     plugboard, dbpath)
-            self.update_device_collections(connection, booklist, collections, source_id)
+            self.update_device_collections(connection, booklist, collections, source_id, dbpath)
 
         debug_print('PRST1: finished update_device_database')
 
-    def update_device_books(self, connection, booklist, source_id, plugboard,
-            dbpath):
+    def remove_orphaned_records(self, connection, dbpath):
         from sqlite3 import DatabaseError
 
-        opts = self.settings()
-        upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
-        refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
-        use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
+        try:
+            cursor = connection.cursor()
+        
+            debug_print("Removing Orphaned Collection Records")
+        
+            # Purge any collections references that point into the abyss
+            query = 'DELETE FROM collections WHERE content_id NOT IN (SELECT _id FROM books)'
+            cursor.execute(query)
+            query = 'DELETE FROM collections WHERE collection_id NOT IN (SELECT _id FROM collection)'
+            cursor.execute(query)
+        
+            debug_print("Removing Orphaned Book Records")
+        
+            # Purge any references to books not in this database
+            # Idea is to prevent any spill-over where these wind up applying to some other book
+            query = 'DELETE FROM %s WHERE content_id NOT IN (SELECT _id FROM books)'
+            cursor.execute(query%'annotation')
+            cursor.execute(query%'bookmark')
+            cursor.execute(query%'current_position')
+            cursor.execute(query%'freehand')
+            cursor.execute(query%'history')
+            cursor.execute(query%'layout_cache')
+            cursor.execute(query%'preference')
+    
+            cursor.close()
+        except DatabaseError:
+            import traceback
+            tb = traceback.format_exc()
+            raise DeviceError((('The SONY database is corrupted. '
+                    ' Delete the file %s on your reader and then disconnect '
+                    ' reconnect it. If you are using an SD card, you '
+                    ' should delete the file on the card as well. Note that '
+                    ' deleting this file will cause your reader to forget '
+                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    '\n'+tb)
+
+	def get_lastrowid(self, cursor):
+		# SQLite3 + Python has a fun issue on 32-bit systems with integer overflows.
+		# Issue a SQL query instead, getting the value as a string, and then converting to a long python int manually.
+		query = 'SELECT last_insert_rowid()'
+		cursor.execute(query)
+		row = cursor.fetchone()
+		
+		return long(row[0])
+
+    def get_database_min_id(self, source_id):
+        sequence_min = 0L
+        if source_id == 1:
+            sequence_min = 4294967296L
+
+        return sequence_min
+
+    def set_database_sequence_id(self, connection, table, sequence_id):
+        cursor = connection.cursor()
+
+        # Update the sequence Id if it exists
+        query = 'UPDATE sqlite_sequence SET seq = ? WHERE name = ?'
+        t = (sequence_id, table,)
+        cursor.execute(query, t)
+
+        # Insert the sequence Id if it doesn't
+        query = ('INSERT INTO sqlite_sequence (name, seq) '
+                'SELECT ?, ? '
+                'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
+        cursor.execute(query, (table, sequence_id, table,))
+
+        cursor.close()
+
+    def read_device_books(self, connection, source_id, dbpath):
+        from sqlite3 import DatabaseError
+
+        sequence_min = self.get_database_min_id(source_id)
+        sequence_max = sequence_min
+        sequence_dirty = 0
+
+        debug_print("Book Sequence Min: %d, Source Id: %d"%(sequence_min,source_id))
 
         try:
             cursor = connection.cursor()
@@ -300,27 +372,70 @@ class PRST1(USBMS):
                     ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
                     '\n'+tb)
 
+        # Get the books themselves, but keep track of any that are less than the minimum.
+        # Record what the max id being used is as well.
         db_books = {}
         for i, row in enumerate(cursor):
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]
+            if row[1] < sequence_min:
+                sequence_dirty = 1
+            else:
+                sequence_max = max(sequence_max, row[1])
 
-        # Work-around for Sony Bug (SD Card DB not using right SQLite sequence)
-        if source_id == 1:
-			# Update any existing sequence numbers in the table that aren't in the required range
-            sdcard_sequence_start = '4294967296'
-            query = 'UPDATE sqlite_sequence SET seq = ? WHERE seq < ?'
-            t = (sdcard_sequence_start, sdcard_sequence_start,)
-            cursor.execute(query, t)
+        # If the database is 'dirty', then we should fix up the Ids and the sequence number
+        if sequence_dirty == 1:
+            debug_print("Book Sequence Dirty for Source Id: %d"%source_id)
+            sequence_max = sequence_max + 1
+            for book, bookId in db_books.items():
+                if bookId < sequence_min:
+                    # Record the new Id and write it to the DB
+                    db_books[book] = sequence_max
+                    sequence_max = sequence_max + 1
 
-			# Insert sequence numbers for tables we will be manipulating, if they don't already exist
-			query = ('INSERT INTO sqlite_sequence (name, seq) ' 
-					'SELECT ?, ? '
-				    'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
-			cursor.execute(query, ('books',sdcard_sequence_start,'books',))
-			cursor.execute(query, ('collection',sdcard_sequence_start,'collection',))
-			cursor.execute(query, ('collections',sdcard_sequence_start,'collections',))
-			
+                    # Fix the Books DB
+                    query = 'UPDATE books SET _id = ? WHERE file_path = ?'
+                    t = (db_books[book], book,)
+                    cursor.execute(query, t)
+
+                    # Fix any references so that they point back to the right book
+                    t = (db_books[book], bookId,)
+                    query = 'UPDATE collections SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE annotation SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE bookmark SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE current_position SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE deleted_markups SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE dic_histories SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE freehand SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE history SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE layout_cache SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+                    query = 'UPDATE preference SET content_id = ? WHERE content_id = ?'
+                    cursor.execute(query, t)
+
+            self.set_database_sequence_id(connection, 'books', sequence_max)
+            debug_print("Book Sequence Max: %d, Source Id: %d"%(sequence_max,source_id))
+
+        cursor.close()
+        return db_books
+
+    def update_device_books(self, connection, booklist, source_id, plugboard,
+            dbpath):
+        opts = self.settings()
+        upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
+        refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
+        use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
+
+        db_books = self.read_device_books(connection, source_id, dbpath)
+        cursor = connection.cursor()
 
         for book in booklist:
             # Run through plugboard if needed
@@ -365,10 +480,10 @@ class PRST1(USBMS):
                         modified_date, lpath,
                         os.path.basename(lpath), book.size, book.mime)
                 cursor.execute(query, t)
-                book.bookId = cursor.lastrowid
+                book.bookId = self.get_lastrowid(cursor)
                 if upload_covers:
                     self.upload_book_cover(connection, book, source_id)
-                debug_print('Inserted New Book: ' + book.title)
+                debug_print('Inserted New Book: (%u) '%book.bookId + book.title)
             else:
                 query = '''
                 UPDATE books
@@ -400,26 +515,111 @@ class PRST1(USBMS):
         connection.commit()
         cursor.close()
 
-    def update_device_collections(self, connection, booklist, collections,
-            source_id):
-        cursor = connection.cursor()
+    def read_device_collections(self, connection, source_id, dbpath):
+        from sqlite3 import DatabaseError
 
-        if collections:
+        sequence_min = self.get_database_min_id(source_id)
+        sequence_max = sequence_min
+        sequence_dirty = 0
+
+        debug_print("Collection Sequence Min: %d, Source Id: %d"%(sequence_min,source_id))
+
+        try:
+            cursor = connection.cursor()
+
             # Get existing collections
             query = 'SELECT _id, title FROM collection'
             cursor.execute(query)
+        except DatabaseError:
+            import traceback
+            tb = traceback.format_exc()
+            raise DeviceError((('The SONY database is corrupted. '
+                    ' Delete the file %s on your reader and then disconnect '
+                    ' reconnect it. If you are using an SD card, you '
+                    ' should delete the file on the card as well. Note that '
+                    ' deleting this file will cause your reader to forget '
+                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    '\n'+tb)
 
-            db_collections = {}
-            for i, row in enumerate(cursor):
-                db_collections[row[1]] = row[0]
+        db_collections = {}
+        for i, row in enumerate(cursor):
+            db_collections[row[1]] = row[0]
+            if row[0] < sequence_min:
+                sequence_dirty = 1
+            else:
+                sequence_max = max(sequence_max, row[0])
+
+        # If the database is 'dirty', then we should fix up the Ids and the sequence number
+        if sequence_dirty == 1:
+            debug_print("Collection Sequence Dirty for Source Id: %d"%source_id)
+            sequence_max = sequence_max + 1
+            for collection, collectionId in db_collections.items():
+                if collectionId < sequence_min:
+                    # Record the new Id and write it to the DB
+                    db_collections[collection] = sequence_max
+                    sequence_max = sequence_max + 1
+
+                    # Fix the collection DB
+                    query = 'UPDATE collection SET _id = ? WHERE title = ?'
+                    t = (db_collections[collection], collection, )
+                    cursor.execute(query, t)
+
+                    # Fix any references in existing collections
+                    query = 'UPDATE collections SET collection_id = ? WHERE collection_id = ?'
+                    t = (db_collections[collection], collectionId,)
+                    cursor.execute(query, t)
+
+            self.set_database_sequence_id(connection, 'collection', sequence_max)
+            debug_print("Collection Sequence Max: %d, Source Id: %d"%(sequence_max,source_id))
+
+        # Fix up the collections table now...
+        sequence_dirty = 0
+        sequence_max = sequence_min
+
+        debug_print("Collections Sequence Min: %d, Source Id: %d"%(sequence_min,source_id))
+
+        query = 'SELECT _id FROM collections'
+        cursor.execute(query)
+
+        db_collection_pairs = []
+        for i, row in enumerate(cursor):
+            db_collection_pairs.append(row[0])
+            if row[0] < sequence_min:
+                sequence_dirty = 1
+            else:
+                sequence_max = max(sequence_max, row[0])
+
+        if sequence_dirty == 1:
+            debug_print("Collections Sequence Dirty for Source Id: %d"%source_id)
+            sequence_max = sequence_max + 1
+            for pairId in db_collection_pairs:
+                if pairId < sequence_min:
+                    # Record the new Id and write it to the DB
+                    query = 'UPDATE collections SET _id = ? WHERE _id = ?'
+                    t = (sequence_max, pairId,)
+                    cursor.execute(query, t)
+                    sequence_max = sequence_max + 1
+
+            self.set_database_sequence_id(connection, 'collections', sequence_max)
+            debug_print("Collections Sequence Max: %d, Source Id: %d"%(sequence_max,source_id))
+
+        cursor.close()
+        return db_collections
+
+    def update_device_collections(self, connection, booklist, collections,
+            source_id, dbpath):
+
+        if collections:
+            db_collections = self.read_device_collections(connection, source_id, dbpath)
+            cursor = connection.cursor()
 
             for collection, books in collections.items():
                 if collection not in db_collections:
                     query = 'INSERT INTO collection (title, source_id) VALUES (?,?)'
                     t = (collection, source_id)
                     cursor.execute(query, t)
-                    db_collections[collection] = cursor.lastrowid
-                    debug_print('Inserted New Collection: ' + collection)
+                    db_collections[collection] = self.get_lastrowid(cursor)
+                    debug_print('Inserted New Collection: (%u) '%db_collections[collection] + collection)
 
                 # Get existing books in collection
                 query = '''
@@ -483,9 +683,8 @@ class PRST1(USBMS):
                     cursor.execute(query, t)
                     debug_print('Deleted Collection: ' + collection)
 
-
-        connection.commit()
-        cursor.close()
+            connection.commit()
+            cursor.close()
 
     def rebuild_collections(self, booklist, oncard):
         debug_print('PRST1: starting rebuild_collections')

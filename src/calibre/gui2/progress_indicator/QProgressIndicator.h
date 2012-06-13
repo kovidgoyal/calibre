@@ -91,3 +91,12 @@ private:
     QColor m_color;
 };
 
+/* Utility function that can be used to load a QStyle from a Qt plugin. This is
+ * here so that there is no need to create a separate PyQt plugin just for this
+ * simple functionality. 
+ * \param path The full path to the DLL containing the plugin
+ * \param name The name of the style plugin to load
+ * \return 1 if succeeds 0 otherwise. The objectName of the loaded style is set to name
+ */
+int load_style(QString &path, QString &name);
+

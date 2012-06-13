@@ -385,9 +385,10 @@ class Py2App(object):
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.7.dylib',):
+        for x in ('libpoppler.25.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
-        self.install_dylib(os.path.join(SW, 'bin', 'pdftohtml'), False)
+        for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
+            self.install_dylib(os.path.join(SW, 'bin', x), False)
 
     @flush
     def add_libjpeg(self):
@@ -429,7 +430,7 @@ class Py2App(object):
     def add_imagemagick(self):
         info('\nAdding ImageMagick')
         for x in ('Wand', 'Core'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.4.dylib'%x))
+            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.5.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
         dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
@@ -481,6 +482,10 @@ class Py2App(object):
                     shutil.rmtree(tdir)
         shutil.rmtree(os.path.join(self.site_packages, 'calibre', 'plugins'))
         self.remove_bytecode(join(self.resources_dir, 'Python', 'site-packages'))
+        # Create dummy IPython README_STARTUP
+        with open(join(self.site_packages,
+            'IPython/config/profile/README_STARTUP'), 'wb') as f:
+            f.write('\n')
 
     @flush
     def add_modules_from_dir(self, src):
@@ -550,6 +555,15 @@ class Py2App(object):
                 if dest2.endswith('.so'):
                     self.fix_dependencies_in_lib(dest2)
         self.remove_bytecode(join(self.resources_dir, 'Python', 'lib'))
+        confdir = join(self.resources_dir, 'Python',
+                'lib/python%s/config'%self.version_info)
+        os.makedirs(confdir)
+        shutil.copy2(join(src, 'config/Makefile'), confdir)
+        incdir = join(self.resources_dir, 'Python',
+                'include/python'+self.version_info)
+        os.makedirs(incdir)
+        shutil.copy2(join(src.replace('/lib/', '/include/'), 'pyconfig.h'),
+                incdir)
 
     @flush
     def remove_bytecode(self, dest):

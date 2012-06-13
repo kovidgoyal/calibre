@@ -364,13 +364,19 @@ class Chunker(object):
             pos_fid = None
             for chunk in self.chunk_table:
                 if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
-                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos)
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
+                            offset)
                     break
                 if chunk.insert_pos > offset:
                     # This aid is in the skeleton, not in a chunk, so we use
                     # the chunk immediately after
-                    pos_fid = (chunk.sequence_number, 0)
+                    pos_fid = (chunk.sequence_number, 0, offset)
                     break
+                if chunk is self.chunk_table[-1]:
+                    # This can happen for aids very close to the end of the the
+                    # end of the text (https://bugs.launchpad.net/bugs/1011330)
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
+                            offset)
             if pos_fid is None:
                 raise ValueError('Could not find chunk for aid: %r'%
                         match.group(1))
@@ -379,7 +385,7 @@ class Chunker(object):
         self.aid_offset_map = aid_map
 
         def to_placeholder(aid):
-            pos, fid = aid_map[aid]
+            pos, fid, _ = aid_map[aid]
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
             return bytes(':off:'.join((pos, fid)))
 

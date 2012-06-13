@@ -442,12 +442,6 @@ metadata_edit_custom_column_order = []
 # calibre.
 public_smtp_relay_delay = 301
 
-#: Remove the bright yellow lines at the edges of the book list
-# Control whether the bright yellow lines at the edges of book list are drawn
-# when a section of the user interface is hidden. Changes will take effect
-# after a restart of calibre.
-draw_hidden_section_indicators = True
-
 #: The maximum width and height for covers saved in the calibre library
 # All covers in the calibre library will be resized, preserving aspect ratio,
 # to fit within this size. This is to prevent slowdowns caused by extremely
@@ -505,4 +499,18 @@ change_book_details_font_size_by = 0
 # Default:    compile_gpm_templates = True
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
+
+#: What format to default to when using the Tweak feature
+# The Tweak feature of calibre allows direct editing of a book format.
+# If multiple formats are available, calibre will offer you a choice
+# of formats, defaulting to your preferred output format if it is available.
+# Set this tweak to a specific value of 'EPUB' or 'AZW3' to always default
+# to that format rather than your output format preference.
+# Set to a value of 'remember' to use whichever format you chose last time you
+# used the Tweak feature.
+# Examples:
+#   default_tweak_format = None       (Use output format)
+#   default_tweak_format = 'EPUB'
+#   default_tweak_format = 'remember'
+default_tweak_format = None
 

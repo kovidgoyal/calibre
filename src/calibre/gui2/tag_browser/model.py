@@ -45,6 +45,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None, temporary=False):
         self.parent = parent
         self.children = []
+        self.blank = QIcon()
         self.id_set = set()
         self.is_gst = False
         self.boxed = False
@@ -417,21 +418,24 @@ class TagsModel(QAbstractItemModel): # {{{
                         chardict[c][1] = idx
 
                 # sort the ranges to facilitate detecting overlap
-                ranges = sorted([(v[0], v[1], c) for c,v in chardict.items()])
-
-                # Create a list of 'first letters' to use for each item in
-                # the category. The list is generated using the ranges. Overlaps
-                # are filled with the character that first occurs.
-                cl_list = list(repeat(None, len(data[key])))
-                for t in ranges:
-                    start = t[0]
-                    c = t[2]
-                    if cl_list[start] is None:
-                        nc = c
-                    else:
-                        nc = cl_list[start]
-                    for i in range(start, t[1]+1):
-                        cl_list[i] = nc
+                if len(chardict) == 1 and ' ' in chardict:
+                    # The category could not be partitioned.
+                    collapse_model = 'disable'
+                else:
+                    ranges = sorted([(v[0], v[1], c) for c,v in chardict.items()])
+                    # Create a list of 'first letters' to use for each item in
+                    # the category. The list is generated using the ranges. Overlaps
+                    # are filled with the character that first occurs.
+                    cl_list = list(repeat(None, len(data[key])))
+                    for t in ranges:
+                        start = t[0]
+                        c = t[2]
+                        if cl_list[start] is None:
+                            nc = c
+                        else:
+                            nc = cl_list[start]
+                        for i in range(start, t[1]+1):
+                            cl_list[i] = nc
 
             for idx,tag in enumerate(data[key]):
                 if clear_rating:
@@ -447,13 +451,19 @@ class TagsModel(QAbstractItemModel): # {{{
                             else:
                                 d['last'] = data[key][cat_len-1]
                             name = eval_formatter.safe_format(collapse_template,
-                                                              d, 'TAG_VIEW', None)
-                            sub_cat = self.create_node(parent=category, data = name,
+                                                        d, '##TAG_VIEW##', None)
+                            if name.startswith('##TAG_VIEW##'):
+                                # Formatter threw an exception. Don't create subnode
+                                node_parent = category
+                            else:
+                                sub_cat = self.create_node(parent=category, data = name,
                                      tooltip = None, temporary=True,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
-                            sub_cat.tag.is_searchable = False
+                                sub_cat.tag.is_searchable = False
+                                sub_cat.is_gst = is_gst
+                                node_parent = sub_cat
                     else: # by 'first letter'
                         cl = cl_list[idx]
                         if cl != collapse_letter:
@@ -464,8 +474,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                      tooltip = None, temporary=True,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
-                    sub_cat.is_gst = is_gst
-                    node_parent = sub_cat
+                        sub_cat.is_gst = is_gst
+                        node_parent = sub_cat
                 else:
                     node_parent = category
 
@@ -1020,7 +1030,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return NONE
 
     def flags(self, index, *args):
-        ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+        ans = Qt.ItemIsEnabled|Qt.ItemIsEditable
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
@@ -1175,14 +1185,18 @@ class TagsModel(QAbstractItemModel): # {{{
                         k = 'author_sort' if key == 'authors' else key
                         letters_seen = {}
                         for subnode in tag_item.children:
-                            letters_seen[subnode.tag.sort[0]] = True
-                        charclass = ''.join(letters_seen)
-                        if k == 'author_sort':
-                            expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
-                        elif k == 'series':
-                            expr = r'series_sort:"~^[%s]"'%(charclass)
+                            if subnode.tag.sort:
+                                letters_seen[subnode.tag.sort[0]] = True
+                        if letters_seen:
+                            charclass = ''.join(letters_seen)
+                            if k == 'author_sort':
+                                expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                            elif k == 'series':
+                                expr = r'series_sort:"~^[%s]"'%(charclass)
+                            else:
+                                expr = r'%s:"~^[%s]"'%(k, charclass)
                         else:
-                            expr = r'%s:"~^[%s]"'%(k, charclass)
+                            expr = r'%s:false'%(k)
                         if node_searches[tag_item.tag.state] == 'true':
                             ans.append(expr)
                         else:

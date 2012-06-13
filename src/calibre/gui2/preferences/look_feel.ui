@@ -28,7 +28,34 @@
        <string>Main Interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="0">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Choose &amp;language (requires restart):</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_language</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="opt_language">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+         </property>
+         <property name="minimumContentsLength">
+          <number>20</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="opt_systray_icon">
+         <property name="text">
+          <string>Enable system &amp;tray icon (needs restart)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
         <widget class="QLabel" name="label_17">
          <property name="text">
           <string>User Interface &amp;layout (needs restart):</string>
@@ -38,7 +65,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="1" column="1">
         <widget class="QComboBox" name="opt_gui_layout">
          <property name="maximumSize">
           <size>
@@ -54,34 +81,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Choose &amp;language (requires restart):</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_language</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="opt_language">
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-         </property>
-         <property name="minimumContentsLength">
-          <number>20</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="opt_systray_icon">
-         <property name="text">
-          <string>Enable system &amp;tray icon (needs restart)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QCheckBox" name="opt_disable_animations">
          <property name="toolTip">
           <string>Disable all animations. Useful if you have a slow/old computer.</string>
@@ -91,21 +91,21 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <widget class="QCheckBox" name="opt_disable_tray_notification">
          <property name="text">
           <string>Disable &amp;notifications in system tray</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="4" column="1">
         <widget class="QCheckBox" name="opt_show_splash_screen">
          <property name="text">
           <string>Show &amp;splash screen at startup</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
+       <item row="6" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>&amp;Toolbar</string>
@@ -140,7 +140,20 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="7" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="label_2">
@@ -161,25 +174,25 @@
          </item>
         </layout>
        </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <widget class="QPushButton" name="change_font_button">
          <property name="text">
           <string>Change &amp;font (needs restart)</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_widget_style">
+         <property name="text">
+          <string>User interface &amp;style (needs restart):</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
+         <property name="buddy">
+          <cstring>opt_widget_style</cstring>
          </property>
-        </spacer>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="opt_widget_style"/>
        </item>
       </layout>
      </widget>

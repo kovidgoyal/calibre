@@ -343,21 +343,25 @@ OptionRecommendation(name='remove_fake_margins',
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the top margin in pts. Default is %default. '
+            'Setting this to less than zero will cause no margin to be set. '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_bottom',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the bottom margin in pts. Default is %default. '
+            'Setting this to less than zero will cause no margin to be set. '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_left',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the left margin in pts. Default is %default. '
+            'Setting this to less than zero will cause no margin to be set. '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_right',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the right margin in pts. Default is %default. '
+            'Setting this to less than zero will cause no margin to be set. '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='change_justification',
@@ -885,7 +889,10 @@ OptionRecommendation(name='search_replace',
             self.log.debug('Resolved conversion options')
             try:
                 self.log.debug('calibre version:', __version__)
-                self.log.debug(pprint.pformat(self.opts.__dict__))
+                odict = dict(self.opts.__dict__)
+                for x in ('username', 'password'):
+                    odict.pop(x, None)
+                self.log.debug(pprint.pformat(odict))
             except:
                 self.log.exception('Failed to get resolved conversion options')
 

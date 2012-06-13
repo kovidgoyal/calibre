@@ -181,20 +181,23 @@ def set_metadata_(path, opath, title, authors, bkp, tags):
         return True
     return False
 
+def delete_all_but(path, pages):
+    ''' Delete all the pages in the pdf except for the specified ones. Negative
+    numbers are counted from the end of the PDF.'''
+    with TemporaryFile('_podofo_in.pdf') as of:
+        shutil.copyfile(path, of)
+
+        p = podofo.PDFDoc()
+        p.open(of)
+        total = p.page_count()
+        pages = { total + x if x < 0 else x for x in pages }
+        for page in xrange(total-1, -1, -1):
+            if page not in pages:
+                p.delete_page(page)
+        os.remove(path)
+        p.save(path)
+
 if __name__ == '__main__':
     f = '/tmp/t.pdf'
-    import StringIO
-    stream = StringIO.StringIO(open(f).read())
-    mi = get_metadata(open(f))
-    print
-    print 'Original metadata:'
-    print mi
-    mi.title = 'Test title'
-    mi.authors = ['Test author', 'author2']
-    mi.book_producer = 'calibre'
-    set_metadata(stream, mi)
-    open('/tmp/x.pdf', 'wb').write(stream.getvalue())
-    print
-    print 'New pdf written to /tmp/x.pdf'
-
+    delete_all_but(f, [0, 1, -2, -1])
 

@@ -6,21 +6,20 @@ __copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
+from datetime import date
 import re
 
 class GN(BasicNewsRecipe):
         EDITION = 0
 
         __author__ = 'Piotr Kontek'
+        title = u'Gość niedzielny'
         description = 'Weekly magazine'
         encoding = 'utf-8'
         no_stylesheets = True
         language = 'pl'
         remove_javascript = True
         temp_files = []
-        simultaneous_downloads = 1
-        masthead_url = 'http://gosc.pl/files/11/03/12/949089_top.gif'
-        title = u'Gość niedzielny'
 
         articles_are_obfuscated = True
 
@@ -56,22 +55,28 @@ class GN(BasicNewsRecipe):
             self.temp_files[-1].close()
             return self.temp_files[-1].name
 
-        def find_last_issue(self):
-                soup = self.index_to_soup('http://gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny')
-                #szukam zdjęcia i linka do porzedniego pełnego numeru
+        def find_last_issue(self, year):
+                soup = self.index_to_soup('http://gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny/rok/' + str(year))
+
+                #szukam zdjęcia i linka do poprzedniego pełnego numeru
                 first = True
                 for d in soup.findAll('div', attrs={'class':'l release_preview_l'}):
                     img = d.find('img')
                     if img != None:
                         a = img.parent
                         self.EDITION = a['href']
+                        self.title = img['alt']
                         self.cover_url = 'http://www.gosc.pl' + img['src']
-                        if not first:
+                        if year != date.today().year or not first:
                             break
                         first = False
 
         def parse_index(self):
-                self.find_last_issue()
+                year = date.today().year
+                self.find_last_issue(year)
+                ##jeśli to pierwszy numer w roku trzeba pobrać poprzedni rok
+                if self.EDITION == 0:
+                	self.find_last_issue(year-1)
                 soup = self.index_to_soup('http://www.gosc.pl' + self.EDITION)
                 feeds = []
                 #wstepniak

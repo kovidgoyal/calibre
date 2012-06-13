@@ -7,7 +7,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     description = 'News as provided by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
-    # last updated 28/4/12
+    # last updated 8/6/12
     language = 'en_GB'
     #cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
 
@@ -28,7 +28,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
                          dict(name='div',attrs={'class' : 'lead-text'}),
                          dict(name='div',attrs={'class' : 'styleGroup clearfix'}),
                          dict(name='div',attrs={'class' : 'widget relatedContents pictures widget-editable viziwyg-section-245 inpage-widget-158123'}),
-                         dict(name='figure',attrs={'class' : 'clearfix'}),
+                        # dict(name='figure',attrs={'class' : 'clearfix'}),
                          dict(name='div',attrs={'class' :'body '}),
 
        #dict(attrs={'class' : ['article-attr','byline append-1','published']}),
@@ -37,6 +37,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 
 
     remove_tags = [
+           dict(attrs={'class' : ['article sa-teaser type-opinion','image-gallery','gallery-caption']}),
            dict(attrs={'class' : 'comment'}),
            dict(name='title'),
            dict(name='ul',attrs={'class' :  'clearfix breadcrumbs '}),
@@ -89,6 +90,3 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         #cover_url = cov2
         #cover_url = 'http://www.thesun.co.uk/img/global/new-masthead-logo.png'
         return cover_url
-
-
-

@@ -11,43 +11,44 @@
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
 class Sections:
     """
-=================
-Purpose
-=================
-Write section tags for a tokenized file. (This module won't be any use to use
-to you unless you use it as part of the other modules.)
----------------
-logic
----------------
-The tags for the first section breaks have already been written.
-RTF stores section breaks with the \sect tag. Each time this tag is
-encountered, add one to the counter.
-When I encounter the \sectd tag, I want to collect all the appropriate tokens
-that describe the section. When I reach a \pard, I know I an stop collecting
-tokens and write the section tags.
-The exception to this method occurs when sections occur in field blocks, such
-as the index. Normally, two section break occur within the index and other
-field-blocks. (If less or more section breaks occurr, this code may not work.)
-I want the sections to occurr outside of the index. That is, the index
-should be nested inside one section tag. After the index is complete, a new
-section should begin.
-In order to write the sections outside of the field blocks, I have to store
-all of the field block as a string. When I ecounter the \sect tag, add one to
-the section counter, but store this number in a list. Likewise, store the
-information describing the section in another list.
-When I reach the end of the field block, choose the first item from the
-numbered list as the section number. Choose the first item in the description
-list as the values and attributes of the section. Enclose the field string
-between the section tags.
-Start a new section outside the field-block strings. Use the second number in
-the list; use the second item in the description list.
-CHANGE (2004-04-26) No longer write sections that occurr in field-blocks.
-Instead, ingore all section information in a field-block.
+    =================
+    Purpose
+    =================
+    Write section tags for a tokenized file. (This module won't be any use to use
+    to you unless you use it as part of the other modules.)
+    ---------------
+    logic
+    ---------------
+    The tags for the first section breaks have already been written.
+    RTF stores section breaks with the \sect tag. Each time this tag is
+    encountered, add one to the counter.
+    When I encounter the \sectd tag, I want to collect all the appropriate tokens
+    that describe the section. When I reach a \pard, I know I an stop collecting
+    tokens and write the section tags.
+    The exception to this method occurs when sections occur in field blocks, such
+    as the index. Normally, two section break occur within the index and other
+    field-blocks. (If less or more section breaks occurr, this code may not work.)
+    I want the sections to occur outside of the index. That is, the index
+    should be nested inside one section tag. After the index is complete, a new
+    section should begin.
+    In order to write the sections outside of the field blocks, I have to store
+    all of the field block as a string. When I ecounter the \sect tag, add one to
+    the section counter, but store this number in a list. Likewise, store the
+    information describing the section in another list.
+    When I reach the end of the field block, choose the first item from the
+    numbered list as the section number. Choose the first item in the description
+    list as the values and attributes of the section. Enclose the field string
+    between the section tags.
+    Start a new section outside the field-block strings. Use the second number in
+    the list; use the second item in the description list.
+    CHANGE (2004-04-26) No longer write sections that occurr in field-blocks.
+    Instead, ingore all section information in a field-block.
     """
     def __init__(self,
             in_file,

@@ -1,0 +1,43 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AirForceTimes(BasicNewsRecipe):
+    title = 'Air Force Times'
+    __author__ = 'jde'
+    __date__ = '16 May 2012'
+    __version__ = '1.0'
+    description = 'News of the U.S. Air Force'
+    language = 'en'
+    publisher = 'AirForceTimes.com'
+    category = 'news, U.S. Air Force'
+    tags = 'news, U.S. Air Force'
+    cover_url = 'http://www.airforcetimes.com/images/logo_airforcetimes_alert.jpg'
+    masthead_url = 'http://www.airforcetimes.com/images/logo_airforcetimes_alert.jpg'
+    oldest_article = 7 #days
+    max_articles_per_feed = 25
+    publication_type = 'newspaper'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = None
+    recursions = 0
+    needs_subscription = False
+    remove_javascript = True
+    remove_empty_feeds = True
+    auto_cleanup = True
+
+
+
+    feeds = [
+
+	('News', 		'http://www.airforcetimes.com/rss_news.php'),
+	('Benefits', 		'http://www.airforcetimes.com/rss_benefits.php'),
+	('Money', 		'http://www.airforcetimes.com/rss_money.php'),
+	('Careers & Education', 	'http://www.airforcetimes.com/rss_careers.php'),
+	('Community', 	'http://www.airforcetimes.com/rss_community.php'),
+	('Off Duty', 		'http://www.airforcetimes.com/rss_off_duty.php'),
+	('Entertainment', 	'http://www.airforcetimes.com/rss_entertainment.php'),
+	('Guard & Reserve', 	'http://www.airforcetimes.com/rss_guard.php'),
+              ]
+
+
+
+

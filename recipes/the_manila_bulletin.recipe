@@ -1,0 +1,88 @@
+import time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class TheManilaBulletin(BasicNewsRecipe):
+    title          		= u'The Manila Bulletin'
+    custom_title 	= "The Manila Bulletin - " + time.strftime('%d %b %Y %I:%M %p')
+    __author__             	= 'jde'
+    __date__                	= '06 June 2012'
+    __version__            	 = '1.0'
+    description            	= "The Manila Bulletin, (also known as the Bulletin and previously known as the Manila Daily Bulletin and the Bulletin Today) is the Philippines' largest broadsheet newspaper by circulation."
+    language               	= 'en_PH'
+    publisher              	= 'The Manila Bulletin'
+    category               	= 'news, Philippines'
+    tags 		= 'news, Philippines'
+    cover_url        	= 'http://www.mb.com.ph/sites/default/files/mb_logo.jpg'
+    masthead_url        	= 'http://www.mb.com.ph/sites/default/files/mb_logo.jpg'
+    oldest_article 	= 1.5 #days
+    max_articles_per_feed  	= 25
+    simultaneous_downloads = 20
+    publication_type 	= 'newspaper'
+    timefmt 		= ' [%a, %d %b %Y %I:%M %p]'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+
+    keep_only_tags = [
+	        dict(name='div', attrs={'class':'article node'})
+	       ,dict(name='div', attrs={'class':'label'})
+	       ,dict(name='div', attrs={'class':'content clear-block'})
+	       ]
+
+    remove_tags = [
+	        dict(name='li', attrs={'class':'print_html'})
+	       ,dict(name='li', attrs={'class':'print_html first'})
+	       ,dict(name='li', attrs={'class':'print_mail'})
+	       ,dict(name='li', attrs={'class':'print_mail last'})
+	       ,dict(name='div', attrs={'class':'article-sidebar'})
+	       ,dict(name='table', attrs={'id':'attachments'})
+	       ]
+
+    auto_cleanup 	= False
+
+
+    conversion_options = { 'title'   : custom_title,
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+    feeds          = [
+	(u'Main News', u'http://www.mb.com.ph/feed/news/main')
+#	, (u'Regional', u'http://www.mb.com.ph/feed/news/regional')
+	, (u'Business', u'http://www.mb.com.ph/feed/business')
+	, (u'Sports', u'http://www.mb.com.ph/feed/sports')
+	, (u'Entertainment', u'http://www.mb.com.ph/feed/entertainment')
+	, (u'Opinion', u'http://www.mb.com.ph/feed/news/opinion')
+#	, (u'Agriculture', u'http://www.mb.com.ph/feed/news/agriculture')
+#	, (u'Environment', u'http://www.mb.com.ph/feed/news/environment')
+	, (u'Technology', u'http://www.mb.com.ph/feed/lifestyle/technology')
+	, (u'Lifestyle', u'http://www.mb.com.ph/feed/lifestyle')
+#	, (u'Arts & Living', u'http://www.mb.com.ph/feed/lifestyle/arts-and-living')
+#	, (u'Drive', u'http://www.mb.com.ph/feed/lifestyle/drive')
+#	, (u'Food', u'http://www.mb.com.ph/feed/lifestyle/food')
+#	, (u'Travel', u'http://www.mb.com.ph/feed/lifestyle/travel')
+#	, (u'Picture Perfect', u'http://www.mb.com.ph/feed/lifestyle/picture-perfect')
+	]
+
+
+#  if use print version - convert url
+#  http://www.mb.com.ph/articles/361252/higher-power-rate-looms
+#  http://www.mb.com.ph/print/361252
+#
+#    def print_version(self,url):
+#        segments = url.split('/')
+#        printURL = '/'.join(segments[0:3]) + '/print/' + '/'.join(segments[5])
+#        return printURL
+
+
+
+
+
