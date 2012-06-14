@@ -464,7 +464,7 @@ class BasicNewsRecipe(Recipe):
                 if url and url.startswith('http://'):
                     return url
         ans = article.get('link',  None)
-        if not ans and article.links:
+        if not ans and getattr(article, 'links', None):
             for item in article.links:
                 if item.get('rel', 'alternate') == 'alternate':
                     ans = item['href']
