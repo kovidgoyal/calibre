@@ -101,8 +101,6 @@ class AppleOpenFeedback(OpenFeedback):
 
         return Dialog(parent, self)
 
-
-
 class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
@@ -212,6 +210,15 @@ class ITUNES(DriverBase):
         "Unsupported direct connect mode. "
         "See http://www.mobileread.com/forums/showthread.php?t=118559 "
         "for instructions on using 'Connect to iTunes'")
+    ITUNES_SANDBOX_LOCKOUT_MESSAGE = _(
+        '<p>Unable to communicate with iTunes.</p>'
+        "<p>As of iTunes version 10.6.3, application 'sandboxing' "
+        'was implemented by Apple, disabling inter-application communications '
+        'between iTunes and third-party applications.</p>'
+        '<p>Refer to the forum post '
+        '<a href="http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3">Apple implements sandboxing for iTunes 10.6.3</a> '
+        'for more information.</p>'
+        '<p></p>')
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -839,6 +846,9 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+
+        if self.iTunes is None:
+            raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 
         if DEBUG:
             logger().info("ITUNES.open(connected_device: %s)" % repr(connected_device))
@@ -2373,6 +2383,21 @@ class ITUNES(DriverBase):
                 self.initial_status = 'already running'
 
             '''
+            Test OSA. If we can't get the app name, we can't talk to iTunes.
+            As of iTunes 10.6.3 (June 2012), sandboxing was implemented disabling OSA
+            interapp communications.
+            If unable to communicate with iTunes, set self.iTunes to None, then
+            report to user in open()
+            '''
+            try:
+                foo = self.iTunes.name()
+            except:
+                self.iTunes = None
+                if DEBUG:
+                    logger().info("   unable to communicate with iTunes, raising dialog to user")
+                return
+
+            '''
             # Read the current storage path for iTunes media
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
             proc = subprocess.Popen( cmd, shell=True, cwd=os.curdir, stdout=subprocess.PIPE)
@@ -3319,6 +3344,9 @@ class ITUNES_ASYNC(ITUNES):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        if self.iTunes is None:
+            raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
+
         if DEBUG:
             logger().info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
 

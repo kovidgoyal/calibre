@@ -106,7 +106,8 @@ gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
 gprefs.defaults['auto_add_auto_convert'] = True
-gprefs.defaults['widget_style'] = 'system'
+gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+gprefs.defaults['tag_browser_old_look'] = False
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -782,7 +783,7 @@ class Application(QApplication):
                 font.setStretch(s)
             QApplication.setFont(font)
 
-        if force_calibre_style or gprefs['widget_style'] != 'system':
+        if force_calibre_style or gprefs['ui_style'] != 'system':
             self.load_calibre_style()
         else:
             st = self.style()

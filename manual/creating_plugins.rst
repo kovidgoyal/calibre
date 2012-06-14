@@ -172,7 +172,7 @@ You can see the ``prefs`` object being used in main.py:
     :pyobject: DemoDialog.config
 
 
-The different types of plugins
+The plugin API
 --------------------------------
 
 As you may have noticed above, a plugin in |app| is a class. There are different classes for the different types of plugins in |app|.
