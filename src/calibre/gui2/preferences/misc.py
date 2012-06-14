@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.misc_ui import Ui_Form
@@ -31,6 +32,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('worker_limit', config, restart_required=True, setting=WorkersSetting)
         r('enforce_cpu_limit', config, restart_required=True)
         r('worker_max_time', gprefs)
+        self.opt_worker_limit.setToolTip(textwrap.fill(
+                _('The maximum number of jobs that will run simultaneously in '
+                    'the background. This refers to CPU intensive tasks like '
+                    ' conversion. Lower this number if '
+                    ' if you want calibre to use less CPU.')))
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
         self.user_defined_device_button.clicked.connect(self.user_defined_device)
