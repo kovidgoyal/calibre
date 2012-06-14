@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-12 14:12+0000\n"
-"PO-Revision-Date: 2012-05-31 16:22+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-06-13 18:27+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-13 04:43+0000\n"
-"X-Generator: Launchpad (build 15389)\n"
+"X-Launchpad-Export-Date: 2012-06-14 04:34+0000\n"
+"X-Generator: Launchpad (build 15405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -6302,7 +6302,7 @@ msgstr "Nem lehet lemezre menteni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:63
 msgid "Choose format to save to disk"
-msgstr ""
+msgstr "Válasszon formátumot a lemezre mentéshez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:82
 msgid "Choose destination directory"
@@ -6418,15 +6418,15 @@ msgstr "eBook keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this author"
-msgstr ""
+msgstr "ez a szerző"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this title"
-msgstr ""
+msgstr "ez a cím"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "this book"
-msgstr ""
+msgstr "ez a könyv"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:430
@@ -6590,7 +6590,7 @@ msgstr "Megszakítás a változtatások elvesztésével"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:115
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "Változtatások mentése és a könyv frissítése a calibre könyvtárában"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:155
 msgid "Exploding, please wait..."
@@ -12131,11 +12131,11 @@ msgstr "&Teszt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"
-msgstr ""
+msgstr "Nincsenek receptek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "No custom recipes created."
-msgstr ""
+msgstr "Nem készült egyéni recept."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
@@ -14626,6 +14626,8 @@ msgstr "Legalább egy értéket meg kell adnia felsorolási oszlopokhoz"
 msgid ""
 "The value \"{0}\" is in the list more than once, perhaps with different case"
 msgstr ""
+"A következő érték többször szerepel a listában és valószínűleg több okból: "
+"{0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:295
 msgid ""
@@ -14947,11 +14949,11 @@ msgstr "Széles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Calibre stílus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "Rendszer alapértelmezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:137
 msgid "Off"
@@ -15055,7 +15057,7 @@ msgstr "Betűtípus cseréje (újraindítás szükséges)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:242
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "Felhasználói felület &stílusa (újraindítást igényel):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:243
 msgid "Main Interface"
@@ -15974,19 +15976,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:196
 msgid "Similar authors: "
-msgstr ""
+msgstr "Hasonló szerzők: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:197
 msgid "Similar series: "
-msgstr ""
+msgstr "Hasonló sorozatok: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:198
 msgid "Similar tags: "
-msgstr ""
+msgstr "Hasonló címkék: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:199
 msgid "Similar publishers: "
-msgstr ""
+msgstr "Hasonló kiadók: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -17542,7 +17544,7 @@ msgstr "Konvertálási hiba"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Nem sikerült konvertálni: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -19240,7 +19242,7 @@ msgstr "Hibajelzést adó mappák"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid "GLOBAL OPTIONS"
-msgstr ""
+msgstr "GLOBÁLIS BEÁLLÍTÁSOK"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:44
 msgid ""
@@ -19519,7 +19521,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:549
 msgid "Field name"
-msgstr ""
+msgstr "Mezőnév"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
 msgid "You must specify a record id as the first argument"
@@ -19532,7 +19534,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:585
 #, python-format
 msgid "%s is not a known field"
-msgstr ""
+msgstr "Nem ismert mező: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:615
 msgid ""
@@ -20496,15 +20498,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:94
 msgid "Options"
-msgstr ""
+msgstr "Beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:95
 msgid "show this help message and exit"
-msgstr ""
+msgstr "ennek a súgónak a megjelenítése és kilépés"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:96
 msgid "show program's version number and exit"
-msgstr ""
+msgstr "program verziójának megjelenítése és kilépés"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:377
 msgid "Path to the database in which books are stored"
@@ -21505,7 +21507,7 @@ msgstr "angol (Cseh Köztársaság)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Philippines)"
-msgstr ""
+msgstr "Angol (Fülöp-szigetek)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Pakistan)"
