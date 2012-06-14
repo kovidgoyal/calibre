@@ -104,6 +104,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('ui_style', gprefs, restart_required=True, choices=
                 [(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
+        r('tag_browser_old_look', gprefs, restart_required=True)
 
         r('cover_flow_queue_length', config, restart_required=True)
 

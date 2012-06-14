@@ -107,6 +107,7 @@ gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
 gprefs.defaults['auto_add_auto_convert'] = True
 gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+gprefs.defaults['tag_browser_old_look'] = False
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
