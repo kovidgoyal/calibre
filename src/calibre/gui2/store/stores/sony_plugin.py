@@ -48,13 +48,9 @@ class SonyStore(BasicStoreConfig, StorePlugin):
                     break
 
                 curr = ''.join(item.xpath('descendant::div[@class="pricing"]/descendant::*[@class="currency"]/@title')).strip()
-                if not curr:
-                    curr = 'USD'
                 amt = ''.join(item.xpath('descendant::div[@class="pricing"]/descendant::*[@class="amount"]/text()')).strip()
-                if not amt:
-                    amt = '0'
                 s = SearchResult()
-                s.price = curr+' '+amt
+                s.price = (curr+' '+amt) if (curr and amt) else _('Not Available')
                 title = item.xpath('descendant::h3[@class="item"]')
                 if not title: continue
                 title = etree.tostring(title[0], method='text',
