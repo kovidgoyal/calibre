@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-12 14:12+0000\n"
-"PO-Revision-Date: 2012-06-04 16:01+0000\n"
-"Last-Translator: Baz <_baz_@rambler.ru>\n"
+"PO-Revision-Date: 2012-06-14 09:13+0000\n"
+"Last-Translator: Eugene Marshal <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-13 04:48+0000\n"
-"X-Generator: Launchpad (build 15389)\n"
+"X-Launchpad-Export-Date: 2012-06-15 04:41+0000\n"
+"X-Generator: Launchpad (build 15414)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -6429,15 +6429,15 @@ msgstr "Поиск книг..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this author"
-msgstr ""
+msgstr "этот автор"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this title"
-msgstr ""
+msgstr "это название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "this book"
-msgstr ""
+msgstr "эта книга"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:430
@@ -15949,7 +15949,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:190
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "Что искать при поиске похожих книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:191
 msgid ""
@@ -15963,19 +15963,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:196
 msgid "Similar authors: "
-msgstr ""
+msgstr "Похожие авторы: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:197
 msgid "Similar series: "
-msgstr ""
+msgstr "Похожие серии: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:198
 msgid "Similar tags: "
-msgstr ""
+msgstr "Похожие метки: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:199
 msgid "Similar publishers: "
-msgstr ""
+msgstr "Похожие издатели: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -16790,6 +16790,9 @@ msgid ""
 "the store caters to. However, this does not necessarily mean that the store "
 "is limited to that market only."
 msgstr ""
+"Этот магазин расположен в %s. Это хороший показатель того, какой рынок "
+"обслуживает магазин. Тем не менее, это не означает, что магазин "
+"ограничивается только этим рынком."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:249
@@ -18041,6 +18044,8 @@ msgid ""
 "This ebook is corrupted and cannot be opened. If you downloaded it from "
 "somewhere, try downloading it again."
 msgstr ""
+"Электронная книга повреждена и не может быть открыта. Если вы загрузили её с "
+"какого-либо адреса, попробуйте повторить загрузку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:98
 msgid "Book format"
@@ -21508,7 +21513,7 @@ msgstr "Английский (Чешская Республика)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Philippines)"
-msgstr ""
+msgstr "Английский (Филиппины)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Pakistan)"
