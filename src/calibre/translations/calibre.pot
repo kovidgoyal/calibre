@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.56\n"
-"POT-Creation-Date: 2012-06-15 08:01+IST\n"
-"PO-Revision-Date: 2012-06-15 08:01+IST\n"
+"POT-Creation-Date: 2012-06-15 12:42+IST\n"
+"PO-Revision-Date: 2012-06-15 12:42+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -12701,7 +12701,7 @@ msgid "Prefer &fewer tags"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
-msgid "The maximum number of jobs that will run simultaneously in the background. This refers to CPU intensive tasks like  conversion. Lower this number if  if you want calibre to use less CPU."
+msgid "The maximum number of jobs that will run simultaneously in the background. This refers to CPU intensive tasks like  conversion. Lower this number if you want calibre to use less CPU."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46

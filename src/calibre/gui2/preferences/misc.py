@@ -35,7 +35,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_worker_limit.setToolTip(textwrap.fill(
                 _('The maximum number of jobs that will run simultaneously in '
                     'the background. This refers to CPU intensive tasks like '
-                    ' conversion. Lower this number if '
+                    ' conversion. Lower this number'
                     ' if you want calibre to use less CPU.')))
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
