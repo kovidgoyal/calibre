@@ -22,16 +22,26 @@ from calibre.utils.icu import sort_key
 
 class TagDelegate(QStyledItemDelegate): # {{{
 
+    def __init__(self, *args, **kwargs):
+        QStyledItemDelegate.__init__(self, *args, **kwargs)
+        self.old_look = gprefs['tag_browser_old_look']
+
     def paint(self, painter, option, index):
         item = index.data(Qt.UserRole).toPyObject()
         QStyledItemDelegate.paint(self, painter, option, index)
+        widget = self.parent()
+        style = QApplication.style() if widget is None else widget.style()
+        self.initStyleOption(option, index)
+        if item.boxed:
+            r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
+                    widget)
+            painter.save()
+            painter.drawLine(r.bottomLeft(), r.bottomRight())
+            painter.restore()
         if item.type != TagTreeItem.TAG:
             return
         if (item.tag.state == 0 and config['show_avg_rating'] and
                 item.tag.avg_rating is not None):
-            self.initStyleOption(option, index)
-            widget = self.parent()
-            style = QApplication.style() if widget is None else widget.style()
             r = style.subElementRect(style.SE_ItemViewItemDecoration,
                     option, widget)
             icon = option.icon
@@ -40,13 +50,19 @@ class TagDelegate(QStyledItemDelegate): # {{{
             nr = r.adjusted(0, 0, 0, 0)
             nr.setBottom(r.bottom()-int(r.height()*(rating/5.0)))
             painter.setClipRect(nr)
-            painter.fillRect(r, widget.palette().window())
+            bg = option.palette.window()
+            if self.old_look:
+                bg = (option.palette.alternateBase() if
+                        option.features&option.Alternate else
+                        option.palette.base())
+            painter.fillRect(r, bg)
             style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option,
                     painter, widget)
             painter.setOpacity(0.3)
             icon.paint(painter, r, option.decorationAlignment, icon.Normal,
                     icon.On)
             painter.restore()
+
 
     # }}}
 
@@ -101,13 +117,14 @@ class TagsView(QTreeView): # {{{
         self._model.user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
-        self.setStyleSheet('''
+        stylish_tb = '''
                 QTreeView {
                     background-color: palette(window);
-                    color: palette(text);
+                    color: palette(window-text);
                     border: none;
                 }
-
+        '''
+        self.setStyleSheet('''
                 QTreeView::item {
                     border: 1px solid transparent;
                     padding-top:0.9ex;
@@ -119,7 +136,9 @@ class TagsView(QTreeView): # {{{
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }
-        ''')
+        ''' + ('' if gprefs['tag_browser_old_look'] else stylish_tb))
+        if gprefs['tag_browser_old_look']:
+            self.setAlternatingRowColors(True)
 
     @property
     def hidden_categories(self):

@@ -976,6 +976,7 @@ class QtCConfig
 
 QtCConfig::QtCConfig(const QString &filename)
 {
+    if (filename.isEmpty()) return; // Changed by Kovid to ensure config files are never read
     QFile f(filename);
 
 #if QT_VERSION >= 0x040000
@@ -1748,17 +1749,13 @@ bool qtcReadConfig(const char *file, Options *opts, Options *defOpts)
 #endif
     else
     {
+// Changed by Kovid to ensure config files are never read
 #ifdef __cplusplus
-        QtCConfig cfg(file);
-
-        if(cfg.ok())
-        {
+        QtCConfig cfg(QString(""));
 #else
-        GHashTable *cfg=loadConfig(file);
-
-        if(cfg)
-        {
+        GHashTable *cfg=NULL;
 #endif
+        if (0) {
             int     i;
 
             opts->version=readVersionEntry(cfg, VERSION_KEY);

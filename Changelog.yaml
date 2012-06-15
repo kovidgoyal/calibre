@@ -20,6 +20,57 @@
 #     - title: 
 
 
+- version: 0.8.56
+  date: 2012-06-15
+
+  new features:
+    - title: "Make the new calibre style default on Windows and OS X."
+      type: major
+      description: "This change gives a more 'modern' feel to the calibre user interface with focus highlighting, gradients, rounded corners, etc. In case you prefer the old look, you can restore under Preferences->Look & Feel->User interface style"
+
+    - title: "Get Books: Add the new SONY Reader store"
+
+    - title: "Read metadata from .docx (Microsoft Word) files"
+
+    - title: "Allow customizing the behavior of the searching for similar books by right clicking the book. You can now tell calibre to search different columns than the traditional author/series/publisher/tags/etc. in Preferences->Searching"
+
+    - title: "Add option to restore alternating row colors to the Tag Browser under Preferences->Look & Feel->Tag Browser"
+
+    - title: "Update to Qt 4.8.2 on windows compiled with link time code generation for a small performance boost"
+ 
+  bug fixes:
+    - title: "Get Books: Update plugins to handle website changes at ebooks.com, project gutenberg, and virtualo"
+
+    - title: "AZW3 Output: Fix TOC at start option not working"
+
+    - title: "AZW3 Output: Close self closing script/style/title/head tags explicitly as they cause problems in webkit based renderers like the Kindle Fire and calibre's viewers."
+
+    - title: "Fix the current_library_name() template function not updating after a library switch"
+
+    - title: "AZW3 Output: Handle the case of a link pointing to the last line of text in the document."
+      tickets: [1011330]
+
+    - title: "Fix regression in 0.8.55 that broke highlighting of items matching a search in the Tag Browser"
+      tickets: [1011030] 
+
+    - title: "News download: Handle query only relative URLs"
+
+  improved recipes:
+    - Christian Science Monitor
+    - Neue Zurcher Zeitung
+    - Birmignham Post
+    - Metro UK 
+    - New Musical Express
+    - The Independent
+    - The Daily Mirror
+    - Vreme
+    - Smithsonian Magazine
+
+  new recipes:
+    - title: NZZ Webpaper 
+      author: Bernd Leinfelder
+
+
 - version: 0.8.55
   date: 2012-06-08
 

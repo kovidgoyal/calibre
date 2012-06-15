@@ -74,6 +74,7 @@ namespace QtCurve
             else
                 return false;
             #else
+            Q_UNUSED(widget);
             return compositingActive();
             #endif
         }

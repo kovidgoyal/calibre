@@ -238,10 +238,11 @@ class LayoutMixin(object): # {{{
         # }}}
 
         self.status_bar = StatusBar(self)
+        stylename = unicode(self.style().objectName())
         for x in button_order:
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
-            if isosx:
+            if isosx and stylename != u'Calibre':
                 button.setStyleSheet('''
                         QToolButton { background: none; border:none; padding: 0px; }
                         QToolButton:checked { background: rgba(0, 0, 0, 25%); }

@@ -209,6 +209,9 @@ namespace QtCurve
         // force update
         if( widget->isVisible() )
         { widget->update(); }
+        
+        #else
+        Q_UNUSED(widget);
 
         #endif
 
@@ -220,6 +223,8 @@ namespace QtCurve
     {
         #ifdef Q_WS_X11
         XChangeProperty( QX11Info::display(), widget->winId(), _atom, XA_CARDINAL, 32, PropModeReplace, 0, 0 );
+        #else
+        Q_UNUSED(widget);
         #endif
 
     }

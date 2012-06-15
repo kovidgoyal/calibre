@@ -20,7 +20,7 @@ class TOCView(QTreeView):
         self.setStyleSheet('''
                 QTreeView {
                     background-color: palette(window);
-                    color: palette(text);
+                    color: palette(window-text);
                     border: none;
                 }
                 QTreeView::item {

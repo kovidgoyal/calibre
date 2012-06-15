@@ -14,7 +14,7 @@ from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = r'Q:\openssl'
-QT_DIR = 'Q:\\Qt\\4.8.1'
+QT_DIR = 'Q:\\Qt\\4.8.2'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 QTCURVE = r'C:\plugins\styles'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
