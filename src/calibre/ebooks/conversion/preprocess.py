@@ -446,7 +446,7 @@ class HTMLPreProcessor(object):
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br>'),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: ''),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),

@@ -82,6 +82,11 @@ class BooksView(QTableView): # {{{
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
 
+    def viewportEvent(self, event):
+        if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
+            return False
+        return QTableView.viewportEvent(self, event)
+
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 

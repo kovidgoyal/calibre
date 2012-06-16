@@ -574,6 +574,9 @@ def command_set_metadata(args, dbpath):
 
     if len(args) > 2:
         opf = args[2]
+        if not os.path.exists(opf):
+            prints(_('The OPF file %s does not exist')%opf, file=sys.stderr)
+            return 1
         do_set_metadata(db, book_id, opf)
 
     if opts.field:
