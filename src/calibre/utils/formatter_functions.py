@@ -9,6 +9,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
+from math import trunc
 
 from calibre import human_readable
 from calibre.constants import DEBUG
@@ -169,8 +170,8 @@ class BuiltinAdd(BuiltinFormatterFunction):
     __doc__ = doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x + y)
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -180,8 +181,8 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     __doc__ = doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x - y)
 
 class BuiltinMultiply(BuiltinFormatterFunction):
@@ -191,8 +192,8 @@ class BuiltinMultiply(BuiltinFormatterFunction):
     __doc__ = doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x * y)
 
 class BuiltinDivide(BuiltinFormatterFunction):
@@ -202,8 +203,8 @@ class BuiltinDivide(BuiltinFormatterFunction):
     __doc__ = doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x / y)
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -657,11 +658,17 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
         if val == '' or val == 'None':
             return ''
         try:
-            return template.format(float(val))
+            v1 = float(val)
+        except:
+            return ''
+        try: # Try formatting the value as a float
+            return template.format(v1)
         except:
             pass
-        try:
-            return template.format(int(val))
+        try: # Try formatting the value as an int
+            v2 = trunc(v1)
+            if v2 == v1:
+                return template.format(v2)
         except:
             pass
         return ''
