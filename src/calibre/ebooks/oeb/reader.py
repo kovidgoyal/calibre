@@ -338,8 +338,15 @@ class OEBReader(object):
             href = elem.get('href')
             path = urlnormalize(urldefrag(href)[0])
             if path not in manifest.hrefs:
-                self.logger.warn(u'Guide reference %r not found' % href)
-                continue
+                corrected_href = None
+                for href in manifest.hrefs:
+                    if href.lower() == path.lower():
+                        corrected_href = href
+                        break
+                if corrected_href is None:
+                    self.logger.warn(u'Guide reference %r not found' % href)
+                    continue
+                href = corrected_href
             guide.add(elem.get('type'), elem.get('title'), href)
 
     def _find_ncx(self, opf):
@@ -363,13 +370,24 @@ class OEBReader(object):
             title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
             title = COLLAPSE_RE.sub(' ', title.strip())
             href = xpath(child, 'ncx:content/@src')
-            if not title or not href:
+            if not title:
+                self._toc_from_navpoint(item, toc, child)
                 continue
+            if not href:
+                gc = xpath(child, 'ncx:navPoint')
+                if not gc:
+                    # This node is useless
+                    continue
+                href = 'missing.html'
+
             href = item.abshref(urlnormalize(href[0]))
             path, _ = urldefrag(href)
             if path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
-                continue
+                gc = xpath(child, 'ncx:navPoint')
+                if not gc:
+                    # This node is useless
+                    continue
             id = child.get('id')
             klass = child.get('class', 'chapter')
 

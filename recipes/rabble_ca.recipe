@@ -1,0 +1,51 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class RabbleCa(BasicNewsRecipe):
+    title          = u'Rabble.ca'
+    __author__ = 'timtoo'
+    language = 'en_CA'
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    cover_url      = 'https://upload.wikimedia.org/wikipedia/en/4/44/Rabble.png'
+    masthead_url      = 'http://rabble.ca/sites/rabble/files/dreamyrabble_logo.jpg'
+
+    feeds          = [(u'Rabble.ca', u'http://feeds.feedburner.com/rabble-news')]
+
+    preprocess_regexps = [
+           (re.compile(r'<a href="http://rabble.ca/user">.*?to post comments', re.DOTALL|re.IGNORECASE),
+           lambda match: 'Tags:'),
+    ]
+
+    extra_css = """
+            .print-taxonomy { display: inline }
+            .print-taxonomy ul { display: inline; margin: 0px }
+            .print-taxonomy ul li { display: inline; list-style: none }
+            .field-type-date div { display: inline }
+            .field-type-link div { display: inline }
+            .field-type-text div { display: inline }
+            .field-label { font-style: italic }
+            """
+
+    def print_version(self, url):
+        return url.replace('http://rabble.ca/', 'http://rabble.ca/print/')
+
+    remove_tags = [
+            # print version of the web page
+            dict(name='div', attrs={'class': ['print-logo']}),
+            dict(name='div', attrs={'class': ['print-site_name']}),
+            dict(name='hr', attrs={'class': ['print-hr']}),
+            dict(name='div', attrs={'class': ['print-links']}),
+
+            # regular web page in case you need to download them
+            dict(name='div', attrs={'id': ['header']}),
+            dict(name='div', attrs={'class': ['container-submenu']}),
+            dict(name='div', attrs={'id': ['sidebar']}),
+            dict(name='div', attrs={'id': ['footer']}),
+            dict(name='div', attrs={'class': ['rabble-nodelinks rabble-nodelinks-top']}),
+            dict(name='div', attrs={'class': ['rabble-nodelinks rabble-nodelinks-bottom']}),
+            dict(name='div', attrs={'class': ['tags-issues']}),
+            dict(name='div', attrs={'class': ['field field-type-text field-field-summary']}),
+            dict(name='span', attrs={'class': ['print-footnote']}),
+    ]

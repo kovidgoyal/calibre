@@ -50,6 +50,7 @@ class SelectFormats(QDialog):
     def __init__(self, fmt_count, msg, single=False, parent=None, exclude=False):
         QDialog.__init__(self, parent)
         self._l = QVBoxLayout(self)
+        self.single_fmt = single
         self.setLayout(self._l)
         self.setWindowTitle(_('Choose formats'))
         self._m = QLabel(msg)
@@ -57,6 +58,8 @@ class SelectFormats(QDialog):
         self._l.addWidget(self._m)
         self.formats = Formats(fmt_count)
         self.fview = QListView(self)
+        self.fview.doubleClicked.connect(self.double_clicked,
+                type=Qt.QueuedConnection)
         if exclude:
             self.fview.setStyleSheet('''
                     QListView { background-color: #FAE7B5}
@@ -81,6 +84,11 @@ class SelectFormats(QDialog):
         for idx in self.fview.selectedIndexes():
             self.selected_formats.add(self.formats.fmt(idx))
         QDialog.accept(self, *args)
+
+    def double_clicked(self, index):
+        if self.single_fmt:
+            self.accept()
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

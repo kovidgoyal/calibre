@@ -72,6 +72,7 @@ class Jacket(object):
 
         item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
         self.oeb.spine.insert(0, item, True)
+        self.oeb.inserted_metadata_jacket = item
 
     def remove_existing_jacket(self):
         for x in self.oeb.spine[:4]:

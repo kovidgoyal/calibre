@@ -13,10 +13,11 @@ class tvn24(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     no_stylesheets = True
-    keep_only_tags=[dict(id='tvn24_wiadomosci_detal'), dict(name='h1', attrs={'class':'standardHeader1'}), dict(attrs={'class':['date60m rd5', 'imageBackground fl rd7', 'contentFromCMS']})]
-    remove_tags_after= dict(name='div', attrs={'class':'socialBoxesBottom'})
-    remove_tags=[dict(attrs={'class':['tagi_detal', 'socialBoxesBottom', 'twitterBox', 'commentsInfo', 'textSize', 'obj_ukrytydruk obj_ramka1_r', 'related newsNews align-right', 'box', 'newsUserList', 'watchMaterial text']})]
-    feeds          = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'), (u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
+    keep_only_tags=[dict(name='h1', attrs={'class':'standardHeader1'}), dict(attrs={'class':['date60m rd5', 'imageBackground fl rd7', 'contentFromCMS']}), dict(attrs={'class':'mainLeftColumn'})]
+    remove_tags=[dict(attrs={'class':['commentsInfo', 'textSize', 'related newsNews align-right', 'box', 'watchMaterial text']})]
+    #remove_tags_after= dict(attrs={'class':'articleAuthors mb30 mt5 grey_v6'})
+    feeds          = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'), ]
+		#(u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

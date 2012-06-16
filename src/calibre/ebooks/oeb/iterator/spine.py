@@ -29,7 +29,7 @@ def anchor_map(html):
     ans = {}
     for match in re.finditer(
         r'''(?:id|name)\s*=\s*['"]([^'"]+)['"]''', html):
-        anchor = match.group(0)
+        anchor = match.group(1)
         ans[anchor] = ans.get(anchor, match.start())
     return ans
 

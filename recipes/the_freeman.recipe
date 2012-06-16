@@ -1,0 +1,70 @@
+
+'''
+www.philstar.com
+'''
+
+import time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Freeman(BasicNewsRecipe):
+    title                  	= 'The Freeman'
+    custom_title 	= "The Freeman - " + time.strftime('%d %b %Y %I:%M %p')
+    __author__             	= 'jde'
+    __date__                       = '31 May 2012'
+    __version__                   = '1.0'
+    description            	= 'The Freeman is a daily English-language newspaper published in Cebu, Philippines, by the Philippine Star. It was the first newspaper in Cebu, first published in May 1919.  The motto of the newspaper is "The fair and fearless" - philstar.com is a Philippine news and entertainment portal for the Filipino global community.   It is the online presence of the STAR Group of Publications, a leading publisher of newspapers and magazines in the Philippines.'
+    language               	= 'en_PH'
+    publisher              	= 'The Philippine STAR'
+    category               	= 'news, Philippines'
+    tags 		= 'news, Philippines'
+    cover_url        	= 'http://www.philstar.com/images/logo_Freeman.jpg'
+    masthead_url        	= 'http://www.philstar.com/images/logo_Freeman.jpg'
+    oldest_article 	= 1.5 #days
+    max_articles_per_feed  	= 25
+    simultaneous_downloads = 10
+    publication_type 	= 'newspaper'
+    timefmt 		= ' [%a, %d %b %Y %I:%M %p]'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= False
+
+    remove_tags = [dict(name='img',  attrs={'id':'Image1'})    #Logo
+	       ,dict(name='span', attrs={'id':'ControlArticle1_LabelHeader'})   #Section (Headlines, Nation, Metro, ...)
+	       ,dict(name='a',      attrs={'id':'ControlArticle1_FormView1_hlComments'})   #Comments
+	       ,dict(name='img',  attrs={'src':'images/post-comments.jpg'})   #View Comments
+	       ,dict(name='a',      attrs={'id':'ControlArticle1_FormView1_ControlPhotoAndCaption1_hlImageCaption'})  #Zoom
+	]
+    conversion_options = { 'title'   : custom_title,
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                         }
+
+    feeds = [
+               ('Cebu News'      		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=107' )
+              ,('Freeman Opinion'       	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=109' )
+              ,('Metro Cebu'     		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=531' )
+              ,('Region'          		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=530' )
+              ,('Cebu Business'            	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=108' )
+              ,('Cebu Sports'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=110' )
+              ,('Cebu Lifestyle'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=111' )
+              ,('Cebu Entertainment'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=51' )
+           	 ]
+
+# process the printer friendly version of article
+    def print_version(self, url):
+          return url.replace('/Article', '/ArticlePrinterFriendly')
+
+# obtain title from printer friendly version of article; avoiding  add_toc_thumbnail changing title when article has image
+    def populate_article_metadata(self, article, soup, first):
+          article.title = soup.find('span', {'id': 'ControlArticle1_FormView1_ArticleHeaderLabel'}).contents[0].strip()
+
+

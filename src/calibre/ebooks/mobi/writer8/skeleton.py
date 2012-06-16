@@ -33,7 +33,8 @@ aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
 'video'}
 
 _self_closing_pat = re.compile(bytes(
-    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags))),
+    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags|{'script',
+        'style', 'title', 'head'}))),
     re.IGNORECASE)
 
 def close_self_closing_tags(raw):
@@ -118,6 +119,7 @@ class Skeleton(object):
     def render(self, root):
         raw = tostring(root, xml_declaration=True)
         raw = raw.replace(b'<html', bytes('<html xmlns="%s"'%XHTML_NS), 1)
+        raw = close_self_closing_tags(raw)
         return raw
 
     def calculate_metrics(self, root):
@@ -372,6 +374,11 @@ class Chunker(object):
                     # the chunk immediately after
                     pos_fid = (chunk.sequence_number, 0, offset)
                     break
+                if chunk is self.chunk_table[-1]:
+                    # This can happen for aids very close to the end of the the
+                    # end of the text (https://bugs.launchpad.net/bugs/1011330)
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
+                            offset)
             if pos_fid is None:
                 raise ValueError('Could not find chunk for aid: %r'%
                         match.group(1))

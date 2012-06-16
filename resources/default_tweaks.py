@@ -442,12 +442,6 @@ metadata_edit_custom_column_order = []
 # calibre.
 public_smtp_relay_delay = 301
 
-#: Remove the bright yellow lines at the edges of the book list
-# Control whether the bright yellow lines at the edges of book list are drawn
-# when a section of the user interface is hidden. Changes will take effect
-# after a restart of calibre.
-draw_hidden_section_indicators = True
-
 #: The maximum width and height for covers saved in the calibre library
 # All covers in the calibre library will be resized, preserving aspect ratio,
 # to fit within this size. This is to prevent slowdowns caused by extremely

@@ -463,7 +463,13 @@ class BasicNewsRecipe(Recipe):
                 url = article[key]
                 if url and url.startswith('http://'):
                     return url
-        return article.get('link',  None)
+        ans = article.get('link',  None)
+        if not ans and getattr(article, 'links', None):
+            for item in article.links:
+                if item.get('rel', 'alternate') == 'alternate':
+                    ans = item['href']
+                    break
+        return ans
 
     def skip_ad_pages(self, soup):
         '''

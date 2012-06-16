@@ -223,6 +223,8 @@ class MOBIOutput(OutputFormatPlugin):
         else:
             # Add rasterized SVG images
             resources.add_extra_images()
+        if hasattr(self.oeb, 'inserted_metadata_jacket'):
+            self.workaround_fire_bugs(self.oeb.inserted_metadata_jacket)
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
@@ -235,6 +237,18 @@ class MOBIOutput(OutputFormatPlugin):
     def specialize_css_for_output(self, log, opts, item, stylizer):
         from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
         CSSCleanup(log, opts)(item, stylizer)
+
+    def workaround_fire_bugs(self, jacket):
+        # The idiotic Fire crashes when trying to render the table used to
+        # layout the jacket
+        from calibre.ebooks.oeb.base import XHTML
+        for table in jacket.data.xpath('//*[local-name()="table"]'):
+            table.tag = XHTML('div')
+            for tr in table.xpath('descendant::*[local-name()="tr"]'):
+                cols = tr.xpath('descendant::*[local-name()="td"]')
+                tr.tag = XHTML('div')
+                for td in cols:
+                    td.tag = XHTML('span' if cols else 'div')
 
 class AZW3Output(OutputFormatPlugin):
 

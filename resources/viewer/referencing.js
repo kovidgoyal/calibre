@@ -15,7 +15,7 @@ function show_reference_panel(ref) {
         panel = $("#calibre_reference_panel");
     }
     $("> p", panel).text(ref);
-    panel.css({top:(window.pageYOffset+20)+"px"});
+    panel.css({top:(window.pageYOffset+20)+"px", left:(window.pageXOffset+20)+"px"});
     panel.fadeIn(500);
 }
 

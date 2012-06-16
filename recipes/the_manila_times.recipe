@@ -1,0 +1,55 @@
+import time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class TheManilaTimes(BasicNewsRecipe):
+    title          		= u'The Manila Times'
+    custom_title 	= "The Manila Times - " + time.strftime('%d %b %Y %I:%M %p')
+    __author__             	= 'jde'
+    __date__                	= '06 June 2012'
+    __version__            	 = '1.0'
+    description            	= 'The Manila Times is the oldest existing English language newspaper in the Philippines.'
+    language               	= 'en_PH'
+    publisher              	= 'The Manila Times'
+    category               	= 'news, Philippines'
+    tags 		= 'news, Philippines'
+    cover_url        	= 'http://www.manilatimes.net/images/banners/logo-mt.png'
+    masthead_url        	= 'http://www.manilatimes.net/images/banners/logo-mt.png'
+    oldest_article 	= 1.5 #days
+    max_articles_per_feed  	= 25
+    simultaneous_downloads = 20
+    publication_type 	= 'newspaper'
+    timefmt 		= ' [%a, %d %b %Y %I:%M %p]'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+
+
+
+    remove_tags = [
+	        dict(name='img', attrs={'alt':'Print'})
+	       ,dict(name='img', attrs={'alt':'Email:'})
+	       ,dict(name='dd', attrs={'class':'hits'})
+	       ]
+
+
+    auto_cleanup = True
+
+
+    conversion_options = { 'title'   : custom_title,
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+
+
+
+
+    feeds          = [(u'Breaking News', u'http://www.manilatimes.net/index.php/news/breaking-news?format=feed&amp;type=rss'), (u'Top Stories', u'http://www.manilatimes.net/index.php/news/top-stories?format=feed&amp;type=rss'), (u'Headlines', u'http://www.manilatimes.net/index.php/news/headlines-mt?format=feed&amp;type=rss'), (u'Nation', u'http://www.manilatimes.net/index.php/news/nation?format=feed&amp;type=rss'), (u'Regions', u'http://www.manilatimes.net/index.php/news/regions?format=feed&amp;type=rss'), (u'World', u'http://www.manilatimes.net/index.php/news/world?format=feed&amp;type=rss'), (u'Top Business News', u'http://www.manilatimes.net/index.php/business/top-business-news?format=feed&amp;type=rss'), (u'Business Columnist', u'http://www.manilatimes.net/index.php/business/business-columnist?format=feed&amp;type=rss'), (u'Opinion - Editorials', u'http://www.manilatimes.net/index.php/opinion/editorials?format=feed&amp;type=rss'), (u'Opinion - Columnist', u'http://www.manilatimes.net/index.php/opinion/columnist1?format=feed&amp;type=rss'), (u'Opinion - Editorial Cartoon', u'http://www.manilatimes.net/index.php/opinion/editorial-cartoon?format=feed&amp;type=rss'), (u'Top Sports News', u'http://www.manilatimes.net/index.php/sports/top-sports-news?format=feed&amp;type=rss'), (u'Sports Columnist', u'http://www.manilatimes.net/index.php/sports/sports-columnist?format=feed&amp;type=rss'), (u'Life & Times', u'http://www.manilatimes.net/index.php/life-and-times?format=feed&amp;type=rss'), (u'Showtime', u'http://www.manilatimes.net/index.php/life-and-times/showtime?format=feed&amp;type=rss'), (u'Sunday Times', u'http://www.manilatimes.net/index.php/sunday-times?format=feed&amp;type=rss'), (u'Sunday Times Magazine', u'http://www.manilatimes.net/index.php/sunday-times/the-sunday-times-magazines?format=feed&amp;type=rss'), (u'Motoring News', u'http://www.manilatimes.net/index.php/fast-times/motoring-news?format=feed&amp;type=rss'), (u'Motoring Columnist', u'http://www.manilatimes.net/index.php/fast-times/motoring-columnist?format=feed&amp;type=rss'), (u'Technology', u'http://www.manilatimes.net/index.php/technology?format=feed&amp;type=rss')]

@@ -381,7 +381,7 @@ class RecursiveFetcher(object):
     def absurl(self, baseurl, tag, key, filter=True):
         iurl = tag[key]
         parts = urlparse.urlsplit(iurl)
-        if not parts.netloc and not parts.path:
+        if not parts.netloc and not parts.path and not parts.query:
             return None
         if not parts.scheme:
             iurl = urlparse.urljoin(baseurl, iurl, False)

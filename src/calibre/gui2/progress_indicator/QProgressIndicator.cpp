@@ -1,6 +1,10 @@
 #include "QProgressIndicator.h"
 
 #include <QPainter>
+#include <QStylePlugin>
+#include <QPluginLoader>
+#include <QStyle>
+#include <QApplication>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),
@@ -121,4 +125,23 @@ void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
         p.drawRoundedRect(-capsuleWidth*0.5, -(innerRadius+capsuleHeight), capsuleWidth, capsuleHeight, capsuleRadius, capsuleRadius);
         p.restore();
     }
+}
+
+int load_style(QString &path, QString &name) {
+    int ret = 0;
+    QStyle *s;
+    QPluginLoader pl(path);
+    QObject *o = pl.instance();
+    if (o != 0) {
+        QStylePlugin *sp = qobject_cast<QStylePlugin *>(o);
+        if (sp != 0) {
+            s = sp->create(name);
+            if (s != 0) {
+                s->setObjectName(name);
+                QApplication::setStyle(s);
+                ret = 1;
+            }
+        }
+    }
+    return ret;
 }

@@ -116,7 +116,7 @@ class DeleteAction(InterfaceAction):
         for action in list(self.delete_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def _get_selected_formats(self, msg, ids, exclude=False):
+    def _get_selected_formats(self, msg, ids, exclude=False, single=False):
         from calibre.gui2.dialogs.select_formats import SelectFormats
         c = Counter()
         db = self.gui.library_view.model().db
@@ -125,7 +125,8 @@ class DeleteAction(InterfaceAction):
             if fmts_:
                 for x in frozenset([x.lower() for x in fmts_.split(',')]):
                     c[x] += 1
-        d = SelectFormats(c, msg, parent=self.gui, exclude=exclude)
+        d = SelectFormats(c, msg, parent=self.gui, exclude=exclude,
+                single=single)
         if d.exec_() != d.Accepted:
             return None
         return d.selected_formats
@@ -265,8 +266,10 @@ class DeleteAction(InterfaceAction):
             v.model().clear_ondevice(ids_deleted)
         if current_row is not None:
             ci = view.model().index(current_row, 0)
-            if ci.isValid():
-                view.set_current_row(current_row)
+            if not ci.isValid():
+                # Current row is after the last row, set it to the last row
+                current_row = view.row_count() - 1
+            view.set_current_row(current_row)
 
     def delete_books(self, *args):
         '''

@@ -26,37 +26,56 @@ class SimilarBooksAction(InterfaceAction):
         (_('Books in this series'), 'books_in_series.png', 'series',
             _('Alt+Shift+S')),
         (_('Books by this publisher'), 'publisher.png', 'publisher', _('Alt+P')),
-        (_('Books with the same tags'), 'tags.png', 'tag', _('Alt+T')),]:
+        (_('Books with the same tags'), 'tags.png', 'tags', _('Alt+T')),]:
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
             m.addAction(ac)
             ac.triggered.connect(partial(self.show_similar_books, target))
         self.qaction.setMenu(m)
 
-    def show_similar_books(self, type, *args):
-        search, join = [], ' '
+    def show_similar_books(self, typ, *args):
         idx = self.gui.library_view.currentIndex()
         if not idx.isValid():
             return
+        db = idx.model().db
         row = idx.row()
-        if type == 'series':
-            series = idx.model().db.series(row)
-            if series:
-                search = ['series:"'+series+'"']
-        elif type == 'publisher':
-            publisher = idx.model().db.publisher(row)
-            if publisher:
-                search = ['publisher:"'+publisher+'"']
-        elif type == 'tag':
-            tags = idx.model().db.tags(row)
-            if tags:
-                search = ['tag:"='+t+'"' for t in tags.split(',')]
-        elif type in ('author', 'authors'):
-            authors = idx.model().db.authors(row)
-            if authors:
-                search = ['author:"='+a.strip().replace('|', ',')+'"' \
-                                for a in authors.split(',')]
-                join = ' or '
+
+        # Get the parameters for this search
+        col = db.prefs['similar_' + typ + '_search_key']
+        match = db.prefs['similar_' + typ + '_match_kind']
+        if match == 'match_all':
+            join = ' and '
+        else:
+            join = ' or '
+
+        # Get all the data for the current record
+        mi = db.get_metadata(row)
+
+        # Get the definitive field name to use for this search. If the field
+        # is a grouped search term, the function returns the list of fields that
+        # are to be searched, otherwise it returns the field name.
+        loc = db.field_metadata.search_term_to_field_key(icu_lower(col))
+        if isinstance(loc, list):
+            # Grouped search terms are a list of fields. Get all the values,
+            # pruning duplicates
+            val = set()
+            for f in loc:
+                v = mi.get(f, None)
+                if not v:
+                    continue
+                if isinstance(v, list):
+                    val.update(v)
+                else:
+                    val.add(v)
+        else:
+            # Get the value of the requested field. Can be a list or a simple val
+            val = mi.get(col, None)
+        if not val:
+            return
+
+        if not isinstance(val, (list, set)):
+            val = [val]
+        search = [col + ':"='+t+'"' for t in val]
         if search:
             self.gui.search.set_search_string(join.join(search),
                     store_in_history=True)

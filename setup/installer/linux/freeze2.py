@@ -22,9 +22,12 @@ QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 
 MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
+                '/usr/bin/pdfinfo',
+                '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',
                 '/usr/lib/liblzma.so.0',
+                '/usr/lib/libexpat.so.1',
                 '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
@@ -189,7 +192,7 @@ class LinuxFreeze(Command):
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
                     ignore=ignore_in_lib)
-        for x in ('manual', 'trac'):
+        for x in ('trac',):
             x = self.j(dest, 'calibre', x)
             if os.path.exists(x):
                 shutil.rmtree(x)

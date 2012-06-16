@@ -8,18 +8,16 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, os, shlex, subprocess, glob, shutil
 from distutils import sysconfig
+from multiprocessing import cpu_count
 
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows
-from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs,
-        fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc,
-        podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE,
-        QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk,
-        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs,
-        magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs,
-        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, poppler_cflags)
+from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
+        podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
+        msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
+        magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
+        icu_lib_dirs)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -51,7 +49,6 @@ class Extension(object):
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
-reflow_error = poppler_error if poppler_error else magick_error
 
 pdfreflow_libs = []
 if iswindows:
@@ -106,16 +103,6 @@ extensions = [
         lib_dirs=magick_lib_dirs,
         inc_dirs=magick_inc_dirs
         ),
-
-    Extension('pdfreflow',
-                reflow_sources,
-                headers=reflow_headers,
-                libraries=poppler_libs+magick_libs+png_libs+ft_libs+jpg_libs+pdfreflow_libs,
-                lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs+ft_lib_dirs+jpg_lib_dirs,
-                inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
-                error=reflow_error,
-                cflags=poppler_cflags
-                ),
 
     Extension('lzx',
             ['calibre/utils/lzx/lzxmodule.c',
@@ -282,6 +269,7 @@ class Build(Command):
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
+        self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
@@ -376,6 +364,87 @@ class Build(Command):
             print "Error while executing: %s\n" % (cmdline)
             raise
 
+    def build_style(self, dest):
+        self.info('\n####### Building calibre style', '#'*7)
+        sdir = self.j(self.SRC, 'qtcurve')
+        def path(x):
+            x=self.j(sdir, x)
+            return ('"%s"'%x).replace(os.sep, '/')
+        headers = [
+           "common/colorutils.h",
+           "common/common.h",
+           "common/config_file.h",
+           "style/blurhelper.h",
+           "style/fixx11h.h",
+           "style/pixmaps.h",
+           "style/qtcurve.h",
+           "style/shortcuthandler.h",
+           "style/utils.h",
+           "style/windowmanager.h",
+        ]
+        sources = [
+           "common/colorutils.c",
+           "common/common.c",
+           "common/config_file.c",
+           "style/blurhelper.cpp",
+           "style/qtcurve.cpp",
+           "style/shortcuthandler.cpp",
+           "style/utils.cpp",
+           "style/windowmanager.cpp",
+        ]
+        if not iswindows and not isosx:
+            headers.append( "style/shadowhelper.h")
+            sources.append('style/shadowhelper.cpp')
+
+        pro = textwrap.dedent('''
+        TEMPLATE = lib
+        CONFIG += qt plugin release
+        CONFIG -= embed_manifest_dll
+        VERSION = 1.0.0
+        DESTDIR = .
+        TARGET = calibre
+        QT *= svg
+        INCLUDEPATH *= {conf} {inc}
+        win32-msvc*:DEFINES *= _CRT_SECURE_NO_WARNINGS
+
+        # Force C++ language
+        *g++*:QMAKE_CFLAGS *= -x c++
+        *msvc*:QMAKE_CFLAGS *= -TP
+        *msvc*:QMAKE_CXXFLAGS += /MP
+
+        ''').format(conf=path(''), inc=path('common'))
+        if isosx:
+            pro += '\nCONFIG += x86 x86_64\n'
+        else:
+            pro += '\nunix:QT *= dbus\n'
+
+        for x in headers:
+            pro += 'HEADERS += %s\n'%path(x)
+        for x in sources:
+            pro += 'SOURCES += %s\n'%path(x)
+        odir = self.j(self.d(self.SRC), 'build', 'qtcurve')
+        if not os.path.exists(odir):
+            os.makedirs(odir)
+        ocwd = os.getcwdu()
+        os.chdir(odir)
+        try:
+            if not os.path.exists('qtcurve.pro') or (open('qtcurve.pro',
+                'rb').read() != pro):
+                with open('qtcurve.pro', 'wb') as f:
+                    f.write(pro)
+            qmc = [QMAKE, '-o', 'Makefile']
+            if iswindows:
+                qmc += ['-spec', 'win32-msvc2008']
+            self.check_call(qmc + ['qtcurve.pro'])
+            self.check_call([make]+([] if iswindows else ['-j%d'%(cpu_count()
+                or 1)]))
+            src = (glob.glob('*.so') + glob.glob('release/*.dll') +
+                    glob.glob('*.dylib'))
+            ext = 'pyd' if iswindows else 'so'
+            shutil.copy2(src[0], self.j(dest, 'calibre_style.'+ext))
+        finally:
+            os.chdir(ocwd)
+
     def build_qt_objects(self, ext):
         obj_pat = 'release\\*.obj' if iswindows else '*.o'
         objects = glob.glob(obj_pat)
@@ -444,49 +513,6 @@ class Build(Command):
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
 
-
-class BuildPDF2XML(Command):
-
-    description = 'Build command line pdf2xml utility'
-
-    def run(self, opts):
-        dest = os.path.expanduser('~/bin/pdf2xml')
-        if iswindows:
-            dest = r'C:\cygwin\home\kovid\sw\bin\pdf2xml.exe'
-        odest = self.j(self.d(self.SRC), 'build', 'objects', 'pdf2xml')
-        if not os.path.exists(odest):
-            os.makedirs(odest)
-
-        objects = []
-        for src in reflow_sources:
-            if src.endswith('python.cpp'):
-                continue
-            obj = self.j(odest, self.b(src+('.obj' if iswindows else '.o')))
-            if self.newer(obj, [src]+reflow_headers):
-                cmd = [cxx, '-pthread', '-pedantic', '-ggdb', '-c', '-Wall', '-I/usr/include/poppler',
-                        '-I/usr/include/ImageMagick',
-                        '-DPDF2XML', '-o', obj, src]
-                if iswindows:
-                    cmd = [cxx, '/c', '/MD', '/W3', '/EHsc', '/Zi', '/DPDF2XML']
-                    cmd += ['-I'+x for x in poppler_inc_dirs+magick_inc_dirs]
-                    cmd += ['/Fo'+obj, src]
-                self.info(*cmd)
-                self.check_call(cmd)
-            objects.append(obj)
-
-        if self.newer(dest, objects):
-            cmd = ['g++', '-ggdb', '-o', dest]+objects+['-lpoppler', '-lMagickWand',
-            '-lpng', '-lpthread']
-            if iswindows:
-                cmd = [msvc.linker] + '/INCREMENTAL:NO /DEBUG /NODEFAULTLIB:libcmt.lib'.split()
-                cmd += ['/LIBPATH:'+x for x in magick_lib_dirs+poppler_lib_dirs]
-                cmd += [x+'.lib' for x in
-                        png_libs+magick_libs+poppler_libs+ft_libs+jpg_libs+pdfreflow_libs]
-                cmd += ['/OUT:'+dest] + objects
-            self.info(*cmd)
-            self.check_call(cmd)
-
-        self.info('Binary installed as', dest)
 
 
 
