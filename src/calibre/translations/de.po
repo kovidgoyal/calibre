@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-15 07:22+0000\n"
-"PO-Revision-Date: 2012-06-15 14:16+0000\n"
+"PO-Revision-Date: 2012-06-16 10:37+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-16 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-06-17 04:33+0000\n"
 "X-Generator: Launchpad (build 15419)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -653,7 +653,7 @@ msgstr "Legt fest, wie Calibre Metadaten aus dem Netz herunterladen soll"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1121
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
 msgid "Plugins"
-msgstr "Plug-Ins"
+msgstr "Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -710,9 +710,8 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Falls angegeben, versucht das Ausgabe-Plug-In ein für Menschen "
-"verständliches Ergebnis zu erzeugen. Das heißt aber nicht, daß das auch "
-"gelingen muß."
+"Falls angegeben, versucht das Ausgabe-Plugin ein für Menschen verständliches "
+"Ergebnis zu erzeugen. Das heißt aber nicht, daß das auch gelingen muß."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:268
 #, python-format
@@ -916,7 +915,7 @@ msgstr "Aktivierte Module"
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:496
 #, python-format
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Starten der Erweiterung %s schlug fehl. Traceback:"
+msgstr "Starten des Plugins %s schlug fehl. Traceback:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:558
 msgid ""
@@ -927,7 +926,7 @@ msgid ""
 msgstr ""
 "    %prog options\n"
 "\n"
-"    Calibre anpassen durch das Laden externer Plugins.\n"
+"    Calibre durch das Laden externer Plugins anpassen.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:564
@@ -6389,7 +6388,7 @@ msgstr "Willkommens-Assistenten ausführen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Get plugins to enhance calibre"
-msgstr "Calibre durch Erweiterungen verbessern"
+msgstr "Calibre durch Plugins verbessern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:35
 msgid "Restart in debug mode"
@@ -11362,7 +11361,7 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
-"Installieren von  plugins ist ein <b>Sicherheitsrisiko</b>. Plugins können "
+"Installieren von  Plugins ist ein <b>Sicherheitsrisiko</b>. Plugins können "
 "Virus/Malware enthalten. Installieren Sie nur wenn Sie die Plug-ins aus "
 "einer sicheren Quelle haben. Sind Sie sich sicher, das Sie fortfahren "
 "möchten?"
@@ -11412,10 +11411,10 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
-"Während der Installation der Erweiterung ist ein Problem aufgetreten. Diese "
-"Erweiterung wird nun entfernt. Bitte veröffentlichen Sie die Fehlermeldung "
-"im Detail unten in den Foren-Thread dieser Erweiterung und starten Sie "
-"Calibre neu."
+"Während der Installation der Erweiterung ist ein Problem aufgetreten. Dieses "
+"Plugin wird nun entfernt. Bitte veröffentlichen Sie die Fehlermeldung im "
+"Detail unten in den Foren-Thread dieser Erweiterung und starten Sie Calibre "
+"neu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:774
 msgid "Version history missing"
@@ -13309,8 +13308,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
-"Benutzerdefinierte Erweiterungen ignorieren. Nützlich, wenn Sie eine "
-"Erweiterung installiert haben, die Calibre am Starten hindert"
+"Benutzerdefinierte Plugins ignorieren. Nützlich, wenn Sie eine Plugin "
+"installiert haben, das Calibre am Starten hindert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:44
 msgid ""
