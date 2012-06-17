@@ -55,6 +55,7 @@ class ANDROID(USBMS):
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
                        0x70c6 : [0x226],
                        0x4316 : [0x216],
+                       0x4317 : [0x216],
                        0x42d6 : [0x216],
                        0x42d7 : [0x216],
                        0x42f7 : [0x216],
@@ -202,7 +203,7 @@ class ANDROID(USBMS):
             'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
             'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
             'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0_DRIVER',
-            'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO']
+            'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -211,7 +212,7 @@ class ANDROID(USBMS):
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0_DRIVER', 'XT875',
-            'UMS_COMPOSITE', 'PRO']
+            'UMS_COMPOSITE', 'PRO', '.KOBO_VOX']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

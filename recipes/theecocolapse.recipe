@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 theeconomiccollapseblog.com
 '''
@@ -11,7 +11,7 @@ class TheEconomicCollapse(BasicNewsRecipe):
     description           = 'Are You Prepared For The Coming Economic Collapse And The Next Great Depression?'
     publisher             = 'The Economic Collapse'
     category              = 'news, politics, USA, economy'
-    oldest_article        = 2
+    oldest_article        = 7
     max_articles_per_feed = 200
     no_stylesheets        = True
     encoding              = 'utf8'
@@ -20,7 +20,7 @@ class TheEconomicCollapse(BasicNewsRecipe):
     remove_empty_feeds    = True
     extra_css             = """
                                 body{font-family: Tahoma,Arial,sans-serif }
-                                img{margin-bottom: 0.4em}
+                                img{margin-bottom: 0.4em; display: block;}
                             """
 
     conversion_options = {
@@ -35,12 +35,9 @@ class TheEconomicCollapse(BasicNewsRecipe):
                     ,dict(name=['iframe','object','embed','meta','link','base'])
                   ]
     remove_attributes=['lang','onclick','width','height']
-    keep_only_tags=[dict(attrs={'class':['post-headline','post-bodycopy clearfix','']})]
+    keep_only_tags=[
+                     dict(name='div', attrs={'class':'post-headline'}),
+                     dict(name='div', attrs={'class':lambda x: x and 'post-bodycopy' in x.split()})
+                   ]
 
     feeds = [(u'Posts', u'http://theeconomiccollapseblog.com/feed')]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)
-
