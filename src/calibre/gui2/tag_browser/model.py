@@ -378,6 +378,12 @@ class TagsModel(QAbstractItemModel): # {{{
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
 
+        def get_name_components(name):
+            components = [t.strip() for t in name.split('.') if t.strip()]
+            if len(components) == 0 or '.'.join(components) != name:
+                components = [name]
+            return components
+
         def process_one_node(category, collapse_model, state_map): # {{{
             collapse_letter = None
             category_node = category
@@ -437,24 +443,52 @@ class TagsModel(QAbstractItemModel): # {{{
                         for i in range(start, t[1]+1):
                             cl_list[i] = nc
 
+            if len(data[key]) > 0:
+                top_level_component = 'z' + data[key][0].original_name
+            else:
+                top_level_component = ''
+            last_idx = -collapse
+            category_is_hierarchical = not (
+                key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
+                key not in self.db.prefs.get('categories_using_hierarchy', []))
+
             for idx,tag in enumerate(data[key]):
+                components = None
                 if clear_rating:
                     tag.avg_rating = None
                 tag.state = state_map.get((tag.name, tag.category), 0)
 
                 if collapse_model != 'disable' and cat_len > collapse:
                     if collapse_model == 'partition':
-                        if (idx % collapse) == 0:
-                            d = {'first': tag}
+                        # Only partition at the top level. This means that we must
+                        # not do a break until the outermost component changes.
+                        if idx >= last_idx + collapse and \
+                                 not tag.original_name.startswith(top_level_component+'.'):
                             if cat_len > idx + collapse:
-                                d['last'] = data[key][idx+collapse-1]
+                                last = idx + collapse - 1
                             else:
-                                d['last'] = data[key][cat_len-1]
+                                last = cat_len - 1
+                            if category_is_hierarchical:
+                                ct = copy.copy(data[key][last])
+                                components = get_name_components(ct.original_name)
+                                ct.sort = ct.name = components[0]
+                                d = {'last': ct}
+                                # Do the first node after the last node so that
+                                # the components array contains the right values
+                                # to be used later
+                                ct2 = copy.copy(tag)
+                                components = get_name_components(ct2.original_name)
+                                ct2.sort = ct2.name = components[0]
+                                d['first'] = ct2
+                            else:
+                                d = {'first': tag}
+                                d['last'] = data[key][last]
+
                             name = eval_formatter.safe_format(collapse_template,
                                                         d, '##TAG_VIEW##', None)
                             if name.startswith('##TAG_VIEW##'):
                                 # Formatter threw an exception. Don't create subnode
-                                node_parent = category
+                                node_parent = sub_cat = category
                             else:
                                 sub_cat = self.create_node(parent=category, data = name,
                                      tooltip = None, temporary=True,
@@ -464,6 +498,9 @@ class TagsModel(QAbstractItemModel): # {{{
                                 sub_cat.tag.is_searchable = False
                                 sub_cat.is_gst = is_gst
                                 node_parent = sub_cat
+                            last_idx = idx # remember where we last partitioned
+                        else:
+                            node_parent = sub_cat
                     else: # by 'first letter'
                         cl = cl_list[idx]
                         if cl != collapse_letter:
@@ -480,17 +517,16 @@ class TagsModel(QAbstractItemModel): # {{{
                     node_parent = category
 
                 # category display order is important here. The following works
-                # only of all the non-user categories are displayed before the
+                # only if all the non-user categories are displayed before the
                 # user categories
-                components = [t.strip() for t in tag.original_name.split('.')
-                              if t.strip()]
-                if len(components) == 0 or '.'.join(components) != tag.original_name:
+                if category_is_hierarchical:
+                    components = get_name_components(tag.original_name)
+                else:
                     components = [tag.original_name]
+
                 if (not tag.is_hierarchical) and (in_uc or
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
-                        key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
-                        key not in self.db.prefs.get('categories_using_hierarchy', []) or
-                        len(components) == 1):
+                        not category_is_hierarchical or len(components) == 1):
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
@@ -500,6 +536,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     for i,comp in enumerate(components):
                         if i == 0:
                             child_map = category_child_map
+                            top_level_component = comp
                         else:
                             child_map = dict([((t.tag.name, t.tag.category), t)
                                         for t in node_parent.children
