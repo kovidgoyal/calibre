@@ -28,6 +28,7 @@ class EXTHHeader(object): # {{{
         self.start_offset = None
         left = self.num_items
         self.kf8_header = None
+        self.uuid = self.cdetype = None
 
         while left > 0:
             left -= 1
