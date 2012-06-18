@@ -521,7 +521,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
         layout.addWidget(self.description)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Close)
-        self.button_box.rejected.connect(self._close_clicked)
+        self.button_box.rejected.connect(self.reject)
+        self.finished.connect(self._finished)
         self.install_button = self.button_box.addButton(_('&Install'), QDialogButtonBox.AcceptRole)
         self.install_button.setToolTip(_('Install the selected plugin'))
         self.install_button.clicked.connect(self._install_clicked)
@@ -584,12 +585,10 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.configure_action.setEnabled(False)
         self.plugin_view.addAction(self.configure_action)
 
-    def _close_clicked(self):
-        # Force our toolbar/action to be updated based on uninstalled updates
+    def _finished(self, *args):
         if self.model:
             update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
             self.gui.recalc_update_label(len(update_plugins))
-        self.reject()
 
     def _plugin_current_changed(self, current, previous):
         if current.isValid():
