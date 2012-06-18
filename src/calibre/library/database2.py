@@ -3566,7 +3566,8 @@ books_series_link      feeds
             for formats in books.values():
                 yield formats
 
-    def import_book_directory_multiple(self, dirpath, callback=None):
+    def import_book_directory_multiple(self, dirpath, callback=None,
+            added_ids=None):
         from calibre.ebooks.metadata.meta import metadata_from_formats
 
         duplicates = []
@@ -3577,13 +3578,15 @@ books_series_link      feeds
             if self.has_book(mi):
                 duplicates.append((mi, formats))
                 continue
-            self.import_book(mi, formats)
+            book_id = self.import_book(mi, formats)
+            if added_ids is not None:
+                added_ids.add(book_id)
             if callable(callback):
                 if callback(mi.title):
                     break
         return duplicates
 
-    def import_book_directory(self, dirpath, callback=None):
+    def import_book_directory(self, dirpath, callback=None, added_ids=None):
         from calibre.ebooks.metadata.meta import metadata_from_formats
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
@@ -3595,17 +3598,21 @@ books_series_link      feeds
             return
         if self.has_book(mi):
             return [(mi, formats)]
-        self.import_book(mi, formats)
+        book_id = self.import_book(mi, formats)
+        if added_ids is not None:
+            added_ids.add(book_id)
         if callable(callback):
             callback(mi.title)
 
-    def recursive_import(self, root, single_book_per_directory=True, callback=None):
+    def recursive_import(self, root, single_book_per_directory=True,
+            callback=None, added_ids=None):
         root = os.path.abspath(root)
         duplicates  = []
         for dirpath in os.walk(root):
-            res = self.import_book_directory(dirpath[0], callback=callback) if \
-                single_book_per_directory else \
-                  self.import_book_directory_multiple(dirpath[0], callback=callback)
+            res = (self.import_book_directory(dirpath[0], callback=callback,
+                added_ids=added_ids) if single_book_per_directory else
+                self.import_book_directory_multiple(dirpath[0],
+                    callback=callback, added_ids=added_ids))
             if res is not None:
                 duplicates.extend(res)
             if callable(callback):
