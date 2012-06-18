@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-15 07:22+0000\n"
-"PO-Revision-Date: 2012-06-04 19:33+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2012-06-17 10:56+0000\n"
+"Last-Translator: cleante <cleante1669-calibre@yahoo.fr>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-06-16 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-06-18 05:26+0000\n"
 "X-Generator: Launchpad (build 15419)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -3528,6 +3528,9 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Indiquez la marge supérieure en pts. La marge par défaut est %default. En "
+"indiquant une valeur inférieure à zéro, aucune marge ne sera placée. Note : "
+"72 pts équivaut à 1 inch."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 #, python-format
@@ -3535,6 +3538,9 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Indiquez la marge inférieure en pts. La marge par défaut est %default. En "
+"indiquant une valeur inférieure à zéro, aucune marge ne sera placée. Note : "
+"72 pts équivaut à 1 inch."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:357
 #, python-format
@@ -3542,6 +3548,9 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Indiquez la marge gauche en pts. La marge par défaut est %default. En "
+"indiquant une valeur inférieure à zéro, aucune marge ne sera placée. Note : "
+"72 pts équivaut à 1 inch."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:363
 #, python-format
@@ -3549,6 +3558,9 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Indiquez la marge droite en pts. La marge par défaut est %default. En "
+"indiquant une valeur inférieure à zéro, aucune marge ne sera placée. Note : "
+"72 pts équivaut à 1 inch."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:370
 msgid ""
@@ -6612,15 +6624,15 @@ msgstr "Rechercher des livres numériques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this author"
-msgstr ""
+msgstr "Cet auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this title"
-msgstr ""
+msgstr "ce titre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "this book"
-msgstr ""
+msgstr "ce livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
@@ -6756,11 +6768,13 @@ msgstr "Prévisualiser le résultat de vos personnalisations"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:113
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Abandonnez sans sauver les modifications"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:115
 msgid "Save your changes and update the book in the calibre library"
 msgstr ""
+"Sauvez vos modifications et mettez le livre à jour dans la bibliothèque "
+"calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:155
 msgid "Exploding, please wait..."
@@ -8856,6 +8870,8 @@ msgstr "&Charger"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:156
 msgid "Save this list of expressions so that you can re-use it easily"
 msgstr ""
+"Sauvegardez la liste des expressions, en sorte de pouvoir la réutiliser "
+"aisément"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:186
@@ -8865,11 +8881,11 @@ msgstr "Enregi&strer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Faites remonter l'expression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Faites descendre l'expression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -14536,7 +14552,7 @@ msgstr "Vous pouvez désactiver une condition en vidant toutes ces boites"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:327
 msgid "Sample Text"
-msgstr ""
+msgstr "Texte d'exemple"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:369
 msgid "Invalid condition"
@@ -15236,11 +15252,11 @@ msgstr "Large"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Style Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "Valeur par défaut du système"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "Off"
@@ -15537,6 +15553,9 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
 msgstr ""
+"Les modifications que vous avez apportées nécessitent de redémarrer Calibre "
+"immédiatement. Vous ne pourrez plus indiquer d'autres préférences, avant "
+"d'avoir redémarré Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
