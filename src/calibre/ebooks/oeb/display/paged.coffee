@@ -227,11 +227,12 @@ class PagedDisplay
     snap_to_selection: () ->
         # Ensure that the viewport is positioned at the start of the column
         # containing the start of the current selection
-        sel = window.getSelection()
-        r = sel.getRangeAt(0).getBoundingClientRect()
-        node = sel.anchorNode
-        left = viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
         if this.in_paged_mode
+            sel = window.getSelection()
+            r = sel.getRangeAt(0).getBoundingClientRect()
+            node = sel.anchorNode
+            left = viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
+
             # Ensure we are scrolled to the column containing the start of the
             # selection
             this.scroll_to_xpos(left+5)
