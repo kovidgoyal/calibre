@@ -65,6 +65,9 @@ class DBPrefs(dict):
             return default
 
     def set_namespaced(self, namespace, key, val):
+        if u':' in key: raise KeyError('Colons are not allowed in keys')
+        if u':' in namespace: raise KeyError('Colons are not allowed in'
+                ' the namespace')
         key = u'namespaced:%s:%s'%(namespace, key)
         self[key] = val
 
