@@ -30,10 +30,11 @@ class JavaScriptLoader(object):
     CS = {
             'cfi':'ebooks.oeb.display.cfi',
             'indexing':'ebooks.oeb.display.indexing',
+            'paged':'ebooks.oeb.display.paged',
         }
 
     ORDER = ('jquery', 'jquery_scrollTo', 'bookmarks', 'referencing', 'images',
-            'hyphenation', 'hyphenator', 'cfi', 'indexing',)
+            'hyphenation', 'hyphenator', 'cfi', 'indexing', 'paged')
 
 
     def __init__(self, dynamic_coffeescript=False):
