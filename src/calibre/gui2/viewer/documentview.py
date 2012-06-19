@@ -23,6 +23,7 @@ from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.utils.config import tweaks
+from calibre.constants import isxp
 # }}}
 
 def load_builtin_fonts():
@@ -163,7 +164,8 @@ class Document(QWebPage): # {{{
 
     @pyqtSignature("")
     def init_hyphenate(self):
-        if self.hyphenate and getattr(self, 'loaded_lang', ''):
+        # Qt fails to render soft hyphens correctly on windows xp
+        if not isxp and self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     def _pass_json_value_getter(self):
