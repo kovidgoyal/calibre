@@ -191,8 +191,6 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# jump_to_anchor() and handling of internal links in the same flow and
-# different flows
 # css pagebreak rules
 # CFI and bookmarks
 # Go to reference positions
@@ -200,4 +198,3 @@ if window?
 # Resizing of images
 # Special handling for identifiable covers (colspan)?
 # Full screen mode
-# Resizing of viewport
