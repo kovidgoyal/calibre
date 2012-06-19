@@ -225,6 +225,8 @@ class PagedDisplay
             this.scroll_to_xpos(absleft(elem) + 5)
 
     snap_to_selection: () ->
+        # Ensure that the viewport is positioned at the start of the column
+        # containing the start of the current selection
         sel = window.getSelection()
         r = sel.getRangeAt(0).getBoundingClientRect()
         node = sel.anchorNode
