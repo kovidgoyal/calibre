@@ -115,12 +115,18 @@ class Restore(Thread):
         self.progress_callback('Starting restore preferences', 0)
         dbpath = os.path.join(self.src_library_path, 'metadata_db_prefs.json')
         ndbpath = os.path.join(self.library_path, 'metadata_db_prefs.json')
-        shutil.copyfile(dbpath, ndbpath)
-        db = RestoreDatabase(self.library_path)
-        db.prefs.read_serialized(self.library_path)
-        db.commit()
-        db.conn.close()
-        self.progress_callback('Finished restore preferences', 1)
+        if not os.path.exists(dbpath):
+            self.progress_callback('Cannot restore preferences. Backup file not found.', 1)
+            return
+        try:
+            shutil.copyfile(dbpath, ndbpath)
+            db = RestoreDatabase(self.library_path)
+            db.prefs.read_serialized(self.library_path)
+            db.commit()
+            db.conn.close()
+            self.progress_callback('Finished restore preferences', 1)
+        except:
+            self.progress_callback('Restoring preferences failed', 1)
 
     def scan_library(self):
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):
