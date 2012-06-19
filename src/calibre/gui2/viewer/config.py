@@ -11,7 +11,7 @@ import zipfile
 
 from PyQt4.Qt import QFont, QVariant, QDialog
 
-from calibre.constants import iswindows
+from calibre.constants import iswindows, isxp
 from calibre.utils.config import Config, StringConfig
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
@@ -113,7 +113,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         p = self.tabs.widget(1)
         p.layout().addWidget(self.shortcut_config)
         self.opt_fit_images.setChecked(opts.fit_images)
-
+        if isxp:
+            self.hyphenate.setVisible(False)
+            self.hyphenate_default_lang.setVisible(False)
+            self.hyphenate_label.setVisible(False)
 
     def accept(self, *args):
         if self.shortcut_config.is_editing:

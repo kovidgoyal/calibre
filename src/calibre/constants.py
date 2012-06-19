@@ -34,6 +34,7 @@ isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
+isxp = iswindows and sys.getwindowsversion().major < 6
 
 try:
     preferred_encoding = locale.getpreferredencoding()

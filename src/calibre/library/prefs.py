@@ -57,4 +57,14 @@ class DBPrefs(dict):
     def set(self, key, val):
         self.__setitem__(key, val)
 
+    def get_namespaced(self, namespace, key, default=None):
+        key = u'namespaced:%s:%s'%(namespace, key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return default
+
+    def set_namespaced(self, namespace, key, val):
+        key = u'namespaced:%s:%s'%(namespace, key)
+        self[key] = val
 

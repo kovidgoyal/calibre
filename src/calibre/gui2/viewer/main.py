@@ -747,6 +747,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         # There hasn't been a resize event for some time
         # restore the current page position.
         self.resize_in_progress = False
+        self.view.document.after_resize()
         if self.window_mode_changed:
             # This resize is part of a window mode change, special case it
             self.handle_window_mode_toggle()
@@ -1003,6 +1004,12 @@ def main(args=sys.argv):
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,
                 debug_javascript=opts.debug_javascript, open_at=open_at)
+        # This is needed for paged mode. Without it, the first document that is
+        # loaded will have extra blank space at the bottom, as
+        # turn_off_internal_scrollbars does not take effect for the first
+        # rendered document
+        main.view.load_path(P('viewer/blank.html', allow_user_override=False))
+
         sys.excepthook = main.unhandled_exception
         main.show()
         if opts.raise_window:
