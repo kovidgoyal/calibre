@@ -140,6 +140,9 @@ class PagedDisplay
     scroll_to_xpos: (xpos) ->
         # Scroll so that the column containing xpos is the left most column in
         # the viewport
+        if typeof(xpos) != 'number'
+            log(xpos, 'is not a number, cannot scroll to it!')
+            return
         pos = 0
         until (pos <= xpos < pos + this.page_width)
             pos += this.page_width
@@ -206,6 +209,9 @@ class PagedDisplay
         return ans
 
     jump_to_anchor: (name) ->
+        # Jump to the element identified by anchor name. Ensures that the left
+        # most column in the viewport is the column containing the start of the
+        # element and that the scroll position is at the start of the column.
         elem = document.getElementById(name)
         if !elem
             elems = document.getElementsByName(name)
@@ -217,6 +223,16 @@ class PagedDisplay
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
             this.scroll_to_xpos(absleft(elem) + 5)
+
+    snap_to_selection: () ->
+        sel = window.getSelection()
+        r = sel.getRangeAt(0).getBoundingClientRect()
+        node = sel.anchorNode
+        left = viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
+        if this.in_paged_mode
+            # Ensure we are scrolled to the column containing the start of the
+            # selection
+            this.scroll_to_xpos(left+5)
 
 if window?
     window.paged_display = new PagedDisplay()

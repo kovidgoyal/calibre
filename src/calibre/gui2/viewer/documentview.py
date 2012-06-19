@@ -588,9 +588,11 @@ class DocumentView(QWebView): # {{{
         return property(fget=fget, fset=fset)
 
     def search(self, text, backwards=False):
-        if backwards:
-            return self.findText(text, self.document.FindBackward)
-        return self.findText(text)
+        flags = self.document.FindBackward if backwards else self.document.FindFlags(0)
+        found = self.findText(text, flags)
+        if found and self.document.in_paged_mode:
+            self.document.javascript('paged_display.snap_to_selection()')
+        return found
 
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
