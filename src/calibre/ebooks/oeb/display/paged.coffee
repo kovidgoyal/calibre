@@ -185,7 +185,7 @@ class PagedDisplay
         elem.scrollIntoView()
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
-            this.scroll_to_xpos(absleft(elem)+10)
+            this.scroll_to_xpos(absleft(elem) + 5)
 
 if window?
     window.paged_display = new PagedDisplay()
