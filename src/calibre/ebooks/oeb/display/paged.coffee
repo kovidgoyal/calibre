@@ -161,7 +161,7 @@ class PagedDisplay
         # The location of the left edge of the left most column currently
         # visible in the viewport
         x = window.pageXOffset + Math.max(10, this.current_margin_side)
-        edge = Math.floor(x/this.page_width)
+        edge = Math.floor(x/this.page_width) * this.page_width
         while edge < x
             edge += this.page_width
         return edge - this.page_width
@@ -236,6 +236,18 @@ class PagedDisplay
             # Ensure we are scrolled to the column containing the start of the
             # selection
             this.scroll_to_xpos(left+5)
+
+    jump_to_cfi: (cfi) ->
+        # Jump to the position indicated by the specified conformal fragment
+        # indicator (requires the cfi.coffee library). When in paged mode, the
+        # scroll is performed so that the column containing the position
+        # pointed to by the cfi is the left most column in the viewport
+        window.cfi.scroll_to(cfi, (x, y) =>
+            if this.in_paged_mode
+                this.scroll_to_xpos(x)
+            else
+                window.scrollTo(0, y)
+        )
 
 if window?
     window.paged_display = new PagedDisplay()

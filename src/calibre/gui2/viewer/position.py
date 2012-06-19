@@ -37,17 +37,8 @@ class PagePosition(object):
     def scroll_to_cfi(self, cfi):
         if cfi:
             cfi = json.dumps(cfi)
-            self.document.mainFrame().evaluateJavaScript('''
-                    function fix_scroll() {
-                        /* cfi.scroll_to() uses scrollIntoView() which can result
-                           in scrolling along the x-axis. So we
-                           explicitly scroll to x=0.
-                        */
-                       scrollTo(0, window.pageYOffset)
-                    }
-
-                    window.cfi.scroll_to(%s, fix_scroll);
-                '''%cfi)
+            self.document.mainFrame().evaluateJavaScript(
+                    'paged_display.jump_to_cfi(%s)'%cfi)
 
     @property
     def current_pos(self):
