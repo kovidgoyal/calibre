@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-15 07:22+0000\n"
-"PO-Revision-Date: 2012-06-07 17:59+0000\n"
-"Last-Translator: Janko Slatenšek <Unknown>\n"
+"PO-Revision-Date: 2012-06-18 22:36+0000\n"
+"Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-06-16 04:49+0000\n"
-"X-Generator: Launchpad (build 15419)\n"
+"X-Launchpad-Export-Date: 2012-06-19 04:43+0000\n"
+"X-Generator: Launchpad (build 15435)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
@@ -440,12 +440,16 @@ msgstr "Kopirajte knjigo iz ene knjižnice calibre v drugo"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Opravite manjše prilagoditve datotekam epub ali htmlz v svoji knjižnici "
+"calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Najdi naslednji ali prejšnji zadetek pri iskanju po svoji knjižnici calibre "
+"v poudarjenem načinu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Choose a random book from your calibre library"
@@ -812,7 +816,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Namenjeno iPadu 3 in podobnim napravam z ločljivostjo 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -1002,7 +1006,7 @@ msgstr "Povezovanje s telefoni S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:286
 msgid "Communicate with WebOS tablets."
-msgstr "Komuniciraj z WebOS tablicami."
+msgstr "Povezovanje s tablicami WebOS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -1288,7 +1292,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr "Komuniciraj z Blackberry playbookom."
+msgstr "Povezovanje s tablico Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1332,7 +1336,7 @@ msgstr "Povezovanje z bralnikom PocketBook 701."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:298
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr "Komuniciraj z Infibeam Pi2 čitalcem."
+msgstr "Povezovanje z bralnikom Infibeam Pi2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1406,7 +1410,7 @@ msgstr "Povezovanje z bralnikom e-knjig Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom Cybook Odyssey."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1448,7 +1452,7 @@ msgstr "Povezovanje z bralnikom JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr "Komuniciraj z JetBook Color čitalcem."
+msgstr "Povezovanje z bralnikom JetBook Color."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1471,26 +1475,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:192
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Zadnja prebrana stran: mesto %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Mesto %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:220
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Stran %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:225
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Mesto %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:290
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom e-knjig Kindle 2/3/4/Touch."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:299
 msgid "Send page number information when sending books"
@@ -1506,7 +1510,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:306
 msgid "Use slower but more accurate page number calculation"
-msgstr ""
+msgstr "Uporabi počasnejši, a natančnejši izračun številk strani"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:308
 msgid ""
@@ -1537,11 +1541,11 @@ msgstr "Povezovanje z bralnikom e-knjig Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:461
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Povezovanje s tabličnim računalnikom Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:24
 msgid "Communicate with the Kobo Reader"
-msgstr "Povezovanje s Kobo Reader."
+msgstr "Povezovanje z bralnikom Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
 msgid "The Kobo supports several collections including "
@@ -1564,11 +1568,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Naloži črno-bele naslovnice"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Show expired books"
-msgstr ""
+msgstr "Pokaži pretekle knjige"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid ""
@@ -1579,7 +1583,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Show Previews"
-msgstr ""
+msgstr "Pokaži predoglede"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid ""
@@ -1704,7 +1708,7 @@ msgstr "Povezovanje z bralnikom COBY."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:386
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Povezovanje z Ex124G."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1728,7 +1732,7 @@ msgstr "Povezovanje z bralnikom e-knjig Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Povezovanje s tabličnimi bralniki e-knjig Nook Color, TSR in Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1740,7 +1744,7 @@ msgstr "Povezovanje z bralnikom e-knjig Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Povezovanje z bralniki e-knjig Sony, starejšimi od PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1833,6 +1837,7 @@ msgstr "Neimenovano"
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
 msgstr ""
+"Povezovanje z bralniki e-knjig PRST1 in novejšimi bralniki podjetja SONY."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
@@ -5896,15 +5901,15 @@ msgstr "Išči e-knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this author"
-msgstr ""
+msgstr "tega avtorja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this title"
-msgstr ""
+msgstr "ta naslov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "this book"
-msgstr ""
+msgstr "to knjigo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
@@ -11685,7 +11690,7 @@ msgstr "Po meri"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
 msgid "&Alternate shortcut:"
-msgstr ""
+msgstr "&Nadomestne tipke za bližnjico:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
@@ -13698,15 +13703,15 @@ msgstr "široka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "privzeti sistemski"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "Off"
-msgstr ""
+msgstr "Izključeno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "Small"
@@ -13726,7 +13731,7 @@ msgstr "Vedno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
 msgid "If there is enough room"
-msgstr ""
+msgstr "Če je dovolj prostora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:143
 msgid "Never"
@@ -13758,15 +13763,15 @@ msgstr " ali "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:233
 msgid "Choose &language (requires restart):"
-msgstr ""
+msgstr "Iz&berite jezik (zahteva ponoven zagon):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:234
 msgid "Enable system &tray icon (needs restart)"
-msgstr ""
+msgstr "Omogoči ikono v sis&temskem pladnju (zahteva ponoven zagon)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:235
 msgid "User Interface &layout (needs restart):"
-msgstr ""
+msgstr "&Postavitev uporabniškega vmesnika (zahteva ponoven zagon):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -13782,7 +13787,7 @@ msgstr "Onemogoči o&bvestila v sistemskem pladnju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:239
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "Po&kaži pojavni zaslon ob zagonu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:240
 msgid "&Toolbar"
@@ -13794,7 +13799,7 @@ msgstr "Velikost &ikone:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:242
 msgid "Show &text under icons:"
-msgstr ""
+msgstr "Pokaži &besedilo pod ikonami:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:243
 msgid "Interface font:"
@@ -13802,11 +13807,11 @@ msgstr "Pisava vmesnika:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:244
 msgid "Change &font (needs restart)"
-msgstr ""
+msgstr "Spre&meni pisavo (s ponovnim zagonom)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:245
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "&Slog uporabniškega vmesnika (zahteva ponoven zagon):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:246
 msgid "Main Interface"
@@ -13908,11 +13913,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:284
 msgid "Show cover &browser in a separate window (needs restart)"
-msgstr ""
+msgstr "Pokaži &brskalnik naslovnic v novem oknu (zahteva ponoven zagon)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:285
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
+"&Število naslovnic, prikazanih v brskalnem načinu (zahteva ponoven zagon):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:286
 msgid "When showing cover browser in separate window, show it &fullscreen"
@@ -15756,7 +15762,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Spremeni brskalnik značk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -15781,7 +15787,7 @@ msgstr "Določite zaporedje razvrščanja v brskalniku značk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Ujemanje po vrsti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
@@ -18601,7 +18607,7 @@ msgstr "Pot do mape, v kateri je shranjena vaša knjižnica"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:387
 msgid "The language in which to display the user interface"
-msgstr ""
+msgstr "Jezik, v katerem naj bo prikazan uporabniški vmesnik"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:389
 msgid "The default output format for ebook conversions."
@@ -19263,7 +19269,7 @@ msgstr "angleščina"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Argentina)"
-msgstr ""
+msgstr "angleščina (Argentina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Australia)"
@@ -19323,7 +19329,7 @@ msgstr "angleščina (Češka)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "English (Philippines)"
-msgstr ""
+msgstr "angleščina (Filipini)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Pakistan)"
