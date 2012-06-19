@@ -15,17 +15,48 @@ log = (args...) -> # {{{
             process.stdout.write(msg + '\n')
 # }}}
 
-body_height = () ->
+body_height = () -> # {{{
     db = document.body
     dde = document.documentElement
     if db? and dde?
         return Math.max(db.scrollHeight, dde.scrollHeight, db.offsetHeight,
             dde.offsetHeight, db.clientHeight, dde.clientHeight)
     return 0
+# }}}
 
-absleft = (elem) ->
+window_scroll_pos = (win=window) -> # {{{
+    if typeof(win.pageXOffset) == 'number'
+        x = win.pageXOffset
+        y = win.pageYOffset
+    else # IE < 9
+        if document.body and ( document.body.scrollLeft or document.body.scrollTop )
+            x = document.body.scrollLeft
+            y = document.body.scrollTop
+        else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
+            y = document.documentElement.scrollTop
+            x = document.documentElement.scrollLeft
+    return [x, y]
+# }}}
+
+viewport_to_document = (x, y, doc=window?.document) -> # {{{
+    until doc == window.document
+        # We are in a frame
+        frame = doc.defaultView.frameElement
+        rect = frame.getBoundingClientRect()
+        x += rect.left
+        y += rect.top
+        doc = frame.ownerDocument
+    win = doc.defaultView
+    [wx, wy] = window_scroll_pos(win)
+    x += wx
+    y += wy
+    return [x, y]
+# }}}
+
+absleft = (elem) -> # {{{
     r = elem.getBoundingClientRect()
-    return r.left + window.pageXOffset
+    return viewport_to_document(r.left, 0, elem.ownerDocument)[0]
+# }}}
 
 class PagedDisplay
     ###
