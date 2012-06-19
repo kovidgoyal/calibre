@@ -101,6 +101,7 @@ class Restore(Thread):
             with TemporaryDirectory('_library_restore') as tdir:
                 self.library_path = tdir
                 self.scan_library()
+                self.load_preferences()
                 self.create_cc_metadata()
                 self.restore_books()
                 if self.successes == 0 and len(self.dirs) > 0:
@@ -108,6 +109,18 @@ class Restore(Thread):
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()
+
+    def load_preferences(self):
+        self.progress_callback(None, 1)
+        self.progress_callback('Starting restore preferences', 0)
+        dbpath = os.path.join(self.src_library_path, 'metadata_db_prefs.json')
+        ndbpath = os.path.join(self.library_path, 'metadata_db_prefs.json')
+        shutil.copyfile(dbpath, ndbpath)
+        db = RestoreDatabase(self.library_path)
+        db.prefs.read_serialized(self.library_path)
+        db.commit()
+        db.conn.close()
+        self.progress_callback('Finished restore preferences', 1)
 
     def scan_library(self):
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):

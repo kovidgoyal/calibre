@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
+import json, os
 
 from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
@@ -68,3 +68,26 @@ class DBPrefs(dict):
         key = u'namespaced:%s:%s'%(namespace, key)
         self[key] = val
 
+    def write_serialized(self, library_path):
+        try:
+            to_filename = os.path.join(library_path, 'metadata_db_prefs.json')
+            with open(to_filename, "wb") as f:
+                f.write(json.dumps(self, indent=2, default=to_json))
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def read_serialized(self, library_path):
+        try:
+            from_filename = os.path.join(library_path, 'metadata_db_prefs.json')
+            with open(from_filename, "rb") as f:
+                d = json.load(f, object_hook=from_json)
+                self.db.conn.execute('DELETE FROM preferences')
+                for k,v in d.iteritems():
+                    raw = self.to_raw(v)
+                    self.db.conn.execute(
+                        'INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)',
+                        (k, raw))
+        except:
+            import traceback
+            traceback.print_exc()
