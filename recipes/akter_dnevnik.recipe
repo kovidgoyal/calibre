@@ -1,0 +1,44 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+akter.co.rs
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Akter(BasicNewsRecipe):
+    title                 = 'AKTER - Dnevnik'
+    __author__            = 'Darko Miletic'
+    description           = 'AKTER - Najnovije vesti iz Srbije'
+    publisher             = 'Akter Media Group d.o.o.'
+    category              = 'vesti, online vesti, najnovije vesti, politika, sport, ekonomija, biznis, finansije, berza, kultura, zivot, putovanja, auto, automobili, tehnologija, politicki magazin, dogadjaji, desavanja, lifestyle, zdravlje, zdravstvo, vest, novine, nedeljnik, srbija, novi sad, vojvodina, svet, drustvo, zabava, republika srpska, beograd, intervju, komentar, reportaza, arhiva vesti, news, serbia, politics'
+    oldest_article        = 8
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    masthead_url          = 'http://www.akter.co.rs/gfx/logodnover.png'
+    language              = 'sr'
+    publication_type      = 'magazine'
+    remove_empty_feeds    = True
+    extra_css             = """
+                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                body{font-family: Tahoma,Geneva,sans1,sans-serif}
+                                img{margin-bottom: 0.8em; display: block;} 
+                            """
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    keep_only_tags = [dict(name='div', attrs={'id':'section_to_print'})]
+    feeds          = [(u'Vesti', u'http://akter.co.rs/rss/dnevni')]
+
+    def print_version(self, url):
+        dpart, spart, apart = url.rpartition('/')
+        return dpart + '/print-' + apart
