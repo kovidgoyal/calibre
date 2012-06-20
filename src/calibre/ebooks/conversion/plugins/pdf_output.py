@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
