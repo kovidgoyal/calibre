@@ -61,7 +61,7 @@ ORIENTATIONS = ['portrait', 'landscape']
 class PDFOutput(OutputFormatPlugin):
 
     name = 'PDF Output'
-    author = 'John Schember and Kovid Goyal'
+    author = 'Kovid Goyal'
     file_type = 'pdf'
 
     options = set([
