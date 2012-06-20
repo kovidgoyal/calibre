@@ -116,6 +116,9 @@ class EditorWidget(QWebView): # {{{
             ss = extra_shortcuts.get(wac, None)
             if ss:
                 ac.setShortcut(QKeySequence(getattr(QKeySequence, ss)))
+            if wac == 'RemoveFormat':
+                ac.triggered.connect(self.remove_format_cleanup,
+                        type=Qt.QueuedConnection)
 
         self.action_color = QAction(QIcon(I('format-text-color')), _('Foreground color'),
                 self)
@@ -226,6 +229,9 @@ class EditorWidget(QWebView): # {{{
         else:
             js = 'document.execCommand("%s", false, null);' % cmd
         frame.evaluateJavaScript(js)
+
+    def remove_format_cleanup(self):
+        self.html = self.html
 
     @dynamic_property
     def html(self):
