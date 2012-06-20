@@ -928,6 +928,13 @@ class DocumentView(QWebView): # {{{
                 self.document.scroll_to(x=loc, y=0)
                 if self.manager is not None:
                     self.manager.scrolled(self.scroll_fraction)
+                event.accept()
+            elif self.manager is not None:
+                if direction == 'next':
+                    self.manager.next_document()
+                else:
+                    self.manager.previous_document()
+                event.accept()
             return
 
         if event.delta() < -14:
