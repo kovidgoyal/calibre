@@ -80,21 +80,27 @@ class DBPrefs(dict):
             import traceback
             traceback.print_exc()
 
-    def read_serialized(self, library_path):
+    @classmethod
+    def read_serialized(cls, library_path, recreate_prefs=False):
         try:
             from_filename = os.path.join(library_path,
                     'metadata_db_prefs_backup.json')
             with open(from_filename, "rb") as f:
-                self.clear()
                 d = json.load(f, object_hook=from_json)
-                self.db.conn.execute('DELETE FROM preferences')
+                if not recreate_prefs:
+                    return d
+                cls.clear()
+                cls.db.conn.execute('DELETE FROM preferences')
                 for k,v in d.iteritems():
-                    raw = self.to_raw(v)
-                    self.db.conn.execute(
+                    raw = cls.to_raw(v)
+                    cls.db.conn.execute(
                         'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))
-                self.db.conn.commit()
-                self.clear()
-                self.update(d)
+                cls.db.conn.commit()
+                cls.clear()
+                cls.update(d)
+                return d
         except:
             import traceback
             traceback.print_exc()
+            raise
+        return None
