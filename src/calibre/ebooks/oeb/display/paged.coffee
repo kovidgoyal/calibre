@@ -15,15 +15,6 @@ log = (args...) -> # {{{
             process.stdout.write(msg + '\n')
 # }}}
 
-body_height = () -> # {{{
-    db = document.body
-    dde = document.documentElement
-    if db? and dde?
-        return Math.max(db.scrollHeight, dde.scrollHeight, db.offsetHeight,
-            dde.offsetHeight, db.clientHeight, dde.clientHeight)
-    return 0
-# }}}
-
 window_scroll_pos = (win=window) -> # {{{
     if typeof(win.pageXOffset) == 'number'
         x = win.pageXOffset
@@ -94,15 +85,13 @@ class PagedDisplay
                     break
 
         ww = window.innerWidth
-        wh = window.innerHeight
-        body_height = wh - this.margin_bottom = this.margin_top
-        n = this.cols_per_screen
 
         # Calculate the column width so that cols_per_screen columns fit in the
         # window in such a way the right margin of the last column is <=
         # side_margin (it may be less if the window width is not a
         # multiple of n*(col_width+2*side_margin).
 
+        n = this.cols_per_screen
         adjust = ww - Math.floor(ww/n)*n
         # Ensure that the margins are large enough that the adjustment does not
         # cause them to become negative semidefinite
