@@ -19,13 +19,10 @@ class PagePosition(object):
         ans = None
         res = self.document.mainFrame().evaluateJavaScript('''
             ans = 'undefined';
-            try {
-                ans = window.cfi.at_current();
+            if (window.paged_display) {
+                ans = window.paged_display.current_cfi();
                 if (!ans) ans = 'undefined';
-            } catch (err) {
-                window.console.log(err);
             }
-            window.console.log("Viewport cfi: " + ans);
             ans;
         ''')
         if res.isValid() and not res.isNull() and res.type() == res.String:

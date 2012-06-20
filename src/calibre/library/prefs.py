@@ -73,7 +73,7 @@ class DBPrefs(dict):
 
     def write_serialized(self, library_path):
         try:
-            to_filename = os.path.join(library_path, 'metadata_db_prefs.json')
+            to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
             with open(to_filename, "wb") as f:
                 f.write(json.dumps(self, indent=2, default=to_json))
         except:
@@ -82,7 +82,8 @@ class DBPrefs(dict):
 
     def read_serialized(self, library_path):
         try:
-            from_filename = os.path.join(library_path, 'metadata_db_prefs.json')
+            from_filename = os.path.join(library_path,
+                    'metadata_db_prefs_backup.json')
             with open(from_filename, "rb") as f:
                 self.clear()
                 d = json.load(f, object_hook=from_json)
@@ -92,6 +93,7 @@ class DBPrefs(dict):
                     self.db.conn.execute(
                         'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))
                 self.db.conn.commit()
+                self.clear()
                 self.update(d)
         except:
             import traceback

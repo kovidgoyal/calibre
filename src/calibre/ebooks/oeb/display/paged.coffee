@@ -67,6 +67,8 @@ class PagedDisplay
     ###
 
     constructor: () ->
+        if not this instanceof arguments.callee
+            throw new Error('PagedDisplay constructor called as function')
         this.set_geometry()
         this.page_width = 0
         this.screen_width = 0
@@ -122,12 +124,22 @@ class PagedDisplay
         bs.setProperty('min-height', '0')
         bs.setProperty('max-height', 'none')
 
+        # Convert page-breaks to column-breaks
+        for sheet in document.styleSheets
+            for rule in sheet.rules
+                if rule.type == 1 # CSSStyleRule
+                    for prop in ['page-break-before', 'page-break-after', 'page-break-inside']
+                        val = rule.style.getPropertyValue(prop)
+                        if val
+                            cprop = '-webkit-column-' + prop.substr(5)
+                            priority = rule.style.getPropertyPriority(prop)
+                            rule.style.setProperty(cprop, val, priority)
+
         # Ensure that the top margin is correct, otherwise for some documents,
         # webkit lays out the body with a lot of space on top
         brect = document.body.getBoundingClientRect()
         if brect.top > this.margin_top
             bs.setProperty('margin-top', (this.margin_top - brect.top)+'px')
-        brect = document.body.getBoundingClientRect()
         this.in_paged_mode = true
         this.current_margin_side = sm
         return sm
@@ -213,11 +225,11 @@ class PagedDisplay
         # most column in the viewport is the column containing the start of the
         # element and that the scroll position is at the start of the column.
         elem = document.getElementById(name)
-        if !elem
+        if not elem
             elems = document.getElementsByName(name)
             if elems
                 elem = elems[0]
-        if !elem
+        if not elem
             return
         elem.scrollIntoView()
         if this.in_paged_mode
@@ -249,12 +261,47 @@ class PagedDisplay
                 window.scrollTo(0, y)
         )
 
+    current_cfi: () ->
+        # The Conformal Fragment Identifier at the current position, returns
+        # null if it could not be calculated. Requires the cfi.coffee library.
+        ans = null
+        if not window.cfi?
+            return ans
+        if this.in_paged_mode
+            c = this.current_column_location()
+            for x in [c, c-this.page_width, c+this.page_width]
+                # Try the current column, the previous column and the next
+                # column. Each column is tried from top to bottom.
+                [left, right] = [x, x + this.page_width]
+                if left < 0 or right > document.body.scrollWidth
+                    continue
+                deltax = Math.floor(this.page_width/25)
+                deltay = Math.floor(window.innerHeight/25)
+                cury = this.margin_top
+                until cury >= (window.innerHeight - this.margin_bottom)
+                    curx = left + this.current_margin_side
+                    until curx >= (right - this.current_margin_side)
+                        cfi = window.cfi.at_point(curx-window.pageXOffset, cury-window.pageYOffset)
+                        if cfi
+                            log('Viewport cfi:', cfi)
+                            return cfi
+                        curx += deltax
+                    cury += deltay
+        else
+            try
+                ans = window.cfi.at_current()
+                if not ans
+                    ans = null
+            catch err
+                log(err)
+        if ans
+            log('Viewport cfi:', ans)
+        return ans
+
 if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# css pagebreak rules
-# CFI and bookmarks
 # Go to reference positions
 # Indexing
 # Resizing of images

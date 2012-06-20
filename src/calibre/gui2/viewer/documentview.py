@@ -205,7 +205,7 @@ class Document(QWebPage): # {{{
         return self.anchor_positions
 
     def switch_to_paged_mode(self, onresize=False):
-        side_margin = self.javascript('paged_display.layout()', typ=int)
+        side_margin = self.javascript('window.paged_display.layout()', typ=int)
         # Setup the contents size to ensure that there is a right most margin.
         # Without this webkit renders the final column with no margin, as the
         # columns extend beyond the boundaries (and margin) of body
@@ -294,7 +294,7 @@ class Document(QWebPage): # {{{
         self.mainFrame().setScrollPosition(QPoint(x, y))
 
     def jump_to_anchor(self, anchor):
-        self.javascript('paged_display.jump_to_anchor("%s")'%anchor)
+        self.javascript('window.paged_display.jump_to_anchor("%s")'%anchor)
 
     def element_ypos(self, elem):
         ans, ok = elem.evaluateJavaScript('$(this).offset().top').toInt()
@@ -340,8 +340,12 @@ class Document(QWebPage): # {{{
     def scroll_fraction(self):
         def fget(self):
             if self.in_paged_mode:
-                return self.javascript('paged_display.current_pos()',
-                        typ='float')
+                return self.javascript('''
+                ans = 0.0;
+                if (window.paged_display) {
+                    ans = window.paged_display.current_pos();
+                }
+                ans;''',  typ='float')
             else:
                 try:
                     return abs(float(self.ypos)/(self.height-self.window_height))
@@ -922,6 +926,8 @@ class DocumentView(QWebView): # {{{
                 direction, typ), typ='int')
             if loc > -1:
                 self.document.scroll_to(x=loc, y=0)
+                if self.manager is not None:
+                    self.manager.scrolled(self.scroll_fraction)
             return
 
         if event.delta() < -14:

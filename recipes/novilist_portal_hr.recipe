@@ -20,10 +20,12 @@ class NoviList_Portal_hr(BasicNewsRecipe):
     use_embedded_content  = False
     language              = 'hr'
     publication_type      = 'newsportal'
-    masthead_url          = 'http://www.novilist.hr/design/novilist/images/logo-print.gif'
+    masthead_url          = 'http://www.novilist.hr/extension/novilist/design/novilist/images/logo-print.gif'
     extra_css             = """
-                               body{font-family: Geneva,Arial,Helvetica,Swiss,sans-serif }
-                               h1{font-family: Georgia,serif}
+                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                               body{font-family: Geneva,Arial,Helvetica,Swiss,sans1,sans-serif }
+                               h1{font-family: Georgia,serif1,serif}
                                img{display:block; margin-bottom: 0.4em; margin-top: 0.4em}
                             """
 
@@ -39,11 +41,22 @@ class NoviList_Portal_hr(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id':'content'})]
 
-    remove_tags = [dict(name=['meta', 'link', 'iframe', 'embed', 'object'])]
+    remove_tags = [
+                    dict(name=['meta', 'link', 'iframe', 'embed', 'object']),
+                    dict(name='div', attrs={'class':lambda x: x and 'embed-object' in x.split()})
+                  ]
     remove_attributes=['border', 'lang']
 
     feeds = [(u'Vijesti', u'http://www.novilist.hr/rss/feed/sve.xml')]
 
-
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        filter = ['/Foto/','/Informator/']
+        for item in filter:
+            if item in url:
+               return None
+        return url
+    
     def print_version(self, url):
         return url.replace('http://www.novilist.hr/','http://www.novilist.hr/layout/set/print/')
+        

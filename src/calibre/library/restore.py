@@ -113,8 +113,8 @@ class Restore(Thread):
     def load_preferences(self):
         self.progress_callback(None, 1)
         self.progress_callback('Starting restore preferences', 0)
-        dbpath = os.path.join(self.src_library_path, 'metadata_db_prefs.json')
-        ndbpath = os.path.join(self.library_path, 'metadata_db_prefs.json')
+        dbpath = os.path.join(self.src_library_path, 'metadata_db_prefs_backup.json')
+        ndbpath = os.path.join(self.library_path, 'metadata_db_prefs_backup.json')
         if not os.path.exists(dbpath):
             self.progress_callback('Cannot restore preferences. Backup file not found.', 1)
             return
