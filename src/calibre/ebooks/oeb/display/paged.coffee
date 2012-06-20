@@ -73,16 +73,13 @@ class PagedDisplay
         this.cols_per_screen = cols_per_screen
 
     layout: () ->
-        # Remove the top margin from the first child of body as that gets added
-        # to the top margin of body. This is done here just in case
-        # getComputedStyle() causes a relayout. The re-layout will be much
-        # faster before we implement the multi-column layout.
-        for node in document.body.childNodes
-            if node.nodeType == 1 # Element node
-                style = window.getComputedStyle(node)
-                if style.display in ['block', 'table']
-                    node.style.setProperty('margin-top', '0px')
-                    break
+        # When laying body out in columns, webkit bleeds the top margin of the
+        # first block element out above the columns, leading to an extra top
+        # margin for the page. We compensate for that here. Computing the
+        # boundingrect of body is very expensive with column layout, so we do
+        # it before the column layout is applied.
+        document.body.style.marginTop = '0px'
+        extra_margin = document.body.getBoundingClientRect().top
 
         ww = window.innerWidth
 
@@ -110,9 +107,9 @@ class PagedDisplay
         bs.setProperty('-webkit-column-width', col_width+'px')
         bs.setProperty('-webkit-column-rule-color', fgcolor)
         bs.setProperty('overflow', 'visible')
-        bs.setProperty('height', 'auto')
+        bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
         bs.setProperty('width', 'auto')
-        bs.setProperty('margin-top', this.margin_top+'px')
+        bs.setProperty('margin-top', (this.margin_top - extra_margin)+'px')
         bs.setProperty('margin-bottom', this.margin_bottom+'px')
         bs.setProperty('margin-left', sm+'px')
         bs.setProperty('margin-right', sm+'px')
