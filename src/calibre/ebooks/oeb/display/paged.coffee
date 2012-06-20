@@ -124,12 +124,22 @@ class PagedDisplay
         bs.setProperty('min-height', '0')
         bs.setProperty('max-height', 'none')
 
+        # Convert page-breaks to column-breaks
+        for sheet in document.styleSheets
+            for rule in sheet.rules
+                if rule.type == 1 # CSSStyleRule
+                    for prop in ['page-break-before', 'page-break-after', 'page-break-inside']
+                        val = rule.style.getPropertyValue(prop)
+                        if val
+                            cprop = '-webkit-column-' + prop.substr(5)
+                            priority = rule.style.getPropertyPriority(prop)
+                            rule.style.setProperty(cprop, val, priority)
+
         # Ensure that the top margin is correct, otherwise for some documents,
         # webkit lays out the body with a lot of space on top
         brect = document.body.getBoundingClientRect()
         if brect.top > this.margin_top
             bs.setProperty('margin-top', (this.margin_top - brect.top)+'px')
-        brect = document.body.getBoundingClientRect()
         this.in_paged_mode = true
         this.current_margin_side = sm
         return sm
@@ -292,7 +302,6 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# css pagebreak rules
 # Go to reference positions
 # Indexing
 # Resizing of images
