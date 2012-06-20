@@ -215,7 +215,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if not restore_all_prefs and key in frozenset(['news_to_be_synced']):
                     continue
                 dbprefs[key] = default_prefs[key]
-                progress_callback(_('Restored preference ') + key, i+1)
+                progress_callback(_('restored preference ') + key, i+1)
             if 'field_metadata' in default_prefs:
                 fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
                 progress_callback(None, len(fmvals))
