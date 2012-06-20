@@ -82,6 +82,17 @@ class PagedDisplay
         this.cols_per_screen = cols_per_screen
 
     layout: () ->
+        # Remove the top margin from the first child of body as that gets added
+        # to the top margin of body. This is done here just in case
+        # getComputedStyle() causes a relayout. The re-layout will be much
+        # faster before we implement the multi-column layout.
+        for node in document.body.childNodes
+            if node.nodeType == 1 # Element node
+                style = window.getComputedStyle(node)
+                if style.display in ['block', 'table']
+                    node.style.setProperty('margin-top', '0px')
+                    break
+
         ww = window.innerWidth
         wh = window.innerHeight
         body_height = wh - this.margin_bottom = this.margin_top
@@ -135,11 +146,6 @@ class PagedDisplay
                             priority = rule.style.getPropertyPriority(prop)
                             rule.style.setProperty(cprop, val, priority)
 
-        # Ensure that the top margin is correct, otherwise for some documents,
-        # webkit lays out the body with a lot of space on top
-        brect = document.body.getBoundingClientRect()
-        if brect.top > this.margin_top
-            bs.setProperty('margin-top', (this.margin_top - brect.top)+'px')
         this.in_paged_mode = true
         this.current_margin_side = sm
         return sm
