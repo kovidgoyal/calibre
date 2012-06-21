@@ -708,6 +708,8 @@ static bool makeDir(const QString& dir, int mode)
 
 const char *qtcConfDir()
 {
+    // Changed by Kovid to not create an empty qtcurve dir
+    return "non existent dir kfdjkdfjsvbksjbkjdsfveralihg8743yh38qlq vqp84982hqpi2bu4iboABVJAVB93";
     static char *cfgDir=NULL;
 
     if(!cfgDir)

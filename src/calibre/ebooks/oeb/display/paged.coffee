@@ -54,6 +54,8 @@ class PagedDisplay
     This class is a namespace to expose functions via the
     window.paged_display object. The most important functions are:
 
+    set_geometry(): sets the parameters used to layout text in paged mode
+
     layout(): causes the currently loaded document to be laid out in columns.
     ###
 
