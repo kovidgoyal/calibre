@@ -297,5 +297,6 @@ if window?
 # Go to reference positions
 # Indexing
 # Resizing of images
-# Special handling for identifiable covers (colspan)?
+# Covers in single column mode have a blank page after them. And in multi
+# column mode should be set to span all columns
 # Full screen mode
