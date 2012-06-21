@@ -29,6 +29,7 @@ class Economist(BasicNewsRecipe):
             font-size: larger;
             font-weight: bold;
             font-style: italic;
+            page-break-inside:avoid;
             border-bottom: 3px solid black;
             border-top: 3px solid black;
             width: 228px;
