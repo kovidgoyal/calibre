@@ -91,9 +91,6 @@ class PagedDisplay
             # resize event
             margin_top = body_style.marginTop
 
-        if this.is_full_screen_layout
-            this.cols_per_screen = 1
-
         ww = window.innerWidth
 
         # Calculate the column width so that cols_per_screen columns fit in the
