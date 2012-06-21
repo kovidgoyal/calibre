@@ -174,16 +174,7 @@ class PDFWriter(QObject): # {{{
         if ok:
             item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
             self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-            if True:
-                self.do_paged_render(item_path)
-            else:
-                printer = get_pdf_printer(self.opts, output_file_name=item_path)
-                self.view.page().mainFrame().evaluateJavaScript('''
-                    document.body.style.backgroundColor = "white";
-
-                    ''')
-                self.view.print_(printer)
-                printer.abort()
+            self.do_paged_render(item_path)
         else:
             # The document is so corrupt that we can't render the page.
             self.loop.exit(0)
