@@ -20,6 +20,80 @@
 #     - title: 
 
 
+- version: 0.8.57
+  date: 2012-06-22
+
+  new features:
+    - title: "PDF Output: Full pagination support. No more cutoff bottom line."
+      type: major
+      description: "Fixes a long standing bug in calibre's PDF Output that caused the bottom line of some pages to be partially cut off and prevented top and bottom margins from working."
+
+    - title: "calibredb add now prints out the ids of added books"
+      tickets: [1014303] 
+
+    - title: "Kobo Vox driver: Add support for new Google Play firmware"
+      tickets: [1014129] 
+
+    - title: "Driver for Prestigio PMP5097PRO"
+      tickets: [1013864] 
+
+    - title: "Add option to disable tooltips in the book list under Preferences->Look & Feel"
+
+    - title: "When customizing builtin recipes download the latest version of the recipe to customize instead of using the possibly out of date bundled version"
+ 
+  bug fixes:
+    - title: "PDF Output: Use the cover from the input document when no cover is specified during a conversion"
+
+    - title: "E-book Viewer: Printing now has proper pagination with top and bottom margins no lines partially cut-off at the bottom and full style retention"
+
+    - title: "KF8 Input: Handle files with incorrectly encoded guide type entries."
+      tickets: [1015020]
+
+    - title: "E-book viewer: Disable hyphenation on windows xp as Qt WebKit barfs on soft hyphens on windows XP"
+
+    - title: "Handle OS X systems with invalid palette colors."
+      tickets: [1014900]
+
+    - title: "Tag Browser: Fix regression that broke partitioning of hierarchical categories."
+      tickets: [1014065]
+
+    - title: "LRF Output: Handle negative page margins"
+      tickets: [1014103]
+
+    - title: "Template language: Fix arithmetic functions to tolerate the value 'None' as returned by raw_field()"
+
+    - title: "Fix custom title sort set in the edit metadata dialog getting reset by the conversion dialog"
+
+  improved recipes:
+    - The Economist
+    - Akter
+    - 24 Sata sr
+    - Novi List
+    - Metro Montreal
+    - Mode Durable
+    - CanardPC
+    - The Economic Collapse
+    - Our Daily Bread
+
+  new recipes:
+    - title: Akter Daily
+      author: Darko MIletic
+
+    - title: BBC Brasil 
+      author: Claviola
+
+    - title: Homopedia.pl 
+      author: rainbowwarrior
+
+    - title: National Geographic Magazine 
+      author: Terminal Veracity
+
+    - title: Something Awful
+      author: atordo
+
+    - title: Huffington Post UK 
+      author: Krittika Goyal
+
 - version: 0.8.56
   date: 2012-06-15
 
