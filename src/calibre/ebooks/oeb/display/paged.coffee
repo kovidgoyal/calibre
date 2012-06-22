@@ -69,7 +69,7 @@ class PagedDisplay
         this.current_margin_side = 0
         this.is_full_screen_layout = false
 
-    set_geometry: (cols_per_screen=2, margin_top=20, margin_side=40, margin_bottom=20) ->
+    set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
         this.margin_top = margin_top
         this.margin_side = margin_side
         this.margin_bottom = margin_bottom
@@ -82,13 +82,15 @@ class PagedDisplay
         # margin for the page. We compensate for that here. Computing the
         # boundingrect of body is very expensive with column layout, so we do
         # it before the column layout is applied.
+        first_layout = false
         if not this.in_paged_mode
             document.body.style.marginTop = '0px'
             extra_margin = document.body.getBoundingClientRect().top
             margin_top = (this.margin_top - extra_margin) + 'px'
-            # Check if the current document is a full screen layout like an
-            # epub cover, if so we treat it specially.
-            this.is_full_screen_layout = (document.body.scrollWidth < window.innerWidth + 25 and document.body.scrollHeight < window.innerHeight + 25)
+            # Check if the current document is a full screen layout like
+            # cover, if so we treat it specially.
+            single_screen = (document.body.scrollWidth < window.innerWidth + 25 and document.body.scrollHeight < window.innerHeight + 25)
+            first_layout = true
         else
             # resize event
             margin_top = body_style.marginTop
@@ -119,7 +121,7 @@ class PagedDisplay
         bs.setProperty('-webkit-column-rule-color', fgcolor)
         bs.setProperty('overflow', 'visible')
         bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
-        bs.setProperty('width', 'auto')
+        bs.setProperty('width', (window.innerWidth - 2*sm)+'px')
         bs.setProperty('margin-top', margin_top)
         bs.setProperty('margin-bottom', this.margin_bottom+'px')
         bs.setProperty('margin-left', sm+'px')
@@ -142,6 +144,15 @@ class PagedDisplay
                             cprop = '-webkit-column-' + prop.substr(5)
                             priority = rule.style.getPropertyPriority(prop)
                             rule.style.setProperty(cprop, val, priority)
+
+        if first_layout
+            # Because of a bug in webkit column mode, svg elements defined with
+            # width 100% are wider than body and lead to a blank page after the
+            # current page (when cols_per_screen == 1). Similarly img elements
+            # with height=100% overflow the first column
+            has_svg = document.getElementsByTagName('svg').length > 0
+            only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 2 and document.getElementsByTagName('p').length < 2
+            this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
 
         this.in_paged_mode = true
         this.current_margin_side = sm
