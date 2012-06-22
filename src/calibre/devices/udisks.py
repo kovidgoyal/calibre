@@ -56,6 +56,39 @@ class UDisks(object):
         d = self.device(parent)
         d.DriveEject([])
 
+class NoUdisks2(Exception):
+    pass
+
+class UDisks2(UDisks):
+
+    def __init__(self):
+        self.bus = dbus.SystemBus()
+        try:
+            self.main = self.bus.get_object('org.freedesktop.UDisks2',
+                        '/org/freedesktop/UDisks2')
+        except dbus.exceptions.DBusException as e:
+            if getattr(e, '_dbus_error_name', None) == 'org.freedesktop.DBus.Error.ServiceUnknown':
+                raise NoUdisks2()
+            raise
+        print self.main.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable')
+
+    def device(self, device_node_path):
+        device_node_path = os.path.realpath(device_node_path)
+        devname = device_node_path.split('/')[-1]
+
+        # First we try a direct object path
+        bd = self.bus.get_object('org.freedesktop.UDisks2',
+                        '/org/freedesktop/UDisks2/block_devices/%s'%devname)
+        props = bd.getProperties(dbus_interface='org.freedesktop.UDisks2.BlockDevice')
+        print props
+
+def get_udisks():
+    try:
+        u = UDisks2()
+    except NoUdisks2:
+        u = UDisks()
+    return u
+
 def mount(node_path):
     u = UDisks()
     u.mount(node_path)
@@ -68,15 +101,23 @@ def umount(node_path):
     u = UDisks()
     u.unmount(node_path)
 
-if __name__ == '__main__':
+def test_udisks(ver=None):
     import sys
     dev = sys.argv[1]
     print 'Testing with node', dev
-    u = UDisks()
+    if ver is None:
+        u = get_udisks()
+    else:
+        u = UDisks2() if ver == 2 else UDisks()
+
+    print 'Using Udisks:', u
     print 'Mounted at:', u.mount(dev)
     print 'Unmounting'
     u.unmount(dev)
     print 'Ejecting:'
     u.eject(dev)
+
+if __name__ == '__main__':
+    test_udisks()
 
 
