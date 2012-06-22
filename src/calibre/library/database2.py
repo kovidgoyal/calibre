@@ -162,7 +162,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
     def __init__(self, library_path, row_factory=False, default_prefs=None,
-            read_only=False, is_second_db=False):
+            read_only=False, is_second_db=False, progress_callback=None,
+            restore_all_prefs=False):
         self.is_second_db = is_second_db
         try:
             if isbytestring(library_path):
@@ -205,15 +206,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # if we are to copy the prefs and structure from some other DB, then
         # we need to do it before we call initialize_dynamic
         if apply_default_prefs and default_prefs is not None:
+            if progress_callback is None:
+                progress_callback = lambda x, y: True
             dbprefs = DBPrefs(self)
-            for key in default_prefs:
+            progress_callback(None, len(default_prefs))
+            for i, key in enumerate(default_prefs):
                 # be sure that prefs not to be copied are listed below
-                if key in frozenset(['news_to_be_synced']):
+                if not restore_all_prefs and key in frozenset(['news_to_be_synced']):
                     continue
                 dbprefs[key] = default_prefs[key]
+                progress_callback(_('restored preference ') + key, i+1)
             if 'field_metadata' in default_prefs:
                 fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
-                for f in fmvals:
+                progress_callback(None, len(fmvals))
+                for i, f in enumerate(fmvals):
+                    progress_callback(_('creating custom column ') + f['label'], i)
                     self.create_custom_column(f['label'], f['name'], f['datatype'],
                             f['is_multiple'] is not None and len(f['is_multiple']) > 0,
                             f['is_editable'], f['display'])
@@ -3566,7 +3573,8 @@ books_series_link      feeds
             for formats in books.values():
                 yield formats
 
-    def import_book_directory_multiple(self, dirpath, callback=None):
+    def import_book_directory_multiple(self, dirpath, callback=None,
+            added_ids=None):
         from calibre.ebooks.metadata.meta import metadata_from_formats
 
         duplicates = []
@@ -3577,13 +3585,15 @@ books_series_link      feeds
             if self.has_book(mi):
                 duplicates.append((mi, formats))
                 continue
-            self.import_book(mi, formats)
+            book_id = self.import_book(mi, formats)
+            if added_ids is not None:
+                added_ids.add(book_id)
             if callable(callback):
                 if callback(mi.title):
                     break
         return duplicates
 
-    def import_book_directory(self, dirpath, callback=None):
+    def import_book_directory(self, dirpath, callback=None, added_ids=None):
         from calibre.ebooks.metadata.meta import metadata_from_formats
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
@@ -3595,17 +3605,21 @@ books_series_link      feeds
             return
         if self.has_book(mi):
             return [(mi, formats)]
-        self.import_book(mi, formats)
+        book_id = self.import_book(mi, formats)
+        if added_ids is not None:
+            added_ids.add(book_id)
         if callable(callback):
             callback(mi.title)
 
-    def recursive_import(self, root, single_book_per_directory=True, callback=None):
+    def recursive_import(self, root, single_book_per_directory=True,
+            callback=None, added_ids=None):
         root = os.path.abspath(root)
         duplicates  = []
         for dirpath in os.walk(root):
-            res = self.import_book_directory(dirpath[0], callback=callback) if \
-                single_book_per_directory else \
-                  self.import_book_directory_multiple(dirpath[0], callback=callback)
+            res = (self.import_book_directory(dirpath[0], callback=callback,
+                added_ids=added_ids) if single_book_per_directory else
+                self.import_book_directory_multiple(dirpath[0],
+                    callback=callback, added_ids=added_ids))
             if res is not None:
                 duplicates.extend(res)
             if callable(callback):

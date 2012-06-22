@@ -7,7 +7,7 @@ from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
-                    QFileDialog, QFileIconProvider, QSettings,
+                    QFileDialog, QFileIconProvider, QSettings, QColor,
                     QIcon, QApplication, QDialog, QUrl, QFont, QPalette)
 
 ORG_NAME = 'KovidsBrain'
@@ -108,6 +108,7 @@ gprefs.defaults['blocked_auto_formats'] = []
 gprefs.defaults['auto_add_auto_convert'] = True
 gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 gprefs.defaults['tag_browser_old_look'] = False
+gprefs.defaults['book_list_tooltips'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -737,11 +738,18 @@ class Application(QApplication):
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
         orig_pal = QPalette(self.palette())
+
         from calibre.constants import plugins
         pi = plugins['progress_indicator'][0]
         path = os.path.join(sys.extensions_location, 'calibre_style.'+(
             'pyd' if iswindows else 'so'))
         pi.load_style(path, 'Calibre')
+        # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
+        for role in (orig_pal.Button, orig_pal.Window):
+            c = orig_pal.brush(role).color()
+            if not c.isValid() or not c.toRgb().isValid():
+                orig_pal.setColor(role, QColor(u'lightgray'))
+
         self.setPalette(orig_pal)
         style = self.style()
         icon_map = {}

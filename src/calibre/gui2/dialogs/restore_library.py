@@ -100,9 +100,7 @@ def restore_database(db, parent=None):
                 'the database from the individual book '
                 'metadata. This is useful if the '
                 'database has been corrupted and you get a '
-                'blank list of books. Note that restoring only '
-                'restores books, not any settings stored in the '
-                'database, or any custom recipes.'
+                'blank list of books.'
                 '<p>Do you want to restore the database?')):
         return False
     db.conn.close()

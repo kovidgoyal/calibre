@@ -23,48 +23,82 @@ from threading import Lock
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 from PyQt4.Qt import QCoreApplication
-from PyQt4.QtScript import QScriptEngine, QScriptValue
 
-class Compiler(QScriptEngine): # {{{
+# Compiler {{{
+try:
+    from PyQt4.QtScript import QScriptEngine, QScriptValue
 
-    '''
-    You can use this class in any thread, but make sure you instantiate it in
-    the main thread. Alternatively, construct a QCoreApplication in the main
-    thread, after which you can instantiate this class and use it in any
-    thread.
-    '''
+    class Compiler(QScriptEngine):
 
-    def __init__(self):
-        if QCoreApplication.instance() is None:
-            self.__app_ = QCoreApplication([])
+        '''
+        You can use this class in any thread, but make sure you instantiate it in
+        the main thread. Alternatively, construct a QCoreApplication in the main
+        thread, after which you can instantiate this class and use it in any
+        thread.
+        '''
 
-        QScriptEngine.__init__(self)
-        res = self.evaluate(CS_JS, 'coffee-script.js')
-        if res.isError():
-            raise Exception('Failed to run the coffee script compiler: %s'%
-                    unicode(res.toString()))
-        self.lock = Lock()
+        def __init__(self):
+            if QCoreApplication.instance() is None:
+                self.__app_ = QCoreApplication([])
 
-    def __call__(self, raw, filename=None):
-        with self.lock:
-            if not isinstance(raw, unicode):
-                raw = raw.decode('utf-8')
-            if not filename:
-                filename = '<string>'
-            go = self.globalObject()
-            go.setProperty('coffee_src', QScriptValue(raw),
-                    go.ReadOnly|go.Undeletable)
-            res = self.evaluate('this.CoffeeScript.compile(this.coffee_src)',
-                    filename)
+            QScriptEngine.__init__(self)
+            res = self.evaluate(CS_JS, 'coffee-script.js')
             if res.isError():
-                return '', [unicode(res.toString())]
-            return unicode(res.toString()), []
+                raise Exception('Failed to run the coffee script compiler: %s'%
+                        unicode(res.toString()))
+            self.lock = Lock()
 
+        def __call__(self, raw, filename=None):
+            with self.lock:
+                if not isinstance(raw, unicode):
+                    raw = raw.decode('utf-8')
+                if not filename:
+                    filename = '<string>'
+                go = self.globalObject()
+                go.setProperty('coffee_src', QScriptValue(raw),
+                        go.ReadOnly|go.Undeletable)
+                res = self.evaluate('this.CoffeeScript.compile(this.coffee_src)',
+                        filename)
+                if res.isError():
+                    return '', [unicode(res.toString())]
+                return unicode(res.toString()), []
+except ImportError:
+
+    def do_compile(raw):
+        from PyQt4.QtWebKit import QWebPage
+        from PyQt4.Qt import QApplication
+        import json
+        app = QApplication([])
+
+        class C(QWebPage):
+            def __init__(self):
+                QWebPage.__init__(self)
+                self.msgs = []
+            def javaScriptConsoleMessage(self, msg, *args):
+                self.msgs.append(unicode(msg))
+
+        compiler = C()
+        evaljs = compiler.mainFrame().evaluateJavaScript
+        raw = json.dumps(raw)
+        ans = unicode((evaljs(CS_JS + '\n\n;\nCoffeeScript.compile(%s)'%raw).toString()))
+        if not ans.strip():
+            ans = u'', tuple(compiler.msgs)
+        else:
+            ans = ans, ()
+        app.processEvents()
+        del compiler
+        app.processEvents()
+        return ans
 
 # }}}
 
 def compile_coffeescript(raw, filename=None):
-    return Compiler()(raw, filename)
+    try:
+        return Compiler()(raw, filename)
+    except NameError:
+        from calibre.utils.ipc.simple_worker import fork_job
+        return fork_job('calibre.utils.serve_coffee', 'do_compile',
+                args=(raw,), no_output=True)['result']
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler): # {{{
     '''

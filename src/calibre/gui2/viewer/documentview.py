@@ -22,7 +22,8 @@ from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
 from calibre.ebooks.oeb.display.webview import load_html
-
+from calibre.utils.config import tweaks
+from calibre.constants import isxp
 # }}}
 
 def load_builtin_fonts():
@@ -59,10 +60,12 @@ class Document(QWebPage): # {{{
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
+        self.in_paged_mode = tweaks.get('viewer_test_paged_mode', False)
         # Use this to pass arbitrary JSON encodable objects between python and
         # javascript. In python get/set the value as: self.bridge_value. In
         # javascript, get/set the value as: py_bridge.value
         self.bridge_value = None
+        self.first_load = True
 
         self.debug_javascript = debug_javascript
         self.anchor_positions = {}
@@ -103,6 +106,13 @@ class Document(QWebPage): # {{{
         # Load javascript
         self.mainFrame().javaScriptWindowObjectCleared.connect(
                 self.add_window_objects)
+
+        self.turn_off_internal_scrollbars()
+
+    def turn_off_internal_scrollbars(self):
+        mf = self.mainFrame()
+        mf.setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
+        mf.setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     def set_user_stylesheet(self):
         raw = config().parse().user_css
@@ -154,7 +164,8 @@ class Document(QWebPage): # {{{
 
     @pyqtSignature("")
     def init_hyphenate(self):
-        if self.hyphenate and getattr(self, 'loaded_lang', ''):
+        # Qt fails to render soft hyphens correctly on windows xp
+        if not isxp and self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     def _pass_json_value_getter(self):
@@ -175,9 +186,12 @@ class Document(QWebPage): # {{{
                         'document.body.style.marginLeft').toString())
         self.initial_right_margin = unicode(self.javascript(
                         'document.body.style.marginRight').toString())
+        if self.in_paged_mode:
+            self.switch_to_paged_mode()
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
         self.read_anchor_positions(use_cache=False)
+        self.first_load = False
 
     def read_anchor_positions(self, use_cache=True):
         self.bridge_value = tuple(self.index_anchors)
@@ -189,6 +203,22 @@ class Document(QWebPage): # {{{
             # Some weird javascript error happened
             self.anchor_positions = {}
         return self.anchor_positions
+
+    def switch_to_paged_mode(self, onresize=False):
+        side_margin = self.javascript('window.paged_display.layout()', typ=int)
+        # Setup the contents size to ensure that there is a right most margin.
+        # Without this webkit renders the final column with no margin, as the
+        # columns extend beyond the boundaries (and margin) of body
+        mf = self.mainFrame()
+        sz = mf.contentsSize()
+        if sz.width() > self.window_width:
+            sz.setWidth(sz.width()+side_margin)
+            self.setPreferredContentsSize(sz)
+
+    def after_resize(self):
+        if self.in_paged_mode:
+            self.setPreferredContentsSize(QSize())
+            self.switch_to_paged_mode(onresize=True)
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
@@ -233,20 +263,21 @@ class Document(QWebPage): # {{{
 
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
-        if typ == 'int':
+        if typ in {'int', int}:
             ans = ans.toInt()
             if ans[1]:
                 return ans[0]
             return 0
+        if typ in {'float', float}:
+            ans = ans.toReal()
+            return ans[0] if ans[1] else 0.0
         if typ == 'string':
             return unicode(ans.toString())
         return ans
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         if self.debug_javascript:
-            prints( 'JS:', msgid, lineno)
             prints(msg)
-            prints(' ')
         else:
             return QWebPage.javaScriptConsoleMessage(self, msg, lineno, msgid)
 
@@ -263,13 +294,7 @@ class Document(QWebPage): # {{{
         self.mainFrame().setScrollPosition(QPoint(x, y))
 
     def jump_to_anchor(self, anchor):
-        self.javascript('document.location.hash = "%s"'%anchor)
-
-    def quantize(self):
-        if self.height > self.window_height:
-            r = self.height%self.window_height
-            if r > 0:
-                self.javascript('document.body.style.paddingBottom = "%dpx"'%r)
+        self.javascript('window.paged_display.jump_to_anchor("%s")'%anchor)
 
     def element_ypos(self, elem):
         ans, ok = elem.evaluateJavaScript('$(this).offset().top').toInt()
@@ -314,15 +339,26 @@ class Document(QWebPage): # {{{
     @dynamic_property
     def scroll_fraction(self):
         def fget(self):
-            try:
-                return abs(float(self.ypos)/(self.height-self.window_height))
-            except ZeroDivisionError:
-                return 0.
+            if self.in_paged_mode:
+                return self.javascript('''
+                ans = 0.0;
+                if (window.paged_display) {
+                    ans = window.paged_display.current_pos();
+                }
+                ans;''',  typ='float')
+            else:
+                try:
+                    return abs(float(self.ypos)/(self.height-self.window_height))
+                except ZeroDivisionError:
+                    return 0.
         def fset(self, val):
-            npos = val * (self.height - self.window_height)
-            if npos < 0:
-                npos = 0
-            self.scroll_to(x=self.xpos, y=npos)
+            if self.in_paged_mode:
+                self.javascript('paged_display.scroll_to_pos(%f)'%val)
+            else:
+                npos = val * (self.height - self.window_height)
+                if npos < 0:
+                    npos = 0
+                self.scroll_to(x=self.xpos, y=npos)
         return property(fget=fget, fset=fset)
 
     @property
@@ -363,6 +399,7 @@ class DocumentView(QWebView): # {{{
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
     def initialize_view(self, debug_javascript=False):
+        self.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.flipper = SlideFlip(self)
         self.is_auto_repeat_event = False
         self.debug_javascript = debug_javascript
@@ -555,9 +592,11 @@ class DocumentView(QWebView): # {{{
         return property(fget=fget, fset=fset)
 
     def search(self, text, backwards=False):
-        if backwards:
-            return self.findText(text, self.document.FindBackward)
-        return self.findText(text)
+        flags = self.document.FindBackward if backwards else self.document.FindFlags(0)
+        found = self.findText(text, flags)
+        if found and self.document.in_paged_mode:
+            self.document.javascript('paged_display.snap_to_selection()')
+        return found
 
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
@@ -570,7 +609,7 @@ class DocumentView(QWebView): # {{{
             if self.manager is not None:
                 self.manager.load_started()
 
-        load_html(path, self, codec=path.encoding, mime_type=getattr(path,
+        load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
             'mime_type', None), pre_load_callback=callback)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
@@ -579,10 +618,12 @@ class DocumentView(QWebView): # {{{
             if ie.end_anchor:
                 entries.add(ie.end_anchor)
         self.document.index_anchors = entries
-        self.turn_off_internal_scrollbars()
 
     def initialize_scrollbar(self):
         if getattr(self, 'scrollbar', None) is not None:
+            if self.document.in_paged_mode:
+                self.scrollbar.setVisible(False)
+                return
             delta = self.document.width - self.size().width()
             if delta > 0:
                 self._ignore_scrollbar_signals = True
@@ -623,19 +664,12 @@ class DocumentView(QWebView): # {{{
                 self.manager.scrolled(self.document.scroll_fraction,
                         onload=True)
 
-        self.turn_off_internal_scrollbars()
         if self.flipper.isVisible():
             if self.flipper.running:
                 self.flipper.setVisible(False)
             else:
                 self.flipper(self.current_page_image(),
                         duration=self.document.page_flip_duration)
-
-
-    def turn_off_internal_scrollbars(self):
-        self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        self.document.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
-
 
     @classmethod
     def test_line(cls, img, y):
@@ -651,6 +685,7 @@ class DocumentView(QWebView): # {{{
             overlap = self.height()
         img = QImage(self.width(), overlap, QImage.Format_ARGB32_Premultiplied)
         painter = QPainter(img)
+        painter.setRenderHints(self.renderHints())
         self.document.mainFrame().render(painter, QRegion(0, 0, self.width(), overlap))
         painter.end()
         return img
@@ -669,6 +704,28 @@ class DocumentView(QWebView): # {{{
         if self.loading_url is not None:
             return
         epf = self.document.enable_page_flip and not self.is_auto_repeat_event
+
+        if self.document.in_paged_mode:
+            loc = self.document.javascript(
+                    'paged_display.previous_screen_location()', typ='int')
+            if loc < 0:
+                if self.manager is not None:
+                    if epf:
+                        self.flipper.initialize(self.current_page_image(),
+                                forwards=False)
+                    self.manager.previous_document()
+            else:
+                if epf:
+                    self.flipper.initialize(self.current_page_image(),
+                            forwards=False)
+                self.document.scroll_to(x=loc, y=0)
+                if epf:
+                    self.flipper(self.current_page_image(),
+                            duration=self.document.page_flip_duration)
+                if self.manager is not None:
+                    self.manager.scrolled(self.scroll_fraction)
+
+            return
 
         delta_y = self.document.window_height - 25
         if self.document.at_top:
@@ -699,6 +756,26 @@ class DocumentView(QWebView): # {{{
         if self.loading_url is not None:
             return
         epf = self.document.enable_page_flip and not self.is_auto_repeat_event
+
+        if self.document.in_paged_mode:
+            loc = self.document.javascript(
+                    'paged_display.next_screen_location()', typ='int')
+            if loc < 0:
+                if self.manager is not None:
+                    if epf:
+                        self.flipper.initialize(self.current_page_image())
+                    self.manager.next_document()
+            else:
+                if epf:
+                    self.flipper.initialize(self.current_page_image())
+                self.document.scroll_to(x=loc, y=0)
+                if epf:
+                    self.flipper(self.current_page_image(),
+                            duration=self.document.page_flip_duration)
+                if self.manager is not None:
+                    self.manager.scrolled(self.scroll_fraction)
+
+            return
 
         window_height = self.document.window_height
         document_height = self.document.height
@@ -762,25 +839,38 @@ class DocumentView(QWebView): # {{{
             #print 'After all:', self.document.ypos
 
     def scroll_by(self, x=0, y=0, notify=True):
-        old_pos = self.document.ypos
+        old_pos = (self.document.xpos if self.document.in_paged_mode else
+                self.document.ypos)
         self.document.scroll_by(x, y)
-        if notify and self.manager is not None and self.document.ypos != old_pos:
+        new_pos = (self.document.xpos if self.document.in_paged_mode else
+                self.document.ypos)
+        if notify and self.manager is not None and new_pos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
 
     def scroll_to(self, pos, notify=True):
         if self._ignore_scrollbar_signals:
             return
-        old_pos = self.document.ypos
-        if isinstance(pos, basestring):
-            self.document.jump_to_anchor(pos)
-        else:
-            if pos >= 1:
-                self.document.scroll_to(0, self.document.height)
+        old_pos = (self.document.xpos if self.document.in_paged_mode else
+                self.document.ypos)
+        if self.document.in_paged_mode:
+            if isinstance(pos, basestring):
+                self.document.jump_to_anchor(pos)
             else:
-                y = int(math.ceil(
-                        pos*(self.document.height-self.document.window_height)))
-                self.document.scroll_to(0, y)
-        if notify and self.manager is not None and self.document.ypos != old_pos:
+                self.document.scroll_fraction = pos
+        else:
+            if isinstance(pos, basestring):
+                self.document.jump_to_anchor(pos)
+            else:
+                if pos >= 1:
+                    self.document.scroll_to(0, self.document.height)
+                else:
+                    y = int(math.ceil(
+                            pos*(self.document.height-self.document.window_height)))
+                    self.document.scroll_to(0, y)
+
+        new_pos = (self.document.xpos if self.document.in_paged_mode else
+                self.document.ypos)
+        if notify and self.manager is not None and new_pos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
 
     @dynamic_property
@@ -813,9 +903,8 @@ class DocumentView(QWebView): # {{{
         return QWebView.changeEvent(self, event)
 
     def paintEvent(self, event):
-        self.turn_off_internal_scrollbars()
-
         painter = QPainter(self)
+        painter.setRenderHints(self.renderHints())
         self.document.mainFrame().render(painter, event.region())
         if not self.isEnabled():
             painter.fillRect(event.region().boundingRect(), self.DISABLED_BRUSH)
@@ -827,6 +916,27 @@ class DocumentView(QWebView): # {{{
             if self.manager is not None and event.delta() != 0:
                 (self.manager.font_size_larger if event.delta() > 0 else
                         self.manager.font_size_smaller)()
+                return
+
+        if self.document.in_paged_mode:
+            if abs(event.delta()) < 15: return
+            typ = 'screen' if self.document.wheel_flips_pages else 'col'
+            direction = 'next' if event.delta() < 0 else 'previous'
+            loc = self.document.javascript('paged_display.%s_%s_location()'%(
+                direction, typ), typ='int')
+            if loc > -1:
+                self.document.scroll_to(x=loc, y=0)
+                if self.manager is not None:
+                    self.manager.scrolled(self.scroll_fraction)
+                event.accept()
+            elif self.manager is not None:
+                if direction == 'next':
+                    self.manager.next_document()
+                else:
+                    self.manager.previous_document()
+                event.accept()
+            return
+
         if event.delta() < -14:
             if self.document.wheel_flips_pages:
                 self.next_page()
@@ -866,6 +976,17 @@ class DocumentView(QWebView): # {{{
         if not self.handle_key_press(event):
             return QWebView.keyPressEvent(self, event)
 
+    def paged_col_scroll(self, forward=True):
+        dir = 'next' if forward else 'previous'
+        loc = self.document.javascript(
+                'paged_display.%s_col_location()'%dir, typ='int')
+        if loc > -1:
+            self.document.scroll_to(x=loc, y=0)
+            self.manager.scrolled(self.document.scroll_fraction)
+        else:
+            (self.manager.next_document() if forward else
+                    self.manager.previous_document())
+
     def handle_key_press(self, event):
         handled = True
         key = self.shortcuts.get_match(event)
@@ -877,21 +998,33 @@ class DocumentView(QWebView): # {{{
             finally:
                 self.is_auto_repeat_event = False
         elif key == 'Down':
-            if (not self.document.line_scrolling_stops_on_pagebreaks and
-                    self.document.at_bottom):
-                self.manager.next_document()
+            if self.document.in_paged_mode:
+                self.paged_col_scroll()
             else:
-                self.scroll_by(y=15)
+                if (not self.document.line_scrolling_stops_on_pagebreaks and
+                        self.document.at_bottom):
+                    self.manager.next_document()
+                else:
+                    self.scroll_by(y=15)
         elif key == 'Up':
-            if (not self.document.line_scrolling_stops_on_pagebreaks and
-                    self.document.at_top):
-                self.manager.previous_document()
+            if self.document.in_paged_mode:
+                self.paged_col_scroll(forward=False)
             else:
-                self.scroll_by(y=-15)
+                if (not self.document.line_scrolling_stops_on_pagebreaks and
+                        self.document.at_top):
+                    self.manager.previous_document()
+                else:
+                    self.scroll_by(y=-15)
         elif key == 'Left':
-            self.scroll_by(x=-15)
+            if self.document.in_paged_mode:
+                self.paged_col_scroll(forward=False)
+            else:
+                self.scroll_by(x=-15)
         elif key == 'Right':
-            self.scroll_by(x=15)
+            if self.document.in_paged_mode:
+                self.paged_col_scroll()
+            else:
+                self.scroll_by(x=15)
         else:
             handled = False
         return handled

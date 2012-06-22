@@ -12,8 +12,8 @@ from PyQt4.Qt import QPixmap, SIGNAL
 
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
-from calibre.ebooks.metadata import authors_to_string, string_to_authors, \
-        MetaInformation
+from calibre.ebooks.metadata import (authors_to_string, string_to_authors,
+        MetaInformation, title_sort)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
@@ -230,9 +230,19 @@ class MetadataWidget(Widget, Ui_Form):
         Both may be None. Also returns a recommendation dictionary.
         '''
         recs = self.commit_options(save_defaults)
-        self.user_mi = self.get_metadata()
+        self.user_mi = mi = self.get_metadata()
         self.cover_file = self.opf_file = None
         if self.db is not None:
+            if mi.title == self.db.title(self.book_id, index_is_id=True):
+                mi.title_sort = self.db.title_sort(self.book_id, index_is_id=True)
+            else:
+                # Regenerate title sort taking into account book language
+                languages = self.db.languages(self.book_id, index_is_id=True)
+                if languages:
+                    lang = languages.split(',')[0]
+                else:
+                    lang = None
+                mi.title_sort = title_sort(mi.title, lang=lang)
             self.db.set_metadata(self.book_id, self.user_mi)
             self.mi, self.opf_file = create_opf_file(self.db, self.book_id)
             if self.cover_changed and self.cover_data is not None:

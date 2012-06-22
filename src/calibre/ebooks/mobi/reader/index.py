@@ -224,7 +224,18 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
     for j in xrange(entry_count):
         start, end = idx_positions[j:j+2]
         rec = data[start:end]
-        ident, consumed = decode_string(rec, codec=codec, ordt_map=ordt_map)
+        # Sometimes (in the guide table if the type attribute has non ascii
+        # values) the ident is UTF-16 encoded. Try to handle that.
+        try:
+            ident, consumed = decode_string(rec, codec=codec, ordt_map=ordt_map)
+        except UnicodeDecodeError:
+            ident, consumed = decode_string(rec, codec='utf-16', ordt_map=ordt_map)
+        if u'\x00' in ident:
+            try:
+                ident, consumed = decode_string(rec, codec='utf-16',
+                        ordt_map=ordt_map)
+            except UnicodeDecodeError:
+                ident = ident.replace('u\x00', u'')
         rec = rec[consumed:]
         tag_map = get_tag_map(control_byte_count, tags, rec, strict=strict)
         table[ident] = tag_map

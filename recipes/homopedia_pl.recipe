@@ -1,0 +1,28 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1325420346(BasicNewsRecipe):
+    title                 = u'Homopedia'
+    __author__ = 'rainbowwarrior'
+    language = 'pl'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    publication_type        = 'newspaper'
+    masthead_url            = 'http://a5.sphotos.ak.fbcdn.net/hphotos-ak-snc6/67335_168352243178437_166186720061656_594975_5800720_n.jpg'
+    encoding                = 'utf-8'
+
+    def get_cover_url(self):
+        return 'http://a7.sphotos.ak.fbcdn.net/hphotos-ak-snc4/65568_166186970061631_166186720061656_580324_7584264_n.jpg'
+
+    feeds          = [(u'Nowe has\u0142a', u'http://www.homopedia.pl/w/index.php?title=Specjalna:Nowe_strony&feed=atom&hideliu=&hidepatrolled=&hidebots=&hideredirs=1&limit=50&namespace=0'), (u'Blog', u'http://blog.homopedia.pl/feeds/posts/default')]
+
+    def get_article_url(self, article):
+        artl  = article.get('link',  None)
+        rest, sep, article_id  = artl.rpartition('/')
+        return 'http://www.homopedia.pl/w/index.php?redirect=no&printable=yes&title=' + article_id
+
+    remove_tags    = [dict(name='div', attrs={'class':'noprint'}),dict(name='ul', attrs={'class':'noprint'}),dict(name='ul', attrs={'id':'footer-places'}),dict(name='li', attrs={'id':'footer-info-viewcount'}),dict(name='span', attrs={'class':'editsection'}),dict(name='div', attrs={'id':'jump-to-nav'})]
+
+    remove_tags_before = dict(dict(name = 'h2', attrs = {'class' : 'post-title'}))
+    remove_tags_after = dict(dict(name = 'a', attrs = {'class' : 'timestamp-link'}))
+
+    extra_css = 'p{text-indent:1.5em!important;padding:0!important;margin;0!important}'
