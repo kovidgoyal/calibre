@@ -687,7 +687,11 @@ class Amazon(Source):
             return True
 
         for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
-            for a in div.xpath(r'descendant::a[@class="title" and @href]'):
+            links = div.xpath(r'descendant::a[@class="title" and @href]')
+            if not links:
+                # New amazon markup
+                links = div.xpath('descendant::h3/a[@href]')
+            for a in links:
                 title = tostring(a, method='text', encoding=unicode)
                 if title_ok(title):
                     matches.append(a.get('href'))
