@@ -111,7 +111,7 @@ class Skeleton(object):
         self.chunks = chunks
 
         self.skeleton = self.render(root)
-        self.body_offset = self.skeleton.find('<body')
+        self.body_offset = self.skeleton.find(b'<body')
         self.calculate_metrics(root)
 
         self.calculate_insert_positions()
@@ -127,7 +127,7 @@ class Skeleton(object):
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
-            raw = tostring(tag, with_tail=True)
+            raw = close_self_closing_tags(tostring(tag, with_tail=True))
             start_length = len(raw.partition(b'>')[0]) + len(text) + 1
             end_length = len(raw.rpartition(b'<')[-1]) + 1
             self.metrics[tag.get('aid')] = Metric(start_length, end_length)
