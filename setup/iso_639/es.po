@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-06-16 13:09+0000\n"
-"Last-Translator: Paco Molinero <paco@byasl.com>\n"
+"PO-Revision-Date: 2012-06-22 17:32+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-17 04:34+0000\n"
-"X-Generator: Launchpad (build 15419)\n"
+"X-Launchpad-Export-Date: 2012-06-23 05:01+0000\n"
+"X-Generator: Launchpad (build 15461)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -8016,7 +8016,7 @@ msgstr "Gbari"
 
 #. name for gbz
 msgid "Dari; Zoroastrian"
-msgstr "Dari; Zoroastrian"
+msgstr "Darí zoroástrico"
 
 #. name for gcc
 msgid "Mali"
@@ -8048,7 +8048,7 @@ msgstr "Francés criollo guyanés"
 
 #. name for gct
 msgid "German; Colonia Tovar"
-msgstr "Alemán; Colonia Tovar"
+msgstr "Alemán coloniero"
 
 #. name for gda
 msgid "Lohar; Gade"
@@ -8372,7 +8372,7 @@ msgstr "Geji"
 
 #. name for gjk
 msgid "Koli; Kachi"
-msgstr "Koli; Kachi"
+msgstr "Koli kachi"
 
 #. name for gjn
 msgid "Gonja"
@@ -8396,7 +8396,7 @@ msgstr "Gokana"
 
 #. name for gkp
 msgid "Kpelle; Guinea"
-msgstr "Kpelle; Guinea"
+msgstr "Kpelle de Guinea"
 
 #. name for gla
 msgid "Gaelic; Scottish"
@@ -8480,7 +8480,7 @@ msgstr "Bajo alemán medio"
 
 #. name for gmm
 msgid "Gbaya-Mbodomo"
-msgstr "Gbaya-Mbodomo"
+msgstr "Gbaya-mbodomo"
 
 #. name for gmn
 msgid "Gimnime"
@@ -8560,7 +8560,7 @@ msgstr "Gana"
 
 #. name for gnr
 msgid "Gureng Gureng"
-msgstr "Gureng Gureng"
+msgstr "Gureng gureng"
 
 #. name for gnt
 msgid "Guntai"
@@ -8616,7 +8616,7 @@ msgstr "Gobasi"
 
 #. name for goj
 msgid "Gowlan"
-msgstr "Gowlan"
+msgstr "Gowlano"
 
 #. name for gok
 msgid "Gowli"
@@ -8628,7 +8628,7 @@ msgstr "Gola"
 
 #. name for gom
 msgid "Konkani; Goan"
-msgstr "Konkani; Goan"
+msgstr "konkaní de Goa"
 
 #. name for gon
 msgid "Gondi"
@@ -8636,7 +8636,7 @@ msgstr "Gondi"
 
 #. name for goo
 msgid "Gone Dau"
-msgstr "Gone Dau"
+msgstr "Gone dau"
 
 #. name for gop
 msgid "Yeretuar"
@@ -8652,7 +8652,7 @@ msgstr "Gorontalo"
 
 #. name for gos
 msgid "Gronings"
-msgstr "Gronings"
+msgstr "Groningués"
 
 #. name for got
 msgid "Gothic"
@@ -8676,11 +8676,11 @@ msgstr "Goundo"
 
 #. name for goz
 msgid "Gozarkhani"
-msgstr "Gozarkhani"
+msgstr "Gozarjaní"
 
 #. name for gpa
 msgid "Gupa-Abawa"
-msgstr "Gupa-Abawa"
+msgstr "Gupa-abawa"
 
 #. name for gpn
 msgid "Taiap"
@@ -8704,7 +8704,7 @@ msgstr "Gor"
 
 #. name for gra
 msgid "Garasia; Rajput"
-msgstr "Garasia; Rajput"
+msgstr "Garasia rajput"
 
 #. name for grb
 msgid "Grebo"
@@ -8716,7 +8716,7 @@ msgstr "Griego antiguo (hasta 1453)"
 
 #. name for grd
 msgid "Guruntum-Mbaaru"
-msgstr "Guruntum-Mbaaru"
+msgstr "Guruntum-mbaaru"
 
 #. name for grg
 msgid "Madi"
@@ -8736,7 +8736,7 @@ msgstr "Grebo meridional"
 
 #. name for grm
 msgid "Kota Marudu Talantang"
-msgstr "Kota Marudu Talantang"
+msgstr "Talantang de Kota Marudu"
 
 #. name for grn
 msgid "Guarani"
@@ -8780,7 +8780,7 @@ msgstr "Guriaso"
 
 #. name for gry
 msgid "Grebo; Barclayville"
-msgstr "Grebo; Barclayville"
+msgstr "Grebo de Barclayville"
 
 #. name for grz
 msgid "Guramalum"
@@ -8808,7 +8808,7 @@ msgstr "Gusan"
 
 #. name for gso
 msgid "Gbaya; Southwest"
-msgstr "Gbaya; suodeste"
+msgstr "Gbaya suroccidental"
 
 #. name for gsp
 msgid "Wasembo"
@@ -8844,7 +8844,7 @@ msgstr "Wayuu"
 
 #. name for gud
 msgid "Dida; Yocoboué"
-msgstr "Dida; Yocoboué"
+msgstr "Dida de Yocoboué"
 
 #. name for gue
 msgid "Gurinji"
@@ -8908,7 +8908,7 @@ msgstr "Lengua de signos guineana"
 
 #. name for gut
 msgid "Maléku Jaíka"
-msgstr "Maléku Jaíka"
+msgstr "Maléku jaíka"
 
 #. name for guu
 msgid "Yanomamö"
@@ -8960,15 +8960,15 @@ msgstr "Gurmana"
 
 #. name for gvn
 msgid "Kuku-Yalanji"
-msgstr "Kuku-Yalanji"
+msgstr "Kuku-yalanji"
 
 #. name for gvo
 msgid "Gavião Do Jiparaná"
-msgstr "Gavião Do Jiparaná"
+msgstr "Gavião de Jiparaná"
 
 #. name for gvp
 msgid "Gavião; Pará"
-msgstr "Gavião; Pará"
+msgstr "Gavião de Pará"
 
 #. name for gvr
 msgid "Gurung; Western"
@@ -9028,7 +9028,7 @@ msgstr "Gwere"
 
 #. name for gwt
 msgid "Gawar-Bati"
-msgstr "Gawar-Bati"
+msgstr "Gawar-bati"
 
 #. name for gwu
 msgid "Guwamu"
@@ -9048,7 +9048,7 @@ msgstr "Wè meridional"
 
 #. name for gya
 msgid "Gbaya; Northwest"
-msgstr "Gbaya; moroeste"
+msgstr "Gbaya nororiental"
 
 #. name for gyb
 msgid "Garus"
@@ -9296,7 +9296,7 @@ msgstr "Haigwai"
 
 #. name for hhi
 msgid "Hoia Hoia"
-msgstr "Hoia Hoia"
+msgstr "Hoia hoia"
 
 #. name for hhr
 msgid "Kerak"
@@ -9320,7 +9320,7 @@ msgstr "Hidatsa"
 
 #. name for hif
 msgid "Hindi; Fiji"
-msgstr "Hindi; Fiji"
+msgstr "Hindi de Fiyi"
 
 #. name for hig
 msgid "Kamwe"
@@ -9340,7 +9340,7 @@ msgstr "Hijuk"
 
 #. name for hik
 msgid "Seit-Kaitetu"
-msgstr "Seit-Kaitetu"
+msgstr "Seit-kaitetu"
 
 #. name for hil
 msgid "Hiligaynon"
@@ -9384,7 +9384,7 @@ msgstr "Hunde"
 
 #. name for hkk
 msgid "Hunjara-Kaina Ke"
-msgstr "Hunjara-Kaina Ke"
+msgstr "Hunjara-kaina ke"
 
 #. name for hks
 msgid "Hong Kong Sign Language"
@@ -9400,7 +9400,7 @@ msgstr "Halbi"
 
 #. name for hld
 msgid "Halang Doan"
-msgstr "Halang Doan"
+msgstr "Halang doan"
 
 #. name for hle
 msgid "Hlersu"
@@ -9408,7 +9408,7 @@ msgstr "Hlersu"
 
 #. name for hlt
 msgid "Nga La"
-msgstr "Nga La"
+msgstr "Nga la"
 
 #. name for hlu
 msgid "Luwian; Hieroglyphic"
@@ -9424,7 +9424,7 @@ msgstr ""
 
 #. name for hmc
 msgid "Miao; Central Huishui"
-msgstr "Miao; Central Huishui"
+msgstr "Miao de Huishui central"
 
 #. name for hmd
 msgid "Miao; Large Flowery"
@@ -9460,7 +9460,7 @@ msgstr "Maek"
 
 #. name for hml
 msgid "Miao; Luopohe"
-msgstr "Miao; Luopohe"
+msgstr "Miao del río Luobo"
 
 #. name for hmm
 msgid "Miao; Central Mashan"
@@ -9472,7 +9472,7 @@ msgstr "Hmong"
 
 #. name for hmo
 msgid "Hiri Motu"
-msgstr "Hiri Motu"
+msgstr "Hiri motu"
 
 #. name for hmp
 msgid "Miao; Northern Mashan"
@@ -9500,7 +9500,7 @@ msgstr "Hamap"
 
 #. name for hmv
 msgid "Hmong Dô"
-msgstr "Hmong Dô"
+msgstr "Hmong dô"
 
 #. name for hmw
 msgid "Miao; Western Mashan"
@@ -9536,7 +9536,7 @@ msgstr "Hani"
 
 #. name for hnj
 msgid "Hmong Njua"
-msgstr "Hmong Njua"
+msgstr "Hmong njua"
 
 #. name for hnn
 msgid "Hanunoo"
@@ -12396,7 +12396,7 @@ msgstr ""
 
 #. name for knn
 msgid "Konkani (individual language)"
-msgstr "Konkani (idioma individual)"
+msgstr "Konkaní (idioma individual)"
 
 #. name for kno
 msgid "Kono (Sierra Leone)"
@@ -12484,7 +12484,7 @@ msgstr ""
 
 #. name for kok
 msgid "Konkani (macrolanguage)"
-msgstr "Konkani (macrolengua)"
+msgstr "Konkaní (macrolengua)"
 
 #. name for kol
 msgid "Kol (Papua New Guinea)"
@@ -13020,7 +13020,7 @@ msgstr ""
 
 #. name for ktr
 msgid "Kota Marudu Tinagas"
-msgstr ""
+msgstr "Tinagas de Kota Marudu"
 
 #. name for kts
 msgid "Muyu; South"
@@ -13252,7 +13252,7 @@ msgstr ""
 
 #. name for kvx
 msgid "Koli; Parkari"
-msgstr ""
+msgstr "Koli parkari"
 
 #. name for kvy
 msgid "Karen; Yintale"
@@ -13424,7 +13424,7 @@ msgstr ""
 
 #. name for kxp
 msgid "Koli; Wadiyara"
-msgstr ""
+msgstr "Koli wadiyara"
 
 #. name for kxq
 msgid "Kanum; Smärky"
@@ -21184,7 +21184,7 @@ msgstr ""
 
 #. name for prd
 msgid "Parsi-Dari"
-msgstr ""
+msgstr "Persa dari"
 
 #. name for pre
 msgid "Principense"
@@ -23716,7 +23716,7 @@ msgstr "Spokane"
 
 #. name for spp
 msgid "Senoufo; Supyire"
-msgstr "Senoufo; Supyire"
+msgstr "Senoufo supyire"
 
 #. name for spq
 msgid "Spanish; Loreto-Ucayali"
@@ -23828,7 +23828,7 @@ msgstr "Siriano"
 
 #. name for srk
 msgid "Serudung Murut"
-msgstr "Serudung Murut"
+msgstr "Serudung murut"
 
 #. name for srl
 msgid "Isirawa"
@@ -23836,11 +23836,11 @@ msgstr "Isirawa"
 
 #. name for srm
 msgid "Saramaccan"
-msgstr "Saramaccan"
+msgstr "Saramacano"
 
 #. name for srn
 msgid "Sranan Tongo"
-msgstr "Sranan Tongo"
+msgstr "Sranan tongo"
 
 #. name for sro
 msgid "Sardinian; Campidanese"
@@ -23904,7 +23904,7 @@ msgstr "Siroi"
 
 #. name for sse
 msgid "Sama; Bangingih"
-msgstr "Sama; Bangingih"
+msgstr "Sama banguingui"
 
 #. name for ssf
 msgid "Thao"
@@ -28868,7 +28868,7 @@ msgstr ""
 
 #. name for xpe
 msgid "Kpelle; Liberia"
-msgstr ""
+msgstr "Kpelle de Liberia"
 
 #. name for xpg
 msgid "Phrygian"
@@ -29364,7 +29364,7 @@ msgstr ""
 
 #. name for ybe
 msgid "Yugur; West"
-msgstr ""
+msgstr "Yugur occidental"
 
 #. name for ybh
 msgid "Yakha"
@@ -29524,7 +29524,7 @@ msgstr "Árabe judeo-iraquí"
 
 #. name for yhl
 msgid "Phowa; Hlepho"
-msgstr ""
+msgstr "Phowa hlepho"
 
 #. name for yia
 msgid "Yinggarda"
@@ -29556,7 +29556,7 @@ msgstr ""
 
 #. name for yik
 msgid "Lalo; Dongshanba"
-msgstr ""
+msgstr "Lalo dongshanba"
 
 #. name for yil
 msgid "Yindjilandji"
@@ -29748,7 +29748,7 @@ msgstr "Yamna"
 
 #. name for ymo
 msgid "Yangum Mon"
-msgstr "Yangum Mon"
+msgstr "Yangum mon"
 
 #. name for ymp
 msgid "Yamap"
@@ -29756,7 +29756,7 @@ msgstr "Yamap"
 
 #. name for ymq
 msgid "Muji; Qila"
-msgstr "Muji; Qila"
+msgstr "Muji qila"
 
 #. name for ymr
 msgid "Malasar"
@@ -29768,7 +29768,7 @@ msgstr "Misiano"
 
 #. name for ymt
 msgid "Mator-Taygi-Karagas"
-msgstr "Mator-Taygi-Karagas"
+msgstr "Mator-taygi-karagas"
 
 #. name for ymx
 msgid "Muji; Northern"
@@ -29800,7 +29800,7 @@ msgstr ""
 
 #. name for ynk
 msgid "Yupik; Naukan"
-msgstr ""
+msgstr "Yupik naukan"
 
 #. name for ynl
 msgid "Yangulam"
@@ -29872,7 +29872,7 @@ msgstr "Phala"
 
 #. name for ypb
 msgid "Phowa; Labo"
-msgstr "Phowa; Labo"
+msgstr "Phowa labo"
 
 #. name for ypg
 msgid "Phola"
@@ -29888,7 +29888,7 @@ msgstr ""
 
 #. name for ypn
 msgid "Phowa; Ani"
-msgstr ""
+msgstr "Phowa ani"
 
 #. name for ypo
 msgid "Phola; Alo"
@@ -29940,7 +29940,7 @@ msgstr "Yarawata"
 
 #. name for ysc
 msgid "Yassic"
-msgstr "Yassic"
+msgstr "Jásico"
 
 #. name for ysd
 msgid "Samatao"
@@ -29964,11 +29964,11 @@ msgstr "Lolopo meridional"
 
 #. name for ysr
 msgid "Yupik; Sirenik"
-msgstr "Yupik; Sirenik"
+msgstr "Yupik sirenik"
 
 #. name for yss
 msgid "Yessan-Mayo"
-msgstr "Yessan-Mayo"
+msgstr "Yessan-mayo"
 
 #. name for ysy
 msgid "Sanie"
@@ -29988,11 +29988,11 @@ msgstr "Thopho"
 
 #. name for ytw
 msgid "Yout Wam"
-msgstr "Yout Wam"
+msgstr "Yout wam"
 
 #. name for yua
 msgid "Maya; Yucatec"
-msgstr "Maya; Yucateco"
+msgstr "Maya yucateco"
 
 #. name for yub
 msgid "Yugambal"
@@ -30012,7 +30012,7 @@ msgstr "Chino yuè"
 
 #. name for yuf
 msgid "Havasupai-Walapai-Yavapai"
-msgstr "Havasupai-Walapai-Yavapai"
+msgstr "Havasupai-walapai-yavapai"
 
 #. name for yug
 msgid "Yug"
@@ -30024,7 +30024,7 @@ msgstr "Yurutí"
 
 #. name for yuj
 msgid "Karkar-Yuri"
-msgstr "Karkar-Yuri"
+msgstr "Karkar-yuri"
 
 #. name for yuk
 msgid "Yuki"
@@ -30072,7 +30072,7 @@ msgstr "Yukaghir meridional"
 
 #. name for yuy
 msgid "Yugur; East"
-msgstr "Yugur; este"
+msgstr "Yugur oriental"
 
 #. name for yuz
 msgid "Yuracare"
@@ -30100,7 +30100,7 @@ msgstr "Yawanawa"
 
 #. name for ywq
 msgid "Yi; Wuding-Luquan"
-msgstr "Yi; Wuding-Luquan"
+msgstr "Yu wuding-luquan"
 
 #. name for ywr
 msgid "Yawuru"
@@ -30108,11 +30108,11 @@ msgstr "Yawuru"
 
 #. name for ywt
 msgid "Lalo; Xishanba"
-msgstr "Lalo; Xishanba"
+msgstr "Lalo xishanba"
 
 #. name for ywu
 msgid "Nasu; Wumeng"
-msgstr "Nasu; Wumeng"
+msgstr "Nasu wumeng"
 
 #. name for yww
 msgid "Yawarawarga"
@@ -30128,7 +30128,7 @@ msgstr "Ayizi"
 
 #. name for yzg
 msgid "Buyang; E'ma"
-msgstr "Buyang; E'ma"
+msgstr "Buyang e'ma"
 
 #. name for yzk
 msgid "Zokhuo"
@@ -30136,11 +30136,11 @@ msgstr "Zokhuo"
 
 #. name for zaa
 msgid "Zapotec; Sierra de Juárez"
-msgstr "Zapoteco; Sierra de Juárez"
+msgstr "Zapoteco de Sierra de Juárez"
 
 #. name for zab
 msgid "Zapotec; San Juan Guelavía"
-msgstr "Zapoteco; San Juan Guelavía"
+msgstr "Zapoteco de San Juan Guelavía"
 
 #. name for zac
 msgid "Zapotec; Ocotlán"
@@ -30260,7 +30260,7 @@ msgstr ""
 
 #. name for zch
 msgid "Zhuang; Central Hongshuihe"
-msgstr "Zhuang; Central Hongshuihe"
+msgstr "Zhuang de Hongshuihe central"
 
 #. name for zdj
 msgid "Comorian; Ngazidja"
@@ -30772,7 +30772,7 @@ msgstr ""
 
 #. name for ztt
 msgid "Zapotec; Tejalapan"
-msgstr "Zapoteco; Tejalapan"
+msgstr "Zapoteco de Tejalapan"
 
 #. name for ztu
 msgid "Zapotec; Güilá"
