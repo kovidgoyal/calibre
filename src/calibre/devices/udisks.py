@@ -19,13 +19,20 @@ def node_mountpoint(node):
             return de_mangle(line[1])
     return None
 
+class NoUDisks1(Exception):
+    pass
 
 class UDisks(object):
 
     def __init__(self):
         self.bus = dbus.SystemBus()
-        self.main = dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
+        try:
+            self.main = dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
                         '/org/freedesktop/UDisks'), 'org.freedesktop.UDisks')
+        except dbus.exceptions.DBusException as e:
+            if getattr(e, '_dbus_error_name', None) == 'org.freedesktop.DBus.Error.ServiceUnknown':
+                raise NoUDisks1()
+            raise
 
     def device(self, device_node_path):
         devpath = self.main.FindDeviceByDeviceFile(device_node_path)
