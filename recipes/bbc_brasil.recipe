@@ -149,8 +149,7 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # Author of this recipe.
     __author__ = 'Carlos Laviola'
 
-    # Specify English as the language of the RSS feeds (ISO-639 code).
-    language = 'en_GB'
+    language = 'pt_BR'
 
     # Set tags.
     tags = 'news, sport, blog'
