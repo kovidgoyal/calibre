@@ -195,7 +195,7 @@ It can get tiresome to keep re-adding a plugin to calibre to test small changes.
 
 Once you've located the zip file of your plugin you can then directly update it with your changes instead of re-adding it each time. To do so from the command line, in the directory that contains your plugin source code, use::
 
-    calibre -s; sleep 4s; zip -R /path/to/plugin/zip/file.zip *; calibre
+    calibre -s; zip -R /path/to/plugin/zip/file.zip *; calibre
 
 This will shutdown a running calibre. Wait for the shutdown to complete, then update your plugin files and relaunch calibre.
 It relies on the freely available zip command line tool.
