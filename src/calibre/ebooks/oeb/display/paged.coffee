@@ -333,3 +333,4 @@ if window?
 # Indexing
 # Resizing of images
 # Full screen mode
+# Highlight on jump_to_anchor
