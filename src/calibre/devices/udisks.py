@@ -5,10 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-# First repeat after me: Linux desktop infrastructure is designed by a
-# committee of rabid monkeys on crack. They would not know a decent desktop if
-# it was driving the rabid monkey extermination truck that runs them over.
-
 import os, dbus, re
 
 def node_mountpoint(node):
@@ -67,6 +63,7 @@ class UDisks2(object):
 
     BLOCK = 'org.freedesktop.UDisks2.Block'
     FILESYSTEM = 'org.freedesktop.UDisks2.Filesystem'
+    DRIVE = 'org.freedesktop.UDisks2.Drive'
 
     def __init__(self):
         self.bus = dbus.SystemBus()
@@ -131,6 +128,21 @@ class UDisks2(object):
                 raise
             return mp
 
+    def unmount(self, device_node_path):
+        d = self.device(device_node_path)
+        d.Unmount({'force':True, 'auth.no_user_interaction':True},
+                dbus_interface=self.FILESYSTEM)
+
+    def drive_for_device(self, device):
+        drive = device.Get(self.BLOCK, 'Drive',
+            dbus_interface='org.freedesktop.DBus.Properties')
+        return self.bus.get_object('org.freedesktop.UDisks2', drive)
+
+    def eject(self, device_node_path):
+        drive = self.drive_for_device(self.device(device_node_path))
+        drive.Eject({'auth.no_user_interaction':True},
+                dbus_interface=self.DRIVE)
+
 def get_udisks(ver=None):
     if ver is None:
         try:
@@ -139,7 +151,6 @@ def get_udisks(ver=None):
             u = UDisks()
         return u
     return UDisks2() if ver == 2 else UDisks()
-
 
 def mount(node_path):
     u = UDisks()
