@@ -138,7 +138,9 @@ class Reference(QLineEdit):
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        self.goto.emit(unicode(self.text()))
+        text = unicode(self.text())
+        self.setText('')
+        self.goto.emit(text)
 
 class RecentAction(QAction):
 
