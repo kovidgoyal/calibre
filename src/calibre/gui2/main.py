@@ -323,6 +323,10 @@ def communicate(opts, args):
 
     if opts.shutdown_running_calibre:
         t.conn.send('shutdown:')
+        from calibre.utils.lock import singleinstance
+        prints(_('Shutdown command sent, waiting for shutdown...'))
+        while not singleinstance('calibre GUI'):
+            time.sleep(0.1)
     else:
         if len(args) > 1:
             args[1] = os.path.abspath(args[1])

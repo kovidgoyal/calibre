@@ -28,12 +28,14 @@ class PathResolver(object):
         self.default_path = sys.resources_location
 
         dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        self.using_develop_from = False
         if dev_path is not None:
             dev_path = os.path.join(os.path.abspath(
                 os.path.dirname(dev_path)), 'resources')
             if suitable(dev_path):
                 self.locations.insert(0, dev_path)
                 self.default_path = dev_path
+                self.using_develop_from = True
 
         user_path = os.path.join(config_dir, 'resources')
         self.user_path = None

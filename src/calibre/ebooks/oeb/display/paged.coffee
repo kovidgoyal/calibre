@@ -15,15 +15,6 @@ log = (args...) -> # {{{
             process.stdout.write(msg + '\n')
 # }}}
 
-body_height = () -> # {{{
-    db = document.body
-    dde = document.documentElement
-    if db? and dde?
-        return Math.max(db.scrollHeight, dde.scrollHeight, db.offsetHeight,
-            dde.offsetHeight, db.clientHeight, dde.clientHeight)
-    return 0
-# }}}
-
 window_scroll_pos = (win=window) -> # {{{
     if typeof(win.pageXOffset) == 'number'
         x = win.pageXOffset
@@ -59,12 +50,12 @@ absleft = (elem) -> # {{{
 # }}}
 
 class PagedDisplay
-    ###
-    This class is a namespace to expose functions via the
-    window.paged_display object. The most important functions are:
-
-    layout(): causes the currently loaded document to be laid out in columns.
-    ###
+    # This class is a namespace to expose functions via the
+    # window.paged_display object. The most important functions are:
+    #
+    # set_geometry(): sets the parameters used to layout text in paged mode
+    #
+    # layout(): causes the currently loaded document to be laid out in columns.
 
     constructor: () ->
         if not this instanceof arguments.callee
@@ -74,35 +65,42 @@ class PagedDisplay
         this.screen_width = 0
         this.in_paged_mode = false
         this.current_margin_side = 0
+        this.is_full_screen_layout = false
 
-    set_geometry: (cols_per_screen=2, margin_top=20, margin_side=40, margin_bottom=20) ->
+    set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
         this.margin_top = margin_top
         this.margin_side = margin_side
         this.margin_bottom = margin_bottom
         this.cols_per_screen = cols_per_screen
 
     layout: () ->
-        # Remove the top margin from the first child of body as that gets added
-        # to the top margin of body. This is done here just in case
-        # getComputedStyle() causes a relayout. The re-layout will be much
-        # faster before we implement the multi-column layout.
-        for node in document.body.childNodes
-            if node.nodeType == 1 # Element node
-                style = window.getComputedStyle(node)
-                if style.display in ['block', 'table']
-                    node.style.setProperty('margin-top', '0px')
-                    break
+        body_style = window.getComputedStyle(document.body)
+        # When laying body out in columns, webkit bleeds the top margin of the
+        # first block element out above the columns, leading to an extra top
+        # margin for the page. We compensate for that here. Computing the
+        # boundingrect of body is very expensive with column layout, so we do
+        # it before the column layout is applied.
+        first_layout = false
+        if not this.in_paged_mode
+            document.body.style.marginTop = '0px'
+            extra_margin = document.body.getBoundingClientRect().top
+            margin_top = (this.margin_top - extra_margin) + 'px'
+            # Check if the current document is a full screen layout like
+            # cover, if so we treat it specially.
+            single_screen = (document.body.scrollWidth < window.innerWidth + 25 and document.body.scrollHeight < window.innerHeight + 25)
+            first_layout = true
+        else
+            # resize event
+            margin_top = body_style.marginTop
 
         ww = window.innerWidth
-        wh = window.innerHeight
-        body_height = wh - this.margin_bottom = this.margin_top
-        n = this.cols_per_screen
 
         # Calculate the column width so that cols_per_screen columns fit in the
         # window in such a way the right margin of the last column is <=
         # side_margin (it may be less if the window width is not a
         # multiple of n*(col_width+2*side_margin).
 
+        n = this.cols_per_screen
         adjust = ww - Math.floor(ww/n)*n
         # Ensure that the margins are large enough that the adjustment does not
         # cause them to become negative semidefinite
@@ -113,7 +111,6 @@ class PagedDisplay
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
 
-        body_style = window.getComputedStyle(document.body)
         fgcolor = body_style.getPropertyValue('color')
         bs = document.body.style
 
@@ -121,9 +118,9 @@ class PagedDisplay
         bs.setProperty('-webkit-column-width', col_width+'px')
         bs.setProperty('-webkit-column-rule-color', fgcolor)
         bs.setProperty('overflow', 'visible')
-        bs.setProperty('height', 'auto')
-        bs.setProperty('width', 'auto')
-        bs.setProperty('margin-top', this.margin_top+'px')
+        bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
+        bs.setProperty('width', (window.innerWidth - 2*sm)+'px')
+        bs.setProperty('margin-top', margin_top)
         bs.setProperty('margin-bottom', this.margin_bottom+'px')
         bs.setProperty('margin-left', sm+'px')
         bs.setProperty('margin-right', sm+'px')
@@ -146,6 +143,15 @@ class PagedDisplay
                             priority = rule.style.getPropertyPriority(prop)
                             rule.style.setProperty(cprop, val, priority)
 
+        if first_layout
+            # Because of a bug in webkit column mode, svg elements defined with
+            # width 100% are wider than body and lead to a blank page after the
+            # current page (when cols_per_screen == 1). Similarly img elements
+            # with height=100% overflow the first column
+            has_svg = document.getElementsByTagName('svg').length > 0
+            only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 2 and document.getElementsByTagName('p').length < 2
+            this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
+
         this.in_paged_mode = true
         this.current_margin_side = sm
         return sm
@@ -155,18 +161,48 @@ class PagedDisplay
         xpos = Math.floor(document.body.scrollWidth * frac)
         this.scroll_to_xpos(xpos)
 
-    scroll_to_xpos: (xpos) ->
+    scroll_to_xpos: (xpos, animated=false, notify=false, duration=1000) ->
         # Scroll so that the column containing xpos is the left most column in
         # the viewport
         if typeof(xpos) != 'number'
             log(xpos, 'is not a number, cannot scroll to it!')
+            return
+        if this.is_full_screen_layout
+            window.scrollTo(0, 0)
             return
         pos = 0
         until (pos <= xpos < pos + this.page_width)
             pos += this.page_width
         limit = document.body.scrollWidth - this.screen_width
         pos = limit if pos > limit
-        window.scrollTo(pos, 0)
+        if animated
+            this.animated_scroll(pos, duration=1000, notify=notify)
+        else
+            window.scrollTo(pos, 0)
+
+    animated_scroll: (pos, duration=1000, notify=true) ->
+        # Scroll the window to X-position pos in an animated fashion over
+        # duration milliseconds. If notify is true, py_bridge.animated_scroll_done is
+        # called.
+        delta = pos - window.pageXOffset
+        interval = 50
+        steps = Math.floor(duration/interval)
+        step_size = Math.floor(delta/steps)
+        this.current_scroll_animation = {target:pos, step_size:step_size, interval:interval, notify:notify, fn: () =>
+            a = this.current_scroll_animation
+            npos = window.pageXOffset + a.step_size
+            completed = false
+            if Math.abs(npos - a.target) < Math.abs(a.step_size)
+                completed = true
+                npos = a.target
+            window.scrollTo(npos, 0)
+            if completed
+                if notify
+                    window.py_bridge.animated_scroll_done()
+            else
+                setTimeout(a.fn, a.interval)
+        }
+        this.current_scroll_animation.fn()
 
     current_pos: (frac) ->
         # The current scroll position as a fraction between 0 and 1
@@ -178,6 +214,8 @@ class PagedDisplay
     current_column_location: () ->
         # The location of the left edge of the left most column currently
         # visible in the viewport
+        if this.is_full_screen_layout
+            return 0
         x = window.pageXOffset + Math.max(10, this.current_margin_side)
         edge = Math.floor(x/this.page_width) * this.page_width
         while edge < x
@@ -187,6 +225,8 @@ class PagedDisplay
     next_screen_location: () ->
         # The position to scroll to for the next screen (which could contain
         # more than one pages). Returns -1 if no further scrolling is possible.
+        if this.is_full_screen_layout
+            return -1
         cc = this.current_column_location()
         ans = cc + this.screen_width
         limit = document.body.scrollWidth - window.innerWidth
@@ -197,6 +237,8 @@ class PagedDisplay
     previous_screen_location: () ->
         # The position to scroll to for the previous screen (which could contain
         # more than one pages). Returns -1 if no further scrolling is possible.
+        if this.is_full_screen_layout
+            return -1
         cc = this.current_column_location()
         ans = cc - this.screen_width
         if ans < 0
@@ -209,6 +251,8 @@ class PagedDisplay
         # The position to scroll to for the next column (same as
         # next_screen_location() if columns per screen == 1). Returns -1 if no
         # further scrolling is possible.
+        if this.is_full_screen_layout
+            return -1
         cc = this.current_column_location()
         ans = cc + this.page_width
         limit = document.body.scrollWidth - window.innerWidth
@@ -220,6 +264,8 @@ class PagedDisplay
         # The position to scroll to for the previous column (same as
         # previous_screen_location() if columns per screen == 1). Returns -1 if
         # no further scrolling is possible.
+        if this.is_full_screen_layout
+            return -1
         cc = this.current_column_location()
         ans = cc - this.page_width
         if ans < 0
@@ -308,8 +354,7 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# Go to reference positions
 # Indexing
 # Resizing of images
-# Special handling for identifiable covers (colspan)?
 # Full screen mode
+# Highlight on jump_to_anchor

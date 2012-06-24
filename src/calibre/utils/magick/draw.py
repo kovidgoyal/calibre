@@ -279,6 +279,9 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
             logo.size = (lwidth, lheight)
         left = int(max(0, (width - lwidth)/2.))
         top  = bottom+10
+        extra = int((available[1] - lheight)/2.0)
+        if extra > 0:
+            top += extra
         canvas.compose(logo, left, top)
 
     return canvas.export(output_format)

@@ -138,7 +138,9 @@ class Reference(QLineEdit):
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        self.goto.emit(unicode(self.text()))
+        text = unicode(self.text())
+        self.setText('')
+        self.goto.emit(text)
 
 class RecentAction(QAction):
 
@@ -411,10 +413,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return c.remember_current_page
 
     def print_book(self):
-        Printing(self.iterator.spine, False)
+        p = Printing(self.iterator, self)
+        p.start_print()
 
     def print_preview(self):
-        Printing(self.iterator.spine, True)
+        p = Printing(self.iterator, self)
+        p.start_preview()
 
     def toggle_fullscreen(self, x):
         if self.isFullScreen():

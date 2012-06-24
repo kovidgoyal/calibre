@@ -205,6 +205,8 @@ class Document(QWebPage): # {{{
         return self.anchor_positions
 
     def switch_to_paged_mode(self, onresize=False):
+        if onresize and not self.loaded_javascript:
+            return
         side_margin = self.javascript('window.paged_display.layout()', typ=int)
         # Setup the contents size to ensure that there is a right most margin.
         # Without this webkit renders the final column with no margin, as the
@@ -294,6 +296,7 @@ class Document(QWebPage): # {{{
         self.mainFrame().setScrollPosition(QPoint(x, y))
 
     def jump_to_anchor(self, anchor):
+        if not self.loaded_javascript: return
         self.javascript('window.paged_display.jump_to_anchor("%s")'%anchor)
 
     def element_ypos(self, elem):
@@ -352,7 +355,7 @@ class Document(QWebPage): # {{{
                 except ZeroDivisionError:
                     return 0.
         def fset(self, val):
-            if self.in_paged_mode:
+            if self.in_paged_mode and self.loaded_javascript:
                 self.javascript('paged_display.scroll_to_pos(%f)'%val)
             else:
                 npos = val * (self.height - self.window_height)

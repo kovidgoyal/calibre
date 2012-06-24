@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 akter.co.rs
 '''
@@ -8,9 +8,9 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Akter(BasicNewsRecipe):
-    title                 = 'AKTER - Nedeljnik'
+    title                 = 'AKTER - Dnevnik'
     __author__            = 'Darko Miletic'
-    description           = 'AKTER - nedeljni politicki magazin savremene Srbije'
+    description           = 'AKTER - Najnovije vesti iz Srbije'
     publisher             = 'Akter Media Group d.o.o.'
     category              = 'vesti, online vesti, najnovije vesti, politika, sport, ekonomija, biznis, finansije, berza, kultura, zivot, putovanja, auto, automobili, tehnologija, politicki magazin, dogadjaji, desavanja, lifestyle, zdravlje, zdravstvo, vest, novine, nedeljnik, srbija, novi sad, vojvodina, svet, drustvo, zabava, republika srpska, beograd, intervju, komentar, reportaza, arhiva vesti, news, serbia, politics'
     oldest_article        = 8
@@ -18,7 +18,7 @@ class Akter(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    masthead_url          = 'http://www.akter.co.rs/gfx/logoneover.png'
+    masthead_url          = 'http://www.akter.co.rs/gfx/logodnover.png'
     language              = 'sr'
     publication_type      = 'magazine'
     remove_empty_feeds    = True
@@ -37,18 +37,8 @@ class Akter(BasicNewsRecipe):
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     keep_only_tags = [dict(name='div', attrs={'id':'section_to_print'})]
-    feeds          = [(u'Nedeljnik', u'http://akter.co.rs/rss/nedeljnik')]
+    feeds          = [(u'Vesti', u'http://akter.co.rs/rss/dnevni')]
 
     def print_version(self, url):
         dpart, spart, apart = url.rpartition('/')
         return dpart + '/print-' + apart
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.akter.co.rs/weekly.html')
-        divt = soup.find('div', attrs={'class':'lastissue'})
-        if divt:
-           imgt = divt.find('img')
-           if imgt:
-              return 'http://www.akter.co.rs' + imgt['src']
-        return None
-        

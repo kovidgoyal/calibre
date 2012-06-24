@@ -1075,9 +1075,7 @@ void Style::init(bool initial)
 #endif
     }
 
-    opts.contrast=QSettings(QLatin1String("Trolltech")).value("/Qt/KDE/contrast", DEFAULT_CONTRAST).toInt();
-    if(opts.contrast<0 || opts.contrast>10)
-        opts.contrast=DEFAULT_CONTRAST;
+    opts.contrast=DEFAULT_CONTRAST; //Changed by Kovid
 
     shadeColors(QApplication::palette().color(QPalette::Active, QPalette::Highlight), itsHighlightCols);
     shadeColors(QApplication::palette().color(QPalette::Active, QPalette::Background), itsBackgroundCols);
@@ -1522,7 +1520,7 @@ void Style::polish(QApplication *app)
 
 void Style::polish(QPalette &palette)
 {
-    int  contrast(QSettings(QLatin1String("Trolltech")).value("/Qt/KDE/contrast", DEFAULT_CONTRAST).toInt());
+    int  contrast = DEFAULT_CONTRAST; // Changed by Kovid
     bool newContrast(false);
 
     if(contrast<0 || contrast>10)

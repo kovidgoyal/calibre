@@ -1,6 +1,7 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
 24sata.rs
@@ -21,26 +22,29 @@ class Ser24Sata(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'sr'
-    publication_type      = 'newspaper'    
-    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
+    publication_type      = 'newsportal'
+    extra_css             = """
+                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                               body{font-family: serif1, serif}
+                            """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
-    feeds = [(u'Vesti Dana', u'http://www.24sata.rs/rss.php')]
-
-    def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+    feeds = [
+              (u'Vesti'   , u'http://www.24sata.rs/rss/vesti.xml'   ),
+              (u'Sport'   , u'http://www.24sata.rs/rss/sport.xml'   ),
+              (u'Šou'     , u'http://www.24sata.rs/rss/sou.xml'     ),
+              (u'Specijal', u'http://www.24sata.rs/rss/specijal.xml'),
+              (u'Novi Sad', u'http://www.24sata.rs/rss/ns.xml'      )
+            ]
 
     def print_version(self, url):
-        article    = url.partition('#')[0]
-        article_id = article.partition('id=')[2]
-        return 'http://www.24sata.rs/_print.php?id=' + article_id
-
+        dpart, spart, apart = url.rpartition('/')
+        return dpart + '/print/' + apart

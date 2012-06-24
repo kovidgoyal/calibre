@@ -167,7 +167,8 @@ def test_identify(tests): # {{{
 
 # }}}
 
-def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None): # {{{
+def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
+        fail_missing_meta=True): # {{{
     '''
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -246,7 +247,8 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None): # {{{
                 None]
         if not good:
             prints('Failed to find', plugin.test_fields(possibles[0]))
-            raise SystemExit(1)
+            if fail_missing_meta:
+                raise SystemExit(1)
 
         if results[0] is not possibles[0]:
             prints('Most relevant result failed the tests')
@@ -263,21 +265,22 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None): # {{{
                     results.append(rq.get_nowait())
                 except Empty:
                     break
-            if not results:
+            if not results and fail_missing_meta:
                 prints('Cover download failed')
                 raise SystemExit(1)
-            cdata = results[0]
-            cover = os.path.join(tdir, plugin.name.replace(' ',
-                '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
-                    '_')))
-            with open(cover, 'wb') as f:
-                f.write(cdata[-1])
+            elif results:
+                cdata = results[0]
+                cover = os.path.join(tdir, plugin.name.replace(' ',
+                    '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
+                        '_')))
+                with open(cover, 'wb') as f:
+                    f.write(cdata[-1])
 
-            prints('Cover downloaded to:', cover)
+                prints('Cover downloaded to:', cover)
 
-            if len(cdata[-1]) < 10240:
-                prints('Downloaded cover too small')
-                raise SystemExit(1)
+                if len(cdata[-1]) < 10240:
+                    prints('Downloaded cover too small')
+                    raise SystemExit(1)
 
     prints('Average time per query', sum(times)/len(times))
 
