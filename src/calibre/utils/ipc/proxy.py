@@ -15,6 +15,7 @@ from functools import partial
 
 from calibre import as_unicode, prints
 from calibre.constants import iswindows, DEBUG
+from calibre.utils.ipc import eintr_retry_call
 
 def _encode(msg):
     raw = cPickle.dumps(msg, -1)
@@ -68,7 +69,7 @@ class Writer(Thread):
                 break
             try:
                 self.data_written = True
-                self.conn.send_bytes(x)
+                eintr_retry_call(self.conn.send_bytes, x)
             except Exception as e:
                 self.resultq.put(as_unicode(e))
             else:
@@ -112,7 +113,7 @@ class Server(Thread):
     def run(self):
         while self.keep_going:
             try:
-                conn = self.listener.accept()
+                conn = eintr_retry_call(self.listener.accept)
                 self.handle_client(conn)
             except:
                 pass
@@ -125,7 +126,7 @@ class Server(Thread):
     def _handle_client(self, conn):
         while True:
             try:
-                func_name, args, kwargs = conn.recv()
+                func_name, args, kwargs = eintr_retry_call(conn.recv)
             except EOFError:
                 try:
                     conn.close()
@@ -156,8 +157,8 @@ class Server(Thread):
                     import traceback
                     # Try to tell the client process what error happened
                     try:
-                        conn.send_bytes(_encode(('failed', (unicode(e),
-                            as_unicode(traceback.format_exc())))))
+                        eintr_retry_call(conn.send_bytes, (_encode(('failed', (unicode(e),
+                            as_unicode(traceback.format_exc()))))))
                     except:
                         pass
                 raise
