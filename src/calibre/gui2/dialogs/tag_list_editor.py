@@ -162,7 +162,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             pass
 
     def search_clicked(self):
-        search_for = unicode(self.search_box.text())
+        search_for = icu_lower(unicode(self.search_box.text()))
         if not search_for:
             error_dialog(self, _('Find'), _('You must enter some text to search for'),
                          show=True, show_copy_button=False)
@@ -176,7 +176,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if row >= rows:
                 row = 0
             item = self.table.item(row, 0)
-            if search_for in unicode(item.text()):
+            if search_for in icu_lower(unicode(item.text())):
                 self.table.setCurrentItem(item)
                 return
         info_dialog(self, _('Find'), _('No tag found'), show=True, show_copy_button=False)
