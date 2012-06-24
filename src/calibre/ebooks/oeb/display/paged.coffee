@@ -181,6 +181,9 @@ class PagedDisplay
             window.scrollTo(pos, 0)
 
     animated_scroll: (pos, duration=1000, notify=true) ->
+        # Scroll the window to X-position pos in an animated fashion over
+        # duration milliseconds. If notify is true, py_bridge.animated_scroll_done is
+        # called.
         delta = pos - window.pageXOffset
         interval = 50
         steps = Math.floor(duration/interval)
