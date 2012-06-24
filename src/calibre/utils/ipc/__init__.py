@@ -6,12 +6,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, errno
 from threading import Thread
 
 from calibre.constants import iswindows, get_windows_username
 
 ADDRESS = None
+
+def eintr_retry_call(func, *args, **kwargs):
+    while True:
+        try:
+            return func(*args, **kwargs)
+        except (OSError, IOError) as e:
+            if e.errno == errno.EINTR:
+                continue
+            raise
 
 def gui_socket_address():
     global ADDRESS
