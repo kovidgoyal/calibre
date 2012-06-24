@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-22 07:39+0000\n"
-"PO-Revision-Date: 2012-06-22 20:26+0000\n"
+"PO-Revision-Date: 2012-06-23 08:13+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-06-23 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-06-24 05:27+0000\n"
 "X-Generator: Launchpad (build 15461)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -15987,6 +15987,13 @@ msgid ""
 "         By changing the lookup name to a grouped search term you can\n"
 "         search multiple columns at once.</p>"
 msgstr ""
+"<p>Когда вы ищите похожие книги нажав правой кнопкой на книге и выбрав "
+"\"Похожие книги...\", \n"
+"         calibre создаёт поиск используя столбцы поисковых имён определённых "
+"ниже. Изменив \n"
+"         поисковое имя на группированный поисковой запрос, вы можете искать "
+"несколько \n"
+"         столбцов одновременно</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:196
 msgid "Similar authors: "
@@ -19364,7 +19371,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:294
 #, python-format
 msgid "Added book ids: %s"
-msgstr ""
+msgstr "Добавлены идентификаторы книг: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:302
 msgid ""
@@ -19580,7 +19587,7 @@ msgstr "Вы должны указать поле или opf файл"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:584
 #, python-format
 msgid "The OPF file %s does not exist"
-msgstr ""
+msgstr "OPF файл %s не существует"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:594
 #, python-format
@@ -20029,7 +20036,7 @@ msgstr "%(tt)sСредняя оценка %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:218
 msgid "restored preference "
-msgstr ""
+msgstr "восстановлены настройки "
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:223
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:234
@@ -20068,23 +20075,23 @@ msgstr "Сортировочный заголовок"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:122
 msgid "Starting restoring preferences and column metadata"
-msgstr ""
+msgstr "Начинаю восстанавливать настройки и столбцы метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:125
 msgid "Cannot restore preferences. Backup file not found."
-msgstr ""
+msgstr "Не удалось восстановить настройки. Резервная копия не найдена."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:136
 msgid "Finished restoring preferences and column metadata"
-msgstr ""
+msgstr "Завершено восстановление настроек и столбцов метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:138
 msgid "Finished restoring preferences"
-msgstr ""
+msgstr "Завершено восстановление настроек"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:143
 msgid "Restoring preferences and column metadata failed"
-msgstr ""
+msgstr "Восстановление настроек и столбцов метаданных не удалось"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:162
 msgid "Processed"

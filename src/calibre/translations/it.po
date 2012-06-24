@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-22 07:39+0000\n"
-"PO-Revision-Date: 2012-06-16 12:09+0000\n"
+"PO-Revision-Date: 2012-06-23 06:39+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-23 04:49+0000\n"
+"X-Launchpad-Export-Date: 2012-06-24 05:27+0000\n"
 "X-Generator: Launchpad (build 15461)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -13981,7 +13981,7 @@ msgstr "&Configura i metadati dal nome del documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:147
 msgid "The Add &Process"
-msgstr ""
+msgstr "Il &processo di aggiunta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:148
 msgid ""
@@ -15065,7 +15065,7 @@ msgstr "&Stile dell'interfaccia utente (richiede il riavvio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:249
 msgid "Show &tooltips in the book list"
-msgstr ""
+msgstr "Mostra i suggerimen&ti nell'elenco dei libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:250
 msgid "Main Interface"
@@ -15389,6 +15389,9 @@ msgid ""
 "This refers to CPU intensive tasks like  conversion. Lower this number if "
 "you want calibre to use less CPU."
 msgstr ""
+"Il numero massimo di lavori che saranno eseguiti contemporaneamente sullo "
+"sfondo. Si riferisce a operazioni che usano la CPU in modo intensivo come le "
+"conversioni. Riduci questo numero se vuoi che calibre utilizzi meno CPU."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "No proxies used"
@@ -15477,6 +15480,8 @@ msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Un controllo più generico esiste già per il formato e per il dispositivo. "
+"Sei sicuro di voler aggiungere il nuovo controllo?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:240
@@ -16072,6 +16077,12 @@ msgid ""
 "having trouble downloading files from the content server, try removing the "
 "password."
 msgstr ""
+"<p>Se lasci la password vuota, chiunque potrà accedere\n"
+" alla tua raccolta di libri utilizzando l'interfaccia web.\n"
+"<br>\n"
+"<p>Alcuni dispositivi hanno browser che non supportano l'autenticazione. Se "
+"hai problemi a scaricare i file dal server dei contenuti,, prova a rimuovere "
+"la password."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
 msgid ""
@@ -17287,7 +17298,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Modifica navigatore tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -18299,12 +18310,12 @@ msgstr "Trova occorrenza precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
-msgstr ""
+msgstr "Interpretazione non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:67
 #, python-format
 msgid "Failed to render document %s"
-msgstr ""
+msgstr "Interpretazione del documento %s non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 msgid "Test name invalid"
@@ -19309,7 +19320,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:294
 #, python-format
 msgid "Added book ids: %s"
-msgstr ""
+msgstr "ID libri aggiunti: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:302
 msgid ""
@@ -19495,7 +19506,7 @@ msgstr "Nome del campo"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:571
 msgid "You must specify a record id as the first argument"
-msgstr ""
+msgstr "Devi specificare l'id di un record come primo argomento"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:577
 msgid "You must specify either a field or an opf file"
@@ -19504,7 +19515,7 @@ msgstr "Devi specificare un campo o un file opf"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:584
 #, python-format
 msgid "The OPF file %s does not exist"
-msgstr ""
+msgstr "Il file OPF %s non esiste"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:594
 #, python-format
@@ -19923,7 +19934,7 @@ msgstr "%(tt)sLa valutazione media è %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:218
 msgid "restored preference "
-msgstr ""
+msgstr "preferenza ripristinata "
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:223
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:234
@@ -19963,23 +19974,25 @@ msgstr "Ordinamento titolo"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:122
 msgid "Starting restoring preferences and column metadata"
-msgstr ""
+msgstr "Avvio del ripristino delle preferenze e dei metadati delle colonne"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:125
 msgid "Cannot restore preferences. Backup file not found."
-msgstr ""
+msgstr "Impossibile ripristinare le preferenze. File di backup non trovato."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:136
 msgid "Finished restoring preferences and column metadata"
-msgstr ""
+msgstr "Ripristino delle preferenze e dei metadati delle colonne terminato"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:138
 msgid "Finished restoring preferences"
-msgstr ""
+msgstr "Ripristino delle preferenze terminato"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:143
 msgid "Restoring preferences and column metadata failed"
 msgstr ""
+"Ripristino delle preferenze terminato e dei metadati delle colonne non "
+"riuscito"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:162
 msgid "Processed"
@@ -21411,6 +21424,8 @@ msgid ""
 "Interpreter dies while executing a command. To see the command, click Show "
 "details"
 msgstr ""
+"L'interprete è stato terminato durante l'esecuzione di un comando. Per "
+"vedere il comando, fai clic su Mostra dettagli"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
@@ -21946,7 +21961,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Control order of categories in the tag browser"
-msgstr ""
+msgstr "Controlla l'ordine delle categorie nel navigatore dei tag"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -22572,6 +22587,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:502
 msgid "What format to default to when using the Tweak feature"
 msgstr ""
+"Il formato predefinito da adottare quando si utilizza la funzionalità "
+"Ottimizza"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:503
 msgid ""
