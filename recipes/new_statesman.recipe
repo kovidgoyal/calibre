@@ -1,0 +1,66 @@
+__license__   = 'GPL v3'
+'''
+newstatesman.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NewStatesman(BasicNewsRecipe):
+
+    title = 'New Statesman'
+    language = 'en_GB'
+    __author__ = "NotTaken"
+    description = "Britain's Current Affairs & Politics Magazine (Weekly)"
+    oldest_article = 7.0
+    no_stylesheets = True
+    use_embedded_content = False
+    keep_only_tags = [dict(attrs={'class' : 'node'})]
+    remove_tags_after = [
+        dict(attrs={'class' : lambda x: x and 'content123' in x})
+    ]
+    remove_tags = [
+        dict(attrs={'class' : lambda x: x and 'links_bookmark' in x})
+    ]
+
+    extra_css = '''
+        .title-main {font-size: x-large;}
+        h2 { font-size: small;  }
+        h1 { font-size: medium;  }
+        .field-field-nodeimage-title {
+            font-size: small;
+            color: #3C3C3C;
+        }
+        .link_col {
+            font-size: x-small;
+        }
+    '''
+
+
+    feeds = [
+        (u'Politics',
+         u'http://www.newstatesman.com/politics.rss'),
+        (u'Business',
+         u'http://www.newstatesman.com/business.rss'),
+        (u'Economics',
+         u'http://www.newstatesman.com/economics.rss'),
+        (u'Culture',
+         u'http://www.newstatesman.com/culture.rss'),
+        (u'Media',
+         u'http://www.newstatesman.com/media.rss'),
+        (u'Books',
+         u'http://www.newstatesman.com/taxonomy/term/feed/27'),
+        (u'Life & Society',
+         u'http://www.newstatesman.com/taxonomyfeed/11'),
+        (u'World Affairs',
+         u'http://www.newstatesman.com/world-affairs.rss'),
+        (u'Sci-Tech',
+         u'http://www.newstatesman.com/feeds/topics/sci-tech.rss'),
+    ]
+
+
+
+
+
+
+
+
+
