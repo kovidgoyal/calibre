@@ -170,15 +170,23 @@ class PagedDisplay
         if this.is_full_screen_layout
             window.scrollTo(0, 0)
             return
-        pos = 0
-        until (pos <= xpos < pos + this.page_width)
-            pos += this.page_width
+        pos = Math.floor(xpos/this.page_width) * this.page_width
         limit = document.body.scrollWidth - this.screen_width
         pos = limit if pos > limit
         if animated
             this.animated_scroll(pos, duration=1000, notify=notify)
         else
             window.scrollTo(pos, 0)
+
+    column_at: (xpos) ->
+        # Return the number of the column that contains xpos
+        return Math.floor(xpos/this.page_width)
+
+    column_boundaries: () ->
+        # Return the column numbers at the left edge and after the right edge
+        # of the viewport
+        l = this.column_at(window.pageXOffset + 10)
+        return [l, l + this.cols_per_screen]
 
     animated_scroll: (pos, duration=1000, notify=true) ->
         # Scroll the window to X-position pos in an animated fashion over
@@ -217,10 +225,7 @@ class PagedDisplay
         if this.is_full_screen_layout
             return 0
         x = window.pageXOffset + Math.max(10, this.current_margin_side)
-        edge = Math.floor(x/this.page_width) * this.page_width
-        while edge < x
-            edge += this.page_width
-        return edge - this.page_width
+        return Math.floor(x/this.page_width) * this.page_width
 
     next_screen_location: () ->
         # The position to scroll to for the next screen (which could contain
@@ -354,7 +359,6 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# Indexing
 # Resizing of images
 # Full screen mode
 # Highlight on jump_to_anchor

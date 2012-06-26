@@ -683,7 +683,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if hasattr(self, 'current_index'):
             entry = self.toc_model.next_entry(self.current_index,
                     self.view.document.read_anchor_positions(),
-                    self.view.scroll_pos)
+                    self.view.viewport_rect, self.view.document.in_paged_mode)
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, False)
@@ -693,7 +693,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if hasattr(self, 'current_index'):
             entry = self.toc_model.next_entry(self.current_index,
                     self.view.document.read_anchor_positions(),
-                    self.view.scroll_pos, backwards=True)
+                    self.view.viewport_rect, self.view.document.in_paged_mode,
+                    backwards=True)
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, True)
@@ -705,7 +706,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if anchor_positions is None:
                 anchor_positions = self.view.document.read_anchor_positions()
             items = self.toc_model.update_indexing_state(self.current_index,
-                        self.view.scroll_pos, anchor_positions)
+                        self.view.viewport_rect, anchor_positions,
+                        self.view.document.in_paged_mode)
             if items:
                 self.toc.scrollTo(items[-1].index())
             if pgns is not None:
@@ -714,7 +716,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 if pgns[0] is self.toc_model.currently_viewed_entry:
                     entry = self.toc_model.next_entry(self.current_index,
                             self.view.document.read_anchor_positions(),
-                            self.view.scroll_pos,
+                            self.view.viewport_rect,
+                            self.view.document.in_paged_mode,
                             backwards=pgns[2], current_entry=pgns[1])
                     if entry is not None:
                         self.pending_goto_next_section = (

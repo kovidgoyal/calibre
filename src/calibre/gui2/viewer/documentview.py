@@ -202,7 +202,7 @@ class Document(QWebPage): # {{{
         if not isinstance(self.anchor_positions, dict):
             # Some weird javascript error happened
             self.anchor_positions = {}
-        return self.anchor_positions
+        return {k:tuple(v) for k, v in self.anchor_positions.iteritems()}
 
     def switch_to_paged_mode(self, onresize=False):
         if onresize and not self.loaded_javascript:
@@ -216,6 +216,13 @@ class Document(QWebPage): # {{{
         if sz.width() > self.window_width:
             sz.setWidth(sz.width()+side_margin)
             self.setPreferredContentsSize(sz)
+
+    @property
+    def column_boundaries(self):
+        if not self.loaded_javascript:
+            return (0, 1)
+        self.javascript(u'py_bridge.value = paged_display.column_boundaries()')
+        return tuple(self.bridge_value)
 
     def after_resize(self):
         if self.in_paged_mode:
@@ -557,6 +564,18 @@ class DocumentView(QWebView): # {{{
     def scroll_pos(self):
         return (self.document.ypos, self.document.ypos +
                 self.document.window_height)
+
+    @property
+    def viewport_rect(self):
+        # (left, top, right, bottom) of the viewport in document co-ordinates
+        # When in paged mode, left and right are the numbers of the columns
+        # at the left edge and *after* the right edge of the viewport
+        d = self.document
+        if d.in_paged_mode:
+            l, r = d.column_boundaries
+        else:
+            l, r = d.xpos, d.xpos + d.window_width
+        return (l, d.ypos, r, d.ypos + d.window_height)
 
     def link_hovered(self, link, text, context):
         link, text = unicode(link), unicode(text)
