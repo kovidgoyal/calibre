@@ -213,8 +213,11 @@ class Document(QWebPage): # {{{
         # columns extend beyond the boundaries (and margin) of body
         mf = self.mainFrame()
         sz = mf.contentsSize()
-        if sz.width() > self.window_width:
-            sz.setWidth(sz.width()+side_margin)
+        scroll_width = self.javascript('document.body.scrollWidth', int)
+        # At this point sz.width() is not reliable, presumably because Qt
+        # has not yet been updated
+        if scroll_width > self.window_width:
+            sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
 
     @property
