@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-22 07:39+0000\n"
-"PO-Revision-Date: 2012-06-16 10:37+0000\n"
+"PO-Revision-Date: 2012-06-26 16:48+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-23 04:47+0000\n"
-"X-Generator: Launchpad (build 15461)\n"
+"X-Launchpad-Export-Date: 2012-06-27 05:18+0000\n"
+"X-Generator: Launchpad (build 15482)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -501,7 +501,7 @@ msgstr "Eigene Spalten hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:966
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Hinzufügen/Entfernen eigener Spalten in der Calibre Buchliste"
+msgstr "Hinzufügen/Entfernen eigener Spalten in der Calibre Bücherliste"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:971
 msgid "Toolbar"
@@ -5070,7 +5070,7 @@ msgstr "Formate, die mit dem internen Betrachter angezeigt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid "Columns to be displayed in the book list"
-msgstr "Spalten, die in der Liste der Bücher angezeigt werden sollen"
+msgstr "Spalten, die in der Bücherliste angezeigt werden sollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:148
 msgid "Automatically launch content server on application startup"
@@ -14566,7 +14566,7 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
-"Sie können die Spaltenfarbe innerhalb der Buchliste mit Hilfe von »Regeln« "
+"Sie können die Spaltenfarbe innerhalb der Bücherliste mit Hilfe von »Regeln« "
 "festlegen, die Calibre vorschreiben, welche Farben benutzt werden sollen. "
 "Klicken Sie unten auf die Schaltfläche »Regel hinzufügen«, um zu beginnen. "
 "<p>Sie können eine <b>bereits angelegte Regel ändern</b>, indem Sie doppelt "
@@ -14625,7 +14625,7 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
-"Hier kann das Layout der Spalten in der Buchliste von Calibres Bibliothek "
+"Hier kann das Layout der Spalten in der Bücherliste von Calibres Bibliothek "
 "geändert werden. Spalten können durch Abwählen versteckt werden. Außerdem "
 "können benutzerdefinierte Spalten erstellt werden."
 
@@ -15316,7 +15316,7 @@ msgstr "&Style der Benutzeroberfläche (Neustart erforderlich):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:249
 msgid "Show &tooltips in the book list"
-msgstr ""
+msgstr "Zeigt &Tooltip in der Bücherliste an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:250
 msgid "Main Interface"
@@ -15680,6 +15680,9 @@ msgid ""
 "This refers to CPU intensive tasks like  conversion. Lower this number if "
 "you want calibre to use less CPU."
 msgstr ""
+"Die maximale Anzahl der Aufträge, die gleichzeitig im Hintergrund laufen "
+"können. Das bezieht sich auf CPU intensive Aufgaben wie die Konvertierung. "
+"Eine niedrige Zahl verringert die CPU-Auslastung."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "No proxies used"
@@ -16173,7 +16176,8 @@ msgstr "Suche bei &Eingabe"
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
-"&Suchtreffer markieren anstatt die Buchliste auf die Ergebnisse zu reduzieren"
+"&Suchtreffer markieren anstatt die Bücherliste auf die Ergebnisse zu "
+"reduzieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:167
 msgid "What to search by default"
@@ -16218,8 +16222,6 @@ msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
 msgstr ""
-"Alle gespeicherten Suchen in Calibre löschen. Auch die Bücherliste, "
-"Buchbetrachter, Nachrichtendialog usw."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:173
 msgid "Clear search &histories"
@@ -19725,7 +19727,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:294
 #, python-format
 msgid "Added book ids: %s"
-msgstr ""
+msgstr "Hinzugefügte Buch-IDs: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:302
 msgid ""
@@ -22990,7 +22992,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:395
 msgid "Control behavior of the book list"
-msgstr "Verhalten der Buchliste kontrollieren"
+msgstr "Verhalten der Bücherliste kontrollieren"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:396
 msgid ""
