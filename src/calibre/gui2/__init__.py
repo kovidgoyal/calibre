@@ -248,6 +248,18 @@ def available_width():
     desktop       = QCoreApplication.instance().desktop()
     return desktop.availableGeometry().width()
 
+def get_windows_color_depth():
+    import win32gui, win32con, win32print
+    hwin = win32gui.GetDesktopWindow()
+    hwindc = win32gui.GetWindowDC(hwin)
+    ans = win32print.GetDeviceCaps(hwindc, win32con.BITSPIXEL)
+    win32gui.ReleaseDC(hwin, hwindc)
+    return ans
+
+def get_screen_dpi():
+    d = QApplication.desktop()
+    return (d.logicalDpiX(), d.logicalDpiY())
+
 _is_widescreen = None
 
 def is_widescreen():
@@ -791,7 +803,18 @@ class Application(QApplication):
                 font.setStretch(s)
             QApplication.setFont(font)
 
-        if force_calibre_style or gprefs['ui_style'] != 'system':
+        depth_ok = True
+        if iswindows:
+            # There are some people that still run 16 bit winxp installs. The
+            # new style does not render well on 16bit machines.
+            try:
+                depth_ok = get_windows_color_depth() >= 32
+            except:
+                import traceback
+                traceback.print_exc()
+
+        if force_calibre_style or (depth_ok and gprefs['ui_style'] !=
+                'system'):
             self.load_calibre_style()
         else:
             st = self.style()
