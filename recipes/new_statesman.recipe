@@ -9,22 +9,26 @@ class NewStatesman(BasicNewsRecipe):
     title = 'New Statesman'
     language = 'en_GB'
     __author__ = "NotTaken"
-    description = "Britain's Current Affairs & Politics Magazine (Weekly)"
-    oldest_article = 7.0
+    description = "Britain's Current Affairs & Politics Magazine (bi-weekly)"
+    oldest_article = 4.0
     no_stylesheets = True
     use_embedded_content = False
+    remove_empty_feeds      = True
+
     keep_only_tags = [dict(attrs={'class' : 'node'})]
+
     remove_tags_after = [
         dict(attrs={'class' : lambda x: x and 'content123' in x})
     ]
-    remove_tags = [
-        dict(attrs={'class' : lambda x: x and 'links_bookmark' in x})
-    ]
 
+    remove_tags = [
+        dict(attrs={'class' : lambda x: x and 'links_bookmark' in x})    
+    ]
+    
     extra_css = '''
         .title-main {font-size: x-large;}
         h2 { font-size: small;  }
-        h1 { font-size: medium;  }
+        h1 { font-size: medium;  }        
         .field-field-nodeimage-title {
             font-size: small;
             color: #3C3C3C;
@@ -34,6 +38,24 @@ class NewStatesman(BasicNewsRecipe):
         }
     '''
 
+    processed_urls = []
+
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            pic = soup.find('img')
+            if pic is not None:
+                self.add_toc_thumbnail(article,pic['src'])
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self,article)
+
+        if url in self.processed_urls:
+            self.log('skipping duplicate article: %s' %article.title )
+            return None
+        
+        self.processed_urls.append(url)     
+        return url
+    
 
     feeds = [
         (u'Politics',
@@ -54,13 +76,15 @@ class NewStatesman(BasicNewsRecipe):
          u'http://www.newstatesman.com/world-affairs.rss'),
         (u'Sci-Tech',
          u'http://www.newstatesman.com/feeds/topics/sci-tech.rss'),
+        (u'Others',
+         u'http://www.newstatesman.com/feeds_allsite/site_feed.php'),
     ]
 
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
 
