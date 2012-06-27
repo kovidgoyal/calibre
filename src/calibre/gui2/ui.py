@@ -228,7 +228,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
+        self.system_tray_icon = SystemTrayIcon(QIcon(I('lt.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
                 self.job_manager.show_tooltip)

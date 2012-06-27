@@ -60,7 +60,7 @@ def init_qt(args):
     QCoreApplication.setApplicationName(APP_UID)
     app = Application(args)
     actions = tuple(Main.create_application_menubar())
-    app.setWindowIcon(QIcon(I('library.png')))
+    app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions
 
 
