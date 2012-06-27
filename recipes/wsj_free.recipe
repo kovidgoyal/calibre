@@ -35,12 +35,17 @@ class WallStreetJournal(BasicNewsRecipe):
 
     remove_tags_before = dict(name='h1')
     remove_tags = [
-                    dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow"]),
+                    dict(id=["articleTabs_tab_article",
+                        "articleTabs_tab_comments",
+                        "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow",
+                        "articleTabs_tab_quotes"]),
                     {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                     dict(name='div', attrs={'data-flash-settings':True}),
                     {'class':['insetContent embedType-interactive insetCol3wide','insetCol6wide','insettipUnit']},
                     dict(rel='shortcut icon'),
                     {'class':lambda x: x and 'sTools' in x},
+                    {'class':lambda x: x and 'printSummary' in x},
+                    {'class':lambda x: x and 'mostPopular' in x},
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 

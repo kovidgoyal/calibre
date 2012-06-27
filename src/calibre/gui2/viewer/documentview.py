@@ -575,7 +575,10 @@ class DocumentView(QWebView): # {{{
         # at the left edge and *after* the right edge of the viewport
         d = self.document
         if d.in_paged_mode:
-            l, r = d.column_boundaries
+            try:
+                l, r = d.column_boundaries
+            except ValueError:
+                l, r = (0, 1)
         else:
             l, r = d.xpos, d.xpos + d.window_width
         return (l, d.ypos, r, d.ypos + d.window_height)
