@@ -14,6 +14,7 @@ from threading import Thread
 from contextlib import closing
 
 from calibre.constants import iswindows
+from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 
 class WorkerError(Exception):
@@ -35,30 +36,18 @@ class ConnectedWorker(Thread):
 
     def run(self):
         conn = tb = None
-        for i in range(2):
-            # On OS X an EINTR can interrupt the accept() call
-            try:
-                conn = self.listener.accept()
-                break
-            except:
-                tb = traceback.format_exc()
-                pass
+        try:
+            conn = eintr_retry_call(self.listener.accept)
+        except:
+            tb = traceback.format_exc()
         if conn is None:
             self.tb = tb
             return
         self.accepted = True
         with closing(conn):
             try:
-                try:
-                    conn.send(self.args)
-                except:
-                    # Maybe an EINTR
-                    conn.send(self.args)
-                try:
-                    self.res = conn.recv()
-                except:
-                    # Maybe an EINTR
-                    self.res = conn.recv()
+                eintr_retry_call(conn.send, self.args)
+                self.res = eintr_retry_call(conn.recv)
             except:
                 self.tb = traceback.format_exc()
 
@@ -202,11 +191,7 @@ def main():
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     with closing(Client(address, authkey=key)) as conn:
-        try:
-            args = conn.recv()
-        except:
-            # Maybe EINTR
-            args = conn.recv()
+        args = eintr_retry_call(conn.recv)
         try:
             mod, func, args, kwargs, module_is_source_code = args
             if module_is_source_code:

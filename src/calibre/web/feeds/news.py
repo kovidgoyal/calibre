@@ -77,7 +77,8 @@ class BasicNewsRecipe(Recipe):
     delay                  = 0
 
     #: Publication type
-    #: Set to newspaper, magazine or blog
+    #: Set to newspaper, magazine or blog. If set to None, no publication type
+    #: metadata will be written to the opf file.
     publication_type = 'unknown'
 
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
@@ -1264,7 +1265,8 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
-        mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+        if self.publication_type:
+            mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         article_titles, aseen = [], set()
         for f in feeds:

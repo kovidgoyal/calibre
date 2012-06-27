@@ -90,6 +90,7 @@ class ANDROID(USBMS):
                 0x4e22 : [0x0100, 0x226, 0x227, 0x231],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
+                0xc91  : HTC_BCDS,
                 0xdddd : [0x216],
             },
 
@@ -165,7 +166,10 @@ class ANDROID(USBMS):
             0x2237: { 0x2208 : [0x0226] },
 
             # Lenovo
-            0x17ef : { 0x7421 : [0x0216] },
+            0x17ef : {
+                    0x7421 : [0x0216],
+                    0x741b : [0x9999],
+            },
 
             # Pantech
             0x10a9 : { 0x6050 : [0x227] },
@@ -203,7 +207,8 @@ class ANDROID(USBMS):
             'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
             'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
             'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0_DRIVER',
-            'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX']
+            'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
+            'THINKPAD_TABLET']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

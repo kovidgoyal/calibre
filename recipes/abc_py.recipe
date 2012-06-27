@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 abc.com.py
 '''
@@ -7,7 +7,7 @@ abc.com.py
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ABC_py(BasicNewsRecipe):
-    title                 = 'ABC digital'
+    title                 = 'ABC Color'
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Paraguay y el resto del mundo'
     publisher             = 'ABC'
@@ -15,12 +15,16 @@ class ABC_py(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'es_PY'
     remove_empty_feeds    = True
+    masthead_url          = 'http://www.abc.com.py/plantillas/img/abc-logo.png'
     publication_type      = 'newspaper'
-    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
+    extra_css             = """ 
+                               body{font-family: UnitSlabProMedium,"Times New Roman",serif }
+                               img{margin-bottom: 0.4em; display: block;}                               
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -29,21 +33,19 @@ class ABC_py(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_tags       = [dict(name=['form','iframe','embed','object','link','base','table']),dict(attrs={'class':'toolbox'})]
-    remove_tags_after = dict(attrs={'class':'date'})
-    keep_only_tags    = [dict(attrs={'class':'zcontent'})]
+    remove_tags       = [
+                         dict(name=['form','iframe','embed','object','link','base','table']),
+                         dict(attrs={'class':['es-carousel-wrapper']}),
+                         dict(attrs={'id':['tools','article-banner-1']})
+                        ]
+    keep_only_tags    = [dict(attrs={'id':'article'})]
 
 
     feeds = [
-               (u'Ultimo momento'      , u'http://www.abc.com.py/ultimo-momento.xml'      )
-              ,(u'Nacionales'          , u'http://www.abc.com.py/nacionales.xml'          )
-              ,(u'Internacionales'     , u'http://www.abc.com.py/internacionales.xml'     )
-              ,(u'Deportes'            , u'http://www.abc.com.py/deportes.xml'            )
-              ,(u'Espectaculos'        , u'http://www.abc.com.py/espectaculos.xml'        )
-              ,(u'Ciencia y Tecnologia', u'http://www.abc.com.py/ciencia-y-tecnologia.xml')
+               (u'Ultimo momento', u'http://www.abc.com.py/rss.xml'                )
+              ,(u'Nacionales'    , u'http://www.abc.com.py/nacionales/rss.xml'     )
+              ,(u'Mundo'         , u'http://www.abc.com.py/internacionales/rss.xml')
+              ,(u'Deportes'      , u'http://www.abc.com.py/deportes/rss.xml'       )
+              ,(u'Espectaculos'  , u'http://www.abc.com.py/espectaculos/rss.xml'   )
+              ,(u'TecnoCiencia'  , u'http://www.abc.com.py/ciencia/rss.xml'        )
             ]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup

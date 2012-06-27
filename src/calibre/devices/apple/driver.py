@@ -2393,8 +2393,8 @@ class ITUNES(DriverBase):
                 foo = self.iTunes.name()
             except:
                 # Try static binding
-                import iTunes_glue
-                self.iTunes = appscript.app('iTunes',terms=iTunes_glue)
+                import itunes
+                self.iTunes = appscript.app('iTunes',terms=itunes)
                 try:
                     foo = self.iTunes.name()
                     as_binding = "static"

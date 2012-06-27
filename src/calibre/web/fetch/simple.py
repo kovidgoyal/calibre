@@ -12,6 +12,7 @@ from urllib import url2pathname, quote
 from httplib import responses
 from PIL import Image
 from cStringIO import StringIO
+from base64 import b64decode
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
@@ -346,22 +347,29 @@ class RecursiveFetcher(object):
         c = 0
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl = tag['src']
-            if callable(self.image_url_processor):
-                iurl = self.image_url_processor(baseurl, iurl)
-            if not urlparse.urlsplit(iurl).scheme:
-                iurl = urlparse.urljoin(baseurl, iurl, False)
-            with self.imagemap_lock:
-                if self.imagemap.has_key(iurl):
-                    tag['src'] = self.imagemap[iurl]
+            if iurl.startswith('data:image/'):
+                try:
+                    data = b64decode(iurl.partition(',')[-1])
+                except:
+                    self.log.exception('Failed to decode embedded image')
                     continue
-            try:
-                data = self.fetch_url(iurl)
-                if data == 'GIF89a\x01':
-                    # Skip empty GIF files as PIL errors on them anyway
+            else:
+                if callable(self.image_url_processor):
+                    iurl = self.image_url_processor(baseurl, iurl)
+                if not urlparse.urlsplit(iurl).scheme:
+                    iurl = urlparse.urljoin(baseurl, iurl, False)
+                with self.imagemap_lock:
+                    if self.imagemap.has_key(iurl):
+                        tag['src'] = self.imagemap[iurl]
+                        continue
+                try:
+                    data = self.fetch_url(iurl)
+                    if data == 'GIF89a\x01':
+                        # Skip empty GIF files as PIL errors on them anyway
+                        continue
+                except Exception:
+                    self.log.exception('Could not fetch image ', iurl)
                     continue
-            except Exception:
-                self.log.exception('Could not fetch image ', iurl)
-                continue
             c += 1
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):

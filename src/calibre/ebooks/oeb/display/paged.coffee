@@ -50,14 +50,12 @@ absleft = (elem) -> # {{{
 # }}}
 
 class PagedDisplay
-    ###
-    This class is a namespace to expose functions via the
-    window.paged_display object. The most important functions are:
-
-    set_geometry(): sets the parameters used to layout text in paged mode
-
-    layout(): causes the currently loaded document to be laid out in columns.
-    ###
+    # This class is a namespace to expose functions via the
+    # window.paged_display object. The most important functions are:
+    #
+    # set_geometry(): sets the parameters used to layout text in paged mode
+    #
+    # layout(): causes the currently loaded document to be laid out in columns.
 
     constructor: () ->
         if not this instanceof arguments.callee
@@ -163,7 +161,7 @@ class PagedDisplay
         xpos = Math.floor(document.body.scrollWidth * frac)
         this.scroll_to_xpos(xpos)
 
-    scroll_to_xpos: (xpos) ->
+    scroll_to_xpos: (xpos, animated=false, notify=false, duration=1000) ->
         # Scroll so that the column containing xpos is the left most column in
         # the viewport
         if typeof(xpos) != 'number'
@@ -172,12 +170,47 @@ class PagedDisplay
         if this.is_full_screen_layout
             window.scrollTo(0, 0)
             return
-        pos = 0
-        until (pos <= xpos < pos + this.page_width)
-            pos += this.page_width
+        pos = Math.floor(xpos/this.page_width) * this.page_width
         limit = document.body.scrollWidth - this.screen_width
         pos = limit if pos > limit
-        window.scrollTo(pos, 0)
+        if animated
+            this.animated_scroll(pos, duration=1000, notify=notify)
+        else
+            window.scrollTo(pos, 0)
+
+    column_at: (xpos) ->
+        # Return the number of the column that contains xpos
+        return Math.floor(xpos/this.page_width)
+
+    column_boundaries: () ->
+        # Return the column numbers at the left edge and after the right edge
+        # of the viewport
+        l = this.column_at(window.pageXOffset + 10)
+        return [l, l + this.cols_per_screen]
+
+    animated_scroll: (pos, duration=1000, notify=true) ->
+        # Scroll the window to X-position pos in an animated fashion over
+        # duration milliseconds. If notify is true, py_bridge.animated_scroll_done is
+        # called.
+        delta = pos - window.pageXOffset
+        interval = 50
+        steps = Math.floor(duration/interval)
+        step_size = Math.floor(delta/steps)
+        this.current_scroll_animation = {target:pos, step_size:step_size, interval:interval, notify:notify, fn: () =>
+            a = this.current_scroll_animation
+            npos = window.pageXOffset + a.step_size
+            completed = false
+            if Math.abs(npos - a.target) < Math.abs(a.step_size)
+                completed = true
+                npos = a.target
+            window.scrollTo(npos, 0)
+            if completed
+                if notify
+                    window.py_bridge.animated_scroll_done()
+            else
+                setTimeout(a.fn, a.interval)
+        }
+        this.current_scroll_animation.fn()
 
     current_pos: (frac) ->
         # The current scroll position as a fraction between 0 and 1
@@ -192,10 +225,7 @@ class PagedDisplay
         if this.is_full_screen_layout
             return 0
         x = window.pageXOffset + Math.max(10, this.current_margin_side)
-        edge = Math.floor(x/this.page_width) * this.page_width
-        while edge < x
-            edge += this.page_width
-        return edge - this.page_width
+        return Math.floor(x/this.page_width) * this.page_width
 
     next_screen_location: () ->
         # The position to scroll to for the next screen (which could contain
@@ -329,7 +359,6 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# Go to reference positions
-# Indexing
 # Resizing of images
 # Full screen mode
+# Highlight on jump_to_anchor
