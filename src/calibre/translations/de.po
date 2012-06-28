@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-22 07:39+0000\n"
-"PO-Revision-Date: 2012-06-26 16:48+0000\n"
-"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2012-06-27 12:42+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-27 05:18+0000\n"
-"X-Generator: Launchpad (build 15482)\n"
+"X-Launchpad-Export-Date: 2012-06-28 04:35+0000\n"
+"X-Generator: Launchpad (build 15505)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1136,6 +1136,13 @@ msgid ""
 "Apple implements sandboxing for iTunes 10.6.3</a> for more "
 "information.</p><p></p>"
 msgstr ""
+"<p>Keine Kommunikation mit iTunes möglich.</p><p>Ab iTunes Version 10.6.3 "
+"hat Apple 'Sandboxing' für Anwendungen implementiert, wodurch die "
+"Kommunikation zwischen iTunes und Drittanbieteranwendungen verhindert "
+"wird.</p><p>Siehe den Post <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"Apple implements sandboxing for iTunes 10.6.3</a> im Forum für mehr "
+"Informationen.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:382
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:385
@@ -5373,6 +5380,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"Die folgenden %d Buchduplikate wurden gefunden und die eingehenden "
+"Buchformate wurden verarbeitet und nach Ihren \"Automatisch Zusammenführen\" "
+"Einstellungen in der Calibre Datenbank zusammengeführt:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:354
 msgid "Failed to read metadata"
@@ -11558,6 +11568,13 @@ msgid ""
 "has been corrupted and you get a blank list of books.<p>Do you want to "
 "restore the database?"
 msgstr ""
+"Ihre Buchliste, zusammen mit allen Metadaten, ist in einer einzigen, "
+"Datenbank genannten Datei gespeichert. Zusätzlich sind die Metadaten für "
+"jedes einzelne Buch im Ordner des jeweiligen Buches als Backup "
+"gespeichert.<p>Diese Operation wird die Datenbank aus den Metadaten der "
+"individuellen Bücher neu aufbauen. Dies ist sinnvoll, wenn die Datenbank "
+"zerstört wurde und eine leere Buchliste angezeigt wird.<p>Möchten sie die "
+"Datenbank wiederherstellen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:129
@@ -16222,6 +16239,8 @@ msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
 msgstr ""
+"Alle Suchverläufe in Calibre entfernen, einschließlich des Suchverlaufs der "
+"Bücherliste, der e-Book Vorschau, \"lade Nachrichten\" Dialog usw."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:173
 msgid "Clear search &histories"
@@ -16276,7 +16295,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:190
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "Was bei der Suche nach ähnlichen Büchern durchsucht werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:191
 msgid ""
@@ -16837,7 +16856,10 @@ msgid ""
 "Add/edit tweaks for any custom plugins you have installed. Documentation for "
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
-msgstr "Hinzufügen/bearbeiten von Kniffen für"
+msgstr ""
+"Hinzufügen/bearbeiten von Tweaks für alle Plugins, die Sie installiert "
+"haben. Eine Anleitung für diesen Tweak sollte auf der Webseite, von der Sie "
+"dieses Plugin geladen haben verfügbar sein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:326
 msgid "Search for tweak"
@@ -18644,12 +18666,12 @@ msgstr "Finde vorherige Stelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
-msgstr ""
+msgstr "Darstellen fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:67
 #, python-format
 msgid "Failed to render document %s"
-msgstr ""
+msgstr "Dokument %s konnte nicht dargestellt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 msgid "Test name invalid"
@@ -20407,7 +20429,7 @@ msgstr "%(tt)sDurchschnittliche Bewertung ist %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:218
 msgid "restored preference "
-msgstr ""
+msgstr "wiederhergestellte Einstellung "
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:223
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:234
@@ -20446,23 +20468,27 @@ msgstr "Sortierung nach Titel"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:122
 msgid "Starting restoring preferences and column metadata"
-msgstr ""
+msgstr "Startet Wiederherstellung der Einstellungen und Metadaten Spalten"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:125
 msgid "Cannot restore preferences. Backup file not found."
 msgstr ""
+"Einstellungen können nicht wiederhergestellt werden. Backup wurde nicht "
+"gefunden."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:136
 msgid "Finished restoring preferences and column metadata"
 msgstr ""
+"Wiederherstellung der Einstellungen und Metadaten Spalten abgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:138
 msgid "Finished restoring preferences"
-msgstr ""
+msgstr "Wiederherstellung der Einstellungen abgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:143
 msgid "Restoring preferences and column metadata failed"
 msgstr ""
+"Wiederherstellung der Einstellungen und Metadaten Spalten fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:162
 msgid "Processed"
@@ -22278,6 +22304,11 @@ msgid ""
 "a link, it will be ignored. By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Jeder Link, der durch diesen regulären Ausdruck beschrieben wird, wird "
+"ignoriert. Diese Option kann mehrfach angegeben werden, dann wird jeder "
+"Link, der durch irgendeinen der regulären Ausdrücke beschrieben wird, "
+"ignoriert. Standardmäßig wird kein Link ignoriert. Werden sowohl Filter- als "
+"auch Suchausdrücke verwendet, werden die Filterausdrücke zuerst angewendet."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:527
 msgid "Do not download CSS stylesheets."
@@ -22435,6 +22466,31 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"Dieser Algoritmus wird verwendet, um author (Autor) zu author_sort zu "
+"kopieren\n"
+"Mögliche Werte sind:\n"
+"invert: use \"fn ln\" -> \"ln, fn\" (ln=Nachname, fn=Vorname)\n"
+"copy  : Kopiert author zu author_sort ohne Veränderung\n"
+"comma : verwenden Sie 'copy' wenn ein ',' in dem Namen ist, ansonsten "
+"verwenden Sie 'invert'\n"
+"nocomma : \"fn ln\" -> \"ln fn\" (ohne das Komma)\n"
+"Wenn dieser Tweak verändert wird, muss der the author_sort Wert, der mit "
+"jedem Autor gespeichert wird\n"
+"neu berechnet werden. Dazu wählen Sie mit einem Rechtsklick auf einen Autor "
+"in dem linken Fensterbereich \n"
+" 'manage authors' aus, und klicken Sie auf 'Recalculate all author sort "
+"values' (Alle Autoren-Sortieren Werte neu berechnen).\n"
+"Die Autorennamen Suffixe sind Wörter, die ignoriert werden, \n"
+"wenn sie am Ende eines Autorennamens auftreten.\n"
+"Der Fall von Suffixen wird ignoriert und nachfolgende Perioden automatisch "
+"bearbeitet.\n"
+"Das Gleiche gilt für Präfixe. Die Autorennamen-kopieren-Wörter sind eine "
+"Reihe von Wörtern,\n"
+"die, wenn sie in einem Autoren-Namen auftreten, \n"
+"die automatisch generierte Autoren-Sortieren Zeichenfolge verursachen, \n"
+"welche mit dem Autorennamen identisch ist. \n"
+"Das bedeutet, dass die Sortierung nach einer Zeichenfolge wie \n"
+"Acme Inc. zu Acme Inc. statt Inc., Acme erfolgen wird."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
@@ -22497,6 +22553,8 @@ msgstr ""
 msgid ""
 "Completion sort order: choose when to change from lexicographic to ASCII-like"
 msgstr ""
+"Sortierreihenfolge für Komplettierung: wählen Sie, wann von der "
+"lexikografischen zur ASCII-Sortierung gewechselt werden soll"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:100
 msgid ""
@@ -22674,7 +22732,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:214
 msgid "Set the list of words considered to be \"articles\" for sort strings"
-msgstr ""
+msgstr "Wortliste, die für Sortierstrings als Artikel angesehen wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:215
 msgid ""
@@ -22694,6 +22752,25 @@ msgid ""
 "interface language is used. The setting title_sort_articles is ignored\n"
 "(present only for legacy reasons)."
 msgstr ""
+"Ändern der Wortliste, die beim Erstellen von Titelsortierungen als Artikel \n"
+"angesehen werden. DIe Artikel sind sprachabhängig. Standardmäßig nutzt "
+"calibre\n"
+"eine Kombination aus englischen Artikeln und Artikeln der Sprache, in der "
+"die \n"
+"Benutzeroberfläche eingestellt ist. Zusätzlich können unter Umständen "
+"Artikel\n"
+"der Sprache des Buches verwendet werden. Sie können die Artikel für eine "
+"Sprache\n"
+"durch Bearbeiten von per_language_title_sort_articles ändern oder eine neue\n"
+"Sprache hinzufügen. Um calibre zum Verwenden einer anderen Sprache als der "
+"der\n"
+"Benutzeroberfläche zu zwingen, bearbeiten sie "
+"default_language_for_title_sort. Für \n"
+"Deutsch muß beispielsweise der Wert 'deu' eingestellt werden. Ein Wert None "
+"führt\n"
+"dazu, dass die Sprache der Benutzeroberfläche genutzt wird. Die Einstellung\n"
+"title_sort_articles wird ignoriert (nur aus Kompatibilitätsgründen "
+"vorhanden)."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:266
 msgid "Specify a folder calibre should connect to at startup"
