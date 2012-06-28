@@ -347,7 +347,9 @@ class OEBReader(object):
                     self.logger.warn(u'Guide reference %r not found' % href)
                     continue
                 href = corrected_href
-            guide.add(elem.get('type'), elem.get('title'), href)
+            typ = elem.get('type')
+            if typ not in guide:
+                guide.add(typ, elem.get('title'), href)
 
     def _find_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
