@@ -19,6 +19,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.58
+  date: 2012-06-29
+
+  new features:
+    - title: "Add some texture to calibre generated covers"
+
+    - title: "Drivers for Sogo SS-4370, HTC G2 and Lenovo ThinkPad Tablet"
+      tickets: [1019050, 1017010]
+
+    - title: "Add search to the Manage tags/series/etc. dialogs"
+
+    - title: "News download: Add support for images embedded in the HTML"
+
+    - title: "calibre -s now waits for calibre to shutdown"
+ 
+  bug fixes:
+    - title: "Workaround for iTunes breaking scripting with version 10.6.3 on OS X."
+      tickets: [1012243]
+
+    - title: "EPUB Input: When there are multiple elements of the same type in the OPF guide, use the first rather than the last element."
+
+    - title: "Windows: Disable the new UI style if the color depth of the desktop is less than 32 bits per pixel"
+
+    - title: "ISBNDB metadata plugin: Return results even though they have no comments"
+
+    - title: "More robust handling of EINTR during IPC"
+
+    - title: "Metadata download: Support for amazon's new results page markup"
+
+    - title: "EPUB Output: Fix a bug that could cause corrupted output when doing an EPUB/OEB to EPUB conversion if the input EPUB had multiple files with the same name"
+
+    - title: "KF8 Output: Fix a couple of bugs that could lead to generation of invalid KF8 files."
+      tickets: [1016672]
+
+  improved recipes:
+    - ABC Digital
+    - O Globo
+
+  new recipes:
+    - title: Sign of the Times and New Statesman
+      author: TerminalVeracity
+
+    - title: CT24 
+      author: zoidozoido
+
+    - title: SmileZilla
+      author: Will
+
+    - title: Marketing Sensoriale 
+      author: NotTaken
 
 - version: 0.8.57
   date: 2012-06-22
