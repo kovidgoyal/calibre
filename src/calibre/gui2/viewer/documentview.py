@@ -234,21 +234,27 @@ class Document(QWebPage): # {{{
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
-        self.javascript('''
-                var s = document.body.style;
-                s.maxWidth = "%dpx";
-                s.marginLeft = "auto";
-                s.marginRight = "auto";
-            '''%self.max_fs_width)
+        if self.in_paged_mode:
+            self.javascript('paged_display.max_col_width = %d'%self.max_fs_width)
+        else:
+            self.javascript('''
+                    var s = document.body.style;
+                    s.maxWidth = "%dpx";
+                    s.marginLeft = "auto";
+                    s.marginRight = "auto";
+                '''%self.max_fs_width)
 
     def switch_to_window_mode(self):
         self.in_fullscreen_mode = False
-        self.javascript('''
-                var s = document.body.style;
-                s.maxWidth = "none";
-                s.marginLeft = "%s";
-                s.marginRight = "%s";
-            '''%(self.initial_left_margin, self.initial_right_margin))
+        if self.in_paged_mode:
+            self.javascript('paged_display.max_col_width = %d'%-1)
+        else:
+            self.javascript('''
+                    var s = document.body.style;
+                    s.maxWidth = "none";
+                    s.marginLeft = "%s";
+                    s.marginRight = "%s";
+                '''%(self.initial_left_margin, self.initial_right_margin))
 
     @pyqtSignature("QString")
     def debug(self, msg):
