@@ -846,7 +846,9 @@ class BooksModel(QAbstractTableModel): # {{{
                     s_index = float(match.group(1))
                     val = pat.sub('', val).strip()
                 elif val:
-                    if tweaks['series_index_auto_increment'] != 'const':
+                    # it is OK to leave s_index == None when using 'no_change'
+                    if tweaks['series_index_auto_increment'] != 'const' and \
+                            tweaks['series_index_auto_increment'] != 'no_change':
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
@@ -915,7 +917,8 @@ class BooksModel(QAbstractTableModel): # {{{
                         self.db.set_series_index(id, float(match.group(1)))
                         val = pat.sub('', val).strip()
                     elif val:
-                        if tweaks['series_index_auto_increment'] != 'const':
+                        if tweaks['series_index_auto_increment'] != 'const' and \
+                            tweaks['series_index_auto_increment'] != 'no_change':
                             ni = self.db.get_next_series_num_for(val)
                             if ni != 1:
                                 self.db.set_series_index(id, ni)

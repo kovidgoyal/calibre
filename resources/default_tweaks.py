@@ -21,6 +21,7 @@ defaults.
 # last_free - First available integer smaller than the largest existing number
 #             Return largest existing + 1 if no free number is found
 # const - Assign the number 1 always
+# no_change - Do not change the series index
 # a number - Assign that number always. The number is not in quotes. Note that
 #            0.0 can be used here.
 # Examples:
