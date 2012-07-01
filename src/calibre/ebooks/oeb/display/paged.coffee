@@ -112,7 +112,7 @@ class PagedDisplay
         if this.max_col_width > 0 and col_width > this.max_col_width
             # Increase the side margin to ensure that col_width is no larger
             # than max_col_width
-            sm += Math.ceil( (col_width - this.max_col_width) / 2.0 )
+            sm += Math.ceil( (col_width - this.max_col_width) / 2*n )
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
