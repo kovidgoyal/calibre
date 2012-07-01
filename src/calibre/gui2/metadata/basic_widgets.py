@@ -560,7 +560,7 @@ class SeriesIndexEdit(QDoubleSpinBox):
         return True
 
     def increment(self):
-        if self.db is not None:
+        if tweaks['series_index_auto_increment'] != 'no_change' and self.db is not None:
             try:
                 series = self.series_edit.current_val
                 if series and series != self.original_series_name:

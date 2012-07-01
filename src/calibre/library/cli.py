@@ -829,7 +829,9 @@ def parse_series_string(db, label, value):
         val = pat.sub('', val).strip()
         s_index = float(match.group(1))
     elif val:
-        if tweaks['series_index_auto_increment'] != 'const':
+        if tweaks['series_index_auto_increment'] == 'no_change':
+            pass
+        elif tweaks['series_index_auto_increment'] != 'const':
             s_index = db.get_next_cc_series_num_for(val, label=label)
         else:
             s_index = 1.0

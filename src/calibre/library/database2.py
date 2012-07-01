@@ -2613,7 +2613,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.execute('''UPDATE books_series_link
                                  SET series=?
                                  WHERE series=?''',(new_id, old_id,))
-            if change_index:
+            if change_index and tweaks['series_index_auto_increment'] != 'no_change':
                 # Now set the indices
                 for (book_id,) in books:
                     # Get the next series index
