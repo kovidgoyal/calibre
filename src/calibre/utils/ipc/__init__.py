@@ -17,8 +17,8 @@ def eintr_retry_call(func, *args, **kwargs):
     while True:
         try:
             return func(*args, **kwargs)
-        except (OSError, IOError) as e:
-            if e.errno == errno.EINTR:
+        except EnvironmentError as e:
+            if getattr(e, 'errno', None) == errno.EINTR:
                 continue
             raise
 

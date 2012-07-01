@@ -1,0 +1,114 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ptempfile import PersistentTemporaryFile
+
+class SmileZilla(BasicNewsRecipe):
+
+    title = 'SmileZilla'
+    language = 'en'
+    __author__ = "Will"
+    JOKES_INDEX = 'http://www.smilezilla.com/joke.do'
+    STORIES_INDEX = 'http://www.smilezilla.com/story.do'
+    description = 'Daily Jokes and funny stoires'
+    oldest_article = 1
+    remove_tags = [
+    ]
+    keep_only_tags = []
+    no_stylesheets = True
+    simultaneous_downloads = 1
+    articles_are_obfuscated = True
+    encoding = 'utf-8'
+
+    remove_tags = [dict(name='table')]
+
+    counter = {JOKES_INDEX: 0, STORIES_INDEX: 0 }
+    cache = {}
+
+    def cached_fetch(self, url):
+        cache = self.cache
+
+        if url in cache:
+            f = open(cache[url])
+            html = f.read()
+            f.close()
+            return BeautifulSoup(html, fromEncoding=self.encoding)
+
+        br = BasicNewsRecipe.get_browser()
+        response = br.open(url)
+        html = response.read()
+        soup = BeautifulSoup(html, fromEncoding=self.encoding)
+        for img in soup.findAll('img',src=True):
+            if img['src'].startswith('/'):
+                img['src'] = 'http://www.smilezilla.com' + img['src']
+        pt = PersistentTemporaryFile('.html')
+        pt.write(str(soup.html).encode(self.encoding))
+        pt.close()
+        cache[url] = pt.name
+        return soup
+
+    def _get_entry(self,soup):
+        return soup.find('form', attrs={'name':'contentForm'})
+
+    def _get_section_title(self, soup):
+        title_div = soup.find('div', attrs={'class':'title'})
+        return self.tag_to_string(title_div).strip()
+
+    def parse_index(self):
+        articles = []
+
+        soup = self.cached_fetch(self.JOKES_INDEX)
+        jokes_entry = self._get_entry(soup)
+        section_title = self._get_section_title(soup)
+        todays_jokes = []
+        for hr in enumerate(jokes_entry.findAll('hr')):
+            title = 'Joke ' + str(hr[0] + 1)
+            url = self.JOKES_INDEX
+            todays_jokes.append({'title':title, 'url':url,
+                        'description':'', 'date':''})
+        articles.append((section_title,todays_jokes))
+
+        soup = self.cached_fetch(self.STORIES_INDEX)
+        entry = self._get_entry(soup)
+        section_title = self._get_section_title(soup)
+
+        todays_stories = []
+        for hr in enumerate(entry.findAll('hr')):
+            title = 'Story ' + str(hr[0] + 1)
+            current = hr[1]
+            while True:
+                current = current.findPrevious()
+                if current is None:
+                    break
+                elif current.name == 'hr':
+                    break
+                elif current.name == 'b':
+                    title = title + ': ' + self.tag_to_string(current)
+                    break
+            url = self.STORIES_INDEX
+            todays_stories.append({'title':title, 'url':url,
+                        'description':'', 'date':''})
+        articles.append((section_title,todays_stories))
+
+
+        return articles
+
+    def get_obfuscated_article(self, url):
+        return self.cache[url]
+
+
+    def preprocess_raw_html(self,raw_html, url):
+        url = self.JOKES_INDEX if (self.cache[self.JOKES_INDEX] in url) else self.STORIES_INDEX
+        count = self.counter[url] +1
+        self.counter[url] = count
+        soup = self.index_to_soup(raw_html)
+        entry = self._get_entry(soup)
+        soup2 = BeautifulSoup('<html><head></head><body></body></html>')
+        body = soup2.find('body')
+        entries = str(entry).split('<hr />')
+        body.insert(0,entries[count -1])
+
+        return str(soup2)
+
+
+

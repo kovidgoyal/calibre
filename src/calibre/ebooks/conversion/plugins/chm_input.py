@@ -152,27 +152,31 @@ class CHMInput(InputFormatPlugin):
         #print "============================="
         log.debug('Found %d section nodes' % len(chapters))
         htmlpath = os.path.splitext(hhcpath)[0] + ".html"
-        f = open(htmlpath, 'wb')
-        if chapters:
-            f.write('<html><head><meta http-equiv="Content-type"'
-                ' content="text/html;charset=UTF-8" /></head><body>\n')
-            path0 = chapters[0][1]
-            subpath = os.path.dirname(path0)
+        with open(htmlpath, 'wb') as f:
+            if chapters:
+                f.write('<html><head><meta http-equiv="Content-type"'
+                    ' content="text/html;charset=UTF-8" /></head><body>\n')
+                path0 = chapters[0][1]
+                subpath = os.path.dirname(path0)
+                base = os.path.dirname(f.name)
 
-            for chapter in chapters:
-                title = chapter[0]
-                rsrcname = os.path.basename(chapter[1])
-                rsrcpath = os.path.join(subpath, rsrcname)
-                # title should already be url encoded
-                url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\n"
-                if isinstance(url, unicode):
-                    url = url.encode('utf-8')
-                f.write(url)
+                for chapter in chapters:
+                    title = chapter[0]
+                    rsrcname = os.path.basename(chapter[1])
+                    rsrcpath = os.path.join(subpath, rsrcname)
+                    if (not os.path.exists(os.path.join(base, rsrcpath)) and
+                            os.path.exists(os.path.join(base, chapter[1]))):
+                        rsrcpath = chapter[1]
 
-            f.write("</body></html>")
-        else:
-            f.write(hhcdata)
-        f.close()
+                    # title should already be url encoded
+                    url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\n"
+                    if isinstance(url, unicode):
+                        url = url.encode('utf-8')
+                    f.write(url)
+
+                f.write("</body></html>")
+            else:
+                f.write(hhcdata)
         return htmlpath
 
 

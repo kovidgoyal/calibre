@@ -66,6 +66,7 @@ class PagedDisplay
         this.in_paged_mode = false
         this.current_margin_side = 0
         this.is_full_screen_layout = false
+        this.max_col_width = -1
 
     set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
         this.margin_top = margin_top
@@ -108,6 +109,11 @@ class PagedDisplay
         # Minimum column width, for the cases when the window is too
         # narrow
         col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
+        if this.max_col_width > 0 and col_width > this.max_col_width
+            # Increase the side margin to ensure that col_width is no larger
+            # than max_col_width
+            sm += Math.ceil( (col_width - this.max_col_width) / 2*n )
+            col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
 
@@ -170,15 +176,23 @@ class PagedDisplay
         if this.is_full_screen_layout
             window.scrollTo(0, 0)
             return
-        pos = 0
-        until (pos <= xpos < pos + this.page_width)
-            pos += this.page_width
+        pos = Math.floor(xpos/this.page_width) * this.page_width
         limit = document.body.scrollWidth - this.screen_width
         pos = limit if pos > limit
         if animated
             this.animated_scroll(pos, duration=1000, notify=notify)
         else
             window.scrollTo(pos, 0)
+
+    column_at: (xpos) ->
+        # Return the number of the column that contains xpos
+        return Math.floor(xpos/this.page_width)
+
+    column_boundaries: () ->
+        # Return the column numbers at the left edge and after the right edge
+        # of the viewport
+        l = this.column_at(window.pageXOffset + 10)
+        return [l, l + this.cols_per_screen]
 
     animated_scroll: (pos, duration=1000, notify=true) ->
         # Scroll the window to X-position pos in an animated fashion over
@@ -217,10 +231,7 @@ class PagedDisplay
         if this.is_full_screen_layout
             return 0
         x = window.pageXOffset + Math.max(10, this.current_margin_side)
-        edge = Math.floor(x/this.page_width) * this.page_width
-        while edge < x
-            edge += this.page_width
-        return edge - this.page_width
+        return Math.floor(x/this.page_width) * this.page_width
 
     next_screen_location: () ->
         # The position to scroll to for the next screen (which could contain
@@ -354,7 +365,5 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# Indexing
 # Resizing of images
-# Full screen mode
 # Highlight on jump_to_anchor

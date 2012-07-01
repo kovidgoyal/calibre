@@ -245,12 +245,18 @@ class TextLine(object):
 
 
 def create_cover_page(top_lines, logo_path, width=590, height=750,
-        bgcolor='#ffffff', output_format='jpg'):
+        bgcolor='#ffffff', output_format='jpg', texture_data=None,
+        texture_opacity=1.0):
     '''
     Create the standard calibre cover page and return it as a byte string in
     the specified output_format.
     '''
     canvas = create_canvas(width, height, bgcolor)
+    if texture_data and hasattr(canvas, 'texture'):
+        texture = Image()
+        texture.load(texture_data)
+        texture.set_opacity(texture_opacity)
+        canvas.texture(texture)
 
     bottom = 10
     for line in top_lines:
@@ -263,7 +269,7 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
     if not foot_font:
         foot_font = P('fonts/liberation/LiberationMono-Regular.ttf')
     vanity = create_text_arc(__appname__ + ' ' + __version__, 24,
-            font=foot_font)
+            font=foot_font, bgcolor='#00000000')
     lwidth, lheight = vanity.size
     left = int(max(0, (width - lwidth)/2.))
     top  = height - lheight - 10
