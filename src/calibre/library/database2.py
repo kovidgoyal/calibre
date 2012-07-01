@@ -2772,7 +2772,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_author_sort(book_id, ss)
             # the caller will do a general refresh, so we don't need to
             # do one here
-        # Now delete the old author from the DB
         return new_id
 
     # end convenience methods
