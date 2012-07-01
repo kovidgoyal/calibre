@@ -1511,15 +1511,6 @@ class StoreOpenBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
 
-class StoreOReillyStore(StoreBase):
-    name = 'OReilly'
-    description = u'Programming and tech ebooks from OReilly.'
-    actual_plugin = 'calibre.gui2.store.stores.oreilly_plugin:OReillyStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
-
 class StoreOzonRUStore(StoreBase):
     name = 'OZON.ru'
     description = u'ebooks from OZON.ru'
@@ -1659,7 +1650,6 @@ plugins += [
     StoreMobileReadStore,
     StoreNextoStore,
     StoreOpenBooksStore,
-    StoreOReillyStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StoreRW2010Store,
