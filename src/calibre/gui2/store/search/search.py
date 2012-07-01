@@ -388,3 +388,14 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.do_search()
         return QDialog.exec_(self)
 
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    from calibre.gui2.preferences.main import init_gui
+    import sys
+    app = Application([])
+    app
+    gui = init_gui()
+
+    s = SearchDialog(gui, query=' '.join(sys.argv[1:]))
+    s.exec_()
+

@@ -6,8 +6,32 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.customize.conversion import OutputFormatPlugin
-from calibre.customize.conversion import OptionRecommendation
+from calibre.customize.conversion import (OutputFormatPlugin,
+        OptionRecommendation)
+
+def remove_html_cover(oeb, log):
+    from calibre.ebooks.oeb.base import OEB_DOCS
+
+    if not oeb.metadata.cover \
+        or 'cover' not in oeb.guide:
+        return
+    href = oeb.guide['cover'].href
+    del oeb.guide['cover']
+    item = oeb.manifest.hrefs[href]
+    if item.spine_position is not None:
+        log.warn('Found an HTML cover: ', item.href, 'removing it.',
+                'If you find some content missing from the output MOBI, it '
+                'is because you misidentified the HTML cover in the input '
+                'document')
+        oeb.spine.remove(item)
+        if item.media_type in OEB_DOCS:
+            oeb.manifest.remove(item)
+
+def extract_mobi(output_path, opts):
+    if opts.extract_to is not None:
+        from calibre.ebooks.mobi.debug.main import inspect_mobi
+        ddir = opts.extract_to
+        inspect_mobi(output_path, ddir=ddir)
 
 class MOBIOutput(OutputFormatPlugin):
 
@@ -140,25 +164,6 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-    def remove_html_cover(self):
-        from calibre.ebooks.oeb.base import OEB_DOCS
-
-        oeb = self.oeb
-        if not oeb.metadata.cover \
-           or 'cover' not in oeb.guide:
-            return
-        href = oeb.guide['cover'].href
-        del oeb.guide['cover']
-        item = oeb.manifest.hrefs[href]
-        if item.spine_position is not None:
-            self.log.warn('Found an HTML cover: ', item.href, 'removing it.',
-                    'If you find some content missing from the output MOBI, it '
-                    'is because you misidentified the HTML cover in the input '
-                    'document')
-            oeb.spine.remove(item)
-            if item.media_type in OEB_DOCS:
-                self.oeb.manifest.remove(item)
-
     def convert(self, oeb, output_path, input_plugin, opts, log):
         from calibre.utils.config import tweaks
         from calibre.ebooks.mobi.writer2.resources import Resources
@@ -169,7 +174,7 @@ class MOBIOutput(OutputFormatPlugin):
             mobi_type = 'old' # Amazon does not support KF8 periodicals
         create_kf8 = mobi_type in ('new', 'both')
 
-        self.remove_html_cover()
+        remove_html_cover(self.oeb, self.log)
         resources = Resources(oeb, opts, self.is_periodical,
                 add_fonts=create_kf8)
         self.check_for_periodical()
@@ -185,7 +190,7 @@ class MOBIOutput(OutputFormatPlugin):
                 ) if create_kf8 else None
         if mobi_type == 'new':
             kf8.write(output_path)
-            self.extract_mobi(output_path, opts)
+            extract_mobi(output_path, opts)
             return
 
         self.log('Creating MOBI 6 output')
@@ -218,6 +223,8 @@ class MOBIOutput(OutputFormatPlugin):
         else:
             # Add rasterized SVG images
             resources.add_extra_images()
+        if hasattr(self.oeb, 'inserted_metadata_jacket'):
+            self.workaround_fire_bugs(self.oeb.inserted_metadata_jacket)
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
@@ -225,11 +232,89 @@ class MOBIOutput(OutputFormatPlugin):
         writer = MobiWriter(opts, resources, kf8,
                         write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
-        self.extract_mobi(output_path, opts)
+        extract_mobi(output_path, opts)
 
-    def extract_mobi(self, output_path, opts):
-        if opts.extract_to is not None:
-            from calibre.ebooks.mobi.debug.main import inspect_mobi
-            ddir = opts.extract_to
-            inspect_mobi(output_path, ddir=ddir)
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
+        CSSCleanup(log, opts)(item, stylizer)
+
+    def workaround_fire_bugs(self, jacket):
+        # The idiotic Fire crashes when trying to render the table used to
+        # layout the jacket
+        from calibre.ebooks.oeb.base import XHTML
+        for table in jacket.data.xpath('//*[local-name()="table"]'):
+            table.tag = XHTML('div')
+            for tr in table.xpath('descendant::*[local-name()="tr"]'):
+                cols = tr.xpath('descendant::*[local-name()="td"]')
+                tr.tag = XHTML('div')
+                for td in cols:
+                    td.tag = XHTML('span' if cols else 'div')
+
+class AZW3Output(OutputFormatPlugin):
+
+    name = 'AZW3 Output'
+    author = 'Kovid Goyal'
+    file_type = 'azw3'
+
+    options = set([
+        OptionRecommendation(name='prefer_author_sort',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('When present, use author sort field as author.')
+        ),
+        OptionRecommendation(name='no_inline_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Don\'t add Table of Contents to the book. Useful if '
+                'the book has its own table of contents.')),
+        OptionRecommendation(name='toc_title', recommended_value=None,
+            help=_('Title for any generated in-line table of contents.')
+        ),
+        OptionRecommendation(name='dont_compress',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Disable compression of the file contents.')
+        ),
+        OptionRecommendation(name='mobi_toc_at_start',
+            recommended_value=False,
+            help=_('When adding the Table of Contents to the book, add it at the start of the '
+                'book instead of the end. Not recommended.')
+        ),
+        OptionRecommendation(name='extract_to', recommended_value=None,
+            help=_('Extract the contents of the MOBI file to the'
+                ' specified directory. If the directory already '
+                'exists, it will be deleted.')
+        ),
+        OptionRecommendation(name='share_not_sync', recommended_value=False,
+            help=_('Enable sharing of book content via Facebook etc. '
+                ' on the Kindle. WARNING: Using this feature means that '
+                ' the book will not auto sync its last read position '
+                ' on multiple devices. Complain to Amazon.')
+        ),
+    ])
+
+    def convert(self, oeb, output_path, input_plugin, opts, log):
+        from calibre.ebooks.mobi.writer2.resources import Resources
+        from calibre.ebooks.mobi.writer8.main import create_kf8_book
+
+        self.oeb, self.opts, self.log = oeb, opts, log
+        opts.mobi_periodical = self.is_periodical
+        passthrough = getattr(opts, 'mobi_passthrough', False)
+
+        resources = Resources(self.oeb, self.opts, self.is_periodical,
+                add_fonts=True, process_images=False)
+        if not passthrough:
+            remove_html_cover(self.oeb, self.log)
+
+            # Split on pagebreaks so that the resulting KF8 works better with
+            # calibre's viewer, which does not support CSS page breaks
+            from calibre.ebooks.oeb.transforms.split import Split
+            Split()(self.oeb, self.opts)
+
+        kf8 = create_kf8_book(self.oeb, self.opts, resources, for_joint=False)
+
+        kf8.write(output_path)
+        extract_mobi(output_path, opts)
+
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
+        CSSCleanup(log, opts)(item, stylizer)
+
 

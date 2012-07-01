@@ -1,0 +1,42 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class NavyTimes(BasicNewsRecipe):
+    title                  	= 'Navy Times'
+    __author__             	= 'jde'
+    __date__		= '16 May 2012'
+    __version__	= '1.0'
+    description            	= 'News of the U.S. Navy'
+    language               	= 'en'
+    publisher              	= 'NavyTimes.com'
+    category               	= 'news, U.S. Navy'
+    tags 		= 'news, U.S. Navy'
+    cover_url        	= 'http://www.navytimes.com/images/logo_navytimes_alert.jpg'
+    masthead_url        	= 'http://www.navytimes.com/images/logo_navytimes_alert.jpg'
+    oldest_article 	= 7 #days
+    max_articles_per_feed  	= 25
+    publication_type 	= 'newspaper'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= True
+
+
+
+    feeds          =   [
+
+('News', 		'http://www.navytimes.com/rss_news.php'),
+('Benefits', 		'http://www.navytimes.com/rss_benefits.php'),
+('Money', 		'http://www.navytimes.com/rss_money.php'),
+('Careers & Education', 	'http://www.navytimes.com/rss_careers.php'),
+('Community', 	'http://www.navytimes.com/rss_community.php'),
+('Off Duty', 		'http://www.navytimes.com/rss_off_duty.php'),
+('Entertainment', 	'http://www.navytimes.com/rss_entertainment.php'),
+('Guard & Reserve', 	'http://www.navytimes.com/rss_guard.php'),
+
+    ]
+
+
+

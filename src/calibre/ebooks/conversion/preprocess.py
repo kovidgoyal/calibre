@@ -446,7 +446,7 @@ class HTMLPreProcessor(object):
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br>'),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: ''),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
@@ -538,7 +538,7 @@ class HTMLPreProcessor(object):
         search_replace = getattr(self.extra_opts, 'search_replace', None)
         if search_replace:
             search_replace = json.loads(search_replace)
-            for search_pattern, replace_txt in search_replace:
+            for search_pattern, replace_txt in reversed(search_replace):
                 do_search_replace(search_pattern, replace_txt)
 
         end_rules = []
@@ -626,7 +626,10 @@ class HTMLPreProcessor(object):
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)
 
-        unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
+        try:
+            unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
+        except AttributeError:
+            unsupported_unicode_chars = u''
         if unsupported_unicode_chars:
             from calibre.utils.localization import get_udc
             unihandecoder = get_udc()

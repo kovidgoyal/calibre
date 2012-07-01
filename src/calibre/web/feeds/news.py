@@ -77,7 +77,8 @@ class BasicNewsRecipe(Recipe):
     delay                  = 0
 
     #: Publication type
-    #: Set to newspaper, magazine or blog
+    #: Set to newspaper, magazine or blog. If set to None, no publication type
+    #: metadata will be written to the opf file.
     publication_type = 'unknown'
 
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
@@ -463,7 +464,13 @@ class BasicNewsRecipe(Recipe):
                 url = article[key]
                 if url and url.startswith('http://'):
                     return url
-        return article.get('link',  None)
+        ans = article.get('link',  None)
+        if not ans and getattr(article, 'links', None):
+            for item in article.links:
+                if item.get('rel', 'alternate') == 'alternate':
+                    ans = item['href']
+                    break
+        return ans
 
     def skip_ad_pages(self, soup):
         '''
@@ -656,8 +663,21 @@ class BasicNewsRecipe(Recipe):
 
         For an example, see the recipe for downloading `The Atlantic`.
         In addition, you can add 'author' for the author of the article.
+
+        If you want to abort processing for some reason and have
+        calibre show the user a simple message instead of an error, call
+        :meth:`abort_recipe_processing`.
         '''
         raise NotImplementedError
+
+    def abort_recipe_processing(self, msg):
+        '''
+        Causes the recipe download system to abort the download of this recipe,
+        displaying a simple feedback message to the user.
+        '''
+        from calibre.ebooks.conversion import ConversionUserFeedBack
+        raise ConversionUserFeedBack(_('Failed to download %s')%self.title,
+                msg)
 
     def get_obfuscated_article(self, url):
         '''
@@ -1245,7 +1265,8 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
-        mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+        if self.publication_type:
+            mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         article_titles, aseen = [], set()
         for f in feeds:

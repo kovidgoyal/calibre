@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -32,7 +32,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         if random.randint(1, 10) in (1, 2, 3):
             h_click = 'click-4913808-10364500'
             d_click = 'click-4913808-10281551'
-        
+
         url = m_url + h_click
         detail_url = None
         if detail_item:
@@ -47,10 +47,10 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + urllib2.quote(query)
-        
+        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + urllib.quote_plus(query)
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -63,36 +63,29 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                 if not mo:
                     continue
                 id = mo.group()
-                
-                cover_url = ''
-                cover_load = ''.join(data.xpath('.//div[@class="img"]//img/@onload'))
-                mo = re.search('(?<=\').+?(?=\')', cover_load)
-                if mo:
-                    cover_url = mo.group();
-                
-                title = ''
-                author = ''
-                header_parts = data.xpath('.//div[@class="descr"]/h4//a//text()')
-                if header_parts:
-                    title = header_parts[0]
-                    header_parts = header_parts[1:]
-                if header_parts:
-                    author = ', '.join(header_parts)
-                
+
+                cover_url = ''.join(data.xpath('.//div[@class="img"]//img/@src'))
+
+                title = ''.join(data.xpath(
+                    'descendant::span[@class="book-title"]/a/text()')).strip()
+                author = ''.join(data.xpath(
+                    'descendant::span[@class="author"]/a/text()')).strip()
+                if not title or not author:
+                    continue
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
-                
+
                 yield s
 
     def get_details(self, search_result, timeout):
         url = 'http://www.ebooks.com/ebooks/book_display.asp?IID='
-        
+
         mo = re.search(r'\?IID=(?P<id>\d+)', search_result.detail_item)
         if mo:
             id = mo.group('id')
@@ -103,17 +96,17 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         br = browser()
         with closing(br.open(url + id, timeout=timeout)) as nf:
             pdoc = html.fromstring(nf.read())
-            
+
             price_l = pdoc.xpath('//span[@class="price"]/text()')
             if price_l:
                 price = price_l[0]
             search_result.price = price.strip()
-            
+
             search_result.drm = SearchResult.DRM_UNLOCKED
             permissions = ' '.join(pdoc.xpath('//div[@class="permissions-items"]//text()'))
             if 'off' in permissions:
                 search_result.drm = SearchResult.DRM_LOCKED
-            
+
             fdata = pdoc.xpath('//div[contains(@class, "more-links") and contains(@class, "more-links-info")]/div//span/text()')
             if len(fdata) > 1:
                 search_result.formats = ', '.join(fdata[1:])

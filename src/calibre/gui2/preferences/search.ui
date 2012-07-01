@@ -201,6 +201,101 @@ to be shown as user categories</string>
      </layout>
     </widget>
    </item>
+   <item row="5" column="0">
+    <widget class="QGroupBox" name="groupBox22">
+     <property name="title">
+      <string>What to search when searching similar books</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_22">
+      <item row="0" column="0" colspan="6">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>&lt;p&gt;When you search for similar books by right clicking the
+         book and selecting "Similar books...",
+         calibre constructs a search using the column lookup names specified below.
+         By changing the lookup name to a grouped search term you can
+         search multiple columns at once.&lt;/p&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_221">
+        <property name="text">
+         <string>Similar authors: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="similar_authors_search_key">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>10</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="opt_similar_authors_match_kind">
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_222">
+        <property name="text">
+         <string>Similar series: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QComboBox" name="similar_series_search_key">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>10</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QComboBox" name="opt_similar_series_match_kind">
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_223">
+        <property name="text">
+         <string>Similar tags: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="similar_tags_search_key">
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QComboBox" name="opt_similar_tags_match_kind">
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="label_224">
+        <property name="text">
+         <string>Similar publishers: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QComboBox" name="similar_publisher_search_key">
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QComboBox" name="opt_similar_publisher_match_kind">
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>

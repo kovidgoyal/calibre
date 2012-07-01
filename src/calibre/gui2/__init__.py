@@ -7,13 +7,13 @@ from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
-                    QFileDialog, QFileIconProvider, QSettings,
-                    QIcon, QApplication, QDialog, QUrl, QFont)
+                    QFileDialog, QFileIconProvider, QSettings, QColor,
+                    QIcon, QApplication, QDialog, QUrl, QFont, QPalette)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        config_dir)
+        config_dir, filesystem_encoding)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -106,6 +106,9 @@ gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
 gprefs.defaults['auto_add_auto_convert'] = True
+gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+gprefs.defaults['tag_browser_old_look'] = False
+gprefs.defaults['book_list_tooltips'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -137,8 +140,9 @@ def _config(): # {{{
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB', 'HTMLZ'],
-              help=_('Formats that are viewed using the internal viewer'))
+        'MOBI', 'PRC', 'POBI', 'AZW', 'AZW3', 'HTML', 'FB2', 'PDB', 'RB',
+        'SNB', 'HTMLZ'], help=_(
+            'Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
     c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
@@ -243,6 +247,18 @@ def min_available_height():
 def available_width():
     desktop       = QCoreApplication.instance().desktop()
     return desktop.availableGeometry().width()
+
+def get_windows_color_depth():
+    import win32gui, win32con, win32print
+    hwin = win32gui.GetDesktopWindow()
+    hwindc = win32gui.GetWindowDC(hwin)
+    ans = win32print.GetDeviceCaps(hwindc, win32con.BITSPIXEL)
+    win32gui.ReleaseDC(hwin, hwindc)
+    return ans
+
+def get_screen_dpi():
+    d = QApplication.desktop()
+    return (d.logicalDpiX(), d.logicalDpiY())
 
 _is_widescreen = None
 
@@ -469,6 +485,7 @@ class FileIconProvider(QFileIconProvider):
              'djvu'    : 'djvu',
              'xps'     : 'xps',
              'oxps'    : 'xps',
+             'docx'    : 'docx',
              }
 
     def __init__(self):
@@ -717,10 +734,10 @@ gui_thread = None
 qt_app = None
 class Application(QApplication):
 
-    def __init__(self, args):
+    def __init__(self, args, force_calibre_style=False):
+        self.file_event_hook = None
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
-        self.file_event_hook = None
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
         self._translator = None
@@ -728,6 +745,55 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+        self.setup_styles(force_calibre_style)
+
+    def load_calibre_style(self):
+        # On OS X QtCurve resets the palette, so we preserve it explicitly
+        orig_pal = QPalette(self.palette())
+
+        from calibre.constants import plugins
+        pi = plugins['progress_indicator'][0]
+        path = os.path.join(sys.extensions_location, 'calibre_style.'+(
+            'pyd' if iswindows else 'so'))
+        pi.load_style(path, 'Calibre')
+        # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
+        for role in (orig_pal.Button, orig_pal.Window):
+            c = orig_pal.brush(role).color()
+            if not c.isValid() or not c.toRgb().isValid():
+                orig_pal.setColor(role, QColor(u'lightgray'))
+
+        self.setPalette(orig_pal)
+        style = self.style()
+        icon_map = {}
+        pcache = {}
+        for k, v in {
+                'DialogYesButton': u'ok.png',
+                'DialogNoButton': u'window-close.png',
+                'DialogCloseButton': u'window-close.png',
+                'DialogOkButton': u'ok.png',
+                'DialogCancelButton': u'window-close.png',
+                'DialogHelpButton': u'help.png',
+                'DialogOpenButton': u'document_open.png',
+                'DialogSaveButton': u'save.png',
+                'DialogApplyButton': u'ok.png',
+                'DialogDiscardButton': u'trash.png',
+                'MessageBoxInformation': u'dialog_information.png',
+                'MessageBoxWarning': u'dialog_warning.png',
+                'MessageBoxCritical': u'dialog_error.png',
+                'MessageBoxQuestion': u'dialog_question.png',
+                }.iteritems():
+            if v not in pcache:
+                p = I(v)
+                if isinstance(p, bytes):
+                    p = p.decode(filesystem_encoding)
+                # if not os.path.exists(p): raise ValueError(p)
+                pcache[v] = p
+            v = pcache[v]
+            icon_map[type('')(getattr(style, 'SP_'+k))] = v
+        style.setProperty(u'calibre_icon_map', icon_map)
+        self.__icon_map_memory_ = icon_map
+
+    def setup_styles(self, force_calibre_style):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
@@ -736,17 +802,31 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
-        st = self.style()
-        if st is not None:
-            st = unicode(st.objectName()).lower()
-        if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
-            from PyQt4.Qt import QStyleFactory
-            styles = set(map(unicode, QStyleFactory.keys()))
-            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
-                    False):
-                self.setStyle('Plastique')
-            elif 'Cleanlooks' in styles:
-                self.setStyle('Cleanlooks')
+
+        depth_ok = True
+        if iswindows:
+            # There are some people that still run 16 bit winxp installs. The
+            # new style does not render well on 16bit machines.
+            try:
+                depth_ok = get_windows_color_depth() >= 32
+            except:
+                import traceback
+                traceback.print_exc()
+
+        if force_calibre_style or (depth_ok and gprefs['ui_style'] !=
+                'system'):
+            self.load_calibre_style()
+        else:
+            st = self.style()
+            if st is not None:
+                st = unicode(st.objectName()).lower()
+            if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
+                from PyQt4.Qt import QStyleFactory
+                styles = set(map(unicode, QStyleFactory.keys()))
+                if os.environ.get('KDE_FULL_SESSION', False):
+                    self.load_calibre_style()
+                elif 'Cleanlooks' in styles:
+                    self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:

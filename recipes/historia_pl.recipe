@@ -8,15 +8,21 @@ class Historia_org_pl(BasicNewsRecipe):
     category       = 'history'
     language       = 'pl'
     oldest_article = 8
-    remove_empty_feeds=True
+    remove_empty_feeds= True
+    no_stylesheets = True
+    use_embedded_content = True
     max_articles_per_feed = 100
 
-    feeds          = [(u'Wszystkie', u'http://www.historia.org.pl/index.php?format=feed&type=rss'),
-		(u'Wiadomości', u'http://www.historia.org.pl/index.php/wiadomosci.feed?type=rss'),
-		(u'Publikacje', u'http://www.historia.org.pl/index.php/publikacje.feed?type=rss'),
-		(u'Publicystyka', u'http://www.historia.org.pl/index.php/publicystyka.feed?type=rss'),
-		(u'Recenzje', u'http://historia.org.pl/index.php/recenzje.feed?type=rss'),
-		(u'Kultura i sztuka', u'http://www.historia.org.pl/index.php/kultura-i-sztuka.feed?type=rss'),
-		(u'Rekonstykcje', u'http://www.historia.org.pl/index.php/rekonstrukcje.feed?type=rss'),
-		(u'Projekty', u'http://www.historia.org.pl/index.php/projekty.feed?type=rss'),
-		(u'Konkursy'), (u'http://www.historia.org.pl/index.php/konkursy.feed?type=rss')]
+    feeds          = [(u'Wszystkie', u'http://www.historia.org.pl/index.php?format=feed&type=atom'),
+		(u'Wiadomości', u'http://www.historia.org.pl/index.php/wiadomosci.feed?type=atom'),
+		(u'Publikacje', u'http://www.historia.org.pl/index.php/publikacje.feed?type=atom'),
+		(u'Publicystyka', u'http://www.historia.org.pl/index.php/publicystyka.feed?type=atom'),
+		(u'Recenzje', u'http://historia.org.pl/index.php/recenzje.feed?type=atom'),
+		(u'Kultura i sztuka', u'http://www.historia.org.pl/index.php/kultura-i-sztuka.feed?type=atom'),
+		(u'Rekonstykcje', u'http://www.historia.org.pl/index.php/rekonstrukcje.feed?type=atom'),
+		(u'Projekty', u'http://www.historia.org.pl/index.php/projekty.feed?type=atom'),
+		(u'Konkursy'), (u'http://www.historia.org.pl/index.php/konkursy.feed?type=atom')]
+
+
+    def print_version(self, url):
+        return url + '?tmpl=component&print=1&layout=default&page='

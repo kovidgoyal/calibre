@@ -1,5 +1,6 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.elpais.com
 '''
@@ -7,23 +8,24 @@ www.elpais.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElPais_RSS(BasicNewsRecipe):
-    title                 = 'El Pais'
+    title                 = u'El País'
     __author__            = 'Darko Miletic'
-    description           = 'el periodico global en Castellano'
+    description           = u'Noticias de última hora sobre la actualidad en España y el mundo: política, economía, deportes, cultura, sociedad, tecnología, gente, opinión, viajes, moda, televisión, los blogs y las firmas de EL PAÍS. Además especiales, vídeos, fotos, audios, gráficos, entrevistas, promociones y todos los servicios de EL PAÍS.'
     publisher             = 'EDICIONES EL PAIS, S.L.'
     category              = 'news, politics, finances, world, spain'
     oldest_article        = 2
     max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'es'
     remove_empty_feeds    = True
     publication_type      = 'newspaper'
-    masthead_url          = 'http://www.elpais.com/im/tit_logo.gif'
+    masthead_url          = 'http://ep01.epimg.net/iconos/v1.x/v1.0/logos/cabecera_portada.png'
     extra_css             = """
-                               body{font-family: Georgia,"Times New Roman",Times,serif }
-                               h3{font-family: Arial,Helvetica,sans-serif}
+                               h1{font-family: Georgia,"Times New Roman",Times,serif }
+                               #subtitulo_noticia, .firma, .figcaption{font-size: small}
+                               body{font-family: Arial,Helvetica,Garuda,sans-serif}
                                img{margin-bottom: 0.4em; display:block}
                             """
 
@@ -34,49 +36,61 @@ class ElPais_RSS(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags    = [dict(attrs={'class':['cabecera_noticia estirar','cabecera_noticia','','contenido_noticia']})]
-    remove_tags       = [
-                           dict(name=['meta','link','base','iframe','embed','object'])
-                          ,dict(attrs={'class':['info_complementa','estructura_2col_der','votos estirar','votos']})
-                          ,dict(attrs={'id':'utilidades'})
+    keep_only_tags    = [
+                           dict(attrs={'id':['titulo_noticia','subtitulo_noticia']})
+                          ,dict(attrs={'class':['firma','columna_texto','entrevista_p_r']})
                         ]
-    remove_tags_after = dict(attrs={'id':'utilidades'})
-    remove_attributes = ['lang','border','width','height']
+    remove_tags       = [
+                          dict(name=['meta','link','base','iframe','embed','object'])
+                         ,dict(attrs={'class':'disposicion_vertical'})
+                        ]
 
     feeds = [
-              (u'Lo ultimo'            , u'http://www.elpais.com/rss/feed.html?feedId=17046')
-             ,(u'America Latina'       , u'http://www.elpais.com/rss/feed.html?feedId=17041')
-             ,(u'Mexico'               , u'http://www.elpais.com/rss/feed.html?feedId=17042')
-             ,(u'Europa'               , u'http://www.elpais.com/rss/feed.html?feedId=17043')
-             ,(u'Estados Unidos'       , u'http://www.elpais.com/rss/feed.html?feedId=17044')
-             ,(u'Oriente proximo'      , u'http://www.elpais.com/rss/feed.html?feedId=17045')
-             ,(u'Espana'               , u'http://www.elpais.com/rss/feed.html?feedId=1002' )
-             ,(u'Andalucia'            , u'http://www.elpais.com/rss/feed.html?feedId=17057')
-             ,(u'Catalunia'            , u'http://www.elpais.com/rss/feed.html?feedId=17059')
-             ,(u'Comunidad Valenciana' , u'http://www.elpais.com/rss/feed.html?feedId=17061')
-             ,(u'Madrid'               , u'http://www.elpais.com/rss/feed.html?feedId=1016' )
-             ,(u'Pais Vasco'           , u'http://www.elpais.com/rss/feed.html?feedId=17062')
-             ,(u'Galicia'              , u'http://www.elpais.com/rss/feed.html?feedId=17063')
-             ,(u'Opinion'              , u'http://www.elpais.com/rss/feed.html?feedId=1003' )
-             ,(u'Sociedad'             , u'http://www.elpais.com/rss/feed.html?feedId=1004' )
-             ,(u'Deportes'             , u'http://www.elpais.com/rss/feed.html?feedId=1007' )
-             ,(u'Cultura'              , u'http://www.elpais.com/rss/feed.html?feedId=1008' )
-             ,(u'Cine'                 , u'http://www.elpais.com/rss/feed.html?feedId=17052')
-             ,(u'Literatura'           , u'http://www.elpais.com/rss/feed.html?feedId=17053')
-             ,(u'Musica'               , u'http://www.elpais.com/rss/feed.html?feedId=17051')
-             ,(u'Arte'                 , u'http://www.elpais.com/rss/feed.html?feedId=17060')
-             ,(u'Tecnologia'           , u'http://www.elpais.com/rss/feed.html?feedId=1005' )
-             ,(u'Economia'             , u'http://www.elpais.com/rss/feed.html?feedId=1006' )
-             ,(u'Ciencia'              , u'http://www.elpais.com/rss/feed.html?feedId=17068')
-             ,(u'Salud'                , u'http://www.elpais.com/rss/feed.html?feedId=17074')
-             ,(u'Ocio'                 , u'http://www.elpais.com/rss/feed.html?feedId=17075')
-             ,(u'Justicia y Leyes'     , u'http://www.elpais.com/rss/feed.html?feedId=17069')
-             ,(u'Guerras y conflictos' , u'http://www.elpais.com/rss/feed.html?feedId=17070')
-             ,(u'Politica'             , u'http://www.elpais.com/rss/feed.html?feedId=17073')
+              (u'Lo ultimo'            , u'http://ep00.epimg.net/rss/tags/ultimas_noticias.xml')
+             ,(u'America Latina'       , u'http://elpais.com/tag/rss/latinoamerica/a/'         )
+             ,(u'Mexico'               , u'http://elpais.com/tag/rss/mexico/a/'                )
+             ,(u'Europa'               , u'http://elpais.com/tag/rss/europa/a/'                )
+             ,(u'Estados Unidos'       , u'http://elpais.com/tag/rss/estados_unidos/a/'        )
+             ,(u'Oriente proximo'      , u'http://elpais.com/tag/rss/oriente_proximo/a/'       )
+             ,(u'Andalucia'            , u'http://ep00.epimg.net/rss/ccaa/andalucia.xml'       )
+             ,(u'Catalunia'            , u'http://ep00.epimg.net/rss/ccaa/catalunya.xml'       )
+             ,(u'Comunidad Valenciana' , u'http://ep00.epimg.net/rss/ccaa/valencia.xml'        )
+             ,(u'Madrid'               , u'http://ep00.epimg.net/rss/ccaa/madrid.xml'          )
+             ,(u'Pais Vasco'           , u'http://ep00.epimg.net/rss/ccaa/paisvasco.xml'       )
+             ,(u'Galicia'              , u'http://ep00.epimg.net/rss/ccaa/galicia.xml'         )
+             ,(u'Sociedad'             , u'http://ep00.epimg.net/rss/sociedad/portada.xml'     )
+             ,(u'Deportes'             , u'http://ep00.epimg.net/rss/deportes/portada.xml'     )
+             ,(u'Cultura'              , u'http://ep00.epimg.net/rss/cultura/portada.xml'      )
+             ,(u'Cine'                 , u'http://elpais.com/tag/rss/cine/a/'                  )
+             ,(u'Economía'             , u'http://elpais.com/tag/rss/economia/a/'              )
+             ,(u'Literatura'           , u'http://elpais.com/tag/rss/libros/a/'                )
+             ,(u'Musica'               , u'http://elpais.com/tag/rss/musica/a/'                )
+             ,(u'Arte'                 , u'http://elpais.com/tag/rss/arte/a/'                  )
+             ,(u'Medio Ambiente'       , u'http://elpais.com/tag/rss/medio_ambiente/a/'        )
+             ,(u'Tecnologia'           , u'http://ep01.epimg.net/rss/tecnologia/portada.xml'   )
+             ,(u'Ciencia'              , u'http://ep00.epimg.net/rss/tags/c_ciencia.xml'       )
+             ,(u'Salud'                , u'http://elpais.com/tag/rss/salud/a/'                 )
+             ,(u'Ocio'                 , u'http://elpais.com/tag/rss/ocio/a/'                  )
+             ,(u'Justicia y Leyes'     , u'http://elpais.com/tag/rss/justicia/a/'              )
+             ,(u'Guerras y conflictos' , u'http://elpais.com/tag/rss/conflictos/a/'            )
+             ,(u'Politica'             , u'http://ep00.epimg.net/rss/politica/portada.xml'     )
+             ,(u'Opinion'              , u'http://ep01.epimg.net/rss/politica/opinion.xml'     )
             ]
 
-    def print_version(self, url):
-        return url + '?print=1'
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url and (not('/album/' in url) and not('/futbol/partido/' in url)):
+            return url
+        self.log('Skipping non-article', url)
+        return None
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://elpais.com/')
+        for image in soup.findAll('img'):
+           if image['src'].endswith('elpaisTodayMiddle.jpg'):
+              sstr = image['src']
+              return sstr.replace('elpaisTodayMiddle.jpg', 'elpaisToday.jpg')
+        return None
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

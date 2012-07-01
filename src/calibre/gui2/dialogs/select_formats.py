@@ -14,9 +14,10 @@ from calibre.gui2 import NONE, file_icon_provider
 
 class Formats(QAbstractListModel):
 
-    def __init__(self, fmts):
+    def __init__(self, fmt_count):
         QAbstractListModel.__init__(self)
-        self.fmts = sorted(fmts)
+        self.fmts = sorted(set(fmt_count))
+        self.counts = fmt_count
         self.fi = file_icon_provider()
 
     def rowCount(self, parent):
@@ -25,9 +26,17 @@ class Formats(QAbstractListModel):
     def data(self, index, role):
         row = index.row()
         if role == Qt.DisplayRole:
-            return QVariant(self.fmts[row].upper())
+            fmt = self.fmts[row]
+            count = self.counts[fmt]
+            return QVariant('%s [%d]'%(fmt.upper(), count))
         if role == Qt.DecorationRole:
             return QVariant(self.fi.icon_from_ext(self.fmts[row].lower()))
+        if role == Qt.ToolTipRole:
+            fmt = self.fmts[row]
+            count = self.counts[fmt]
+            return QVariant(
+                _('There are %(count)d book(s) with the %(fmt)s format')%dict(
+                    count=count, fmt=fmt.upper()))
         return NONE
 
     def flags(self, index):
@@ -38,16 +47,23 @@ class Formats(QAbstractListModel):
 
 class SelectFormats(QDialog):
 
-    def __init__(self, fmt_list, msg, single=False, parent=None):
+    def __init__(self, fmt_count, msg, single=False, parent=None, exclude=False):
         QDialog.__init__(self, parent)
         self._l = QVBoxLayout(self)
+        self.single_fmt = single
         self.setLayout(self._l)
         self.setWindowTitle(_('Choose formats'))
         self._m = QLabel(msg)
         self._m.setWordWrap(True)
         self._l.addWidget(self._m)
-        self.formats = Formats(fmt_list)
+        self.formats = Formats(fmt_count)
         self.fview = QListView(self)
+        self.fview.doubleClicked.connect(self.double_clicked,
+                type=Qt.QueuedConnection)
+        if exclude:
+            self.fview.setStyleSheet('''
+                    QListView { background-color: #FAE7B5}
+                    ''')
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)
         self.fview.setSelectionMode(self.fview.SingleSelection if single else
@@ -68,6 +84,11 @@ class SelectFormats(QDialog):
         for idx in self.fview.selectedIndexes():
             self.selected_formats.add(self.formats.fmt(idx))
         QDialog.accept(self, *args)
+
+    def double_clicked(self, index):
+        if self.single_fmt:
+            self.accept()
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

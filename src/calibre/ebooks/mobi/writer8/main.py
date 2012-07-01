@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
-        ChunkIndex, GuideIndex)
+        ChunkIndex, GuideIndex, NonLinearNCXIndex)
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 from calibre.ebooks.mobi.writer8.toc import TOCAdder
@@ -53,6 +53,7 @@ class KF8Writer(object):
 
         self.log('\tGenerating KF8 markup...')
         self.dup_data()
+        self.cleanup_markup()
         self.replace_resource_links()
         self.extract_css_into_flows()
         self.extract_svg_into_flows()
@@ -88,6 +89,15 @@ class KF8Writer(object):
 
     def data(self, item):
         return self._data_cache.get(item.href, item.data)
+
+    def cleanup_markup(self):
+        for item in self.oeb.spine:
+            root = self.data(item)
+
+            # Remove empty script tags as they are pointless
+            for tag in XPath('//h:script')(root):
+                if not tag.text and not tag.get('src', False):
+                    tag.getparent().remove(tag)
 
     def replace_resource_links(self):
         ''' Replace links to resources (raster images/fonts) with pointers to
@@ -314,11 +324,10 @@ class KF8Writer(object):
             return
 
         # Flatten the ToC into a depth first list
-        fl = toc.iter() if is_periodical else toc.iterdescendants()
+        fl = toc.iterdescendants()
         for i, item in enumerate(fl):
-            entry = {'id': id(item), 'index': i, 'href':item.href,
-                    'label':(item.title or _('Unknown')),
-                    'children':[]}
+            entry = {'id': id(item), 'index': i, 'label':(item.title or
+                _('Unknown')), 'children':[]}
             entry['depth'] = getattr(item, 'ncx_hlvl', 0)
             p = getattr(item, 'ncx_parent', None)
             if p is not None:
@@ -333,14 +342,45 @@ class KF8Writer(object):
                 if item.description:
                     entry['description'] = item.description
             entries.append(entry)
+            href = item.href or ''
+            href, frag = href.partition('#')[0::2]
+            aid = self.id_map.get((href, frag), None)
+            if aid is None:
+                aid = self.id_map.get((href, ''), None)
+            if aid is None:
+                pos, fid = 0, 0
+                chunk = self.chunk_table[pos]
+                offset = chunk.insert_pos + fid
+            else:
+                pos, fid, offset = self.aid_offset_map[aid]
+
+            entry['pos_fid'] = (pos, fid)
+            entry['offset'] = offset
 
         # The Kindle requires entries to be sorted by (depth, playorder)
-        entries.sort(key=lambda entry: (entry['depth'], entry['index']))
+        # However, I cannot figure out how to deal with non linear ToCs, i.e.
+        # ToCs whose nth entry at depth d has an offset after its n+k entry at
+        # the same depth, so we sort on (depth, offset) instead. This re-orders
+        # the ToC to be linear. A non-linear ToC causes section to section
+        # jumping to not work. kindlegen somehow handles non-linear tocs, but I
+        # cannot figure out how.
+        original = sorted(entries,
+                key=lambda entry: (entry['depth'], entry['index']))
+        linearized = sorted(entries,
+                key=lambda entry: (entry['depth'], entry['offset']))
+        is_non_linear = original != linearized
+        entries = linearized
+        is_non_linear = False # False as we are using the linearized entries
+
+        if is_non_linear:
+            for entry in entries:
+                entry['kind'] = 'chapter'
+
         for i, entry in enumerate(entries):
             entry['index'] = i
         id_to_index = {entry['id']:entry['index'] for entry in entries}
 
-        # Write the hierarchical and start offset information
+        # Write the hierarchical information
         for entry in entries:
             children = entry.pop('children')
             if children:
@@ -348,19 +388,6 @@ class KF8Writer(object):
                 entry['last_child'] = id_to_index[children[-1]]
             if 'parent_id' in entry:
                 entry['parent'] = id_to_index[entry.pop('parent_id')]
-            href = entry.pop('href')
-            href, frag = href.partition('#')[0::2]
-            aid = self.id_map.get((href, frag), None)
-            if aid is None:
-                aid = self.id_map.get((href, ''), None)
-            if aid is None:
-                pos, fid = 0, 0
-            else:
-                pos, fid = self.aid_offset_map[aid]
-            chunk = self.chunk_table[pos]
-            offset = chunk.insert_pos + fid
-            entry['pos_fid'] = (pos, fid)
-            entry['offset'] = offset
 
         # Write the lengths
         def get_next_start(entry):
@@ -369,13 +396,13 @@ class KF8Writer(object):
             if enders:
                 return min(enders)
             return len(self.flows[0])
-
         for entry in entries:
             entry['length'] = get_next_start(entry) - entry['offset']
 
         self.has_tbs = apply_trailing_byte_sequences(entries, self.records,
                 self.uncompressed_record_lengths)
-        self.ncx_records = NCXIndex(entries)()
+        idx_type = NonLinearNCXIndex if is_non_linear else NCXIndex
+        self.ncx_records = idx_type(entries)()
 
     def create_guide(self):
         self.start_offset = None
@@ -389,12 +416,9 @@ class KF8Writer(object):
                 aid = self.id_map.get((href, ''))
             if aid is None:
                 continue
-            pos, fid = self.aid_offset_map[aid]
+            pos, fid, offset = self.aid_offset_map[aid]
             if is_guide_ref_start(ref):
-                chunk = self.chunk_table[pos]
-                skel = [s for s in self.skel_table if s.file_number ==
-                        chunk.file_number][0]
-                self.start_offset = skel.start_pos + skel.length + chunk.start_pos + fid
+                self.start_offset = offset
             self.guide_table.append(GuideRef(ref.title or
                 _('Unknown'), ref.type, (pos, fid)))
 

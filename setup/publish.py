@@ -66,7 +66,7 @@ class Manual(Command):
 
     def run(self, opts):
         cwd = os.path.abspath(os.getcwd())
-        os.chdir(os.path.join(self.SRC, 'calibre', 'manual'))
+        os.chdir(os.path.join(self.SRC, '..', 'manual'))
         try:
             for d in ('.build', 'cli'):
                 if os.path.exists(d):
@@ -80,8 +80,12 @@ class Manual(Command):
                                    '-d', '.build/doctrees', '.', '.build/html'])
             subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])
-            shutil.copyfile(self.j('.build', 'epub', 'calibre.epub'), self.j('.build',
-                'html', 'calibre.epub'))
+            epub_dest = self.j('.build', 'html', 'calibre.epub')
+            shutil.copyfile(self.j('.build', 'epub', 'calibre.epub'), epub_dest)
+            subprocess.check_call(['ebook-convert', epub_dest,
+                epub_dest.rpartition('.')[0] + '.azw3',
+                '--page-breaks-before=/', '--disable-font-rescaling',
+                '--chapter=/'])
         finally:
             os.chdir(cwd)
 

@@ -14,11 +14,12 @@ from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = r'Q:\openssl'
-QT_DIR = 'Q:\\Qt\\4.8.1'
+QT_DIR = 'Q:\\Qt\\4.8.2'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
+QTCURVE = r'C:\plugins\styles'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
         'VisualMagick', 'bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 
@@ -247,6 +248,7 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+
         for dirpath, dirnames, filenames in os.walk(tdir):
             for x in filenames:
                 if not x.endswith('.dll'):
@@ -260,7 +262,8 @@ class Win32Freeze(Command, WixMixIn):
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
-        shutil.copy2(os.path.join(bindir, 'pdftohtml.exe'), self.base)
+        for x in ('pdftohtml', 'pdfinfo', 'pdftoppm'):
+            shutil.copy2(os.path.join(bindir, x+'.exe'), self.base)
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
                 ok = True
@@ -484,7 +487,8 @@ class Win32Freeze(Command, WixMixIn):
             # Add the .pyds from python and calibre to the zip file
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
-                    if pyd.endswith('.pyd') and pyd != 'sqlite_custom.pyd':
+                    if pyd.endswith('.pyd') and pyd not in {
+                            'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
                         self.add_to_zipfile(zf, pyd, x)

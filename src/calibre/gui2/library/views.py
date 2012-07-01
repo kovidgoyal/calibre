@@ -32,8 +32,10 @@ class PreserveViewState(object): # {{{
     and dont affect the scroll position.
     '''
 
-    def __init__(self, view, preserve_hpos=True, preserve_vpos=True):
+    def __init__(self, view, preserve_hpos=True, preserve_vpos=True,
+            require_selected_ids=True):
         self.view = view
+        self.require_selected_ids = require_selected_ids
         self.selected_ids = set()
         self.current_id = None
         self.preserve_hpos = preserve_hpos
@@ -51,21 +53,39 @@ class PreserveViewState(object): # {{{
             traceback.print_exc()
 
     def __exit__(self, *args):
-        if self.selected_ids:
+        if self.selected_ids or not self.require_selected_ids:
             if self.current_id is not None:
                 self.view.current_id = self.current_id
-            self.view.select_rows(self.selected_ids, using_ids=True,
-                    scroll=False, change_current=self.current_id is None)
+            if self.selected_ids:
+                self.view.select_rows(self.selected_ids, using_ids=True,
+                        scroll=False, change_current=self.current_id is None)
             if self.preserve_vpos:
                 self.view.verticalScrollBar().setValue(self.vscroll)
             if self.preserve_hpos:
                 self.view.horizontalScrollBar().setValue(self.hscroll)
+
+    @dynamic_property
+    def state(self):
+        def fget(self):
+            self.__enter__()
+            return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
+                'vscroll', 'hscroll')}
+        def fset(self, state):
+            for k, v in state.iteritems(): setattr(self, k, v)
+            self.__exit__()
+        return property(fget=fget, fset=fset)
+
 # }}}
 
 class BooksView(QTableView): # {{{
 
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
+
+    def viewportEvent(self, event):
+        if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
+            return False
+        return QTableView.viewportEvent(self, event)
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)

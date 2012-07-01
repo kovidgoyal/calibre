@@ -27,18 +27,15 @@ class PDFInput(InputFormatPlugin):
     ])
 
     def convert_new(self, stream, accelerators):
-        from calibre.constants import plugins
-        pdfreflow, pdfreflow_err = plugins['pdfreflow']
-
-        from calibre.ebooks.pdf.reflow import PDFDocument
+        from calibre.ebooks.pdf.pdftohtml import pdftohtml
         from calibre.utils.cleantext import clean_ascii_chars
-        if pdfreflow_err:
-            raise RuntimeError('Failed to load pdfreflow: ' + pdfreflow_err)
-        pdfreflow.reflow(stream.read(), 1, -1)
-        xml = clean_ascii_chars(open(u'index.xml', 'rb').read())
+        from calibre.ebooks.pdf.reflow import PDFDocument
+
+        pdftohtml(os.getcwdu(), stream.name, self.opts.no_images, as_xml=True)
+        with open(u'index.xml', 'rb') as f:
+            xml = clean_ascii_chars(f.read())
         PDFDocument(xml, self.opts, self.log)
         return os.path.join(os.getcwdu(), u'metadata.opf')
-
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):

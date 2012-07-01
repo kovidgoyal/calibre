@@ -15,7 +15,7 @@ function show_reference_panel(ref) {
         panel = $("#calibre_reference_panel");
     }
     $("> p", panel).text(ref);
-    panel.css({top:(window.pageYOffset+20)+"px"});
+    panel.css({top:(window.pageYOffset+20)+"px", left:(window.pageXOffset+20)+"px"});
     panel.fadeIn(500);
 }
 
@@ -60,8 +60,13 @@ function goto_reference(ref) {
     if (num < 0) {alert("Invalid reference: "+ref); return;}
     var p = $("p");
     if (num >= p.length) {alert("Reference not found: "+ref); return;}
-    $.scrollTo($(p[num]), 1000,
-        {onAfter:function(){window.py_bridge.animated_scroll_done()}});
+    var dest = $(p[num]);
+    if (window.paged_display.in_paged_mode) {
+        var xpos = dest.offset().left;
+        window.paged_display.scroll_to_xpos(xpos, true, true, 1000);
+    } else 
+        $.scrollTo(dest, 1000,
+            {onAfter:function(){window.py_bridge.animated_scroll_done()}});
 }
 
 

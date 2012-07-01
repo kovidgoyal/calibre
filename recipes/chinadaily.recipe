@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010 - 2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.chinadaily.com.cn
 '''
@@ -21,7 +21,11 @@ class Pagina12(BasicNewsRecipe):
     remove_empty_feeds    = True
     publication_type      = 'newsportal'
     masthead_url          = 'http://www.chinadaily.com.cn/15421.files/chinadailylogo_e_20100301.jpg'
-    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } '
+    extra_css             = """ 
+                                body{font-family: Arial,Helvetica,sans-serif }
+                                .titlebox{font-family: "Times New Roman",Times,serif}
+                                .timebox, .authorbox{font-size: x-small}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -31,7 +35,7 @@ class Pagina12(BasicNewsRecipe):
                         }
 
     remove_tags = [dict(name=['object','embed','iframe','table'])]
-    keep_only_tags = [dict(attrs={'id':['Title_e','Content']})]
+    keep_only_tags = [dict(attrs={'class':['titlebox', 'timebox', 'authorbox', 'cont-ins']})]
 
 
     feeds = [
@@ -41,8 +45,3 @@ class Pagina12(BasicNewsRecipe):
              ,(u'Sports'  , u'http://www.chinadaily.com.cn/rss/sports_rss.xml'  )
              ,(u'Opinions', u'http://www.chinadaily.com.cn/rss/opinion_rss.xml' )
             ]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -61,7 +61,7 @@ ORIENTATIONS = ['portrait', 'landscape']
 class PDFOutput(OutputFormatPlugin):
 
     name = 'PDF Output'
-    author = 'John Schember and Kovid Goyal'
+    author = 'Kovid Goyal'
     file_type = 'pdf'
 
     options = set([
@@ -97,28 +97,6 @@ class PDFOutput(OutputFormatPlugin):
         self.metadata = oeb_book.metadata
         self.cover_data = None
 
-        # Remove page-break-before on <body> element as it causes
-        # blank pages in PDF Output
-        from calibre.ebooks.oeb.base import OEB_STYLES, XPath
-        stylesheet = None
-        for item in self.oeb.manifest:
-            if item.media_type.lower() in OEB_STYLES:
-                stylesheet = item
-                break
-        if stylesheet is not None:
-            from cssutils.css import CSSRule
-            classes = set(['.calibre'])
-            for x in self.oeb.spine:
-                root = x.data
-                body = XPath('//h:body[@class]')(root)
-                if body:
-                    classes.add('.'+body[0].get('class'))
-
-            for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-                if rule.selectorList.selectorText in classes:
-                    rule.style.removeProperty('page-break-before')
-                    rule.style.removeProperty('page-break-after')
-
 
         if input_plugin.is_image_collection:
             log.debug('Converting input as an image collection...')
@@ -132,16 +110,12 @@ class PDFOutput(OutputFormatPlugin):
         self.write(ImagePDFWriter, images)
 
     def get_cover_data(self):
-        g, m = self.oeb.guide, self.oeb.manifest
-        if 'titlepage' not in g:
-            if 'cover' in g:
-                href = g['cover'].href
-                from calibre.ebooks.oeb.base import urlnormalize
-                for item in m:
-                    if item.href == urlnormalize(href):
-                        self.cover_data = item.data
-                        if not isinstance(self.cover_data, basestring):
-                            self.cover_data = None
+        oeb = self.oeb
+        if (oeb.metadata.cover and
+                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = unicode(oeb.metadata.cover[0])
+            item = oeb.manifest.ids[cover_id]
+            self.cover_data = item.data
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.pdf.writer import PDFWriter

@@ -389,8 +389,17 @@ class CanonicalFragmentIdentifier
         # Drill down into iframes, etc.
         while true
             target = cdoc.elementFromPoint x, y
-            if not target or target.localName == 'html'
-                log("No element at (#{ x }, #{ y })")
+            if not target or target.localName in ['html', 'body']
+                # We ignore both html and body even though body could
+                # have text nodes under it as performance is very poor if body
+                # has large margins/padding (for e.g. in fullscreen mode)
+                # A possible solution for this is to wrap all text node
+                # children of body in <span> but that is seriously ugly and
+                # might have side effects. Lets do this only if there are lots of
+                # books in the wild that actually have text children of body,
+                # and even in this case it might be better to change the input
+                # plugin to prevent this from happening.
+                # log("No element at (#{ x }, #{ y })")
                 return null
 
             name = target.localName
@@ -563,6 +572,44 @@ class CanonicalFragmentIdentifier
         null
     # }}}
 
+    at_point: (ox, oy) ->
+        # The CFI at the specified point. Different to at() in that this method
+        # returns null if there is an error, and also calculates a point from
+        # the CFI and returns null if the calculated point is far from the
+        # original point.
+
+        dist = (p1, p2) ->
+            Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
+
+        try
+            cfi = window.cfi.at(ox, oy)
+            point = window.cfi.point(cfi)
+        catch err
+            cfi = null
+
+
+        if cfi
+            if point.range != null
+                r = point.range
+                rect = r.getClientRects()[0]
+
+                x = (point.a*rect.left + (1-point.a)*rect.right)
+                y = (rect.top + rect.bottom)/2
+                [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
+            else
+                node = point.node
+                r = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
+                if typeof(point.x) == 'number' and node.offsetWidth
+                    x += (point.x*node.offsetWidth)/100
+                if typeof(point.y) == 'number' and node.offsetHeight
+                    y += (point.y*node.offsetHeight)/100
+
+            if dist(viewport_to_document(ox, oy), [x, y]) > 50
+                cfi = null
+
+        return cfi
+
     at_current: () -> # {{{
         [winx, winy] = window_scroll_pos()
         [winw, winh] = [window.innerWidth, window.innerHeight]
@@ -576,44 +623,12 @@ class CanonicalFragmentIdentifier
         minx = max(-winx, -winw)
         maxx = winw
 
-        dist = (p1, p2) ->
-            Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
-
-        get_cfi = (ox, oy) ->
-            try
-                cfi = window.cfi.at(ox, oy)
-                point = window.cfi.point(cfi)
-            catch err
-                cfi = null
-
-            if cfi
-                if point.range != null
-                    r = point.range
-                    rect = r.getClientRects()[0]
-
-                    x = (point.a*rect.left + (1-point.a)*rect.right)
-                    y = (rect.top + rect.bottom)/2
-                    [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
-                else
-                    node = point.node
-                    r = node.getBoundingClientRect()
-                    [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
-                    if typeof(point.x) == 'number' and node.offsetWidth
-                        x += (point.x*node.offsetWidth)/100
-                    if typeof(point.y) == 'number' and node.offsetHeight
-                        y += (point.y*node.offsetHeight)/100
-
-                if dist(viewport_to_document(ox, oy), [x, y]) > 50
-                    cfi = null
-
-            return cfi
-
-        x_loop = (cury) ->
+        x_loop = (cury) =>
             for direction in [-1, 1]
                 delta = deltax * direction
                 curx = 0
                 until (direction < 0 and curx < minx) or (direction > 0 and curx > maxx)
-                    cfi = get_cfi(curx, cury)
+                    cfi = this.at_point(curx, cury)
                     if cfi
                         return cfi
                     curx += delta

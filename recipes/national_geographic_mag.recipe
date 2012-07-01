@@ -1,0 +1,46 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class NatGeoMag(BasicNewsRecipe):
+    title                  = 'National Geographic Mag'
+    __author__             = 'Terminal Veracity'
+    description            = 'The National Geographic Magazine'
+    publisher              = 'National Geographic'
+    oldest_article         = 31
+    max_articles_per_feed  = 50
+    category               = 'geography, magazine'
+    language               = 'en_US'
+    publication_type       = 'magazine'
+    cover_url              = 'http://www.yourlogoresources.com/wp-content/uploads/2011/09/national-geographic-logo.jpg'
+    use_embedded_content   = False
+    no_stylesheets         = True
+    remove_javascript      = True
+    recursions             = 1
+    remove_empty_feeds     = True
+    feeds                  = [('National Geographic Magazine', 'http://feeds.nationalgeographic.com/ng/NGM/NGM_Magazine')]
+    remove_tags            = [dict(name='div', attrs={'class':['nextpage_continue', 'subscribe']})]
+    keep_only_tags         = [dict(attrs={'class':'main_3narrow'})]
+    extra_css              = """
+                                h1 {font-size: large; font-weight: bold; margin: .5em 0; }
+                                h2 {font-size: large; font-weight: bold; margin: .5em 0; }
+                                h3 {font-size: medium; font-weight: bold; margin: 0 0; }
+                                .article_credits_author {font-size: small; font-style: italic; }
+                                .article_credits_photographer {font-size: small; font-style: italic; display: inline }
+                             """
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if 'Flashback' in article.title:
+                    feed.articles.remove(article)
+                elif 'Desktop Wallpaper' in article.title:
+                    feed.articles.remove(article)
+                elif 'Visions of Earth' in article.title:
+                    feed.articles.remove(article)
+                elif 'Your Shot' in article.title:
+                    feed.articles.remove(article)
+                elif 'MyShot' in article.title:
+                    feed.articles.remove(article)
+                elif 'Field Test' in article.title:
+                    feed.articles.remove(article)
+        return feeds

@@ -1,0 +1,10 @@
+[Misc]
+Name=QtCurve
+Comment=Highly configurable style
+Comment[zh_CN]=可高度定制的风格
+Comment[zh_HK]=可高度定制的樣式
+Comment[zh_TW]=可高度定制的樣式
+ConfigPage=kstyle_qtcurve_config
+[KDE]
+WidgetStyle=QtCurve
+

@@ -1,23 +1,47 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
+from calibre import browser
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     title          = u'New Musical Express Magazine'
-    __author__ = "scissors"
-    language = 'en'
+    description = 'Author D.Asbury. UK Rock & Pop Mag. '
+    __author__ = 'Dave Asbury'
+    # last updated 9/6/12
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
     oldest_article = 7
-    max_articles_per_feed = 100
-    cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
+    max_articles_per_feed = 20
+    #auto_cleanup = True
+    language = 'en_GB'
+
+    def get_cover_url(self):
+          soup = self.index_to_soup('http://www.magazinesdirect.com/categories/mens/tv-and-music/')
+          cov = soup.find(attrs={'title' : 'NME magazine subscriptions'})
+          cov2 = 'http://www.magazinesdirect.com'+cov['src']
+          print '***cov =  ',cov2,' ***'
+
+          cover_url = str(cov2)
+         # print '**** Cov url =*', cover_url,'***'
+          #print '**** Cov url =*','http://www.magazinesdirect.com/article_images/articledir_3138/1569221/1_largelisting.jpg','***'
+
+          br = browser()
+          br.set_handle_redirect(False)
+          try:
+               br.open_novisit(cov2)
+               cover_url = str(cov2)
+          except:
+                    cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
+          return cover_url
+    masthead_url   = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
+
 
     remove_tags = [
-    dict( attrs={'class':'clear_icons'}),
+        dict( attrs={'class':'clear_icons'}),
         dict( attrs={'class':'share_links'}),
                         dict( attrs={'id':'right_panel'}),
-        dict( attrs={'class':'today box'})
+        dict( attrs={'class':'today box'}),
 
-]
+
+                      ]
 
     keep_only_tags = [
 
@@ -28,7 +52,9 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     dict(attrs={'class' : 'bPosts'}),
     dict(attrs={'class' :  'text'}),
     dict(attrs={'id' :  'article_gallery'}),
+                    #dict(attrs={'class' :  'image'}),
     dict(attrs={'class' :  'article_text'})
+
 ]
 
 
@@ -36,7 +62,8 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 
     feeds          = [
     (u'NME News', u'http://feeds2.feedburner.com/nmecom/rss/newsxml'),
-    (u'Reviews', u'http://feeds2.feedburner.com/nme/SdML'),
-    (u'Blogs', u'http://www.nme.com/blog/index.php?blog=140&tempskin=_rss2'),
+    #(u'Reviews', u'http://feeds2.feedburner.com/nme/SdML'),
+    (u'Reviews',u'http://feed43.com/4138608576351646.xml'),
+                    (u'Bloggs',u'http://feed43.com/3326754333186048.xml'),
 
     ]

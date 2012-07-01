@@ -329,8 +329,11 @@ class AddAction(InterfaceAction):
                     x.decode(preferred_encoding, 'replace') for x in
                     self._adder.merged_books])
             info_dialog(self.gui, _('Merged some books'),
-                    _('The following duplicate books were found and incoming book formats were '
-                        'processed and merged into your Calibre database according to your automerge settings:'), det_msg=books, show=True)
+                _('The following %d duplicate books were found and incoming '
+                    'book formats were processed and merged into your '
+                    'Calibre database according to your automerge '
+                    'settings:')%len(self._adder.merged_books),
+                    det_msg=books, show=True)
 
         if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
                 getattr(self._adder, 'merged_books', False):

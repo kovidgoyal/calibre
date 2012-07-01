@@ -28,12 +28,14 @@ class PathResolver(object):
         self.default_path = sys.resources_location
 
         dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        self.using_develop_from = False
         if dev_path is not None:
             dev_path = os.path.join(os.path.abspath(
                 os.path.dirname(dev_path)), 'resources')
             if suitable(dev_path):
                 self.locations.insert(0, dev_path)
                 self.default_path = dev_path
+                self.using_develop_from = True
 
         user_path = os.path.join(config_dir, 'resources')
         self.user_path = None
@@ -70,7 +72,33 @@ def get_path(path, data=False, allow_user_override=True):
     return fpath
 
 def get_image_path(path, data=False, allow_user_override=True):
+    if not path:
+        return get_path('images')
     return get_path('images/'+path, data=data)
+
+def _compile_coffeescript(name):
+    from calibre.utils.serve_coffee import compile_coffeescript
+    path = (u'/'.join(name.split('.'))) + '.coffee'
+    d = os.path.dirname
+    base = d(d(os.path.abspath(__file__)))
+    src = os.path.join(base, path)
+    with open(src, 'rb') as f:
+        cs, errors = compile_coffeescript(f.read(), src)
+        if errors:
+            for line in errors:
+                print (line)
+            raise Exception('Failed to compile coffeescript'
+                    ': %s'%src)
+        return cs
+
+def compiled_coffeescript(name, dynamic=False):
+    if dynamic:
+        return _compile_coffeescript(name)
+    else:
+        import zipfile
+        zipf = get_path('compiled_coffeescript.zip', allow_user_override=False)
+        with zipfile.ZipFile(zipf, 'r') as zf:
+            return zf.read(name+'.js')
 
 __builtin__.__dict__['P'] = get_path
 __builtin__.__dict__['I'] = get_image_path

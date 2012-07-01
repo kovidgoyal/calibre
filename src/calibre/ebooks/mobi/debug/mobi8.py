@@ -141,9 +141,10 @@ class MOBIFile(object):
             self.files.append(File(skel, skeleton, ftext, first_aid, sections))
 
     def dump_flows(self, ddir):
-        if self.fdst is None:
-            raise ValueError('This MOBI file has no FDST record')
-        for i, x in enumerate(self.fdst.sections):
+        boundaries = [(0, len(self.raw_text))]
+        if self.fdst is not None:
+            boundaries = self.fdst.sections
+        for i, x in enumerate(boundaries):
             start, end = x
             raw = self.raw_text[start:end]
             with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
@@ -188,11 +189,11 @@ class MOBIFile(object):
     def read_tbs(self):
         from calibre.ebooks.mobi.writer8.tbs import (Entry, DOC,
                 collect_indexing_data, encode_strands_as_sequences,
-                sequences_to_bytes)
+                sequences_to_bytes, calculate_all_tbs, NegativeStrandIndex)
         entry_map = []
         for index in self.ncx_index:
             vals = list(index)[:-1] + [None, None, None, None]
-            entry_map.append(Entry(*vals))
+            entry_map.append(Entry(*(vals[:12])))
 
 
         indexing_data = collect_indexing_data(entry_map, list(map(len,
@@ -205,6 +206,14 @@ class MOBIFile(object):
                 the start of the text record.
 
                 ''')]
+
+        tbs_type = 8
+        try:
+            calculate_all_tbs(indexing_data)
+        except NegativeStrandIndex:
+            calculate_all_tbs(indexing_data, tbs_type=5)
+            tbs_type = 5
+
         for i, strands in enumerate(indexing_data):
             rec = self.text_records[i]
             tbs_bytes = rec.trailing_data.get('indexing', b'')
@@ -235,8 +244,12 @@ class MOBIFile(object):
                 desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))
             if tbs_bytes:
                 desc.append('Remaining bytes: %s'%format_bytes(tbs_bytes))
-            calculated_sequences = encode_strands_as_sequences(strands)
-            calculated_bytes = sequences_to_bytes(calculated_sequences)
+            calculated_sequences = encode_strands_as_sequences(strands,
+                    tbs_type=tbs_type)
+            try:
+                calculated_bytes = sequences_to_bytes(calculated_sequences)
+            except:
+                calculated_bytes = b'failed to calculate tbs bytes'
             if calculated_bytes != otbs:
                 print ('WARNING: TBS mismatch for record %d'%i)
                 desc.append('WARNING: TBS mismatch!')

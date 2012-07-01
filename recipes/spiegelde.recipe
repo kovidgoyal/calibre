@@ -6,7 +6,6 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 spiegel.de
 '''
 
-from time import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Spiegel_ger(BasicNewsRecipe):
@@ -21,6 +20,8 @@ class Spiegel_ger(BasicNewsRecipe):
     lang                  = 'de-DE'
     no_stylesheets        = True
     use_embedded_content  = False
+    auto_cleanup = True
+    auto_cleanup_keep = '//*[@id="spArticleTopAsset"]'
     encoding              = 'cp1252'
 
     conversion_options = {
@@ -31,20 +32,9 @@ class Spiegel_ger(BasicNewsRecipe):
                         }
 
 
-    keep_only_tags = [dict(name='div', attrs={'id':'spArticleContent'})]
 
-    remove_tags = [dict(name=['object','link','base','iframe'])]
-
-    remove_tags_after = dict(name='div', attrs={'id':'spArticleBody'})
 
     feeds          = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss')]
 
-    def print_version(self, url):
-        rmt = url.rpartition('#')[0]
-        main, sep, rest = rmt.rpartition(',')
-        rmain, rsep, rrest = main.rpartition(',')
-        purl = rmain + ',druck-' + rrest + ',' + rest
-        return purl
 
-    def get_cover_url(self):
-        return 'http://wissen.spiegel.de/wissen/titel/SP/' + strftime("%Y/%W/%j/titel.jpg")
+

@@ -1,33 +1,34 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 arstechnica.com
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class ArsTechnica(BasicNewsRecipe):
     title                 = u'Ars Technica'
     language              = 'en'
     __author__            = 'Darko Miletic, Sujata Raman, Alexis Rohou'
-    description           = 'The art of technology'
-    publisher             = 'Ars Technica'
+    description           = 'Ars Technica: Serving the technologist for 1.2 decades'
+    publisher             = 'Conde Nast Publications'
     category              = 'news, IT, technology'
     oldest_article        = 5
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
-    extra_css             = 	'''
-				body {font-family: Arial,Helvetica,sans-serif}
-				.title{text-align: left}
-				.byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
-				.news-item-figure-caption-text{font-size:small; font-style:italic}
-				.news-item-figure-caption-byline{font-size:small; font-style:italic; font-weight:bold}
-				'''
-    ignoreEtcArticles     = True	# Etc feed items can be ignored, as they're not real stories
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    extra_css             = '''
+                            body {font-family: Arial,sans-serif}
+                            .heading{font-family: "Times New Roman",serif}
+                            .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
+                            img{display: block}
+                            .caption-text{font-size:small; font-style:italic}
+                            .caption-byline{font-size:small; font-style:italic; font-weight:bold}
+				            '''
 
     conversion_options = {
                              'comments'  : description
@@ -36,93 +37,64 @@ class ArsTechnica(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-
-    #preprocess_regexps = [
-    #            (re.compile(r'<div class="news-item-figure', re.DOTALL|re.IGNORECASE),lambda match: '<div class="news-item-figure"')
-    #           ,(re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE),lambda match: '</title></head>')
-    #                     ]
-
-    keep_only_tags = [dict(name='div', attrs={'id':['story','etc-story']})]
+    keep_only_tags = [
+                       dict(attrs={'class':'standalone'})
+                      ,dict(attrs={'id':'article-guts'})
+                     ]
 
     remove_tags = [
-                     dict(name=['object','link','embed'])
-                    ,dict(name='div', attrs={'class':'read-more-link'})
+                     dict(name=['object','link','embed','iframe','meta'])
+                    ,dict(attrs={'class':'corner-info'})
                   ]
-    #remove_attributes=['width','height']
+    remove_attributes = ['lang']
+
 
     feeds = [
               (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/'      )
              ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/'     )
              ,(u'Gear and Gadgets'                     , u'http://feeds.arstechnica.com/arstechnica/gadgets/'    )
-             ,(u'Chipster (Hardware content)'          , u'http://feeds.arstechnica.com/arstechnica/hardware/'   )
              ,(u'Uptime (IT content)'                  , u'http://feeds.arstechnica.com/arstechnica/business/'   )
              ,(u'Open Ended (Open Source content)'     , u'http://feeds.arstechnica.com/arstechnica/open-source/')
              ,(u'One Microsoft Way'                    , u'http://feeds.arstechnica.com/arstechnica/microsoft/'  )
-             ,(u'Nobel Intent (Science content)'       , u'http://feeds.arstechnica.com/arstechnica/science/'    )
+             ,(u'Scientific method (Science content)'       , u'http://feeds.arstechnica.com/arstechnica/science/'    )
              ,(u'Law & Disorder (Tech policy content)' , u'http://feeds.arstechnica.com/arstechnica/tech-policy/')
             ]
 
-    # This deals with multi-page stories
     def append_page(self, soup, appendtag, position):
-        pager = soup.find('div',attrs={'class':'pager'})
+        pager = soup.find(attrs={'class':'numbers'})
         if pager:
-           for atag in pager.findAll('a',href=True):
-               str = self.tag_to_string(atag)
-               if str.startswith('Next'):
-                  nurl = 'http://arstechnica.com' + atag['href']
-                  rawc = self.index_to_soup(nurl,True)
-                  soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
-
-                  readmoretag = soup2.find('div', attrs={'class':'read-more-link'})
-                  if readmoretag:
-                     readmoretag.extract()
-                  texttag = soup2.find('div', attrs={'class':'body'})
-                  for it in texttag.findAll(style=True):
-                      del it['style']
-
-                  newpos = len(texttag.contents)
-                  self.append_page(soup2,texttag,newpos)
-                  texttag.extract()
-                  pager.extract()
-                  appendtag.insert(position,texttag)
+           nexttag = pager.find(attrs={'class':'next'})
+           if nexttag:
+              nurl = nexttag.parent['href']
+              rawc = self.index_to_soup(nurl,True)
+              soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
+              texttag = soup2.find(attrs={'id':'article-guts'})
+              newpos = len(texttag.contents)
+              self.append_page(soup2,texttag,newpos)
+              texttag.extract()
+              pager.extract()
+              appendtag.insert(position,texttag)
 
 
     def preprocess_html(self, soup):
-	# Adds line breaks near the byline (not sure why this is needed)
-        ftag = soup.find('div', attrs={'class':'byline'})
-        if ftag:
-           brtag = Tag(soup,'br')
-           brtag2 = Tag(soup,'br')
-           ftag.insert(4,brtag)
-           ftag.insert(5,brtag2)
-
-	# Remove style items
-        for item in soup.findAll(style=True):
-           del item['style']
-
-	# Remove id
-	for item in soup.findAll(id=True):
-		del item['id']
-
-	# For some reason, links to authors don't have the domainname
-	a_author = soup.find('a',{'href':re.compile("^/author")})
-	if a_author:
-		a_author['href'] = 'http://arstechnica.com'+a_author['href']
-
-	# within div class news-item-figure, we need to grab images
-
-	# Deal with multi-page stories
         self.append_page(soup, soup.body, 3)
-
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
         return soup
 
-    def get_article_url(self, article):
-	# If the article title starts with Etc:, don't return it
-	if self.ignoreEtcArticles:
-		article_title = article.get('title',None)
-		if re.match('Etc: ',article_title) is not None:
-			return None
-
-	# The actual article is in a guid tag
-        return article.get('guid',  None).rpartition('?')[0]
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head>'+raw[raw.find('</head>'):]
 

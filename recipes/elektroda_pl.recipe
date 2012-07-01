@@ -10,6 +10,7 @@ class Elektroda(BasicNewsRecipe):
     category       = 'electronics'
     language       = 'pl'
     max_articles_per_feed = 100
+    no_stylesheets= True
     remove_tags_before=dict(name='span', attrs={'class':'postbody'})
     remove_tags_after=dict(name='td', attrs={'class':'spaceRow'})
     remove_tags=[dict(name='a', attrs={'href':'#top'})]

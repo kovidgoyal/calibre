@@ -54,6 +54,13 @@ Run an embedded python interpreter.
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
             help='Inspect the MOBI file(s) at the specified path(s)')
+    parser.add_option('--tweak-book', default=None,
+            help='Tweak the book (exports the book as a collection of HTML '
+            'files and metadata, which you can edit using standard HTML '
+            'editing tools, and then rebuilds the file from the edited HTML. '
+            'Makes no additional changes to the HTML, unlike a full calibre '
+            'conversion).')
+
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
 
@@ -175,6 +182,12 @@ def main(args=sys.argv):
     from calibre.constants import debug
     debug()
     if len(args) > 2 and args[1] in ('-e', '--exec-file'):
+
+        # Load all plugins user defined plugins so the script can import from the
+        # calibre_plugins namespace
+        import calibre.customize.ui as dummy
+        dummy
+
         sys.argv = [args[2]] + args[3:]
         ef = os.path.abspath(args[2])
         base = os.path.dirname(ef)
@@ -213,7 +226,7 @@ def main(args=sys.argv):
         from calibre.utils.pyconsole.main import main
         main()
     elif opts.command:
-        sys.argv = args[:1]
+        sys.argv = args
         exec opts.command
     elif opts.debug_device_driver:
         debug_device_driver()
@@ -239,7 +252,9 @@ def main(args=sys.argv):
             prints('Inspecting:', path)
             inspect_mobi(path)
             print
-
+    elif opts.tweak_book:
+        from calibre.ebooks.tweak import tweak
+        tweak(opts.tweak_book)
     elif opts.test_build:
         from calibre.test_build import test
         test()

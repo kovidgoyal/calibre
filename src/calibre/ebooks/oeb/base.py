@@ -81,6 +81,23 @@ _css_url_re = re.compile(r'url\s*\([\'"]{0,1}(.*?)[\'"]{0,1}\)', re.I)
 _css_import_re = re.compile(r'@import "(.*?)"')
 _archive_re = re.compile(r'[^ ]+')
 
+# Tags that should not be self closed in epub output
+self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
+'bdo', 'blockquote', 'body', 'button', 'cite', 'code', 'dd', 'del', 'details',
+'dfn', 'div', 'dl', 'dt', 'em', 'fieldset', 'figcaption', 'figure', 'footer',
+'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'i', 'ins', 'kbd',
+'label', 'legend', 'li', 'map', 'mark', 'meter', 'nav', 'ol', 'output', 'p',
+'pre', 'progress', 'q', 'rp', 'rt', 'samp', 'section', 'select', 'small',
+'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
+'video'}
+
+_self_closing_pat = re.compile(
+    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(self_closing_bad_tags)),
+    re.IGNORECASE)
+
+def close_self_closing_tags(raw):
+    return _self_closing_pat.sub(r'<\g<tag>\g<arg>></\g<tag>>', raw)
+
 def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.
@@ -452,6 +469,8 @@ class DirContainer(object):
             return f.write(data)
 
     def exists(self, path):
+        if not path:
+            return False
         try:
             path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars
@@ -938,13 +957,10 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 ans = xml2str(data, pretty_print=self.oeb.pretty_print)
                 if self.media_type in OEB_DOCS:
-                    # Convert self closing div|span|a|video|audio|iframe tags
+                    # Convert self closing div|span|a|video|audio|iframe|etc tags
                     # to normally closed ones, as they are interpreted
                     # incorrectly by some browser based renderers
-                    ans = re.sub(
-                        # tag name followed by either a space or a /
-                        r'<(?P<tag>div|a|span|video|audio|iframe)(?=[\s/])(?P<arg>[^>]*)/>',
-                        r'<\g<tag>\g<arg>></\g<tag>>', ans)
+                    ans = close_self_closing_tags(ans)
                 return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
@@ -952,7 +968,7 @@ class Manifest(object):
                 data = data.cssText
                 if isinstance(data, unicode):
                     data = data.encode('utf-8')
-                return data
+                return data + b'\n'
             return str(data)
 
         def __unicode__(self):
@@ -1142,6 +1158,19 @@ class Manifest(object):
             element(elem, OPF('item'), attrib=attrib)
         return elem
 
+    @dynamic_property
+    def main_stylesheet(self):
+        def fget(self):
+            ans = getattr(self, '_main_stylesheet', None)
+            if ans is None:
+                for item in self:
+                    if item.media_type.lower() in OEB_STYLES:
+                        ans = item
+                        break
+            return ans
+        def fset(self, item):
+            self._main_stylesheet = item
+        return property(fget=fget, fset=fset)
 
 class Spine(object):
     """Collection of manifest items composing an OEB data model book's main

@@ -46,6 +46,7 @@ class SVGRasterizer(object):
 
     def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
+        self.stylizer_cache = {}
         self.oeb = oeb
         self.opts = context
         self.profile = context.dest
@@ -116,29 +117,35 @@ class SVGRasterizer(object):
             elem.attrib[XLINK('href')] = data
         return svg
 
+    def stylizer(self, item):
+        ans = self.stylizer_cache.get(item, None)
+        if ans is None:
+            ans = Stylizer(item.data, item.href, self.oeb, self.opts,
+                    self.profile)
+            self.stylizer_cache[item] = ans
+        return ans
+
     def rasterize_spine(self):
         for item in self.oeb.spine:
-            html = item.data
-            stylizer = Stylizer(html, item.href, self.oeb, self.opts, self.profile)
-            self.rasterize_item(item, stylizer)
+            self.rasterize_item(item)
 
-    def rasterize_item(self, item, stylizer):
+    def rasterize_item(self, item):
         html = item.data
         hrefs = self.oeb.manifest.hrefs
         for elem in xpath(html, '//h:img[@src]'):
             src = urlnormalize(elem.attrib['src'])
             image = hrefs.get(item.abshref(src), None)
             if image and image.media_type == SVG_MIME:
-                style = stylizer.style(elem)
+                style = self.stylizer(item).style(elem)
                 self.rasterize_external(elem, style, item, image)
         for elem in xpath(html, '//h:object[@type="%s" and @data]' % SVG_MIME):
             data = urlnormalize(elem.attrib['data'])
             image = hrefs.get(item.abshref(data), None)
             if image and image.media_type == SVG_MIME:
-                style = stylizer.style(elem)
+                style = self.stylizer(item).style(elem)
                 self.rasterize_external(elem, style, item, image)
         for elem in xpath(html, '//svg:svg'):
-            style = stylizer.style(elem)
+            style = self.stylizer(item).style(elem)
             self.rasterize_inline(elem, style, item)
 
     def rasterize_inline(self, elem, style, item):

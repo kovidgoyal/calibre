@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 vreme.com
 '''
@@ -24,7 +24,17 @@ class Vreme(BasicNewsRecipe):
     language             = 'sr'
     publication_type     = 'magazine'    
     masthead_url         = 'http://www.vreme.com/g/vreme-logo.gif'
-    extra_css            = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small} .column-heading2{font-family: sans1, sans-serif; font-size: large} .column-heading1{font-family: sans1, sans-serif; font-size: x-large} .column-normal{font-family: sans1, sans-serif; font-size: medium} .large{font-family: sans1, sans-serif; font-size: large} '
+    extra_css            = """ 
+                              @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                              @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
+                              body{font-family: serif1, serif} 
+                              .article_description{font-family: serif1, serif} 
+                              .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small} 
+                              .column-heading2{font-family: sans1, sans-serif; font-size: large} 
+                              .column-heading1{font-family: sans1, sans-serif; font-size: x-large} 
+                              .column-normal{font-family: sans1, sans-serif; font-size: medium} 
+                              .large{font-family: sans1, sans-serif; font-size: large} 
+                           """
 
     conversion_options = {
                           'comment'          : description
@@ -58,9 +68,12 @@ class Vreme(BasicNewsRecipe):
         for item in soup.findAll(['h3','h4']):
             description = u''
             title_prefix = u''
-            feed_link = item.find('a')
-            if feed_link and feed_link.has_key('href') and feed_link['href'].startswith('/cms/view.php'):
-                url   = self.INDEX + feed_link['href']
+            feed_link = item.find('a', href=True)
+            if feed_link and (feed_link['href'].startswith('cms/view.php') or feed_link['href'].startswith('/cms/view.php')):
+                if feed_link['href'].startswith('cms/view.php'):
+                   url   = self.INDEX + '/' + feed_link['href']
+                else:
+                   url   = self.INDEX + feed_link['href']
                 title = title_prefix + self.tag_to_string(feed_link)
                 date  = strftime(self.timefmt)
                 articles.append({

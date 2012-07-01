@@ -17,7 +17,7 @@ from Queue import Queue, Empty
 from io import BytesIO
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
-        QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
+        QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
         QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
         QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser, QModelIndex)
@@ -45,13 +45,20 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
         self.max_width = max_width
 
-    def to_doc(self, index):
+    def to_doc(self, index, option=None):
         doc = QTextDocument()
+        if option is not None and option.state & QStyle.State_Selected:
+            p = option.palette
+            group = (p.Active if option.state & QStyle.State_Active else
+                    p.Inactive)
+            c = p.color(group, p.HighlightedText)
+            c = 'rgb(%d, %d, %d)'%c.getRgb()[:3]
+            doc.setDefaultStyleSheet(' * { color: %s }'%c)
         doc.setHtml(index.data().toString())
         return doc
 
     def sizeHint(self, option, index):
-        doc = self.to_doc(index)
+        doc = self.to_doc(index, option=option)
         ans = doc.size().toSize()
         if ans.width() > self.max_width - 10:
             ans.setWidth(self.max_width)
@@ -63,7 +70,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         painter.translate(option.rect.topLeft())
-        self.to_doc(index).drawContents(painter)
+        self.to_doc(index, option).drawContents(painter)
         painter.restore()
 # }}}
 
@@ -549,7 +556,7 @@ class CoverWorker(Thread): # {{{
         images = ['donate.png', 'config.png', 'column.png', 'eject.png', ]
         time.sleep(2)
         for pl, im in zip(metadata_plugins(['cover']), images):
-            self.rq.put((pl, 1, 1, 'png', I(im, data=True)))
+            self.rq.put((pl.name, 1, 1, 'png', I(im, data=True)))
 
     def run(self):
         try:
@@ -955,7 +962,7 @@ class FullFetch(QDialog): # {{{
         # QWebView. Seems to only happen on windows, but keep it for all
         # platforms just in case.
         self.identify_widget.comments_view.setMaximumHeight(500)
-        self.resize(850, 550)
+        self.resize(850, 600)
 
         self.finished.connect(self.cleanup)
 
@@ -1034,7 +1041,7 @@ class CoverFetch(QDialog): # {{{
         self.covers_widget.chosen.connect(self.accept)
         l.addWidget(self.covers_widget)
 
-        self.resize(850, 550)
+        self.resize(850, 600)
 
         self.finished.connect(self.cleanup)
 

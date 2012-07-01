@@ -102,6 +102,7 @@ class AuthController(object):
         @wraps(func)
         def authenticate(*args, **kwargs):
             cookie = cherrypy.request.cookie.get(self.cookie_name, None)
+
             if not (allow_cookie_auth and self.is_valid(cookie)):
                 digest_auth(self.realm, get_ha1_dict_plain(self.users_dict),
                             self.secret)

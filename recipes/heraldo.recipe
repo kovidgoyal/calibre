@@ -3,8 +3,8 @@ __license__     = 'GPL v3'
 __copyright__   = '04 December 2010, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Aragon'
-__version__     = 'v0.04'
-__date__        = '6, Januery 2011'
+__version__     = 'v0.05'
+__date__        = '5, Februery 2012'
 '''
 [url]http://www.heraldo.es/[/url]
 '''
@@ -38,7 +38,7 @@ class heraldo(BasicNewsRecipe):
     keep_only_tags     = [dict(name='div', attrs={'id':['dts','com']})]
 
     remove_tags        = [dict(name='a', attrs={'class':['com flo-r','enl-if','enl-df']}),
-                          dict(name='div', attrs={'class':['brb-b-s con marg-btt','cnt-rel con']}),
+                          dict(name='div', attrs={'class':['brb-b-s con marg-btt','cnt-rel con','col5-f1']}),
                           dict(name='form', attrs={'class':'form'}),
                           dict(name='ul', attrs={'id':['cont-tags','pag-1']})]
 
@@ -72,6 +72,9 @@ class heraldo(BasicNewsRecipe):
 
     preprocess_regexps = [
 
-# To separate the comments with a blank line
+# Para separar los comentarios con una linea en blanco
                            (re.compile(r'<div id="com"', re.DOTALL|re.IGNORECASE), lambda match: '<br><div id="com"')
+
                          ]
+
+

@@ -1,0 +1,77 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import time
+class MalayaBusinessInsight(BasicNewsRecipe):
+    title          		= u'Malaya Business Insight'
+    custom_title 	= "Malaya Business Insight - " + time.strftime('%d %b %Y %I:%M %p')
+    __author__             	= 'jde'
+    __date__                	= '07 June 2012'
+    __version__            	 = '1.2'
+    description            	= "The Malaya Business Insight is a broadsheet newspaper in the Philippines.  The newspaper's name was derived from the Filipino word that means 'freedom'."
+    language               	= 'en_PH'
+    publisher              	= 'Malaya Business Insight'
+    category               	= 'news, Philippines'
+    tags 		= 'news, Philippines'
+    cover_url        	= 'http://www.malaya.com.ph/templates/ja_teline_iv/images/logo.png'
+    masthead_url        	= 'http://www.malaya.com.ph/templates/ja_teline_iv/images/logo.png'
+    oldest_article 	= 1.5 #days
+    max_articles_per_feed  	= 25
+    simultaneous_downloads = 20
+    publication_type 	= 'newspaper'
+    timefmt 		= ' [%a, %d %b %Y %I:%M %p]'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= False
+
+
+    keep_only_tags = [
+	        dict(name='div', attrs={'id':'ja-main'})
+	       ]
+
+    remove_tags = [
+	        dict(name='a', attrs={'class':'ja-back-btn'})
+	       ,dict(name='li', attrs={'class':'print-icon'})
+	       ,dict(name='li', attrs={'class':'email-icon'})
+	       ,dict(name='p', attrs={'class':'dnn'})
+	       ,dict(name='span', attrs={'class':'breadcrumbs pathway'})
+	       ,dict(name='dt', attrs={'class':'article-info-term'})
+	       ,dict(name='div', attrs={'class':'ja-articles-mainwrap'})
+	       ,dict(name='h1', attrs={'class':'componentheading'})
+	       ,dict(name='div', attrs={'id':'ja-content-mass-top'})
+	       ]
+
+
+
+    conversion_options = { 'title'   : custom_title,
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+
+
+    feeds          = [
+	(u'Business', u'http://www.malaya.com.ph/index.php/business?format=feed&amp;type=rss')
+	, (u'Market', u'http://www.malaya.com.ph/index.php/business/market?format=feed&amp;type=rss')
+	, (u'Shipping and Transportation', u'http://www.malaya.com.ph/index.php/business/shipping-and-transportation?format=feed&amp;type=rss')
+	, (u'Business Incidental', u'http://www.malaya.com.ph/index.php/business/business-incidental?format=feed&amp;type=rss')
+	, (u'Banking and Finance', u'http://www.malaya.com.ph/index.php/special-features/banking-and-finance?format=feed&amp;type=rss')
+	, (u'Motoring', u'http://www.malaya.com.ph/index.php/special-features/motoring?format=feed&amp;type=rss')
+	, (u'Info Tech - Telecoms', u'http://www.malaya.com.ph/index.php/special-features/infotech-telecoms?format=feed&amp;type=rss')
+	, (u'Property', u'http://www.malaya.com.ph/index.php/special-features/property?format=feed&amp;type=rss')
+	, (u'Environment', u'http://www.malaya.com.ph/index.php/special-features/environment?format=feed&amp;type=rss')
+	, (u'Agriculture', u'http://www.malaya.com.ph/index.php/special-features/agriculture?format=feed&amp;type=rss')
+	, (u'News - National', u'http://www.malaya.com.ph/index.php/news/nation?format=feed&amp;type=rss')
+	, (u'News - International', u'http://www.malaya.com.ph/index.php/news/international?format=feed&amp;type=rss')
+	, (u'Sports', u'http://www.malaya.com.ph/index.php/sports?format=feed&amp;type=rss')
+	, (u'Entertainment', u'http://www.malaya.com.ph/index.php/entertainment?format=feed&amp;type=rss')
+	, (u'Living', u'http://www.malaya.com.ph/index.php/living?format=feed&amp;type=rss')
+	, (u'Opinion', u'http://www.malaya.com.ph/index.php/opinion?format=feed&amp;type=rss')
+	]

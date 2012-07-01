@@ -12,8 +12,8 @@ class Gameplay_pl(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_javascript= True
     no_stylesheets= True
-    keep_only_tags=[dict(name='div', attrs={'class':['news_endpage_tit', 'news']})]
-    remove_tags=[dict(name='div', attrs={'class':['galeria', 'noedit center im', 'news_list', 'news_list_autor', 'stop_bot', 'tagi']}), dict(attrs={'usemap':'#map'})]
+    keep_only_tags=[dict(name='div', attrs={'class':['news_endpage_tit', 'news', 'news_container']})]
+    remove_tags=[dict(name='div', attrs={'class':['galeria', 'noedit center im', 'news_list', 'news_list_autor', 'stop_bot', 'tagi', 'news_tagi']}), dict(attrs={'usemap':'#map'}), dict(name='a', attrs={'class':['pin-it-button', 'twitter-share-button']})]
     feeds          = [(u'Wiadomo\u015bci', u'http://gameplay.pl/rss/')]
 
     def image_url_processor(self, baseurl, url):

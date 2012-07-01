@@ -1,0 +1,30 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Economico(BasicNewsRecipe):
+    title          = u'Economico'
+    language       = 'pt'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    encoding = 'utf-8'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+
+    feeds          = [
+('Ultima Hora',
+ 'http://economico.sapo.pt/rss/ultimas'),
+ ('Em Foco',
+ 'http://economico.sapo.pt/rss/emfoco'),
+ ('Mercados',
+ 'http://economico.sapo.pt/rss/mercados'),
+ ('Empresas',
+ 'http://economico.sapo.pt/rss/empresas'),
+ ('Economia',
+ 'http://economico.sapo.pt/rss/economia'),
+ ('Politica',
+ 'http://economico.sapo.pt/rss/politica'),
+]
+

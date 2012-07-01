@@ -495,6 +495,7 @@ typedef struct {
 // Method declarations {{{
 static PyObject* magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs);
 static PyObject* magick_Image_copy(magick_Image *self, PyObject *args, PyObject *kwargs);
+static PyObject* magick_Image_texture(magick_Image *self, PyObject *args, PyObject *kwargs);
 // }}}
 
 static void
@@ -909,6 +910,23 @@ magick_Image_rotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
 }
 // }}}
 
+// Image.rotate {{{
+
+static PyObject *
+magick_Image_flip(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    PyObject *obj = NULL;
+    MagickBooleanType ret = 0;
+    
+    NULL_CHECK(NULL)
+
+    if (!PyArg_ParseTuple(args, "|O", &obj)) return NULL;
+    ret = (obj != NULL && PyObject_IsTrue(obj)) ? MagickFlopImage(self->wand) : MagickFlipImage(self->wand);
+    if (!ret) { PyErr_SetString(PyExc_ValueError, "Failed to flip image"); return NULL; }
+
+    Py_RETURN_NONE;
+}
+// }}}
+
 // Image.set_page {{{
 
 static PyObject *
@@ -1096,6 +1114,22 @@ magick_Image_destroy(magick_Image *self, PyObject *args, PyObject *kwargs) {
 }
 // }}}
 
+// Image.set_opacity {{{
+
+static PyObject *
+magick_Image_set_opacity(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    double opacity;
+    NULL_CHECK(NULL)
+
+   
+    if (!PyArg_ParseTuple(args, "d", &opacity)) return NULL;
+
+    if (!MagickSetImageOpacity(self->wand, opacity)) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
 // Image attr list {{{
 static PyMethodDef magick_Image_methods[] = {
     {"destroy", (PyCFunction)magick_Image_destroy, METH_VARARGS,
@@ -1125,6 +1159,14 @@ static PyMethodDef magick_Image_methods[] = {
 
     {"compose", (PyCFunction)magick_Image_compose, METH_VARARGS,
      "compose(img, left, top, op) \n\n Compose img using operation op at (left, top)"
+    },
+
+    {"texture", (PyCFunction)magick_Image_texture, METH_VARARGS,
+     "texture(img)) \n\n Repeatedly tile img across and down the canvas."
+    },
+
+    {"set_opacity", (PyCFunction)magick_Image_set_opacity, METH_VARARGS,
+     "set_opacity(opacity)) \n\n Set the opacity of this image (between 0.0 - transparent and 1.0 - opaque)"
     },
 
     {"copy", (PyCFunction)magick_Image_copy, METH_VARARGS,
@@ -1174,6 +1216,10 @@ static PyMethodDef magick_Image_methods[] = {
     {"rotate", (PyCFunction)magick_Image_rotate, METH_VARARGS,
      "rotate(background_pixel_wand, degrees) \n\n Rotate image by specified degrees."
     },
+    {"flip", (PyCFunction)magick_Image_flip, METH_VARARGS,
+     "flip(horizontal=False) \n\n Flip image about a vertical axis. If horizontal is True, flip about horizontal axis instead."
+    },
+
 
     {"normalize", (PyCFunction)magick_Image_normalize, METH_VARARGS,
      "normalize() \n\n enhances the contrast of a color image by adjusting the pixels color to span the entire range of colors available."
@@ -1312,6 +1358,23 @@ magick_Image_copy(magick_Image *self, PyObject *args, PyObject *kwargs)
     Py_RETURN_NONE;
 }
 // }}}
+
+// Image.texture {{{
+static PyObject *
+magick_Image_texture(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    PyObject *img;
+    magick_Image *texture;
+
+    NULL_CHECK(NULL)
+
+    if (!PyArg_ParseTuple(args, "O!", &magick_ImageType, &img)) return NULL;
+    texture = (magick_Image*)img;
+    if (!IsMagickWand(texture->wand)) {PyErr_SetString(PyExc_TypeError, "Not a valid ImageMagick wand"); return NULL;}
+
+    self->wand = MagickTextureImage(self->wand, texture->wand);
+
+    Py_RETURN_NONE;
+}
 
 // }}}
 

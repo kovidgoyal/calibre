@@ -255,7 +255,7 @@ class MainWindowMixin(object): # {{{
 
     def __init__(self, db):
         self.setObjectName('MainWindow')
-        self.setWindowIcon(QIcon(I('library.png')))
+        self.setWindowIcon(QIcon(I('lt.png')))
         self.setWindowTitle(__appname__)
 
         self.setContextMenuPolicy(Qt.NoContextMenu)

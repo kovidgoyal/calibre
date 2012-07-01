@@ -20,6 +20,11 @@ class LRFOptions(object):
             except:
                 return ''
         m = oeb.metadata
+        for x in ('left', 'top', 'right', 'bottom'):
+            attr = 'margin_'+x
+            val = getattr(opts, attr)
+            if val < 0:
+                setattr(opts, attr, 0)
         self.title = None
         self.author = self.publisher = _('Unknown')
         self.title_sort = self.author_sort = ''
