@@ -18,7 +18,7 @@ class TheAge(BasicNewsRecipe):
     publication_type = 'newspaper'
     __author__       = 'Matthew Briggs'
     language         = 'en_AU'
-    
+
     max_articles_per_feed = 1000
     recursions        = 0
     remove_tags       = [dict(name=['table', 'script', 'noscript', 'style']), dict(name='a', attrs={'href':'/'}), dict(name='a', attrs={'href':'/text/'})]
@@ -47,18 +47,19 @@ class TheAge(BasicNewsRecipe):
                 if url.startswith('/'):
                     url = 'http://www.theage.com.au' + url
                 title = self.tag_to_string(tag)
-                sections[section].append({
-                                 'title': title,
-                                 'url'  : url,
-                                 'date' : strftime('%a, %d %b'),
-                                 'description' : '',
-                                 'content'     : '',
-                                 })
-                                 
+                if url != 'http://www.theage.com.au':
+                    sections[section].append({
+                                    'title': title,
+                                    'url'  : url,
+                                    'date' : strftime('%a, %d %b'),
+                                    'description' : '',
+                                    'content'     : '',
+                                    })
+
         feeds = []
 
         # Insert feeds in specified order, if available
-        
+
         feedSort = [ 'National', 'World', 'Opinion', 'Columns', 'Business', 'Sport', 'Entertainment' ]
         for i in feedSort:
           if i in sections:
@@ -68,12 +69,12 @@ class TheAge(BasicNewsRecipe):
 
         for i in feedSort:
           del sections[i]
-        
+
         # Append what is left over...
 
         for i in sections:
           feeds.append((i,sections[i]))
-            
+
         return feeds
 
     def get_cover_url(self):
@@ -88,9 +89,9 @@ class TheAge(BasicNewsRecipe):
         return None
 
     def preprocess_html(self,soup):
-        
+
         for p in soup.findAll('p'):
-        
+
           # Collapse the paragraph by joining the non-tag contents
 
           contents = [i for i in p.contents if isinstance(i,unicode)]
@@ -103,10 +104,10 @@ class TheAge(BasicNewsRecipe):
               p.extract()
               continue
 
-            # Shrink the fine print font 
+            # Shrink the fine print font
 
             if contents=='This material is subject to copyright and any unauthorised use, copying or mirroring is prohibited.':
               p['style'] = 'font-size:small'
-              continue        
-        
+              continue
+
         return soup

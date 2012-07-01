@@ -138,7 +138,9 @@ class Reference(QLineEdit):
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        self.goto.emit(unicode(self.text()))
+        text = unicode(self.text())
+        self.setText('')
+        self.goto.emit(text)
 
 class RecentAction(QAction):
 
@@ -411,10 +413,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return c.remember_current_page
 
     def print_book(self):
-        Printing(self.iterator.spine, False)
+        p = Printing(self.iterator, self)
+        p.start_print()
 
     def print_preview(self):
-        Printing(self.iterator.spine, True)
+        p = Printing(self.iterator, self)
+        p.start_preview()
 
     def toggle_fullscreen(self, x):
         if self.isFullScreen():
@@ -473,6 +477,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()
+            self.scrolled(self.view.scroll_fraction)
 
     def goto(self, ref):
         if ref:
@@ -679,7 +684,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if hasattr(self, 'current_index'):
             entry = self.toc_model.next_entry(self.current_index,
                     self.view.document.read_anchor_positions(),
-                    self.view.scroll_pos)
+                    self.view.viewport_rect, self.view.document.in_paged_mode)
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, False)
@@ -689,7 +694,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if hasattr(self, 'current_index'):
             entry = self.toc_model.next_entry(self.current_index,
                     self.view.document.read_anchor_positions(),
-                    self.view.scroll_pos, backwards=True)
+                    self.view.viewport_rect, self.view.document.in_paged_mode,
+                    backwards=True)
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, True)
@@ -701,7 +707,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if anchor_positions is None:
                 anchor_positions = self.view.document.read_anchor_positions()
             items = self.toc_model.update_indexing_state(self.current_index,
-                        self.view.scroll_pos, anchor_positions)
+                        self.view.viewport_rect, anchor_positions,
+                        self.view.document.in_paged_mode)
             if items:
                 self.toc.scrollTo(items[-1].index())
             if pgns is not None:
@@ -710,7 +717,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 if pgns[0] is self.toc_model.currently_viewed_entry:
                     entry = self.toc_model.next_entry(self.current_index,
                             self.view.document.read_anchor_positions(),
-                            self.view.scroll_pos,
+                            self.view.viewport_rect,
+                            self.view.document.in_paged_mode,
                             backwards=pgns[2], current_entry=pgns[1])
                     if entry is not None:
                         self.pending_goto_next_section = (
@@ -752,6 +760,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.handle_window_mode_toggle()
         else:
             self.view.document.page_position.restore()
+        self.view.document.after_resize()
 
     def close_progress_indicator(self):
         self.pi.stop()
@@ -1003,6 +1012,12 @@ def main(args=sys.argv):
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,
                 debug_javascript=opts.debug_javascript, open_at=open_at)
+        # This is needed for paged mode. Without it, the first document that is
+        # loaded will have extra blank space at the bottom, as
+        # turn_off_internal_scrollbars does not take effect for the first
+        # rendered document
+        main.view.load_path(P('viewer/blank.html', allow_user_override=False))
+
         sys.excepthook = main.unhandled_exception
         main.show()
         if opts.raise_window:

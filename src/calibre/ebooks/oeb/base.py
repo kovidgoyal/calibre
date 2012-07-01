@@ -469,6 +469,8 @@ class DirContainer(object):
             return f.write(data)
 
     def exists(self, path):
+        if not path:
+            return False
         try:
             path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars

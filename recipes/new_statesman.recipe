@@ -1,0 +1,90 @@
+__license__   = 'GPL v3'
+'''
+newstatesman.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NewStatesman(BasicNewsRecipe):
+
+    title = 'New Statesman'
+    language = 'en_GB'
+    __author__ = "NotTaken"
+    description = "Britain's Current Affairs & Politics Magazine (bi-weekly)"
+    oldest_article = 4.0
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds      = True
+
+    keep_only_tags = [dict(attrs={'class' : 'node'})]
+
+    remove_tags_after = [
+        dict(attrs={'class' : lambda x: x and 'content123' in x})
+    ]
+
+    remove_tags = [
+        dict(attrs={'class' : lambda x: x and 'links_bookmark' in x})    
+    ]
+    
+    extra_css = '''
+        .title-main {font-size: x-large;}
+        h2 { font-size: small;  }
+        h1 { font-size: medium;  }        
+        .field-field-nodeimage-title {
+            font-size: small;
+            color: #3C3C3C;
+        }
+        .link_col {
+            font-size: x-small;
+        }
+    '''
+
+    processed_urls = []
+
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            pic = soup.find('img')
+            if pic is not None:
+                self.add_toc_thumbnail(article,pic['src'])
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self,article)
+
+        if url in self.processed_urls:
+            self.log('skipping duplicate article: %s' %article.title )
+            return None
+        
+        self.processed_urls.append(url)     
+        return url
+    
+
+    feeds = [
+        (u'Politics',
+         u'http://www.newstatesman.com/politics.rss'),
+        (u'Business',
+         u'http://www.newstatesman.com/business.rss'),
+        (u'Economics',
+         u'http://www.newstatesman.com/economics.rss'),
+        (u'Culture',
+         u'http://www.newstatesman.com/culture.rss'),
+        (u'Media',
+         u'http://www.newstatesman.com/media.rss'),
+        (u'Books',
+         u'http://www.newstatesman.com/taxonomy/term/feed/27'),
+        (u'Life & Society',
+         u'http://www.newstatesman.com/taxonomyfeed/11'),
+        (u'World Affairs',
+         u'http://www.newstatesman.com/world-affairs.rss'),
+        (u'Sci-Tech',
+         u'http://www.newstatesman.com/feeds/topics/sci-tech.rss'),
+        (u'Others',
+         u'http://www.newstatesman.com/feeds_allsite/site_feed.php'),
+    ]
+
+    
+    
+    
+    
+    
+    
+    
+

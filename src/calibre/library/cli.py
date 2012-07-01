@@ -243,20 +243,22 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
             metadata.append(mi)
 
         file_duplicates = []
+        added_ids = set()
         if files:
-            file_duplicates = db.add_books(files, formats, metadata,
-                                           add_duplicates=add_duplicates)
-            if file_duplicates:
-                file_duplicates = file_duplicates[0]
-
+            file_duplicates, ids = db.add_books(files, formats, metadata,
+                                           add_duplicates=add_duplicates,
+                                           return_ids=True)
+            added_ids |= set(ids)
 
         dir_dups = []
         for dir in dirs:
             if recurse:
-                dir_dups.extend(db.recursive_import(dir, single_book_per_directory=one_book_per_directory))
+                dir_dups.extend(db.recursive_import(dir,
+                    single_book_per_directory=one_book_per_directory,
+                    added_ids=added_ids))
             else:
                 func = db.import_book_directory if one_book_per_directory else db.import_book_directory_multiple
-                dups = func(dir)
+                dups = func(dir, added_ids=added_ids)
                 if not dups:
                     dups = []
                 dir_dups.extend(dups)
@@ -265,7 +267,8 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
 
         if add_duplicates:
             for mi, formats in dir_dups:
-                db.import_book(mi, formats)
+                book_id = db.import_book(mi, formats)
+                added_ids.add(book_id)
         else:
             if dir_dups or file_duplicates:
                 print >>sys.stderr, _('The following books were not added as '
@@ -287,6 +290,9 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                     print >>sys.stderr, '\t\t ', path
 
         write_dirtied(db)
+        if added_ids:
+            prints(_('Added book ids: %s')%(', '.join(map(type(u''),
+                added_ids))))
         send_message()
     finally:
         sys.stdout = orig
@@ -574,6 +580,9 @@ def command_set_metadata(args, dbpath):
 
     if len(args) > 2:
         opf = args[2]
+        if not os.path.exists(opf):
+            prints(_('The OPF file %s does not exist')%opf, file=sys.stderr)
+            return 1
         do_set_metadata(db, book_id, opf)
 
     if opts.field:
@@ -820,7 +829,9 @@ def parse_series_string(db, label, value):
         val = pat.sub('', val).strip()
         s_index = float(match.group(1))
     elif val:
-        if tweaks['series_index_auto_increment'] != 'const':
+        if tweaks['series_index_auto_increment'] == 'no_change':
+            pass
+        elif tweaks['series_index_auto_increment'] != 'const':
             s_index = db.get_next_cc_series_num_for(val, label=label)
         else:
             s_index = 1.0

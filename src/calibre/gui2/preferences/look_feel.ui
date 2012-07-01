@@ -105,7 +105,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0" colspan="2">
+       <item row="7" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>&amp;Toolbar</string>
@@ -140,7 +140,7 @@
          </layout>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -153,7 +153,7 @@
          </property>
         </spacer>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="label_2">
@@ -174,7 +174,7 @@
          </item>
         </layout>
        </item>
-       <item row="5" column="1">
+       <item row="6" column="1">
         <widget class="QPushButton" name="change_font_button">
          <property name="text">
           <string>Change &amp;font (needs restart)</string>
@@ -187,12 +187,19 @@
           <string>User interface &amp;style (needs restart):</string>
          </property>
          <property name="buddy">
-          <cstring>opt_widget_style</cstring>
+          <cstring>opt_ui_style</cstring>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="opt_widget_style"/>
+        <widget class="QComboBox" name="opt_ui_style"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="opt_book_list_tooltips">
+         <property name="text">
+          <string>Show &amp;tooltips in the book list</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -312,6 +319,18 @@ Manage Authors. You can use the values {author} and
        <string>Tag Browser</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
+       <item row="3" column="2" colspan="3">
+        <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
+         <property name="toolTip">
+          <string>A comma-separated list of categories in which items containing
+periods are displayed in the tag browser trees. For example, if
+this box contains 'tags' then tags of the form 'Mystery.English'
+and 'Mystery.Thriller' will be displayed with English and Thriller
+both under 'Mystery'. If 'tags' is not in this box,
+then the tags will be displayed each on their own line.</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_9">
          <property name="text">
@@ -353,6 +372,19 @@ up into subcategories. If the partition method is set to disable, this value is 
           <number>10000</number>
          </property>
         </widget>
+       </item>
+       <item row="5" column="0" colspan="5">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>690</width>
+           <height>252</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item row="1" column="2">
         <widget class="QLabel" name="label_8111">
@@ -396,27 +428,9 @@ a few top-level elements.</string>
         </widget>
        </item>
        <item row="4" column="0" colspan="5">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>690</width>
-           <height>252</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="2" colspan="3">
-        <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
-         <property name="toolTip">
-          <string>A comma-separated list of categories in which items containing
-periods are displayed in the tag browser trees. For example, if
-this box contains 'tags' then tags of the form 'Mystery.English'
-and 'Mystery.Thriller' will be displayed with English and Thriller
-both under 'Mystery'. If 'tags' is not in this box,
-then the tags will be displayed each on their own line.</string>
+        <widget class="QCheckBox" name="opt_tag_browser_old_look">
+         <property name="text">
+          <string>Use &amp;alternating row colors in the Tag Browser</string>
          </property>
         </widget>
        </item>

@@ -5,7 +5,7 @@ from PyQt4.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray,
         QString, QSize)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
-from calibre.gui2 import question_dialog, error_dialog, gprefs
+from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
 from calibre.utils.icu import sort_key
 
 class NameTableWidgetItem(QTableWidgetItem):
@@ -149,6 +149,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.itemChanged.connect(self.finish_editing)
         self.buttonBox.accepted.connect(self.accepted)
 
+        self.search_box.initialize('tag_list_search_box_' + cat_name)
+        self.search_button.clicked.connect(self.search_clicked)
+
         try:
             geom = gprefs.get('tag_list_editor_dialog_geometry', None)
             if geom is not None:
@@ -157,6 +160,26 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:
             pass
+
+    def search_clicked(self):
+        search_for = icu_lower(unicode(self.search_box.text()))
+        if not search_for:
+            error_dialog(self, _('Find'), _('You must enter some text to search for'),
+                         show=True, show_copy_button=False)
+            return
+        row = self.table.currentRow()
+        if row < 0:
+            row = 0
+        rows = self.table.rowCount()
+        for i in range(0, rows):
+            row += 1
+            if row >= rows:
+                row = 0
+            item = self.table.item(row, 0)
+            if search_for in icu_lower(unicode(item.text())):
+                self.table.setCurrentItem(item)
+                return
+        info_dialog(self, _('Find'), _('No tag found'), show=True, show_copy_button=False)
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []

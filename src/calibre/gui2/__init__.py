@@ -7,7 +7,7 @@ from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
-                    QFileDialog, QFileIconProvider, QSettings,
+                    QFileDialog, QFileIconProvider, QSettings, QColor,
                     QIcon, QApplication, QDialog, QUrl, QFont, QPalette)
 
 ORG_NAME = 'KovidsBrain'
@@ -106,7 +106,9 @@ gprefs.defaults['auto_add_path'] = None
 gprefs.defaults['auto_add_check_for_duplicates'] = False
 gprefs.defaults['blocked_auto_formats'] = []
 gprefs.defaults['auto_add_auto_convert'] = True
-gprefs.defaults['widget_style'] = 'system'
+gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+gprefs.defaults['tag_browser_old_look'] = False
+gprefs.defaults['book_list_tooltips'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -245,6 +247,18 @@ def min_available_height():
 def available_width():
     desktop       = QCoreApplication.instance().desktop()
     return desktop.availableGeometry().width()
+
+def get_windows_color_depth():
+    import win32gui, win32con, win32print
+    hwin = win32gui.GetDesktopWindow()
+    hwindc = win32gui.GetWindowDC(hwin)
+    ans = win32print.GetDeviceCaps(hwindc, win32con.BITSPIXEL)
+    win32gui.ReleaseDC(hwin, hwindc)
+    return ans
+
+def get_screen_dpi():
+    d = QApplication.desktop()
+    return (d.logicalDpiX(), d.logicalDpiY())
 
 _is_widescreen = None
 
@@ -736,11 +750,18 @@ class Application(QApplication):
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
         orig_pal = QPalette(self.palette())
+
         from calibre.constants import plugins
         pi = plugins['progress_indicator'][0]
         path = os.path.join(sys.extensions_location, 'calibre_style.'+(
             'pyd' if iswindows else 'so'))
         pi.load_style(path, 'Calibre')
+        # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
+        for role in (orig_pal.Button, orig_pal.Window):
+            c = orig_pal.brush(role).color()
+            if not c.isValid() or not c.toRgb().isValid():
+                orig_pal.setColor(role, QColor(u'lightgray'))
+
         self.setPalette(orig_pal)
         style = self.style()
         icon_map = {}
@@ -782,7 +803,18 @@ class Application(QApplication):
                 font.setStretch(s)
             QApplication.setFont(font)
 
-        if force_calibre_style or gprefs['widget_style'] != 'system':
+        depth_ok = True
+        if iswindows:
+            # There are some people that still run 16 bit winxp installs. The
+            # new style does not render well on 16bit machines.
+            try:
+                depth_ok = get_windows_color_depth() >= 32
+            except:
+                import traceback
+                traceback.print_exc()
+
+        if force_calibre_style or (depth_ok and gprefs['ui_style'] !=
+                'system'):
             self.load_calibre_style()
         else:
             st = self.style()

@@ -13,34 +13,33 @@ class AdventureGamers(BasicNewsRecipe):
     language = 'fr'
 
     __author__            = 'Darko Miletic'
-    description           = 'science news'    
+    description           = 'science news'
     publisher             = 'Monde durable'
-    category              = 'environnement, developpement durable, science & vie, science et vie'    
+    category              = 'environnement, developpement durable, science & vie, science et vie'
     oldest_article        = 30
     delay                 = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
+    auto_cleanup = True
     encoding              = 'utf-8'
     remove_javascript     = True
     use_embedded_content  = False
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
 
-    keep_only_tags = [dict(name='div', attrs={'class':'post'})]
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    remove_tags = [dict(name=['object','link','embed','form','img'])]
-                  
-    feeds = [(u'Articles', u'http://mondedurable.science-et-vie.com/feed/')]
-    
+
+
+    feeds = [(u'Articles', u'http://mondedurable.science-et-vie.com/comments/feed/')]
+
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup

@@ -13,31 +13,31 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-09-27 18:14+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-06-14 09:06+0000\n"
+"Last-Translator: Eugene Marshal <Unknown>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-26 05:35+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2012-06-15 04:42+0000\n"
+"X-Generator: Launchpad (build 15414)\n"
 "Language: ru\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr ""
+msgstr "Гхотуо"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr ""
+msgstr "Алуму-тесу"
 
 #. name for aac
 msgid "Ari"
-msgstr ""
+msgstr "Ари"
 
 #. name for aad
 msgid "Amal"
-msgstr ""
+msgstr "Амал"
 
 #. name for aae
 msgid "Albanian; Arbëreshë"
@@ -45,11 +45,11 @@ msgstr ""
 
 #. name for aaf
 msgid "Aranadan"
-msgstr ""
+msgstr "Аранадан"
 
 #. name for aag
 msgid "Ambrak"
-msgstr ""
+msgstr "Амбрак"
 
 #. name for aah
 msgid "Arapesh; Abu'"
@@ -57,23 +57,23 @@ msgstr ""
 
 #. name for aai
 msgid "Arifama-Miniafia"
-msgstr ""
+msgstr "Арифама-Миниафиа"
 
 #. name for aak
 msgid "Ankave"
-msgstr ""
+msgstr "Анкаве"
 
 #. name for aal
 msgid "Afade"
-msgstr ""
+msgstr "Афаде"
 
 #. name for aam
 msgid "Aramanik"
-msgstr ""
+msgstr "Араманик"
 
 #. name for aan
 msgid "Anambé"
-msgstr ""
+msgstr "Анамбе"
 
 #. name for aao
 msgid "Arabic; Algerian Saharan"
@@ -93,7 +93,7 @@ msgstr "Афар"
 
 #. name for aas
 msgid "Aasáx"
-msgstr ""
+msgstr "Асакс"
 
 #. name for aat
 msgid "Albanian; Arvanitika"
@@ -101,27 +101,27 @@ msgstr ""
 
 #. name for aau
 msgid "Abau"
-msgstr ""
+msgstr "Абау"
 
 #. name for aaw
 msgid "Solong"
-msgstr ""
+msgstr "Солонг"
 
 #. name for aax
 msgid "Mandobo Atas"
-msgstr ""
+msgstr "Мандобо Атас"
 
 #. name for aaz
 msgid "Amarasi"
-msgstr ""
+msgstr "Амараси"
 
 #. name for aba
 msgid "Abé"
-msgstr ""
+msgstr "Абе"
 
 #. name for abb
 msgid "Bankon"
-msgstr ""
+msgstr "Банкон"
 
 #. name for abc
 msgid "Ayta; Ambala"
@@ -129,7 +129,7 @@ msgstr ""
 
 #. name for abd
 msgid "Manide"
-msgstr ""
+msgstr "Мэнайд"
 
 #. name for abe
 msgid "Abnaki; Western"
@@ -137,11 +137,11 @@ msgstr ""
 
 #. name for abf
 msgid "Abai Sungai"
-msgstr ""
+msgstr "Абаи Сунгаи"
 
 #. name for abg
 msgid "Abaga"
-msgstr ""
+msgstr "Абага"
 
 #. name for abh
 msgid "Arabic; Tajiki"
@@ -149,11 +149,11 @@ msgstr ""
 
 #. name for abi
 msgid "Abidji"
-msgstr ""
+msgstr "Абиджи"
 
 #. name for abj
 msgid "Aka-Bea"
-msgstr ""
+msgstr "Ака-Беа"
 
 #. name for abk
 msgid "Abkhazian"
@@ -161,19 +161,19 @@ msgstr "Абхазский"
 
 #. name for abl
 msgid "Lampung Nyo"
-msgstr ""
+msgstr "Лампунг Ньё"
 
 #. name for abm
 msgid "Abanyom"
-msgstr ""
+msgstr "Абанйом"
 
 #. name for abn
 msgid "Abua"
-msgstr ""
+msgstr "Абуа"
 
 #. name for abo
 msgid "Abon"
-msgstr ""
+msgstr "Абон"
 
 #. name for abp
 msgid "Ayta; Abellen"
@@ -185,7 +185,7 @@ msgstr ""
 
 #. name for abr
 msgid "Abron"
-msgstr ""
+msgstr "Аброн"
 
 #. name for abs
 msgid "Malay; Ambonese"

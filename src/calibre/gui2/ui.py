@@ -228,7 +228,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
+        self.system_tray_icon = SystemTrayIcon(QIcon(I('lt.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
                 self.job_manager.show_tooltip)
@@ -738,6 +738,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
+            db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():
             if not action.shutting_down():
                 return

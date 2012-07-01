@@ -1,3 +1,4 @@
+
 __license__   = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -5,16 +6,17 @@ odb.org
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+import uuid
+from lxml import html
 
 class OurDailyBread(BasicNewsRecipe):
     title                 = 'Our Daily Bread'
-    __author__            = 'Darko Miletic and Sujata Raman'
+    __author__            = 'Kovid Goyal'
     description           = "Our Daily Bread is a daily devotional from RBC Ministries which helps readers spend time each day in God's Word."
     oldest_article        = 15
     language              = 'en'
     max_articles_per_feed = 100
     no_stylesheets        = True
-    auto_cleanup = True
     use_embedded_content  = False
     category              = 'ODB, Daily Devotional, Bible, Christian Devotional, Devotional, RBC Ministries, Our Daily Bread, Devotionals, Daily Devotionals, Christian Devotionals, Faith, Bible Study, Bible Studies, Scripture, RBC, religion'
     encoding              = 'utf-8'
@@ -26,12 +28,14 @@ class OurDailyBread(BasicNewsRecipe):
                             ,'linearize_tables' : True
                          }
 
-    #keep_only_tags    = [dict(attrs={'class':'module-content'})]
-    #remove_tags       = [
-                           #dict(attrs={'id':'article-zoom'})
-                          #,dict(attrs={'class':'listen-now-box'})
-                        #]
-    #remove_tags_after = dict(attrs={'class':'readable-area'})
+    keep_only_tags    = [dict(attrs={'class':'calibre-inserted-psalm'}),
+            {'id':'content'}]
+    remove_tags       = [
+                        dict(attrs={'class':['listen-box', 'entry-zoom',
+                            'entry-footer']}),
+                        {'id':'nav-single'},
+                        dict(attrs={'class':lambda x:x and ' sharing ' in x}),
+                        ]
 
     extra_css = '''
                 .text{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
@@ -43,18 +47,33 @@ class OurDailyBread(BasicNewsRecipe):
 
     feeds          = [(u'Our Daily Bread', u'http://odb.org/feed/')]
 
+    def preprocess_raw_html(self, raw, url):
+        # Convert links to referenced Psalms to the actual psalms
+        root = html.fromstring(raw)
+        for a in root.xpath(
+                '//a[starts-with(@href, "http://www.biblegateway.com")]'):
+            uid = type(u'')(uuid.uuid4())
+            raw = self.index_to_soup(a.get('href'), raw=True)
+            iroot = html.fromstring(raw)
+            matches = iroot.xpath('//div[contains(@class, "result-text-style-normal")]')
+            if matches:
+                div = matches[0]
+                div.getparent().remove(div)
+                root.xpath('//body')[0].append(div)
+                a.set('href', '#'+uid)
+                del a.attrib['target']
+                div.set('id', uid)
+                div.set('class', 'calibre-inserted-psalm')
+                hr = div.makeelement('hr')
+                div.insert(0, hr)
+                # print html.tostring(div)
+                raw = html.tostring(root, encoding=unicode)
+        return raw
+
     def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+        d = soup.find(id='content')
+        d.extract()
+        soup.find('body').insert(0, d)
+        return soup
 
-    def get_cover_url(self):
-
-        href =  'http://www.rbc.org/index.aspx'
-
-        soup = self.index_to_soup(href)
-        a = soup.find('a',attrs={'id':'ctl00_hlTodaysDevotionalImage'})
-
-        if a :
-           cover_url = a.img['src']
-
-        return cover_url
 

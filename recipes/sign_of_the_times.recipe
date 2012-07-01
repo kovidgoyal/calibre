@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class SignOfTheTimes(BasicNewsRecipe):
+    title          = u'Sign of the Times'
+    language       = 'en'
+    __author__     = 'TerminalVeracity'
+    oldest_article = 31#days
+    max_articles_per_feed = 50
+    use_embedded_content = False
+
+    extra_css             = """
+                               h2{font-size: large; margin: .2em 0; text-decoration: none;}
+                               .image-caption{font-size: medium; font-style:italic; margin: 0 0 1em 0;}
+                               .article-info{font-size: small; font-style:italic; margin: 0 0 .5em 0;}
+                            """
+
+    remove_stylesheets = True
+    remove_tags = [
+       dict(name='div', attrs={'class':['article-icon','article-print','article-footer']}),
+       dict(name='span', attrs={'class':['tiny']}),
+    ]
+
+    feeds          = [('Signs', 'http://www.sott.net/xml_engine/signs_rss'),]
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'class':'article'})
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        for div in soup.findAll(attrs={'class':'image-caption'}):
+           for br in div.findAll('br'): br.extract()
+        return soup

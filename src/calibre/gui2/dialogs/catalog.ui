@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/library.png</normaloff>:/images/library.png</iconset>
+    <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

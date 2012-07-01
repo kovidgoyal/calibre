@@ -1,26 +1,42 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class SmithsonianMagazine(BasicNewsRecipe):
     title          = u'Smithsonian Magazine'
     language       = 'en'
-    __author__     = 'Krittika Goyal'
+    __author__     = 'Krittika Goyal and TerminalVeracity'
     oldest_article = 31#days
     max_articles_per_feed = 50
     use_embedded_content = False
-    #encoding = 'latin1'
     recursions = 1
+    cover_url = 'http://sphotos.xx.fbcdn.net/hphotos-snc7/431147_10150602715983253_764313347_n.jpg'
     match_regexps = ['&page=[2-9]$']
+    preprocess_regexps = [
+        (re.compile(r'for more of Smithsonian\'s coverage on history, science and nature.', re.DOTALL), lambda m: '')
+        ]
+    extra_css             = """
+                               h1{font-size: large; margin: .2em 0}
+                               h2{font-size: medium; margin: .2em 0}
+                               h3{font-size: medium; margin: .2em 0}
+                               #byLine{margin: .2em 0}
+                               .articleImageCaptionwide{font-style: italic}
+                               .wp-caption-text{font-style: italic}
+                               img{display: block}
+                            """
+
 
     remove_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    remove_tags_after  = dict(name='p', attrs={'id':'articlePaginationWrapper'})
+    remove_tags_after  = dict(name='div', attrs={'class':['post','articlePaginationWrapper']})
     remove_tags = [
        dict(name='iframe'),
-       dict(name='div', attrs={'class':'article_sidebar_border'}),
-       dict(name='div', attrs={'id':['article_sidebar_border', 'most-popular_large', 'most-popular-body_large']}),
-       ##dict(name='ul', attrs={'class':'article-tools'}),
+       dict(name='div', attrs={'class':['article_sidebar_border','viewMorePhotos','addtoany_share_save_container','meta','social','OUTBRAIN','related-articles-inpage']}),
+       dict(name='div', attrs={'id':['article_sidebar_border', 'most-popular_large', 'most-popular-body_large','comment_section','article-related']}),
        dict(name='ul', attrs={'class':'cat-breadcrumb col three last'}),
+       dict(name='h4', attrs={'id':'related-topics'}),
+       dict(name='table'),
+       dict(name='a', attrs={'href':['/subArticleBottomWeb','/subArticleTopWeb','/subArticleTopMag','/subArticleBottomMag']}),
+       dict(name='a', attrs={'name':'comments_shaded'}),
     ]
 
 
@@ -39,15 +55,7 @@ class SmithsonianMagazine(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         story = soup.find(name='div', attrs={'id':'article-body'})
-        ##td = heading.findParent(name='td')
-        ##td.extract()
         soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
         body = soup.find(name='body')
         body.insert(0, story)
         return soup
-
-    #def postprocess_html(self, soup, first):
-        #for p in soup.findAll(id='articlePaginationWrapper'): p.extract()
-        #if not first:
-             #for div in soup.findAll(id='article-head'): div.extract()
-        #return soup

@@ -12,6 +12,7 @@ from operator import itemgetter
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.library.database2 import LibraryDatabase2
+from calibre.library.prefs import DBPrefs
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
@@ -101,13 +102,46 @@ class Restore(Thread):
             with TemporaryDirectory('_library_restore') as tdir:
                 self.library_path = tdir
                 self.scan_library()
-                self.create_cc_metadata()
+                if not self.load_preferences():
+                    # Something went wrong with preferences restore. Start over
+                    # with a new database and attempt to rebuild the structure
+                    # from the metadata in the opf
+                    dbpath = os.path.join(self.library_path, 'metadata.db')
+                    if os.path.exists(dbpath):
+                        os.remove(dbpath)
+                    self.create_cc_metadata()
                 self.restore_books()
                 if self.successes == 0 and len(self.dirs) > 0:
                     raise Exception(('Something bad happened'))
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()
+
+    def load_preferences(self):
+        self.progress_callback(None, 1)
+        self.progress_callback(_('Starting restoring preferences and column metadata'), 0)
+        prefs_path = os.path.join(self.src_library_path, 'metadata_db_prefs_backup.json')
+        if not os.path.exists(prefs_path):
+            self.progress_callback(_('Cannot restore preferences. Backup file not found.'), 1)
+            return False
+        try:
+            prefs = DBPrefs.read_serialized(self.src_library_path, recreate_prefs=False)
+            db = RestoreDatabase(self.library_path, default_prefs=prefs,
+                                 restore_all_prefs=True,
+                                 progress_callback=self.progress_callback)
+            db.commit()
+            db.conn.close()
+            self.progress_callback(None, 1)
+            if 'field_metadata' in prefs:
+                self.progress_callback(_('Finished restoring preferences and column metadata'), 1)
+                return True
+            self.progress_callback(_('Finished restoring preferences'), 1)
+            return False
+        except:
+            traceback.print_exc()
+            self.progress_callback(None, 1)
+            self.progress_callback(_('Restoring preferences and column metadata failed'), 0)
+        return False
 
     def scan_library(self):
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):

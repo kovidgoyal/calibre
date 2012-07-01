@@ -19,13 +19,10 @@ class PagePosition(object):
         ans = None
         res = self.document.mainFrame().evaluateJavaScript('''
             ans = 'undefined';
-            try {
-                ans = window.cfi.at_current();
+            if (window.paged_display) {
+                ans = window.paged_display.current_cfi();
                 if (!ans) ans = 'undefined';
-            } catch (err) {
-                window.console.log(err);
             }
-            window.console.log("Viewport cfi: " + ans);
             ans;
         ''')
         if res.isValid() and not res.isNull() and res.type() == res.String:
@@ -37,17 +34,8 @@ class PagePosition(object):
     def scroll_to_cfi(self, cfi):
         if cfi:
             cfi = json.dumps(cfi)
-            self.document.mainFrame().evaluateJavaScript('''
-                    function fix_scroll() {
-                        /* cfi.scroll_to() uses scrollIntoView() which can result
-                           in scrolling along the x-axis. So we
-                           explicitly scroll to x=0.
-                        */
-                       scrollTo(0, window.pageYOffset)
-                    }
-
-                    window.cfi.scroll_to(%s, fix_scroll);
-                '''%cfi)
+            self.document.mainFrame().evaluateJavaScript(
+                    'paged_display.jump_to_cfi(%s)'%cfi)
 
     @property
     def current_pos(self):

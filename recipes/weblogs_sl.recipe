@@ -2,8 +2,8 @@
 __license__     = 'GPL v3'
 __copyright__   = '4 February 2011, desUBIKado'
 __author__      = 'desUBIKado'
-__version__     = 'v0.07'
-__date__        = '13, November 2011'
+__version__     = 'v0.08'
+__date__        = '30, June 2012'
 '''
 http://www.weblogssl.com/
 '''
@@ -33,6 +33,7 @@ class weblogssl(BasicNewsRecipe):
 
     feeds              = [
                           (u'Xataka', u'http://feeds.weblogssl.com/xataka2')
+                          ,(u'Xataka Smart Home', u'http://feeds.weblogssl.com/Xatakahome')
                           ,(u'Xataka Mexico', u'http://feeds.weblogssl.com/xatakamx')
                           ,(u'Xataka M\xf3vil', u'http://feeds.weblogssl.com/xatakamovil')
                           ,(u'Xataka Android', u'http://feeds.weblogssl.com/xatakandroid')
@@ -107,12 +108,14 @@ class weblogssl(BasicNewsRecipe):
 
     # Para obtener la url original del articulo a partir de la de "feedsportal"
     # El siguiente código es gracias al usuario "bosplans" de www.mobileread.com
-    # http://www.mobileread.com/forums/showthread.php?t=130297
+    # http://www.mobileread.com/forums/sho...d.php?t=130297
 
     def get_article_url(self, article):
        link = article.get('link', None)
        if link is None:
            return article
+       if link.split('/')[-4]=="xataka2":
+           return article.get('feedburner_origlink', article.get('link', article.get('guid')))
        if link.split('/')[-1]=="story01.htm":
            link=link.split('/')[-2]
            a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']
@@ -121,6 +124,3 @@ class weblogssl(BasicNewsRecipe):
               link=link.replace(a[i],b[i])
            link="http://"+link
        return link
-
-
-

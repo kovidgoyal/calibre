@@ -1177,6 +1177,16 @@ class StoreAmazonKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+class StoreSonyStore(StoreBase):
+    name = 'SONY Reader Store'
+    description = u'SONY Reader books.'
+    author = 'Kovid Goyal'
+    actual_plugin = 'calibre.gui2.store.stores.sony_plugin:SonyStore'
+
+    headquarters = 'US'
+    formats = ['SONY']
+    affiliate = False
+
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     author = 'Charles Haley'
@@ -1623,7 +1633,7 @@ plugins += [
     StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
-    StoreBNStore,
+    StoreBNStore, StoreSonyStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,

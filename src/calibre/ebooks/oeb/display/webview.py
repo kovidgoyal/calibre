@@ -31,12 +31,15 @@ def self_closing_sub(match):
     return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
 
 def load_html(path, view, codec='utf-8', mime_type=None,
-        pre_load_callback=lambda x:None):
+        pre_load_callback=lambda x:None, path_is_html=False):
     from PyQt4.Qt import QUrl, QByteArray
     if mime_type is None:
         mime_type = guess_type(path)[0]
-    with open(path, 'rb') as f:
-        html = f.read().decode(codec, 'replace')
+    if path_is_html:
+        html = path
+    else:
+        with open(path, 'rb') as f:
+            html = f.read().decode(codec, 'replace')
 
     html = EntityDeclarationProcessor(html).processed_html
     has_svg = re.search(r'<[:a-zA-Z]*svg', html) is not None

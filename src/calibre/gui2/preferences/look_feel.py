@@ -101,9 +101,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('gui_layout', config, restart_required=True, choices=
                 [(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
-        r('widget_style', gprefs, restart_required=True, choices=
+        r('ui_style', gprefs, restart_required=True, choices=
                 [(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
+        r('book_list_tooltips', gprefs)
+        r('tag_browser_old_look', gprefs, restart_required=True)
 
         r('cover_flow_queue_length', config, restart_required=True)
 

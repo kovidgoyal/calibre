@@ -55,6 +55,7 @@ class ANDROID(USBMS):
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
                        0x70c6 : [0x226],
                        0x4316 : [0x216],
+                       0x4317 : [0x216],
                        0x42d6 : [0x216],
                        0x42d7 : [0x216],
                        0x42f7 : [0x216],
@@ -89,6 +90,7 @@ class ANDROID(USBMS):
                 0x4e22 : [0x0100, 0x226, 0x227, 0x231],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
+                0xc91  : HTC_BCDS,
                 0xdddd : [0x216],
             },
 
@@ -99,6 +101,7 @@ class ANDROID(USBMS):
                        0x685b : [0x0400, 0x0226],
                        0x685e : [0x0400],
                        0x6860 : [0x0400],
+                       0x6863 : [0x226],
                        0x6877 : [0x0400],
                        0x689e : [0x0400],
                        0xdeed : [0x0222],
@@ -164,10 +167,16 @@ class ANDROID(USBMS):
             0x2237: { 0x2208 : [0x0226] },
 
             # Lenovo
-            0x17ef : { 0x7421 : [0x0216] },
+            0x17ef : {
+                    0x7421 : [0x0216],
+                    0x741b : [0x9999],
+            },
 
             # Pantech
             0x10a9 : { 0x6050 : [0x227] },
+
+            # Prestigio
+            0x2207 : { 0 : [0x222] },
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
@@ -182,7 +191,8 @@ class ANDROID(USBMS):
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
             'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
-            'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD']
+            'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
+            'PMP5097C']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -198,7 +208,8 @@ class ANDROID(USBMS):
             'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
             'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
             'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0_DRIVER',
-            'GT-S5830L_CARD', 'UNIVERSE', 'XT875']
+            'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
+            'THINKPAD_TABLET']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -207,7 +218,7 @@ class ANDROID(USBMS):
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0_DRIVER', 'XT875',
-            'UMS_COMPOSITE']
+            'UMS_COMPOSITE', 'PRO', '.KOBO_VOX']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

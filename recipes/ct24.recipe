@@ -1,0 +1,12 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1339974788(BasicNewsRecipe):
+    title          = u'\u010cT24'
+    oldest_article = 1
+    language = 'cs'
+    __author__ = 'zoidozoido'
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Hlavn\xed zpr\xe1vy', u'http://www.ceskatelevize.cz/ct24/rss/hlavni-zpravy/'), (u'Dom\xe1c\xed', u'http://www.ceskatelevize.cz/ct24/rss/domaci/'), (u'Sv\u011bt', u'http://www.ceskatelevize.cz/ct24/rss/svet/'), (u'Regiony', u'http://www.ceskatelevize.cz/ct24/rss/regiony/'), (u'Kultura', u'http://www.ceskatelevize.cz/ct24/rss/kultura/'), (u'Ekonomika', u'http://www.ceskatelevize.cz/ct24/rss/ekonomika/'), (u'Sport - hlavn\xed zpr\xe1vy', u'http://www.ceskatelevize.cz/ct4/rss/hlavni-zpravy/'), (u'OH 2012', u'http://www.ceskatelevize.cz/ct4/rss/oh-2012/')]
+    remove_tags = [dict(name='img')]

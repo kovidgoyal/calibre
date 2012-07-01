@@ -33,7 +33,8 @@ aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
 'video'}
 
 _self_closing_pat = re.compile(bytes(
-    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags))),
+    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags|{'script',
+        'style', 'title', 'head'}))),
     re.IGNORECASE)
 
 def close_self_closing_tags(raw):
@@ -110,7 +111,7 @@ class Skeleton(object):
         self.chunks = chunks
 
         self.skeleton = self.render(root)
-        self.body_offset = self.skeleton.find('<body')
+        self.body_offset = self.skeleton.find(b'<body')
         self.calculate_metrics(root)
 
         self.calculate_insert_positions()
@@ -118,6 +119,7 @@ class Skeleton(object):
     def render(self, root):
         raw = tostring(root, xml_declaration=True)
         raw = raw.replace(b'<html', bytes('<html xmlns="%s"'%XHTML_NS), 1)
+        raw = close_self_closing_tags(raw)
         return raw
 
     def calculate_metrics(self, root):
@@ -125,7 +127,7 @@ class Skeleton(object):
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
-            raw = tostring(tag, with_tail=True)
+            raw = close_self_closing_tags(tostring(tag, with_tail=True))
             start_length = len(raw.partition(b'>')[0]) + len(text) + 1
             end_length = len(raw.rpartition(b'<')[-1]) + 1
             self.metrics[tag.get('aid')] = Metric(start_length, end_length)

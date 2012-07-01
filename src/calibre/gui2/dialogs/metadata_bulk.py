@@ -261,8 +261,12 @@ class MyBlockingBusy(QDialog): # {{{
                 else:
                     next = self.db.get_next_series_num_for(series)
                 self.db.set_series(id, series, notify=False, commit=False)
-                num = next if do_autonumber and series else 1.0
-                self.db.set_series_index(id, num, notify=False, commit=False)
+                if not series:
+                    self.db.set_series_index(id, 1.0, notify=False, commit=False)
+                elif do_autonumber: # is True if do_series_restart is True
+                    self.db.set_series_index(id, next, notify=False, commit=False)
+                elif tweaks['series_index_auto_increment'] != 'no_change':
+                    self.db.set_series_index(id, 1.0, notify=False, commit=False)
 
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE', commit=False)

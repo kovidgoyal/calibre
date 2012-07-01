@@ -19,6 +19,181 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.58
+  date: 2012-06-29
+
+  new features:
+    - title: "Add some texture to calibre generated covers"
+
+    - title: "Drivers for Sogo SS-4370, HTC G2 and Lenovo ThinkPad Tablet"
+      tickets: [1019050, 1017010]
+
+    - title: "Add search to the Manage tags/series/etc. dialogs"
+
+    - title: "News download: Add support for images embedded in the HTML"
+
+    - title: "calibre -s now waits for calibre to shutdown"
+ 
+  bug fixes:
+    - title: "Workaround for iTunes breaking scripting with version 10.6.3 on OS X."
+      tickets: [1012243]
+
+    - title: "EPUB Input: When there are multiple elements of the same type in the OPF guide, use the first rather than the last element."
+
+    - title: "Windows: Disable the new UI style if the color depth of the desktop is less than 32 bits per pixel"
+
+    - title: "ISBNDB metadata plugin: Return results even though they have no comments"
+
+    - title: "More robust handling of EINTR during IPC"
+
+    - title: "Metadata download: Support for amazon's new results page markup"
+
+    - title: "EPUB Output: Fix a bug that could cause corrupted output when doing an EPUB/OEB to EPUB conversion if the input EPUB had multiple files with the same name"
+
+    - title: "KF8 Output: Fix a couple of bugs that could lead to generation of invalid KF8 files."
+      tickets: [1016672]
+
+  improved recipes:
+    - ABC Digital
+    - O Globo
+
+  new recipes:
+    - title: Sign of the Times and New Statesman
+      author: TerminalVeracity
+
+    - title: CT24 
+      author: zoidozoido
+
+    - title: SmileZilla
+      author: Will
+
+    - title: Marketing Sensoriale 
+      author: NotTaken
+
+- version: 0.8.57
+  date: 2012-06-22
+
+  new features:
+    - title: "PDF Output: Full pagination support. No more cutoff bottom line."
+      type: major
+      description: "Fixes a long standing bug in calibre's PDF Output that caused the bottom line of some pages to be partially cut off and prevented top and bottom margins from working."
+
+    - title: "calibredb add now prints out the ids of added books"
+      tickets: [1014303] 
+
+    - title: "Kobo Vox driver: Add support for new Google Play firmware"
+      tickets: [1014129] 
+
+    - title: "Driver for Prestigio PMP5097PRO"
+      tickets: [1013864] 
+
+    - title: "Add option to disable tooltips in the book list under Preferences->Look & Feel"
+
+    - title: "When customizing builtin recipes download the latest version of the recipe to customize instead of using the possibly out of date bundled version"
+ 
+  bug fixes:
+    - title: "PDF Output: Use the cover from the input document when no cover is specified during a conversion"
+
+    - title: "E-book Viewer: Printing now has proper pagination with top and bottom margins no lines partially cut-off at the bottom and full style retention"
+
+    - title: "KF8 Input: Handle files with incorrectly encoded guide type entries."
+      tickets: [1015020]
+
+    - title: "E-book viewer: Disable hyphenation on windows xp as Qt WebKit barfs on soft hyphens on windows XP"
+
+    - title: "Handle OS X systems with invalid palette colors."
+      tickets: [1014900]
+
+    - title: "Tag Browser: Fix regression that broke partitioning of hierarchical categories."
+      tickets: [1014065]
+
+    - title: "LRF Output: Handle negative page margins"
+      tickets: [1014103]
+
+    - title: "Template language: Fix arithmetic functions to tolerate the value 'None' as returned by raw_field()"
+
+    - title: "Fix custom title sort set in the edit metadata dialog getting reset by the conversion dialog"
+
+  improved recipes:
+    - The Economist
+    - Akter
+    - 24 Sata sr
+    - Novi List
+    - Metro Montreal
+    - Mode Durable
+    - CanardPC
+    - The Economic Collapse
+    - Our Daily Bread
+
+  new recipes:
+    - title: Akter Daily
+      author: Darko MIletic
+
+    - title: BBC Brasil 
+      author: Claviola
+
+    - title: Homopedia.pl 
+      author: rainbowwarrior
+
+    - title: National Geographic Magazine 
+      author: Terminal Veracity
+
+    - title: Something Awful
+      author: atordo
+
+    - title: Huffington Post UK 
+      author: Krittika Goyal
+
+- version: 0.8.56
+  date: 2012-06-15
+
+  new features:
+    - title: "Make the new calibre style default on Windows and OS X."
+      type: major
+      description: "This change gives a more 'modern' feel to the calibre user interface with focus highlighting, gradients, rounded corners, etc. In case you prefer the old look, you can restore under Preferences->Look & Feel->User interface style"
+
+    - title: "Get Books: Add the new SONY Reader store"
+
+    - title: "Read metadata from .docx (Microsoft Word) files"
+
+    - title: "Allow customizing the behavior of the searching for similar books by right clicking the book. You can now tell calibre to search different columns than the traditional author/series/publisher/tags/etc. in Preferences->Searching"
+
+    - title: "Add option to restore alternating row colors to the Tag Browser under Preferences->Look & Feel->Tag Browser"
+
+    - title: "Update to Qt 4.8.2 on windows compiled with link time code generation for a small performance boost"
+ 
+  bug fixes:
+    - title: "Get Books: Update plugins to handle website changes at ebooks.com, project gutenberg, and virtualo"
+
+    - title: "AZW3 Output: Fix TOC at start option not working"
+
+    - title: "AZW3 Output: Close self closing script/style/title/head tags explicitly as they cause problems in webkit based renderers like the Kindle Fire and calibre's viewers."
+
+    - title: "Fix the current_library_name() template function not updating after a library switch"
+
+    - title: "AZW3 Output: Handle the case of a link pointing to the last line of text in the document."
+      tickets: [1011330]
+
+    - title: "Fix regression in 0.8.55 that broke highlighting of items matching a search in the Tag Browser"
+      tickets: [1011030] 
+
+    - title: "News download: Handle query only relative URLs"
+
+  improved recipes:
+    - Christian Science Monitor
+    - Neue Zurcher Zeitung
+    - Birmignham Post
+    - Metro UK 
+    - New Musical Express
+    - The Independent
+    - The Daily Mirror
+    - Vreme
+    - Smithsonian Magazine
+
+  new recipes:
+    - title: NZZ Webpaper 
+      author: Bernd Leinfelder
+
 
 - version: 0.8.55
   date: 2012-06-08
