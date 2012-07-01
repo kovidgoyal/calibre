@@ -1455,6 +1455,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
+    def clean_standard_field(self, field, commit=False):
+        # Don't bother with validity checking. Let the exception fly out so
+        # we can see what happened
+        def doit(table, ltable_col):
+            st = ('DELETE FROM books_%s_link WHERE (SELECT COUNT(id) '
+                    'FROM books WHERE id=book) < 1;')%table
+            self.conn.execute(st)
+            st = ('DELETE FROM %(table)s WHERE (SELECT COUNT(id) '
+                    'FROM books_%(table)s_link WHERE '
+                    '%(ltable_col)s=%(table)s.id) < 1;') % dict(
+                            table=table, ltable_col=ltable_col)
+            self.conn.execute(st)
+
+        fm = self.field_metadata[field]
+        doit(fm['table'], fm['link_column'])
+        if commit:
+            self.conn.commit()
+
     def clean(self):
         '''
         Remove orphaned entries.
@@ -2557,6 +2575,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.set_tags(book_id, new_names, append=True, notify=False,
                               commit=False)
         self.dirtied(books, commit=False)
+        self.clean_standard_field('tags', commit=False)
         self.conn.commit()
 
     def delete_tag_using_id(self, id):
@@ -2603,6 +2622,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                          SET series_index=?
                                          WHERE id=?''',(index, book_id,))
         self.dirty_books_referencing('series', new_id, commit=False)
+        self.clean_standard_field('series', commit=False)
         self.conn.commit()
 
     def delete_series_using_id(self, id):
@@ -2638,6 +2658,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
         self.dirty_books_referencing('publisher', new_id, commit=False)
+        self.clean_standard_field('publisher', commit=False)
         self.conn.commit()
 
     def delete_publisher_using_id(self, old_id):
@@ -2736,7 +2757,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         # metadata. Ignore it.
                         pass
             # Now delete the old author from the DB
-            bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?', (old_id,))
             self.conn.execute('DELETE FROM authors WHERE id=?', (old_id,))
         self.dirtied(books, commit=False)
         self.conn.commit()
@@ -2752,6 +2772,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_author_sort(book_id, ss)
             # the caller will do a general refresh, so we don't need to
             # do one here
+        # Now delete the old author from the DB
         return new_id
 
     # end convenience methods
