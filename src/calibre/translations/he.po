@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-29 06:42+0000\n"
-"PO-Revision-Date: 2012-06-22 13:52+0000\n"
-"Last-Translator: Alex <alex.maccabi@gmail.com>\n"
+"PO-Revision-Date: 2012-06-30 14:31+0000\n"
+"Last-Translator: Tal Nisan <talnl357@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-30 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-07-01 04:38+0000\n"
 "X-Generator: Launchpad (build 15520)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -502,7 +502,7 @@ msgstr "מחפש"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:989
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "התאם את הדרך בה קליבר מחפש ספרים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:994
 msgid "Input Options"
@@ -808,7 +808,7 @@ msgstr "מיועד למכשירי קריאה גנריים, לא משנה מיד�
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
-msgstr ""
+msgstr "מיועד עבור סמסונג גלקסי ומחשבי לוח דומים בעלי רזולוצייה של 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:481
 msgid "This profile is intended for the Kobo Reader."
@@ -996,11 +996,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "נטרל מנהל התקן של אפל"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:81
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "אפשר מנהל התקן של אפל"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -1473,7 +1473,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:306
 msgid "Use slower but more accurate page number calculation"
-msgstr ""
+msgstr "השתמש בחישוב מספר עמוד איטי אך מדוייק יותר"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:308
 msgid ""
@@ -3671,7 +3671,7 @@ msgstr[1] ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "שפות"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:780
 msgid "Timestamp"
@@ -4465,11 +4465,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
-msgstr ""
+msgstr "הוסף ספרים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:48
 msgid "Add books to the calibre library/device from files on your computer"
-msgstr ""
+msgstr "הוסף ספרים לספרייה של קליבר/למכשיר מהקבצים במחשב שלך"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:49
 msgid "A"
@@ -4621,7 +4621,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr ""
+msgstr "הוסף ספרים לסיפריית קליבר שלך ממכשיר מחובר"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:26
 msgid "Merging user annotations into database"
@@ -4937,7 +4937,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books"
-msgstr ""
+msgstr "המר ספרים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Convert individually"
@@ -5072,7 +5072,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Remove books"
-msgstr ""
+msgstr "הסר ספרים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:89
 msgid "Remove selected books"
@@ -5124,7 +5124,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:213
 msgid "No device is connected"
-msgstr ""
+msgstr "אין מכשיר מחובר"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:223
 msgid "Main memory"
@@ -5175,7 +5175,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Connect to folder"
-msgstr ""
+msgstr "התחבר לתיקיה"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to iTunes"
@@ -5225,7 +5225,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:154
 msgid "Connect/share"
-msgstr ""
+msgstr "התחבר/שתף"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
@@ -5436,7 +5436,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:118
 #: /usr/src/qt-everywhere-opensource-src-4.8.0/src/gui/widgets/qdialogbuttonbox.cpp:679
 msgid "Help"
-msgstr ""
+msgstr "עזרה"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:12
 msgid "Move to next match"
@@ -6047,7 +6047,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr ""
+msgstr "הוסף ספרים לקליבר"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -9516,7 +9516,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1170
 msgid "&Languages:"
-msgstr ""
+msgstr "&שפות:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 msgid "Remove &format:"
@@ -10099,7 +10099,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:156
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:113
 msgid "Authors"
-msgstr ""
+msgstr "מחברים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:188
 msgid "**No items found**"
@@ -11256,7 +11256,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:140
 msgid "Authors:"
-msgstr ""
+msgstr "מחברים:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:141
 msgid "Regular expression (?P<author>)"
@@ -15711,7 +15711,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:205
 msgid "&Donate to support calibre"
-msgstr ""
+msgstr "&תרום כדי לתמוך בקליבר"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:241
 msgid "&Restore"

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-29 06:42+0000\n"
-"PO-Revision-Date: 2012-04-11 09:56+0000\n"
-"Last-Translator: Forave <admin@forave.pt>\n"
+"PO-Revision-Date: 2012-06-30 21:22+0000\n"
+"Last-Translator: crucius <dorovan@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-30 05:00+0000\n"
+"X-Launchpad-Export-Date: 2012-07-01 04:39+0000\n"
 "X-Generator: Launchpad (build 15520)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1498,7 +1498,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:290
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Comunicar com o leitor de ebook Kindle 2/3/4/Touch"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:299
 msgid "Send page number information when sending books"
@@ -1557,15 +1557,15 @@ msgstr "Comunicar com o leitor Kobo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "O Kobo suporta várias colecções incluindo "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Criar etiquetas para administração automática"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Carregar capas de livros (leitores mais recentes)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid ""
@@ -1573,14 +1573,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalmente, os leitores KOBO retiram a imagem de capa do próprio ficheiro "
+"ebook. Com esta opção, o Calibre enviará para o leitor uma imagem de capa "
+"separada, que pode ser útil se tiver feito alterações na capa."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Carregar capas a preto e branco"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Show expired books"
-msgstr ""
+msgstr "Mostar livros expirados"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid ""
@@ -1588,10 +1591,13 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Um bug numa versão anterior deixou registos de livros não-kepubs na base de "
+"dados. Com esta opção, o Calibre irá mostrar os registos expirados "
+"permitindo-lhe apagá-los com a nova lógica de exclusão."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Show Previews"
-msgstr ""
+msgstr "Mostrar pré-visualizações"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid ""
@@ -1602,7 +1608,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Mostrar recomendações"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
 msgid ""
