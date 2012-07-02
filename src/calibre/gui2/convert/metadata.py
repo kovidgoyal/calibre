@@ -162,7 +162,6 @@ class MetadataWidget(Widget, Ui_Form):
         if tags:
             mi.tags = tags
 
-        print (mi)
         return mi
 
     def select_cover(self):
