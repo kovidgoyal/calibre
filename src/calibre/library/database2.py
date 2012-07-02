@@ -1203,7 +1203,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if m:
             return m['mtime']
 
-    def format_metadata(self, id_, fmt, allow_cache=True):
+    def format_metadata(self, id_, fmt, allow_cache=True, update_db=False,
+            commit=False):
         if not fmt:
             return {}
         fmt = fmt.upper()
@@ -1218,6 +1219,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
             self.format_metadata_cache[id_][fmt] = ans
+            if update_db:
+                self.conn.execute(
+                    'UPDATE data SET uncompressed_size=? WHERE format=? AND'
+                    ' book=?', (stat.st_size, fmt, id_))
+                if commit:
+                    self.conn.commit()
         return ans
 
     def format_hash(self, id_, fmt):
@@ -1447,6 +1454,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.refresh_ids([id])
             if notify:
                 self.notify('metadata', [id])
+
+    def clean_standard_field(self, field, commit=False):
+        # Don't bother with validity checking. Let the exception fly out so
+        # we can see what happened
+        def doit(table, ltable_col):
+            st = ('DELETE FROM books_%s_link WHERE (SELECT COUNT(id) '
+                    'FROM books WHERE id=book) < 1;')%table
+            self.conn.execute(st)
+            st = ('DELETE FROM %(table)s WHERE (SELECT COUNT(id) '
+                    'FROM books_%(table)s_link WHERE '
+                    '%(ltable_col)s=%(table)s.id) < 1;') % dict(
+                            table=table, ltable_col=ltable_col)
+            self.conn.execute(st)
+
+        fm = self.field_metadata[field]
+        doit(fm['table'], fm['link_column'])
+        if commit:
+            self.conn.commit()
 
     def clean(self):
         '''
@@ -2550,6 +2575,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.set_tags(book_id, new_names, append=True, notify=False,
                               commit=False)
         self.dirtied(books, commit=False)
+        self.clean_standard_field('tags', commit=False)
         self.conn.commit()
 
     def delete_tag_using_id(self, id):
@@ -2564,7 +2590,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return []
         return result
 
-    def rename_series(self, old_id, new_name):
+    def rename_series(self, old_id, new_name, change_index=True):
         new_name = new_name.strip()
         new_id = self.conn.get(
                     '''SELECT id from series
@@ -2577,23 +2603,26 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # New series exists. Must update the link, then assign a
             # new series index to each of the books.
 
-            # Get the list of books where we must update the series index
-            books = self.conn.get('''SELECT books.id
-                                     FROM books, books_series_link as lt
-                                     WHERE books.id = lt.book AND lt.series=?
-                                     ORDER BY books.series_index''', (old_id,))
+            if change_index:
+                # Get the list of books where we must update the series index
+                books = self.conn.get('''SELECT books.id
+                                         FROM books, books_series_link as lt
+                                         WHERE books.id = lt.book AND lt.series=?
+                                         ORDER BY books.series_index''', (old_id,))
             # Now update the link table
             self.conn.execute('''UPDATE books_series_link
                                  SET series=?
                                  WHERE series=?''',(new_id, old_id,))
-            # Now set the indices
-            for (book_id,) in books:
-                # Get the next series index
-                index = self.get_next_series_num_for(new_name)
-                self.conn.execute('''UPDATE books
-                                     SET series_index=?
-                                     WHERE id=?''',(index, book_id,))
+            if change_index and tweaks['series_index_auto_increment'] != 'no_change':
+                # Now set the indices
+                for (book_id,) in books:
+                    # Get the next series index
+                    index = self.get_next_series_num_for(new_name)
+                    self.conn.execute('''UPDATE books
+                                         SET series_index=?
+                                         WHERE id=?''',(index, book_id,))
         self.dirty_books_referencing('series', new_id, commit=False)
+        self.clean_standard_field('series', commit=False)
         self.conn.commit()
 
     def delete_series_using_id(self, id):
@@ -2629,6 +2658,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
         self.dirty_books_referencing('publisher', new_id, commit=False)
+        self.clean_standard_field('publisher', commit=False)
         self.conn.commit()
 
     def delete_publisher_using_id(self, old_id):
@@ -2727,7 +2757,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         # metadata. Ignore it.
                         pass
             # Now delete the old author from the DB
-            bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?', (old_id,))
             self.conn.execute('DELETE FROM authors WHERE id=?', (old_id,))
         self.dirtied(books, commit=False)
         self.conn.commit()
@@ -3683,5 +3712,13 @@ books_series_link      feeds
     def get_ids_for_custom_book_data(self, name):
         s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
         return [x[0] for x in s]
+
+    def get_usage_count_by_id(self, field):
+        fm = self.field_metadata[field]
+        if not fm.get('link_column', None):
+            raise ValueError('%s is not an is_multiple field')
+        return self.conn.get(
+            'SELECT {0}, count(*) FROM books_{1}_link GROUP BY {0}'.format(
+                fm['link_column'], fm['table']))
 
 

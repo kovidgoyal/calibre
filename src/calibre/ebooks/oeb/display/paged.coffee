@@ -66,6 +66,7 @@ class PagedDisplay
         this.in_paged_mode = false
         this.current_margin_side = 0
         this.is_full_screen_layout = false
+        this.max_col_width = -1
 
     set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
         this.margin_top = margin_top
@@ -108,6 +109,11 @@ class PagedDisplay
         # Minimum column width, for the cases when the window is too
         # narrow
         col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
+        if this.max_col_width > 0 and col_width > this.max_col_width
+            # Increase the side margin to ensure that col_width is no larger
+            # than max_col_width
+            sm += Math.ceil( (col_width - this.max_col_width) / 2*n )
+            col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
 
@@ -360,5 +366,4 @@ if window?
 
 # TODO:
 # Resizing of images
-# Full screen mode
 # Highlight on jump_to_anchor

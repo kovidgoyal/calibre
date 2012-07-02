@@ -643,7 +643,7 @@ from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
-                POCKETBOOK701, POCKETBOOK360P, PI2)
+                POCKETBOOK701, POCKETBOOK360P, PI2, POCKETBOOK622)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
@@ -689,7 +689,7 @@ plugins += [
     JETBOOK, JETBOOK_MINI, MIBUK, JETBOOK_COLOR,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
-    PI2,
+    POCKETBOOK622, PI2,
     KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE,
     NOOK, NOOK_COLOR,
     PRS505, PRST1,
@@ -1511,15 +1511,6 @@ class StoreOpenBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
 
-class StoreOReillyStore(StoreBase):
-    name = 'OReilly'
-    description = u'Programming and tech ebooks from OReilly.'
-    actual_plugin = 'calibre.gui2.store.stores.oreilly_plugin:OReillyStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
-
 class StoreOzonRUStore(StoreBase):
     name = 'OZON.ru'
     description = u'ebooks from OZON.ru'
@@ -1659,7 +1650,6 @@ plugins += [
     StoreMobileReadStore,
     StoreNextoStore,
     StoreOpenBooksStore,
-    StoreOReillyStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StoreRW2010Store,

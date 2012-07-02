@@ -477,6 +477,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()
+            self.scrolled(self.view.scroll_fraction)
 
     def goto(self, ref):
         if ref:
@@ -754,12 +755,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         # There hasn't been a resize event for some time
         # restore the current page position.
         self.resize_in_progress = False
-        self.view.document.after_resize()
         if self.window_mode_changed:
             # This resize is part of a window mode change, special case it
             self.handle_window_mode_toggle()
         else:
             self.view.document.page_position.restore()
+        self.view.document.after_resize()
 
     def close_progress_indicator(self):
         self.pi.stop()
