@@ -828,7 +828,15 @@ class ITUNES(DriverBase):
         if DEBUG:
             logger().info("ITUNES.get_file(): exporting '%s'" % path)
 
-        outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
+        try:
+            outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
+        except:
+            # Clean up
+            logger().info(" unable to extract books from iDevices")
+            logger().info(" deleting empty ", outfile.name)
+            outfile.close()
+            os.remove(outfile.name)
+            raise UserFeedback("Unable to extract books from iDevices", details=None, level=UserFeedback.WARN)
 
     def open(self, connected_device, library_uuid):
         '''
