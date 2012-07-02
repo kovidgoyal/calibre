@@ -314,14 +314,7 @@ class Text(Base):
         if self.col_metadata['is_multiple']:
             self.setter(val)
         else:
-            idx = None
-            for i, c in enumerate(values):
-                if c == val:
-                    idx = i
-                self.widgets[1].addItem(c)
-            self.widgets[1].setEditText('')
-            if idx is not None:
-                self.widgets[1].setCurrentIndex(idx)
+            self.widgets[1].show_initial_value(val)
 
     def setter(self, val):
         if self.col_metadata['is_multiple']:
@@ -396,16 +389,8 @@ class Series(Base):
         self.initial_index = s_index
         self.initial_val = val
         val = self.normalize_db_val(val)
-        idx = None
-        self.name_widget.clear()
-        for i, c in enumerate(values):
-            if c == val:
-                idx = i
-            self.name_widget.addItem(c)
         self.name_widget.update_items_cache(values)
-        self.name_widget.setEditText('')
-        if idx is not None:
-            self.widgets[1].setCurrentIndex(idx)
+        self.name_widget.show_initial_value(val)
 
     def getter(self):
         n = unicode(self.name_widget.currentText()).strip()
@@ -860,8 +845,6 @@ class BulkSeries(BulkBase):
         self.idx_widget.setChecked(False)
         self.main_widget.set_separator(None)
         self.main_widget.update_items_cache(self.all_values)
-        for c in self.all_values:
-            self.main_widget.addItem(c)
         self.main_widget.setEditText('')
         self.a_c_checkbox.setChecked(False)
 
@@ -1005,15 +988,8 @@ class BulkText(BulkBase):
         if not self.col_metadata['is_multiple']:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)
-            idx = None
             self.main_widget.blockSignals(True)
-            for i, c in enumerate(self.all_values):
-                if c == val:
-                    idx = i
-                self.main_widget.addItem(c)
-            self.main_widget.setEditText('')
-            if idx is not None:
-                self.main_widget.setCurrentIndex(idx)
+            self.main_widget.show_initial_value(val)
             self.main_widget.blockSignals(False)
 
     def commit(self, book_ids, notify=False):

@@ -125,8 +125,6 @@ class TextDelegate(QStyledItemDelegate): # {{{
             editor.set_separator(None)
             complete_items = [i[1] for i in self.auto_complete_function()]
             editor.update_items_cache(complete_items)
-            for item in sorted(complete_items, key=sort_key):
-                editor.addItem(item)
             ct = index.data(Qt.DisplayRole).toString()
             editor.show_initial_value(ct)
         else:
@@ -166,8 +164,6 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
                 all_items = list(self.db.all_custom(
                     label=self.db.field_metadata.key_to_label(col)))
             editor.update_items_cache(all_items)
-            for item in sorted(all_items, key=sort_key):
-                editor.addItem(item)
             ct = index.data(Qt.DisplayRole).toString()
             editor.show_initial_value(ct)
         else:

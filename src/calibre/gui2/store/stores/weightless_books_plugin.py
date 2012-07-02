@@ -41,7 +41,7 @@ class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//li[@id="product"]'):
+            for data in doc.xpath('//li[@class="product"]'):
                 if counter <= 0:
                     break
 
