@@ -1203,7 +1203,7 @@ class StoreAmazonFRKindleStore(StoreBase):
     description = u'Tous les ebooks Kindle'
     actual_plugin = 'calibre.gui2.store.stores.amazon_fr_plugin:AmazonFRKindleStore'
 
-    headquarters = 'DE'
+    headquarters = 'FR'
     formats = ['KINDLE']
     affiliate = True
 
