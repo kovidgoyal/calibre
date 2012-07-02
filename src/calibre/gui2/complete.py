@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
-        QApplication, QCompleter, pyqtSignal)
+        QApplication, QCompleter)
 
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
@@ -56,7 +56,7 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
     to complete non multiple fields as well.
     '''
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, completer_widget=None):
         QLineEdit.__init__(self, parent)
 
         self.sep = ','
@@ -66,7 +66,7 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
 
         self._model = CompleteModel(parent=self)
         self._completer = c = QCompleter(self._model, self)
-        c.setWidget(self)
+        c.setWidget(self if completer_widget is None else completer_widget)
         c.setCompletionMode(QCompleter.PopupCompletion)
         c.setCaseSensitivity(Qt.CaseInsensitive)
         c.setModelSorting(self._model.sorting)
@@ -158,21 +158,13 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
 
 class MultiCompleteComboBox(EnComboBox):
 
-    clear_edit_text = pyqtSignal()
-
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
-        self.setLineEdit(MultiCompleteLineEdit(self))
-        # Needed to allow changing the case of an existing item
-        # otherwise on focus out, the text is changed to the
-        # item that matches case insensitively
-        c = self.lineEdit().completer()
-        c.setCaseSensitivity(Qt.CaseSensitive)
-        self.dummy_model = CompleteModel(self)
-        c.setModel(self.dummy_model)
-        self.lineEdit()._completer.setWidget(self)
-        self.clear_edit_text.connect(self.clearEditText,
-                type=Qt.QueuedConnection)
+        self.le = MultiCompleteLineEdit(self, completer_widget=self)
+        self.setLineEdit(self.le)
+
+    def showPopup(self):
+        self.le._completer.complete()
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
@@ -187,18 +179,10 @@ class MultiCompleteComboBox(EnComboBox):
         self.lineEdit().set_add_separator(what)
 
     def show_initial_value(self, what):
-        '''
-        Show an initial value. Handle the case of the initial value being blank
-        correctly (on Qt 4.8.0 having a blank value causes the first value from
-        the completer to be shown, when the event loop runs).
-        '''
-        what = unicode(what)
+        what = unicode(what) if what else u''
         le = self.lineEdit()
-        if not what.strip():
-            self.clear_edit_text.emit()
-        else:
-            self.setEditText(what)
-            le.selectAll()
+        self.setEditText(what)
+        le.selectAll()
 
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
@@ -207,5 +191,8 @@ if __name__ == '__main__':
     d.setLayout(QVBoxLayout())
     le = MultiCompleteComboBox(d)
     d.layout().addWidget(le)
-    le.all_items = ['one', 'otwo', 'othree', 'ooone', 'ootwo', 'oothree']
+    items = ['one', 'otwo', 'othree', 'ooone', 'ootwo',
+        'oothree']
+    le.update_items_cache(items)
+    le.show_initial_value('')
     d.exec_()
