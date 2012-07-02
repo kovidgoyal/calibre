@@ -164,10 +164,8 @@ class MultiCompleteComboBox(EnComboBox):
         self.setLineEdit(self.le)
 
     def showPopup(self):
-        print 'here'
         c = self.le._completer
         v = unicode(c.currentCompletion())
-        print v
         c.setCompletionPrefix('')
         c.complete()
         i = 0;
