@@ -164,9 +164,19 @@ class MultiCompleteComboBox(EnComboBox):
         self.setLineEdit(self.le)
 
     def showPopup(self):
+        print 'here'
         c = self.le._completer
+        v = unicode(c.currentCompletion())
+        print v
         c.setCompletionPrefix('')
         c.complete()
+        i = 0;
+        while c.setCurrentRow(i):
+            cr = unicode(c.currentIndex().data().toString())
+            if cr.startswith(v):
+                c.popup().setCurrentIndex(c.currentIndex())
+                return
+            i += 1
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
