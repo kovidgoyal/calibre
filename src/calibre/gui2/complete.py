@@ -168,13 +168,14 @@ class MultiCompleteComboBox(EnComboBox):
         v = unicode(c.currentCompletion())
         c.setCompletionPrefix('')
         c.complete()
-        i = 0;
-        while c.setCurrentRow(i):
-            cr = unicode(c.currentIndex().data().toString())
-            if cr.startswith(v):
-                c.popup().setCurrentIndex(c.currentIndex())
-                return
-            i += 1
+        if c.model().rowCount() < tweaks['completion_change_to_ascii_sorting']:
+            i = 0;
+            while c.setCurrentRow(i):
+                cr = unicode(c.currentIndex().data().toString())
+                if cr.startswith(v):
+                    c.popup().setCurrentIndex(c.currentIndex())
+                    break
+                i += 1
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
