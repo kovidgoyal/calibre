@@ -64,11 +64,11 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     continue
                 id = mo.group()
 
-                cover_url = ''.join(data.xpath('.//div[@class="img"]//img/@src'))
+                cover_url = ''.join(data.xpath('.//div[contains(@class, "img")]//img/@src'))
 
                 title = ''.join(data.xpath(
                     'descendant::span[@class="book-title"]/a/text()')).strip()
-                author = ''.join(data.xpath(
+                author = ', '.join(data.xpath(
                     'descendant::span[@class="author"]/a/text()')).strip()
                 if not title or not author:
                     continue
