@@ -115,7 +115,6 @@ class ANDROID(USBMS):
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],
                     0xe115 : [0x0216], # PocketBook A10
-                    0xe107 : [0x326], # PocketBook 622
             },
 
             # Acer
