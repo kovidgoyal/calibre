@@ -2,19 +2,19 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'FHM UK'
-    description = 'Good News for Men'
+    description = 'Good News for Men.'
     cover_url = 'http://www.greatmagazines.co.uk/covers/large/w197/current/fhm.jpg'
     #   cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/373529_38324934806_64930243_n.jpg'
     masthead_url = 'http://www.fhm.com/App_Resources/Images/Site/re-design/logo.gif'
     __author__ = 'Dave Asbury'
-    # last updated 14/4/12
+    # last updated 1/7/12
     language = 'en_GB'
     oldest_article = 28
-    max_articles_per_feed = 12
+    max_articles_per_feed = 8
     remove_empty_feeds = True
     no_stylesheets = True
     #auto_cleanup = True
-    #articles_are_obfuscated = True
+   # articles_are_obfuscated = True
     keep_only_tags = [
                dict(name='h1'),
                dict(name='img',attrs={'id' : 'ctl00_Body_imgMainImage'}),
@@ -28,11 +28,18 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     #]
     feeds          = [
-    (u'From the Homepage',u'http://feed43.com/0032328550253453.xml'),
-                           #http://feed43.com/8053226782885416.xml'),
-    (u'Funny - The Very Best Of The Internet',u'http://feed43.com/4538510106331565.xml'),
-                           (u'Upgrade',u'http://feed43.com/0877305847443234.xml'),
-    #(u'The Final Countdown', u'http://feed43.com/3576106158530118.xml'),
-    #(u'Gaming',u'http://feed43.com/0755006465351035.xml'),
-            (u'Gaming',u'http://feed43.com/6537162612465672.xml'),
+        (u'Homepage 1',u'http://feed43.com/6655867614547036.xml'),
+        (u'Homepage 2',u'http://feed43.com/4167731873103110.xml'),
+        (u'Homepage 3',u'http://feed43.com/7667138788771570.xml'),
+        (u'Homepage 4',u'http://feed43.com/6550421522527341.xml'),
+        (u'Funny - The Very Best Of The Internet',u'http://feed43.com/4538510106331565.xml'),
+        (u'Gaming',u'http://feed43.com/6537162612465672.xml'),
+        (u'Girls',u'http://feed43.com/3674777224513254.xml'),
                            ]
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''
