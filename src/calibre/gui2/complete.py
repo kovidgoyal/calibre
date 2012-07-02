@@ -168,10 +168,6 @@ class MultiCompleteComboBox(EnComboBox):
         c.setCompletionPrefix('')
         c.complete()
 
-    def hidePopup(self):
-        self.le.update_completions()
-        EnComboBox.hidePopup(self)
-
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
 
