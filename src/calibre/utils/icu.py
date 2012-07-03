@@ -104,6 +104,20 @@ def icu_contractions(collator):
         _cmap[collator] = ans
     return ans
 
+def py_span_contractions(*args, **kwargs):
+    return 0
+
+def icu_span_contractions(src, span_type=None, collator=None):
+    global _collator
+    if collator is None:
+        collator = _collator
+    if span_type is None:
+        span_type = _icu.USET_SPAN_SIMPLE
+    try:
+        return collator.span_contractions(src, span_type)
+    except TypeError:
+        return collator.span_contractions(unicode(src), span_type)
+
 load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
@@ -143,6 +157,9 @@ find = (py_find if _icu_not_ok else partial(icu_find, _collator))
 
 contractions = ((lambda : {}) if _icu_not_ok else (partial(icu_contractions,
     _collator)))
+
+span_contractions = (py_span_contractions if _icu_not_ok else
+        icu_span_contractions)
 
 ################################################################################
 
