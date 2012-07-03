@@ -12,7 +12,8 @@ from functools import partial
 from itertools import izip
 
 from PyQt4.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
-        QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
+        QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor,
+        QDrag)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -101,6 +102,7 @@ class TagsView(QTreeView): # {{{
         self.setDragEnabled(True)
         self.setDragDropMode(self.DragDrop)
         self.setDropIndicatorShown(True)
+        self.in_drag_drop = False
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
         self.search_icon = QIcon(I('search.png'))
@@ -232,10 +234,35 @@ class TagsView(QTreeView): # {{{
         s = s if s else None
         self._model.set_search_restriction(s)
 
+    def mouseMoveEvent(self, event):
+        dex = self.indexAt(event.pos())
+        if self.in_drag_drop or not dex.isValid():
+            QTreeView.mouseMoveEvent(self, event)
+            return
+        # Must deal with odd case where the node being dragged is 'virtual',
+        # created to form a hierarchy. We can't really drag this node, but in
+        # addition we can't allow drag recognition to notice going over some
+        # other node and grabbing that one. So we set in_drag_drop to prevent
+        # this from happening, turning it off when the user lifts the button.
+        self.in_drag_drop = True
+        if not self._model.flags(dex) & Qt.ItemIsDragEnabled:
+            QTreeView.mouseMoveEvent(self, event)
+            return
+        md = self._model.mimeData([dex])
+        pixmap = dex.data(Qt.DecorationRole).toPyObject().pixmap(25, 25)
+        drag = QDrag(self)
+        drag.setPixmap(pixmap)
+        drag.setMimeData(md)
+        if self._model.is_in_user_category(dex):
+            drag.exec_(Qt.CopyAction|Qt.MoveAction, Qt.CopyAction)
+        else:
+            drag.exec_(Qt.CopyAction)
+
     def mouseReleaseEvent(self, event):
         # Swallow everything except leftButton so context menus work correctly
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton or self.in_drag_drop:
             QTreeView.mouseReleaseEvent(self, event)
+            self.in_drag_drop = False
 
     def mouseDoubleClickEvent(self, event):
         # swallow these to avoid toggling and editing at the same time
@@ -639,12 +666,19 @@ class TagsView(QTreeView): # {{{
             self.show_item_at_index(self._model.index_for_path(path), box=box,
                                     position=position)
 
+    def expand_parent(self, idx, depth=0):
+        p = self._model.parent(idx)
+        d = 0
+        if p.isValid():
+            d = self.expand_parent(p, depth+1)
+        if d == 0:
+            self.expand(idx)
+        return d+1
+
     def show_item_at_index(self, idx, box=False,
                            position=QTreeView.PositionAtCenter):
         if idx.isValid() and idx.data(Qt.UserRole).toPyObject() is not self._model.root_item:
-            self.expand(self._model.parent(idx)) # Needed otherwise Qt sometimes segfaults if the
-                                                 # node is buried in a collapsed, off
-                                                 # screen hierarchy
+            self.expand_parent(idx)
             self.setCurrentIndex(idx)
             self.scrollTo(idx, position)
             if box:
