@@ -100,7 +100,7 @@ def icu_contractions(collator):
     ans = _cmap.get(collator, None)
     if ans is None:
         ans = collator.contractions()
-        ans = frozenset(ans) if ans else {}
+        ans = frozenset(filter(None, ans)) if ans else {}
         _cmap[collator] = ans
     return ans
 
