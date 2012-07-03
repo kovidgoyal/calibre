@@ -782,7 +782,7 @@ Author '{0}':
         if len(titles):
             self.booksByTitle = sorted(titles,
                                     key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
-            if True and self.verbose:
+            if False and self.verbose:
                 self.opts.log.info("fetchBooksByTitle(): %d books" % len(self.booksByTitle))
                 self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
                 for title in self.booksByTitle:
