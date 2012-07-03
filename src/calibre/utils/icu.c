@@ -5,6 +5,7 @@
 #include <unicode/uclean.h>
 #include <unicode/ucol.h>
 #include <unicode/ustring.h>
+#include <unicode/usearch.h>
 
 
 // Collator object definition {{{
@@ -63,7 +64,7 @@ icu_Collator_display_name(icu_Collator *self, void *closure) {
 
     u_strToUTF8(buf, 100, NULL, dname, -1, &status);
     if (U_FAILURE(status)) {
-        PyErr_SetString(PyExc_Exception, "Failed ot convert dname to UTF-8"); return NULL;
+        PyErr_SetString(PyExc_Exception, "Failed to convert dname to UTF-8"); return NULL;
     }
     return Py_BuildValue("s", buf);
 }
@@ -164,7 +165,91 @@ icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     return Py_BuildValue("i", res);
 } // }}}
 
+// Collator.find {{{
+static PyObject *
+icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_, *b_;
+    size_t asz, bsz;
+    UChar *a, *b;
+    wchar_t *aw, *bw;
+    UErrorCode status = U_ZERO_ERROR;
+    UStringSearch *search = NULL;
+    int32_t pos = -1, length = -1;
+  
+    if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
+    asz = PyUnicode_GetSize(a_); bsz = PyUnicode_GetSize(b_);
+    
+    a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
+    b = (UChar*)calloc(bsz*4 + 2, sizeof(UChar));
+    aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
+    bw = (wchar_t*)calloc(bsz*4 + 2, sizeof(wchar_t));
 
+    if (a == NULL || b == NULL || aw == NULL || bw == NULL) return PyErr_NoMemory();
+
+    PyUnicode_AsWideChar((PyUnicodeObject*)a_, aw, asz*4+1);
+    PyUnicode_AsWideChar((PyUnicodeObject*)b_, bw, bsz*4+1);
+    u_strFromWCS(a, asz*4 + 1, NULL, aw, -1, &status);
+    u_strFromWCS(b, bsz*4 + 1, NULL, bw, -1, &status);
+
+    if (U_SUCCESS(status)) {
+        search = usearch_openFromCollator(a, -1, b, -1, self->collator, NULL, &status);
+        if (U_SUCCESS(status)) {
+            pos = usearch_first(search, &status);
+            if (pos != USEARCH_DONE) 
+                length = (pos == USEARCH_DONE) ? -1 : usearch_getMatchedLength(search);
+            else
+                pos = -1;
+        }
+        if (search != NULL) usearch_close(search);
+    }
+
+    free(a); free(b); free(aw); free(bw);
+
+    return Py_BuildValue("ii", pos, length);
+} // }}}
+
+// Collator.contractions {{{
+static PyObject *
+icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    USet *contractions;
+    UErrorCode status = U_ZERO_ERROR;
+    UChar *str;
+    UChar32 start=0, end=0;
+    int32_t count = 0, len = 0, dlen = 0, i;
+    PyObject *ans = Py_None, *pbuf;
+    wchar_t *buf;
+
+    str = (UChar*)calloc(100, sizeof(UChar));
+    buf = (wchar_t*)calloc(4*100+2, sizeof(wchar_t));
+    if (str == NULL || buf == NULL) return PyErr_NoMemory();
+
+    contractions = uset_open(1, 0);
+    ucol_getContractionsAndExpansions(self->collator, contractions, NULL, 0, &status);
+    if (U_SUCCESS(status)) {
+        count = uset_getItemCount(contractions);
+        ans = PyTuple_New(count);
+        if (ans != NULL) {
+            for (i = 0; i < count; i++) {
+                len = uset_getItem(contractions, i, &start, &end, str, 1000, &status);
+                if (len >= 2) {
+                    // We have a string
+                    status = U_ZERO_ERROR;
+                    u_strToWCS(buf, 4*100 + 1, &dlen, str, len, &status);
+                    pbuf = PyUnicode_FromWideChar(buf, dlen);
+                    if (pbuf == NULL) return PyErr_NoMemory();
+                    PyTuple_SetItem(ans, i, pbuf);
+                } else {
+                    // Ranges dont make sense for contractions, ignore them
+                    PyTuple_SetItem(ans, i, Py_None);
+                }
+            }
+        }
+    }
+    uset_close(contractions);
+    free(str); free(buf);
+  
+    return Py_BuildValue("O", ans);
+} // }}}
 
 static PyMethodDef icu_Collator_methods[] = {
     {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_VARARGS,
@@ -175,6 +260,13 @@ static PyMethodDef icu_Collator_methods[] = {
      "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
     },
 
+    {"find", (PyCFunction)icu_Collator_find, METH_VARARGS,
+        "find(pattern, source) -> returns the position and length of the first occurrence of pattern in source. Returns (-1, -1) if not found."
+    },
+
+    {"contractions", (PyCFunction)icu_Collator_contractions, METH_VARARGS,
+        "contractions() -> returns the contractions defined for this collator."
+    },
     {NULL}  /* Sentinel */
 };
 

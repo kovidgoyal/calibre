@@ -59,6 +59,18 @@ def icu_sort_key(collator, obj):
         return _none2
     return collator.sort_key(lower(obj))
 
+def py_find(pattern, source):
+    pos = source.find(pattern)
+    if pos > -1:
+        return pos, len(pattern)
+    return -1, -1
+
+def icu_find(collator, pattern, source):
+    try:
+        return collator.find(pattern, source)
+    except TypeError:
+        return collator.find(unicode(pattern), unicode(source))
+
 def py_case_sensitive_sort_key(obj):
     if not obj:
         return _none
@@ -81,6 +93,16 @@ def icu_case_sensitive_strcmp(collator, a, b):
 def icu_capitalize(s):
     s = lower(s)
     return s.replace(s[0], upper(s[0]), 1) if s else s
+
+_cmap = {}
+def icu_contractions(collator):
+    global _cmap
+    ans = _cmap.get(collator, None)
+    if ans is None:
+        ans = collator.contractions()
+        ans = frozenset(ans) if ans else {}
+        _cmap[collator] = ans
+    return ans
 
 load_icu()
 load_collator()
@@ -116,6 +138,11 @@ title_case = (lambda s: s.title()) if _icu_not_ok else \
 
 capitalize = (lambda s: s.capitalize()) if _icu_not_ok else \
     (lambda s: icu_capitalize(s))
+
+find = (py_find if _icu_not_ok else partial(icu_find, _collator))
+
+contractions = ((lambda : {}) if _icu_not_ok else (partial(icu_contractions,
+    _collator)))
 
 ################################################################################
 
