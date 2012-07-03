@@ -32,8 +32,6 @@ class LanguagesEdit(MultiCompleteComboBox):
         all_items = sorted(self._lang_map.itervalues(),
             key=lambda x: (-pmap.get(x, 0), sort_key(x)))
         self.update_items_cache(all_items)
-        for item in all_items:
-            self.addItem(item)
 
     @property
     def vals(self):

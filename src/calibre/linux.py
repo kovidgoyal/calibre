@@ -354,8 +354,8 @@ class PostInstall:
                 check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
                 self.icon_resources.append(('mimetypes', 'application-lrs',
                 '128'))
-                render_img('lt.png', 'calibre-gui.png')
-                check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
+                render_img('lt.png', 'calibre-gui.png', width=256, height=256)
+                check_call('xdg-icon-resource install --noupdate --size 256 calibre-gui.png calibre-gui', shell=True)
                 self.icon_resources.append(('apps', 'calibre-gui', '128'))
                 render_img('viewer.png', 'calibre-viewer.png')
                 check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
