@@ -13,6 +13,7 @@ typedef struct {
     PyObject_HEAD
     // Type-specific fields go here.
     UCollator *collator;
+    USet *contractions;
 
 } icu_Collator;
 
@@ -20,6 +21,7 @@ static void
 icu_Collator_dealloc(icu_Collator* self)
 {
     if (self->collator != NULL) ucol_close(self->collator);
+    if (self->contractions != NULL) uset_close(self->contractions);
     self->collator = NULL;
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -42,6 +44,7 @@ icu_Collator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             Py_DECREF(self);
             return NULL;
         }
+        self->contractions = NULL;
     }
 
     return (PyObject *)self;
@@ -211,7 +214,6 @@ icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
 // Collator.contractions {{{
 static PyObject *
 icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) {
-    USet *contractions;
     UErrorCode status = U_ZERO_ERROR;
     UChar *str;
     UChar32 start=0, end=0;
@@ -219,33 +221,35 @@ icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) 
     PyObject *ans = Py_None, *pbuf;
     wchar_t *buf;
 
+    if (self->contractions == NULL) {
+        self->contractions = uset_open(1, 0);
+        if (self->contractions == NULL) return PyErr_NoMemory();
+        ucol_getContractionsAndExpansions(self->collator, self->contractions, NULL, 0, &status);
+    }
+    status = U_ZERO_ERROR; 
+
     str = (UChar*)calloc(100, sizeof(UChar));
     buf = (wchar_t*)calloc(4*100+2, sizeof(wchar_t));
     if (str == NULL || buf == NULL) return PyErr_NoMemory();
 
-    contractions = uset_open(1, 0);
-    ucol_getContractionsAndExpansions(self->collator, contractions, NULL, 0, &status);
-    if (U_SUCCESS(status)) {
-        count = uset_getItemCount(contractions);
-        ans = PyTuple_New(count);
-        if (ans != NULL) {
-            for (i = 0; i < count; i++) {
-                len = uset_getItem(contractions, i, &start, &end, str, 1000, &status);
-                if (len >= 2) {
-                    // We have a string
-                    status = U_ZERO_ERROR;
-                    u_strToWCS(buf, 4*100 + 1, &dlen, str, len, &status);
-                    pbuf = PyUnicode_FromWideChar(buf, dlen);
-                    if (pbuf == NULL) return PyErr_NoMemory();
-                    PyTuple_SetItem(ans, i, pbuf);
-                } else {
-                    // Ranges dont make sense for contractions, ignore them
-                    PyTuple_SetItem(ans, i, Py_None);
-                }
+    count = uset_getItemCount(self->contractions);
+    ans = PyTuple_New(count);
+    if (ans != NULL) {
+        for (i = 0; i < count; i++) {
+            len = uset_getItem(self->contractions, i, &start, &end, str, 1000, &status);
+            if (len >= 2) {
+                // We have a string
+                status = U_ZERO_ERROR;
+                u_strToWCS(buf, 4*100 + 1, &dlen, str, len, &status);
+                pbuf = PyUnicode_FromWideChar(buf, dlen);
+                if (pbuf == NULL) return PyErr_NoMemory();
+                PyTuple_SetItem(ans, i, pbuf);
+            } else {
+                // Ranges dont make sense for contractions, ignore them
+                PyTuple_SetItem(ans, i, Py_None);
             }
         }
     }
-    uset_close(contractions);
     free(str); free(buf);
   
     return Py_BuildValue("O", ans);
