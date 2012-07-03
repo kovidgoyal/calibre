@@ -106,6 +106,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         navigation,
         HR(CLASS('spacer')),
         bookt,
+        HR(CLASS('spacer')),
         navigation2
     )
 
@@ -157,7 +158,6 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         bookt.append(TR(thumbnail, data))
     # }}}
 
-    body.append(HR())
     body.append(DIV(
         A(_('Switch to the full interface (non-mobile interface)'),
             href=prefix+"/browse",
