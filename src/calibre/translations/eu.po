@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-06-29 06:42+0000\n"
-"PO-Revision-Date: 2012-03-21 19:30+0000\n"
-"Last-Translator: Mikel Iturbe Urretxa <Unknown>\n"
+"PO-Revision-Date: 2012-07-02 20:33+0000\n"
+"Last-Translator: Asier Iturralde Sarasola <Unknown>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-30 04:50+0000\n"
-"X-Generator: Launchpad (build 15520)\n"
+"X-Launchpad-Export-Date: 2012-07-03 05:35+0000\n"
+"X-Generator: Launchpad (build 15531)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5707,7 +5707,7 @@ msgstr "Remove all formats from selected books, except..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:102
 msgid "Remove all formats from selected books"
-msgstr "Aukeratutako luburuetan formatu guztiak ezabatu"
+msgstr "Ezabatu formatu guztiak hautatutako liburuetan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:105
 msgid "Remove covers from selected books"
