@@ -14,6 +14,7 @@ from calibre.ebooks.chardet import substitute_entites
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, is_date_undefined, now as nowf
+from calibre.utils.filenames import ascii_text
 from calibre.utils.icu import capitalize
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile
@@ -689,7 +690,7 @@ Author '{0}':
                 this_title['series'] = None
                 this_title['series_index'] = 0.0
 
-            this_title['title_sort'] = self.generateSortTitle(this_title['title'])
+            this_title['title_sort'] = self.generateSortTitle(ascii_text(this_title['title']))
             if 'authors' in record:
                 # from calibre.ebooks.metadata import authors_to_string
                 # return authors_to_string(self.authors)
@@ -704,6 +705,7 @@ Author '{0}':
                 this_title['author_sort'] = record['author_sort']
             else:
                 this_title['author_sort'] = self.author_to_author_sort(this_title['author'])
+            this_title['author_sort'] = ascii_text(this_title['author_sort'])
 
             if record['publisher']:
                 this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
@@ -3768,7 +3770,7 @@ Author '{0}':
                     else:
                         word = '%10.0f' % (float(word))
                 translated.append(word)
-        return ' '.join(translated)
+        return ascii_text(' '.join(translated))
 
     def generateThumbnail(self, title, image_dir, thumb_file):
         '''
