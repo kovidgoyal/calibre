@@ -97,6 +97,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
 
     search_box = build_search_box(num, search, sort, order, prefix)
     navigation = build_navigation(start, num, total, prefix+url_base)
+    navigation2 = build_navigation(start, num, total, prefix+url_base)
     bookt = TABLE(id='listing')
 
     body = BODY(
@@ -104,7 +105,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         search_box,
         navigation,
         HR(CLASS('spacer')),
-        bookt
+        bookt,
+        navigation2
     )
 
     # Book list {{{
