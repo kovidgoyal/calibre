@@ -12,7 +12,7 @@ from functools import partial
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
 
-_icu = _collator = None
+_icu = _collator = _primary_collator = None
 _locale = None
 
 _none = u''
@@ -48,6 +48,12 @@ def load_collator():
             _collator = icu.Collator(get_locale())
     return _collator
 
+def primary_collator():
+    global _primary_collator
+    if _primary_collator is None:
+        _primary_collator = _collator.clone()
+        _primary_collator.strength = _icu.UCOL_PRIMARY
+    return _primary_collator
 
 def py_sort_key(obj):
     if not obj:
@@ -58,6 +64,18 @@ def icu_sort_key(collator, obj):
     if not obj:
         return _none2
     return collator.sort_key(lower(obj))
+
+def py_find(pattern, source):
+    pos = source.find(pattern)
+    if pos > -1:
+        return pos, len(pattern)
+    return -1, -1
+
+def icu_find(collator, pattern, source):
+    try:
+        return collator.find(pattern, source)
+    except TypeError:
+        return collator.find(unicode(pattern), unicode(source))
 
 def py_case_sensitive_sort_key(obj):
     if not obj:
@@ -72,7 +90,7 @@ def icu_case_sensitive_sort_key(collator, obj):
 def icu_strcmp(collator, a, b):
     return collator.strcmp(lower(a), lower(b))
 
-def py_strcmp(a, b):
+def py_strcmp(a, b, strength=None):
     return cmp(a.lower(), b.lower())
 
 def icu_case_sensitive_strcmp(collator, a, b):
@@ -81,6 +99,30 @@ def icu_case_sensitive_strcmp(collator, a, b):
 def icu_capitalize(s):
     s = lower(s)
     return s.replace(s[0], upper(s[0]), 1) if s else s
+
+_cmap = {}
+def icu_contractions(collator):
+    global _cmap
+    ans = _cmap.get(collator, None)
+    if ans is None:
+        ans = collator.contractions()
+        ans = frozenset(filter(None, ans)) if ans else {}
+        _cmap[collator] = ans
+    return ans
+
+def py_span_contractions(*args, **kwargs):
+    return 0
+
+def icu_span_contractions(src, span_type=None, collator=None):
+    global _collator
+    if collator is None:
+        collator = _collator
+    if span_type is None:
+        span_type = _icu.USET_SPAN_SIMPLE
+    try:
+        return collator.span_contractions(src, span_type)
+    except TypeError:
+        return collator.span_contractions(unicode(src), span_type)
 
 load_icu()
 load_collator()
@@ -116,6 +158,28 @@ title_case = (lambda s: s.title()) if _icu_not_ok else \
 
 capitalize = (lambda s: s.capitalize()) if _icu_not_ok else \
     (lambda s: icu_capitalize(s))
+
+find = (py_find if _icu_not_ok else partial(icu_find, _collator))
+
+contractions = ((lambda : {}) if _icu_not_ok else (partial(icu_contractions,
+    _collator)))
+
+span_contractions = (py_span_contractions if _icu_not_ok else
+        icu_span_contractions)
+
+def primary_strcmp(a, b):
+    'strcmp that ignores case and accents on letters'
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return py_strcmp(ascii_text(a), ascii_text(b))
+    return primary_collator().strcmp(a, b)
+
+def primary_find(pat, src):
+    'find that ignores case and accents on letters'
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return py_find(ascii_text(pat), ascii_text(src))
+    return icu_find(primary_collator(), pat, src)
 
 ################################################################################
 
@@ -239,6 +303,18 @@ pêché'''
         print 'Title:     ', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8'), 'titlecase:', titlecase(x).encode('utf-8')
         print 'Capitalize:', x, '->', 'py:', x.capitalize().encode('utf-8'), 'icu:', capitalize(x).encode('utf-8')
         print
+
+    print '\nTesting primary collation'
+    for k, v in {u'pèché': u'peche', u'flüße':u'flusse'}.iteritems():
+        if primary_strcmp(k, v) != 0:
+            print 'primary_strcmp() failed with %s != %s'%(k, v)
+        if primary_find(v, u' '+k)[0] != 1:
+            print 'primary_find() failed with %s not in %s'%(v, k)
+
+    global _primary_collator
+    _primary_collator = _icu.Collator('es')
+    if primary_strcmp(u'peña', u'pena') == 0:
+        print 'Primary collation in Spanish locale failed'
 
 # }}}
 

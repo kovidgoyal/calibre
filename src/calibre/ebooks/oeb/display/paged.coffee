@@ -6,48 +6,9 @@
  Released under the GPLv3 License
 ###
 
-log = (args...) -> # {{{
-    if args
-        msg = args.join(' ')
-        if window?.console?.log
-            window.console.log(msg)
-        else if process?.stdout?.write
-            process.stdout.write(msg + '\n')
-# }}}
-
-window_scroll_pos = (win=window) -> # {{{
-    if typeof(win.pageXOffset) == 'number'
-        x = win.pageXOffset
-        y = win.pageYOffset
-    else # IE < 9
-        if document.body and ( document.body.scrollLeft or document.body.scrollTop )
-            x = document.body.scrollLeft
-            y = document.body.scrollTop
-        else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
-            y = document.documentElement.scrollTop
-            x = document.documentElement.scrollLeft
-    return [x, y]
-# }}}
-
-viewport_to_document = (x, y, doc=window?.document) -> # {{{
-    until doc == window.document
-        # We are in a frame
-        frame = doc.defaultView.frameElement
-        rect = frame.getBoundingClientRect()
-        x += rect.left
-        y += rect.top
-        doc = frame.ownerDocument
-    win = doc.defaultView
-    [wx, wy] = window_scroll_pos(win)
-    x += wx
-    y += wy
-    return [x, y]
-# }}}
-
-absleft = (elem) -> # {{{
-    r = elem.getBoundingClientRect()
-    return viewport_to_document(r.left, 0, elem.ownerDocument)[0]
-# }}}
+log = window.calibre_utils.log
+viewport_to_document = window.calibre_utils.viewport_to_document
+absleft = window.calibre_utils.absleft
 
 class PagedDisplay
     # This class is a namespace to expose functions via the
@@ -75,6 +36,7 @@ class PagedDisplay
         this.cols_per_screen = cols_per_screen
 
     layout: () ->
+        # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
         # When laying body out in columns, webkit bleeds the top margin of the
         # first block element out above the columns, leading to an extra top
@@ -160,7 +122,11 @@ class PagedDisplay
 
         this.in_paged_mode = true
         this.current_margin_side = sm
+        # log('Time to layout:', new Date().getTime() - start_time)
         return sm
+
+    fit_images: () ->
+        null
 
     scroll_to_pos: (frac) ->
         # Scroll to the position represented by frac (number between 0 and 1)

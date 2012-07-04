@@ -136,7 +136,7 @@ class Document(QWebPage): # {{{
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
 
     def fit_images(self):
-        if self.do_fit_images:
+        if self.do_fit_images and not self.in_paged_mode:
             self.javascript('setup_image_scaling_handlers()')
 
     def add_window_objects(self):
@@ -219,6 +219,7 @@ class Document(QWebPage): # {{{
         if scroll_width > self.window_width:
             sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
+        self.javascript('window.paged_display.fit_images()')
 
     @property
     def column_boundaries(self):

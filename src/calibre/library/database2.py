@@ -808,18 +808,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
-            commit=True):
+            commit=True, callback=None):
         '''
-        Write metadata for each record to an individual OPF file
+        Write metadata for each record to an individual OPF file. If callback
+        is not None, it is called once at the start with the number of book_ids
+        being processed. And once for every book_id, with arguments (book_id,
+        mi, ok).
         '''
         if book_ids is None:
             book_ids = [x[0] for x in self.conn.get(
                 'SELECT book FROM metadata_dirtied', all=True)]
+
+        if callback is not None:
+            book_ids = tuple(book_ids)
+            callback(len(book_ids), True, False)
+
         for book_id in book_ids:
             if not self.data.has_id(book_id):
+                if callback is not None:
+                    callback(book_id, None, False)
                 continue
             path, mi, sequence = self.get_metadata_for_dump(book_id)
             if path is None:
+                if callback is not None:
+                    callback(book_id, mi, False)
                 continue
             try:
                 raw = metadata_to_opf(mi)
@@ -829,6 +841,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     self.clear_dirtied(book_id, sequence)
             except:
                 pass
+            if callback is not None:
+                callback(book_id, mi, True)
         if commit:
             self.conn.commit()
 
@@ -1411,7 +1425,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         opath = self.format_abspath(book_id, nfmt, index_is_id=True)
         return fmt if opath is None else nfmt
 
-    def delete_book(self, id, notify=True, commit=True, permanent=False):
+    def delete_book(self, id, notify=True, commit=True, permanent=False,
+            do_clean=True):
         '''
         Removes book from the result cache and the underlying database.
         If you set commit to False, you must call clean() manually afterwards
@@ -1428,7 +1443,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         if commit:
             self.conn.commit()
-            self.clean()
+            if do_clean:
+                self.clean()
         self.data.books_deleted([id])
         if notify:
             self.notify('delete', [id])
