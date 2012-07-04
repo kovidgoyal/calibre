@@ -13,6 +13,32 @@ class CalibreUtils
     constructor: () ->
         if not this instanceof arguments.callee
             throw new Error('CalibreUtils constructor called as function')
+        this.dom_attr = 'calibre_f3fa75ca98eb4413a4ee413f20f60226'
+        this.dom_data = []
+
+    # Data API {{{
+
+    retrieve: (node, key, def=null) ->
+        # Retrieve data previously stored on node (a DOM node) with key (a
+        # string). If no such data is found then return the value of def.
+        idx = parseInt(node.getAttribute(this.dom_attr))
+        if isNaN(idx)
+            return def
+        data = this.dom_data[idx]
+        if not data.hasOwnProperty(key)
+            return def
+        return data[key]
+
+    store: (node, key, val) ->
+        # Store arbitrary javscript object val on DOM node node with key (a
+        # string). This can be later retrieved by the retrieve method.
+        idx = parseInt(node.getAttribute(this.dom_attr))
+        if isNaN(idx)
+            idx = this.dom_data.length
+            node.setAttribute(this.dom_attr, idx+'')
+            this.dom_data.push({})
+        this.dom_data[idx][key] = val
+    # }}}
 
     log: (args...) -> # {{{
         # Output args to the window.console object. args are automatically
