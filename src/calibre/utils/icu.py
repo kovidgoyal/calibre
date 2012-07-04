@@ -65,11 +65,18 @@ def py_find(pattern, source):
         return pos, len(pattern)
     return -1, -1
 
-def icu_find(collator, pattern, source):
+def icu_find(collator, pattern, source, strength=None):
+    if strength is not None:
+        ostrength = collator.strength
+        collator.strength = strength
     try:
-        return collator.find(pattern, source)
-    except TypeError:
-        return collator.find(unicode(pattern), unicode(source))
+        try:
+            return collator.find(pattern, source)
+        except TypeError:
+            return collator.find(unicode(pattern), unicode(source))
+    finally:
+        if strength is not None:
+            collator.strength = ostrength
 
 def py_case_sensitive_sort_key(obj):
     if not obj:
@@ -81,10 +88,20 @@ def icu_case_sensitive_sort_key(collator, obj):
         return _none2
     return collator.sort_key(obj)
 
-def icu_strcmp(collator, a, b):
-    return collator.strcmp(lower(a), lower(b))
+def icu_strcmp(collator, a, b, strength=None):
+    if strength is not None:
+        ostrength = collator.strength
+        collator.strength = strength
+    try:
+        s = collator.strength
+        if s >= _icu.UCOL_TERTIARY:
+            a, b = lower(a), lower(b)
+        return collator.strcmp(a, b)
+    finally:
+        if strength is not None:
+            collator.strength = ostrength
 
-def py_strcmp(a, b):
+def py_strcmp(a, b, strength=None):
     return cmp(a.lower(), b.lower())
 
 def icu_case_sensitive_strcmp(collator, a, b):
@@ -160,6 +177,20 @@ contractions = ((lambda : {}) if _icu_not_ok else (partial(icu_contractions,
 
 span_contractions = (py_span_contractions if _icu_not_ok else
         icu_span_contractions)
+
+def primary_strcmp(a, b):
+    'strcmp that ignores case and accents on letters'
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return py_strcmp(ascii_text(a), ascii_text(b))
+    return icu_strcmp(_collator, a, b, _icu.UCOL_PRIMARY)
+
+def primary_find(pat, src):
+    'find that ignores case and accents on letters'
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return py_find(ascii_text(pat), ascii_text(src))
+    return icu_find(_collator, pat, src, _icu.UCOL_PRIMARY)
 
 ################################################################################
 

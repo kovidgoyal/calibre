@@ -74,6 +74,23 @@ icu_Collator_display_name(icu_Collator *self, void *closure) {
 
 // }}}
 
+// Collator.strength {{{
+static PyObject *
+icu_Collator_get_strength(icu_Collator *self, void *closure) {
+    return Py_BuildValue("i", ucol_getStrength(self->collator));
+}
+
+static int
+icu_Collator_set_strength(icu_Collator *self, PyObject *val, void *closure) {
+    if (!PyInt_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "Strength must be an integer.");
+        return -1;
+    }
+    ucol_setStrength(self->collator, (int)PyInt_AS_LONG(val));
+    return 0;
+}
+// }}}
+
 // Collator.actual_locale {{{
 static PyObject *
 icu_Collator_actual_locale(icu_Collator *self, void *closure) {
@@ -320,6 +337,12 @@ static PyGetSetDef  icu_Collator_getsetters[] = {
      (char *)"Display name of this collator in English. The name reflects the actual data source used.",
      NULL},
 
+    {(char *)"strength",
+     (getter)icu_Collator_get_strength, (setter)icu_Collator_set_strength,
+     (char *)"The strength of this collator.",
+     NULL},
+
+
     {NULL}  /* Sentinel */
 };
 
@@ -542,6 +565,7 @@ static PyMethodDef icu_methods[] = {
     {NULL}  /* Sentinel */
 };
 
+#define ADDUCONST(x) PyModule_AddIntConstant(m, #x, x)
 
 PyMODINIT_FUNC
 initicu(void) 
@@ -562,9 +586,23 @@ initicu(void)
     PyModule_AddObject(m, "Collator", (PyObject *)&icu_CollatorType);
     // uint8_t must be the same size as char
     PyModule_AddIntConstant(m, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
-    PyModule_AddIntConstant(m, "USET_SPAN_NOT_CONTAINED", USET_SPAN_NOT_CONTAINED);
-    PyModule_AddIntConstant(m, "USET_SPAN_CONTAINED", USET_SPAN_CONTAINED);
-    PyModule_AddIntConstant(m, "USET_SPAN_SIMPLE", USET_SPAN_SIMPLE);
+
+    ADDUCONST(USET_SPAN_NOT_CONTAINED);
+    ADDUCONST(USET_SPAN_CONTAINED);
+    ADDUCONST(USET_SPAN_SIMPLE);
+    ADDUCONST(UCOL_DEFAULT);
+    ADDUCONST(UCOL_PRIMARY);
+    ADDUCONST(UCOL_SECONDARY);
+    ADDUCONST(UCOL_TERTIARY);
+    ADDUCONST(UCOL_DEFAULT_STRENGTH);
+    ADDUCONST(UCOL_QUATERNARY);
+    ADDUCONST(UCOL_IDENTICAL);
+    ADDUCONST(UCOL_OFF);
+    ADDUCONST(UCOL_ON);
+    ADDUCONST(UCOL_SHIFTED);
+    ADDUCONST(UCOL_NON_IGNORABLE);
+    ADDUCONST(UCOL_LOWER_FIRST);
+    ADDUCONST(UCOL_UPPER_FIRST);
 
 }
 // }}}
