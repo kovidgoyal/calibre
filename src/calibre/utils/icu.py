@@ -12,7 +12,7 @@ from functools import partial
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
 
-_icu = _collator = None
+_icu = _collator = _primary_collator = None
 _locale = None
 
 _none = u''
@@ -48,6 +48,12 @@ def load_collator():
             _collator = icu.Collator(get_locale())
     return _collator
 
+def primary_collator():
+    global _primary_collator
+    if _primary_collator is None:
+        _primary_collator = _collator.clone()
+        _primary_collator.strength = _icu.UCOL_PRIMARY
+    return _primary_collator
 
 def py_sort_key(obj):
     if not obj:
@@ -65,18 +71,11 @@ def py_find(pattern, source):
         return pos, len(pattern)
     return -1, -1
 
-def icu_find(collator, pattern, source, strength=None):
-    if strength is not None:
-        ostrength = collator.strength
-        collator.strength = strength
+def icu_find(collator, pattern, source):
     try:
-        try:
-            return collator.find(pattern, source)
-        except TypeError:
-            return collator.find(unicode(pattern), unicode(source))
-    finally:
-        if strength is not None:
-            collator.strength = ostrength
+        return collator.find(pattern, source)
+    except TypeError:
+        return collator.find(unicode(pattern), unicode(source))
 
 def py_case_sensitive_sort_key(obj):
     if not obj:
@@ -88,18 +87,8 @@ def icu_case_sensitive_sort_key(collator, obj):
         return _none2
     return collator.sort_key(obj)
 
-def icu_strcmp(collator, a, b, strength=None):
-    if strength is not None:
-        ostrength = collator.strength
-        collator.strength = strength
-    try:
-        s = collator.strength
-        if s >= _icu.UCOL_TERTIARY:
-            a, b = lower(a), lower(b)
-        return collator.strcmp(a, b)
-    finally:
-        if strength is not None:
-            collator.strength = ostrength
+def icu_strcmp(collator, a, b):
+    return collator.strcmp(lower(a), lower(b))
 
 def py_strcmp(a, b, strength=None):
     return cmp(a.lower(), b.lower())
@@ -183,14 +172,14 @@ def primary_strcmp(a, b):
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_strcmp(ascii_text(a), ascii_text(b))
-    return icu_strcmp(_collator, a, b, _icu.UCOL_PRIMARY)
+    return primary_collator().strcmp(a, b)
 
 def primary_find(pat, src):
     'find that ignores case and accents on letters'
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_find(ascii_text(pat), ascii_text(src))
-    return icu_find(_collator, pat, src, _icu.UCOL_PRIMARY)
+    return icu_find(primary_collator(), pat, src)
 
 ################################################################################
 
@@ -314,6 +303,18 @@ pêché'''
         print 'Title:     ', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8'), 'titlecase:', titlecase(x).encode('utf-8')
         print 'Capitalize:', x, '->', 'py:', x.capitalize().encode('utf-8'), 'icu:', capitalize(x).encode('utf-8')
         print
+
+    print '\nTesting primary collation'
+    for k, v in {u'pèché': u'peche', u'flüße':u'flusse'}.iteritems():
+        if primary_strcmp(k, v) != 0:
+            print 'primary_strcmp() failed with %s != %s'%(k, v)
+        if primary_find(v, u' '+k)[0] != 1:
+            print 'primary_find() failed with %s not in %s'%(v, k)
+
+    global _primary_collator
+    _primary_collator = _icu.Collator('es')
+    if primary_strcmp(u'peña', u'pena') == 0:
+        print 'Primary collation in Spanish locale failed'
 
 # }}}
 

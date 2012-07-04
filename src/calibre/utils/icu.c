@@ -32,18 +32,18 @@ icu_Collator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     icu_Collator *self;
     const char *loc;
     UErrorCode status = U_ZERO_ERROR;
+    UCollator *collator;
 
     if (!PyArg_ParseTuple(args, "s", &loc)) return NULL;
+    collator = ucol_open(loc, &status);
+    if (collator == NULL || U_FAILURE(status)) { 
+        PyErr_SetString(PyExc_Exception, "Failed to create collator.");
+        return NULL;
+    }
 
     self = (icu_Collator *)type->tp_alloc(type, 0);
     if (self != NULL) {
-        self->collator = ucol_open(loc, &status);
-        if (self->collator == NULL || U_FAILURE(status)) { 
-            PyErr_SetString(PyExc_Exception, "Failed to create collator.");
-            self->collator = NULL;
-            Py_DECREF(self);
-            return NULL;
-        }
+        self->collator = collator;
         self->contractions = NULL;
     }
 
@@ -302,6 +302,10 @@ icu_Collator_span_contractions(icu_Collator *self, PyObject *args, PyObject *kwa
     return Py_BuildValue("i", uset_span(self->contractions, s, slen, span_type));
 } // }}}
 
+
+static PyObject*
+icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs);
+
 static PyMethodDef icu_Collator_methods[] = {
     {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_VARARGS,
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
@@ -321,6 +325,10 @@ static PyMethodDef icu_Collator_methods[] = {
 
     {"span_contractions", (PyCFunction)icu_Collator_span_contractions, METH_VARARGS,
         "span_contractions(src, span_condition) -> returns the length of the initial substring according to span_condition in the set of contractions for this collator. Returns 0 if src does not fit the span_condition. The span_condition can be one of USET_SPAN_NOT_CONTAINED, USET_SPAN_CONTAINED, USET_SPAN_SIMPLE."
+    },
+
+    {"clone", (PyCFunction)icu_Collator_clone, METH_VARARGS,
+        "clone() -> returns a clone of this collator."
     },
 
     {NULL}  /* Sentinel */
@@ -390,6 +398,31 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // }}
 
+// Collator.clone {{{
+static PyObject*
+icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs)
+{
+    UCollator *collator;
+    UErrorCode status = U_ZERO_ERROR;
+    int32_t bufsize = -1;
+    icu_Collator *clone;
+
+    collator = ucol_safeClone(self->collator, NULL, &bufsize, &status);
+
+    if (collator == NULL || U_FAILURE(status)) {
+        PyErr_SetString(PyExc_Exception, "Failed to create collator.");
+        return NULL;
+    }
+
+    clone = PyObject_New(icu_Collator, &icu_CollatorType);
+    if (clone == NULL) return PyErr_NoMemory();
+
+    clone->collator = collator;
+    clone->contractions = NULL;
+
+    return (PyObject*) clone;
+
+} // }}}
 
 // }}}
 
