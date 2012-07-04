@@ -104,8 +104,10 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             field = 'title_sort'
         if all_fields:
             display = True
-        if (not display or not metadata or mi.is_null(field) or
-                field == 'comments'):
+        isnull = mi.is_null(field)
+        if metadata['datatype'] == 'bool':
+            isnull = mi.get(field) is None
+        if (not display or not metadata or isnull or field == 'comments'):
             continue
         name = metadata['name']
         if not name:
