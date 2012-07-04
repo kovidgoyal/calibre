@@ -808,18 +808,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
-            commit=True):
+            commit=True, callback=None):
         '''
-        Write metadata for each record to an individual OPF file
+        Write metadata for each record to an individual OPF file. If callback
+        is not None, it is called once at the start with the number of book_ids
+        being processed. And once for every book_id, with arguments (book_id,
+        mi, ok).
         '''
         if book_ids is None:
             book_ids = [x[0] for x in self.conn.get(
                 'SELECT book FROM metadata_dirtied', all=True)]
+
+        if callback is not None:
+            book_ids = tuple(book_ids)
+            callback(len(book_ids), True, False)
+
         for book_id in book_ids:
             if not self.data.has_id(book_id):
+                if callback is not None:
+                    callback(book_id, None, False)
                 continue
             path, mi, sequence = self.get_metadata_for_dump(book_id)
             if path is None:
+                if callback is not None:
+                    callback(book_id, mi, False)
                 continue
             try:
                 raw = metadata_to_opf(mi)
@@ -829,6 +841,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     self.clear_dirtied(book_id, sequence)
             except:
                 pass
+            if callback is not None:
+                callback(book_id, mi, True)
         if commit:
             self.conn.commit()
 
