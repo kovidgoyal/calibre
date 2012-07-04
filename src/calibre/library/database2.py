@@ -1425,7 +1425,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         opath = self.format_abspath(book_id, nfmt, index_is_id=True)
         return fmt if opath is None else nfmt
 
-    def delete_book(self, id, notify=True, commit=True, permanent=False):
+    def delete_book(self, id, notify=True, commit=True, permanent=False,
+            do_clean=True):
         '''
         Removes book from the result cache and the underlying database.
         If you set commit to False, you must call clean() manually afterwards
@@ -1442,7 +1443,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         if commit:
             self.conn.commit()
-            self.clean()
+            if do_clean:
+                self.clean()
         self.data.books_deleted([id])
         if notify:
             self.notify('delete', [id])
