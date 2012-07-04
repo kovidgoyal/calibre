@@ -243,7 +243,8 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
         query = lower(query)
         for r in candidates:
             dat = self.data(self.index(r), Qt.UserRole)
-            if query in lower(dat.name):# or query in lower(dat.doc):
+            var_names = u' '.join(dat.default_values)
+            if query in lower(dat.name) or query in lower(var_names):
                 ans.add(r)
         return ans
 
