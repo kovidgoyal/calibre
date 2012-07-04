@@ -196,7 +196,7 @@ class TagsView(QTreeView): # {{{
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
-        self.expanded.connect(self.item_expanded, type=Qt.QueuedConnection)
+        self.expanded.connect(self.item_expanded)
 
     def database_changed(self, event, ids):
         if self.refresh_signal_processed:
