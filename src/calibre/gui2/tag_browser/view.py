@@ -196,7 +196,7 @@ class TagsView(QTreeView): # {{{
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
-        self.expanded.connect(self.item_expanded)
+        self.expanded.connect(self.item_expanded, type=Qt.QueuedConnection)
 
     def database_changed(self, event, ids):
         if self.refresh_signal_processed:
@@ -649,11 +649,13 @@ class TagsView(QTreeView): # {{{
         path = self.model().path_for_index(ci) if self.is_visible(ci) else None
         expanded_categories, state_map = self.get_state()
         self._model.rebuild_node_tree(state_map=state_map)
+        self.blockSignals(True)
         for category in expanded_categories:
             idx = self._model.index_for_category(category)
             if idx is not None and idx.isValid():
                 self.expand(idx)
         self.show_item_at_path(path)
+        self.blockSignals(False)
 
     def show_item_at_path(self, path, box=False,
                           position=QTreeView.PositionAtCenter):
@@ -666,14 +668,14 @@ class TagsView(QTreeView): # {{{
             self.show_item_at_index(self._model.index_for_path(path), box=box,
                                     position=position)
 
-    def expand_parent(self, idx, depth=0):
+    def expand_parent(self, idx):
+        # Needed otherwise Qt sometimes segfaults if the node is buried in a
+        # collapsed, off screen hierarchy. To be safe, we expand from the
+        # outermost in
         p = self._model.parent(idx)
-        d = 0
         if p.isValid():
-            d = self.expand_parent(p, depth+1)
-        if d == 0:
-            self.expand(idx)
-        return d+1
+            self.expand_parent(p)
+        self.expand(idx)
 
     def show_item_at_index(self, idx, box=False,
                            position=QTreeView.PositionAtCenter):
