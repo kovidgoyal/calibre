@@ -305,7 +305,8 @@ pêché'''
         print
 
     print '\nTesting primary collation'
-    for k, v in {u'pèché': u'peche', u'flüße':u'flusse'}.iteritems():
+    for k, v in {u'pèché': u'peche', u'flüße':u'flusse',
+            u'Štepánek':u'Štepanek'}.iteritems():
         if primary_strcmp(k, v) != 0:
             print 'primary_strcmp() failed with %s != %s'%(k, v)
         if primary_find(v, u' '+k)[0] != 1:
