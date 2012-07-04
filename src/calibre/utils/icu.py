@@ -90,7 +90,7 @@ def icu_case_sensitive_sort_key(collator, obj):
 def icu_strcmp(collator, a, b):
     return collator.strcmp(lower(a), lower(b))
 
-def py_strcmp(a, b, strength=None):
+def py_strcmp(a, b):
     return cmp(a.lower(), b.lower())
 
 def icu_case_sensitive_strcmp(collator, a, b):
