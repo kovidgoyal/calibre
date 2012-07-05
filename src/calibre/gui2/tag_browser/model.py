@@ -354,7 +354,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.category_nodes.append(node)
         self._create_node_tree(data, state_map)
 
-    langs_no_span_contractions = frozenset(["en", "it", "ru", "nl", "de", "fr"])
+    langs_no_span_contractions = frozenset(['en', 'it', 'ru', 'nl', 'de', 'fr', 'es'])
 
     def _create_node_tree(self, data, state_map):
         sort_by = config['sort_tags_by']
