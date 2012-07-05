@@ -736,6 +736,9 @@ class Application(QApplication):
 
     def __init__(self, args, force_calibre_style=False):
         self.file_event_hook = None
+        if islinux and args[0].endswith(u'calibre'):
+            args = list(args)
+            args[0] += '-gui'
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
         global gui_thread, qt_app
