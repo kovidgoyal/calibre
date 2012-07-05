@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-29 06:42+0000\n"
-"PO-Revision-Date: 2012-06-29 19:52+0000\n"
-"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2012-07-04 22:24+0000\n"
+"Last-Translator: Sebastian Morkisch <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-06-30 04:53+0000\n"
-"X-Generator: Launchpad (build 15520)\n"
+"X-Launchpad-Export-Date: 2012-07-05 04:39+0000\n"
+"X-Generator: Launchpad (build 15544)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -12283,7 +12283,7 @@ msgstr "War"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
 msgid "Find"
-msgstr ""
+msgstr "Suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:167
 msgid "You must enter some text to search for"
@@ -12295,7 +12295,7 @@ msgstr "Kein Tag gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid "Search for an item in the Tag column"
-msgstr ""
+msgstr "Sucht einen Eintrag in der Tag-Spalte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:112
@@ -13449,7 +13449,7 @@ msgstr "%s läuft bereits."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:327
 msgid "Shutdown command sent, waiting for shutdown..."
-msgstr ""
+msgstr "Befehl zum Herunterfahren gesendet, wartet..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -23263,6 +23263,11 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
+"Wenn Sie diese Option einschalten und Calibre neu starten, wird die "
+"Werkzeugleiste mit der Titelleiste vereinheitlicht, wie bei OS X Programmen "
+"üblich. Diese Option hat jedoch noch verschiedene Bugs, zum Beispiel kann es "
+"sein, dass die Breite der Symbolleiste verdoppelt wird. Es können noch "
+"einige andere Bugs auftreten. Sie aktivieren diese Option auf eigene Gefahr!"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid "Save original file when converting from same format to same format"
