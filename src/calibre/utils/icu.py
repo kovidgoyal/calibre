@@ -33,7 +33,7 @@ def load_icu():
     if _icu is None:
         _icu = plugins['icu'][0]
         if _icu is None:
-            print plugins['icu'][1]
+            print 'Loading ICU failed with: ', plugins['icu'][1]
         else:
             if not getattr(_icu, 'ok', False):
                 print 'icu not ok'
