@@ -1,7 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 class HeritageFoundation(BasicNewsRecipe):
     title		= u'The Heritage Foundation'
-    custom_title 	= "The Heritage Foundation"
     description		= 'Founded in 1973, The Heritage Foundation is a research and educational institution—a think tank—\
 whose mission is to formulate and promote conservative public policies based on the principles of free enterprise, limited government, \
 individual freedom, traditional American values, and a strong national defense.'
@@ -25,7 +24,7 @@ individual freedom, traditional American values, and a strong national defense.'
     remove_empty_feeds     = True
     auto_cleanup = True
 
-    conversion_options = { 'title'   : custom_title,
+    conversion_options = {
                            'comments'    : description,
                            'tags'             : tags,
                            'language'      : language,
