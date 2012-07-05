@@ -241,7 +241,7 @@ icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) 
     if (self->contractions == NULL) {
         self->contractions = uset_open(1, 0);
         if (self->contractions == NULL) return PyErr_NoMemory();
-        ucol_getContractionsAndExpansions(self->collator, self->contractions, NULL, 0, &status);
+        self->contractions = ucol_getTailoredSet(self->collator, &status);
     }
     status = U_ZERO_ERROR; 
 
@@ -290,7 +290,7 @@ icu_Collator_span_contractions(icu_Collator *self, PyObject *args, PyObject *kwa
     if (self->contractions == NULL) {
         self->contractions = uset_open(1, 0);
         if (self->contractions == NULL) return PyErr_NoMemory();
-        ucol_getContractionsAndExpansions(self->collator, self->contractions, NULL, 0, &status);
+        self->contractions = ucol_getTailoredSet(self->collator, &status);
     }
     status = U_ZERO_ERROR; 
 

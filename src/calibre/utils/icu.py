@@ -315,6 +315,14 @@ pêché'''
         print 'Primary collation in Spanish locale failed'
         return
 
+    print '\nTesting contractions'
+    c = _icu.Collator('cs')
+    if icu_contractions(c) != frozenset([u'Z\u030c', u'z\u030c', u'Ch',
+        u'C\u030c', u'ch', u'cH', u'c\u030c', u's\u030c', u'r\u030c', u'CH',
+        u'S\u030c', u'R\u030c']):
+        print 'Contractions for the Czech language failed'
+        return
+
 # }}}
 
 if __name__ == '__main__':
