@@ -7,8 +7,6 @@
 ###
 
 log = window.calibre_utils.log
-viewport_to_document = window.calibre_utils.viewport_to_document
-absleft = window.calibre_utils.absleft
 
 class PagedDisplay
     # This class is a namespace to expose functions via the
@@ -126,7 +124,25 @@ class PagedDisplay
         return sm
 
     fit_images: () ->
-        null
+        # Ensure no images are wider than the available width in a column. Note
+        # that this method use getBoundingClientRect() which means it will
+        # force a relayout if the render tree is dirty.
+        images = []
+        for img in document.getElementsByTagName('img')
+            previously_limited = calibre_utils.retrieve(img, 'width-limited', false)
+            br = img.getBoundingClientRect()
+            left = calibre_utils.viewport_to_document(br.left, 0, doc=img.ownerDocument)[0]
+            col = this.column_at(left) * this.page_width
+            rleft = left - col - this.current_margin_side
+            width  = br.right - br.left
+            rright = rleft + width
+            col_width = this.page_width - 2*this.current_margin_side
+            if previously_limited or rright > col_width
+                images.push([img, col_width - rleft])
+
+        for [img, max_width] in images
+            img.style.setProperty('max-width', max_width+'px')
+            calibre_utils.store(img, 'width-limited', true)
 
     scroll_to_pos: (frac) ->
         # Scroll to the position represented by frac (number between 0 and 1)
@@ -263,7 +279,7 @@ class PagedDisplay
         elem.scrollIntoView()
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
-            this.scroll_to_xpos(absleft(elem) + 5)
+            this.scroll_to_xpos(calibre_utils.absleft(elem) + 5)
 
     snap_to_selection: () ->
         # Ensure that the viewport is positioned at the start of the column
@@ -272,7 +288,7 @@ class PagedDisplay
             sel = window.getSelection()
             r = sel.getRangeAt(0).getBoundingClientRect()
             node = sel.anchorNode
-            left = viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
+            left = calibre_utils.viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
 
             # Ensure we are scrolled to the column containing the start of the
             # selection
@@ -331,5 +347,5 @@ if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
-# Resizing of images
 # Highlight on jump_to_anchor
+# Handle document specified margins and allow them to be overridden
