@@ -379,7 +379,7 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
-        if get_lang() in self.langs_no_span_contractions:
+        if True or get_lang() in self.langs_no_span_contractions:
             use_span_contractions = False
         else:
             use_span_contractions = True
