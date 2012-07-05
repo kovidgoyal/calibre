@@ -17,11 +17,12 @@ from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp
+from calibre.utils.icu import sort_key, lower, strcmp, span_contractions
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.localization import get_lang
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -353,6 +354,8 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.category_nodes.append(node)
         self._create_node_tree(data, state_map)
 
+    langs_no_span_contractions = frozenset(["en", "it", "ru", "nl", "de", "fr"])
+
     def _create_node_tree(self, data, state_map):
         sort_by = config['sort_tags_by']
 
@@ -376,6 +379,10 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
+        if get_lang() in self.langs_no_span_contractions:
+            use_span_contractions = False
+        else:
+            use_span_contractions = True
 
         def get_name_components(name):
             components = [t.strip() for t in name.split('.') if t.strip()]
@@ -416,7 +423,15 @@ class TagsModel(QAbstractItemModel): # {{{
                     if not tag.sort:
                         c = ' '
                     else:
-                        c = icu_upper(tag.sort[0])
+                        if not use_span_contractions:
+                            c = icu_upper(tag.sort)[0]
+                        else:
+                            v = icu_upper(tag.sort)
+                            le = span_contractions(v)
+                            if le > 0:
+                                c = v[:le]
+                            else:
+                                c = v[0]
                     if c not in chardict:
                         chardict[c] = [idx, idx]
                     else:
