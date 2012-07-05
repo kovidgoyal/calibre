@@ -281,6 +281,7 @@ icu_Collator_span_contractions(icu_Collator *self, PyObject *args, PyObject *kwa
     size_t slen = 0;
     wchar_t *buf;
     UChar *s;
+    int32_t ret;
 
     if (!PyArg_ParseTuple(args, "Ui", &str, &span_type)) return NULL;
 
@@ -295,11 +296,12 @@ icu_Collator_span_contractions(icu_Collator *self, PyObject *args, PyObject *kwa
     buf = (wchar_t*)calloc(slen*4 + 2, sizeof(wchar_t));
     s = (UChar*)calloc(slen*4 + 2, sizeof(UChar));
     if (buf == NULL || s == NULL) return PyErr_NoMemory();
-    slen = PyUnicode_AsWideChar((PyUnicodeObject*)str, buf, slen);
+    PyUnicode_AsWideChar((PyUnicodeObject*)str, buf, slen);
     u_strFromWCS(s, slen*4+1, NULL, buf, slen, &status);
 
-    free(buf); free(s);
-    return Py_BuildValue("i", uset_span(self->contractions, s, slen, span_type));
+    ret = uset_span(self->contractions, s, slen, span_type);
+    free(s); free(buf);
+    return Py_BuildValue("i", ret);
 } // }}}
 
 

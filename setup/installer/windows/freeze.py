@@ -13,6 +13,7 @@ from setup import (Command, modules, functions, basenames, __version__,
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
+ICU_DIR = r'Q:\icu'
 OPENSSL_DIR = r'Q:\openssl'
 QT_DIR = 'Q:\\Qt\\4.8.2'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
@@ -146,6 +147,8 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(r'C:\Python%s\DLLs'%self.py_ver, self.dll_dir,
                 ignore=shutil.ignore_patterns('msvc*.dll', 'Microsoft.*'))
         for x in glob.glob(self.j(OPENSSL_DIR, 'bin', '*.dll')):
+            shutil.copy2(x, self.dll_dir)
+        for x in glob.glob(self.j(ICU_DIR, 'source', 'lib', '*.dll')):
             shutil.copy2(x, self.dll_dir)
         for x in QT_DLLS:
             x += '4.dll'

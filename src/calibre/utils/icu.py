@@ -90,7 +90,7 @@ def icu_case_sensitive_sort_key(collator, obj):
 def icu_strcmp(collator, a, b):
     return collator.strcmp(lower(a), lower(b))
 
-def py_strcmp(a, b, strength=None):
+def py_strcmp(a, b):
     return cmp(a.lower(), b.lower())
 
 def icu_case_sensitive_strcmp(collator, a, b):
@@ -276,23 +276,21 @@ pêché'''
 
     german = create(german)
     c = _icu.Collator('de')
-    print 'Sorted german:: (%s)'%c.actual_locale
     gs = list(sorted(german, key=c.sort_key))
     for x in gs:
         print '\t', x.encode('utf-8')
     if gs != create(german_good):
-        print 'German failed'
+        print 'German sorting failed'
         return
     print
     french = create(french)
     c = _icu.Collator('fr')
-    print 'Sorted french:: (%s)'%c.actual_locale
     fs = list(sorted(french, key=c.sort_key))
     for x in fs:
         print '\t', x.encode('utf-8')
     if fs != create(french_good):
-        print 'French failed (note that French fails with icu < 4.6 i.e. on windows and OS X)'
-        # return
+        print 'French sorting failed (note that French fails with icu < 4.6)'
+        return
     test_strcmp(german + french)
 
     print '\nTesting case transforms in current locale'
@@ -305,16 +303,20 @@ pêché'''
         print
 
     print '\nTesting primary collation'
-    for k, v in {u'pèché': u'peche', u'flüße':u'flusse'}.iteritems():
+    for k, v in {u'pèché': u'peche', u'flüße':u'flusse',
+            u'Štepánek':u'Štepanek'}.iteritems():
         if primary_strcmp(k, v) != 0:
             print 'primary_strcmp() failed with %s != %s'%(k, v)
+            return
         if primary_find(v, u' '+k)[0] != 1:
             print 'primary_find() failed with %s not in %s'%(v, k)
+            return
 
     global _primary_collator
     _primary_collator = _icu.Collator('es')
     if primary_strcmp(u'peña', u'pena') == 0:
         print 'Primary collation in Spanish locale failed'
+        return
 
 # }}}
 
