@@ -184,6 +184,7 @@ def primary_find(pat, src):
 ################################################################################
 
 def test(): # {{{
+    from calibre import prints
     # Data {{{
     german = '''
     Sonntag
@@ -277,8 +278,6 @@ pêché'''
     german = create(german)
     c = _icu.Collator('de')
     gs = list(sorted(german, key=c.sort_key))
-    for x in gs:
-        print '\t', x.encode('utf-8')
     if gs != create(german_good):
         print 'German sorting failed'
         return
@@ -286,8 +285,6 @@ pêché'''
     french = create(french)
     c = _icu.Collator('fr')
     fs = list(sorted(french, key=c.sort_key))
-    for x in fs:
-        print '\t', x.encode('utf-8')
     if fs != create(french_good):
         print 'French sorting failed (note that French fails with icu < 4.6)'
         return
@@ -306,10 +303,10 @@ pêché'''
     for k, v in {u'pèché': u'peche', u'flüße':u'flusse',
             u'Štepánek':u'Štepanek'}.iteritems():
         if primary_strcmp(k, v) != 0:
-            print 'primary_strcmp() failed with %s != %s'%(k, v)
+            prints('primary_strcmp() failed with %s != %s'%(k, v))
             return
         if primary_find(v, u' '+k)[0] != 1:
-            print 'primary_find() failed with %s not in %s'%(v, k)
+            prints('primary_find() failed with %s not in %s'%(v, k))
             return
 
     global _primary_collator
