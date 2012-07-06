@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2, re
+import urllib2
 from contextlib import closing
 
 from lxml import html

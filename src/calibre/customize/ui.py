@@ -497,6 +497,7 @@ def initialize_plugin(plugin, path_to_zip_file):
                             %tb) + '\n'+tb)
 
 def has_external_plugins():
+    'True if there are updateable (zip file based) plugins'
     return bool(config['plugins'])
 
 def initialize_plugins(perf=False):
