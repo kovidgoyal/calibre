@@ -13,6 +13,7 @@ from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.gui2 import config, error_dialog
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
+from calibre.library.caches import set_use_primary_find_in_search
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -223,6 +224,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
+        set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
         gui.set_highlight_only_button_icon()
         if self.muc_changed:
             gui.tags_view.recount()
