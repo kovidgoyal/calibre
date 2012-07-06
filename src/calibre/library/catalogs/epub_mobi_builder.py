@@ -42,7 +42,7 @@ class CatalogBuilder(object):
     DATE_RANGE=[30]
 
     # Text used in generated catalog for title section with other-than-ASCII leading letter
-    SYMBOLS = 'Symbols'
+    SYMBOLS = _('Symbols')
 
     # basename              output file basename
     # creator               dc:creator in OPF metadata
