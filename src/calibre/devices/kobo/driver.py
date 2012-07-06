@@ -604,6 +604,16 @@ class KOBO(USBMS):
                 debug_print('The database has been upgraded past supported version')
                 debug_print('The database has been upgraded past supported version')
                 self.report_progress(1.0, _('Removing books from device...'))
+                from calibre.devices.errors import UserFeedback
+                raise UserFeedback(_("Kobo database version unsupported - See details"),
+                    _('Your Kobo is running an updated firmware/database version '
+                     'As Calibre has not been updated, database editing is disabled.  '
+                     'You can enable support for your Kobo in plugin preferences.  '
+                     'Doing so may require you to perform a factory reset.  '
+                     'before selecting the "Attempt to support newer firmware" option '
+                     'you should be familiar with restoring your Kobo to factory defaults.'),
+                     UserFeedback.WARN)
+
                 return False
             else:
                 # The user chose to edit the database anyway
