@@ -11,6 +11,7 @@ import cPickle, os
 
 from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer
 
+from calibre.constants import DEBUG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
 from calibre.gui2.convert.single import NoSupportedInputFormats
@@ -319,7 +320,8 @@ def generate_catalog(parent, dbspec, ids, device_manager, db): # {{{
         out.name,
         d.catalog_sync,
         d.fmt_options,
-        connected_device
+        connected_device,
+        DEBUG
         ]
     out.close()
 
