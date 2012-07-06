@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 import textwrap
+from collections import OrderedDict
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.gui2.preferences.tweaks_ui import Ui_Form
@@ -47,12 +48,12 @@ class Tweak(object): # {{{
         if self.doc:
             self.doc = translate(self.doc)
         self.var_names = var_names
-        if len(self.var_names) > 0:
-            self.doc = "%s: %s\n\n%s"%(_('ID'), self.var_names[-1], self.doc)
-        self.default_values = {}
+        if self.var_names:
+            self.doc = u"%s: %s\n\n%s"%(_('ID'), self.var_names[0], self.doc)
+        self.default_values = OrderedDict()
         for x in var_names:
             self.default_values[x] = defaults[x]
-        self.custom_values = {}
+        self.custom_values = OrderedDict()
         for x in var_names:
             if x in custom:
                 self.custom_values[x] = custom[x]
@@ -95,12 +96,6 @@ class Tweak(object): # {{{
     def update(self, varmap):
         self.custom_values.update(varmap)
 
-    @property
-    def name_with_first_var(self):
-        if len(self.var_names) > 0:
-            return "%s (%s:%s)"%(self.name, _('ID'), self.var_names[-1])
-        return self.name
-
 # }}}
 
 class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
@@ -122,7 +117,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
         except:
             return NONE
         if role == Qt.DisplayRole:
-            return textwrap.fill(tweak.name_with_first_var, 40)
+            return textwrap.fill(tweak.name, 40)
         if role == Qt.FontRole and tweak.is_customized:
             ans = QFont()
             ans.setBold(True)
@@ -348,7 +343,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.context_menu.addAction(self.copy_icon,
                                     _('Copy to clipboard'),
                                     partial(self.copy_item_to_clipboard,
-                                            val=tweak.name_with_first_var))
+                                            val=tweak.name))
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 
@@ -471,7 +466,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
     app = QApplication([])
     #Tweaks()
     #test_widget

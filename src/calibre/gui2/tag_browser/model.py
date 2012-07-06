@@ -22,7 +22,6 @@ from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.search_query_parser import saved_searches
-from calibre.utils.localization import get_lang
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -363,8 +362,6 @@ class TagsModel(QAbstractItemModel): # {{{
                 last_category_node = node
                 self.category_nodes.append(node)
         self._create_node_tree(data, state_map)
-
-    langs_no_span_contractions = frozenset(['en', 'it', 'ru', 'nl', 'de', 'fr', 'es'])
 
     def _create_node_tree(self, data, state_map):
         sort_by = config['sort_tags_by']
