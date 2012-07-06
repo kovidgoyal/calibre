@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 import textwrap
+from collections import OrderedDict
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.gui2.preferences.tweaks_ui import Ui_Form
@@ -18,8 +20,8 @@ from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
 
 from PyQt4.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
-    QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog,
-    QVBoxLayout, QPlainTextEdit, QLabel, QModelIndex)
+    QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog, QApplication,
+    QVBoxLayout, QPlainTextEdit, QLabel, QModelIndex, QMenu, QIcon)
 
 ROOT = QModelIndex()
 
@@ -46,10 +48,12 @@ class Tweak(object): # {{{
         if self.doc:
             self.doc = translate(self.doc)
         self.var_names = var_names
-        self.default_values = {}
+        if self.var_names:
+            self.doc = u"%s: %s\n\n%s"%(_('ID'), self.var_names[0], self.doc)
+        self.default_values = OrderedDict()
         for x in var_names:
             self.default_values[x] = defaults[x]
-        self.custom_values = {}
+        self.custom_values = OrderedDict()
         for x in var_names:
             if x in custom:
                 self.custom_values[x] = custom[x]
@@ -326,7 +330,27 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.search.initialize('tweaks_search_history', help_text=
                 _('Search for tweak'))
         self.search.search.connect(self.find)
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.show_context_menu)
+        self.copy_icon = QIcon(I('edit-copy.png'))
 
+    def show_context_menu(self, point):
+        idx = self.tweaks_view.currentIndex()
+        if not idx.isValid():
+            return True
+        tweak = self.tweaks.data(idx, Qt.UserRole)
+        self.context_menu = QMenu(self)
+        self.context_menu.addAction(self.copy_icon,
+                                    _('Copy to clipboard'),
+                                    partial(self.copy_item_to_clipboard,
+                                            val=tweak.name))
+        self.context_menu.popup(self.mapToGlobal(point))
+        return True
+
+    def copy_item_to_clipboard(self, val):
+        cb = QApplication.clipboard();
+        cb.clear()
+        cb.setText(val)
 
     def plugin_tweaks(self):
         raw = self.tweaks.plugin_tweaks_string
@@ -442,7 +466,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
     app = QApplication([])
     #Tweaks()
     #test_widget

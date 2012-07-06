@@ -272,42 +272,6 @@ icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) 
     return Py_BuildValue("O", ans);
 } // }}}
 
-// Collator.span_contractions {{{
-#ifndef __APPLE__
-// uset_span is not available in the version of ICU on Apple's idiotic OS
-static PyObject *
-icu_Collator_span_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) {
-    int span_type;
-    UErrorCode status = U_ZERO_ERROR;
-    PyObject *str;
-    size_t slen = 0;
-    wchar_t *buf;
-    UChar *s;
-    int32_t ret;
-
-    if (!PyArg_ParseTuple(args, "Ui", &str, &span_type)) return NULL;
-
-    if (self->contractions == NULL) {
-        self->contractions = uset_open(1, 0);
-        if (self->contractions == NULL) return PyErr_NoMemory();
-        self->contractions = ucol_getTailoredSet(self->collator, &status);
-    }
-    status = U_ZERO_ERROR; 
-
-    slen = PyUnicode_GetSize(str);
-    buf = (wchar_t*)calloc(slen*4 + 2, sizeof(wchar_t));
-    s = (UChar*)calloc(slen*4 + 2, sizeof(UChar));
-    if (buf == NULL || s == NULL) return PyErr_NoMemory();
-    PyUnicode_AsWideChar((PyUnicodeObject*)str, buf, slen);
-    u_strFromWCS(s, slen*4+1, NULL, buf, slen, &status);
-
-    ret = uset_span(self->contractions, s, slen, span_type);
-    free(s); free(buf);
-    return Py_BuildValue("i", ret);
-} 
-#endif
-// }}}
-
 static PyObject*
 icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs);
 
@@ -327,12 +291,6 @@ static PyMethodDef icu_Collator_methods[] = {
     {"contractions", (PyCFunction)icu_Collator_contractions, METH_VARARGS,
         "contractions() -> returns the contractions defined for this collator."
     },
-
-#ifndef __APPLE__
-    {"span_contractions", (PyCFunction)icu_Collator_span_contractions, METH_VARARGS,
-        "span_contractions(src, span_condition) -> returns the length of the initial substring according to span_condition in the set of contractions for this collator. Returns 0 if src does not fit the span_condition. The span_condition can be one of USET_SPAN_NOT_CONTAINED, USET_SPAN_CONTAINED, USET_SPAN_SIMPLE."
-    },
-#endif
 
     {"clone", (PyCFunction)icu_Collator_clone, METH_VARARGS,
         "clone() -> returns a clone of this collator."

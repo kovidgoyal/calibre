@@ -17,7 +17,7 @@ from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp
+from calibre.utils.icu import sort_key, lower, strcmp, contractions
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
@@ -258,6 +258,16 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.hidden_categories.add(cat)
         db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
 
+        conts = contractions()
+        if len(conts) == 0 or not tweaks['enable_multicharacters_in_tag_browser']:
+            self.do_contraction = False
+        else:
+            self.do_contraction = True
+            nconts = set()
+            for s in conts:
+                nconts.add(icu_upper(s))
+            self.contraction_set = frozenset(nconts)
+
         self.db = db
         self._run_rebuild()
         self.endResetModel()
@@ -416,7 +426,14 @@ class TagsModel(QAbstractItemModel): # {{{
                     if not tag.sort:
                         c = ' '
                     else:
-                        c = icu_upper(tag.sort[0])
+                        if not self.do_contraction:
+                            c = icu_upper(tag.sort)[0]
+                        else:
+                            v = icu_upper(tag.sort)
+                            c = v[0]
+                            for s in self.contraction_set:
+                                if len(s) > len(c) and v.startswith(s):
+                                    c = s
                     if c not in chardict:
                         chardict[c] = [idx, idx]
                     else:
