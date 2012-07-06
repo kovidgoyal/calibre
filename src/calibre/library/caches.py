@@ -118,7 +118,9 @@ class MetadataBackup(Thread): # {{{
 
 # }}}
 
+
 ### Global utility function for get_match here and in gui2/library.py
+# This is a global for performance
 pref_use_primary_find_in_search = False
 
 def set_use_primary_find_in_search(toWhat):

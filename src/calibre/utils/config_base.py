@@ -424,8 +424,10 @@ def _prefs():
                 'to limit search columns above.'))
     c.add_opt('use_primary_find_in_search', default=True,
             help=_('Characters typed in the search box will match their '
-                   'accented versions, using language rules. For example, in '
-                   ' English, searching for e will match é and è.'))
+                   'accented versions, based on the language you have chosen '
+                   'for the calibre interface. For example, in '
+                   u' English, searching for n will match ñ and n, but if '
+                   'your language is Spanish it will only match n.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
