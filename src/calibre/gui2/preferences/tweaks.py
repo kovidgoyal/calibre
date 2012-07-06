@@ -39,7 +39,7 @@ class Delegate(QStyledItemDelegate): # {{{
 
 class Tweak(object): # {{{
 
-    def __init__(self, name, doc, var_names, defaults, custom):
+    def __init__(self, name, doc, var_names, defaults, custom, tweak_num):
         translate = _
         self.name = translate(name)
         self.doc = doc.strip()
@@ -53,6 +53,7 @@ class Tweak(object): # {{{
         for x in var_names:
             if x in custom:
                 self.custom_values[x] = custom[x]
+        self.tweak_num = tweak_num
 
     def __str__(self):
         ans = ['#: ' + self.name]
@@ -92,6 +93,10 @@ class Tweak(object): # {{{
     def update(self, varmap):
         self.custom_values.update(varmap)
 
+    @property
+    def name_with_position_number(self):
+        return "%d: %s"%(self.tweak_num, self.name)
+
 # }}}
 
 class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
@@ -113,7 +118,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
         except:
             return NONE
         if role == Qt.DisplayRole:
-            return textwrap.fill(tweak.name, 40)
+            return textwrap.fill(tweak.name_with_position_number, 40)
         if role == Qt.FontRole and tweak.is_customized:
             ans = QFont()
             ans.setBold(True)
@@ -182,7 +187,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
             pos += 1
         if not var_names:
             raise ValueError('Failed to find any variables for %r'%name)
-        self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
+        self.tweaks.append(Tweak(name, doc, var_names, defaults, custom, len(self.tweaks)+1))
         #print '\n\n', self.tweaks[-1]
         return pos
 

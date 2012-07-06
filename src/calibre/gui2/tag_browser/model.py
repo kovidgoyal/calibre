@@ -260,7 +260,7 @@ class TagsModel(QAbstractItemModel): # {{{
         db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
 
         conts = contractions()
-        if len(conts) == 0:
+        if len(conts) == 0 or not tweaks['enable_multicharacters_in_tag_browser']:
             self.do_contraction = False
         else:
             self.do_contraction = True
