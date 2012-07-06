@@ -118,9 +118,13 @@ class MetadataBackup(Thread): # {{{
 
 # }}}
 
+### Global utility function for get_match here and in gui2/library.py
 pref_use_primary_find_in_search = False
 
-### Global utility function for get_match here and in gui2/library.py
+def set_use_primary_find_in_search(toWhat):
+    global pref_use_primary_find_in_search
+    pref_use_primary_find_in_search = toWhat
+
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
@@ -251,6 +255,9 @@ class ResultCache(SearchQueryParser): # {{{
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
+        # Do this here so the var get updated when a library changes
+        global pref_use_primary_find_in_search
+        pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -616,9 +623,6 @@ class ResultCache(SearchQueryParser): # {{{
 
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
-        global pref_use_primary_find_in_search
-        pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
-
         matches = set([])
         if candidates is None:
             candidates = self.universal_set()
