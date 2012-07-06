@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 import textwrap
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
@@ -18,8 +19,8 @@ from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
 
 from PyQt4.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
-    QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog,
-    QVBoxLayout, QPlainTextEdit, QLabel, QModelIndex)
+    QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog, QApplication,
+    QVBoxLayout, QPlainTextEdit, QLabel, QModelIndex, QMenu, QIcon)
 
 ROOT = QModelIndex()
 
@@ -334,7 +335,27 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.search.initialize('tweaks_search_history', help_text=
                 _('Search for tweak'))
         self.search.search.connect(self.find)
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.show_context_menu)
+        self.copy_icon = QIcon(I('edit-copy.png'))
 
+    def show_context_menu(self, point):
+        idx = self.tweaks_view.currentIndex()
+        if not idx.isValid():
+            return True
+        tweak = self.tweaks.data(idx, Qt.UserRole)
+        self.context_menu = QMenu(self)
+        self.context_menu.addAction(self.copy_icon,
+                                    _('Copy to clipboard'),
+                                    partial(self.copy_item_to_clipboard,
+                                            val=tweak.name_with_first_var))
+        self.context_menu.popup(self.mapToGlobal(point))
+        return True
+
+    def copy_item_to_clipboard(self, val):
+        cb = QApplication.clipboard();
+        cb.clear()
+        cb.setText(val)
 
     def plugin_tweaks(self):
         raw = self.tweaks.plugin_tweaks_string
