@@ -555,6 +555,23 @@ def initialized_plugins():
 
 # CLI {{{
 
+def build_plugin(path):
+    from calibre import prints
+    from calibre.ptempfile import PersistentTemporaryFile
+    from calibre.utils.zipfile import ZipFile, ZIP_STORED
+    path = type(u'')(path)
+    names = frozenset(os.listdir(path))
+    if u'__init__.py' not in names:
+        prints(path, ' is not a valid plugin')
+        raise SystemExit(1)
+    t = PersistentTemporaryFile(u'.zip')
+    with ZipFile(t, u'w', ZIP_STORED) as zf:
+        zf.add_dir(path)
+    t.close()
+    plugin = add_plugin(t.name)
+    os.remove(t.name)
+    prints(u'Plugin updated:', plugin.name, plugin.version)
+
 def option_parser():
     parser = OptionParser(usage=_('''\
     %prog options
@@ -563,6 +580,10 @@ def option_parser():
     '''))
     parser.add_option('-a', '--add-plugin', default=None,
                       help=_('Add a plugin by specifying the path to the zip file containing it.'))
+    parser.add_option('-b', '--build-plugin', default=None,
+            help=_('For plugin developers: Path to the directory where you are'
+                ' developing the plugin. This command will automatically zip '
+                'up the plugin and update it in calibre.'))
     parser.add_option('-r', '--remove-plugin', default=None,
                       help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))
     parser.add_option('--customize-plugin', default=None,
@@ -584,6 +605,8 @@ def main(args=sys.argv):
     if opts.add_plugin is not None:
         plugin = add_plugin(opts.add_plugin)
         print 'Plugin added:', plugin.name, plugin.version
+    if opts.build_plugin is not None:
+        build_plugin(opts.build_plugin)
     if opts.remove_plugin is not None:
         if remove_plugin(opts.remove_plugin):
             print 'Plugin removed'
