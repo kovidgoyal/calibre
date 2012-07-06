@@ -341,9 +341,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         tweak = self.tweaks.data(idx, Qt.UserRole)
         self.context_menu = QMenu(self)
         self.context_menu.addAction(self.copy_icon,
-                                    _('Copy to clipboard'),
-                                    partial(self.copy_item_to_clipboard,
-                                            val=tweak.name))
+                            _('Copy to clipboard'),
+                            partial(self.copy_item_to_clipboard,
+                                    val=u"%s (%s: %s)"%(tweak.name,
+                                                        _('ID'),
+                                                        tweak.var_names[0])))
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 

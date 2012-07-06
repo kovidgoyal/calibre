@@ -422,6 +422,10 @@ def _prefs():
                 'title:Red. Enter a list of search/lookup names '
                 'separated by commas. Only takes effect if you set the option '
                 'to limit search columns above.'))
+    c.add_opt('use_primary_find_in_search', default=True,
+            help=_('Characters typed in the search box will match their '
+                   'accented versions, using language rules. For example, in '
+                   ' English, searching for e will match é and è.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

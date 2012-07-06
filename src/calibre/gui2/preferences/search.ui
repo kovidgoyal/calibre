@@ -29,6 +29,18 @@
     </widget>
    </item>
    <item row="2" column="0">
+    <widget class="QCheckBox" name="opt_use_primary_find_in_search">
+     <property name="text">
+      <string>Base characters match accented characters</string>
+     </property>
+     <property name="toolTip">
+      <string>Characters typed in the search box will match their
+accented versions, using language rules. For example, in
+English, searching for e will match &#233; and &#232;.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>What to search by default</string>
@@ -77,7 +89,7 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QPushButton" name="clear_history_button">
      <property name="toolTip">
       <string>Clear search histories from all over calibre. Including the book list, e-book viewer, fetch news dialog, etc.</string>
@@ -87,7 +99,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Grouped Search Terms</string>

@@ -26,6 +26,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('search_as_you_type', config)
         r('highlight_search_matches', config)
         r('limit_search_columns', prefs)
+        r('use_primary_find_in_search', prefs)
         r('limit_search_columns_to', prefs, setting=CommaSeparatedList)
         fl = db.field_metadata.get_search_terms()
         self.opt_limit_search_columns_to.update_items_cache(fl)

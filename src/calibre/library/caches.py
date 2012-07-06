@@ -119,6 +119,8 @@ class MetadataBackup(Thread): # {{{
 
 # }}}
 
+pref_use_primary_find_in_search = False
+
 ### Global utility function for get_match here and in gui2/library.py
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -151,7 +153,10 @@ def _match(query, value, matchkind):
             elif matchkind == REGEXP_MATCH:
                 return re.search(query, t, re.I|re.UNICODE)
             elif matchkind == CONTAINS_MATCH:
-                return primary_find(query, t)[0] != -1
+                if pref_use_primary_find_in_search:
+                    return primary_find(query, t)[0] != -1
+                else:
+                    return query in t
         except re.error:
             pass
     return False
@@ -613,6 +618,9 @@ class ResultCache(SearchQueryParser): # {{{
 
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
+        global pref_use_primary_find_in_search
+        pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
+
         matches = set([])
         if candidates is None:
             candidates = self.universal_set()
@@ -639,8 +647,10 @@ class ResultCache(SearchQueryParser): # {{{
                     else:
                         invert = False
                     for loc in location:
-                        matches |= self.get_matches(loc, query,
+                        m = self.get_matches(loc, query,
                                 candidates=candidates, allow_recursion=False)
+                        matches |= m
+                        candidates -= m
                     if invert:
                         matches = self.universal_set() - matches
                     return matches
@@ -657,8 +667,10 @@ class ResultCache(SearchQueryParser): # {{{
                 if terms:
                     for l in terms:
                         try:
-                            matches |= self.get_matches(l, query,
+                            m = self.get_matches(l, query,
                                 candidates=candidates, allow_recursion=allow_recursion)
+                            matches |= m
+                            candidates -= m
                         except:
                             pass
                     return matches
