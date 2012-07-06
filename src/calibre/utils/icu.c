@@ -216,7 +216,7 @@ icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
         if (U_SUCCESS(status)) {
             pos = usearch_first(search, &status);
             if (pos != USEARCH_DONE) 
-                length = (pos == USEARCH_DONE) ? -1 : usearch_getMatchedLength(search);
+                length = usearch_getMatchedLength(search);
             else
                 pos = -1;
         }
