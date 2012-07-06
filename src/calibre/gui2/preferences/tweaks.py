@@ -39,13 +39,15 @@ class Delegate(QStyledItemDelegate): # {{{
 
 class Tweak(object): # {{{
 
-    def __init__(self, name, doc, var_names, defaults, custom, tweak_num):
+    def __init__(self, name, doc, var_names, defaults, custom):
         translate = _
         self.name = translate(name)
         self.doc = doc.strip()
         if self.doc:
             self.doc = translate(self.doc)
         self.var_names = var_names
+        if len(self.var_names) > 0:
+            self.doc = "%s: %s\n\n%s"%(_('ID'), self.var_names[-1], self.doc)
         self.default_values = {}
         for x in var_names:
             self.default_values[x] = defaults[x]
@@ -53,7 +55,6 @@ class Tweak(object): # {{{
         for x in var_names:
             if x in custom:
                 self.custom_values[x] = custom[x]
-        self.tweak_num = tweak_num
 
     def __str__(self):
         ans = ['#: ' + self.name]
@@ -94,8 +95,10 @@ class Tweak(object): # {{{
         self.custom_values.update(varmap)
 
     @property
-    def name_with_position_number(self):
-        return "%d: %s"%(self.tweak_num, self.name)
+    def name_with_first_var(self):
+        if len(self.var_names) > 0:
+            return "%s (%s:%s)"%(self.name, _('ID'), self.var_names[-1])
+        return self.name
 
 # }}}
 
@@ -118,7 +121,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
         except:
             return NONE
         if role == Qt.DisplayRole:
-            return textwrap.fill(tweak.name_with_position_number, 40)
+            return textwrap.fill(tweak.name_with_first_var, 40)
         if role == Qt.FontRole and tweak.is_customized:
             ans = QFont()
             ans.setBold(True)
@@ -187,7 +190,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
             pos += 1
         if not var_names:
             raise ValueError('Failed to find any variables for %r'%name)
-        self.tweaks.append(Tweak(name, doc, var_names, defaults, custom, len(self.tweaks)+1))
+        self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
         #print '\n\n', self.tweaks[-1]
         return pos
 
