@@ -15,7 +15,7 @@ Here, we will teach you how to create your own plugins to add new features to |a
   :depth: 2
   :local:
 
-.. note:: This only applies to calibre releases >= 0.7.53
+.. note:: This only applies to calibre releases >= 0.8.60
 
 Anatomy of a |app| plugin
 ---------------------------
@@ -32,11 +32,15 @@ and enter the following Python code into it:
 .. literalinclude:: plugin_examples/helloworld/__init__.py
     :lines: 10-
 
-That's all. To add this code to |app| as a plugin, simply create a zip file with::
+That's all. To add this code to |app| as a plugin, simply run the following in
+the directory in which you created :file:`__init__.py`::
 
-    zip plugin.zip __init__.py
+    calibre-customize -b .
 
-Add this plugin to |app| via :guilabel:`Preferences->Plugins`.
+.. note:: 
+    On OS X you have to first install the |app| command line tools, by
+    going to :guilabel:`Preferences->Miscellaneous` and clicking the
+    :guilabel:`Install command line tools` button.
 
 You can download the Hello World plugin from 
 `helloworld_plugin.zip  <http://calibre-ebook.com/downloads/helloworld_plugin.zip>`_. 
@@ -191,14 +195,12 @@ When running from the command line, debug output will be printed to the console,
 
 You can insert print statements anywhere in your plugin code, they will be output in debug mode. Remember, this is python, you really shouldn't need anything more than print statements to debug ;) I developed all of |app| using just this debugging technique.
 
-It can get tiresome to keep re-adding a plugin to calibre to test small changes. The plugin zip files are stored in the calibre config directory in plugins/ (goto Preferences->Misc and click open config directory to see the config directory). 
+You can quickly test changes to your plugin by using the following command
+line::
 
-Once you've located the zip file of your plugin you can then directly update it with your changes instead of re-adding it each time. To do so from the command line, in the directory that contains your plugin source code, use::
+    calibre -s; calibre-customize -b /path/to/your/plugin/directory; calibre
 
-    calibre -s; zip -r /path/to/plugin/zip/file.zip *; calibre
-
-This will shutdown a running calibre. Wait for the shutdown to complete, then update your plugin files and relaunch calibre.
-It relies on the freely available zip command line tool.
+This will shutdown a running calibre, wait for the shutdown to complete, then update your plugin in |app| and relaunch |app|.
 
 More plugin examples
 ----------------------
