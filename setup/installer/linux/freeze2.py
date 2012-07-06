@@ -54,10 +54,10 @@ binary_includes = [
                 '/lib/libreadline.so.6',
                 '/usr/lib/libchm.so.0',
                 '/usr/lib/liblcms2.so.2',
-                '/usr/lib/libicudata.so.46',
-                '/usr/lib/libicui18n.so.46',
-                '/usr/lib/libicuuc.so.46',
-                '/usr/lib/libicuio.so.46',
+                '/usr/lib/libicudata.so.49',
+                '/usr/lib/libicui18n.so.49',
+                '/usr/lib/libicuuc.so.49',
+                '/usr/lib/libicuio.so.49',
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 

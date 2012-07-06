@@ -15,11 +15,11 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc,
-        get_lang)
+from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc)
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
+from calibre.utils.icu import primary_find
 
 class MetadataBackup(Thread): # {{{
     '''
@@ -118,7 +118,15 @@ class MetadataBackup(Thread): # {{{
 
 # }}}
 
+
 ### Global utility function for get_match here and in gui2/library.py
+# This is a global for performance
+pref_use_primary_find_in_search = False
+
+def set_use_primary_find_in_search(toWhat):
+    global pref_use_primary_find_in_search
+    pref_use_primary_find_in_search = toWhat
+
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
@@ -130,8 +138,8 @@ def _match(query, value, matchkind):
     else:
         internal_match_ok = False
     for t in value:
-        t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+            t = icu_lower(t)
             if (matchkind == EQUALS_MATCH):
                 if internal_match_ok:
                     if query == t:
@@ -147,9 +155,13 @@ def _match(query, value, matchkind):
                             return True
                 elif query == t:
                     return True
-            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I|re.UNICODE)) or ### search unanchored
-                  (matchkind == CONTAINS_MATCH and query in t)):
-                    return True
+            elif matchkind == REGEXP_MATCH:
+                return re.search(query, t, re.I|re.UNICODE)
+            elif matchkind == CONTAINS_MATCH:
+                if pref_use_primary_find_in_search:
+                    return primary_find(query, t)[0] != -1
+                else:
+                    return query in t
         except re.error:
             pass
     return False
@@ -226,10 +238,6 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
-        l = get_lang()
-        asciize_author_names = l and l.lower() in ('en', 'eng')
-        if not asciize_author_names:
-            self.ascii_name = lambda x: False
         self.db_prefs = db_prefs
         self.composites = {}
         self.udc = get_udc()
@@ -249,6 +257,9 @@ class ResultCache(SearchQueryParser): # {{{
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
+        # Do this here so the var get updated when a library changes
+        global pref_use_primary_find_in_search
+        pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -278,15 +289,6 @@ class ResultCache(SearchQueryParser): # {{{
             yield x[idx]
 
     # Search functions {{{
-
-    def ascii_name(self, name):
-        try:
-            ans = self.udc.decode(name)
-            if ans == name:
-                ans = False
-        except:
-            ans = False
-        return ans
 
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
@@ -649,8 +651,10 @@ class ResultCache(SearchQueryParser): # {{{
                     else:
                         invert = False
                     for loc in location:
-                        matches |= self.get_matches(loc, query,
+                        m = self.get_matches(loc, query,
                                 candidates=candidates, allow_recursion=False)
+                        matches |= m
+                        candidates -= m
                     if invert:
                         matches = self.universal_set() - matches
                     return matches
@@ -667,8 +671,10 @@ class ResultCache(SearchQueryParser): # {{{
                 if terms:
                     for l in terms:
                         try:
-                            matches |= self.get_matches(l, query,
+                            m = self.get_matches(l, query,
                                 candidates=candidates, allow_recursion=allow_recursion)
+                            matches |= m
+                            candidates -= m
                         except:
                             pass
                     return matches
@@ -761,8 +767,6 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
-                au_loc = self.FIELD_MAP['authors']
-
                 for id_ in candidates:
                     item = self._data[id_]
                     if item is None: continue
@@ -805,9 +809,6 @@ class ResultCache(SearchQueryParser): # {{{
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
                             vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
-                            if loc == au_loc:
-                                vals += filter(None, map(self.ascii_name,
-                                    vals))
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):

@@ -26,8 +26,8 @@ class Printing(QObject):
         for x in (Qt.Horizontal, Qt.Vertical):
             mf.setScrollBarPolicy(x, Qt.ScrollBarAlwaysOff)
         self.view.loadFinished.connect(self.load_finished)
-        self.paged_js = compiled_coffeescript('ebooks.oeb.display.paged',
-                dynamic=False)
+        self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
+        self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
 
     def load_finished(self, ok):
         self.loaded_ok = ok
@@ -70,6 +70,7 @@ class Printing(QObject):
                 document.body.style.backgroundColor = "white";
                 paged_display.set_geometry(1, 0, 0, 0);
                 paged_display.layout();
+                paged_display.fit_images();
             ''')
 
             while True:

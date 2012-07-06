@@ -131,11 +131,22 @@ calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 ICU
 -------
 
-Download the win32 msvc9 binary from http://www.icu-project.org/download/4.4.html
+Download the win32 source .zip from http://www.icu-project.org/download
 
-Note that 4.4 is the last version of ICU that can be compiled (is precompiled) with msvc9
+Extract to q:\icu
 
-Put the dlls into sw/bin and the unicode dir into sw/include and the contents of lib int sw/lib
+Add Q:\icu\bin to PATH and reboot
+
+In a Visual Studio Command Prompt
+cd to <ICU>\source
+Run set PATH=%PATH%;c:\cygwin\bin
+Run dos2unix on configure and runConfigureICU
+
+Run bash ./runConfigureICU Cygwin/MSVC
+
+Run make (note that you must have GNU make installed in cygwin)
+
+Optionally run make test
 
 Libunrar
 ----------

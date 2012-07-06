@@ -117,7 +117,6 @@ class PDFMetadata(object):
             if len(oeb_metadata.creator) >= 1:
                 self.author = authors_to_string([x.value for x in oeb_metadata.creator])
 
-
 class PDFWriter(QObject): # {{{
 
     def __init__(self, opts, log, cover_data=None):
@@ -185,8 +184,8 @@ class PDFWriter(QObject): # {{{
         from PyQt4.Qt import QSize, QPainter
         if self.paged_js is None:
             from calibre.utils.resources import compiled_coffeescript
-            self.paged_js = compiled_coffeescript('ebooks.oeb.display.paged',
-                    dynamic=False)
+            self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
+            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
         printer = get_pdf_printer(self.opts, output_file_name=outpath)
         painter = QPainter(printer)
         zoomx = printer.logicalDpiX()/self.view.logicalDpiX()
@@ -202,6 +201,7 @@ class PDFWriter(QObject): # {{{
         document.body.style.backgroundColor = "white";
         paged_display.set_geometry(1, 0, 0, 0);
         paged_display.layout();
+        paged_display.fit_images();
         ''')
         mf = self.view.page().mainFrame()
         while True:

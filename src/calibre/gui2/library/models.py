@@ -220,16 +220,15 @@ class BooksModel(QAbstractTableModel): # {{{
         self.count_changed()
         self.reset()
 
-    def delete_books(self, indices):
+    def delete_books(self, indices, permanent=False):
         ids = map(self.id, indices)
-        for id in ids:
-            self.db.delete_book(id, notify=False)
-        self.books_deleted()
+        self.delete_books_by_id(ids, permanent=permanent)
         return ids
 
-    def delete_books_by_id(self, ids):
+    def delete_books_by_id(self, ids, permanent=False):
         for id in ids:
-            self.db.delete_book(id)
+            self.db.delete_book(id, permanent=permanent, do_clean=False)
+        self.db.clean()
         self.books_deleted()
 
     def books_added(self, num):

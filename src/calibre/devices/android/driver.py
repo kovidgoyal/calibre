@@ -72,6 +72,7 @@ class ANDROID(USBMS):
 
             # Sony Ericsson
             0xfce : {
+                0xa173 : [0x216],
                 0xd12e : [0x0100],
                 0xe156 : [0x226],
                 0xe15d : [0x226],
@@ -99,7 +100,7 @@ class ANDROID(USBMS):
                        0x681c : [0x0222, 0x0223, 0x0224, 0x0400],
                        0x6640 : [0x0100],
                        0x685b : [0x0400, 0x0226],
-                       0x685e : [0x0400],
+                       0x685e : [0x0400, 0x226],
                        0x6860 : [0x0400],
                        0x6863 : [0x226],
                        0x6877 : [0x0400],
@@ -208,7 +209,7 @@ class ANDROID(USBMS):
             'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
             'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0_DRIVER',
             'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
-            'THINKPAD_TABLET']
+            'THINKPAD_TABLET', 'SGH-T989']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -217,7 +218,7 @@ class ANDROID(USBMS):
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0_DRIVER', 'XT875',
-            'UMS_COMPOSITE', 'PRO', '.KOBO_VOX']
+            'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

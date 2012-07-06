@@ -216,7 +216,8 @@ class CopyToLibraryAction(InterfaceAction):
                 if ci.isValid():
                     row = ci.row()
 
-                v.model().delete_books_by_id(self.worker.processed)
+                v.model().delete_books_by_id(self.worker.processed,
+                        permanent=True)
                 self.gui.iactions['Remove Books'].library_ids_deleted(
                         self.worker.processed, row)
 

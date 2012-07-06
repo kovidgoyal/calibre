@@ -17,7 +17,7 @@ from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp
+from calibre.utils.icu import sort_key, lower, strcmp, contractions
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
@@ -258,6 +258,16 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.hidden_categories.add(cat)
         db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
 
+        conts = contractions()
+        if len(conts) == 0 or not tweaks['enable_multicharacters_in_tag_browser']:
+            self.do_contraction = False
+        else:
+            self.do_contraction = True
+            nconts = set()
+            for s in conts:
+                nconts.add(icu_upper(s))
+            self.contraction_set = frozenset(nconts)
+
         self.db = db
         self._run_rebuild()
         self.endResetModel()
@@ -335,7 +345,6 @@ class TagsModel(QAbstractItemModel): # {{{
                         node.is_gst = is_gst
                         if not is_gst:
                             node.tag.is_hierarchical = '5state'
-                        if not is_gst:
                             tree_root[p] = {}
                             tree_root = tree_root[p]
                     else:
@@ -417,7 +426,14 @@ class TagsModel(QAbstractItemModel): # {{{
                     if not tag.sort:
                         c = ' '
                     else:
-                        c = icu_upper(tag.sort[0])
+                        if not self.do_contraction:
+                            c = icu_upper(tag.sort)[0]
+                        else:
+                            v = icu_upper(tag.sort)
+                            c = v[0]
+                            for s in self.contraction_set:
+                                if len(s) > len(c) and v.startswith(s):
+                                    c = s
                     if c not in chardict:
                         chardict[c] = [idx, idx]
                     else:
@@ -519,7 +535,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 # category display order is important here. The following works
                 # only if all the non-user categories are displayed before the
                 # user categories
-                if category_is_hierarchical:
+                if category_is_hierarchical or tag.is_hierarchical:
                     components = get_name_components(tag.original_name)
                 else:
                     components = [tag.original_name]
@@ -580,6 +596,14 @@ class TagsModel(QAbstractItemModel): # {{{
             if cat.category_key == category:
                 return [(t.tag.id, t.tag.original_name, t.tag.count)
                         for t in cat.child_tags() if t.tag.count > 0]
+
+    def is_in_user_category(self, index):
+        if not index.isValid():
+            return False
+        p = self.get_node(index)
+        while p.type != TagTreeItem.CATEGORY:
+            p = p.parent
+        return p.tag.category.startswith('@')
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -646,13 +670,13 @@ class TagsModel(QAbstractItemModel): # {{{
         action is Qt.CopyAction or Qt.MoveAction
         '''
         def process_source_node(user_cats, src_parent, src_parent_is_gst,
-                                is_uc, dest_key, node):
+                                is_uc, dest_key, idx):
             '''
             Copy/move an item and all its children to the destination
             '''
             copied = False
-            src_name = node.tag.original_name
-            src_cat = node.tag.category
+            src_name = idx.tag.original_name
+            src_cat = idx.tag.category
             # delete the item if the source is a user category and action is move
             if is_uc and not src_parent_is_gst and src_parent in user_cats and \
                                     action == Qt.MoveAction:
@@ -675,7 +699,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if add_it:
                 user_cats[dest_key].append([src_name, src_cat, 0])
 
-            for c in node.children:
+            for c in idx.children:
                 copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
                                              is_uc, dest_key, c)
             return copied
@@ -696,11 +720,11 @@ class TagsModel(QAbstractItemModel): # {{{
             if dest_key not in user_cats:
                 continue
 
-            node = self.index_for_path(path)
-            if node:
+            idx = self.index_for_path(path)
+            if idx.isValid():
                 process_source_node(user_cats, src_parent, src_parent_is_gst,
                                              is_uc, dest_key,
-                                             self.get_node(node))
+                                             self.get_node(idx))
 
         self.db.prefs.set('user_categories', user_cats)
         self.refresh_required.emit()
@@ -1139,6 +1163,8 @@ class TagsModel(QAbstractItemModel): # {{{
             return QModelIndex()
 
         ans = self.createIndex(parent_item.row(), 0, parent_item)
+        if not ans.isValid():
+            return QModelIndex()
         return ans
 
     def rowCount(self, parent):
