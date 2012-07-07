@@ -31,7 +31,7 @@ def gui_convert_override(input, output, recommendations, notification=DummyRepor
             override_input_metadata=True)
 
 def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
-        debug_mode, notification=DummyReporter(), log=None):
+        notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
     from calibre.library import db
@@ -50,7 +50,6 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
     # opts.gui_search_text = something
     opts.catalog_title = title
     opts.connected_device = connected_device
-    opts.debug_mode = debug_mode
     opts.ids = ids
     opts.search_text = None
     opts.sort_by = None

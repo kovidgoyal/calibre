@@ -320,8 +320,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db): # {{{
         out.name,
         d.catalog_sync,
         d.fmt_options,
-        connected_device,
-        DEBUG
+        connected_device
         ]
     out.close()
 

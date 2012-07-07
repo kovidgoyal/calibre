@@ -276,8 +276,6 @@ class EPUB_MOBI(CatalogPlugin):
             log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_SMALLEST))
             opts.thumb_width = "1.0"
 
-        if opts.debug_mode:
-            setattr(opts, 'debug_pipeline', os.path.expanduser("~/Desktop/Catalog debug"))
 
         # Display opts
         keys = opts_dict.keys()
@@ -285,7 +283,7 @@ class EPUB_MOBI(CatalogPlugin):
         build_log.append(" opts:")
         for key in keys:
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
-                       'debug_pipeline','exclude_book_marker','exclude_genre','exclude_tags',
+                       'exclude_book_marker','exclude_genre','exclude_tags',
                        'header_note_source_field','merge_comments',
                        'output_profile','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
@@ -317,11 +315,10 @@ class EPUB_MOBI(CatalogPlugin):
             recommendations = []
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
-            if opts.debug_mode:
-                recommendations.append(('comments', '\n'.join(line for line in build_log),
-                    OptionRecommendation.HIGH))
-            else:
-                recommendations.append(('comments', '', OptionRecommendation.HIGH))
+            recommendations.append(('comments', '', OptionRecommendation.HIGH))
+
+            # Use to debug generated catalog code before conversion
+            #setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
