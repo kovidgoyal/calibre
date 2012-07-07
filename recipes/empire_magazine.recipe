@@ -1,0 +1,51 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1341650280(BasicNewsRecipe):
+
+    title          = u'Empire Magazine'
+    description = 'Author D.Asbury. Film articles from Empire Mag. '
+    __author__ = 'Dave Asbury'
+    # last updated 7/7/12
+    remove_empty_feeds = True
+    remove_javascript     = True
+    no_stylesheets = True
+    #oldest_article = 7
+    max_articles_per_feed = 20
+    cover_url = 'http://www.empireonline.com/images/magazine/cover.jpg'
+    conversion_options = {
+            'linearize_tables' : True,
+	}
+    #auto_cleanup = True
+    preprocess_regexps = [
+        (re.compile(r'<a href="http://twitter.com/share.*?</a>', re.IGNORECASE | re.DOTALL), lambda match: ''),
+        (re.compile(r'<head>.*?<!-- CONTENT: START -->', re.IGNORECASE | re.DOTALL), lambda match: '<head></head><!-- CONTENT: START -->'),
+        (re.compile(r'<!-- LATEST NEWS HEADLINES: START -->.*?<!-- LATEST NEWS HEADLINES: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- LATEST NEWS HEADLINES: START --><!-- LATEST NEWS HEADLINES: END -->'),
+        (re.compile(r'<!-- RELATED FUTURE FILMS: START -->.*?<!-- RELATED FUTURE FILMS: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- RELATED FUTURE FILMS: START --><!-- RELATED FUTURE FILMS: END -->'),
+        (re.compile(r'<!-- CURRENT HIGHLIGHTS: START-->.*?<!-- CURRENT HIGHLIGHTS: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- CURRENT HIGHLIGHTS: START--><!-- CURRENT HIGHLIGHTS: END -->'),
+        (re.compile(r'<!-- RELATED REVIEWS: START -->.*?<!-- RELATED REVIEWS: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- RELATED REVIEWS: START --><!-- RELATED REVIEWS: END -->'),
+        (re.compile(r'<!-- RELATED INTERVIEWS -->.*?<!-- RELATED REVIEWS: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- RELATED INTERVIEWS --><!-- RELATED REVIEWS: END -->'),
+        (re.compile(r'<!-- CONTENT: END -->.*?</body>', re.IGNORECASE | re.DOTALL), lambda match: '<!-- CONTENT: END --></body>'),
+        (re.compile(r'<!-- STORY: END -->.*?</body>', re.IGNORECASE | re.DOTALL), lambda match: '<!-- STORY: END --></body>'),
+        (re.compile(r'<!-- RATINGS GUIDE: START-->.*?<!-- RATINGS GUIDE: END-->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- RATINGS GUIDE: START--><!-- RATINGS GUIDE: END-->'),
+        (re.compile(r'<strong>SUBSCRIBE TO EMPIRE</strong>.*?</tbody>', re.IGNORECASE | re.DOTALL), lambda match: '</tbody>'),
+        (re.compile(r'<!-- USER REVIEWS: START -->.*?<!-- USER REVIEWS: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- USER REVIEWS: START --><!-- USER REVIEWS: END -->'),
+        (re.compile(r'Advertisement', re.IGNORECASE | re.DOTALL), lambda match: ''),
+        (re.compile(r'<a name="haveyoursay".*?now to have your say.', re.IGNORECASE | re.DOTALL), lambda match: ''),
+	]
+    keep_only_tags = [
+                             # dict(name='h1'),
+	         # dict(attrs={'class' : 'mediumblack'}),
+                              ]
+    remove_tags = [dict(name='td', attrs={'width':'200', 'valign' : 'top'}),
+                            dict(name='b'),
+                            dict(name='a',attrs={'name' : 'haveyoursay'}),
+                            dict(attrs={'class' : 'newslink'}),
+		]
+
+
+    feeds          = [(u'News', u'http://feed43.com/7338478755673147.xml'),
+	      (u'Recent Features',u'http://feed43.com/4346347750304760.xml'),
+                          (u'Interviews',u'http://feed43.com/3418350077724081.xml'),
+	      (u'Film Reviews',u'http://feed43.com/2643703076510627.xml'),
+	]
