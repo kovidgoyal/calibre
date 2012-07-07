@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time, traceback
+import re, itertools, time, traceback, locale
 from itertools import repeat, izip, imap
 from datetime import timedelta
 from threading import Thread
@@ -1082,15 +1082,14 @@ class SortKeyGenerator(object):
                     dt = 'datetime'
                 elif sb == 'number':
                     try:
-                        val = val.replace(',', '').strip()
                         p = 1
                         for i, candidate in enumerate(
-                                    (' B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+                                    ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
                             if val.endswith(candidate):
                                 p = 1024**(i)
                                 val = val[:-len(candidate)].strip()
                                 break
-                        val = float(val) * p
+                        val = locale.atof(val) * p
                     except:
                         val = 0.0
                     dt = 'float'
