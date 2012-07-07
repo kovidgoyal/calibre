@@ -97,6 +97,9 @@ class MetadataWidget(Widget, Ui_Form):
         else:
             self.cover.setPixmap(QPixmap(I('default_cover.png')))
             self.cover.setToolTip(_('This book has no cover'))
+        for x in ('author', 'series', 'publisher'):
+            x = getattr(self, x)
+            x.lineEdit().deselect()
 
     def set_cover_tooltip(self, pm):
         tt = _('Cover size: %(width)d x %(height)d pixels') % dict(
