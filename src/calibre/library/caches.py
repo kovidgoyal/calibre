@@ -625,6 +625,8 @@ class ResultCache(SearchQueryParser): # {{{
 
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
+        # If candidates is not None, it must not be modified. Changing its
+        # value will break query optimization in the search parser
         matches = set([])
         if candidates is None:
             candidates = self.universal_set()
@@ -651,10 +653,13 @@ class ResultCache(SearchQueryParser): # {{{
                     else:
                         invert = False
                     for loc in location:
+                        c = candidates.copy()
                         m = self.get_matches(loc, query,
-                                candidates=candidates, allow_recursion=False)
+                                candidates=c, allow_recursion=False)
                         matches |= m
-                        candidates -= m
+                        c -= m
+                        if len(c) == 0:
+                            break
                     if invert:
                         matches = self.universal_set() - matches
                     return matches
@@ -669,12 +674,15 @@ class ResultCache(SearchQueryParser): # {{{
                     if l and l != 'all' and l in self.all_search_locations:
                         terms.add(l)
                 if terms:
+                    c = candidates.copy()
                     for l in terms:
                         try:
                             m = self.get_matches(l, query,
-                                candidates=candidates, allow_recursion=allow_recursion)
+                                candidates=c, allow_recursion=allow_recursion)
                             matches |= m
-                            candidates -= m
+                            c -= m
+                            if len(c) == 0:
+                                break
                         except:
                             pass
                     return matches
@@ -751,6 +759,7 @@ class ResultCache(SearchQueryParser): # {{{
             for i, loc in enumerate(location):
                 location[i] = db_col[loc]
 
+            current_candidates = candidates.copy()
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
@@ -767,7 +776,7 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
-                for id_ in candidates:
+                for id_ in current_candidates:
                     item = self._data[id_]
                     if item is None: continue
 
@@ -814,6 +823,7 @@ class ResultCache(SearchQueryParser): # {{{
                         if _match(q, vals, matchkind):
                             matches.add(item[0])
                             continue
+                current_candidates -= matches
         return matches
 
     def search(self, query, return_matches=False):
