@@ -129,7 +129,7 @@ sort_key = py_sort_key if _icu_not_ok else partial(icu_sort_key, _collator)
 strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
 
 case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
-        icu_case_sensitive_sort_key
+        partial(icu_case_sensitive_sort_key, _collator)
 
 case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
 
@@ -163,6 +163,13 @@ def primary_find(pat, src):
         from calibre.utils.filenames import ascii_text
         return py_find(ascii_text(pat), ascii_text(src))
     return icu_find(primary_collator(), pat, src)
+
+def primary_sort_key(val):
+    'A sort key that ignores case and diacritics'
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return ascii_text(val).lower()
+    return primary_collator().sort_key(val)
 
 ################################################################################
 
