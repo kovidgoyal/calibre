@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref
 
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
-        QApplication, QCompleter, QListView, QPoint)
+        QApplication, QListView, QPoint)
 
 from calibre.utils.icu import sort_key, primary_startswith
 from calibre.gui2 import NONE
@@ -20,8 +20,6 @@ class CompleteModel(QAbstractListModel): # {{{
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
-        self.items = []
-        self.sorting = QCompleter.UnsortedModel
         self.all_items = self.current_items = ()
         self.current_prefix = ''
 
