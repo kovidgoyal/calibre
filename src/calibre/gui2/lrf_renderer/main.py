@@ -309,7 +309,8 @@ def main(args=sys.argv, logger=None):
         return 1
     pid = os.fork() if (islinux or isbsd) else -1
     if pid <= 0:
-        app = Application(args)
+        override = 'calibre-lrf-viewer' if islinux else None
+        app = Application(args, override_program_name=override)
         app.setWindowIcon(QIcon(I('viewer.png')))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)

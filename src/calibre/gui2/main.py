@@ -8,7 +8,7 @@ from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
         QPixmap, QSplashScreen, QApplication)
 
 from calibre import prints, plugins, force_unicode
-from calibre.constants import (iswindows, __appname__, isosx, DEBUG,
+from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
         filesystem_encoding)
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
@@ -58,7 +58,8 @@ def init_qt(args):
             prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
-    app = Application(args)
+    override = 'calibre-gui' if islinux else None
+    app = Application(args, override_program_name=override)
     actions = tuple(Main.create_application_menubar())
     app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions

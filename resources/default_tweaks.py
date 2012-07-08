@@ -515,3 +515,13 @@ compile_gpm_templates = True
 #   default_tweak_format = 'remember'
 default_tweak_format = None
 
+#: Enable multi-character first-letters in the tag browser
+# Some languages have letters that can be represented by multiple characters.
+# For example, Czech has a 'character' "ch" that sorts between "h" and "i".
+# If this tweak is True, then the tag browser will take these characters into
+# consideration when partitioning by first letter.
+# Examples:
+#    enable_multicharacters_in_tag_browser = True
+#    enable_multicharacters_in_tag_browser = True
+enable_multicharacters_in_tag_browser = True
+

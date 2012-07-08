@@ -1,0 +1,71 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class HeritageFoundation(BasicNewsRecipe):
+    title		= u'The Heritage Foundation'
+    description		= 'Founded in 1973, The Heritage Foundation is a research and educational institution—a think tank—\
+whose mission is to formulate and promote conservative public policies based on the principles of free enterprise, limited government, \
+individual freedom, traditional American values, and a strong national defense.'
+    __author__ 	= '_reader'
+    __date__                	= '05 July 2012'
+    __version__            	 = '1.0'
+    oldest_article	= 30
+    max_articles_per_feed	= 100
+    publisher		= 'The Heritage Foundation'
+    category		= 'commentary'
+    tags 		= 'commentary'
+    language		= 'en'
+    publication_type	= 'blog'
+    cover_url		= 'http://www.heritage.org/static/images/logo.jpg'
+    masthead_url        	= 'http://www.heritage.org/static/images/logo.jpg'
+    encoding        	= None
+    use_embedded_content	= False
+    no_stylesheets	= True
+    remove_javascript	= True
+    recursions		= 0
+    remove_empty_feeds     = True
+    auto_cleanup = True
+
+    conversion_options = {
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+
+    feeds = [
+(u'Agriculture', u'http://www.heritage.org/static/RSS/Agriculture.xml'),
+(u'Alliances', u'http://www.heritage.org/static/RSS/Alliances.xml'),
+(u'Arms Control and Non-Proliferation', u'http://www.heritage.org/static/RSS/Arms-Control-and-Non-Proliferation.xml'),
+(u'Budget and Spending', u'http://www.heritage.org/static/RSS/Budget-and-Spending.xml'),
+(u'Economic Freedom', u'http://www.heritage.org/static/RSS/Economic-Freedom.xml'),
+(u'Economy', u'http://www.heritage.org/static/RSS/Economy.xml'),
+(u'Education', u'http://www.heritage.org/static/RSS/Education.xml'),
+(u'Energy and Environment', u'http://www.heritage.org/static/RSS/Energy-and-Environment.xml'),
+(u'Family and Marriage', u'http://www.heritage.org/static/RSS/Family-And-Marriage.xml'),
+(u'Foreign Aid and Development', u'http://www.heritage.org/static/RSS/Foreign-Aid-and-Development.xml'),
+(u'Health Care', u'http://www.heritage.org/static/RSS/Health-Care.xml'),
+(u'Homeland Security', u'http://www.heritage.org/static/RSS/Homeland-Security.xml'),
+(u'Housing', u'http://www.heritage.org/static/RSS/Housing.xml'),
+(u'Immigration', u'http://www.heritage.org/static/RSS/Immigration.xml'),
+(u'International Conflicts', u'http://www.heritage.org/static/RSS/International-Conflicts.xml'),
+(u'International Law', u'http://www.heritage.org/static/RSS/International-Law.xml'),
+(u'Labor', u'http://www.heritage.org/static/RSS/Labor.xml'),
+(u'Legal Issues', u'http://www.heritage.org/static/RSS/Legal.xml'),
+(u'Missile Defense', u'http://www.heritage.org/static/RSS/Missile-Defense.xml'),
+(u'National Security and Defense', u'http://www.heritage.org/static/RSS/National-Security-and-Defense.xml'),
+(u'Political Thought', u'http://www.heritage.org/static/RSS/Political-Thought.xml'),
+(u'Public Diplomacy', u'http://www.heritage.org/static/RSS/Public-Diplomacy.xml'),
+(u'Regulation', u'http://www.heritage.org/static/RSS/Regulation.xml'),
+(u'Religion and Civil Society', u'http://www.heritage.org/static/RSS/Religion-and-Civil-Society.xml'),
+(u'Retirement Security', u'http://www.heritage.org/static/RSS/Retirement-Security.xml'),
+(u'Space Policy', u'http://www.heritage.org/static/RSS/Space-Policy.xml'),
+(u'Taxes', u'http://www.heritage.org/static/RSS/Taxes.xml'),
+(u'Terrorism', u'http://www.heritage.org/static/RSS/Terrorism.xml'),
+(u'Trade', u'http://www.heritage.org/static/RSS/Trade.xml'),
+(u'Transportation', u'http://www.heritage.org/static/RSS/Transportation.xml'),
+(u'Welfare', u'http://www.heritage.org/static/RSS/Welfare.xml'),
+(u'Worldwide Freedom and Human Rights', u'http://www.heritage.org/static/RSS/Worldwide-Freedom-and-Human-Rights.xml'),
+]
+

@@ -11,6 +11,7 @@ import cPickle, os
 
 from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer
 
+from calibre.constants import DEBUG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
 from calibre.gui2.convert.single import NoSupportedInputFormats

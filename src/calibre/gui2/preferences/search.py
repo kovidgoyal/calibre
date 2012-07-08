@@ -13,6 +13,7 @@ from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.gui2 import config, error_dialog
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
+from calibre.library.caches import set_use_primary_find_in_search
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -26,6 +27,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('search_as_you_type', config)
         r('highlight_search_matches', config)
         r('limit_search_columns', prefs)
+        r('use_primary_find_in_search', prefs)
         r('limit_search_columns_to', prefs, setting=CommaSeparatedList)
         fl = db.field_metadata.get_search_terms()
         self.opt_limit_search_columns_to.update_items_cache(fl)
@@ -222,6 +224,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
+        set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
         gui.set_highlight_only_button_icon()
         if self.muc_changed:
             gui.tags_view.recount()

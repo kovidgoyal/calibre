@@ -422,6 +422,14 @@ def _prefs():
                 'title:Red. Enter a list of search/lookup names '
                 'separated by commas. Only takes effect if you set the option '
                 'to limit search columns above.'))
+    c.add_opt('use_primary_find_in_search', default=True,
+            help=_('Characters typed in the search box will match their '
+                   'accented versions, based on the language you have chosen '
+                   'for the calibre interface. For example, in '
+                   u' English, searching for n will match ñ and n, but if '
+                   'your language is Spanish it will only match n. Note that '
+                   'this is much slower than a simple search on very large '
+                   'libraries.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
