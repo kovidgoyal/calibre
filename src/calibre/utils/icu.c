@@ -272,6 +272,44 @@ icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) 
     return Py_BuildValue("O", ans);
 } // }}}
 
+// Collator.startswith {{{
+static PyObject *
+icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_, *b_;
+    size_t asz, bsz;
+    int32_t actual_a, actual_b;
+    UChar *a, *b;
+    wchar_t *aw, *bw;
+    UErrorCode status = U_ZERO_ERROR;
+    int ans = 0;
+  
+    if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
+    asz = PyUnicode_GetSize(a_); bsz = PyUnicode_GetSize(b_);
+    if (asz < bsz) Py_RETURN_FALSE;
+    if (bsz == 0) Py_RETURN_TRUE;
+    
+    a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
+    b = (UChar*)calloc(bsz*4 + 2, sizeof(UChar));
+    aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
+    bw = (wchar_t*)calloc(bsz*4 + 2, sizeof(wchar_t));
+
+    if (a == NULL || b == NULL || aw == NULL || bw == NULL) return PyErr_NoMemory();
+
+    actual_a = (int32_t)PyUnicode_AsWideChar((PyUnicodeObject*)a_, aw, asz*4+1);
+    actual_b = (int32_t)PyUnicode_AsWideChar((PyUnicodeObject*)b_, bw, bsz*4+1);
+    if (actual_a > -1 && actual_b > -1) {
+        u_strFromWCS(a, asz*4 + 1, &actual_a, aw, -1, &status);
+        u_strFromWCS(b, bsz*4 + 1, &actual_b, bw, -1, &status);
+
+        if (U_SUCCESS(status) && ucol_equal(self->collator, a, actual_b, b, actual_b))
+            ans = 1;
+    }
+
+    free(a); free(b); free(aw); free(bw);
+    if (ans) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+} // }}}
+
 static PyObject*
 icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs);
 
@@ -294,6 +332,10 @@ static PyMethodDef icu_Collator_methods[] = {
 
     {"clone", (PyCFunction)icu_Collator_clone, METH_VARARGS,
         "clone() -> returns a clone of this collator."
+    },
+
+    {"startswith", (PyCFunction)icu_Collator_startswith, METH_VARARGS,
+        "startswith(a, b) -> returns True iff a startswith b, following the current collation rules."
     },
 
     {NULL}  /* Sentinel */
