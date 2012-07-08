@@ -24,26 +24,12 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BNStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        pub_id = 'sHa5EXvYOwA'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            pub_id = '0dsO3kDu/AU'
-
-        murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&offerid=239662.13&type=3&subid=0' % pub_id
-
-        if detail_item:
-            purl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=239662.%s&type=2&subid=0' % (pub_id, detail_item)
-            url = purl
-        else:
-            purl = None
-            url = murl
-
-        #print(url)
+        url = "http://bn.com"
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, murl, parent, purl)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -60,7 +46,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[contains(@class, "display-tile-item")]/@data-bn-ean'))
+                id = ''.join(data.xpath('.//div[contains(@class, "image-bounding-box")]/a/@href'))
                 if not id:
                     continue
 

@@ -1262,7 +1262,6 @@ class StoreBNStore(StoreBase):
 
     headquarters = 'US'
     formats = ['NOOK']
-    affiliate = True
 
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
