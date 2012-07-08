@@ -237,21 +237,21 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="MultiCompleteComboBox" name="authors_box">
+        <widget class="EditWithComplete" name="authors_box">
          <property name="toolTip">
           <string>Enter an author's name. Only one author can be used.</string>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="MultiCompleteComboBox" name="series_box">
+        <widget class="EditWithComplete" name="series_box">
          <property name="toolTip">
           <string>Enter a series name, without an index. Only one series name can be used.</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="MultiCompleteLineEdit" name="tags_box">
+        <widget class="EditWithComplete" name="tags_box">
          <property name="toolTip">
           <string>Enter tags separated by spaces</string>
          </property>
@@ -327,14 +327,9 @@
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>MultiCompleteLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>calibre/gui2/complete.h</header>
-  </customwidget>
-  <customwidget>
-   <class>MultiCompleteComboBox</class>
+   <class>EditWithComplete</class>
    <extends>QComboBox</extends>
-   <header>calibre/gui2/complete.h</header>
+   <header>calibre/gui2/complete2.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

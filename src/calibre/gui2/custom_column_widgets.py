@@ -13,7 +13,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
         QPushButton, QMessageBox, QToolButton
 
 from calibre.utils.date import qt_to_dt, now
-from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -235,7 +235,7 @@ class MultipleWidget(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = MultiCompleteLineEdit(parent)
+        self.tags_box = EditWithComplete(parent)
         layout.addWidget(self.tags_box, stretch=1000)
         self.editor_button = QToolButton(self)
         self.editor_button.setToolTip(_('Open Item Editor'))
@@ -293,7 +293,7 @@ class Text(Base):
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             w.get_editor_button().clicked.connect(self.edit)
         else:
-            w = MultiCompleteComboBox(parent)
+            w = EditWithComplete(parent)
             w.set_separator(None)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
@@ -363,7 +363,7 @@ class Text(Base):
 class Series(Base):
 
     def setup_ui(self, parent):
-        w = MultiCompleteComboBox(parent)
+        w = EditWithComplete(parent)
         w.set_separator(None)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -807,7 +807,7 @@ class BulkDateTime(BulkBase):
 class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, MultiCompleteComboBox)
+        self.make_widgets(parent, EditWithComplete)
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         self.main_widget.setSizeAdjustPolicy(self.main_widget.AdjustToMinimumContentsLengthWithIcon)
@@ -934,7 +934,7 @@ class RemoveTags(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = MultiCompleteLineEdit(parent)
+        self.tags_box = EditWithComplete(parent)
         self.tags_box.update_items_cache(values)
         layout.addWidget(self.tags_box, stretch=3)
         self.checkbox = QCheckBox(_('Remove all tags'), parent)
@@ -956,7 +956,7 @@ class BulkText(BulkBase):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            self.make_widgets(parent, MultiCompleteLineEdit,
+            self.make_widgets(parent, EditWithComplete,
                               extra_label_text=_('tags to add'))
             self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.adding_widget = self.main_widget
@@ -976,7 +976,7 @@ class BulkText(BulkBase):
                 self.main_widget.set_add_separator(
                                 tweaks['authors_completer_append_separator'])
         else:
-            self.make_widgets(parent, MultiCompleteComboBox)
+            self.make_widgets(parent, EditWithComplete)
             self.main_widget.set_separator(None)
             self.main_widget.setSizeAdjustPolicy(
                         self.main_widget.AdjustToMinimumContentsLengthWithIcon)
