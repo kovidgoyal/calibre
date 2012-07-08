@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-06 03:39+0000\n"
-"PO-Revision-Date: 2012-02-23 09:37+0000\n"
-"Last-Translator: PiRX <Unknown>\n"
+"PO-Revision-Date: 2012-07-07 19:31+0000\n"
+"Last-Translator: Gordon Tops <gordontops@yahoo.com>\n"
 "Language-Team: Latvian <ivars.arins@dotnet.lv>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-07-07 05:01+0000\n"
+"X-Launchpad-Export-Date: 2012-07-08 04:40+0000\n"
 "X-Generator: Launchpad (build 15558)\n"
 "X-Poedit-Country: LATVIA\n"
 "Language: lv\n"
@@ -810,7 +810,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:441
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Paredzēts iPad3 un citam ierīcem ar izšķirtspēju 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:447
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -874,7 +874,7 @@ msgstr "Šis profils ir paredzēts PocketBook Pro 900 sērijas ierīcēm."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "Uzstādītie spraudņi"
+msgstr "Установленные плагины"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -886,11 +886,11 @@ msgstr "Lokāla spraudņu pielāgošana"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "Atspējotie spraudņi"
+msgstr "Atslēgtie spraudņi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr "Iespējotie spraudņi"
+msgstr "Ieslēgtie spraudņi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:496
 #, python-format
@@ -999,7 +999,7 @@ msgstr "Komunicē ar S60 telefoniem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:297
 msgid "Communicate with WebOS tablets."
-msgstr "Komunicē ar WebOS planšetēm."
+msgstr "Komunicēt ar WebOS planšetēm."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -1012,6 +1012,16 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Ja jūs nevēlaties, lai Calibre atpazīna Jūsu Apple iDevice, kad tas tiek "
+"savienots ar datoru, noklikšķiniet uz<b>Atspēkot  Apple "
+"Driver</b>.</p><p>Lai pārsūtīt grāmatas savai iDevice, "
+"noklikšķiniet<b>Atspēkot  Apple Driver</b>, tad izvēlieties \"Izveidot "
+"savienojumu ar iTunes\", šī metode ir ieteicama foruma <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, lai to izdarītu, noklikšķiniet  "
+"<em>Savienošana/dalīties</em>|<em>Pievienošana iTunes</em>.</p><p>Neizmanto "
+"Apple draiveri, lai  tieši pieslēgt iDevices: tas neatbalstīts pieredzejoša "
+"lietotāja režīms.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"
@@ -1037,7 +1047,7 @@ msgstr "Kešot vākus no iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr "Enable to cache and display covers from iTunes/iBooks"
+msgstr "Dod iespēju kešot un parādīt vākus no iTunes / iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 #, python-format
@@ -1096,6 +1106,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>Nevar sazināties ar iTunes.</p><p>Skatiet šo <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"forum post</a> plašākai informācijai.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:380
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:383
@@ -1167,7 +1180,7 @@ msgstr "Katalogs"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3136
 msgid "Communicate with iTunes."
-msgstr "Komunicē ar iTunes."
+msgstr "Komunicēt ar iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
@@ -1317,15 +1330,15 @@ msgstr "Komunicē ar Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:220
 msgid "Communicate with the PocketBook 301 reader."
-msgstr "Komunicē ar PocketBook 301 e-grāmatu lasītāju."
+msgstr "Komunicēt ar PocketBook 301 e-grāmatu lasītāju."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr "Komunicē ar PocketBook 602/603/902/903 e-grāmatu lasītāju."
+msgstr "Komunicēt ar PocketBook 602/603/902/903 e-grāmatu lasītāju."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Komunicēt ar PocketBook 622 e-grāmatu lasītāju."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1453,7 +1466,7 @@ msgstr "Komunicē ar JetBook Mini e-grāmatu lasītāju."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Komunicēt ar  JetBook Color e-grāmatu lasītāju."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1515,7 +1528,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:306
 msgid "Use slower but more accurate page number calculation"
-msgstr ""
+msgstr "Izmantot lēnāku, bet precīzāko lappuses numura aprēķinu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:308
 msgid ""
@@ -1530,7 +1543,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:312
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "Ailes nosaukums, lai ielādēt lapu skaitu no"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:314
 msgid ""
@@ -1539,6 +1552,10 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
+"Ja jums ir lietotāja sleja bibliotēka, kuru jūs izmantojat, lai saglabātu "
+"lapu skaitu grāmatas, jūs varat ļaut Calibre izmantot šo informāciju, nevis "
+"aprēķināt lapu skaitu. Norādiet lietotāja aile nosaukumu  šeit, piemēram, # "
+"lapas. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:449
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1554,11 +1571,11 @@ msgstr "Komunicē ar Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Kobo  atbalsta vairākas kolekcijas, to starp "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Izveidot tagus automātiskāi vadībai"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid "Upload covers for books (newer readers)"
@@ -1580,7 +1597,7 @@ msgstr "Izmantot melnbaltus vākus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Show expired books"
-msgstr ""
+msgstr "Rādīt  grāmatas kam beidzās termiņš"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid ""
@@ -1588,6 +1605,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Sakara ar kļūdu agrākajā versijā   non kepubs grāmatas nav ierakstiti datu "
+"bāzē. Ar šo opciju Calibre rādīs  ierakstus kam beidzās termiņš  un ļauj "
+"izdzēst tos ar jauno dzēšenas loģiku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Show Previews"
@@ -1599,6 +1619,9 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Kobo priekšskatījumi ir iekļauti Touch un dažas citas versijas pēc "
+"noklusējuma , tapec tie vairs netiek rādīti ta kā nav nekāda iemesla tos "
+"apskatīt. Ļauj, ja jūs vēlaties redzēt / izdzēst."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
@@ -1610,11 +1633,14 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo tagad rāda ieteikumus ierīcē. Dažos gadījumos tie ir faili, bet citos "
+"gadījumos tie ir tikai norādes uz tīmekļa vietni, lai nopirkt. Ļauj, ja jūs "
+"vēlaties redzēt / izdzēst."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
 msgid "Not Implemented"
-msgstr "Netiek atbalstīts"
+msgstr "Nav ieviests"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:597
 msgid ""
@@ -1782,6 +1808,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
+"Komatu atdalītu sarakstu metadatu laukus pārvērst apkopojumos ierīcē. Šīs "
+"iespējas ietver: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 #, python-format
@@ -1790,6 +1818,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Divas īpašas kolekcijas ir pieejamas:  %(abt)s:%(abtv)s and "
+"%(aba)s:%(abav)s. Pievienot šīs vērtības sarakstā, lai tos atļautu. Krājumam "
+"tiks dots vārds sniegts pēc \":\" rakstzīmes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1803,11 +1834,17 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Parasti, SONY lasītāji saņem vāka attēlu no ebook failā pati. Izmantojot šo "
+"iespēju, Calibre nosūtīs atsevišķu vaku attēlu uz lasītāju, noderīgi, ja jūs "
+"sūtat DRM grāmatas, kurā jūs nevarat mainīt vāku. BRĪDINĀJUMS: Šo iespēju "
+"drīkst izmantot tikai ar jaunākajām SONY lasītāju: 350, 650, 950 un jaunāku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:84
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Atsvaidzināt atsevišķus vākus, ja izmantojat automātisku vadību (jaunākajem "
+"lasītājiem)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:78
@@ -1816,11 +1853,14 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Iestatiet šo opciju, lai ļaut atsevišķus grāmatu vākus augšupielādēti katru "
+"reizi, kad pievienojat ierīci. Atstatīt šo opciju, ja jums ir tik daudz "
+"grāmatu lasītājā, ka izpilde ir nepieņemama."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:90
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:82
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "Saglabāt vāku proporciju, būvējot sīktēlus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:84
@@ -1829,6 +1869,9 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Iestatiet šo opciju, ja jūs vēlaties vāka sīktēli ar tādu pašu proporciju "
+"(platums augstums) kā vāka. Atstatīt to, ja jūs vēlaties sīktēlu būt "
+"maksimālais lielums, ignorējot proporcijas."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
 msgid "Search for books in all folders"
@@ -1840,6 +1883,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"šīs opcijas Iestatīšana  stāsta Calibre meklēt grāmatu visas mapes ierīce un "
+"tās atmiņas kartes. Tas ļauj Calibre , lai atrastu grāmatas pārsūtītas "
+"ierīcē ar citām programmatūrām un bezvadu lejupielādi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:191
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:81
@@ -1867,7 +1913,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Atsvaidzināt atsevišķus vākus, ja izmantojat automātisku vadību"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
@@ -1879,6 +1925,9 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Iestatiet šo opciju, ja vēlaties lai Sony autors parādītos tāpat, ka T1 "
+"nosaka to. Tas nozīmē, to rādīs tikai pirmo autoru grāmatām ar vairākiem "
+"autoriem. Atstājiet šo atspējoto, ja jūs izmantojat metadatu Plugboards."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -1923,17 +1972,17 @@ msgstr "Komunicē ar Wexler lasītāju."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #, python-format
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
+msgstr "Nespēj atklāt %s disku. Mēģiniet pārstartēt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:466
 #, python-format
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr ""
+msgstr "Nespēj atklāt% s montēšanas punktu. Mēģiniet pārstartēt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:534
 #, python-format
 msgid "Unable to detect the %s disk drive."
-msgstr ""
+msgstr "Nespēj atklāt% s disku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:612
 #, python-format
@@ -1941,11 +1990,13 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Nespēj atklāt% s disku. Vai nu ierīcē jau ir izgrūsta, vai jūsu kodols ir "
+"eksportē novecojis versiju SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:621
 #, python-format
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr ""
+msgstr "Nevar uzstādīt galveno atmiņu (Kļūdas kods: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:672
 #, python-format
@@ -1953,10 +2004,12 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"Galvenā atmiņa %s  tikai lasišanai. Tas parasti notiek tāpēc, ka failu "
+"sistēmas kļūdas."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Nevar montēt ierīci"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -1983,7 +2036,7 @@ msgstr "Ierīces uzstādījumi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:59
 msgid "settings for device drivers"
-msgstr ""
+msgstr "Iestatījumi ierīču draiveriem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:61
 msgid "Ordered list of formats the device will accept"

@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-06 03:39+0000\n"
-"PO-Revision-Date: 2012-06-29 08:20+0000\n"
+"PO-Revision-Date: 2012-07-07 08:41+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-07 04:59+0000\n"
+"X-Launchpad-Export-Date: 2012-07-08 04:40+0000\n"
 "X-Generator: Launchpad (build 15558)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1367,7 +1367,7 @@ msgstr "Comunica con il lettore PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Comunica con il lettore PocketBook 622."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -2223,13 +2223,15 @@ msgstr "Cartella nella Card A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Scambia principale con scheda A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Marca questa casella se la memoria principale del dispositivo viene vista "
+"come scheda A e la scheda come memoria principale"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
 #, python-format
