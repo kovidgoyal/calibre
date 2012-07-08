@@ -364,6 +364,7 @@ class Py2App(object):
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
                 LSMultipleInstancesProhibited=True,
+                NSHighResolutionCapable=True,
                 LSEnvironment=env
         )
         plistlib.writePlist(pl, join(self.contents_dir, 'Info.plist'))
