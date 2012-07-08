@@ -11,7 +11,6 @@ import os
 from collections import namedtuple
 
 from calibre import strftime
-from calibre.constants import DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 
@@ -277,6 +276,7 @@ class EPUB_MOBI(CatalogPlugin):
             log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_SMALLEST))
             opts.thumb_width = "1.0"
 
+
         # Display opts
         keys = opts_dict.keys()
         keys.sort()
@@ -315,11 +315,10 @@ class EPUB_MOBI(CatalogPlugin):
             recommendations = []
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
-            if DEBUG:
-                recommendations.append(('comments', '\n'.join(line for line in build_log),
-                    OptionRecommendation.HIGH))
-            else:
-                recommendations.append(('comments', '', OptionRecommendation.HIGH))
+            recommendations.append(('comments', '', OptionRecommendation.HIGH))
+
+            # Use to debug generated catalog code before conversion
+            #setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:

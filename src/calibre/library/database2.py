@@ -3737,4 +3737,42 @@ books_series_link      feeds
             'SELECT {0}, count(*) FROM books_{1}_link GROUP BY {0}'.format(
                 fm['link_column'], fm['table']))
 
+    def all_author_names(self):
+        ai = self.FIELD_MAP['authors']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                for x in auts.split(','):
+                    ans.add(x.replace('|', ','))
+        return ans
+
+    def all_tag_names(self):
+        ai = self.FIELD_MAP['tags']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                for x in auts.split(','):
+                    ans.add(x)
+        return ans
+
+    def all_publisher_names(self):
+        ai = self.FIELD_MAP['publisher']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                ans.add(auts)
+        return ans
+
+    def all_series_names(self):
+        ai = self.FIELD_MAP['series']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                ans.add(auts)
+        return ans
+
 

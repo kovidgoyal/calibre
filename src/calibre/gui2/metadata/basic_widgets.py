@@ -1114,7 +1114,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
-        self.all_items = db.all_tags()
+        self.all_items = db.all_tag_names()
         self.original_val = self.current_val
 
     @property
