@@ -155,21 +155,30 @@ def primary_strcmp(a, b):
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_strcmp(ascii_text(a), ascii_text(b))
-    return primary_collator().strcmp(a, b)
+    try:
+        return _primary_collator.strcmp(a, b)
+    except AttributeError:
+        return primary_collator().strcmp(a, b)
 
 def primary_find(pat, src):
     'find that ignores case and accents on letters'
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_find(ascii_text(pat), ascii_text(src))
-    return icu_find(primary_collator(), pat, src)
+    try:
+        return icu_find(_primary_collator, pat, src)
+    except AttributeError:
+        return icu_find(primary_collator(), pat, src)
 
 def primary_sort_key(val):
     'A sort key that ignores case and diacritics'
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return ascii_text(val).lower()
-    return primary_collator().sort_key(val)
+    try:
+        return _primary_collator.sort_key(val)
+    except AttributeError:
+        return primary_collator().sort_key(val)
 
 ################################################################################
 
