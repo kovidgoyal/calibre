@@ -57,6 +57,11 @@ class CompleteModel(QAbstractListModel): # {{{
             except IndexError:
                 pass
         return NONE
+
+    def index_for_prefix(self, prefix):
+        for i, item in enumerate(self.current_items):
+            if primary_startswith(item, prefix):
+                return self.index(i)
 # }}}
 
 class Completer(QListView): # {{{
@@ -110,6 +115,12 @@ class Completer(QListView): # {{{
         r = r + (-1 if previous else 1)
         index = self.model().index(r % self.model().rowCount())
         self.setCurrentIndex(index)
+
+    def scroll_to(self, orig):
+        if orig:
+            index = self.model().index_for_prefix(orig)
+            if index is not None and index.isValid():
+                self.setCurrentIndex(index)
 
     def popup(self):
         p = self
@@ -252,12 +263,15 @@ class LineEdit(QLineEdit, LineEditECM):
     # }}}
 
     def complete(self, show_all=False):
+        orig = None
         if show_all:
+            orig = self.mcompleter.model().current_prefix
             self.mcompleter.set_completion_prefix('')
         if not self.mcompleter.model().current_items:
             self.mcompleter.hide()
             return
         self.mcompleter.popup()
+        self.mcompleter.scroll_to(orig)
 
     def relayout(self):
         self.mcompleter.popup()
