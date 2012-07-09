@@ -146,7 +146,7 @@ Run bash ./runConfigureICU Cygwin/MSVC
 
 Run make (note that you must have GNU make installed in cygwin)
 
-Optionally run make test
+Optionally run make check
 
 Libunrar
 ----------

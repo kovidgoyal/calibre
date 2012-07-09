@@ -373,6 +373,10 @@ class EditWithComplete(EnComboBox):
     def setCursorPosition(self, *args):
         self.lineEdit().setCursorPosition(*args)
 
+    @property
+    def textChanged(self):
+        return self.lineEdit().textChanged
+
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
     app = QApplication([])
