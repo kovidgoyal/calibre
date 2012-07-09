@@ -94,6 +94,12 @@ def test_unrar():
         raise RuntimeError('Failed to load libunrar')
     print ('Unrar OK!')
 
+def test_icu():
+    from calibre.utils.icu import _icu_not_ok
+    if _icu_not_ok:
+        raise RuntimeError('ICU module not loaded/valid')
+    print ('ICU OK!')
+
 def test():
     test_plugins()
     test_lxml()
@@ -102,6 +108,7 @@ def test():
     test_qt()
     test_imaging()
     test_unrar()
+    test_icu()
     if iswindows:
         test_win32()
         test_winutil()
