@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-06 03:39+0000\n"
-"PO-Revision-Date: 2012-07-04 22:24+0000\n"
-"Last-Translator: Sebastian Morkisch <Unknown>\n"
+"PO-Revision-Date: 2012-07-08 12:22+0000\n"
+"Last-Translator: H.-W. S. <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-07 04:57+0000\n"
+"X-Launchpad-Export-Date: 2012-07-09 04:50+0000\n"
 "X-Generator: Launchpad (build 15558)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1368,7 +1368,7 @@ msgstr "verbinden mit PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Kommunikation mit dem PocketBook 622 Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -2234,6 +2234,8 @@ msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Markieren Sie dieses Kästchen, wenn der Hauptspeicher des Geräts als Karte "
+"und die Karte als Hauptspeicher."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
 #, python-format
