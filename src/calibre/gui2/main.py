@@ -313,28 +313,43 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
-def communicate(opts, args):
+def build_pipe():
     t = RC()
     t.start()
-    time.sleep(3)
-    if not t.done:
-        f = os.path.expanduser('~/.calibre_calibre GUI.lock')
-        cant_start(what=_('try deleting the file')+': '+f)
+    t.join(3.0)
+    if t.is_alive():
+        if iswindows():
+            cant_start()
+        else:
+            f = os.path.expanduser('~/.calibre_calibre GUI.lock')
+            cant_start(what=_('try deleting the file')+': '+f)
         raise SystemExit(1)
+    return t
 
+def shutdown_other(rc=None):
+    if rc is None:
+        rc = build_pipe()
+        if rc.conn is None: return # No running instance found
+    from calibre.utils.lock import singleinstance
+    rc.conn.send('shutdown:')
+    prints(_('Shutdown command sent, waiting for shutdown...'))
+    for i in xrange(50):
+        if singleinstance('calibre GUI'):
+            return
+        time.sleep(0.1)
+    prints(_('Failed to shutdown running calibre instance'))
+    raise SystemExit(1)
+
+def communicate(opts, args):
+    t = build_pipe()
     if opts.shutdown_running_calibre:
-        t.conn.send('shutdown:')
-        from calibre.utils.lock import singleinstance
-        prints(_('Shutdown command sent, waiting for shutdown...'))
-        while not singleinstance('calibre GUI'):
-            time.sleep(0.1)
+        shutdown_other(t)
     else:
         if len(args) > 1:
             args[1] = os.path.abspath(args[1])
         t.conn.send('launched:'+repr(args))
     t.conn.close()
     raise SystemExit(0)
-
 
 def main(args=sys.argv):
     gui_debug = None
