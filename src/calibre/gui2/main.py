@@ -313,8 +313,8 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
-def build_pipe():
-    t = RC()
+def build_pipe(print_error=True):
+    t = RC(print_error=print_error)
     t.start()
     t.join(3.0)
     if t.is_alive():
@@ -328,8 +328,10 @@ def build_pipe():
 
 def shutdown_other(rc=None):
     if rc is None:
-        rc = build_pipe()
-        if rc.conn is None: return # No running instance found
+        rc = build_pipe(print_error=False)
+        if rc.conn is None:
+            prints(_('No running calibre found'))
+            return # No running instance found
     from calibre.utils.lock import singleinstance
     rc.conn.send('shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
