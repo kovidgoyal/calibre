@@ -581,30 +581,31 @@ class FileDialog(QObject):
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
-        if mode == QFileDialog.AnyFile:
-            f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
-            if f:
-                self.selected_files.append(f)
-        elif mode == QFileDialog.ExistingFile:
-            f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
-            if f and os.path.exists(f):
-                self.selected_files.append(f)
-        elif mode == QFileDialog.ExistingFiles:
-            fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
-            for f in fs:
-                f = unicode(f)
-                if not f: continue
-                if not os.path.exists(f):
-                    # QFileDialog for some reason quotes spaces
-                    # on linux if there is more than one space in a row
-                    f = unquote(f)
+        with SanitizeLibraryPath():
+            if mode == QFileDialog.AnyFile:
+                f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
+                if f:
+                    self.selected_files.append(f)
+            elif mode == QFileDialog.ExistingFile:
+                f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
                 if f and os.path.exists(f):
                     self.selected_files.append(f)
-        else:
-            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
-            f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
-            if os.path.exists(f):
-                self.selected_files.append(f)
+            elif mode == QFileDialog.ExistingFiles:
+                fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
+                for f in fs:
+                    f = unicode(f)
+                    if not f: continue
+                    if not os.path.exists(f):
+                        # QFileDialog for some reason quotes spaces
+                        # on linux if there is more than one space in a row
+                        f = unquote(f)
+                    if f and os.path.exists(f):
+                        self.selected_files.append(f)
+            else:
+                opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
+                f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+                if os.path.exists(f):
+                    self.selected_files.append(f)
         if self.selected_files:
             self.selected_files = [unicode(q) for q in self.selected_files]
             saved_loc = self.selected_files[0]
@@ -857,16 +858,26 @@ class Application(QApplication):
 
 _store_app = None
 
+class SanitizeLibraryPath(object):
+    '''Remove the bundled calibre libraries from LD_LIBRARY_PATH on linux. This
+    is needed to prevent library conflicts when launching external utilities.'''
+
+    def __enter__(self):
+        self.orig = os.environ.get('LD_LIBRARY_PATH', '')
+        self.changed = False
+        paths = [x for x in self.orig.split(os.pathsep) if x]
+        if isfrozen and islinux and paths:
+            npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+            os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+            self.changed = True
+
+    def __exit__(self, *args):
+        if self.changed:
+            os.environ['LD_LIBRARY_PATH'] = self.orig
+
 def open_url(qurl):
-    paths = os.environ.get('LD_LIBRARY_PATH',
-                '').split(os.pathsep)
-    paths = [x for x in paths if x]
-    if isfrozen and islinux and paths:
-        npaths = [x for x in paths if x != sys.frozen_path+'/lib']
-        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-    QDesktopServices.openUrl(qurl)
-    if isfrozen and islinux and paths:
-        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
+    with SanitizeLibraryPath():
+        QDesktopServices.openUrl(qurl)
 
 def get_current_db():
     '''

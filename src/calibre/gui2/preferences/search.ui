@@ -69,7 +69,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="MultiCompleteLineEdit" name="opt_limit_search_columns_to"/>
+       <widget class="EditWithComplete" name="opt_limit_search_columns_to"/>
       </item>
       <item row="5" column="0" colspan="2">
        <widget class="QLabel" name="label_3">
@@ -134,7 +134,7 @@ a search term by changing the value box then pressing Save.</string>
          </widget>
         </item>
         <item>
-         <widget class="MultiCompleteLineEdit" name="gst_value"/>
+         <widget class="EditWithComplete" name="gst_value"/>
         </item>
         <item>
          <widget class="QToolButton" name="gst_save_button">
@@ -173,7 +173,7 @@ of a search term by changing the value box then pressing Save.</string>
          </widget>
         </item>
         <item>
-         <widget class="MultiCompleteLineEdit" name="opt_grouped_search_make_user_categories">
+         <widget class="EditWithComplete" name="opt_grouped_search_make_user_categories">
           <property name="toolTip">
            <string>Enter the names of any grouped search terms you wish
 to be shown as user categories</string>
@@ -301,9 +301,9 @@ to be shown as user categories</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MultiCompleteLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>calibre/gui2/complete.h</header>
+   <class>EditWithComplete</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/complete2.h</header>
   </customwidget>
  </customwidgets>
  <resources>
