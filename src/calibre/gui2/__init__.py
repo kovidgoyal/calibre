@@ -89,14 +89,6 @@ gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
-gprefs.defaults['book_display_fields'] = [
-        ('title', False), ('authors', True), ('formats', True),
-        ('series', True), ('identifiers', True), ('tags', True),
-        ('path', True), ('publisher', False), ('rating', False),
-        ('author_sort', False), ('sort', False), ('timestamp', False),
-        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False), ('languages', False),
-        ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False

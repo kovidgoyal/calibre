@@ -75,7 +75,7 @@ class DisplayedFields(QAbstractListModel): # {{{
 
     def commit(self):
         if self.changed:
-            gprefs['book_display_fields'] = self.fields
+            self.db.prefs['book_display_fields'] = self.fields
 
     def move(self, idx, delta):
         row = idx.row() + delta

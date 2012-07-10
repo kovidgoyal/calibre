@@ -34,6 +34,9 @@ class DBPrefs(dict):
     def to_raw(self, val):
         return json.dumps(val, indent=2, default=to_json)
 
+    def has_setting(self, key):
+        return key in self
+
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)
