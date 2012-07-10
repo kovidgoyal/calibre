@@ -377,6 +377,9 @@ class EditWithComplete(EnComboBox):
     def textChanged(self):
         return self.lineEdit().textChanged
 
+    def clear(self):
+        self.lineEdit().clear()
+
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
     app = QApplication([])
