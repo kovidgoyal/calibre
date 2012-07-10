@@ -379,6 +379,7 @@ class EditWithComplete(EnComboBox):
 
     def clear(self):
         self.lineEdit().clear()
+        EnComboBox.clear(self)
 
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
