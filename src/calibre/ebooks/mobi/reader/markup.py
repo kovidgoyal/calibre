@@ -327,7 +327,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
         pi = mobi8_reader.partinfo[i]
         with open(os.path.join(pi.type, pi.filename), 'wb') as f:
             part = strip_encoding_declarations(part)
-            part = part.replace('<head>', '<head><meta charset="UTF-8"/>')
+            part = part.replace('<head>', '<head><meta charset="UTF-8"/>', 1)
             f.write(part.encode('utf-8'))
             spine.append(f.name)
 
