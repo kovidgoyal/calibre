@@ -8,7 +8,7 @@ class NatGeoMag(BasicNewsRecipe):
     oldest_article         = 31
     max_articles_per_feed  = 50
     category               = 'geography, magazine'
-    language               = 'en_US'
+    language               = 'en'
     publication_type       = 'magazine'
     cover_url              = 'http://www.yourlogoresources.com/wp-content/uploads/2011/09/national-geographic-logo.jpg'
     use_embedded_content   = False
