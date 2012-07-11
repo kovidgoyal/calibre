@@ -76,15 +76,15 @@ def test_qt():
     print ('Qt OK!')
 
 def test_imaging():
-    from calibre.utils.magick.draw import create_canvas, Image
-    im = create_canvas(20, 20, '#ffffff')
-    jpg = im.export('jpg')
-    Image().load(jpg)
-    im.export('png')
-    print ('ImageMagick OK!')
+    from calibre.ebooks import calibre_cover
+    data = calibre_cover('test', 'ok')
+    if len(data) > 1000:
+        print ('ImageMagick OK!')
+    else:
+        raise RuntimeError('ImageMagick choked!')
     from PIL import Image
-    i = Image.open(cStringIO.StringIO(jpg))
-    if i.size != (20, 20):
+    i = Image.open(cStringIO.StringIO(data))
+    if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
