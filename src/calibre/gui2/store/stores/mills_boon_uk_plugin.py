@@ -20,11 +20,11 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class FoylesUKStore(BasicStoreConfig, StorePlugin):
+class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.awin1.com/awclick.php?mid=1414&id=120917'
-        detail_url = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p='
+        url = 'http://www.awin1.com/awclick.php?mid=1150&id=120917'
+        detail_url = 'http://www.awin1.com/cread.php?awinmid=1150&awinaffid=120917&clickref=&p='
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -40,27 +40,29 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://ebooks.foyles.co.uk/search_for-' + urllib2.quote(query)
-
+        base_url = 'http://millsandboon.co.uk'
+        url = base_url + '/pages/searchres.htm?search=true&booktypesearch=ebook&first=yes&inputsearch=' + urllib2.quote(query)
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="doc-item"]'):
+            for data in doc.xpath('//div[@class="catProdDiv"]'):
                 if counter <= 0:
                     break
-                id_ = ''.join(data.xpath('.//p[@class="doc-cover"]/a/@href')).strip()
+                id_ = ''.join(data.xpath('.//div[@class="catProdImage"]/div/a/@href')).strip()
+                id_ = base_url + id_[2:]
                 if not id_:
                     continue
 
-                cover_url = ''.join(data.xpath('.//p[@class="doc-cover"]/a/img/@src'))
-                title = ''.join(data.xpath('.//span[@class="title"]/a/text()'))
-                author = ', '.join(data.xpath('.//span[@class="author"]/span[@class="author"]/text()'))
-                price = ''.join(data.xpath('.//span[@class="price"]/text()'))
+                cover_url = ''.join(data.xpath('.//div[@class="catProdImage"]/div/a/img/@src'))
+                cover_url = base_url + cover_url[2:]
+                title =  ''.join(data.xpath('.//div[@class="catProdImage"]/div/a/img/@alt')).strip()
+                title = title[23:]
+                author = ''.join(data.xpath('.//div[@class="catProdDetails"]/div[@class="catProdDetails-top"]/p[1]/a/text()'))
+                price = ''.join(data.xpath('.//span[@class="priceBold"]/text()'))
                 format_ = ''.join(data.xpath('.//p[@class="doc-meta-format"]/span[last()]/text()'))
-                format_, ign, drm = format_.partition(' ')
-                drm = SearchResult.DRM_LOCKED if 'DRM' in drm else SearchResult.DRM_UNLOCKED
+                drm = SearchResult.DRM_LOCKED
 
                 counter -= 1
 
