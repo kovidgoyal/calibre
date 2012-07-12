@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref
 
+import sip
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
         QApplication, QListView, QPoint, QModelIndex)
 
@@ -82,7 +83,6 @@ class Completer(QListView): # {{{
         self.entered.connect(self.item_entered)
         self.activated.connect(self.item_chosen)
         self.pressed.connect(self.item_chosen)
-        self.eat_focus_out = True
         self.installEventFilter(self)
 
     def hide(self):
@@ -167,7 +167,7 @@ class Completer(QListView): # {{{
     def eventFilter(self, obj, e):
         'Redirect key presses from the popup to the widget'
         widget = self.completer_widget()
-        if widget is None:
+        if widget is None or sip.isdeleted(widget):
             return False
         etype = e.type()
         if obj is not self:
@@ -198,9 +198,9 @@ class Completer(QListView): # {{{
                 e.accept()
                 return True
             # Send to widget
-            self.eat_focus_out = False
+            widget.eat_focus_out = False
             widget.keyPressEvent(e)
-            self.eat_focus_out = True
+            widget.eat_focus_out = True
             if not widget.hasFocus():
                 # Widget lost focus hide the popup
                 self.hide()
@@ -335,6 +335,7 @@ class EditWithComplete(EnComboBox):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(LineEdit(self, completer_widget=self))
         self.setCompleter(None)
+        self.eat_focus_out = True
         self.installEventFilter(self)
 
     # Interface {{{
@@ -389,9 +390,12 @@ class EditWithComplete(EnComboBox):
         EnComboBox.clear(self)
 
     def eventFilter(self, obj, e):
-        c = self.lineEdit().mcompleter
+        try:
+            c = self.lineEdit().mcompleter
+        except AttributeError:
+            return False
         etype = e.type()
-        if c.eat_focus_out and self is obj and etype == e.FocusOut:
+        if self.eat_focus_out and self is obj and etype == e.FocusOut:
             if c.isVisible():
                 return True
         return EnComboBox.eventFilter(self, obj, e)
