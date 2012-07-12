@@ -876,38 +876,25 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         all_authors = self.db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
 
-        for i in all_authors:
-            id, name = i
-            name = name.strip().replace('|', ',')
-            self.authors.addItem(name)
-        self.authors.setEditText('')
-
         self.authors.set_separator('&')
         self.authors.set_space_before_sep(True)
         self.authors.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors.update_items_cache(self.db.all_author_names())
+        self.authors.show_initial_value('')
 
     def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
         self.series.set_separator(None)
         self.series.update_items_cache([x[1] for x in all_series])
-
-        for i in all_series:
-            id, name = i
-            self.series.addItem(name)
-        self.series.setEditText('')
+        self.series.show_initial_value('')
 
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.publisher.set_separator(None)
         self.publisher.update_items_cache([x[1] for x in all_publishers])
-
-        for i in all_publishers:
-            id, name = i
-            self.publisher.addItem(name)
-        self.publisher.setEditText('')
+        self.publisher.show_initial_value('')
 
     def tag_editor(self, *args):
         d = TagEditor(self, self.db, None)

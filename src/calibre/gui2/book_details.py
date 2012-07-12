@@ -84,7 +84,17 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     return ans
 
 def get_field_list(fm, use_defaults=False):
-    src = gprefs.defaults if use_defaults else gprefs
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db
+    if use_defaults:
+        src = db.prefs.defaults
+    else:
+        old_val = gprefs.get('book_display_fields', None)
+        if old_val is not None and not db.prefs.has_setting(
+                'book_display_fields'):
+            src = gprefs
+        else:
+            src = db.prefs
     fieldlist = list(src['book_display_fields'])
     names = frozenset([x[0] for x in fieldlist])
     for field in fm.displayable_field_keys():
@@ -104,8 +114,11 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             field = 'title_sort'
         if all_fields:
             display = True
-        if (not display or not metadata or mi.is_null(field) or
-                field == 'comments'):
+        if metadata['datatype'] == 'bool':
+            isnull = mi.get(field) is None
+        else:
+            isnull = mi.is_null(field)
+        if (not display or not metadata or isnull or field == 'comments'):
             continue
         name = metadata['name']
         if not name:

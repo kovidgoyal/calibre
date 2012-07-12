@@ -19,6 +19,57 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.59
+  date: 2012-07-06
+
+  new features:
+    - title: "Drivers for Samsung SGH-T989 and Sony Ericsson Sola"
+      tickets: [1021365]
+
+    - title: "Conversion pipeline: When removing the first image, also remove the html file the image is found in, if that file has no other content. Allows this option to be used to remove covers from EPUB files without leaving behind a blank page."
+
+    - title: "Content server: Add a navigation panel at the bottom of each page."
+      tickets: [1020225]
+
+    - title: "calibredb: Add a backup_metadata command to manually run the backup to opf from the command line"
+
+    - title: "User defined driver: Add option to swap main memory and card a."
+      tickets: [1020056]
+
+    - title: "Add new option to the series_index_auto_increment tweak, no_change, that causes calibre not to change the series_index when the series is changed"
+ 
+  bug fixes:
+    - title: "PDF Output: Resize large images so that they do not get off at the right edge of the page."
+
+    - title: "On linux ensure that WM_CLASS for the main calibre GUI is set to 'calibre-gui' to match the name of the calibre-gui.desktop file. This is apparently required by the GNOME 3 shell."
+      tickets: [1020297]
+
+    - title: "Update ICU in all builds to version 49.1"
+
+    - title: "Tag browser: Fix regression that broke drag and drop between user categories in the tag browser"
+
+    - title: "When copying to library and deleting after copy, do not place deleted files in recycle bin, as this is redundant and slow (they have already been copied into another library)"
+
+    - title: "Fix yes/no fields with value of No not showing up in the book details panel"
+
+    - title: "Catalogs: Better sorting for non English languages"
+      tickets: [930882] 
+
+    - title: "Get Books: Fix Foyles UK, Weightless books, ebooks.com and ozon.ru"
+
+    - title: "CHM Input: Fix handling of chm files that split their html into multiple sub-directories."
+      tickets: [1018792]
+
+  improved recipes:
+    - FHM UK
+    - The Age
+    - weblogs_ssl
+    - Heraldo.es
+
+  new recipes:
+    - title: CATO Institute and Heritage Foundation
+      author: _reader
+
 - version: 0.8.58
   date: 2012-06-29
 

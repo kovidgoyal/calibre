@@ -1,0 +1,75 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CATOInstitute(BasicNewsRecipe):
+    title          		= u'The CATO Institute'
+    description      	= "The Cato Institute is a public policy research organization — a think tank — \
+dedicated to the principles of individual liberty, limited government, free markets and peace.\
+ Its scholars and analysts conduct independent, nonpartisan research on a wide range of policy issues."
+    __author__     	= '_reader'
+    __date__                	= '05 July 2012'
+    __version__            	 = '1.0'
+    cover_url        	= 'http://www.cato.org/images/logo.jpg'
+    masthead_url        	= 'http://www.cato.org/images/logo.jpg'
+    language        	= 'en'
+    oldest_article 	= 30 #days
+    max_articles_per_feed 	= 100
+    needs_subscription 	= False
+    publisher             	= 'CATO Institute'
+    category              	= 'commentary'
+    tags 		= 'commentary'
+    publication_type 	= 'blog'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    simultaneous_downloads = 10
+    recursions      	= 0
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= True
+
+    conversion_options = {
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+
+    feeds          = [
+	(u'Cato Recent Op-Eds', u'http://feeds.cato.org/CatoRecentOpeds'),
+	(u'Cato Homepage Headlines', u'http://feeds.cato.org/CatoHomepageHeadlines'),
+	(u'Cato Media Updates', u'http://feeds.cato.org/CatoMediaUpdates'),
+	(u'Cato@Liberty', u'http://feeds.cato.org/Cato-at-liberty'),
+	(u'Cato Unbound', u'http://feeds.feedburner.com/cato-unbound'),
+	(u'Education and Child Policy', u'http://www.cato.org/rss/ra.xml?name=education-child-policy'),
+	(u'Finance, Banking & Monetary Policy', u'http://www.cato.org/rss/ra.xml?name=finance-banking-monetary-policy'),
+	(u'Government and Politics', u'http://www.cato.org/rss/ra.xml?name=government-politics'),
+	(u'International Economics & Development', u'http://www.cato.org/rss/ra.xml?name=international-economics-development'),
+	(u'Political Philosophy', u'http://www.cato.org/rss/ra.xml?name=political-philosophy'),
+	(u'Social Security', u'http://www.cato.org/rss/ra.xml?name=social-security'),
+	(u'Telecom, Internet & Information Policy', u'http://www.cato.org/rss/ra.xml?name=telecom-internet-information-policy'),
+	(u'Energy and Environment', u'http://www.cato.org/rss/ra.xml?name=energy-environment'),
+	(u'Foreign Policy and National Security', u'http://www.cato.org/rss/ra.xml?name=foreign-policy-national-security'),
+	(u'Health Care', u'http://www.cato.org/rss/ra.xml?name=health-care'),
+	(u'Law and Civil Liberties', u'http://www.cato.org/rss/ra.xml?name=law-civil-liberties'),
+	(u'Regulatory Studies', u'http://www.cato.org/rss/ra.xml?name=regulatory-studies'),
+	(u'Tax and Budget Policy', u'http://www.cato.org/rss/ra.xml?name=tax-budget-policy'),
+	(u'Trade and Immigration', u'http://www.cato.org/rss/ra.xml?name=trade-immigration')
+	]
+
+
+
+
+    def print_version(self,url):
+          R_unbound = re.compile(r'(^.*cato-unbound.*)(\/\?utm_source.*$)' , re.DOTALL | re.IGNORECASE )     #CATO Unbound
+          R_pubs       = re.compile(r'(^.*\/publications\/.*$)' , re.DOTALL | re.IGNORECASE )                              #CATO Publications
+          if re.match(R_unbound, url):
+             printURL = r'\g<1>' + '/print/'
+          elif re.match(R_pubs, url):
+             printURL = url + '?print'
+          else:
+             printURL = url + '/print/'
+          return printURL

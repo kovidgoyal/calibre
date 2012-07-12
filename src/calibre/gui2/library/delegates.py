@@ -14,7 +14,7 @@ from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import now, format_date, qt_to_dt
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
@@ -121,12 +121,10 @@ class TextDelegate(QStyledItemDelegate): # {{{
 
     def createEditor(self, parent, option, index):
         if self.auto_complete_function:
-            editor = MultiCompleteComboBox(parent)
+            editor = EditWithComplete(parent)
             editor.set_separator(None)
             complete_items = [i[1] for i in self.auto_complete_function()]
             editor.update_items_cache(complete_items)
-            for item in sorted(complete_items, key=sort_key):
-                editor.addItem(item)
             ct = index.data(Qt.DisplayRole).toString()
             editor.show_initial_value(ct)
         else:
@@ -134,7 +132,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
         return editor
 
     def setModelData(self, editor, model, index):
-        if isinstance(editor, MultiCompleteComboBox):
+        if isinstance(editor, EditWithComplete):
             val = editor.lineEdit().text()
             model.setData(index, QVariant(val), Qt.EditRole)
         else:
@@ -155,7 +153,7 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         if self.db and hasattr(self.db, self.items_func_name):
             col = index.model().column_map[index.column()]
-            editor = MultiCompleteComboBox(parent)
+            editor = EditWithComplete(parent)
             editor.set_separator(self.sep)
             editor.set_space_before_sep(self.space_before_sep)
             if self.sep == '&':
@@ -166,8 +164,6 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
                 all_items = list(self.db.all_custom(
                     label=self.db.field_metadata.key_to_label(col)))
             editor.update_items_cache(all_items)
-            for item in sorted(all_items, key=sort_key):
-                editor.addItem(item)
             ct = index.data(Qt.DisplayRole).toString()
             editor.show_initial_value(ct)
         else:
@@ -175,7 +171,7 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
         return editor
 
     def setModelData(self, editor, model, index):
-        if isinstance(editor, MultiCompleteComboBox):
+        if isinstance(editor, EditWithComplete):
             val = editor.lineEdit().text()
             model.setData(index, QVariant(val), Qt.EditRole)
         else:
@@ -248,7 +244,7 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        editor = MultiCompleteLineEdit(parent)
+        editor = EditWithComplete(parent)
         editor.set_separator(None)
         complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
                                 key=sort_key)

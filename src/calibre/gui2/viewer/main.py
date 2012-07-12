@@ -6,9 +6,10 @@ from functools import partial
 from threading import Thread
 
 from PyQt4.Qt import (QApplication, Qt, QIcon, QTimer, QByteArray, QSize,
-        QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation, QPainter,
-        QBrush, QColor, pyqtSignal, QUrl, QRegExpValidator, QRegExp, QLineEdit,
-        QToolButton, QMenu, QInputDialog, QAction, QKeySequence, QModelIndex)
+        QTime, QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation,
+        QPainter, QBrush, QColor, pyqtSignal, QUrl, QRegExpValidator, QRegExp,
+        QLineEdit, QToolButton, QMenu, QInputDialog, QAction, QKeySequence,
+        QModelIndex)
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -288,6 +289,23 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, 'size')
+        self.clock_label = QLabel('99:99', self)
+        self.clock_label.setVisible(False)
+        self.clock_label.setFocusPolicy(Qt.NoFocus)
+        self.clock_label_style = '''
+            QLabel {
+                text-align: right;
+                border-width: 1px;
+                border-style: solid;
+                border-radius: 8px;
+                background-color: %s;
+                color: %s;
+                font-family: monospace;
+                font-size: larger;
+                padding: 5px;
+        }'''
+        self.clock_timer = QTimer(self)
+        self.clock_timer.timeout.connect(self.update_clock)
         self.esc_full_screen_action = a = QAction(self)
         self.addAction(a)
         a.setShortcut(Qt.Key_Escape)
@@ -454,9 +472,29 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         a.start()
         QTimer.singleShot(2750, self.full_screen_label.hide)
         self.view.document.switch_to_fullscreen_mode()
+        if self.view.document.fullscreen_clock:
+            self.show_clock()
+
+    def show_clock(self):
+        self.clock_label.setVisible(True)
+        self.clock_label.setText('99:99 AA')
+        self.clock_timer.start(1000)
+        self.clock_label.setStyleSheet(self.clock_label_style%
+                tuple(self.view.document.colors()))
+        self.clock_label.resize(self.clock_label.sizeHint())
+        sw = QApplication.desktop().screenGeometry(self.view)
+        self.clock_label.move(sw.width() - self.vertical_scrollbar.width() - 15
+                - self.clock_label.width(), sw.height() -
+                self.clock_label.height()-10)
+        self.update_clock()
+
+    def update_clock(self):
+        self.clock_label.setText(QTime.currentTime().toString('h:mm a'))
 
     def showNormal(self):
         self.view.document.page_position.save()
+        self.clock_label.setVisible(False)
+        self.clock_timer.stop()
         self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
         self.tool_bar.setVisible(True)
@@ -1006,7 +1044,8 @@ def main(args=sys.argv):
     except:
         open_at = None
     if pid <= 0:
-        app = Application(args)
+        override = 'calibre-ebook-viewer' if islinux else None
+        app = Application(args, override_program_name=override)
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)

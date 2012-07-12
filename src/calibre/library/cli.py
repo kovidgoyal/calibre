@@ -999,6 +999,55 @@ def command_saved_searches(args, dbpath):
 
     return 0
 
+def backup_metadata_option_parser():
+    parser = get_parser(_('''\
+%prog backup_metadata [options]
+
+Backup the metadata stored in the database into individual OPF files in each
+books directory. This normally happens automatically, but you can run this
+command to force re-generation of the OPF files, with the --all option.
+
+Note that there is normally no need to do this, as the OPF files are backed up
+automatically, every time metadata is changed.
+'''))
+    parser.add_option('--all', default=False, action='store_true',
+        help=_('Normally, this command only operates on books that have'
+            ' out of date OPF files. This option makes it operate on all'
+            ' books.'))
+    return parser
+
+class BackupProgress(object):
+
+    def __init__(self):
+        self.total = 0
+        self.count = 0
+
+    def __call__(self, book_id, mi, ok):
+        if mi is True:
+            self.total = book_id
+        else:
+            self.count += 1
+            prints(u'%.1f%% %s - %s'%((self.count*100)/float(self.total),
+                book_id, mi.title))
+
+def command_backup_metadata(args, dbpath):
+    parser = backup_metadata_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+    db = LibraryDatabase2(dbpath)
+    book_ids = None
+    if opts.all:
+        book_ids = db.all_ids()
+    db.dump_metadata(book_ids=book_ids, callback=BackupProgress())
+
+
 def check_library_option_parser():
     from calibre.library.check_library import CHECKS
     parser = get_parser(_('''\
@@ -1275,7 +1324,7 @@ COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
             'remove_custom_column', 'set_custom', 'restore_database',
-            'check_library', 'list_categories')
+            'check_library', 'list_categories', 'backup_metadata')
 
 
 def option_parser():

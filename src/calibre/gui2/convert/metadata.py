@@ -12,8 +12,8 @@ from PyQt4.Qt import QPixmap, SIGNAL
 
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
-from calibre.ebooks.metadata import (authors_to_string, string_to_authors,
-        MetaInformation, title_sort)
+from calibre.ebooks.metadata import (string_to_authors, MetaInformation,
+        title_sort)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
@@ -74,14 +74,12 @@ class MetadataWidget(Widget, Ui_Form):
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title)
-        if mi.publisher:
-            self.publisher.setCurrentIndex(self.publisher.findText(mi.publisher))
+        self.publisher.show_initial_value(mi.publisher if mi.publisher else '')
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
         self.tags.update_items_cache(self.db.all_tags())
         self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
-        if mi.series:
-            self.series.setCurrentIndex(self.series.findText(mi.series))
+        self.series.show_initial_value(mi.series if mi.series else '')
         if mi.series_index is not None:
             try:
                 self.series_index.setValue(mi.series_index)
@@ -99,6 +97,9 @@ class MetadataWidget(Widget, Ui_Form):
         else:
             self.cover.setPixmap(QPixmap(I('default_cover.png')))
             self.cover.setToolTip(_('This book has no cover'))
+        for x in ('author', 'series', 'publisher'):
+            x = getattr(self, x)
+            x.lineEdit().deselect()
 
     def set_cover_tooltip(self, pm):
         tt = _('Cover size: %(width)d x %(height)d pixels') % dict(
@@ -118,16 +119,11 @@ class MetadataWidget(Widget, Ui_Form):
         self.author.set_add_separator(tweaks['authors_completer_append_separator'])
         self.author.update_items_cache(self.db.all_author_names())
 
-        for i in all_authors:
-            id, name = i
-            name = authors_to_string([name.strip().replace('|', ',') for n in name.split(',')])
-            self.author.addItem(name)
-
         au = self.db.authors(self.book_id, True)
         if not au:
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
-        self.author.setEditText(au)
+        self.author.show_initial_value(au)
 
     def initialize_series(self):
         all_series = self.db.all_series()
@@ -135,21 +131,11 @@ class MetadataWidget(Widget, Ui_Form):
         self.series.set_separator(None)
         self.series.update_items_cache([x[1] for x in all_series])
 
-        for i in all_series:
-            id, name = i
-            self.series.addItem(name)
-        self.series.setCurrentIndex(-1)
-
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.publisher.set_separator(None)
         self.publisher.update_items_cache([x[1] for x in all_publishers])
-
-        for i in all_publishers:
-            id, name = i
-            self.publisher.addItem(name)
-        self.publisher.setCurrentIndex(-1)
 
     def get_title_and_authors(self):
         title = unicode(self.title.text()).strip()

@@ -30,7 +30,7 @@ If there are no windows binaries already compiled for the version of python you 
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto
+    easy_install --always-unzip -U mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 
@@ -97,7 +97,7 @@ Now, run configure and make::
 
 -no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
 
-    configure -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -no-plugin-manifests -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
+    configure -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -no-plugin-manifests -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
 
 Add the path to the bin folder inside the Qt dir to your system PATH.
 
@@ -131,11 +131,22 @@ calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 ICU
 -------
 
-Download the win32 msvc9 binary from http://www.icu-project.org/download/4.4.html
+Download the win32 source .zip from http://www.icu-project.org/download
 
-Note that 4.4 is the last version of ICU that can be compiled (is precompiled) with msvc9
+Extract to q:\icu
 
-Put the dlls into sw/bin and the unicode dir into sw/include and the contents of lib int sw/lib
+Add Q:\icu\bin to PATH and reboot
+
+In a Visual Studio Command Prompt
+cd to <ICU>\source
+Run set PATH=%PATH%;c:\cygwin\bin
+Run dos2unix on configure and runConfigureICU
+
+Run bash ./runConfigureICU Cygwin/MSVC
+
+Run make (note that you must have GNU make installed in cygwin)
+
+Optionally run make check
 
 Libunrar
 ----------

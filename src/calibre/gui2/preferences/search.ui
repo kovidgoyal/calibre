@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>556</height>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,14 +21,21 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="0" column="1">
+    <widget class="QCheckBox" name="opt_use_primary_find_in_search">
+     <property name="text">
+      <string>Unaccented characters match accented characters</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_highlight_search_matches">
      <property name="text">
       <string>&amp;Highlight search results instead of restricting the book list to the results</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="4" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>What to search by default</string>
@@ -62,7 +69,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="MultiCompleteLineEdit" name="opt_limit_search_columns_to"/>
+       <widget class="EditWithComplete" name="opt_limit_search_columns_to"/>
       </item>
       <item row="5" column="0" colspan="2">
        <widget class="QLabel" name="label_3">
@@ -77,17 +84,7 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QPushButton" name="clear_history_button">
-     <property name="toolTip">
-      <string>Clear search histories from all over calibre. Including the book list, e-book viewer, fetch news dialog, etc.</string>
-     </property>
-     <property name="text">
-      <string>Clear search &amp;histories</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
+   <item row="6" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Grouped Search Terms</string>
@@ -107,18 +104,18 @@
         </item>
         <item>
          <widget class="QComboBox" name="gst_names">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="minimumContentsLength">
-           <number>10</number>
-          </property>
           <property name="toolTip">
            <string>Contains the names of the currently-defined group search terms.
 Create a new name by entering it into the empty box, then
 pressing Save. Rename a search term by selecting it then
 changing the name and pressing Save. Change the value of
 a search term by changing the value box then pressing Save.</string>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="minimumContentsLength">
+           <number>10</number>
           </property>
          </widget>
         </item>
@@ -137,7 +134,7 @@ a search term by changing the value box then pressing Save.</string>
          </widget>
         </item>
         <item>
-         <widget class="MultiCompleteLineEdit" name="gst_value"/>
+         <widget class="EditWithComplete" name="gst_value"/>
         </item>
         <item>
          <widget class="QToolButton" name="gst_save_button">
@@ -176,7 +173,7 @@ of a search term by changing the value box then pressing Save.</string>
          </widget>
         </item>
         <item>
-         <widget class="MultiCompleteLineEdit" name="opt_grouped_search_make_user_categories">
+         <widget class="EditWithComplete" name="opt_grouped_search_make_user_categories">
           <property name="toolTip">
            <string>Enter the names of any grouped search terms you wish
 to be shown as user categories</string>
@@ -201,7 +198,17 @@ to be shown as user categories</string>
      </layout>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="5" column="0" colspan="2">
+    <widget class="QPushButton" name="clear_history_button">
+     <property name="toolTip">
+      <string>Clear search histories from all over calibre. Including the book list, e-book viewer, fetch news dialog, etc.</string>
+     </property>
+     <property name="text">
+      <string>Clear search &amp;histories</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox22">
      <property name="title">
       <string>What to search when searching similar books</string>
@@ -211,7 +218,7 @@ to be shown as user categories</string>
        <widget class="QLabel" name="label">
         <property name="text">
          <string>&lt;p&gt;When you search for similar books by right clicking the
-         book and selecting "Similar books...",
+         book and selecting &quot;Similar books...&quot;,
          calibre constructs a search using the column lookup names specified below.
          By changing the lookup name to a grouped search term you can
          search multiple columns at once.&lt;/p&gt;</string>
@@ -239,8 +246,7 @@ to be shown as user categories</string>
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QComboBox" name="opt_similar_authors_match_kind">
-       </widget>
+       <widget class="QComboBox" name="opt_similar_authors_match_kind"/>
       </item>
       <item row="1" column="3">
        <widget class="QLabel" name="label_222">
@@ -260,8 +266,7 @@ to be shown as user categories</string>
        </widget>
       </item>
       <item row="1" column="5">
-       <widget class="QComboBox" name="opt_similar_series_match_kind">
-       </widget>
+       <widget class="QComboBox" name="opt_similar_series_match_kind"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_223">
@@ -271,12 +276,10 @@ to be shown as user categories</string>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="similar_tags_search_key">
-       </widget>
+       <widget class="QComboBox" name="similar_tags_search_key"/>
       </item>
       <item row="2" column="2">
-       <widget class="QComboBox" name="opt_similar_tags_match_kind">
-       </widget>
+       <widget class="QComboBox" name="opt_similar_tags_match_kind"/>
       </item>
       <item row="2" column="3">
        <widget class="QLabel" name="label_224">
@@ -286,12 +289,10 @@ to be shown as user categories</string>
        </widget>
       </item>
       <item row="2" column="4">
-       <widget class="QComboBox" name="similar_publisher_search_key">
-       </widget>
+       <widget class="QComboBox" name="similar_publisher_search_key"/>
       </item>
       <item row="2" column="5">
-       <widget class="QComboBox" name="opt_similar_publisher_match_kind">
-       </widget>
+       <widget class="QComboBox" name="opt_similar_publisher_match_kind"/>
       </item>
      </layout>
     </widget>
@@ -300,9 +301,9 @@ to be shown as user categories</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MultiCompleteLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>calibre/gui2/complete.h</header>
+   <class>EditWithComplete</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/complete2.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.adventuregamers.com
 '''
@@ -14,24 +14,24 @@ class AdventureGamers(BasicNewsRecipe):
     publisher             = 'Adventure Gamers'
     category              = 'news, games, adventure, technology'
     oldest_article        = 10
-    delay                 = 10
+    #delay                 = 10
     max_articles_per_feed = 100
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     remove_javascript     = True
     use_embedded_content  = False
     INDEX                 = u'http://www.adventuregamers.com'
     extra_css             = """
                                 .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
-                                .pageheader_title{font-size: xx-large; color: #394128}
+                                .pageheader_title,.page_title{font-size: xx-large; color: #394128}
                                 .pageheader_byline{font-size: small; font-weight: bold; color: #394128}
                                 .score_bg {display: inline; width: 100%; margin-bottom: 2em}
                                 .score_column_1{ padding-left: 10px; font-size: small; width: 50%}
                                 .score_column_2{ padding-left: 10px; font-size: small; width: 50%}
                                 .score_column_3{ padding-left: 10px; font-size: small; width: 50%}
-                                .score_header{font-size: large; color: #50544A}
-                                .bodytext{display: block}
-                                body{font-family: Helvetica,Arial,sans-serif}
+                                .score_header{font-size: large; color: #50544A}                                
+                                img{margin-bottom: 1em;}
+                                body{font-family: 'Open Sans',Helvetica,Arial,sans-serif}                                
                             """
 
     conversion_options = {
@@ -41,35 +41,38 @@ class AdventureGamers(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags = [
-                       dict(name='div', attrs={'class':'content_middle'})
-                     ]
-
+    keep_only_tags = [dict(name='div', attrs={'class':'cleft_inn'})]
     remove_tags = [
-                     dict(name=['object','link','embed','form'])
-                    ,dict(name='div', attrs={'class':['related-stories','article_leadout','prev','next','both']})
+                     dict(name=['object','link','embed','form','iframe','meta'])
+                    ,dict(name='a', attrs={'href':'http://www.adventuregamers.com/about/scoring'})
+                    ,dict(name='a', attrs={'href':'http://www.adventuregamers.com/about/policies'})
                   ]
-
-    remove_tags_after = [dict(name='div', attrs={'class':'toolbar_fat'})]
+    remove_tags_after = [dict(name='div', attrs={'class':'bodytext'})]
     remove_attributes = ['width','height']
 
-    feeds = [(u'Articles', u'http://feeds2.feedburner.com/AdventureGamers')]
+    feeds = [(u'Articles', u'http://www.adventuregamers.com/rss/')]
 
     def get_article_url(self, article):
-        return article.get('guid',  None)
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if '/videos/' in url or '/hypeometer/' in url:
+           return None
+        return url
 
     def append_page(self, soup, appendtag, position):
-        pager = soup.find('div',attrs={'class':'toolbar_fat_next'})
+        pager = soup.find('div', attrs={'class':'pagination_big'})
         if pager:
-           nexturl = self.INDEX + pager.a['href']
-           soup2 = self.index_to_soup(nexturl)
-           texttag = soup2.find('div', attrs={'class':'bodytext'})
-           for it in texttag.findAll(style=True):
-               del it['style']
-           newpos = len(texttag.contents)
-           self.append_page(soup2,texttag,newpos)
-           texttag.extract()
-           appendtag.insert(position,texttag)
+           nextpage = soup.find('a', attrs={'class':'next-page'})
+           if nextpage:
+               nexturl = nextpage['href']
+               soup2 = self.index_to_soup(nexturl)
+               texttag = soup2.find('div', attrs={'class':'bodytext'})
+               for it in texttag.findAll(style=True):
+                   del it['style']
+               newpos = len(texttag.contents)
+               self.append_page(soup2,texttag,newpos)
+               texttag.extract()
+               pager.extract()
+               appendtag.insert(position,texttag)
 
 
     def preprocess_html(self, soup):
@@ -78,7 +81,7 @@ class AdventureGamers(BasicNewsRecipe):
         for item in soup.findAll('div', attrs={'class':'floatright'}):
             item.extract()
         self.append_page(soup, soup.body, 3)
-        pager = soup.find('div',attrs={'class':'toolbar_fat'})
+        pager = soup.find('div',attrs={'class':'pagination_big'})
         if pager:
            pager.extract()
         return self.adeify_images(soup)

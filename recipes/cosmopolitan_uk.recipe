@@ -1,13 +1,13 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-#from calibre import __appname__
-from calibre.utils.magick import Image
+import re
+from calibre import browser
+
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Cosmopolitan UK'
-    description = 'Fashion, beauty and Gossip for women from COSMOPOLITAN -UK'
+    description = 'Author : D.Asbury : Womens Fashion, beauty and Gossip for women from COSMOPOLITAN -UK'
 
     __author__ = 'Dave Asbury'
-    #last update 21/12/11
+    #last update 7/7/12 hopefully get current cover from itunes
     # greyscale code by Starson
     cover_url = 'http://www.cosmopolitan.magazine.co.uk/files/4613/2085/8988/Cosmo_Cover3.jpg'
     no_stylesheets = True
@@ -39,14 +39,19 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     feeds          = [
         (u'Love & Sex', u'http://www.cosmopolitan.co.uk/love-sex/rss/'), (u'Men', u'http://cosmopolitan.co.uk/men/rss/'), (u'Fashion', u'http://cosmopolitan.co.uk/fashion/rss/'), (u'Hair & Beauty', u'http://cosmopolitan.co.uk/beauty-hair/rss/'), (u'LifeStyle', u'http://cosmopolitan.co.uk/lifestyle/rss/'), (u'Cosmo On Campus', u'http://cosmopolitan.co.uk/campus/rss/'), (u'Celebrity Gossip', u'http://cosmopolitan.co.uk/celebrity-gossip/rss/')]
 
-    def postprocess_html(self, soup, first):
-        #process all the images
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-            iurl = tag['src']
-            img = Image()
-            img.open(iurl)
-            if img < 0:
-                raise RuntimeError('Out of memory')
-            img.type = "GrayscaleType"
-            img.save(iurl)
-        return soup
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://itunes.apple.com/gb/app/cosmopolitan-uk/id461363572?mt=8')
+        # look for the block containing the sun button and url
+        cov = soup.find(attrs={'alt' : 'iPhone Screenshot 1'})
+        cov2 = str(cov['src'])
+        br = browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open_novisit(cov2)
+            cover_url = cov2
+        except:
+            cover_url = 'http://www.cosmopolitan.magazine.co.uk/files/4613/2085/8988/Cosmo_Cover3.jpg'
+
+        return cover_url
+
+

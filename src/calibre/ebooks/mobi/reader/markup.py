@@ -9,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 
 import re, os
 
+from calibre.ebooks.chardet import strip_encoding_declarations
+
 def update_internal_links(mobi8_reader):
     # need to update all links that are internal which
     # are based on positions within the xhtml files **BEFORE**
@@ -324,6 +326,8 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     for i, part in enumerate(parts):
         pi = mobi8_reader.partinfo[i]
         with open(os.path.join(pi.type, pi.filename), 'wb') as f:
+            part = strip_encoding_declarations(part)
+            part = part.replace('<head>', '<head><meta charset="UTF-8"/>', 1)
             f.write(part.encode('utf-8'))
             spine.append(f.name)
 

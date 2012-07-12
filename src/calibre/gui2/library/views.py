@@ -125,7 +125,7 @@ class BooksView(QTableView): # {{{
         self.last_modified_delegate = DateDelegate(self,
                 tweak_name='gui_last_modified_display_format')
         self.languages_delegate = LanguagesDelegate(self)
-        self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
+        self.tags_delegate = CompleteDelegate(self, ',', 'all_tag_names')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
         self.series_delegate = TextDelegate(self)

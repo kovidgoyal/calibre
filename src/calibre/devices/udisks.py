@@ -159,16 +159,29 @@ def get_udisks(ver=None):
         return u
     return UDisks2() if ver == 2 else UDisks()
 
+def get_udisks1():
+    u = None
+    try:
+        u = UDisks()
+    except NoUDisks1:
+        try:
+            u = UDisks2()
+        except NoUDisks2:
+            pass
+    if u is None:
+        raise EnvironmentError('UDisks not available on your system')
+    return u
+
 def mount(node_path):
-    u = UDisks()
+    u = get_udisks1()
     u.mount(node_path)
 
 def eject(node_path):
-    u = UDisks()
+    u = get_udisks1()
     u.eject(node_path)
 
 def umount(node_path):
-    u = UDisks()
+    u = get_udisks1()
     u.unmount(node_path)
 
 def test_udisks(ver=None):

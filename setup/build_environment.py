@@ -34,6 +34,7 @@ if iswindows:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'bin', 'mt.exe')
     os.environ['QMAKESPEC'] = 'win32-msvc'
+    ICU = r'Q:\icu'
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
 if find_executable('qmake-qt4'):
@@ -97,8 +98,9 @@ if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
-    icu_inc_dirs = [sw_inc_dir]
-    icu_lib_dirs = [sw_lib_dir]
+    icu_inc_dirs = [os.path.join(ICU, 'source', 'common'), os.path.join(ICU,
+        'source', 'i18n')]
+    icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
     sqlite_inc_dirs = [sw_inc_dir]
     fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
     fc_lib = sw_lib_dir

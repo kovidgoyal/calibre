@@ -320,7 +320,7 @@ Manage Authors. You can use the values {author} and
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
        <item row="3" column="2" colspan="3">
-        <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
+        <widget class="EditWithComplete" name="opt_categories_using_hierarchy">
          <property name="toolTip">
           <string>A comma-separated list of categories in which items containing
 periods are displayed in the tag browser trees. For example, if
@@ -397,7 +397,7 @@ up into subcategories. If the partition method is set to disable, this value is 
         </widget>
        </item>
        <item row="1" column="3" colspan="2">
-        <widget class="MultiCompleteLineEdit" name="opt_tag_browser_dont_collapse">
+        <widget class="EditWithComplete" name="opt_tag_browser_dont_collapse">
          <property name="toolTip">
           <string>A comma-separated list of categories that are not to
 be partitioned even if the number of items is larger than
@@ -506,9 +506,9 @@ a few top-level elements.</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MultiCompleteLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>calibre/gui2/complete.h</header>
+   <class>EditWithComplete</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/complete2.h</header>
   </customwidget>
  </customwidgets>
  <resources>

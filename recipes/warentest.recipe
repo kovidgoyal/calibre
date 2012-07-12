@@ -1,0 +1,16 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Warentest(BasicNewsRecipe):
+    title = u'Warentest'
+    language = 'de'
+    description = 'Stiftung Warentest is a German consumer organisation and foundation involved in investigating and comparing goods and services in an unbiased way'
+    __author__ = 'asdfdsfksd'
+    needs_subscription = False
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds = [(u'Test', u'http://www.test.de/rss/alles/')]
+
+    def get_cover_url(self):
+        return 'http://www.test.de/img/pp/logo.png'
+

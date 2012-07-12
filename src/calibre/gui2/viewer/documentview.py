@@ -134,9 +134,10 @@ class Document(QWebPage): # {{{
         screen_width = QApplication.desktop().screenGeometry().width()
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
+        self.fullscreen_clock = opts.fullscreen_clock
 
     def fit_images(self):
-        if self.do_fit_images:
+        if self.do_fit_images and not self.in_paged_mode:
             self.javascript('setup_image_scaling_handlers()')
 
     def add_window_objects(self):
@@ -193,6 +194,14 @@ class Document(QWebPage): # {{{
         self.read_anchor_positions(use_cache=False)
         self.first_load = False
 
+    def colors(self):
+        self.javascript('''
+            bs = getComputedStyle(document.body);
+            py_bridge.value = [bs.backgroundColor, bs.color]
+            ''')
+        ans = self.bridge_value
+        return (ans if isinstance(ans, list) else ['white', 'black'])
+
     def read_anchor_positions(self, use_cache=True):
         self.bridge_value = tuple(self.index_anchors)
         self.javascript(u'''
@@ -219,6 +228,7 @@ class Document(QWebPage): # {{{
         if scroll_width > self.window_width:
             sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
+        self.javascript('window.paged_display.fit_images()')
 
     @property
     def column_boundaries(self):

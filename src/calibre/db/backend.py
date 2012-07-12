@@ -81,6 +81,9 @@ class DBPrefs(dict): # {{{
     def to_raw(self, val):
         return json.dumps(val, indent=2, default=to_json)
 
+    def has_setting(self, key):
+        return key in self
+
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)
@@ -102,6 +105,53 @@ class DBPrefs(dict): # {{{
     def set(self, key, val):
         self.__setitem__(key, val)
 
+    def get_namespaced(self, namespace, key, default=None):
+        key = u'namespaced:%s:%s'%(namespace, key)
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return default
+
+    def set_namespaced(self, namespace, key, val):
+        if u':' in key: raise KeyError('Colons are not allowed in keys')
+        if u':' in namespace: raise KeyError('Colons are not allowed in'
+                ' the namespace')
+        key = u'namespaced:%s:%s'%(namespace, key)
+        self[key] = val
+
+    def write_serialized(self, library_path):
+        try:
+            to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
+            with open(to_filename, "wb") as f:
+                f.write(json.dumps(self, indent=2, default=to_json))
+        except:
+            import traceback
+            traceback.print_exc()
+
+    @classmethod
+    def read_serialized(cls, library_path, recreate_prefs=False):
+        try:
+            from_filename = os.path.join(library_path,
+                    'metadata_db_prefs_backup.json')
+            with open(from_filename, "rb") as f:
+                d = json.load(f, object_hook=from_json)
+                if not recreate_prefs:
+                    return d
+                cls.clear()
+                cls.db.conn.execute('DELETE FROM preferences')
+                for k,v in d.iteritems():
+                    raw = cls.to_raw(v)
+                    cls.db.conn.execute(
+                        'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))
+                cls.db.conn.commit()
+                cls.clear()
+                cls.update(d)
+                return d
+        except:
+            import traceback
+            traceback.print_exc()
+            raise
+        return None
 # }}}
 
 # Extra collators {{{
@@ -350,6 +400,23 @@ class DB(object):
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
         defs['column_color_rules'] = []
+        defs['grouped_search_make_user_categories'] = []
+        defs['similar_authors_search_key'] = 'authors'
+        defs['similar_authors_match_kind'] = 'match_any'
+        defs['similar_publisher_search_key'] = 'publisher'
+        defs['similar_publisher_match_kind'] = 'match_any'
+        defs['similar_tags_search_key'] = 'tags'
+        defs['similar_tags_match_kind'] = 'match_all'
+        defs['similar_series_search_key'] = 'series'
+        defs['similar_series_match_kind'] = 'match_any'
+        defs['book_display_fields'] = [
+        ('title', False), ('authors', True), ('formats', True),
+        ('series', True), ('identifiers', True), ('tags', True),
+        ('path', True), ('publisher', False), ('rating', False),
+        ('author_sort', False), ('sort', False), ('timestamp', False),
+        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
+        ('last_modified', False), ('size', False), ('languages', False),
+        ]
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \

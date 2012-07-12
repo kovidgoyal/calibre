@@ -413,7 +413,8 @@ class KINDLE2(KINDLE):
         if not opts.extra_customization[self.OPT_APNX]:
             return
 
-        if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
+        if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi',
+                '.prc', '.azw3'):
             return
 
         # Create the sidecar folder if necessary

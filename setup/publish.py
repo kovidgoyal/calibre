@@ -40,7 +40,7 @@ class Stage2(Command):
 class Stage3(Command):
 
    description = 'Stage 3 of the publish process'
-   sub_commands = ['upload_user_manual', 'upload_demo', 'sdist']
+   sub_commands = ['upload_user_manual', 'upload_demo', 'sdist', 'tag_release']
 
 class Stage4(Command):
 
@@ -50,7 +50,7 @@ class Stage4(Command):
 class Stage5(Command):
 
     description = 'Stage 5 of the publish process'
-    sub_commands = ['tag_release', 'upload_to_server']
+    sub_commands = ['upload_to_server']
 
     def run(self, opts):
         subprocess.check_call('rm -rf build/* dist/*', shell=True)

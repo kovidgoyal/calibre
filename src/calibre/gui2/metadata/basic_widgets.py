@@ -15,7 +15,6 @@ from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
@@ -23,6 +22,7 @@ from calibre.ebooks.metadata import (title_sort, authors_to_string,
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
         UNDEFINED_DATE)
 from calibre import strftime
@@ -204,7 +204,7 @@ class TitleSortEdit(TitleEdit):
 # }}}
 
 # Authors {{{
-class AuthorsEdit(MultiCompleteComboBox):
+class AuthorsEdit(EditWithComplete):
 
     TOOLTIP = ''
     LABEL = _('&Author(s):')
@@ -212,7 +212,7 @@ class AuthorsEdit(MultiCompleteComboBox):
     def __init__(self, parent, manage_authors):
         self.dialog = parent
         self.books_to_refresh = set([])
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
@@ -246,14 +246,6 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
-        all_authors = db.all_authors()
-        all_authors.sort(key=lambda x : sort_key(x[1]))
-        self.clear()
-        for i in all_authors:
-            id, name = i
-            name = name.strip().replace('|', ',')
-            self.addItem(name)
-
         self.set_separator('&')
         self.set_space_before_sep(True)
         self.set_add_separator(tweaks['authors_completer_append_separator'])
@@ -298,7 +290,6 @@ class AuthorsEdit(MultiCompleteComboBox):
                 val = [self.get_default()]
             self.setEditText(' & '.join([x.strip() for x in val]))
             self.lineEdit().setCursorPosition(0)
-
 
         return property(fget=fget, fset=fset)
 
@@ -452,13 +443,13 @@ class AuthorSortEdit(EnLineEdit):
 # }}}
 
 # Series {{{
-class SeriesEdit(MultiCompleteComboBox):
+class SeriesEdit(EditWithComplete):
 
     TOOLTIP = _('List of known series. You can add new series.')
     LABEL = _('&Series:')
 
     def __init__(self, parent):
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.set_separator(None)
         self.dialog = parent
         self.setSizeAdjustPolicy(
@@ -488,19 +479,12 @@ class SeriesEdit(MultiCompleteComboBox):
         all_series.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
-        idx, c = None, 0
-        self.clear()
+        inval = ''
         for i in all_series:
-            id, name = i
-            if id == series_id:
-                idx = c
-            self.addItem(name)
-            c += 1
-
-        self.lineEdit().setText('')
-        if idx is not None:
-            self.setCurrentIndex(idx)
-        self.original_val = self.current_val
+            if i[0] == series_id:
+                inval = i[1]
+                break
+        self.original_val = self.current_val = inval
 
     def commit(self, db, id_):
         series = self.current_val
@@ -1102,14 +1086,14 @@ class RatingEdit(QSpinBox): # {{{
 
 # }}}
 
-class TagsEdit(MultiCompleteLineEdit): # {{{
+class TagsEdit(EditWithComplete): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
             'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
-        MultiCompleteLineEdit.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.books_to_refresh = set([])
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -1130,7 +1114,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
-        self.all_items = db.all_tags()
+        self.all_items = db.all_tag_names()
         self.original_val = self.current_val
 
     @property
@@ -1343,11 +1327,11 @@ class ISBNDialog(QDialog) : # {{{
 
 # }}}
 
-class PublisherEdit(MultiCompleteComboBox): # {{{
+class PublisherEdit(EditWithComplete): # {{{
     LABEL = _('&Publisher:')
 
     def __init__(self, parent):
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
@@ -1373,17 +1357,12 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
-        idx = None
-        self.clear()
-        for i, x in enumerate(all_publishers):
-            id_, name = x
-            if id_ == publisher_id:
-                idx = i
-            self.addItem(name)
-
-        self.setEditText('')
-        if idx is not None:
-            self.setCurrentIndex(idx)
+        inval = ''
+        for pid, name in all_publishers:
+            if pid == publisher_id:
+                inval = name
+                break
+        self.original_val = self.current_val = inval
 
     def commit(self, db, id_):
         self.books_to_refresh |= db.set_publisher(id_, self.current_val,

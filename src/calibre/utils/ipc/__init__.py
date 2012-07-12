@@ -51,6 +51,7 @@ class RC(Thread):
         self.print_error = print_error
         Thread.__init__(self)
         self.conn = None
+        self.daemon = True
 
     def run(self):
         from multiprocessing.connection import Client
