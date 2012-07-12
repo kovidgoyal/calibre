@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-06 03:39+0000\n"
-"PO-Revision-Date: 2012-06-28 09:13+0000\n"
-"Last-Translator: Serdar Peker <Unknown>\n"
+"PO-Revision-Date: 2012-07-11 20:13+0000\n"
+"Last-Translator: Kaan S <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-07-07 05:08+0000\n"
-"X-Generator: Launchpad (build 15558)\n"
+"X-Launchpad-Export-Date: 2012-07-12 04:40+0000\n"
+"X-Generator: Launchpad (build 15593)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1109,7 +1109,7 @@ msgid ""
 "<p>Unable to communicate with iTunes.</p><p>Refer to this <a "
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
-msgstr ""
+msgstr "iTunes ile haberleşilemiyor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:380
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:383
@@ -1339,7 +1339,7 @@ msgstr "PocketBook 602/603/902/903 okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "PocketBook 622 reader ile temasa geç."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -2180,13 +2180,15 @@ msgstr "Kart A'nın klasörü"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Main ve card A'yı yer değiştir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Eğer cihazın ana hafızası kart olarak ve kart ana hafıza olarak görünüyorsa, "
+"bu kutuyu işaretleyin."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
 #, python-format
@@ -2904,6 +2906,9 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
+"Resimlerin boyutunu ya da renk derinliğini azaltmayın. Resimlerin boyut ve "
+"renk derinlikleri, Dropbook gibi resimleri kendisi dönüştüremeyen "
+"uygulamaların kullanabilmesi için, azaltılmış durumdadır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:22
 msgid "Download periodical content from the internet"
@@ -2927,7 +2932,7 @@ msgstr "İçeriğe erişmek için giriş yapılması gereken siteler için şifr
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:47
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
-msgstr ""
+msgstr "Calibre sunucusundan yerleşik tarifin son sürümünü indirmeyin."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rtf_input.py:246
 #, python-format
@@ -2974,6 +2979,8 @@ msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
+"Her bölümün bölüm başlığını saklayıp saklamamayı belirtin. Sadece resim "
+"içeren çıktılarda faydalıdır (çizgi roman gibi)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:45
 msgid "Resize all the images for full screen view. "
@@ -3061,6 +3068,10 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
+"Kullanılacak yeni satır tipi. Seçenekler %s. Öntanımlı olan 'system' dir. "
+"Mac OS 9 ya da öncesine uyumluluk için 'old_mac' i kullanın. Mac OS X için "
+"'unix' i kullanın. Bu işletim sistemi tarafından kullanılan satır sonu tipi, "
+"öntanımlı olarak 'system' dir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:47
 msgid ""
@@ -3140,6 +3151,11 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Çıktı profilini belirtin. Çıktı profili, dönüştürme sistemine, belirtilmiş "
+"cihaz için oluşturulmuş dokümanın nasıl optimize edileceğini söyler. Bazı "
+"durumlarda, bir cihazda çalışacak dokümanlar üretmek için , bir çıktı "
+"profiline ihtiyaç duyulur. Örneğin: SONY reader'daki EPUB. Seçenekler "
+"şunlardır:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:144
 msgid ""
