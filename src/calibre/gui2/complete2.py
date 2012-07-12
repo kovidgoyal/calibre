@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref
 
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
-        QApplication, QListView, QPoint)
+        QApplication, QListView, QPoint, QModelIndex)
 
 from calibre.utils.icu import sort_key, primary_startswith
 from calibre.gui2 import NONE
@@ -85,6 +85,10 @@ class Completer(QListView): # {{{
         self.eat_focus_out = True
         self.installEventFilter(self)
 
+    def hide(self):
+        self.setCurrentIndex(QModelIndex())
+        QListView.hide(self)
+
     def item_chosen(self, index):
         if not self.isVisible(): return
         self.hide()
@@ -109,7 +113,7 @@ class Completer(QListView): # {{{
         if c.isValid():
             r = c.row()
         else:
-            r = 0
+            r = self.model().rowCount() if previous else -1
         r = r + (-1 if previous else 1)
         index = self.model().index(r % self.model().rowCount())
         self.setCurrentIndex(index)
@@ -120,7 +124,7 @@ class Completer(QListView): # {{{
             if index is not None and index.isValid():
                 self.setCurrentIndex(index)
 
-    def popup(self):
+    def popup(self, select_first=True):
         p = self
         m = p.model()
         widget = self.completer_widget()
@@ -153,7 +157,8 @@ class Completer(QListView): # {{{
 
         p.setGeometry(pos.x(), pos.y(), w, h)
 
-        if (not self.currentIndex().isValid() and self.model().rowCount() > 0):
+        if (select_first and not self.currentIndex().isValid() and
+                self.model().rowCount() > 0):
             self.setCurrentIndex(self.model().index(0))
 
         if not p.isVisible():
@@ -165,9 +170,6 @@ class Completer(QListView): # {{{
         if widget is None:
             return False
         etype = e.type()
-        if self.eat_focus_out and widget is obj and etype == e.FocusOut:
-            if self.isVisible():
-                return True
         if obj is not self:
             return QObject.eventFilter(self, obj, e)
 
@@ -181,8 +183,14 @@ class Completer(QListView): # {{{
                 self.hide()
                 e.accept()
                 return True
+            if key in (Qt.Key_Enter, Qt.Key_Return):
+                if not self.currentIndex().isValid():
+                    self.hide()
+                    e.accept()
+                    return True
+                return False
             if key in (Qt.Key_End, Qt.Key_Home, Qt.Key_Up, Qt.Key_Down,
-                    Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Enter, Qt.Key_Return):
+                    Qt.Key_PageUp, Qt.Key_PageDown):
                 # Let the list view handle these keys
                 return False
             if key in (Qt.Key_Tab, Qt.Key_Backtab):
@@ -205,7 +213,6 @@ class Completer(QListView): # {{{
                 return True
         return False
 # }}}
-
 
 class LineEdit(QLineEdit, LineEditECM):
     '''
@@ -233,7 +240,6 @@ class LineEdit(QLineEdit, LineEditECM):
                 type=Qt.QueuedConnection)
         self.mcompleter.relayout_needed.connect(self.relayout)
         self.mcompleter.setFocusProxy(completer_widget)
-        completer_widget.installEventFilter(self.mcompleter)
         self.textEdited.connect(self.text_edited)
         self.no_popup = False
 
@@ -260,7 +266,7 @@ class LineEdit(QLineEdit, LineEditECM):
 
     # }}}
 
-    def complete(self, show_all=False):
+    def complete(self, show_all=False, select_first=True):
         orig = None
         if show_all:
             orig = self.mcompleter.model().current_prefix
@@ -268,7 +274,7 @@ class LineEdit(QLineEdit, LineEditECM):
         if not self.mcompleter.model().current_items:
             self.mcompleter.hide()
             return
-        self.mcompleter.popup()
+        self.mcompleter.popup(select_first=select_first)
         self.mcompleter.scroll_to(orig)
 
     def relayout(self):
@@ -277,7 +283,7 @@ class LineEdit(QLineEdit, LineEditECM):
     def text_edited(self, *args):
         if self.no_popup: return
         self.update_completions()
-        self.complete()
+        self.complete(select_first=len(unicode(self.text()))>0)
 
     def update_completions(self):
         ' Update the list of completions '
@@ -329,6 +335,7 @@ class EditWithComplete(EnComboBox):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(LineEdit(self, completer_widget=self))
         self.setCompleter(None)
+        self.installEventFilter(self)
 
     # Interface {{{
     def showPopup(self):
@@ -380,6 +387,14 @@ class EditWithComplete(EnComboBox):
     def clear(self):
         self.lineEdit().clear()
         EnComboBox.clear(self)
+
+    def eventFilter(self, obj, e):
+        c = self.lineEdit().mcompleter
+        etype = e.type()
+        if c.eat_focus_out and self is obj and etype == e.FocusOut:
+            if c.isVisible():
+                return True
+        return EnComboBox.eventFilter(self, obj, e)
 
 if __name__ == '__main__':
     from PyQt4.Qt import QDialog, QVBoxLayout
