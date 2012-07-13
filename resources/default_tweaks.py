@@ -522,6 +522,6 @@ default_tweak_format = None
 # consideration when partitioning by first letter.
 # Examples:
 #    enable_multicharacters_in_tag_browser = True
-#    enable_multicharacters_in_tag_browser = True
+#    enable_multicharacters_in_tag_browser = False
 enable_multicharacters_in_tag_browser = True
 

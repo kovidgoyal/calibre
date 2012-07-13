@@ -423,7 +423,7 @@ class KOBO(USBMS):
 
     def delete_books(self, paths, end_session=True):
         if self.modify_database_check("delete_books") == False:
-            return 
+            return
 
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
@@ -462,7 +462,7 @@ class KOBO(USBMS):
 
     def remove_books_from_metadata(self, paths, booklists):
         if self.modify_datbase_check("remove_books_from_metatata") == False:
-            return 
+            return
 
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device metadata listing...'))
@@ -598,7 +598,7 @@ class KOBO(USBMS):
         # Checks to see whether the database version is supported
         # and whether the user has chosen to support the firmware version
         if self.dbversion > self.supported_dbversion:
-            # Unsupported database 
+            # Unsupported database
             opts = self.settings()
             if not opts.extra_customization[self.OPT_SUPPORT_NEWER_FIRMWARE]:
                 debug_print('The database has been upgraded past supported version')
@@ -606,11 +606,11 @@ class KOBO(USBMS):
                 self.report_progress(1.0, _('Removing books from device...'))
                 from calibre.devices.errors import UserFeedback
                 raise UserFeedback(_("Kobo database version unsupported - See details"),
-                    _('Your Kobo is running an updated firmware/database version '
+                    _('Your Kobo is running an updated firmware/database version. '
                      'As Calibre has not been updated, database editing is disabled.  '
                      'You can enable support for your Kobo in plugin preferences.  '
                      'Doing so may require you to perform a factory reset.  '
-                     'before selecting the "Attempt to support newer firmware" option '
+                     'Before selecting the "Attempt to support newer firmware" option '
                      'you should be familiar with restoring your Kobo to factory defaults.'),
                      UserFeedback.WARN)
 
@@ -741,7 +741,7 @@ class KOBO(USBMS):
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
         if self.modify_database_check("update_device_database_collections") == False:
-            return 
+            return
 
         # Only process categories in this list
         supportedcategories = {
