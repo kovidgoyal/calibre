@@ -283,7 +283,8 @@ class LineEdit(QLineEdit, LineEditECM):
     def text_edited(self, *args):
         if self.no_popup: return
         self.update_completions()
-        self.complete(select_first=len(unicode(self.text()))>0)
+        select_first = len(self.mcompleter.model().current_prefix) > 0
+        self.complete(select_first=select_first)
 
     def update_completions(self):
         ' Update the list of completions '
