@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.60\n"
-"POT-Creation-Date: 2012-07-13 10:25+IST\n"
-"PO-Revision-Date: 2012-07-13 10:25+IST\n"
+"POT-Creation-Date: 2012-07-13 16:26+IST\n"
+"PO-Revision-Date: 2012-07-13 16:26+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -1459,7 +1459,7 @@ msgid "Kobo database version unsupported - See details"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:609
-msgid "Your Kobo is running an updated firmware/database version As Calibre has not been updated, database editing is disabled.  You can enable support for your Kobo in plugin preferences.  Doing so may require you to perform a factory reset.  before selecting the \"Attempt to support newer firmware\" option you should be familiar with restoring your Kobo to factory defaults."
+msgid "Your Kobo is running an updated firmware/database version. As Calibre has not been updated, database editing is disabled.  You can enable support for your Kobo in plugin preferences.  Doing so may require you to perform a factory reset.  Before selecting the \"Attempt to support newer firmware\" option you should be familiar with restoring your Kobo to factory defaults."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:630
@@ -16981,7 +16981,8 @@ msgid "Choose columns to be searched when not using prefixes, as for example, wh
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:426
-msgid "Characters typed in the search box will match their accented versions, based on the language you have chosen for the calibre interface. For example, in  English, searching for n will match  and n, but if your language is Spanish it will only match n. Note that this is much slower than a simple search on very large libraries."
+#, python-format
+msgid "Characters typed in the search box will match their accented versions, based on the language you have chosen for the calibre interface. For example, in  English, searching for n will match %s and n, but if your language is Spanish it will only match n. Note that this is much slower than a simple search on very large libraries."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
@@ -18179,5 +18180,5 @@ msgid "Enable multi-character first-letters in the tag browser"
 msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:518
-msgid "Some languages have letters that can be represented by multiple characters.\nFor example, Czech has a 'character' \"ch\" that sorts between \"h\" and \"i\".\nIf this tweak is True, then the tag browser will take these characters into\nconsideration when partitioning by first letter.\nExamples:\nenable_multicharacters_in_tag_browser = True\nenable_multicharacters_in_tag_browser = True"
+msgid "Some languages have letters that can be represented by multiple characters.\nFor example, Czech has a 'character' \"ch\" that sorts between \"h\" and \"i\".\nIf this tweak is True, then the tag browser will take these characters into\nconsideration when partitioning by first letter.\nExamples:\nenable_multicharacters_in_tag_browser = True\nenable_multicharacters_in_tag_browser = False"
 msgstr ""
