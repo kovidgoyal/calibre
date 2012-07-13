@@ -249,8 +249,13 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
         complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
                                 key=sort_key)
         editor.update_items_cache(complete_items)
+        ct = index.data(Qt.DisplayRole).toString()
+        editor.show_initial_value(ct)
         return editor
 
+    def setModelData(self, editor, model, index):
+        val = editor.text()
+        model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
 class CcNumberDelegate(QStyledItemDelegate): # {{{
