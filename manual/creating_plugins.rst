@@ -198,7 +198,7 @@ You can insert print statements anywhere in your plugin code, they will be outpu
 You can quickly test changes to your plugin by using the following command
 line::
 
-    calibre -s; calibre-customize -b /path/to/your/plugin/directory; calibre
+    calibre-debug -s; calibre-customize -b /path/to/your/plugin/directory; calibre
 
 This will shutdown a running calibre, wait for the shutdown to complete, then update your plugin in |app| and relaunch |app|.
 

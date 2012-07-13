@@ -5,6 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+'''
+WARNING: The code in this module is deprecated. Use complete2.py instead. This
+code remains here for legacy plugin support.
+'''
 
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
         QApplication, QCompleter)

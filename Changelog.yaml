@@ -19,6 +19,74 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.60
+  date: 2012-07-13
+
+  new features:
+    - title: "When searching, allow use of un-accented characters to match accented characters in all fields and all languages (not just authors and English as before)"
+      description: "The rules for matching un-accented characters are done in a language dependent way. So if your calibre interface language is set to English, n will match both n and ñ, but if it is set to Spanish, it will match only n, as in Spanish ñ is a separate alphabet in Spanish. This makes searching a little slower, so if you have a very large library you can turn it off via Preferences->Searching."
+      type: major
+      
+    - title: "Content server: Show a best guess for the IP address the content server is currently listening at in the connect/share menu."
+      tickets: [1024128]
+
+    - title: "E-book viewer: Add an option to show a clock in full screen mode."
+      tickets: [1022086]
+
+    - title: "Drivers for Paquito Imaginarium and a few Android phones"
+      tickets: [1024021,1023613,1023461,1022401]
+
+    - title: "HTMLZ Output: Add option to use the book title as the filename for the html file inside the archive"
+
+    - title: "Make the list of displayed fields in the book details panel a per library setting"
+
+    - title: "Have autocomplete on authors/series/tags/etc. ignore accented characters when finding matches (similar to the changes to search above)"
+
+    - title: "Support for retina displays in OS X (I hope)"
+      tickets: [1022191]
+
+    - title: "Remove the dependency on the zip command line tool when developing plugins"
+
+  bug fixes:
+    - title: "Kobo driver: Do not perform write operations on the Kobo database if its version is newer than the latest version the driver supports, for safety"
+
+    - title: "KF8 Input: Ignore encoding declarations inside the html markup, as they are sometimes incorrect."
+      tickets: [1022933]
+
+    - title: "Force refresh of cached composite column values when values in the cache are changed"
+
+    - title: "Fix a regression that broke calibre --shutdown-running-calibre on windows."
+      tickets: [1022504]
+
+    - title: "Possible workaround for Qt 4.8.2 open file dialog failing on some linux distros."
+      tickets: [1022019]
+
+    - title: "Catalogs: Fix some epubcheck errors when generating catalogs in EPUB format"
+
+    - title: "Linux installer: When calling the xdg utilities use system libraries rather than the libraries bundled with calibre"
+
+    - title: "Fix numeric sort for composite custom columns that use custom separators"
+      tickets: [1021814]
+
+    - title: "Tag browser: When grouping by first letter, handle languages that have 'letters' made of more than one character. This can be turned off via Preferences->Tweaks"
+
+  improved recipes:
+    - Hola magazine
+    - Adventure Gamers
+    - Cosmopolitan UK
+    - Onda Rock
+
+  new recipes:
+    - title: Empire Magazine 
+      author: Dave Asbury
+
+    - title: NZZ Folio 
+      author: Bernd Leinfelder
+
+    - title: Warentest 
+      author: asdfdsfksd
+
+
 - version: 0.8.59
   date: 2012-07-06
 

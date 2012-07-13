@@ -33,6 +33,7 @@ class FazNet(BasicNewsRecipe):
               ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
               ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
               ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
-              ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1')
+              ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
+              ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1') # AGe add 2012-07-13
             ]
 

@@ -84,7 +84,17 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     return ans
 
 def get_field_list(fm, use_defaults=False):
-    src = gprefs.defaults if use_defaults else gprefs
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db
+    if use_defaults:
+        src = db.prefs.defaults
+    else:
+        old_val = gprefs.get('book_display_fields', None)
+        if old_val is not None and not db.prefs.has_setting(
+                'book_display_fields'):
+            src = gprefs
+        else:
+            src = db.prefs
     fieldlist = list(src['book_display_fields'])
     names = frozenset([x[0] for x in fieldlist])
     for field in fm.displayable_field_keys():

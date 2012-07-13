@@ -12,7 +12,7 @@ import sys, os, shutil, platform, subprocess, stat, py_compile, glob, \
 from setup import Command, modules, basenames, functions, __version__, \
     __appname__
 
-SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
+SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
         '_dbus_glib_bindings.so']

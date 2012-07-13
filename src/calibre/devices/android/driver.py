@@ -41,6 +41,7 @@ class ANDROID(USBMS):
                        0xca9  : HTC_BCDS,
                        0xcac  : HTC_BCDS,
                        0xccf  : HTC_BCDS,
+                       0xce5  : HTC_BCDS,
                        0x2910 : HTC_BCDS,
                        0xff9  : HTC_BCDS + [0x9999],
             },
@@ -210,7 +211,7 @@ class ANDROID(USBMS):
             'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
             'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0_DRIVER',
             'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
-            'THINKPAD_TABLET', 'SGH-T989']
+            'THINKPAD_TABLET', 'SGH-T989', 'YP-G70']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

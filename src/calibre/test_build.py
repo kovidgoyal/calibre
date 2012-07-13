@@ -76,15 +76,15 @@ def test_qt():
     print ('Qt OK!')
 
 def test_imaging():
-    from calibre.utils.magick.draw import create_canvas, Image
-    im = create_canvas(20, 20, '#ffffff')
-    jpg = im.export('jpg')
-    Image().load(jpg)
-    im.export('png')
-    print ('ImageMagick OK!')
+    from calibre.ebooks import calibre_cover
+    data = calibre_cover('test', 'ok')
+    if len(data) > 1000:
+        print ('ImageMagick OK!')
+    else:
+        raise RuntimeError('ImageMagick choked!')
     from PIL import Image
-    i = Image.open(cStringIO.StringIO(jpg))
-    if i.size != (20, 20):
+    i = Image.open(cStringIO.StringIO(data))
+    if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
@@ -94,6 +94,12 @@ def test_unrar():
         raise RuntimeError('Failed to load libunrar')
     print ('Unrar OK!')
 
+def test_icu():
+    from calibre.utils.icu import _icu_not_ok
+    if _icu_not_ok:
+        raise RuntimeError('ICU module not loaded/valid')
+    print ('ICU OK!')
+
 def test():
     test_plugins()
     test_lxml()
@@ -102,6 +108,7 @@ def test():
     test_qt()
     test_imaging()
     test_unrar()
+    test_icu()
     if iswindows:
         test_win32()
         test_winutil()

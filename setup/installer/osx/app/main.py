@@ -386,7 +386,7 @@ class Py2App(object):
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.25.dylib',):
+        for x in ('libpoppler.26.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
@@ -483,10 +483,6 @@ class Py2App(object):
                     shutil.rmtree(tdir)
         shutil.rmtree(os.path.join(self.site_packages, 'calibre', 'plugins'))
         self.remove_bytecode(join(self.resources_dir, 'Python', 'site-packages'))
-        # Create dummy IPython README_STARTUP
-        with open(join(self.site_packages,
-            'IPython/config/profile/README_STARTUP'), 'wb') as f:
-            f.write('\n')
 
     @flush
     def add_modules_from_dir(self, src):
