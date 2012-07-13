@@ -24,7 +24,7 @@
 
   new features:
     - title: "When searching, allow use of un-accented characters to match accented characters in all fields and all languages (not just authors and English as before)"
-      description: "The rules for matching un-accented characters are done in a language dependent way. So if your calibre interface language is set to English, n will match both n and ñ, but if it is set to Spanish, it will match only n, as in Spanish ñ is a separate alphabet in Spanish."
+      description: "The rules for matching un-accented characters are done in a language dependent way. So if your calibre interface language is set to English, n will match both n and ñ, but if it is set to Spanish, it will match only n, as in Spanish ñ is a separate alphabet in Spanish. This makes searching a little slower, so if you have a very large library you can turn it off via Preferences->Searching."
       type: major
       
     - title: "Content server: Show a best guess for the IP address the content server is currently listening at in the connect/share menu."
