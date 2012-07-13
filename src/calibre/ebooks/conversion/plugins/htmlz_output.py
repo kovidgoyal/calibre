@@ -37,6 +37,11 @@ class HTMLZOutput(OutputFormatPlugin):
                    'external: Use an external CSS file that is linked in the document.\n'
                    'inline: Place the CSS in the head section of the document.'
             )),
+        OptionRecommendation(name='htmlz_title_filename',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('If set this option causes the file name of the html file'
+                ' inside the htmlz archive to be based on the book title.')
+            ),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -44,6 +49,7 @@ class HTMLZOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_MIME
         from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
         from calibre.utils.zipfile import ZipFile
+        from calibre.utils.filenames import ascii_filename
 
         # HTML
         if opts.htmlz_css_type == 'inline':
@@ -59,7 +65,10 @@ class HTMLZOutput(OutputFormatPlugin):
             htmlizer = OEB2HTMLizer(log)
             html = htmlizer.oeb2html(oeb_book, opts)
 
-            with open(os.path.join(tdir, u'index.html'), 'wb') as tf:
+            fname = u'index'
+            if opts.htmlz_title_filename:
+                fname = ascii_filename(unicode(oeb_book.metadata.title[0]))
+            with open(os.path.join(tdir, fname+u'.html'), 'wb') as tf:
                 tf.write(html)
 
             # CSS

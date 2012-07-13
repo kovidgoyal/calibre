@@ -89,14 +89,6 @@ gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
-gprefs.defaults['book_display_fields'] = [
-        ('title', False), ('authors', True), ('formats', True),
-        ('series', True), ('identifiers', True), ('tags', True),
-        ('path', True), ('publisher', False), ('rating', False),
-        ('author_sort', False), ('sort', False), ('timestamp', False),
-        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False), ('languages', False),
-        ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False
@@ -581,30 +573,31 @@ class FileDialog(QObject):
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
-        if mode == QFileDialog.AnyFile:
-            f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
-            if f:
-                self.selected_files.append(f)
-        elif mode == QFileDialog.ExistingFile:
-            f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
-            if f and os.path.exists(f):
-                self.selected_files.append(f)
-        elif mode == QFileDialog.ExistingFiles:
-            fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
-            for f in fs:
-                f = unicode(f)
-                if not f: continue
-                if not os.path.exists(f):
-                    # QFileDialog for some reason quotes spaces
-                    # on linux if there is more than one space in a row
-                    f = unquote(f)
+        with SanitizeLibraryPath():
+            if mode == QFileDialog.AnyFile:
+                f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
+                if f:
+                    self.selected_files.append(f)
+            elif mode == QFileDialog.ExistingFile:
+                f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
                 if f and os.path.exists(f):
                     self.selected_files.append(f)
-        else:
-            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
-            f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
-            if os.path.exists(f):
-                self.selected_files.append(f)
+            elif mode == QFileDialog.ExistingFiles:
+                fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
+                for f in fs:
+                    f = unicode(f)
+                    if not f: continue
+                    if not os.path.exists(f):
+                        # QFileDialog for some reason quotes spaces
+                        # on linux if there is more than one space in a row
+                        f = unquote(f)
+                    if f and os.path.exists(f):
+                        self.selected_files.append(f)
+            else:
+                opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
+                f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+                if os.path.exists(f):
+                    self.selected_files.append(f)
         if self.selected_files:
             self.selected_files = [unicode(q) for q in self.selected_files]
             saved_loc = self.selected_files[0]
@@ -734,11 +727,11 @@ gui_thread = None
 qt_app = None
 class Application(QApplication):
 
-    def __init__(self, args, force_calibre_style=False):
+    def __init__(self, args, force_calibre_style=False,
+            override_program_name=None):
         self.file_event_hook = None
-        if islinux and args[0].endswith(u'calibre'):
-            args = list(args)
-            args[0] += '-gui'
+        if override_program_name:
+            args = [override_program_name] + args[1:]
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
         global gui_thread, qt_app
@@ -857,16 +850,26 @@ class Application(QApplication):
 
 _store_app = None
 
+class SanitizeLibraryPath(object):
+    '''Remove the bundled calibre libraries from LD_LIBRARY_PATH on linux. This
+    is needed to prevent library conflicts when launching external utilities.'''
+
+    def __enter__(self):
+        self.orig = os.environ.get('LD_LIBRARY_PATH', '')
+        self.changed = False
+        paths = [x for x in self.orig.split(os.pathsep) if x]
+        if isfrozen and islinux and paths:
+            npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+            os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+            self.changed = True
+
+    def __exit__(self, *args):
+        if self.changed:
+            os.environ['LD_LIBRARY_PATH'] = self.orig
+
 def open_url(qurl):
-    paths = os.environ.get('LD_LIBRARY_PATH',
-                '').split(os.pathsep)
-    paths = [x for x in paths if x]
-    if isfrozen and islinux and paths:
-        npaths = [x for x in paths if x != sys.frozen_path+'/lib']
-        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-    QDesktopServices.openUrl(qurl)
-    if isfrozen and islinux and paths:
-        os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
+    with SanitizeLibraryPath():
+        QDesktopServices.openUrl(qurl)
 
 def get_current_db():
     '''

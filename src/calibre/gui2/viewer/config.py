@@ -51,6 +51,8 @@ def config(defaults=None):
             help=_('The amount by which to change the font size when clicking'
                 ' the font larger/smaller buttons. Should be a number between '
                 '0 and 1.'))
+    c.add_opt('fullscreen_clock', default=False, action='store_true',
+            help=_('Show a clock in fullscreen mode.'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -117,6 +119,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.hyphenate.setVisible(False)
             self.hyphenate_default_lang.setVisible(False)
             self.hyphenate_label.setVisible(False)
+        self.opt_fullscreen_clock.setChecked(opts.fullscreen_clock)
 
     def accept(self, *args):
         if self.shortcut_config.is_editing:
@@ -148,6 +151,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
         c.set('line_scrolling_stops_on_pagebreaks',
                 self.opt_line_scrolling_stops_on_pagebreaks.isChecked())
+        c.set('fullscreen_clock', self.opt_fullscreen_clock.isChecked())
         return QDialog.accept(self, *args)
 
 

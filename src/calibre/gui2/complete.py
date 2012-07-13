@@ -5,11 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+'''
+WARNING: The code in this module is deprecated. Use complete2.py instead. This
+code remains here for legacy plugin support.
+'''
 
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
         QApplication, QCompleter)
 
-from calibre.utils.icu import sort_key, lower
+from calibre.utils.icu import sort_key
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config_base import tweaks
@@ -24,12 +28,11 @@ class CompleteModel(QAbstractListModel):
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
         if len(items) < tweaks['completion_change_to_ascii_sorting']:
-            self.items = sorted(items, key=lambda x: sort_key(x))
+            self.items = sorted(items, key=sort_key)
             self.sorting = QCompleter.UnsortedModel
         else:
             self.items = sorted(items, key=lambda x:x.lower())
             self.sorting = QCompleter.CaseInsensitivelySortedModel
-        self.lowered_items = [lower(x) for x in self.items]
         self.reset()
 
     def rowCount(self, *args):
