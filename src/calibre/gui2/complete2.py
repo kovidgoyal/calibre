@@ -372,6 +372,9 @@ class EditWithComplete(EnComboBox):
     def text(self):
         return unicode(self.lineEdit().text())
 
+    def selectAll(self):
+        self.lineEdit().selectAll()
+
     def setText(self, val):
         le = self.lineEdit()
         le.no_popup = True
