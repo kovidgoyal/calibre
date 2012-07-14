@@ -59,6 +59,16 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             else:
                 creators = [unicode(c) for c in items]
             items = creators
+        elif term == 'rights':
+            try:
+                rights = utf8_text(unicode(metadata.rights[0]))
+            except:
+                rights = b'Unknown'
+            exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
+            exth.write(rights)
+            nrecs += 1
+            continue
+
         for item in items:
             data = unicode(item)
             if term != 'description':
@@ -77,14 +87,6 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             data = utf8_text(data)
             exth.write(pack(b'>II', code, len(data) + 8))
             exth.write(data)
-            nrecs += 1
-        if term == 'rights' :
-            try:
-                rights = utf8_text(unicode(metadata.rights[0]))
-            except:
-                rights = b'Unknown'
-            exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
-            exth.write(rights)
             nrecs += 1
 
     # Write UUID as ASIN
