@@ -161,7 +161,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
             thumbnail_offset))
         cover_uri_str = bytes('kindle:embed:%04X' %(thumbnail_offset))
-        exth.write(pack(b'>II', EXTH_CODES['kf8_cover_uri'], len(cover_uri_str) + 8))
+        exth.write(pack(b'>II', EXTH_CODES['kf8_thumbnail_uri'], len(cover_uri_str) + 8))
         exth.write(cover_uri_str)
         nrecs += 2
 
