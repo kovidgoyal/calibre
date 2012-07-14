@@ -156,12 +156,14 @@ def _match(query, value, matchkind):
                 elif query == t:
                     return True
             elif matchkind == REGEXP_MATCH:
-                return re.search(query, t, re.I|re.UNICODE)
+                if re.search(query, t, re.I|re.UNICODE):
+                    return True
             elif matchkind == CONTAINS_MATCH:
                 if pref_use_primary_find_in_search:
-                    return primary_find(query, t)[0] != -1
-                else:
-                    return query in t
+                    if primary_find(query, t)[0] != -1:
+                        return True
+                elif query in t:
+                        return True
         except re.error:
             pass
     return False

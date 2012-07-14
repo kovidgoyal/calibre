@@ -144,9 +144,9 @@ class EXTHRecord(object):
                 118 : 'retailprice',
                 119 : 'retailpricecurrency',
                 121 : 'KF8 header section index',
-                125 : 'KF8 resources (images/fonts) count',
-                129 : 'KF8 cover URI',
-                131 : 'KF8 unknown count',
+                125 : 'KF8 unknown count',
+                129 : 'KF8 thumbnail URI',
+                131 : 'KF8 resources (images/fonts) count',
                 201 : 'coveroffset',
                 202 : 'thumboffset',
                 203 : 'hasfakecover',
@@ -163,6 +163,7 @@ class EXTHRecord(object):
                 501 : 'cdetype', # 4 chars (PDOC or EBOK)
                 502 : 'lastupdatetime',
                 503 : 'updatedtitle',
+                524 : 'language',
         }.get(self.type, repr(self.type))
 
         if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',

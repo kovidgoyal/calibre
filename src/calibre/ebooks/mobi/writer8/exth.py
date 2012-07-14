@@ -12,6 +12,7 @@ from struct import pack
 from io import BytesIO
 
 from calibre.ebooks.mobi.utils import utf8_text
+from calibre.utils.localization import lang_as_iso639_1
 
 EXTH_CODES = {
     'creator': 100,
@@ -28,13 +29,15 @@ EXTH_CODES = {
     'versionnumber': 114,
     'startreading': 116,
     'kf8_header_index': 121,
-    'num_of_resources': 125,
-    'kf8_unknown_count': 131,
+    'kf8_unknown_count': 125,
+    'kf8_thumbnail_uri': 129,
+    'num_of_resources': 131,
     'coveroffset': 201,
     'thumboffset': 202,
     'hasfakecover': 203,
     'lastupdatetime': 502,
     'title': 503,
+    'language': 524,
 }
 
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -57,6 +60,16 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             else:
                 creators = [unicode(c) for c in items]
             items = creators
+        elif term == 'rights':
+            try:
+                rights = utf8_text(unicode(metadata.rights[0]))
+            except:
+                rights = b'Unknown'
+            exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
+            exth.write(rights)
+            nrecs += 1
+            continue
+
         for item in items:
             data = unicode(item)
             if term != 'description':
@@ -68,17 +81,13 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
                     pass
                 else:
                     continue
+            if term == 'language':
+                d2 = lang_as_iso639_1(data)
+                if d2:
+                    data = d2
             data = utf8_text(data)
             exth.write(pack(b'>II', code, len(data) + 8))
             exth.write(data)
-            nrecs += 1
-        if term == 'rights' :
-            try:
-                rights = utf8_text(unicode(metadata.rights[0]))
-            except:
-                rights = b'Unknown'
-            exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
-            exth.write(rights)
             nrecs += 1
 
     # Write UUID as ASIN
@@ -132,7 +141,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         nrecs += 1
 
     if be_kindlegen2:
-        vals = {204:201, 205:2, 206:2, 207:35621}
+        vals = {204:201, 205:2, 206:5, 207:0}
     elif is_periodical:
         # Pretend to be amazon's super secret periodical generator
         vals = {204:201, 205:2, 206:0, 207:101}
@@ -151,7 +160,10 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     if thumbnail_offset is not None:
         exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
             thumbnail_offset))
-        nrecs += 1
+        cover_uri_str = bytes('kindle:embed:%04X' %(thumbnail_offset))
+        exth.write(pack(b'>II', EXTH_CODES['kf8_thumbnail_uri'], len(cover_uri_str) + 8))
+        exth.write(cover_uri_str)
+        nrecs += 2
 
     if start_offset is not None:
         try:

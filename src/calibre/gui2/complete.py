@@ -16,7 +16,6 @@ from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
 from calibre.utils.icu import sort_key
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
-from calibre.utils.config_base import tweaks
 
 class CompleteModel(QAbstractListModel):
 
@@ -27,7 +26,7 @@ class CompleteModel(QAbstractListModel):
 
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
-        if len(items) < tweaks['completion_change_to_ascii_sorting']:
+        if len(items) < 2500:
             self.items = sorted(items, key=sort_key)
             self.sorting = QCompleter.UnsortedModel
         else:

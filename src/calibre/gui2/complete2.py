@@ -284,6 +284,8 @@ class LineEdit(QLineEdit, LineEditECM):
         if self.no_popup: return
         self.update_completions()
         select_first = len(self.mcompleter.model().current_prefix) > 0
+        if not select_first:
+            self.mcompleter.setCurrentIndex(QModelIndex())
         self.complete(select_first=select_first)
 
     def update_completions(self):
@@ -357,9 +359,8 @@ class EditWithComplete(EnComboBox):
 
     def show_initial_value(self, what):
         what = unicode(what) if what else u''
-        le = self.lineEdit()
-        self.setEditText(what)
-        le.selectAll()
+        self.setText(what)
+        self.lineEdit().selectAll()
 
     @dynamic_property
     def all_items(self):
@@ -372,6 +373,9 @@ class EditWithComplete(EnComboBox):
 
     def text(self):
         return unicode(self.lineEdit().text())
+
+    def selectAll(self):
+        self.lineEdit().selectAll()
 
     def setText(self, val):
         le = self.lineEdit()
