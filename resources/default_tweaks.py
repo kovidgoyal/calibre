@@ -98,15 +98,6 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
-#: Completion sort order: choose when to change from lexicographic to ASCII-like
-# Calibre normally uses locale-dependent lexicographic ordering when showing
-# completion values. This means that the sort order is correct for the user's
-# language. However, this can be slow. Performance is improved by switching to
-# ascii ordering. This tweak controls when that switch happens. Set it to zero
-# to always use ascii ordering. Set it to something larger than zero to switch
-# to ascii ordering for performance reasons.
-completion_change_to_ascii_sorting = 2500
-
 #: Control partitioning of Tag Browser
 # When partitioning the tags browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
