@@ -12,6 +12,7 @@ from struct import pack
 from io import BytesIO
 
 from calibre.ebooks.mobi.utils import utf8_text
+from calibre.utils.localization import lang_as_iso639_1
 
 EXTH_CODES = {
     'creator': 100,
@@ -35,6 +36,7 @@ EXTH_CODES = {
     'hasfakecover': 203,
     'lastupdatetime': 502,
     'title': 503,
+    'language': 524,
 }
 
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -68,6 +70,10 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
                     pass
                 else:
                     continue
+            if term == 'language':
+                d2 = lang_as_iso639_1(data)
+                if d2:
+                    data = d2
             data = utf8_text(data)
             exth.write(pack(b'>II', code, len(data) + 8))
             exth.write(data)
