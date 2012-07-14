@@ -140,7 +140,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         nrecs += 1
 
     if be_kindlegen2:
-        vals = {204:201, 205:2, 206:2, 207:35621}
+        vals = {204:201, 205:2, 206:5, 207:0}
     elif is_periodical:
         # Pretend to be amazon's super secret periodical generator
         vals = {204:201, 205:2, 206:0, 207:101}
