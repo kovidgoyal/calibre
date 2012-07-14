@@ -29,8 +29,9 @@ EXTH_CODES = {
     'versionnumber': 114,
     'startreading': 116,
     'kf8_header_index': 121,
-    'num_of_resources': 125,
-    'kf8_unknown_count': 131,
+    'kf8_unknown_count': 125,
+    'kf8_thumbnail_uri': 129,
+    'num_of_resources': 131,
     'coveroffset': 201,
     'thumboffset': 202,
     'hasfakecover': 203,
@@ -159,7 +160,10 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     if thumbnail_offset is not None:
         exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
             thumbnail_offset))
-        nrecs += 1
+        cover_uri_str = bytes('kindle:embed:%04X' %(thumbnail_offset))
+        exth.write(pack(b'>II', EXTH_CODES['kf8_cover_uri'], len(cover_uri_str) + 8))
+        exth.write(cover_uri_str)
+        nrecs += 2
 
     if start_offset is not None:
         try:
