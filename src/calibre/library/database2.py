@@ -1096,8 +1096,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         identical_book_ids = set([])
         if mi.authors:
             try:
+                quathors = mi.authors[:10] # Too many authors causes parsing of
+                                           # the search expression to fail
                 query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
-                    mi.authors])
+                    quathors])
+                qauthors = mi.authors[10:]
             except ValueError:
                 return identical_book_ids
             try:
@@ -1105,6 +1108,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except:
                 traceback.print_exc()
                 return identical_book_ids
+            if qauthors and book_ids:
+                matches = set()
+                qauthors = {lower(x) for x in qauthors}
+                for book_id in book_ids:
+                    aut = self.authors(book_id, index_is_id=True)
+                    if aut:
+                        aut = {lower(x.replace('|', ',')) for x in
+                                aut.split(',')}
+                        if aut.issuperset(qauthors):
+                            matches.add(book_id)
+                book_ids = matches
+
             for book_id in book_ids:
                 fbook_title = self.title(book_id, index_is_id=True)
                 fbook_title = fuzzy_title(fbook_title)
