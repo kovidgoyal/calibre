@@ -284,6 +284,8 @@ class LineEdit(QLineEdit, LineEditECM):
         if self.no_popup: return
         self.update_completions()
         select_first = len(self.mcompleter.model().current_prefix) > 0
+        if not select_first:
+            self.mcompleter.setCurrentIndex(QModelIndex())
         self.complete(select_first=select_first)
 
     def update_completions(self):
