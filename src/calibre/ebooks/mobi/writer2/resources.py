@@ -32,6 +32,7 @@ class Resources(object):
         self.used_image_indices = set()
         self.image_indices = set()
         self.cover_offset = self.thumbnail_offset = None
+        self.has_fonts = False
 
         self.add_resources(add_fonts)
 
@@ -109,6 +110,7 @@ class Resources(object):
                         'ttf', 'otf'} and isinstance(item.data, bytes):
                     self.records.append(write_font_record(item.data))
                     self.item_map[item.href] = len(self.records)
+                    self.has_fonts = True
 
     def add_extra_images(self):
         '''

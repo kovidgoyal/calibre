@@ -12,7 +12,7 @@ import sys, os, shutil, platform, subprocess, stat, py_compile, glob, \
 from setup import Command, modules, basenames, functions, __version__, \
     __appname__
 
-SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
+SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
         '_dbus_glib_bindings.so']
@@ -23,6 +23,7 @@ MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/bin/pdfinfo',
+                '/usr/lib/libglib-2.0.so.0',
                 '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',

@@ -251,6 +251,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['similar_tags_match_kind'] = 'match_all'
         defs['similar_series_search_key'] = 'series'
         defs['similar_series_match_kind'] = 'match_any'
+        defs['book_display_fields'] = [
+        ('title', False), ('authors', True), ('formats', True),
+        ('series', True), ('identifiers', True), ('tags', True),
+        ('path', True), ('publisher', False), ('rating', False),
+        ('author_sort', False), ('sort', False), ('timestamp', False),
+        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
+        ('last_modified', False), ('size', False), ('languages', False),
+        ]
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -1088,8 +1096,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         identical_book_ids = set([])
         if mi.authors:
             try:
+                quathors = mi.authors[:10] # Too many authors causes parsing of
+                                           # the search expression to fail
                 query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
-                    mi.authors])
+                    quathors])
+                qauthors = mi.authors[10:]
             except ValueError:
                 return identical_book_ids
             try:
@@ -1097,6 +1108,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except:
                 traceback.print_exc()
                 return identical_book_ids
+            if qauthors and book_ids:
+                matches = set()
+                qauthors = {lower(x) for x in qauthors}
+                for book_id in book_ids:
+                    aut = self.authors(book_id, index_is_id=True)
+                    if aut:
+                        aut = {lower(x.replace('|', ',')) for x in
+                                aut.split(',')}
+                        if aut.issuperset(qauthors):
+                            matches.add(book_id)
+                book_ids = matches
+
             for book_id in book_ids:
                 fbook_title = self.title(book_id, index_is_id=True)
                 fbook_title = fuzzy_title(fbook_title)
@@ -3736,5 +3759,43 @@ books_series_link      feeds
         return self.conn.get(
             'SELECT {0}, count(*) FROM books_{1}_link GROUP BY {0}'.format(
                 fm['link_column'], fm['table']))
+
+    def all_author_names(self):
+        ai = self.FIELD_MAP['authors']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                for x in auts.split(','):
+                    ans.add(x.replace('|', ','))
+        return ans
+
+    def all_tag_names(self):
+        ai = self.FIELD_MAP['tags']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                for x in auts.split(','):
+                    ans.add(x)
+        return ans
+
+    def all_publisher_names(self):
+        ai = self.FIELD_MAP['publisher']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                ans.add(auts)
+        return ans
+
+    def all_series_names(self):
+        ai = self.FIELD_MAP['series']
+        ans = set()
+        for rec in self.data.iterall():
+            auts = rec[ai]
+            if auts:
+                ans.add(auts)
+        return ans
 
 

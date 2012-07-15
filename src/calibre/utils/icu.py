@@ -12,7 +12,7 @@ from functools import partial
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
 
-_icu = _collator = _primary_collator = None
+_icu = _collator = _primary_collator = _secondary_collator = None
 _locale = None
 
 _none = u''
@@ -55,6 +55,13 @@ def primary_collator():
         _primary_collator.strength = _icu.UCOL_PRIMARY
     return _primary_collator
 
+def secondary_collator():
+    global _secondary_collator
+    if _secondary_collator is None:
+        _secondary_collator = _collator.clone()
+        _secondary_collator.strength = _icu.UCOL_SECONDARY
+    return _secondary_collator
+
 def py_sort_key(obj):
     if not obj:
         return _none
@@ -63,7 +70,10 @@ def py_sort_key(obj):
 def icu_sort_key(collator, obj):
     if not obj:
         return _none2
-    return collator.sort_key(lower(obj))
+    try:
+        return _secondary_collator.sort_key(obj)
+    except AttributeError:
+        return secondary_collator().sort_key(obj)
 
 def py_find(pattern, source):
     pos = source.find(pattern)
@@ -76,6 +86,12 @@ def icu_find(collator, pattern, source):
         return collator.find(pattern, source)
     except TypeError:
         return collator.find(unicode(pattern), unicode(source))
+
+def icu_startswith(collator, a, b):
+    try:
+        return collator.startswith(a, b)
+    except TypeError:
+        return collator.startswith(unicode(a), unicode(b))
 
 def py_case_sensitive_sort_key(obj):
     if not obj:
@@ -129,7 +145,7 @@ sort_key = py_sort_key if _icu_not_ok else partial(icu_sort_key, _collator)
 strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
 
 case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
-        icu_case_sensitive_sort_key
+        partial(icu_case_sensitive_sort_key, _collator)
 
 case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
 
@@ -155,14 +171,39 @@ def primary_strcmp(a, b):
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_strcmp(ascii_text(a), ascii_text(b))
-    return primary_collator().strcmp(a, b)
+    try:
+        return _primary_collator.strcmp(a, b)
+    except AttributeError:
+        return primary_collator().strcmp(a, b)
 
 def primary_find(pat, src):
     'find that ignores case and accents on letters'
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_find(ascii_text(pat), ascii_text(src))
-    return icu_find(primary_collator(), pat, src)
+    try:
+        return icu_find(_primary_collator, pat, src)
+    except AttributeError:
+        return icu_find(primary_collator(), pat, src)
+
+def primary_sort_key(val):
+    'A sort key that ignores case and diacritics'
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return ascii_text(val).lower()
+    try:
+        return _primary_collator.sort_key(val)
+    except AttributeError:
+        return primary_collator().sort_key(val)
+
+def primary_startswith(a, b):
+    if _icu_not_ok:
+        from calibre.utils.filenames import ascii_text
+        return ascii_text(a).lower().startswith(ascii_text(b).lower())
+    try:
+        return icu_startswith(_primary_collator, a, b)
+    except AttributeError:
+        return icu_startswith(primary_collator(), a, b)
 
 ################################################################################
 
@@ -283,8 +324,8 @@ pêché'''
         print
 
     print '\nTesting primary collation'
-    for k, v in {u'pèché': u'peche', u'flüße':u'flusse',
-            u'Štepánek':u'Štepanek'}.iteritems():
+    for k, v in {u'pèché': u'peche', u'flüße':u'Flusse',
+            u'Štepánek':u'ŠtepaneK'}.iteritems():
         if primary_strcmp(k, v) != 0:
             prints('primary_strcmp() failed with %s != %s'%(k, v))
             return
@@ -293,10 +334,12 @@ pêché'''
             return
 
     global _primary_collator
+    orig = _primary_collator
     _primary_collator = _icu.Collator('es')
     if primary_strcmp(u'peña', u'pena') == 0:
         print 'Primary collation in Spanish locale failed'
         return
+    _primary_collator = orig
 
     print '\nTesting contractions'
     c = _icu.Collator('cs')
@@ -304,6 +347,13 @@ pêché'''
         u'C\u030c', u'ch', u'cH', u'c\u030c', u's\u030c', u'r\u030c', u'CH',
         u'S\u030c', u'R\u030c']):
         print 'Contractions for the Czech language failed'
+        return
+
+    print '\nTesting startswith'
+    p = primary_startswith
+    if (not p('asd', 'asd') or not p('asd', 'A') or
+            not p('x', '')):
+        print 'startswith() failed'
         return
 
 # }}}

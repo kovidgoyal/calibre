@@ -98,7 +98,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             db.prefs.set('grouped_search_make_user_categories', [])
         r('grouped_search_make_user_categories', db.prefs, setting=CommaSeparatedList)
         self.muc_changed = False
-        self.opt_grouped_search_make_user_categories.editingFinished.connect(
+        self.opt_grouped_search_make_user_categories.lineEdit().editingFinished.connect(
                                                         self.muc_box_changed)
 
     def set_similar_fields(self, initial=False):

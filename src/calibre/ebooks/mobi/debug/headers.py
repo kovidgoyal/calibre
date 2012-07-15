@@ -163,6 +163,7 @@ class EXTHRecord(object):
                 501 : 'cdetype', # 4 chars (PDOC or EBOK)
                 502 : 'lastupdatetime',
                 503 : 'updatedtitle',
+                524 : 'language',
         }.get(self.type, repr(self.type))
 
         if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',

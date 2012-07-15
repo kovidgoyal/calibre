@@ -14,6 +14,7 @@ from math import trunc
 from calibre import human_readable
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
+from calibre.utils.config import tweaks
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -1203,7 +1204,7 @@ from calibre.utils.formatter_functions import formatter_functions
 class UserFunction(FormatterUserFunction):
 ''' + func
     locals_ = {}
-    if DEBUG:
+    if DEBUG and tweaks.get('enable_template_debug_printing', False):
         print prog
     exec prog in locals_
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
