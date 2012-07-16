@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-13 11:01+0000\n"
-"PO-Revision-Date: 2012-07-01 12:45+0000\n"
+"PO-Revision-Date: 2012-07-15 19:51+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-14 05:19+0000\n"
+"X-Launchpad-Export-Date: 2012-07-16 05:16+0000\n"
 "X-Generator: Launchpad (build 15614)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -1420,7 +1420,7 @@ msgstr "Communiceer met de PocketBook 602/603/902/903 e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Communiceer met de PocketBook 622 E-reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1723,7 +1723,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Probeer de nieuwe firmware te ondersteungen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
 msgid ""
@@ -1735,7 +1735,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:608
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "Kobo database versie niet ondersteund - Zie details"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:609
 msgid ""
@@ -2294,7 +2294,7 @@ msgstr "Map kaart A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Hoofdgeheugen en kaart A omdraaien"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
@@ -8137,6 +8137,8 @@ msgstr "Hoe class CSS behandeld wordt"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
 msgstr ""
+"gebruik boek&titel als de bestandsnaam voor HTML-bestanden in het archief "
+"(interne structuur)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -10072,7 +10074,7 @@ msgstr "Nieuwe &locatie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use the previously &existing library at the new location"
-msgstr "Gebruik de eerder b&estaande bibliotheek op de nieuwe locatie"
+msgstr "Gebruik de eerder aang&emaakte bibliotheek op de nieuwe locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
@@ -13384,7 +13386,7 @@ msgstr "%s is al actief."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:333
 msgid "No running calibre found"
-msgstr ""
+msgstr "Geen draaiende calibre gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:337
 msgid "Shutdown command sent, waiting for shutdown..."
@@ -13392,7 +13394,7 @@ msgstr "Commando aflsuiten verzonden, wachten op aflsuiten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:342
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "Draaiende calibre afsluiten mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -16087,7 +16089,7 @@ msgstr "Zoeken terwijl u &typt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr ""
+msgstr "Tekens zonder accent zorgen voor match voor tekens met accent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
@@ -16737,7 +16739,7 @@ msgstr "Geselecteerde actie omlaag verplaatsen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:347
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:126
 msgid "This tweak has it default value"
@@ -18045,7 +18047,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:55
 msgid "Show a clock in fullscreen mode."
-msgstr ""
+msgstr "Toon een klok in de volledig-scherm modus."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:57
 msgid "Font options"
@@ -18204,7 +18206,7 @@ msgstr "Regel &bladeren stoppen bij pagina einde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:222
 msgid "Show &clock in full screen mode"
-msgstr ""
+msgstr "Toon &klok in volledige-venster modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:223
 msgid "&General"
@@ -19442,7 +19444,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:45
 msgid "Symbols"
-msgstr ""
+msgstr "Tekens"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:502
 msgid "No enabled genres found to catalog.\n"
@@ -20135,6 +20137,8 @@ msgid ""
 "Normally, this command only operates on books that have out of date OPF "
 "files. This option makes it operate on all books."
 msgstr ""
+"Normaal gesproken werkt dit commando enkel op boeken met verouderde OPF "
+"bestanden. Deze optie zorgt dat het op alle boeken werkt."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1053
 msgid ""
@@ -20348,23 +20352,23 @@ msgstr "Sorteertitel"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:122
 msgid "Starting restoring preferences and column metadata"
-msgstr ""
+msgstr "Start met herstellen van voorkeuren en kolommen metagegevens"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:125
 msgid "Cannot restore preferences. Backup file not found."
-msgstr ""
+msgstr "Kan voorkeuren niet herstellen. Geen Backup-bestand gevonden."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:136
 msgid "Finished restoring preferences and column metadata"
-msgstr ""
+msgstr "Herstellen van voorkeuren en kolommen metagegevens voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:138
 msgid "Finished restoring preferences"
-msgstr ""
+msgstr "Herstellen van voorkeuren voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:143
 msgid "Restoring preferences and column metadata failed"
-msgstr ""
+msgstr "Herstellen van voorkeuren en kolomen metagagevens mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:162
 msgid "Processed"
@@ -23404,7 +23408,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:517
 msgid "Enable multi-character first-letters in the tag browser"
-msgstr ""
+msgstr "Multi-teken eerste-letter in de label-browser inschakelen"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:518
 msgid ""

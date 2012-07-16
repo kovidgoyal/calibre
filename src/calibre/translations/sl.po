@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-13 11:01+0000\n"
-"PO-Revision-Date: 2012-06-18 22:36+0000\n"
+"PO-Revision-Date: 2012-07-15 22:21+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-07-14 05:29+0000\n"
+"X-Launchpad-Export-Date: 2012-07-16 05:16+0000\n"
 "X-Generator: Launchpad (build 15614)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -9357,7 +9357,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:52
 msgid "Author sort"
-msgstr ""
+msgstr "Razvrščanje avtorjev"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
@@ -9443,7 +9443,7 @@ msgstr "Razvrsti po avtorju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
-msgstr ""
+msgstr "Razvrsti po avtorjih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:93
 msgid ""
@@ -9554,7 +9554,7 @@ msgstr "Kopiraj na odložišče"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1050
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:48
 msgid "View log"
-msgstr ""
+msgstr "Pokaži zapisnik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"
@@ -9717,7 +9717,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:551
 msgid "Author s&ort: "
-msgstr ""
+msgstr "Razvrščanje &avtorjev: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:552
 msgid ""
@@ -12281,7 +12281,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:139
 msgid "Title &sort:"
-msgstr ""
+msgstr "Razvrščanje &naslovov:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:148
 msgid ""
@@ -12315,7 +12315,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:310
 msgid "Author s&ort:"
-msgstr ""
+msgstr "Razvrščanje &avtorjev:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:320
 msgid ""
@@ -12331,7 +12331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:502
 msgid "&Number:"
-msgstr ""
+msgstr "&Številka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:602
 #, python-format
@@ -12490,7 +12490,7 @@ msgstr "Počisti datum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1429
 msgid "Publishe&d:"
-msgstr ""
+msgstr "&Objavljeno:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:55
 msgid "Schedule download?"
@@ -12718,11 +12718,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:288
 msgid "See at"
-msgstr ""
+msgstr "Oglejte si pri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:442
 msgid "calibre is downloading metadata from: "
-msgstr ""
+msgstr "calibre prenaša metapodatke s strežnikov: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:464
 msgid "Please wait"
@@ -12755,7 +12755,7 @@ msgstr "Iskanje ..."
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:795
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "Prenašanje naslovnic za <b>%s</b>, počakajte ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:826
 msgid "Failed to download any covers, click \"Show details\" for details."
@@ -12770,6 +12770,8 @@ msgstr ""
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
+"Najdenih <b>%(num)d</b> naslovnic publikacije %(title)s. Izberite tisto, ki "
+"vam najbolj ugaja."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:923
 msgid "Downloading metadata..."
