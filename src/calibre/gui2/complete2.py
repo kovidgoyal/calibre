@@ -193,8 +193,8 @@ class Completer(QListView): # {{{
             if key in (Qt.Key_PageUp, Qt.Key_PageDown):
                 # Let the list view handle these keys
                 return False
-            if key in (Qt.Key_Tab, Qt.Key_Backtab, Qt.Key_Up, Qt.Key_Down):
-                self.next_match(previous=key in (Qt.Key_Backtab, Qt.Key_Up))
+            if key in (Qt.Key_Up, Qt.Key_Down):
+                self.next_match(previous=key == Qt.Key_Up)
                 e.accept()
                 return True
             # Send to widget

@@ -522,5 +522,5 @@ enable_multicharacters_in_tag_browser = True
 # completions you will now have to press Tab to select one before pressing
 # Enter. Which technique you prefer will depend on the state of metadata in
 # your library and your personal editing style.
-preselect_first_completion = False
+preselect_first_completion = True
 
