@@ -16,6 +16,7 @@ from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
 from calibre.utils.icu import sort_key, primary_startswith
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
+from calibre.utils.config import tweaks
 
 class CompleteModel(QAbstractListModel): # {{{
 
@@ -157,8 +158,8 @@ class Completer(QListView): # {{{
 
         p.setGeometry(pos.x(), pos.y(), w, h)
 
-        if (select_first and not self.currentIndex().isValid() and
-                self.model().rowCount() > 0):
+        if (tweaks['preselect_first_completion'] and select_first and not
+                self.currentIndex().isValid() and self.model().rowCount() > 0):
             self.setCurrentIndex(self.model().index(0))
 
         if not p.isVisible():

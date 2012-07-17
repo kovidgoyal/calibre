@@ -516,3 +516,11 @@ default_tweak_format = None
 #    enable_multicharacters_in_tag_browser = False
 enable_multicharacters_in_tag_browser = True
 
+#: Do not preselect a completion when editing authors/tags/series/etc.
+# This means that you can make changes and press Enter and your changes will
+# not be overwritten by a matching completion. However, if you wish to use the
+# completions you will now have to press Tab to select one before pressing
+# Enter. Which technique you prefer will depend on the state of metadata in
+# your library and your personal editing style.
+preselect_first_completion = False
+
