@@ -2366,6 +2366,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)
         self._update_author_in_cache(id, ss, final_authors)
+        self.clean_standard_field('authors', commit=True)
         return books_to_refresh
 
     def set_authors(self, id, authors, notify=True, commit=True,
