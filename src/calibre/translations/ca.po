@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-13 11:01+0000\n"
-"PO-Revision-Date: 2012-06-29 18:47+0000\n"
+"PO-Revision-Date: 2012-07-16 16:20+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-14 05:18+0000\n"
-"X-Generator: Launchpad (build 15614)\n"
+"X-Launchpad-Export-Date: 2012-07-17 04:48+0000\n"
+"X-Generator: Launchpad (build 15627)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -943,6 +943,9 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"Per als desenvolupadors de connectors: camí a la carpeta on esteu "
+"desenvolupant el connector. Aquesta ordre comprimirà automàticament el "
+"connector i l'actualitzarà al calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:588
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1153,6 +1156,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>No s'ha pogut comunicar amb iTunes.</p><p>Llegiu aquesta <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"publicació al fòrum</a> per a més informació.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:380
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:383
@@ -1385,7 +1391,7 @@ msgstr "Comunica't amb un lector PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Comunica't amb el lector PocketBook 622"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1690,7 +1696,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Intenta donar compatibilitat a microprogramari més recent"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
 msgid ""
@@ -1699,10 +1705,16 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"El Kobo actualitza periòdicament el microprogramari i la versió de la base "
+"de dades. Amb aquesta opció el calibre intentarà realitzar funcions "
+"completes de lectura i escriptura - Compte! Habiliteu-ho només si esteu a "
+"gust restaurant el vostre Kobo als paràmetres de fàbrica i provant "
+"programari."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:608
 msgid "Kobo database version unsupported - See details"
 msgstr ""
+"La versió de la base de dades del Kobo no és compatible - Vegeu els detalls"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:609
 msgid ""
@@ -1712,6 +1724,13 @@ msgid ""
 "factory reset.  Before selecting the \"Attempt to support newer firmware\" "
 "option you should be familiar with restoring your Kobo to factory defaults."
 msgstr ""
+"Aquest Kobo funciona amb una versió actualitzada del microprogramari/base de "
+"dades. Ja que el calibre no s'ha actualitzat, s'ha inhabilitat l'edició de "
+"la base de dades. Podeu habilitar la compatibilitat amb aquest Kobo a les "
+"preferències dels connectors. Si ho feu pot ser necessari restaurar els "
+"paràmetres de fàbrica. Abans de seleccionar l'opció \"Intenta donar "
+"compatibilitat a microprogramari més recent\" hauríeu d'estar a gust "
+"restaurant el Kobo als paràmetres de fàbrica."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:630
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
@@ -2262,13 +2281,15 @@ msgstr "Carpeta de la targeta A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Intercanvia la memòria principal i la targeta A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Marqueu el quadre si la memòria principal del dispositiu es veu com a tarja "
+"i la tarja com a memòria principal"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
 #, python-format
@@ -2758,6 +2779,8 @@ msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
 msgstr ""
+"Si s'activa aquesta opció fa que el nom del fitxer HTML dins de l'arxiu "
+"HTMLZ estigui basat en el títol del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -4813,12 +4836,11 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
-"comandament...\n"
-"el comandament pot ser un d'aquests:\n"
+"ordre...\n"
+"l'ordre pot ser una d'aquestes:\n"
 "[%%commands]\n"
 "\n"
-"Utilitzeu %prog comandament --help per a més informació d'un comandament "
-"específic\n"
+"Utilitzeu %prog ordre --help per a més informació d'una ordre específica\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -5394,6 +5416,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"S'ha trobat els %d llibres duplicats següents; els formats de llibre "
+"d'entrada s'han processar i fusionat a la base de dades del calibre d'acord "
+"amb els paràmetres de fusió automàtica:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:354
 msgid "Failed to read metadata"
@@ -8128,6 +8153,7 @@ msgstr "Com es gestionen els CSS basats en classes"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
 msgstr ""
+"Utilitza els &títol del llibre com a nom del fitxer HTML dins de l'arxiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -11535,6 +11561,12 @@ msgid ""
 "has been corrupted and you get a blank list of books.<p>Do you want to "
 "restore the database?"
 msgstr ""
+"La llista de llibres amb totes les metadades es desen a un únic fitxer "
+"anomenat base de dades. A més, les metadades de cada llibre es desen a la "
+"carpeta d'aquest llibre com a còpia de seguretat.<p>Auesta operació "
+"reconstruirà la base de dades a partir de les metadades individuals dels "
+"llibres. És útil si la base de dades està malmesa i obteniu una llista de "
+"llibres en blanc.<p>Voleu restaurar la base de dades?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:129
@@ -13075,7 +13107,7 @@ msgstr "Al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
 msgid "Size (MB)"
-msgstr "Grandària (MB)"
+msgstr "Mida (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:275
@@ -13403,7 +13435,7 @@ msgstr "%s ja s'està executant."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:333
 msgid "No running calibre found"
-msgstr ""
+msgstr "No s'ha trobat cap calibre en execució"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:337
 msgid "Shutdown command sent, waiting for shutdown..."
@@ -13411,7 +13443,7 @@ msgstr "S'ha enviat l'ordre de tancament, s'està esperant el tancament..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:342
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "No s'ha pogut tancar la instància del calibre en execució"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -15296,7 +15328,7 @@ msgstr "E&stil de la interfície de l'usuari (cal reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:249
 msgid "Show &tooltips in the book list"
-msgstr ""
+msgstr "Mostra indic&adors de funció a la llista de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:250
 msgid "Main Interface"
@@ -15422,7 +15454,7 @@ msgstr "Categories amb elements &jeràrquics:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:286
 msgid "Use &alternating row colors in the Tag Browser"
-msgstr ""
+msgstr "Utilitza colors &alternats a les files de l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:288
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -15653,6 +15685,9 @@ msgid ""
 "This refers to CPU intensive tasks like  conversion. Lower this number if "
 "you want calibre to use less CPU."
 msgstr ""
+"El nombre màxim de tasques que s'executaran simultàniament en segon pla. Es "
+"refereix a tasques que carreguen molt la CPU com les conversions. Reduïu "
+"aquest nombre perquè el calibre utilitzi menys CPU."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "No proxies used"
@@ -15664,22 +15699,21 @@ msgstr "<b>S'està utilitzant els servidors intermediaris:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:72
 msgid "Failed to install command line tools."
-msgstr "No s'ha pogut instal·lar les eines de la línia de comandaments."
+msgstr "No s'ha pogut instal·lar les eines de la línia d'ordres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:75
 msgid "Command line tools installed"
-msgstr "S'ha instal·lat les eines de la línia de comandaments"
+msgstr "S'ha instal·lat les eines de la línia d'ordres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:76
 msgid "Command line tools installed in"
-msgstr "S'ha instal·lat les eines de la línia de comandaments a"
+msgstr "S'ha instal·lat les eines de la línia d'ordres a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:77
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
-"Si moveu calibre.app, caldrà reinstal·lar les eines de la línia de "
-"comandaments."
+"Si moveu calibre.app, caldrà reinstal·lar les eines de la línia d'ordres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:25
 msgid "Max. simultaneous conversion/news download jobs:"
@@ -15705,7 +15739,7 @@ msgstr "Obre la carpeta de &configuració del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:57
 msgid "&Install command line tools"
-msgstr "&Instal·la les eines de la línia de comandaments"
+msgstr "&Instal·la les eines de la línia d'ordres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Abort conversion jobs that take more than:"
@@ -16138,7 +16172,7 @@ msgstr "Cerca mentre es &tecleja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr ""
+msgstr "Els caràctes sense accent coincideixen amb els accentuats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
@@ -16243,7 +16277,7 @@ msgstr "Suprimeix l'&historial de cerques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:194
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "Què s'ha de cercar en cercar llibres similars"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:195
 msgid ""
@@ -16254,6 +16288,13 @@ msgid ""
 "         By changing the lookup name to a grouped search term you can\n"
 "         search multiple columns at once.</p>"
 msgstr ""
+"<p>Quan cerqueu llibres similars fent clic dret al\n"
+"         llibre i seleccionant \"Llibres similars...\",\n"
+"         el calibre crea una cerca utilitzant els noms de columna de cerca "
+"que s'especifiquen més avall.\n"
+"         Si canvieu el nom de la columna de cerca per un terme de cerca "
+"agrupada podeu\n"
+"         cercar a múltiples columnes simultàniament.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
@@ -16793,7 +16834,7 @@ msgstr "Mou cap avall l'acció seleccionada"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:347
 msgid "ID"
-msgstr ""
+msgstr "Identificador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:126
 msgid "This tweak has it default value"
@@ -17588,7 +17629,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Modifica l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -18109,7 +18150,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:55
 msgid "Show a clock in fullscreen mode."
-msgstr ""
+msgstr "Mostra un rellotge al mode de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:57
 msgid "Font options"
@@ -18269,7 +18310,7 @@ msgstr "El &desplaçament de línies s'atura als salts de pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:222
 msgid "Show &clock in full screen mode"
-msgstr ""
+msgstr "Mostra un &rellotge al mode de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:223
 msgid "&General"
@@ -18391,6 +18432,8 @@ msgid ""
 "This ebook is corrupted and cannot be opened. If you downloaded it from "
 "somewhere, try downloading it again."
 msgstr ""
+"Aquest llibre està malmès i no es pot obrir. Si us l'heu baixar d'algun lloc "
+"intenteu tornar-lo a baixar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:99
 msgid "Book format"
@@ -18622,12 +18665,12 @@ msgstr "Troba la coincidència anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
-msgstr ""
+msgstr "No s'ha pogut renderitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:67
 #, python-format
 msgid "Failed to render document %s"
-msgstr ""
+msgstr "No s'ha pogut renderitzar el document %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:102
 msgid "Test name invalid"
@@ -19516,7 +19559,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:45
 msgid "Symbols"
-msgstr ""
+msgstr "Símbols"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:502
 msgid "No enabled genres found to catalog.\n"
@@ -19810,8 +19853,8 @@ msgstr ""
 "%prog add_format [opcions] ID fitxer_de_llibre\n"
 "\n"
 "Afegiu el llibre que s'especifiqui als formats disponibles del llibre lògic "
-"identificat per ID. Podeu aconseguir l'ID amb el comandament «list». Si el "
-"format ja existeix es sobreescriurà.\n"
+"identificat per ID. Podeu aconseguir l'ID amb l'ordre «list». Si el format "
+"ja existeix es sobreescriurà.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:433
 msgid "You must specify an id and an ebook file"
@@ -19834,9 +19877,9 @@ msgstr ""
 "%prog remove_format [opcions] ID extensió_de_format\n"
 "\n"
 "Suprimeix el format que s'especifica del llibre lògic identificat per ID. Es "
-"pot aconseguir l'ID amb el comandament «list». El format ha de ser una "
-"extensió de fitxer com LRF, TXT o EPUB. Si el llibre lògic no té el format "
-"que s'especifica no es farà res\n"
+"pot aconseguir l'ID amb l'ordre «list». El format ha de ser una extensió de "
+"fitxer com LRF, TXT o EPUB. Si el llibre lògic no té el format que "
+"s'especifica no es farà res\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:464
 msgid "You must specify an id and a format"
@@ -19936,7 +19979,7 @@ msgstr ""
 "sistema de fitxers.\n"
 "L'operació d'exportació desa tots els formats del llibre, la portada i les "
 "metadades (a un\n"
-"fitxer opf). Podeu aconseguir les IDs amb el comandament «list».\n"
+"fitxer opf). Podeu aconseguir les IDs amb l'ordre «list».\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:632
 msgid "Export all books in database, ignoring the list of ids."
@@ -20063,9 +20106,9 @@ msgstr ""
 "\n"
 "    Estableix el valor d'una columna personalitzada per al llibre "
 "identificat per l'ID.\n"
-"    Podeu aconseguir una llista d'IDs amb el comandament list.\n"
-"    Podeu aconseguir una llista de noms de columnes personalitzades amb el \n"
-"    comandament custom_columns.\n"
+"    Podeu aconseguir una llista d'IDs amb l'ordre list.\n"
+"    Podeu aconseguir una llista de noms de columnes personalitzades amb  \n"
+"    l'ordre custom_columns.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:863
@@ -20122,7 +20165,7 @@ msgstr ""
 "\n"
 "    Suprimeix la columna personalitzada identificada per l'etiqueta. Podeu "
 "veure\n"
-"    les columnes disponibles amb el comandament custom_columns.\n"
+"    les columnes disponibles amb l'ordre custom_columns.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:928
@@ -20207,6 +20250,8 @@ msgid ""
 "Normally, this command only operates on books that have out of date OPF "
 "files. This option makes it operate on all books."
 msgstr ""
+"Normalment aquesta ordre només actua en llibres que tenen fitxers OPF "
+"obsolets. Aquesta opció fa que actuï en tots els llibres."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1053
 msgid ""
@@ -20274,7 +20319,7 @@ msgstr ""
 "carpeta de la biblioteca del calibre. És útil quan el fitxer metadata.db "
 "està malmès.\n"
 "\n"
-"ATENCIÓ: Aquest comandament torna a generar completament la vostra base de\n"
+"ATENCIÓ: Aquesta ordre torna a generar completament la vostra base de\n"
 "dades. Perdreu totes les cerques desades, categories d'usuari, quadres de "
 "connexions\n"
 "paràmetres de conversió per a llibres individuals i receptes "
@@ -20288,8 +20333,7 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
-"Fer la recuperació. El comandament no s'executa si no s'especifica aquesta "
-"opció."
+"Fes la recuperació. L'ordre no s'executa si no s'especifica aquesta opció."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1162
 #, python-format
@@ -20355,15 +20399,15 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
-"%%prog comandament [opcions] [arguments]\n"
+"%%prog ordre [opcions] [arguments]\n"
 "\n"
 "%%prog és la interfície de la línia d'ordres per a la base de dades del "
 "calibre.\n"
 "\n"
-"el comandament és un de:\n"
+"l'ordre és una de:\n"
 "  %s\n"
 "\n"
-"Per aconseguir ajuda per a un comandament: %%prog comandament --help\n"
+"Per aconseguir ajuda per a una ordre: %%prog ordre --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:660
 msgid "No label was provided"
@@ -21042,6 +21086,11 @@ msgid ""
 "Spanish it will only match n. Note that this is much slower than a simple "
 "search on very large libraries."
 msgstr ""
+"Els caràcters que s'introdueixen al quadre de cerca coincidiran amb les "
+"versions accentuades, basant-se en l'idioma que heu triat per a la "
+"interfície del calibre. Per exemple, en anglès la cerca de «n» trobarà tant "
+"«%s» com «n», però en espanyol només trobarà «n». Tingueu en compte que això "
+"és molt més lent que una cerca simple en biblioteques molt grans."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -21199,8 +21248,8 @@ msgid ""
 "to a black hole."
 msgstr ""
 "print(a, b, ...) -- imprimeix els arguments a una sortida estàndard. Si no "
-"esteu fent servir el calibre des de la línia de comandaments (calibre-debug-"
-"g), la sortida anirà a un forat negre."
+"esteu fent servir el calibre des de la línia d'ordres (calibre-debug-g), la "
+"sortida anirà a un forat negre."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:276
 msgid "field(name) -- returns the metadata field named by name"
@@ -22083,8 +22132,8 @@ msgid ""
 "Interpreter dies while executing a command. To see the command, click Show "
 "details"
 msgstr ""
-"L'intèrpret s'ha tancat mentre s'executava una ordre. Per veure el "
-"comandament feu clic a «Mostra detalls»"
+"L'intèrpret s'ha tancat mentre s'executava una ordre. Per veure l'ordre feu "
+"clic a «Mostra detalls»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
@@ -23635,6 +23684,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:517
 msgid "Enable multi-character first-letters in the tag browser"
 msgstr ""
+"Habilita lletres inicials de múltiples caràcters a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:518
 msgid ""
@@ -23647,3 +23697,10 @@ msgid ""
 "enable_multicharacters_in_tag_browser = True\n"
 "enable_multicharacters_in_tag_browser = False"
 msgstr ""
+"Alguns idiomes tenen lletres que es representen amb múltiples caràcters.\n"
+"Per exemple, el txec que un caràcter «ch» que s'ordena entre «h» i «i».\n"
+"Si aquest ajustament és «True», el navegador d'etiquetes tindrà en compte\n"
+"aquests caràcters en dividir per inicials.\n"
+"Exemples:\n"
+"enable_multicharacters_in_tag_browser = True\n"
+"enable_multicharacters_in_tag_browser = False"
