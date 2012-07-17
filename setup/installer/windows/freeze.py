@@ -23,7 +23,6 @@ SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
         'VisualMagick', 'bin')
 CRT = r'C:\Microsoft.VC90.CRT'
-SIGNTOOL = r'C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\signtool.exe'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
