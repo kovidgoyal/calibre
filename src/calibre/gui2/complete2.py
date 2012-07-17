@@ -185,11 +185,14 @@ class Completer(QListView): # {{{
                 e.accept()
                 return True
             if key in (Qt.Key_Enter, Qt.Key_Return):
-                if not self.currentIndex().isValid():
-                    self.hide()
-                    e.accept()
-                    return True
-                return False
+                # We handle this explicitly because on OS X activated() is
+                # not emitted on pressing Enter.
+                idx = self.currentIndex()
+                if idx.isValid():
+                    self.item_chosen(idx)
+                self.hide()
+                e.accept()
+                return True
             if key in (Qt.Key_PageUp, Qt.Key_PageDown):
                 # Let the list view handle these keys
                 return False
