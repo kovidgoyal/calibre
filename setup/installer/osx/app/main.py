@@ -624,8 +624,9 @@ class Py2App(object):
         if os.path.exists(dmg):
             os.unlink(dmg)
         tdir = tempfile.mkdtemp()
-        shutil.copytree(d, os.path.join(tdir, os.path.basename(d)),
-                symlinks=True)
+        appdir = os.path.join(tdir, os.path.basename(d))
+        shutil.copytree(d, appdir, symlinks=True)
+        subprocess.check_call(['/Users/kovid/sign.sh', appdir])
         os.symlink('/Applications', os.path.join(tdir, 'Applications'))
         subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', tdir,
                                '-volname', volname, '-format', format, dmg])
