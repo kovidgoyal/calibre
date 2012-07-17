@@ -573,17 +573,24 @@ class FileDialog(QObject):
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
+        use_native_dialog = not os.environ.has_key('CALIBRE_NO_NATIVE_FILEDIALOGS')
         with SanitizeLibraryPath():
+            opts = QFileDialog.Option()
+            if not use_native_dialog:
+                opts |= QFileDialog.DontUseNativeDialog
             if mode == QFileDialog.AnyFile:
-                f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
+                f = unicode(QFileDialog.getSaveFileName(parent, title,
+                    initial_dir, ftext, "", opts))
                 if f:
                     self.selected_files.append(f)
             elif mode == QFileDialog.ExistingFile:
-                f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
+                f = unicode(QFileDialog.getOpenFileName(parent, title,
+                    initial_dir, ftext, "", opts))
                 if f and os.path.exists(f):
                     self.selected_files.append(f)
             elif mode == QFileDialog.ExistingFiles:
-                fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
+                fs = QFileDialog.getOpenFileNames(parent, title, initial_dir,
+                        ftext, "", opts)
                 for f in fs:
                     f = unicode(f)
                     if not f: continue
@@ -594,7 +601,8 @@ class FileDialog(QObject):
                     if f and os.path.exists(f):
                         self.selected_files.append(f)
             else:
-                opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
+                if mode == QFileDialog.Directory:
+                    opts |= QFileDialog.ShowDirsOnly
                 f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
                 if os.path.exists(f):
                     self.selected_files.append(f)
