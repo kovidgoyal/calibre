@@ -410,7 +410,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments']
                      and fm[f].get('search_terms', None)
                      and f not in ['formats', 'ondevice']) or
-                    (fm[f]['datatype'] in ['int', 'float', 'bool'] and
+                    (fm[f]['datatype'] in ['int', 'float', 'bool', 'datetime'] and
                      f not in ['id'])):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
