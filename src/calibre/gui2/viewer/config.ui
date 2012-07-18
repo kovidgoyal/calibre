@@ -39,283 +39,352 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>&amp;Font options</string>
+        <widget class="QToolBox" name="toolBox">
+         <property name="styleSheet">
+          <string notr="true">QToolBox::tab {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+     border-radius: 5px;
+     color: black;
+     font-weight: bold;
+ }
+
+ QToolBox::tab:selected {
+     font-style: italic;
+ }
+
+QToolBox::tab:hover {
+   color: red;
+   font-style: italic;
+}</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="page">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>811</width>
+            <height>416</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>&amp;Font options</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Se&amp;rif family:</string>
+             </property>
+             <property name="buddy">
+              <cstring>serif_family</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QFontComboBox" name="serif_family"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>&amp;Sans family:</string>
+             </property>
+             <property name="buddy">
+              <cstring>sans_family</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QFontComboBox" name="sans_family"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&amp;Monospace family:</string>
+             </property>
+             <property name="buddy">
+              <cstring>mono_family</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QFontComboBox" name="mono_family"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>&amp;Default font size:</string>
+             </property>
+             <property name="buddy">
+              <cstring>default_font_size</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="default_font_size">
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>8</number>
+             </property>
+             <property name="maximum">
+              <number>40</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Monospace &amp;font size:</string>
+             </property>
+             <property name="buddy">
+              <cstring>mono_font_size</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="mono_font_size">
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>8</number>
+             </property>
+             <property name="maximum">
+              <number>50</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>S&amp;tandard font:</string>
+             </property>
+             <property name="buddy">
+              <cstring>standard_font</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="standard_font">
+             <item>
               <property name="text">
-               <string>Se&amp;rif family:</string>
+               <string>Serif</string>
               </property>
-              <property name="buddy">
-               <cstring>serif_family</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QFontComboBox" name="serif_family"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_2">
+             </item>
+             <item>
               <property name="text">
-               <string>&amp;Sans family:</string>
+               <string>Sans-serif</string>
               </property>
-              <property name="buddy">
-               <cstring>sans_family</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QFontComboBox" name="sans_family"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_3">
+             </item>
+             <item>
               <property name="text">
-               <string>&amp;Monospace family:</string>
+               <string>Monospace</string>
               </property>
-              <property name="buddy">
-               <cstring>mono_family</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QFontComboBox" name="mono_family"/>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>&amp;Default font size:</string>
-              </property>
-              <property name="buddy">
-               <cstring>default_font_size</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QSpinBox" name="default_font_size">
-              <property name="suffix">
-               <string> px</string>
-              </property>
-              <property name="minimum">
-               <number>8</number>
-              </property>
-              <property name="maximum">
-               <number>40</number>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Monospace &amp;font size:</string>
-              </property>
-              <property name="buddy">
-               <cstring>mono_font_size</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QSpinBox" name="mono_font_size">
-              <property name="suffix">
-               <string> px</string>
-              </property>
-              <property name="minimum">
-               <number>8</number>
-              </property>
-              <property name="maximum">
-               <number>50</number>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>S&amp;tandard font:</string>
-              </property>
-              <property name="buddy">
-               <cstring>standard_font</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QComboBox" name="standard_font">
-              <item>
-               <property name="text">
-                <string>Serif</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Sans-serif</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Monospace</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="5" column="0" colspan="2">
-          <widget class="QCheckBox" name="hyphenate">
-           <property name="text">
-            <string>H&amp;yphenate (break line in the middle of large words)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QComboBox" name="hyphenate_default_lang">
-           <property name="toolTip">
-            <string>The default language to use for hyphenation rules. If the book does not specify a language, this will be used.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="hyphenate_label">
-           <property name="text">
-            <string>Default &amp;language for hyphenation:</string>
-           </property>
-           <property name="buddy">
-            <cstring>hyphenate_default_lang</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Page flip &amp;duration:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_page_flip_duration</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
-           <property name="specialValueText">
-            <string>disabled</string>
-           </property>
-           <property name="suffix">
-            <string> secs</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.500000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="max_fs_width">
-           <property name="toolTip">
-            <string>Set the maximum width that the book's text and pictures will take when in fullscreen mode. This allows you to read the book text without it becoming too wide.</string>
-           </property>
-           <property name="suffix">
-            <string> px</string>
-           </property>
-           <property name="minimum">
-            <number>100</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Maximum text width in &amp;fullscreen:</string>
-           </property>
-           <property name="buddy">
-            <cstring>max_fs_width</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Font &amp;magnification step size:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_font_mag_step</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="opt_font_mag_step">
-           <property name="toolTip">
-            <string>The amount by which the font size is increased/decreased
+             </item>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>Font &amp;magnification step size:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_font_mag_step</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QSpinBox" name="opt_font_mag_step">
+             <property name="toolTip">
+              <string>The amount by which the font size is increased/decreased
  when you click the font size larger/smaller buttons</string>
-           </property>
-           <property name="suffix">
-            <string>%</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QCheckBox" name="opt_fit_images">
-           <property name="text">
-            <string>&amp;Resize images larger than the viewer window (needs restart)</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QCheckBox" name="opt_remember_window_size">
-           <property name="text">
-            <string>Remember last used &amp;window size and layout</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QCheckBox" name="opt_wheel_flips_pages">
-           <property name="text">
-            <string>Mouse &amp;wheel flips pages</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="QCheckBox" name="opt_remember_current_page">
-           <property name="text">
-            <string>Remember the &amp;current page when quitting</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
-           <property name="text">
-            <string>Line &amp;scrolling stops at page breaks</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QCheckBox" name="opt_fullscreen_clock">
-           <property name="text">
-            <string>Show &amp;clock in full screen mode</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+             </property>
+             <property name="suffix">
+              <string>%</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>811</width>
+            <height>416</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>F&amp;ull  screen options</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Maximum text width in &amp;fullscreen:</string>
+             </property>
+             <property name="buddy">
+              <cstring>max_fs_width</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="max_fs_width">
+             <property name="toolTip">
+              <string>Set the maximum width that the book's text and pictures will take when in fullscreen mode. This allows you to read the book text without it becoming too wide.</string>
+             </property>
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>100</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="opt_fullscreen_clock">
+             <property name="text">
+              <string>Show &amp;clock in full screen mode</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>811</width>
+            <height>416</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Page Fl&amp;ip options</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Page flip &amp;duration:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_page_flip_duration</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
+             <property name="specialValueText">
+              <string>disabled</string>
+             </property>
+             <property name="suffix">
+              <string> secs</string>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>3.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.500000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_wheel_flips_pages">
+             <property name="text">
+              <string>Mouse &amp;wheel flips pages</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
+             <property name="text">
+              <string>Line &amp;scrolling stops at page breaks</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_fit_images">
+             <property name="text">
+              <string>&amp;Resize images larger than the viewer window (needs restart)</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>811</width>
+            <height>416</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>&amp;Miscellaneous options</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_4">
+           <item row="0" column="0" colspan="2">
+            <widget class="QCheckBox" name="hyphenate">
+             <property name="text">
+              <string>H&amp;yphenate (break line in the middle of large words)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="hyphenate_label">
+             <property name="text">
+              <string>Default &amp;language for hyphenation:</string>
+             </property>
+             <property name="buddy">
+              <cstring>hyphenate_default_lang</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="hyphenate_default_lang">
+             <property name="toolTip">
+              <string>The default language to use for hyphenation rules. If the book does not specify a language, this will be used.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_remember_window_size">
+             <property name="text">
+              <string>Remember last used &amp;window size and layout</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_remember_current_page">
+             <property name="text">
+              <string>Remember the &amp;current page when quitting</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -364,11 +433,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>serif_family</tabstop>
-  <tabstop>sans_family</tabstop>
-  <tabstop>mono_family</tabstop>
-  <tabstop>max_fs_width</tabstop>
-  <tabstop>opt_remember_window_size</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
