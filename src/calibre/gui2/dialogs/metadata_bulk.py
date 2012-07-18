@@ -370,6 +370,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        ct = gprefs.get('bulk_metadata_window_tab', 0)
+        self.central_widget.setCurrentIndex(ct)
         self.languages.init_langs(self.db)
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
@@ -378,6 +380,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def save_state(self, *args):
         gprefs['bulk_metadata_window_geometry'] = \
             bytearray(self.saveGeometry())
+        gprefs['bulk_metadata_window_tab'] = self.central_widget.currentIndex()
 
     def do_apply_pubdate(self, *args):
         self.apply_pubdate.setChecked(True)
