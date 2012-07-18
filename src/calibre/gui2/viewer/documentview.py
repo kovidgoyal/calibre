@@ -22,7 +22,6 @@ from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.utils.config import tweaks
 from calibre.constants import isxp
 # }}}
 
@@ -60,7 +59,7 @@ class Document(QWebPage): # {{{
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
-        self.in_paged_mode = tweaks.get('viewer_test_paged_mode', False)
+        self.in_paged_mode = False
         # Use this to pass arbitrary JSON encodable objects between python and
         # javascript. In python get/set the value as: self.bridge_value. In
         # javascript, get/set the value as: py_bridge.value
@@ -647,6 +646,7 @@ class DocumentView(QWebView): # {{{
 
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
+        self.last_loaded_path = path
 
         def callback(lu):
             self.loading_url = lu
@@ -654,7 +654,7 @@ class DocumentView(QWebView): # {{{
                 self.manager.load_started()
 
         load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
-            'mime_type', None), pre_load_callback=callback)
+            'mime_type', 'text/html'), pre_load_callback=callback)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
             if ie.start_anchor:
