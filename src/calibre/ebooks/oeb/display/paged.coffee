@@ -26,6 +26,17 @@ class PagedDisplay
         this.current_margin_side = 0
         this.is_full_screen_layout = false
         this.max_col_width = -1
+        this.document_margins = null
+
+    read_document_margins: () ->
+        if false and this.document_margins is null
+            for sheet in document.styleSheets
+                for rule in sheet.rules
+                    if rule.type == CSSRule.PAGE_RULE
+                        for prop in ['margin-top', 'margin-bottom', 'margin-left', 'margin-right']
+                            val = rule.style.getPropertyValue(prop)
+                            if val
+                                log(val)
 
     set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
         this.margin_top = margin_top
@@ -36,6 +47,7 @@ class PagedDisplay
     layout: () ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
+        bs = document.body.style
         # When laying body out in columns, webkit bleeds the top margin of the
         # first block element out above the columns, leading to an extra top
         # margin for the page. We compensate for that here. Computing the
@@ -43,8 +55,10 @@ class PagedDisplay
         # it before the column layout is applied.
         first_layout = false
         if not this.in_paged_mode
-            document.body.style.marginTop = '0px'
+            bs.setProperty('margin-top', '0px')
             extra_margin = document.body.getBoundingClientRect().top
+            if extra_margin <= this.margin_top
+                extra_margin = 0
             margin_top = (this.margin_top - extra_margin) + 'px'
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
@@ -78,7 +92,6 @@ class PagedDisplay
         this.screen_width = this.page_width * this.cols_per_screen
 
         fgcolor = body_style.getPropertyValue('color')
-        bs = document.body.style
 
         bs.setProperty('-webkit-column-gap', (2*sm)+'px')
         bs.setProperty('-webkit-column-width', col_width+'px')
@@ -101,7 +114,7 @@ class PagedDisplay
         # Convert page-breaks to column-breaks
         for sheet in document.styleSheets
             for rule in sheet.rules
-                if rule.type == 1 # CSSStyleRule
+                if rule.type == CSSRule.STYLE_RULE
                     for prop in ['page-break-before', 'page-break-after', 'page-break-inside']
                         val = rule.style.getPropertyValue(prop)
                         if val
@@ -143,6 +156,19 @@ class PagedDisplay
         for [img, max_width] in images
             img.style.setProperty('max-width', max_width+'px')
             calibre_utils.store(img, 'width-limited', true)
+
+    check_top_margin: () ->
+        # This is needed to handle the case when a descendant of body specifies
+        # a top margin as a percentage, which messes up the top margin
+        # calculations above
+        tm = document.body.getBoundingClientRect().top
+        if tm != this.margin_top
+            document.body.style.setProperty('margin-top', '0px')
+            tm = document.body.getBoundingClientRect().top
+            if tm <= this.margin_top
+                tm = 0
+            m = this.margin_top - tm
+            document.body.style.setProperty('margin-top', m+'px')
 
     scroll_to_pos: (frac) ->
         # Scroll to the position represented by frac (number between 0 and 1)

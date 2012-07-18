@@ -179,6 +179,7 @@ class Document(QWebPage): # {{{
             fset=_pass_json_value_setter)
 
     def after_load(self):
+        self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
         self.init_hyphenate()
@@ -228,6 +229,7 @@ class Document(QWebPage): # {{{
             sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
         self.javascript('window.paged_display.fit_images()')
+        self.javascript('window.paged_display.check_top_margin()')
 
     @property
     def column_boundaries(self):
