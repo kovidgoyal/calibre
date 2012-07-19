@@ -517,7 +517,7 @@ def urls_from_identifiers(identifiers): # {{{
     for plugin in all_metadata_plugins():
         try:
             id_type, id_val, url = plugin.get_book_url(identifiers)
-            ans.append((plugin.name, id_type, id_val, url))
+            ans.append((plugin.get_book_url_name(id_type, id_val, url), id_type, id_val, url))
         except:
             pass
     isbn = identifiers.get('isbn', None)
