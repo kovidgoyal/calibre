@@ -27,22 +27,48 @@ class PagedDisplay
         this.is_full_screen_layout = false
         this.max_col_width = -1
         this.document_margins = null
+        this.use_document_margins = false
 
     read_document_margins: () ->
-        if false and this.document_margins is null
+        # Read page margins from the document. First checks for an @page rule.
+        # If that is not found, side margins are set to the side margins of the
+        # body element.
+        if this.document_margins is null
+            this.document_margins = {left:null, top:null, right:null, bottom:null}
+            tmp = document.createElement('div')
+            tmp.style.visibility = 'hidden'
+            tmp.style.position = 'absolute'
+            document.body.appendChild(tmp)
             for sheet in document.styleSheets
                 for rule in sheet.rules
                     if rule.type == CSSRule.PAGE_RULE
-                        for prop in ['margin-top', 'margin-bottom', 'margin-left', 'margin-right']
-                            val = rule.style.getPropertyValue(prop)
+                        for prop in ['left', 'top', 'bottom', 'right']
+                            val = rule.style.getPropertyValue('margin-'+prop)
                             if val
-                                log(val)
+                                tmp.style.height = val
+                                pxval = parseInt(window.getComputedStyle(tmp).height)
+                                if not isNaN(pxval)
+                                    this.document_margins[prop] = pxval
+            document.body.removeChild(tmp)
+            if this.document_margins.left is null
+                val = parseInt(window.getComputedStyle(document.body).marginLeft)
+                if not isNaN(val)
+                    this.document_margins.left = val
+            if this.document_margins.right is null
+                val = parseInt(window.getComputedStyle(document.body).marginRight)
+                if not isNaN(val)
+                    this.document_margins.right = val
 
     set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
-        this.margin_top = margin_top
-        this.margin_side = margin_side
-        this.margin_bottom = margin_bottom
         this.cols_per_screen = cols_per_screen
+        if this.use_document_margins and this.document_margins != null
+            this.margin_top = this.document_margins.top or margin_top
+            this.margin_bottom = this.document_margins.bottom or margin_bottom
+            this.margin_side = this.document_margins.left or this.document_margins.right or margin_side
+        else
+            this.margin_top = margin_top
+            this.margin_side = margin_side
+            this.margin_bottom = margin_bottom
 
     layout: () ->
         # start_time = new Date().getTime()
@@ -374,4 +400,3 @@ if window?
 
 # TODO:
 # Highlight on jump_to_anchor
-# Handle document specified margins and allow them to be overridden

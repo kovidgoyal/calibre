@@ -134,6 +134,10 @@ class Document(QWebPage): # {{{
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
         self.fullscreen_clock = opts.fullscreen_clock
+        self.use_book_margins = opts.use_book_margins
+        self.cols_per_screen = opts.cols_per_screen
+        self.side_margin = opts.side_margin
+        self.top_margin, self.bottom_margin = opts.top_margin, opts.bottom_margin
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
@@ -216,6 +220,14 @@ class Document(QWebPage): # {{{
     def switch_to_paged_mode(self, onresize=False):
         if onresize and not self.loaded_javascript:
             return
+        self.javascript('''
+            window.paged_display.use_document_margins = %s;
+            window.paged_display.set_geometry(%d, %d, %d, %d);
+            '''%(
+            ('true' if self.use_book_margins else 'false'),
+            self.cols_per_screen, self.top_margin, self.side_margin,
+            self.bottom_margin
+            ))
         side_margin = self.javascript('window.paged_display.layout()', typ=int)
         # Setup the contents size to ensure that there is a right most margin.
         # Without this webkit renders the final column with no margin, as the

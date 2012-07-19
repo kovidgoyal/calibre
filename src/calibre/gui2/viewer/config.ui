@@ -18,16 +18,6 @@
     <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabs">
      <property name="currentIndex">
@@ -68,7 +58,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>416</height>
+            <height>384</height>
            </rect>
           </property>
           <attribute name="label">
@@ -212,13 +202,143 @@ QToolBox::tab:hover {
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page_5">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>811</width>
+            <height>384</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Text &amp;layout in paged mode</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_5">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::ExpandingFieldsGrow</enum>
+           </property>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>&lt;p&gt;These options only apply in &quot;paged&quot; mode, where the text is broken up into pages, as in a paper book. To get into this mode, use the button with the yellow scroll icon in the top right corner of the viewer window.</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>The number of &amp;pages of text to show on screen </string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_cols_per_screen</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="opt_cols_per_screen">
+             <property name="suffix">
+              <string> page(s)</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_override_book_margins">
+             <property name="text">
+              <string>&amp;Override the page margin settings specified in the book</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_18">
+             <property name="text">
+              <string>&amp;Top margin</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_top_margin</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="opt_top_margin">
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_19">
+             <property name="text">
+              <string>&amp;Side margin</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_side_margin</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="opt_side_margin">
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>&amp;Bottom margin</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_bottom_margin</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="opt_bottom_margin">
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="page_2">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>416</height>
+            <height>384</height>
            </rect>
           </property>
           <attribute name="label">
@@ -266,7 +386,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>416</height>
+            <height>384</height>
            </rect>
           </property>
           <attribute name="label">
@@ -337,7 +457,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>416</height>
+            <height>384</height>
            </rect>
           </property>
           <attribute name="label">
@@ -430,6 +550,16 @@ QToolBox::tab:hover {
      </widget>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -446,8 +576,8 @@ QToolBox::tab:hover {
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>569</y>
+     <x>258</x>
+     <y>623</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -462,8 +592,8 @@ QToolBox::tab:hover {
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>569</y>
+     <x>326</x>
+     <y>623</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -478,12 +608,60 @@ QToolBox::tab:hover {
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>279</y>
+     <x>89</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
-     <x>349</x>
-     <y>312</y>
+     <x>332</x>
+     <y>259</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_override_book_margins</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_top_margin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>218</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_override_book_margins</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_side_margin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_override_book_margins</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_bottom_margin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>513</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>371</x>
+     <y>281</y>
     </hint>
    </hints>
   </connection>

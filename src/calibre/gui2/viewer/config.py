@@ -53,6 +53,11 @@ def config(defaults=None):
                 '0 and 1.'))
     c.add_opt('fullscreen_clock', default=False, action='store_true',
             help=_('Show a clock in fullscreen mode.'))
+    c.add_opt('cols_per_screen', default=1)
+    c.add_opt('use_book_margins', default=False, action='store_true')
+    c.add_opt('top_margin', default=20)
+    c.add_opt('side_margin', default=40)
+    c.add_opt('bottom_margin', default=20)
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -120,6 +125,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.hyphenate_default_lang.setVisible(False)
             self.hyphenate_label.setVisible(False)
         self.opt_fullscreen_clock.setChecked(opts.fullscreen_clock)
+        self.opt_cols_per_screen.setValue(opts.cols_per_screen)
+        self.opt_override_book_margins.setChecked(not opts.use_book_margins)
+        for x in ('top', 'bottom', 'side'):
+            getattr(self, 'opt_%s_margin'%x).setValue(getattr(opts,
+                x+'_margin'))
 
     def accept(self, *args):
         if self.shortcut_config.is_editing:
@@ -152,6 +162,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('line_scrolling_stops_on_pagebreaks',
                 self.opt_line_scrolling_stops_on_pagebreaks.isChecked())
         c.set('fullscreen_clock', self.opt_fullscreen_clock.isChecked())
+        c.set('cols_per_screen', int(self.opt_cols_per_screen.value()))
+        c.set('use_book_margins', not
+                self.opt_override_book_margins.isChecked())
+        for x in ('top', 'bottom', 'side'):
+            c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
         return QDialog.accept(self, *args)
 
 
