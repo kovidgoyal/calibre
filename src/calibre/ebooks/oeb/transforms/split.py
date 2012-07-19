@@ -82,7 +82,7 @@ class Split(object):
                 after  = getattr(rule.style.getPropertyCSSValue(
                     'page-break-after'), 'cssText', '').strip().lower()
                 try:
-                    if before and before != 'avoid':
+                    if before and before not in {'avoid', 'auto', 'inherit'}:
                         self.page_break_selectors.add((CSSSelector(rule.selectorText),
                             True))
                         if self.remove_css_pagebreaks:
@@ -90,7 +90,7 @@ class Split(object):
                 except:
                     pass
                 try:
-                    if after and after != 'avoid':
+                    if after and after not in {'avoid', 'auto', 'inherit'}:
                         self.page_break_selectors.add((CSSSelector(rule.selectorText),
                             False))
                         if self.remove_css_pagebreaks:
