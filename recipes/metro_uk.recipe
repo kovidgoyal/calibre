@@ -4,6 +4,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     description = 'News as provide by The Metro -UK'
     #timefmt = ''
     __author__ = 'Dave Asbury'
+    #last update 9/6/12
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
     #no_stylesheets = True
     oldest_article = 1
@@ -11,7 +12,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript     = True
     auto_cleanup = True
-
+    encoding = 'UTF-8'
 
     language = 'en_GB'
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'

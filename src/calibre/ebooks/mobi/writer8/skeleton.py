@@ -33,7 +33,8 @@ aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
 'video'}
 
 _self_closing_pat = re.compile(bytes(
-    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags))),
+    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags|{'script',
+        'style', 'title', 'head'}))),
     re.IGNORECASE)
 
 def close_self_closing_tags(raw):
@@ -110,7 +111,7 @@ class Skeleton(object):
         self.chunks = chunks
 
         self.skeleton = self.render(root)
-        self.body_offset = self.skeleton.find('<body')
+        self.body_offset = self.skeleton.find(b'<body')
         self.calculate_metrics(root)
 
         self.calculate_insert_positions()
@@ -118,6 +119,7 @@ class Skeleton(object):
     def render(self, root):
         raw = tostring(root, xml_declaration=True)
         raw = raw.replace(b'<html', bytes('<html xmlns="%s"'%XHTML_NS), 1)
+        raw = close_self_closing_tags(raw)
         return raw
 
     def calculate_metrics(self, root):
@@ -125,7 +127,7 @@ class Skeleton(object):
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
-            raw = tostring(tag, with_tail=True)
+            raw = close_self_closing_tags(tostring(tag, with_tail=True))
             start_length = len(raw.partition(b'>')[0]) + len(text) + 1
             end_length = len(raw.rpartition(b'<')[-1]) + 1
             self.metrics[tag.get('aid')] = Metric(start_length, end_length)
@@ -364,13 +366,19 @@ class Chunker(object):
             pos_fid = None
             for chunk in self.chunk_table:
                 if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
-                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos)
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
+                            offset)
                     break
                 if chunk.insert_pos > offset:
                     # This aid is in the skeleton, not in a chunk, so we use
                     # the chunk immediately after
-                    pos_fid = (chunk.sequence_number, 0)
+                    pos_fid = (chunk.sequence_number, 0, offset)
                     break
+                if chunk is self.chunk_table[-1]:
+                    # This can happen for aids very close to the end of the the
+                    # end of the text (https://bugs.launchpad.net/bugs/1011330)
+                    pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
+                            offset)
             if pos_fid is None:
                 raise ValueError('Could not find chunk for aid: %r'%
                         match.group(1))
@@ -379,7 +387,7 @@ class Chunker(object):
         self.aid_offset_map = aid_map
 
         def to_placeholder(aid):
-            pos, fid = aid_map[aid]
+            pos, fid, _ = aid_map[aid]
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
             return bytes(':off:'.join((pos, fid)))
 

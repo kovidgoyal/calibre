@@ -12,6 +12,7 @@ class Metro_Montreal(BasicNewsRecipe):
     use_embedded_content  = False
     remove_javascript     = True
     no_stylesheets        = True
+    auto_cleanup = True
     encoding              = 'utf-8'
     extra_css             = '.headline {font-size: x-large;} \n .fact {padding-top: 10pt}'
 

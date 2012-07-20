@@ -7,6 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
+import re
 import urllib
 from contextlib import closing
 
@@ -52,31 +53,26 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[contains(@class, "item")]'):
-                if counter <= 0:
-                    break
 
-                id = ''.join(data.xpath('div[@class="cover"]/a/@href'))
-                if not id or '/item/' not in id:
-                    continue
+            if doc.xpath('not(boolean(//select[contains(@id, "selection")]))'):
+                id = ''.join(doc.xpath('//div[@class="price_fat"]//a/@href'))
+                mo = re.search('(?<=id=).+?(?=&)', id)
+                if not mo:
+                    yield None
+                id = mo.group()
 
-                cover_url = ''.join(data.xpath('div[@class="cover"]//img/@src'))
+                cover_url = ''.join(doc.xpath('//div[@class="cover"]/a/@href'))
 
-                title = ''.join(data.xpath('.//div[@class="content"]//h2/a/text()'))
-                author = ''.join(data.xpath('.//div[@class="content"]/span//a/text()'))
-                price = ''
-                price_elem = data.xpath('.//div[@class="price_fat"]//h1/text()')
-                if price_elem:
-                    price = price_elem[0]
+                title = ''.join(doc.xpath('//div[@class="desc_fat"]//h1/text()'))
+                author = ''.join(doc.xpath('//div[@class="desc_fat"]//span[@itemprop="author"]/text()'))
+                price = ''.join(doc.xpath('//div[@class="price_fat"]//h1/text()'))
 
-                formats = ', '.join(data.xpath('.//div[@class="book-info"]//text()')).strip()
+                formats = ', '.join(doc.xpath('//div[@class="desc_fat"]//p[contains(text(), "Format")]/text()'))
                 a, b, formats = formats.partition('Format:')
+
                 drm = SearchResult.DRM_LOCKED
                 if 'drm free' in formats.lower():
                     drm = SearchResult.DRM_UNLOCKED
-
-
-                counter -= 1
 
                 s = SearchResult()
                 s.cover_url = cover_url
@@ -88,3 +84,39 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.drm = drm
 
                 yield s
+            else:
+                for data in doc.xpath('//div[contains(@class, "item")]'):
+                    if counter <= 0:
+                        break
+
+                    id = ''.join(data.xpath('div[@class="cover"]/a/@href'))
+                    if not id or '/item/' not in id:
+                        continue
+
+                    cover_url = ''.join(data.xpath('div[@class="cover"]//img/@src'))
+
+                    title = ''.join(data.xpath('.//div[@class="content"]//h2/a/text()'))
+                    author = ''.join(data.xpath('.//div[@class="content"]/span//a/text()'))
+                    price = ''
+                    price_elem = data.xpath('.//div[@class="price_fat"]//h1/text()')
+                    if price_elem:
+                        price = price_elem[0]
+
+                    formats = ', '.join(data.xpath('.//div[@class="book-info"]//text()')).strip()
+                    a, b, formats = formats.partition('Format:')
+                    drm = SearchResult.DRM_LOCKED
+                    if 'drm free' in formats.lower():
+                        drm = SearchResult.DRM_UNLOCKED
+
+                    counter -= 1
+
+                    s = SearchResult()
+                    s.cover_url = cover_url
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.price = price.strip()
+                    s.detail_item = id.strip()
+                    s.formats = formats
+                    s.drm = drm
+
+                    yield s

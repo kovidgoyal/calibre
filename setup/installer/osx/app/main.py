@@ -364,6 +364,7 @@ class Py2App(object):
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
                 LSMultipleInstancesProhibited=True,
+                NSHighResolutionCapable=True,
                 LSEnvironment=env
         )
         plistlib.writePlist(pl, join(self.contents_dir, 'Info.plist'))
@@ -385,9 +386,10 @@ class Py2App(object):
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.7.dylib',):
+        for x in ('libpoppler.26.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
-        self.install_dylib(os.path.join(SW, 'bin', 'pdftohtml'), False)
+        for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
+            self.install_dylib(os.path.join(SW, 'bin', x), False)
 
     @flush
     def add_libjpeg(self):
@@ -429,7 +431,7 @@ class Py2App(object):
     def add_imagemagick(self):
         info('\nAdding ImageMagick')
         for x in ('Wand', 'Core'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.4.dylib'%x))
+            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.5.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
         dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
@@ -550,6 +552,15 @@ class Py2App(object):
                 if dest2.endswith('.so'):
                     self.fix_dependencies_in_lib(dest2)
         self.remove_bytecode(join(self.resources_dir, 'Python', 'lib'))
+        confdir = join(self.resources_dir, 'Python',
+                'lib/python%s/config'%self.version_info)
+        os.makedirs(confdir)
+        shutil.copy2(join(src, 'config/Makefile'), confdir)
+        incdir = join(self.resources_dir, 'Python',
+                'include/python'+self.version_info)
+        os.makedirs(incdir)
+        shutil.copy2(join(src.replace('/lib/', '/include/'), 'pyconfig.h'),
+                incdir)
 
     @flush
     def remove_bytecode(self, dest):
@@ -613,8 +624,9 @@ class Py2App(object):
         if os.path.exists(dmg):
             os.unlink(dmg)
         tdir = tempfile.mkdtemp()
-        shutil.copytree(d, os.path.join(tdir, os.path.basename(d)),
-                symlinks=True)
+        appdir = os.path.join(tdir, os.path.basename(d))
+        shutil.copytree(d, appdir, symlinks=True)
+        subprocess.check_call(['/Users/kovid/sign.sh', appdir])
         os.symlink('/Applications', os.path.join(tdir, 'Applications'))
         subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', tdir,
                                '-volname', volname, '-format', format, dmg])

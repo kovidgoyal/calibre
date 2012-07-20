@@ -127,12 +127,13 @@ class Device(DeviceConfig, DevicePlugin):
         if not prefix:
             return 0, 0
         prefix = prefix[:-1]
-        import win32file
+        import win32file, winerror
         try:
             sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                 win32file.GetDiskFreeSpace(prefix)
         except Exception as err:
-            if getattr(err, 'args', [None])[0] == 21: # Disk not ready
+            if getattr(err, 'args', [None])[0] == winerror.ERROR_NOT_READY:
+                # Disk not ready
                 time.sleep(3)
                 sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                     win32file.GetDiskFreeSpace(prefix)

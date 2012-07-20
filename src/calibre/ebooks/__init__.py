@@ -187,7 +187,9 @@ def calibre_cover(title, author_string, series_string=None,
         lines.append(TextLine(series_string, author_size))
     if logo_path is None:
         logo_path = I('library.png')
-    return create_cover_page(lines, logo_path, output_format='jpg')
+    return create_cover_page(lines, logo_path, output_format='jpg',
+            texture_opacity=0.3, texture_data=I('cover_texture.png',
+                data=True))
 
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
 

@@ -8,7 +8,7 @@ from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
         QPixmap, QSplashScreen, QApplication)
 
 from calibre import prints, plugins, force_unicode
-from calibre.constants import (iswindows, __appname__, isosx, DEBUG,
+from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
         filesystem_encoding)
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
@@ -58,9 +58,10 @@ def init_qt(args):
             prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
-    app = Application(args)
+    override = 'calibre-gui' if islinux else None
+    app = Application(args, override_program_name=override)
     actions = tuple(Main.create_application_menubar())
-    app.setWindowIcon(QIcon(I('library.png')))
+    app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions
 
 
@@ -312,24 +313,45 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
-def communicate(opts, args):
-    t = RC()
+def build_pipe(print_error=True):
+    t = RC(print_error=print_error)
     t.start()
-    time.sleep(3)
-    if not t.done:
-        f = os.path.expanduser('~/.calibre_calibre GUI.lock')
-        cant_start(what=_('try deleting the file')+': '+f)
+    t.join(3.0)
+    if t.is_alive():
+        if iswindows():
+            cant_start()
+        else:
+            f = os.path.expanduser('~/.calibre_calibre GUI.lock')
+            cant_start(what=_('try deleting the file')+': '+f)
         raise SystemExit(1)
+    return t
 
+def shutdown_other(rc=None):
+    if rc is None:
+        rc = build_pipe(print_error=False)
+        if rc.conn is None:
+            prints(_('No running calibre found'))
+            return # No running instance found
+    from calibre.utils.lock import singleinstance
+    rc.conn.send('shutdown:')
+    prints(_('Shutdown command sent, waiting for shutdown...'))
+    for i in xrange(50):
+        if singleinstance('calibre GUI'):
+            return
+        time.sleep(0.1)
+    prints(_('Failed to shutdown running calibre instance'))
+    raise SystemExit(1)
+
+def communicate(opts, args):
+    t = build_pipe()
     if opts.shutdown_running_calibre:
-        t.conn.send('shutdown:')
+        shutdown_other(t)
     else:
         if len(args) > 1:
             args[1] = os.path.abspath(args[1])
         t.conn.send('launched:'+repr(args))
     t.conn.close()
     raise SystemExit(0)
-
 
 def main(args=sys.argv):
     gui_debug = None

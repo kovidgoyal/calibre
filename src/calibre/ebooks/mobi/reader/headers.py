@@ -13,6 +13,7 @@ from calibre.utils.date import parse_date
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
+from calibre.utils.localization import canonicalize_lang
 
 NULL_INDEX = 0xffffffff
 
@@ -28,6 +29,7 @@ class EXTHHeader(object): # {{{
         self.start_offset = None
         left = self.num_items
         self.kf8_header = None
+        self.uuid = self.cdetype = None
 
         while left > 0:
             left -= 1
@@ -45,6 +47,10 @@ class EXTHHeader(object): # {{{
             elif idx == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
             elif idx == 501:
+                try:
+                    self.cdetype = content.decode('ascii')
+                except UnicodeDecodeError:
+                    self.cdetype = None
                 # cdetype
                 if content == b'EBSP':
                     if not self.mi.tags:
@@ -61,6 +67,14 @@ class EXTHHeader(object): # {{{
                 # they are messed up in the PDB header
                 try:
                     title = content.decode(codec)
+                except:
+                    pass
+            elif idx == 524: # Lang code
+                try:
+                    lang = content.decode(codec)
+                    lang = canonicalize_lang(lang)
+                    if lang:
+                        self.mi.language = lang
                 except:
                     pass
             #else:
@@ -109,8 +123,11 @@ class EXTHHeader(object): # {{{
                         self.mi.isbn = raw
             except:
                 pass
-        elif idx == 113:
-            pass # ASIN or UUID
+        elif idx == 113: # ASIN or other id
+            try:
+                self.uuid = content.decode('ascii')
+            except:
+                self.uuid = None
         elif idx == 116:
             self.start_offset, = struct.unpack(b'>L', content)
         elif idx == 121:
@@ -193,10 +210,11 @@ class BookHeader(object):
                     self.exth = EXTHHeader(raw[16 + self.length:], self.codec,
                             self.title)
                     self.exth.mi.uid = self.unique_id
-                    try:
-                        self.exth.mi.language = mobi2iana(langid, sublangid)
-                    except:
-                        self.log.exception('Unknown language code')
+                    if self.exth.mi.is_null('language'):
+                        try:
+                            self.exth.mi.language = mobi2iana(langid, sublangid)
+                        except:
+                            self.log.exception('Unknown language code')
                 except:
                     self.log.exception('Invalid EXTH header')
                     self.exth_flag = 0

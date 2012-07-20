@@ -13,6 +13,7 @@ from PyQt4.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
 
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
+from calibre.gui2.complete2 import EditWithComplete
 
 class AbortCommit(Exception):
     pass
@@ -133,11 +134,15 @@ class Setting(object):
     def initialize(self):
         self.gui_obj.blockSignals(True)
         if self.datatype == 'choice':
-            self.gui_obj.clear()
-            for x in self.choices:
-                if isinstance(x, basestring):
-                    x = (x, x)
-                self.gui_obj.addItem(x[0], QVariant(x[1]))
+            choices = self.choices or []
+            if isinstance(self.gui_obj, EditWithComplete):
+                self.gui_obj.all_items = choices
+            else:
+                self.gui_obj.clear()
+                for x in choices:
+                    if isinstance(x, basestring):
+                        x = (x, x)
+                    self.gui_obj.addItem(x[0], QVariant(x[1]))
         self.set_gui_val(self.get_config_val(default=False))
         self.gui_obj.blockSignals(False)
         self.initial_value = self.get_gui_val()
@@ -171,11 +176,14 @@ class Setting(object):
         elif self.datatype == 'string':
             self.gui_obj.setText(val if val else '')
         elif self.datatype == 'choice':
-            idx = self.gui_obj.findData(QVariant(val), role=Qt.UserRole,
-                    flags=self.CHOICES_SEARCH_FLAGS)
-            if idx == -1:
-                idx = 0
-            self.gui_obj.setCurrentIndex(idx)
+            if isinstance(self.gui_obj, EditWithComplete):
+                self.gui_obj.setText(val)
+            else:
+                idx = self.gui_obj.findData(QVariant(val), role=Qt.UserRole,
+                        flags=self.CHOICES_SEARCH_FLAGS)
+                if idx == -1:
+                    idx = 0
+                self.gui_obj.setCurrentIndex(idx)
 
     def get_gui_val(self):
         if self.datatype == 'bool':
@@ -187,9 +195,12 @@ class Setting(object):
             if self.empty_string_is_None and not val:
                 val = None
         elif self.datatype == 'choice':
-            idx = self.gui_obj.currentIndex()
-            if idx < 0: idx = 0
-            val = unicode(self.gui_obj.itemData(idx).toString())
+            if isinstance(self.gui_obj, EditWithComplete):
+                val = unicode(self.gui_obj.text())
+            else:
+                idx = self.gui_obj.currentIndex()
+                if idx < 0: idx = 0
+                val = unicode(self.gui_obj.itemData(idx).toString())
         return val
 
 class CommaSeparatedList(Setting):

@@ -101,8 +101,6 @@ class AppleOpenFeedback(OpenFeedback):
 
         return Dialog(parent, self)
 
-
-
 class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
@@ -212,6 +210,12 @@ class ITUNES(DriverBase):
         "Unsupported direct connect mode. "
         "See http://www.mobileread.com/forums/showthread.php?t=118559 "
         "for instructions on using 'Connect to iTunes'")
+    ITUNES_SANDBOX_LOCKOUT_MESSAGE = _(
+        '<p>Unable to communicate with iTunes.</p>'
+        '<p>Refer to this '
+        '<a href="http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3">forum post</a> '
+        'for more information.</p>'
+        '<p></p>')
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -225,8 +229,9 @@ class ITUNES(DriverBase):
     #  0x12a0   iPhone 4S
     #  0x12a2   iPad2 (GSM)
     #  0x12a3   iPad2 (CDMA)
+    #  0x12a6   iPad3 (GSM)
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x129f,0x12a2,0x12a3]
+    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x129f,0x12a2,0x12a3,0x12a6]
     BCD = [0x01]
 
     # Plugboard ID
@@ -823,7 +828,15 @@ class ITUNES(DriverBase):
         if DEBUG:
             logger().info("ITUNES.get_file(): exporting '%s'" % path)
 
-        outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
+        try:
+            outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
+        except:
+            # Clean up
+            logger().info(" unable to extract books from iDevices")
+            logger().info(" deleting empty ", outfile.name)
+            outfile.close()
+            os.remove(outfile.name)
+            raise UserFeedback("Unable to extract books from iDevices", details=None, level=UserFeedback.WARN)
 
     def open(self, connected_device, library_uuid):
         '''
@@ -839,6 +852,9 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+
+        if self.iTunes is None:
+            raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 
         if DEBUG:
             logger().info("ITUNES.open(connected_device: %s)" % repr(connected_device))
@@ -2352,6 +2368,8 @@ class ITUNES(DriverBase):
 
         if isosx:
             import appscript
+            as_name = appscript.__name__
+            as_version = appscript.__version__
             '''
             Launch iTunes if not already running
             '''
@@ -2361,7 +2379,7 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     logger().info( "ITUNES:_launch_iTunes(): Launching iTunes" )
                 try:
-                    self.iTunes = iTunes= appscript.app('iTunes', hide=True)
+                    self.iTunes = iTunes = appscript.app('iTunes', hide=True)
                 except:
                     self.iTunes = None
                     raise UserFeedback(' ITUNES._launch_iTunes(): unable to find installed iTunes', details=None, level=UserFeedback.WARN)
@@ -2371,6 +2389,28 @@ class ITUNES(DriverBase):
             else:
                 self.iTunes = appscript.app('iTunes')
                 self.initial_status = 'already running'
+
+            '''
+            Test OSA communication with iTunes.
+            If unable to communicate with iTunes, set self.iTunes to None, then
+            report to user in open()
+            '''
+            as_binding = "dynamic"
+            try:
+                # Try dynamic binding - works with iTunes <= 10.6.1
+                foo = self.iTunes.name()
+            except:
+                # Try static binding
+                import itunes
+                self.iTunes = appscript.app('iTunes',terms=itunes)
+                try:
+                    foo = self.iTunes.name()
+                    as_binding = "static"
+                except:
+                    self.iTunes = None
+                    if DEBUG:
+                        logger().info("   unable to communicate with iTunes via %s %s using any binding" % (as_name, as_version))
+                    return
 
             '''
             # Read the current storage path for iTunes media
@@ -2390,6 +2430,7 @@ class ITUNES(DriverBase):
                 logger().info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
+                logger().info("  communicating with iTunes via %s %s using %s binding" % (as_name, as_version, as_binding))
                 logger().info("  calibre_library_path: %s" % self.calibre_library_path)
 
         if iswindows:
@@ -3319,6 +3360,9 @@ class ITUNES_ASYNC(ITUNES):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        if self.iTunes is None:
+            raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
+
         if DEBUG:
             logger().info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
 

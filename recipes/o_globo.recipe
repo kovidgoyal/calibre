@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+#!/usr/bin/env python
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
@@ -10,11 +10,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class OGlobo(BasicNewsRecipe):
     title                 = 'O Globo'
-    __author__            = 'Darko Miletic and Sujata Raman'
+    __author__            = 'Darko Miletic and Carlos Laviola'
     description           = 'News from Brasil'
     publisher             = 'O Globo'
     category              = 'news, politics, Brasil'
-    oldest_article        = 2
+    oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -35,47 +35,39 @@ class OGlobo(BasicNewsRecipe):
                     body{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
                     h3{font-size:large; color:#082963; font-weight:bold;}
                     #ident{color:#0179B4; font-size:xx-small;}
-                    p{color:#000000;font-weight:normal;}                    
+                    p{color:#000000;font-weight:normal;}
                     .commentario p{color:#007BB5; font-style:italic;}
                 '''
 
-    
-    keep_only_tags = [dict(name='div', attrs={'id':'ltintb'}),
-                      dict(name='a', attrs={'class':['img imgLoader','img ftr imgLoader']}),]
-
     remove_tags = [
                      dict(name='script')
-                    ,dict(name='object')
                     ,dict(name='form')
-                    ,dict(name='div', attrs={'id':['linksPatGoogle','rdpm','cor','com','env','rcm_st','coment',]})
-                    ,dict(name='div', attrs={'class':'box-zap-anu2'})
-                    ,dict(name='a', attrs={'class':'assine'})
-                    ,dict(name='link')
+                    ,dict(name='div', attrs={'id':'header'})
+                    ,dict(name='p', attrs={'id':'info-date-press'})
                   ]
 
 
     feeds = [
-               (u'Todos os canais', u'http://oglobo.globo.com/rss/plantao.xml')
-              ,(u'Ciencia', u'http://oglobo.globo.com/rss/plantaociencia.xml')
-              ,(u'Educacao', u'http://oglobo.globo.com/rss/plantaoeducacao.xml')
-              ,(u'Opiniao', u'http://oglobo.globo.com/rss/plantaoopiniao.xml')
-              ,(u'Sao Paulo', u'http://oglobo.globo.com/rss/plantaosaopaulo.xml')
-              ,(u'Viagem', u'http://oglobo.globo.com/rss/plantaoviagem.xml')
-              ,(u'Cultura', u'http://oglobo.globo.com/rss/plantaocultura.xml')
-              ,(u'Esportes', u'http://oglobo.globo.com/rss/plantaoesportes.xml')
-              ,(u'Mundo', u'http://oglobo.globo.com/rss/plantaomundo.xml')
-              ,(u'Pais', u'http://oglobo.globo.com/rss/plantaopais.xml')
-              ,(u'Rio', u'http://oglobo.globo.com/rss/plantaorio.xml')
-              ,(u'Saude', u'http://oglobo.globo.com/rss/plantaosaude.xml')
-              ,(u'Viver Melhor', u'http://oglobo.globo.com/rss/plantaovivermelhor.xml')
-              ,(u'Economia', u'http://oglobo.globo.com/rss/plantaoeconomia.xml')
-              ,(u'Tecnologia', u'http://oglobo.globo.com/rss/plantaotecnologia.xml')
+               (u'Todos os canais', u'http://oglobo.globo.com/rss.xml?completo=true')
+              ,(u'Ciencia', u'http://oglobo.globo.com/rss.xml?secao=ciencia&completo=true')
+              ,(u'Educacao', u'http://oglobo.globo.com/rss.xml?secao=educacao&completo=true')
+              ,(u'Opiniao', u'http://oglobo.globo.com/rss.xml?secao=opiniao&completo=true')
+              ,(u'Cultura', u'http://oglobo.globo.com/rss.xml?secao=cultura&completo=true')
+              ,(u'Esportes', u'http://oglobo.globo.com/rss.xml?secao=esportes&completo=true')
+              ,(u'Mundo', u'http://oglobo.globo.com/rss.xml?secao=mundo&completo=true')
+              ,(u'Pais', u'http://oglobo.globo.com/rss.xml?secao=pais&completo=true')
+              ,(u'Rio', u'http://oglobo.globo.com/rss.xml?secao=rio&completo=true')
+              ,(u'Saude', u'http://oglobo.globo.com/rss.xml?secao=saude&completo=true')
+              ,(u'Economia', u'http://oglobo.globo.com/rss.xml?secao=economia&completo=true')
+              ,(u'Tecnologia', u'http://oglobo.globo.com/rss.xml?secao=tecnologia&completo=true')
             ]
+
+    def print_version(self, url):
+        return url + '?service=print'
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
 
-    language = 'pt'
-
+    language = 'pt_BR'

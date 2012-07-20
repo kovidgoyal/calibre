@@ -1,0 +1,20 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NewsBusters(BasicNewsRecipe):
+    title          	     = u'News Busters'
+    description      = 'Exposing and Combating Liberal Media Bias'
+    __author__     = 'jde'
+    oldest_article = 1#day
+    max_articles_per_feed = 100
+    cover_url = "http://newsbusters.org/sites/all/themes/genesis_nb/images/nb-mrc.png"
+    language        = 'en'
+    encoding        = 'utf8'
+    needs_subscription = False
+    remove_javascript = True
+    recursions      = 0
+    use_embedded_content = False
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          = [(u'Blog', u'http://www.newsbusters.org/rss.xml')]
+

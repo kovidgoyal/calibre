@@ -7,14 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.gui2.complete import MultiCompleteComboBox
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import sort_key, lower
 
-class LanguagesEdit(MultiCompleteComboBox):
+class LanguagesEdit(EditWithComplete):
 
     def __init__(self, parent=None, db=None):
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
 
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
@@ -32,8 +32,6 @@ class LanguagesEdit(MultiCompleteComboBox):
         all_items = sorted(self._lang_map.itervalues(),
             key=lambda x: (-pmap.get(x, 0), sort_key(x)))
         self.update_items_cache(all_items)
-        for item in all_items:
-            self.addItem(item)
 
     @property
     def vals(self):

@@ -1,0 +1,129 @@
+import time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class PhilippineDailyInquirer(BasicNewsRecipe):
+    title                  	= 'The Philippine Daily Inquirer'
+    custom_title 	= "The Philippine Daily Inquirer - " + time.strftime('%d %b %Y %I:%M %p')
+    __author__             	= 'jde'
+    __date__                	= '03 June 2012'
+    __version__            	 = '1.0'
+    description            	= 'The Philippine Daily Inquirer is a widely read and circulated newspaper.'
+    language               	= 'en_PH'
+    publisher              	= 'The Philippine Daily Inquirer'
+    category               	= 'news, Philippines'
+    tags 		= 'news, Philippines'
+    cover_url        	= 'http://www.inquirer.com.ph/assets/bg/logo.jpg'
+    masthead_url        	= 'http://www.inquirer.com.ph/assets/bg/logo.jpg'
+    oldest_article 	= 1.5 #days
+    max_articles_per_feed  	= 25
+    simultaneous_downloads = 20
+    publication_type 	= 'newspaper'
+    timefmt 		= ' [%a, %d %b %Y %I:%M %p]'
+    no_stylesheets         	= True
+    use_embedded_content  = False
+    encoding        	= None
+    recursions      	= 0
+    needs_subscription 	= False
+    remove_javascript 	= True
+    remove_empty_feeds    	= True
+    auto_cleanup 	= False
+
+    remove_tags_after =  [
+	        dict(name='div', attrs={'id':'entryMeta'})
+	       ,dict(name='div', attrs={'id':'taboola-div'})
+	       ,dict(name='br', attrs={'class':'clear'})
+                           ]
+
+    remove_tags = [
+	        dict(name='div', attrs={'class':'recent'})
+	       ,dict(name='div', attrs={'id':'sharefeature'})
+	       ,dict(name='div', attrs={'id':'masthead_bg'})
+	       ,dict(name='div', attrs={'id':'navmenu_main'})
+	       ,dict(name='div', attrs={'id':'navmenu_channel'})
+	       ,dict(name='div', attrs={'class':'breadcrumbs'})
+	       ,dict(name='div', attrs={'id':'search_container'})
+	       ,dict(name='a', attrs={'href':'http://ruby.inquirer.net/redirect/redirect.php?item_id=1143'})
+	       ,dict(name='a', attrs={'href':'http://ruby.inquirer.net/redirect/redirect.php?item_id=1147'})
+	       ]
+
+
+    conversion_options = { 'title'   : custom_title,
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+
+    feeds = [
+               ('Headlines'      		, 'http://newsinfo.inquirer.net/category/inquirer-headlines/feed' )
+              ,('Latest Stories'      	, 'http://newsinfo.inquirer.net/category/latest-stories/feed' )
+              ,('Nation'       		, 'http://newsinfo.inquirer.net/category/nation/feed' )
+              ,('Nation - Latest Stories'       	, 'http://newsinfo.inquirer.net/category/latest-stories/nation-latest-stories/feed' )
+              ,('Metro'      		, 'http://newsinfo.inquirer.net/category/metro/feed' )
+              ,('Metro - Latest Stories'      	, 'http://newsinfo.inquirer.net/category/latest-stories/metro-latest-stories/feed' )
+              ,('Regions'       		, 'http://newsinfo.inquirer.net/category/regions/feed' )
+              ,('Regions - Latest Stories'       	, 'http://newsinfo.inquirer.net/category/latest-stories/regions-latest-stories/feed' )
+#            ,('News'      		, 'http://www.inquirer.net/fullfeed' )
+#            ,('More News'      	, 'http://newsinfo.inquirer.net/feed' )
+              ,('Global Nation'       	, 'http://globalnation.inquirer.net/feed' )
+              ,('Global Nation - Latest Stories'   , 'http://globalnation.inquirer.net/category/latest-stories/feed' )
+              ,('Global Nation - Philippines'     , 'http://globalnation.inquirer.net/category/news/philippines/feed' )
+              ,('Global Nation - Asia & Pacific' , 'http://globalnation.inquirer.net/category/news/asiaaustralia/feed' )
+              ,('Global Nation - Americas'       , 'http://globalnation.inquirer.net/category/news/uscanada/feed' )
+              ,('Global Nation - Middle East & Africa'  , 'http://globalnation.inquirer.net/category/news/middle-eastafrica/feed' )
+              ,('Global Nation - Europe'       	, 'http://globalnation.inquirer.net/category/news/europe/feed' )
+              ,('Global Nation - Global Pinoy'   , 'http://globalnation.inquirer.net/category/global-pinoy/feed' )
+              ,('Global Nation - Events'       	, 'http://globalnation.inquirer.net/category/events/feed' )
+              ,('Business'     		, 'http://business.inquirer.net/feed' )
+              ,('Business - Latest Stories'     	, 'http://business.inquirer.net/category/latest-stories/feed' )
+              ,('Business - Money'     	, 'http://business.inquirer.net/category/money/feed' )
+              ,('Business - Science & Health'  , 'http://business.inquirer.net/category/science-and-health/feed' )
+              ,('Business - Motoring'     	, 'http://business.inquirer.net/category/motoring/feed' )
+              ,('Business - Property Guide'     	, 'http://business.inquirer.net/category/property-guide/feed' )
+              ,('Business - Columnists'     	, 'http://business.inquirer.net/category/columnists/feed' )
+              ,('Sports'          		, 'http://sports.inquirer.net/feed' )
+              ,('Sports - Latest Stories'          	, 'http://sports.inquirer.net/category/latest-stories/feed' )
+              ,('Sports - Basketball'          	, 'http://sports.inquirer.net/category/section/basketball/feed' )
+              ,('Sports - Boxing & MMA'         , 'http://sports.inquirer.net/category/section/boxing-mma/feed' )
+              ,('Sports - Golf'          	, 'http://sports.inquirer.net/category/section/golf/feed' )
+              ,('Sports - Football'          	, 'http://sports.inquirer.net/category/section/other-sports/football/feed' )
+              ,('Sports - Other Sports'          	, 'http://sports.inquirer.net/category/section/other-sports/feed' )
+              ,('Technology'           	, 'http://technology.inquirer.net/feed' )
+              ,('Technology Latest Stories'      , 'http://technology.inquirer.net/category/latest-stories/feed' )
+              ,('Entertainment'        	, 'http://entertainment.inquirer.net/feed' )
+              ,('Entertainment - Headlines'        , 'http://entertainment.inquirer.net/category/headlines/feed' )
+              ,('Entertainment - Latest Stories'  , 'http://entertainment.inquirer.net/category/latest-stories/feed' )
+              ,('Entertainment - Movies'        	, 'http://movies.inquirer.net/feed' )
+              ,('Lifestyle'        		, 'http://lifestyle.inquirer.net/feed' )
+              ,('Lifestyle - Latest Stories'        , 'http://lifestyle.inquirer.net/category/latest-stories/feed' )
+              ,('Lifestyle - Arts & Books'        	, 'http://lifestyle.inquirer.net/category/arts-and-books/feed' )
+              ,('Lifestyle - Wellness'        	, 'http://lifestyle.inquirer.net/category/wellness/feed' )
+              ,('Lifestyle - Home & Entertaining' , 'http://lifestyle.inquirer.net/category/home-and-entertaining/feed' )
+              ,('Lifestyle - Parenting'        	, 'http://lifestyle.inquirer.net/category/parenting/feed' )
+              ,('Lifestyle - Food'        	, 'http://lifestyle.inquirer.net/category/food/feed' )
+              ,('Lifestyle - Fashion & Beauty'   , 'http://lifestyle.inquirer.net/category/fashion-and-beauty/feed' )
+              ,('Lifestyle - Super'        	, 'http://lifestyle.inquirer.net/category/super/feed' )
+              ,('Lifestyle - 2BU'        	, 'http://lifestyle.inquirer.net/category/2bu/feed' )
+              ,('Lifestyle - Sunday Lifestyle'     , 'http://lifestyle.inquirer.net/category/sunday-lifestyle/feed' )
+              ,('Lifestyle - Wedding'        	, 'http://lifestyle.inquirer.net/category/sunday-lifestyle/wedding/feed' )
+              ,('Lifestyle - Travel'        	, 'http://lifestyle.inquirer.net/category/sunday-lifestyle/travel/feed' )
+              ,('Lifestyle - Relationship'        	, 'http://lifestyle.inquirer.net/category/sunday-lifestyle/relationship/feed' )
+              ,('Opinion'        		, 'http://opinion.inquirer.net/feed' )
+              ,('Opinion - Viewpoints'        	, 'http://opinion.inquirer.net/category/viewpoints/feed' )
+              ,('Opinion - Talk of the Town'     , 'http://opinion.inquirer.net/category/inquirer-opinion/talk-of-the-town/feed' )
+              ,('Editorial'        		, 'http://opinion.inquirer.net/category/editorial/feed' )
+              ,('Letters to the Editor'      	, 'http://opinion.inquirer.net/category/letters-to-the-editor/feed' )
+              ,('Columns'        		, 'http://opinion.inquirer.net/category/columns/feed' )
+              ,('Citizens Journalism'       	, 'http://newsinfo.inquirer.net/category/citizens-journalism/feed' )
+              ,('Cebu - Daily News'       	, 'http://newsinfo.inquirer.net/category/cdn/feed' )
+              ,('Cebu - More News'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-news/feed' )
+              ,('Cebu - Community'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-community/feed' )
+              ,('Cebu - Metro'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-metro/feed' )
+              ,('Cebu - Business'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-enterprise/feed' )
+              ,('Cebu - Sports'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-sports/feed' )
+              ,('Cebu - Visayas'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-visayas/feed' )
+              ,('Cebu - Opinion'       	, 'http://newsinfo.inquirer.net/category/cdn/cdn-opinion/feed' )
+           	 ]

@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 
 class Worker(Thread): # Get details {{{
@@ -471,7 +471,7 @@ class Worker(Thread): # Get details {{{
                 ans = x.tail
                 date = ans.rpartition('(')[-1].replace(')', '').strip()
                 date = self.delocalize_datestr(date)
-                return parse_date(date, assume_utc=True)
+                return parse_only_date(date, assume_utc=True)
 
     def parse_language(self, pd):
         for x in reversed(pd.xpath(self.language_xpath)):
@@ -573,8 +573,13 @@ class Amazon(Source):
             else:
                 url = 'http://www.amazon.%s/dp/%s'%(domain, asin)
             if url:
-                idtype = 'amazon' if self.domain == 'com' else 'amazon_'+self.domain
+                idtype = 'amazon' if domain == 'com' else 'amazon_'+domain
                 return (idtype, asin, url)
+
+    def get_book_url_name(self, idtype, idval, url):
+        if idtype == 'amazon':
+            return self.name
+        return 'A' + idtype.replace('_', '.')[1:]
     # }}}
 
     @property
@@ -687,7 +692,11 @@ class Amazon(Source):
             return True
 
         for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
-            for a in div.xpath(r'descendant::a[@class="title" and @href]'):
+            links = div.xpath(r'descendant::a[@class="title" and @href]')
+            if not links:
+                # New amazon markup
+                links = div.xpath('descendant::h3/a[@href]')
+            for a in links:
                 title = tostring(a, method='text', encoding=unicode)
                 if title_ok(title):
                     matches.append(a.get('href'))

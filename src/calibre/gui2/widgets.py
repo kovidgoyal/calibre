@@ -6,14 +6,12 @@ Miscellaneous widgets used in the GUI
 import re, traceback, os
 
 from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
-                        QListWidgetItem, QTextCharFormat, QApplication,
-                        QSyntaxHighlighter, QCursor, QColor, QWidget,
-                        QPixmap, QSplitterHandle, QToolButton,
-                        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal,
-                        QRegExp, QSettings, QSize, QSplitter,
-                        QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene,
-                        QMenu, QStringListModel, QCompleter, QStringList,
-                        QTimer, QRect, QFontDatabase, QGraphicsView)
+        QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
+        QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
+        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, QRegExp, QSize,
+        QSplitter, QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu,
+        QStringListModel, QCompleter, QStringList, QTimer, QRect,
+        QFontDatabase, QGraphicsView, QByteArray)
 
 from calibre.constants import iswindows
 from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
@@ -21,7 +19,7 @@ from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.utils.config import prefs, XMLConfig, tweaks
+from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog)
@@ -803,69 +801,29 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
     @classmethod
     def loadConfig(cls):
         Config = cls.Config
-        settings = QSettings()
-        def setDefaultString(name, default):
-            value = settings.value(name).toString()
-            if value.isEmpty():
-                value = default
-            Config[name] = value
 
         for name in ("window", "shell"):
-            Config["%swidth" % name] = settings.value("%swidth" % name,
-                    QVariant(QApplication.desktop() \
-                             .availableGeometry().width() / 2)).toInt()[0]
-            Config["%sheight" % name] = settings.value("%sheight" % name,
-                    QVariant(QApplication.desktop() \
-                             .availableGeometry().height() / 2)).toInt()[0]
-            Config["%sy" % name] = settings.value("%sy" % name,
-                    QVariant(0)).toInt()[0]
-        Config["toolbars"] = settings.value("toolbars").toByteArray()
-        Config["splitter"] = settings.value("splitter").toByteArray()
-        Config["shellx"] = settings.value("shellx", QVariant(0)).toInt()[0]
-        Config["windowx"] = settings.value("windowx", QVariant(QApplication \
-                .desktop().availableGeometry().width() / 2)).toInt()[0]
-        Config["remembergeometry"] = settings.value("remembergeometry",
-                QVariant(True)).toBool()
-        Config["startwithshell"] = settings.value("startwithshell",
-                QVariant(True)).toBool()
-        Config["showwindowinfo"] = settings.value("showwindowinfo",
-                QVariant(True)).toBool()
-        setDefaultString("shellstartup", """\
-    from __future__ import division
-    import codecs
-    import sys
-    sys.stdin = codecs.getreader("UTF8")(sys.stdin)
-    sys.stdout = codecs.getwriter("UTF8")(sys.stdout)""")
-        setDefaultString("newfile", """\
-    #!/usr/bin/env python
-
-    from __future__ import division
-
-    import sys
-    """)
-        Config["backupsuffix"] = settings.value("backupsuffix",
-                QVariant(".bak")).toString()
-        setDefaultString("beforeinput", "#>>>")
-        setDefaultString("beforeoutput", "#---")
-        Config["cwd"] = settings.value("cwd", QVariant(".")).toString()
-        Config["tooltipsize"] = settings.value("tooltipsize",
-                QVariant(150)).toInt()[0]
-        Config["maxlinestoscan"] = settings.value("maxlinestoscan",
-                QVariant(5000)).toInt()[0]
-        Config["pythondocpath"] = settings.value("pythondocpath",
-                QVariant("http://docs.python.org")).toString()
-        Config["autohidefinddialog"] = settings.value("autohidefinddialog",
-                QVariant(True)).toBool()
-        Config["findcasesensitive"] = settings.value("findcasesensitive",
-                QVariant(False)).toBool()
-        Config["findwholewords"] = settings.value("findwholewords",
-                QVariant(False)).toBool()
-        Config["tabwidth"] = settings.value("tabwidth",
-                QVariant(4)).toInt()[0]
-        Config["fontfamily"] = settings.value("fontfamily",
-                QVariant("monospace")).toString()
-        Config["fontsize"] = settings.value("fontsize",
-                QVariant(10)).toInt()[0]
+            Config["%swidth" % name] = QVariant(QApplication.desktop().availableGeometry().width() / 2).toInt()[0]
+            Config["%sheight" % name] = QVariant(QApplication.desktop().availableGeometry().height() / 2).toInt()[0]
+            Config["%sy" % name] = QVariant(0).toInt()[0]
+        Config["toolbars"] = QByteArray(b'')
+        Config["splitter"] = QByteArray(b'')
+        Config["shellx"] = QVariant(0).toInt()[0]
+        Config["windowx"] = QVariant(QApplication.desktop().availableGeometry().width() / 2).toInt()[0]
+        Config["remembergeometry"] = QVariant(True).toBool()
+        Config["startwithshell"] = QVariant(True).toBool()
+        Config["showwindowinfo"] = QVariant(True).toBool()
+        Config["backupsuffix"] = QVariant(".bak").toString()
+        Config["cwd"]  = QVariant(".").toString()
+        Config["tooltipsize"] = QVariant(150).toInt()[0]
+        Config["maxlinestoscan"] = QVariant(5000).toInt()[0]
+        Config["pythondocpath"] = QVariant("http://docs.python.org").toString()
+        Config["autohidefinddialog"] = QVariant(True).toBool()
+        Config["findcasesensitive"] = QVariant(False).toBool()
+        Config["findwholewords"] = QVariant(False).toBool()
+        Config["tabwidth"] = QVariant(4).toInt()[0]
+        Config["fontfamily"] = QVariant("monospace").toString()
+        Config["fontsize"] = QVariant(10).toInt()[0]
         for name, color, bold, italic in (
                 ("normal", "#000000", False, False),
                 ("keyword", "#000080", True, False),
@@ -877,12 +835,9 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
                 ("number", "#924900", False, False),
                 ("error", "#FF0000", False, False),
                 ("pyqt", "#50621A", False, False)):
-            Config["%sfontcolor" % name] = settings.value(
-                    "%sfontcolor" % name, QVariant(color)).toString()
-            Config["%sfontbold" % name] = settings.value(
-                    "%sfontbold" % name, QVariant(bold)).toBool()
-            Config["%sfontitalic" % name] = settings.value(
-                    "%sfontitalic" % name, QVariant(italic)).toBool()
+            Config["%sfontcolor" % name] = QVariant(color).toString()
+            Config["%sfontbold" % name] = QVariant(bold).toBool()
+            Config["%sfontitalic" % name] = QVariant(italic).toBool()
 
 
     @classmethod
@@ -999,13 +954,6 @@ class SplitterHandle(QSplitterHandle):
         self.highlight = 0 in self.splitter().sizes()
         if oh != self.highlight:
             self.update()
-
-    def paintEvent(self, ev):
-        QSplitterHandle.paintEvent(self, ev)
-        if self.highlight and tweaks['draw_hidden_section_indicators']:
-            painter = QPainter(self)
-            painter.setClipRect(ev.rect())
-            painter.fillRect(self.rect(), Qt.yellow)
 
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)

@@ -8,6 +8,8 @@ from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
+ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
+
 class EPUBInput(InputFormatPlugin):
 
     name        = 'EPUB Input'
@@ -18,18 +20,24 @@ class EPUBInput(InputFormatPlugin):
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 
-    def decrypt_font(self, key, path):
-        raw = open(path, 'rb').read()
-        crypt = raw[:1024]
-        key = cycle(iter(key))
-        decrypt = ''.join([chr(ord(x)^key.next()) for x in crypt])
+    def decrypt_font(self, key, path, algorithm):
+        is_adobe = algorithm == ADOBE_OBFUSCATION
+        crypt_len = 1024 if is_adobe else 1040
+        with open(path, 'rb') as f:
+            raw = f.read()
+        crypt = bytearray(raw[:crypt_len])
+        key = cycle(iter(bytearray(key)))
+        decrypt = bytes(bytearray(x^key.next() for x in crypt))
         with open(path, 'wb') as f:
             f.write(decrypt)
-            f.write(raw[1024:])
+            f.write(raw[crypt_len:])
 
     def process_encryption(self, encfile, opf, log):
         from lxml import etree
-        import uuid
+        import uuid, hashlib
+        idpf_key = opf.unique_identifier
+        if idpf_key:
+            idpf_key = hashlib.sha1(idpf_key).digest()
         key = None
         for item in opf.identifier_iter():
             scheme = None
@@ -39,8 +47,8 @@ class EPUBInput(InputFormatPlugin):
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = str(item.text).rpartition(':')[-1]
-                    key = list(map(ord, uuid.UUID(key).bytes))
+                    key = bytes(item.text).rpartition(':')[-1]
+                    key = uuid.UUID(key).bytes
                 except:
                     import traceback
                     traceback.print_exc()
@@ -50,14 +58,16 @@ class EPUBInput(InputFormatPlugin):
             root = etree.parse(encfile)
             for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
                 algorithm = em.get('Algorithm', '')
-                if algorithm != 'http://ns.adobe.com/pdf/enc#RC':
+                if algorithm not in {ADOBE_OBFUSCATION,
+                        'http://www.idpf.org/2008/embedding'}:
                     return False
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
                 path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
-                if key is not None and os.path.exists(path):
+                tkey = (key if algorithm == ADOBE_OBFUSCATION else idpf_key)
+                if (tkey and os.path.exists(path)):
                     self._encrypted_font_uris.append(uri)
-                    self.decrypt_font(key, path)
+                    self.decrypt_font(tkey, path, algorithm)
             return True
         except:
             import traceback
@@ -207,7 +217,7 @@ class EPUBInput(InputFormatPlugin):
         if rc:
             cover_toc_item = None
             for item in oeb.toc.iterdescendants():
-                if item.href == rc:
+                if item.href and item.href.partition('#')[0] == rc:
                     cover_toc_item = item
                     break
             spine = {x.href for x in oeb.spine}

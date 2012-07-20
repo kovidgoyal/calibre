@@ -75,7 +75,7 @@ class DisplayedFields(QAbstractListModel): # {{{
 
     def commit(self):
         if self.changed:
-            gprefs['book_display_fields'] = self.fields
+            self.db.prefs['book_display_fields'] = self.fields
 
     def move(self, idx, delta):
         row = idx.row() + delta
@@ -101,6 +101,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('gui_layout', config, restart_required=True, choices=
                 [(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
+        r('ui_style', gprefs, restart_required=True, choices=
+                [(_('System default'), 'system'), (_('Calibre style'),
+                    'calibre')])
+        r('book_list_tooltips', gprefs)
+        r('tag_browser_old_look', gprefs, restart_required=True)
 
         r('cover_flow_queue_length', config, restart_required=True)
 

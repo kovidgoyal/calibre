@@ -150,9 +150,14 @@ def singleinstance(name):
     if iswindows:
         mutexname = 'mutexforsingleinstanceof'+__appname__+name
         mutex =  win32event.CreateMutex(None, False, mutexname)
-        if mutex:
+        err = win32api.GetLastError()
+        if err == winerror.ERROR_ALREADY_EXISTS:
+            # Close this handle other wise this handle will prevent the mutex
+            # from being deleted when the process that created it exits.
+            win32api.CloseHandle(mutex)
+        elif mutex and err != winerror.ERROR_INVALID_HANDLE:
             atexit.register(win32api.CloseHandle, mutex)
-        return not win32api.GetLastError() == winerror.ERROR_ALREADY_EXISTS
+        return not err == winerror.ERROR_ALREADY_EXISTS
     else:
         path = os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
         try:

@@ -46,30 +46,37 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec_()        
         
-
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query, max_results=15, timeout=60):
         search_url = self.shop_url + '/webservice/webservice.asmx/SearchWebService?'\
                     'searchText=%s&searchContext=ebook' % urllib2.quote(query)
+        search_urls = [ search_url ]
+        
+        ## add this as the fist try if it looks like ozon ID
+        if re.match("^\d{6,9}$", query):
+            ozon_detail = self.shop_url + '/webservices/OzonWebSvc.asmx/ItemDetail?ID=%s' % query
+            search_urls.insert(0, ozon_detail)
+
         xp_template = 'normalize-space(./*[local-name() = "{0}"]/text())'
-                    
         counter = max_results
         br = browser()
-        with closing(br.open(search_url, timeout=timeout)) as f:
-            raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
-            doc = etree.fromstring(raw)
-            for data in doc.xpath('//*[local-name() = "SearchItems"]'):
-                if counter <= 0:
-                    break
-                counter -= 1
+        
+        for url in search_urls:
+            with closing(br.open(url, timeout=timeout)) as f:
+                raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
+                doc = etree.fromstring(raw)
+                for data in doc.xpath('//*[local-name()="SearchItems" or local-name()="ItemDetail"]'):
+                    if counter <= 0:
+                        break
+                    counter -= 1
 
-                s = SearchResult()
-                s.detail_item = data.xpath(xp_template.format('ID'))
-                s.title = data.xpath(xp_template.format('Name'))
-                s.author = data.xpath(xp_template.format('Author'))
-                s.price = data.xpath(xp_template.format('Price'))
-                s.cover_url = data.xpath(xp_template.format('Picture'))
-                s.price = format_price_in_RUR(s.price)
-                yield s
+                    s = SearchResult()
+                    s.detail_item = data.xpath(xp_template.format('ID'))
+                    s.title = data.xpath(xp_template.format('Name'))
+                    s.author = data.xpath(xp_template.format('Author'))
+                    s.price = data.xpath(xp_template.format('Price'))
+                    s.cover_url = data.xpath(xp_template.format('Picture'))
+                    s.price = format_price_in_RUR(s.price)
+                    yield s
 
     def get_details(self, search_result, timeout=60):
         url = self.shop_url + '/context/detail/id/' + urllib2.quote(search_result.detail_item)
@@ -97,6 +104,16 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
                 search_result.formats = ', '.join(_parse_ebook_formats(formats))
                 # unfortunately no direct links to download books (only buy link)
                 # search_result.downloads['BF2'] = self.shop_url + '/order/digitalorder.aspx?id=' + + urllib2.quote(search_result.detail_item)
+            
+            #<p class="main-cost"><span class="main">215</span><span class="submain">00</span> руб.</p>
+            #<span itemprop="price" class="hidden">215.00</span>
+            #<meta itemprop="priceCurrency" content="RUR " />
+            
+            # if the price not in the search result (the ID search case)
+            if not search_result.price:
+                price = doc.xpath(u'normalize-space(//*[@itemprop="price"]/text())')
+                search_result.price = format_price_in_RUR(price)
+                
         return result
 
 def format_price_in_RUR(price):

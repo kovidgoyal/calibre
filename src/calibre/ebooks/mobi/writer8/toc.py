@@ -73,7 +73,7 @@ class TOCAdder(object):
         id, href = oeb.manifest.generate('contents', 'contents.xhtml')
         item = self.generated_item = oeb.manifest.add(id, href, XHTML_MIME,
                 data=root)
-        if opts.mobi_toc_at_start == 'end':
+        if self.at_start:
             oeb.spine.insert(0, item, linear=True)
         else:
             oeb.spine.add(item, linear=False)

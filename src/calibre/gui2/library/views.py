@@ -82,6 +82,11 @@ class BooksView(QTableView): # {{{
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
 
+    def viewportEvent(self, event):
+        if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
+            return False
+        return QTableView.viewportEvent(self, event)
+
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 
@@ -120,7 +125,7 @@ class BooksView(QTableView): # {{{
         self.last_modified_delegate = DateDelegate(self,
                 tweak_name='gui_last_modified_display_format')
         self.languages_delegate = LanguagesDelegate(self)
-        self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
+        self.tags_delegate = CompleteDelegate(self, ',', 'all_tag_names')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
         self.series_delegate = TextDelegate(self)

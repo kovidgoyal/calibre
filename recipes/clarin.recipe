@@ -1,6 +1,6 @@
-
+from __future__ import unicode_literals
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 clarin.com
 '''
@@ -8,9 +8,9 @@ clarin.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Clarin(BasicNewsRecipe):
-    title                 = 'Clarin'
+    title                 = 'Clarín'
     __author__            = 'Darko Miletic'
-    description           = 'Noticias de Argentina y mundo'
+    description           = 'Clarin.com. Noticias de la Argentina y el mundo. Información actualizada las 24 horas y en español. Informate ya'
     publisher             = 'Grupo Clarin'
     category              = 'news, politics, Argentina'
     oldest_article        = 2
@@ -23,12 +23,10 @@ class Clarin(BasicNewsRecipe):
     publication_type      = 'newspaper'
     INDEX                 = 'http://www.clarin.com'
     masthead_url          = 'http://www.clarin.com/static/CLAClarin/images/logo-clarin-print.jpg'
-    extra_css             = """ 
-                               body{font-family: Arial,Helvetica,sans-serif} 
-                               h2{font-family: Georgia,serif; font-size: xx-large} 
-                               .hora{font-weight:bold} 
-                               .hd p{font-size: small} 
-                               .nombre-autor{color: #0F325A} 
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif}
+                               h2{font-family: Georgia,serif; font-size: xx-large}
+                               .info,.nombre-autor,.hora{font-size: small}
                             """
 
     conversion_options = {
@@ -38,38 +36,35 @@ class Clarin(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags    = [dict(attrs={'class':['hd','mt']})]
-    remove_tags       = [dict(name=['meta','base','link'])]
-    remove_attributes = ['lang','_mce_bogus']
+    keep_only_tags    = [dict(attrs={'class':['hd','mt','bd']})]
+    remove_tags       = [dict(name=['meta','base','link','iframe','embed','object'])]
+    remove_attributes = ['lang']
 
     feeds = [
                (u'Pagina principal', u'http://www.clarin.com/rss/'             )
               ,(u'Politica'        , u'http://www.clarin.com/rss/politica/'    )
               ,(u'Deportes'        , u'http://www.clarin.com/rss/deportes/'    )
-              ,(u'Economia'        , u'http://www.clarin.com/economia/'        )
               ,(u'Mundo'           , u'http://www.clarin.com/rss/mundo/'       )
+              ,(u'iEco'            , u'http://www.ieco.clarin.com/rss/'        )
               ,(u'Espectaculos'    , u'http://www.clarin.com/rss/espectaculos/')
               ,(u'Sociedad'        , u'http://www.clarin.com/rss/sociedad/'    )
               ,(u'Ciudades'        , u'http://www.clarin.com/rss/ciudades/'    )
               ,(u'Policiales'      , u'http://www.clarin.com/rss/policiales/'  )
               ,(u'Internet'        , u'http://www.clarin.com/rss/internet/'    )
-              ,(u'Ciudades'        , u'http://www.clarin.com/rss/ciudades/'    )
             ]
 
-    
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-    
     def print_version(self, url):
         return url + '?print=1'
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
 
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        cover_item = soup.find('div',attrs={'class':'bb-md bb-md-edicion_papel'})
-        if cover_item:
-           ap = cover_item.find('a',attrs={'href':'/edicion-impresa/'})
-           if ap:
-              cover_url = self.INDEX + ap.img['src']
+        for item in soup.findAll('a', href=True):
+            if item['href'].startswith('/tapas/TAPA_CLA'):
+               cover_url = self.INDEX + item['href']
+               return cover_url
         return cover_url
 

@@ -277,6 +277,8 @@ class KF8Book(object):
         self.exth_flags = 0b1010000
         if writer.opts.mobi_periodical:
             self.exth_flags |= 0b1000
+        if resources.has_fonts:
+            self.exth_flags |= 0b1000000000000
 
         self.opts = writer.opts
         self.start_offset = writer.start_offset

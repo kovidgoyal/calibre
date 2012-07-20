@@ -12,7 +12,7 @@ import sys, os, shutil, platform, subprocess, stat, py_compile, glob, \
 from setup import Command, modules, basenames, functions, __version__, \
     __appname__
 
-SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
+SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
         '_dbus_glib_bindings.so']
@@ -22,9 +22,13 @@ QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 
 MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
+                '/usr/bin/pdfinfo',
+                '/usr/lib/libglib-2.0.so.0',
+                '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',
                 '/usr/lib/liblzma.so.0',
+                '/usr/lib/libexpat.so.1',
                 '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
@@ -32,7 +36,7 @@ binary_includes = [
                 '/lib/libz.so.1',
                 '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',
-                '/usr/lib/libpoppler.so.7',
+                '/usr/lib/libpoppler.so.25',
                 '/usr/lib/libxml2.so.2',
                 '/usr/lib/libopenjpeg.so.2',
                 '/usr/lib/libxslt.so.1',
@@ -41,8 +45,8 @@ binary_includes = [
                 '/usr/lib/libgthread-2.0.so.0',
                 '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
-                MAGICK_PREFIX+'/lib/libMagickWand.so.4',
-                MAGICK_PREFIX+'/lib/libMagickCore.so.4',
+                MAGICK_PREFIX+'/lib/libMagickWand.so.5',
+                MAGICK_PREFIX+'/lib/libMagickCore.so.5',
                 '/usr/lib/libgcrypt.so.11',
                 '/usr/lib/libgpg-error.so.0',
                 '/usr/lib/libphonon.so.4',
@@ -51,10 +55,10 @@ binary_includes = [
                 '/lib/libreadline.so.6',
                 '/usr/lib/libchm.so.0',
                 '/usr/lib/liblcms2.so.2',
-                '/usr/lib/libicudata.so.46',
-                '/usr/lib/libicui18n.so.46',
-                '/usr/lib/libicuuc.so.46',
-                '/usr/lib/libicuio.so.46',
+                '/usr/lib/libicudata.so.49',
+                '/usr/lib/libicui18n.so.49',
+                '/usr/lib/libicuuc.so.49',
+                '/usr/lib/libicuio.so.49',
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 
@@ -189,7 +193,7 @@ class LinuxFreeze(Command):
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
                     ignore=ignore_in_lib)
-        for x in ('manual', 'trac'):
+        for x in ('trac',):
             x = self.j(dest, 'calibre', x)
             if os.path.exists(x):
                 shutil.rmtree(x)

@@ -34,6 +34,7 @@ if iswindows:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'bin', 'mt.exe')
     os.environ['QMAKESPEC'] = 'win32-msvc'
+    ICU = r'Q:\icu'
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
 if find_executable('qmake-qt4'):
@@ -84,7 +85,6 @@ ft_lib_dirs = []
 ft_libs = []
 jpg_libs = []
 jpg_lib_dirs = []
-poppler_objs = []
 fc_inc = '/usr/include/fontconfig'
 fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
@@ -98,8 +98,9 @@ if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
-    icu_inc_dirs = [sw_inc_dir]
-    icu_lib_dirs = [sw_lib_dir]
+    icu_inc_dirs = [os.path.join(ICU, 'source', 'common'), os.path.join(ICU,
+        'source', 'i18n')]
+    icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
     sqlite_inc_dirs = [sw_inc_dir]
     fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
     fc_lib = sw_lib_dir
@@ -114,13 +115,8 @@ if iswindows:
     jpg_libs = ['jpeg']
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
-    poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            r'%s\poppler;%s'%(sw_inc_dir, sw_inc_dir))
 
-    poppler_lib_dirs = consolidate('POPPLER_LIB_DIR', sw_lib_dir)
-    popplerqt4_lib_dirs = poppler_lib_dirs
-    poppler_libs = ['poppler']
-    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.6.6')]
+    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.7.6')]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
@@ -128,12 +124,6 @@ if iswindows:
 elif isosx:
     fc_inc = '/sw/include/fontconfig'
     fc_lib = '/sw/lib'
-    poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            '/sw/build/poppler-0.14.5/poppler:/sw/build/poppler-0.14.5')
-    poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
-            '/sw/lib')
-    poppler_libs = ['poppler']
-    popplerqt4_lib_dirs = poppler_lib_dirs
     podofo_inc = '/sw/podofo'
     podofo_lib = '/sw/lib'
     magick_inc_dirs = consolidate('MAGICK_INC',
@@ -146,22 +136,15 @@ elif isosx:
     png_libs = ['png12']
 else:
     # Include directories
-    poppler_inc_dirs = pkgconfig_include_dirs('poppler',
-        'POPPLER_INC_DIR', '/usr/include/poppler')
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
         '/usr/include')
     magick_inc_dirs = pkgconfig_include_dirs('MagickWand', 'MAGICK_INC', '/usr/include/ImageMagick')
 
     # Library directories
-    poppler_lib_dirs = popplerqt4_lib_dirs = pkgconfig_lib_dirs('poppler', 'POPPLER_LIB_DIR',
-        '/usr/lib')
     png_lib_dirs = pkgconfig_lib_dirs('libpng', 'PNG_LIB_DIR', '/usr/lib')
     magick_lib_dirs = pkgconfig_lib_dirs('MagickWand', 'MAGICK_LIB', '/usr/lib')
 
     # Libraries
-    poppler_libs = pkgconfig_libs('poppler', '', '')
-    if not poppler_libs:
-        poppler_libs = ['poppler']
     magick_libs = pkgconfig_libs('MagickWand', '', '')
     if not magick_libs:
         magick_libs = ['MagickWand', 'MagickCore']
@@ -174,23 +157,6 @@ fc_error = None if os.path.exists(os.path.join(fc_inc, 'fontconfig.h')) else \
     ('fontconfig header files not found on your system. '
             'Try setting the FC_INC_DIR and FC_LIB_DIR environment '
             'variables.')
-
-
-poppler_error = None
-poppler_cflags = ['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
-if not poppler_inc_dirs or not os.path.exists(
-        os.path.join(poppler_inc_dirs[0], 'OutputDev.h')):
-    poppler_error = \
-    ('Poppler not found on your system. Various PDF related',
-    ' functionality will not work. Use the POPPLER_INC_DIR and',
-    ' POPPLER_LIB_DIR environment variables. calibre requires '
-    ' the poppler XPDF headers. If your distro does not '
-    ' include them you will have to re-compile poppler '
-    ' by hand with --enable-xpdf-headers')
-else:
-    lh = os.path.join(poppler_inc_dirs[0], 'Link.h')
-    if 'class AnnotLink' not in open(lh, 'rb').read():
-        poppler_cflags.append('-DPOPPLER_OLD_LINK_TYPE')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],

@@ -1,0 +1,15 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NaTemat(BasicNewsRecipe):
+    title          = u'NaTemat.pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'informacje, komentarze, opinie'
+    category       = 'news'
+    language       = 'pl'
+    cover_url= 'http://blog.plona.pl/wp-content/uploads/2012/05/natemat.png'
+    no_stylesheets = True
+    keep_only_tags= [dict(id='main')]
+    remove_tags= [dict(attrs={'class':['button', 'block-inside style_default', 'article-related']})]
+    feeds          = [(u'Artyku\u0142y', u'http://natemat.pl/rss/wszystkie')]

@@ -21,6 +21,7 @@ defaults.
 # last_free - First available integer smaller than the largest existing number
 #             Return largest existing + 1 if no free number is found
 # const - Assign the number 1 always
+# no_change - Do not change the series index
 # a number - Assign that number always. The number is not in quotes. Note that
 #            0.0 can be used here.
 # Examples:
@@ -96,15 +97,6 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 #   categories_use_field_for_author_name = 'author'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
-
-#: Completion sort order: choose when to change from lexicographic to ASCII-like
-# Calibre normally uses locale-dependent lexicographic ordering when showing
-# completion values. This means that the sort order is correct for the user's
-# language. However, this can be slow. Performance is improved by switching to
-# ascii ordering. This tweak controls when that switch happens. Set it to zero
-# to always use ascii ordering. Set it to something larger than zero to switch
-# to ascii ordering for performance reasons.
-completion_change_to_ascii_sorting = 2500
 
 #: Control partitioning of Tag Browser
 # When partitioning the tags browser, the format of the subcategory label is
@@ -442,12 +434,6 @@ metadata_edit_custom_column_order = []
 # calibre.
 public_smtp_relay_delay = 301
 
-#: Remove the bright yellow lines at the edges of the book list
-# Control whether the bright yellow lines at the edges of book list are drawn
-# when a section of the user interface is hidden. Changes will take effect
-# after a restart of calibre.
-draw_hidden_section_indicators = True
-
 #: The maximum width and height for covers saved in the calibre library
 # All covers in the calibre library will be resized, preserving aspect ratio,
 # to fit within this size. This is to prevent slowdowns caused by extremely
@@ -505,4 +491,36 @@ change_book_details_font_size_by = 0
 # Default:    compile_gpm_templates = True
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
+
+#: What format to default to when using the Tweak feature
+# The Tweak feature of calibre allows direct editing of a book format.
+# If multiple formats are available, calibre will offer you a choice
+# of formats, defaulting to your preferred output format if it is available.
+# Set this tweak to a specific value of 'EPUB' or 'AZW3' to always default
+# to that format rather than your output format preference.
+# Set to a value of 'remember' to use whichever format you chose last time you
+# used the Tweak feature.
+# Examples:
+#   default_tweak_format = None       (Use output format)
+#   default_tweak_format = 'EPUB'
+#   default_tweak_format = 'remember'
+default_tweak_format = None
+
+#: Enable multi-character first-letters in the tag browser
+# Some languages have letters that can be represented by multiple characters.
+# For example, Czech has a 'character' "ch" that sorts between "h" and "i".
+# If this tweak is True, then the tag browser will take these characters into
+# consideration when partitioning by first letter.
+# Examples:
+#    enable_multicharacters_in_tag_browser = True
+#    enable_multicharacters_in_tag_browser = False
+enable_multicharacters_in_tag_browser = True
+
+#: Do not preselect a completion when editing authors/tags/series/etc.
+# This means that you can make changes and press Enter and your changes will
+# not be overwritten by a matching completion. However, if you wish to use the
+# completions you will now have to press Tab to select one before pressing
+# Enter. Which technique you prefer will depend on the state of metadata in
+# your library and your personal editing style.
+preselect_first_completion = False
 

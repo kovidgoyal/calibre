@@ -32,7 +32,7 @@ FILTER_INSTALLED = 1
 FILTER_UPDATE_AVAILABLE = 2
 FILTER_NOT_INSTALLED = 3
 
-def get_plugin_updates_available():
+def get_plugin_updates_available(raise_error=False):
     '''
     API exposed to read whether there are updates available for any
     of the installed user plugins.
@@ -41,7 +41,7 @@ def get_plugin_updates_available():
     '''
     if not has_external_plugins():
         return None
-    display_plugins = read_available_plugins()
+    display_plugins = read_available_plugins(raise_error=raise_error)
     if display_plugins:
         update_plugins = filter(filter_upgradeable_plugins, display_plugins)
         if len(update_plugins) > 0:
@@ -54,7 +54,7 @@ def filter_upgradeable_plugins(display_plugin):
 def filter_not_installed_plugins(display_plugin):
     return not display_plugin.is_installed()
 
-def read_available_plugins():
+def read_available_plugins(raise_error=False):
     display_plugins = []
     br = browser()
     br.set_handle_gzip(True)
@@ -63,6 +63,8 @@ def read_available_plugins():
         if not raw:
             return
     except:
+        if raise_error:
+            raise
         traceback.print_exc()
         return
     raw = raw.decode('utf-8', errors='replace')
@@ -519,7 +521,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
         layout.addWidget(self.description)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Close)
-        self.button_box.rejected.connect(self._close_clicked)
+        self.button_box.rejected.connect(self.reject)
+        self.finished.connect(self._finished)
         self.install_button = self.button_box.addButton(_('&Install'), QDialogButtonBox.AcceptRole)
         self.install_button.setToolTip(_('Install the selected plugin'))
         self.install_button.clicked.connect(self._install_clicked)
@@ -582,12 +585,10 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.configure_action.setEnabled(False)
         self.plugin_view.addAction(self.configure_action)
 
-    def _close_clicked(self):
-        # Force our toolbar/action to be updated based on uninstalled updates
+    def _finished(self, *args):
         if self.model:
             update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
             self.gui.recalc_update_label(len(update_plugins))
-        self.reject()
 
     def _plugin_current_changed(self, current, previous):
         if current.isValid():

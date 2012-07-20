@@ -220,16 +220,15 @@ class BooksModel(QAbstractTableModel): # {{{
         self.count_changed()
         self.reset()
 
-    def delete_books(self, indices):
+    def delete_books(self, indices, permanent=False):
         ids = map(self.id, indices)
-        for id in ids:
-            self.db.delete_book(id, notify=False)
-        self.books_deleted()
+        self.delete_books_by_id(ids, permanent=permanent)
         return ids
 
-    def delete_books_by_id(self, ids):
+    def delete_books_by_id(self, ids, permanent=False):
         for id in ids:
-            self.db.delete_book(id)
+            self.db.delete_book(id, permanent=permanent, do_clean=False)
+        self.db.clean()
         self.books_deleted()
 
     def books_added(self, num):
@@ -846,7 +845,9 @@ class BooksModel(QAbstractTableModel): # {{{
                     s_index = float(match.group(1))
                     val = pat.sub('', val).strip()
                 elif val:
-                    if tweaks['series_index_auto_increment'] != 'const':
+                    # it is OK to leave s_index == None when using 'no_change'
+                    if tweaks['series_index_auto_increment'] != 'const' and \
+                            tweaks['series_index_auto_increment'] != 'no_change':
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
@@ -915,7 +916,8 @@ class BooksModel(QAbstractTableModel): # {{{
                         self.db.set_series_index(id, float(match.group(1)))
                         val = pat.sub('', val).strip()
                     elif val:
-                        if tweaks['series_index_auto_increment'] != 'const':
+                        if tweaks['series_index_auto_increment'] != 'const' and \
+                            tweaks['series_index_auto_increment'] != 'no_change':
                             ni = self.db.get_next_series_num_for(val)
                             if ni != 1:
                                 self.db.set_series_index(id, ni)

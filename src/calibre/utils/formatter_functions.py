@@ -9,10 +9,12 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
+from math import trunc
 
 from calibre import human_readable
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
+from calibre.utils.config import tweaks
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -169,8 +171,8 @@ class BuiltinAdd(BuiltinFormatterFunction):
     __doc__ = doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x + y)
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -180,8 +182,8 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     __doc__ = doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x - y)
 
 class BuiltinMultiply(BuiltinFormatterFunction):
@@ -191,8 +193,8 @@ class BuiltinMultiply(BuiltinFormatterFunction):
     __doc__ = doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x * y)
 
 class BuiltinDivide(BuiltinFormatterFunction):
@@ -202,8 +204,8 @@ class BuiltinDivide(BuiltinFormatterFunction):
     __doc__ = doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x / y)
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -218,7 +220,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
             ']] for the } character; they are converted automatically. '
             'For example, template(\'[[title_sort]]\') will evaluate the '
             'template {title_sort} and return its value. Note also that '
-            'prefixes and suffixes (the "|prefix|suffix" syntax) cannot be '
+            'prefixes and suffixes (the `|prefix|suffix` syntax) cannot be '
             'used in the argument to this function when using template program mode.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
@@ -235,7 +237,7 @@ class BuiltinEval(BuiltinFormatterFunction):
             'results from local variables. Because the { and } '
             'characters are special, you must use [[ for the { character and '
             ']] for the } character; they are converted automatically. '
-            'Note also that prefixes and suffixes (the "|prefix|suffix" syntax) '
+            'Note also that prefixes and suffixes (the `|prefix|suffix` syntax) '
             'cannot be used in the argument to this function when using '
             'template program mode.')
 
@@ -657,11 +659,17 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
         if val == '' or val == 'None':
             return ''
         try:
-            return template.format(float(val))
+            v1 = float(val)
+        except:
+            return ''
+        try: # Try formatting the value as a float
+            return template.format(v1)
         except:
             pass
-        try:
-            return template.format(int(val))
+        try: # Try formatting the value as an int
+            v2 = trunc(v1)
+            if v2 == v1:
+                return template.format(v2)
         except:
             pass
         return ''
@@ -1144,7 +1152,7 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _('finish_formatting(val, fmt, prefix, suffix) -- apply the '
                       'format, prefix, and suffix to a value in the same way as '
-                      'done in a template like {series_index:05.2f| - |- }. For '
+                      'done in a template like `{series_index:05.2f| - |- }`. For '
                       'example, the following program produces the same output '
                       'as the above template: '
                       'program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")')
@@ -1196,7 +1204,7 @@ from calibre.utils.formatter_functions import formatter_functions
 class UserFunction(FormatterUserFunction):
 ''' + func
     locals_ = {}
-    if DEBUG:
+    if DEBUG and tweaks.get('enable_template_debug_printing', False):
         print prog
     exec prog in locals_
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)

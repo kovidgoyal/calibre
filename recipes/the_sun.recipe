@@ -6,16 +6,15 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     title          = u'The Sun UK'
-    description = 'A Recipe for The Sun tabloid UK'
+    description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 29/4/12
+    # last updated 15/7/12
     language = 'en_GB'
     oldest_article = 1
     max_articles_per_feed = 15
     remove_empty_feeds = True
     no_stylesheets = True
-    #auto_cleanup = True
-    #articles_are_obfuscated = True
+
 
     masthead_url = 'http://www.thesun.co.uk/sol/img/global/Sun-logo.gif'
     encoding = 'UTF-8'
@@ -34,7 +33,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
 
     keep_only_tags = [
-                               dict(name='h1'),dict(name='h2',attrs={'class' : 'medium centered'}),
+                               dict(name='h1'),dict(name='h2',attrs={'class' : ['large','large centered','medium centered','medium']}),dict(name='h3'),
                dict(name='div',attrs={'class' : 'text-center'}),
                dict(name='div',attrs={'id' : 'bodyText'})
                # dict(name='p')
@@ -72,22 +71,18 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         cov2 = str(cov)
         cov2=cov2[27:-18]
         #cov2 now is pic url, now  go back to original function
-
         br = browser()
         br.set_handle_redirect(False)
         try:
             br.open_novisit(cov2)
             cover_url = cov2
         except:
-            cover_url = random.choice((
+            cover_url = random.choice([
                 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'
-                ))
+                ])
 
         return cover_url
-
-
-

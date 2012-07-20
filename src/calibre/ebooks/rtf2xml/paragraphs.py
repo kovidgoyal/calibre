@@ -11,31 +11,32 @@
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
 class Paragraphs:
     """
-=================
-Purpose
-=================
-Write paragraph tags for a tokenized file. (This module won't be any use to use
-to you unless you use it as part of the other modules.)
--------------
-Method
--------------
-RTF does not tell you when a paragraph begins. It only tells you when the
-paragraph ends.
-In order to make paragraphs out of this limited info, the parser starts in the
-body of the documents and assumes it is not in a paragraph. It looks for clues
-to begin a paragraph. Text starts a paragraph; so does an inline field or
-list-text. If an end of paragraph marker (\par) is found, then this indicates
-a blank paragraph.
-Once a paragraph is found, the state changes to 'paragraph.' In this state,
-clues are looked to for the end of a paragraph. The end of a paragraph marker
-(\par) marks the end of a paragraph. So does the end of a footnote or heading;
-a paragraph definintion; the end of a field-block; and the beginning of a
-section. (How about the end of a section or the end of a field-block?)
+    =================
+    Purpose
+    =================
+    Write paragraph tags for a tokenized file. (This module won't be any use to use
+    to you unless you use it as part of the other modules.)
+    -------------
+    Method
+    -------------
+    RTF does not tell you when a paragraph begins. It only tells you when the
+    paragraph ends.
+    In order to make paragraphs out of this limited info, the parser starts in the
+    body of the documents and assumes it is not in a paragraph. It looks for clues
+    to begin a paragraph. Text starts a paragraph; so does an inline field or
+    list-text. If an end of paragraph marker (\par) is found, then this indicates
+    a blank paragraph.
+    Once a paragraph is found, the state changes to 'paragraph.' In this state,
+    clues are looked to for the end of a paragraph. The end of a paragraph marker
+    (\par) marks the end of a paragraph. So does the end of a footnote or heading;
+    a paragraph definition; the end of a field-block; and the beginning of a
+    section. (How about the end of a section or the end of a field-block?)
     """
     def __init__(self,
             in_file,
@@ -60,6 +61,7 @@ section. (How about the end of a section or the end of a field-block?)
         self.__write_empty_para = write_empty_para
         self.__run_level = run_level
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -77,7 +79,7 @@ section. (How about the end of a section or the end of a field-block?)
         self.__paragraph_dict = {
         'cw<pf<par-end___'      : self.__close_para_func,   # end of paragraph
         'mi<mk<headi_-end'      : self.__close_para_func,   # end of header or footer
-        ##'cw<pf<par-def___'      : self.__close_para_func,   # paragraph definition
+        ## 'cw<pf<par-def___'      : self.__close_para_func,   # paragraph definition
         # 'mi<mk<fld-bk-end'      : self.__close_para_func,   # end of field-block
         'mi<mk<fldbk-end_'      : self.__close_para_func,   # end of field-block
         'mi<mk<body-close'      : self.__close_para_func,   # end of body
@@ -99,6 +101,7 @@ section. (How about the end of a section or the end of a field-block?)
         'mi<mk<pict-start'      : self.__start_para_func,
         'cw<pf<page-break'      : self.__empty_pgbk_func,    # page break
         }
+
     def __before_body_func(self, line):
         """
         Required:
@@ -112,6 +115,7 @@ section. (How about the end of a section or the end of a field-block?)
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'not_paragraph'
         self.__write_obj.write(line)
+
     def __not_paragraph_func(self, line):
         """
         Required:
@@ -127,6 +131,7 @@ section. (How about the end of a section or the end of a field-block?)
         if action:
             action(line)
         self.__write_obj.write(line)
+
     def __paragraph_func(self, line):
         """
         Required:
@@ -144,6 +149,7 @@ section. (How about the end of a section or the end of a field-block?)
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __start_para_func(self, line):
         """
         Requires:
@@ -160,6 +166,7 @@ section. (How about the end of a section or the end of a field-block?)
         )
         self.__write_obj.write(self.__start2_marker)
         self.__state = 'paragraph'
+
     def __empty_para_func(self, line):
         """
         Requires:
@@ -176,6 +183,7 @@ section. (How about the end of a section or the end of a field-block?)
             'mi<tg<empty_____<para\n'
             )
             self.__write_obj.write(self.__end_marker)   # marker for later parsing
+
     def __empty_pgbk_func(self, line):
         """
         Requires:
@@ -188,6 +196,7 @@ section. (How about the end of a section or the end of a field-block?)
         self.__write_obj.write(
         'mi<tg<empty_____<page-break\n'
         )
+
     def __close_para_func(self, line):
         """
         Requires:
@@ -205,6 +214,7 @@ section. (How about the end of a section or the end of a field-block?)
         self.__write_obj.write(self.__end_marker) # marker for later parser
         self.__write_obj.write(line)
         self.__state = 'not_paragraph'
+
     def __bogus_para__def_func(self, line):
         """
         Requires:
@@ -215,6 +225,7 @@ section. (How about the end of a section or the end of a field-block?)
             if a \pard occurs in a paragraph, I want to ignore it. (I believe)
         """
         self.__write_obj.write('mi<mk<bogus-pard\n')
+
     def make_paragraphs(self):
         """
         Requires:
@@ -229,20 +240,18 @@ section. (How about the end of a section or the end of a field-block?)
             only other state is 'paragraph'.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('no no matching state in module sections.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        try:
+                            sys.stderr.write('no matching state in module paragraphs.py\n')
+                            sys.stderr.write(self.__state + '\n')
+                        except:
+                            pass
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "paragraphs.data")

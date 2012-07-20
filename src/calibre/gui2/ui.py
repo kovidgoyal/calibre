@@ -228,7 +228,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
+        self.system_tray_icon = SystemTrayIcon(QIcon(I('lt.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
                 self.job_manager.show_tooltip)
@@ -532,16 +532,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc
+        prefs['library_path'] = self.library_path
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
-        self.tags_view.set_database(db, self.tag_match, self.sort_by)
+        self.tags_view.set_database(db, self.alter_tb)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
         self.search.clear()
         self.saved_search.clear()
         self.book_details.reset_info()
-        prefs['library_path'] = self.library_path
         #self.library_view.model().count_changed()
         db = self.library_view.model().db
         self.iactions['Choose Library'].count_changed(db.count())
@@ -738,6 +738,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
+            db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():
             if not action.shutting_down():
                 return

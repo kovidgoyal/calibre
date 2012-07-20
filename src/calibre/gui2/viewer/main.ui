@@ -24,7 +24,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QTreeView" name="toc"/>
+      <widget class="TOCView" name="toc"/>
       <widget class="QFrame" name="frame">
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
@@ -143,6 +143,7 @@
    </attribute>
    <addaction name="action_find_next"/>
    <addaction name="action_find_previous"/>
+   <addaction name="action_toggle_paged_mode"/>
   </widget>
   <action name="action_back">
    <property name="icon">
@@ -201,7 +202,7 @@
   <action name="action_table_of_contents">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
+     <normaloff>:/images/highlight_only_on.png</normaloff>:/images/highlight_only_on.png</iconset>
    </property>
    <property name="text">
     <string>Table of Contents</string>
@@ -309,6 +310,18 @@
     <string>Shift+F3</string>
    </property>
   </action>
+  <action name="action_toggle_paged_mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/images.qrc">
+     <normaloff>:/images/scroll.png</normaloff>:/images/scroll.png</iconset>
+   </property>
+   <property name="text">
+    <string>Toggle Paged mode</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -321,6 +334,11 @@
    <extends>QWidget</extends>
    <header>calibre/gui2/viewer/documentview.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TOCView</class>
+   <extends>QTreeView</extends>
+   <header>calibre/gui2/viewer/toc.h</header>
   </customwidget>
  </customwidgets>
  <resources>

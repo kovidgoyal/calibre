@@ -74,9 +74,10 @@ class ShareConnMenu(QMenu): # {{{
                     action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
+        from calibre.utils.mdns import get_external_ip
         text = _('Start Content Server')
         if running:
-            text = _('Stop Content Server')
+            text = _('Stop Content Server') + ' [%s]'%get_external_ip()
         self.toggle_server_action.setText(text)
 
     def build_email_entries(self, sync_menu):

@@ -469,6 +469,8 @@ class DirContainer(object):
             return f.write(data)
 
     def exists(self, path):
+        if not path:
+            return False
         try:
             path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars
@@ -966,7 +968,7 @@ class Manifest(object):
                 data = data.cssText
                 if isinstance(data, unicode):
                     data = data.encode('utf-8')
-                return data
+                return data + b'\n'
             return str(data)
 
         def __unicode__(self):
