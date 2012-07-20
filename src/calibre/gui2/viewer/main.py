@@ -152,6 +152,10 @@ class RecentAction(QAction):
 class EbookViewer(MainWindow, Ui_EbookViewer):
 
     STATE_VERSION = 1
+    FLOW_MODE_TT = _('Switch to paged mode - where the text is broken up '
+            'into pages like a paper book')
+    PAGED_MODE_TT = _('Switch to flow mode - where the text is not broken up '
+            'into pages')
 
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
         MainWindow.__init__(self, None)
@@ -168,6 +172,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_anchor    = None
         self.pending_reference = None
         self.pending_bookmark  = None
+        self.pending_restore   = False
         self.existing_bookmarks= []
         self.selected_text     = None
         self.read_settings()
@@ -339,6 +344,22 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.addAction(action)
 
         self.restore_state()
+        self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
+
+    def toggle_paged_mode(self, checked, at_start=False):
+        in_paged_mode = not self.action_toggle_paged_mode.isChecked()
+        self.view.document.in_paged_mode = in_paged_mode
+        self.action_toggle_paged_mode.setToolTip(self.FLOW_MODE_TT if
+                self.action_toggle_paged_mode.isChecked() else
+                self.PAGED_MODE_TT)
+        if at_start: return
+        self.reload()
+
+    def reload(self):
+        if hasattr(self, 'current_index') and self.current_index > -1:
+            self.view.document.page_position.save(overwrite=False)
+            self.pending_restore = True
+            self.load_path(self.view.last_loaded_path)
 
     def set_toc_visible(self, yes):
         self.toc.setVisible(yes)
@@ -394,6 +415,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             vprefs.set('viewer_splitter_state',
                 bytearray(self.splitter.saveState()))
         vprefs['multiplier'] = self.view.multiplier
+        vprefs['in_paged_mode1'] = not self.action_toggle_paged_mode.isChecked()
 
     def restore_state(self):
         state = vprefs.get('viewer_toolbar_state', None)
@@ -410,6 +432,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         # specific location, ensure they are visible.
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
+        self.action_toggle_paged_mode.setChecked(not vprefs.get('in_paged_mode1',
+            False))
+        self.toggle_paged_mode(self.action_toggle_paged_mode.isChecked(),
+                at_start=True)
 
     def lookup(self, word):
         self.dictionary_view.setHtml('<html><body><p>'+ \
@@ -716,6 +742,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.pending_bookmark is not None:
             self.goto_bookmark(self.pending_bookmark)
             self.pending_bookmark = None
+        if self.pending_restore:
+            self.view.document.page_position.restore()
         return self.current_index
 
     def goto_next_section(self):

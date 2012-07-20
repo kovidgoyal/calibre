@@ -370,6 +370,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        ct = gprefs.get('bulk_metadata_window_tab', 0)
+        self.central_widget.setCurrentIndex(ct)
         self.languages.init_langs(self.db)
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
@@ -378,6 +380,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def save_state(self, *args):
         gprefs['bulk_metadata_window_geometry'] = \
             bytearray(self.saveGeometry())
+        gprefs['bulk_metadata_window_tab'] = self.central_widget.currentIndex()
 
     def do_apply_pubdate(self, *args):
         self.apply_pubdate.setChecked(True)
@@ -410,7 +413,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments']
                      and fm[f].get('search_terms', None)
                      and f not in ['formats', 'ondevice']) or
-                    (fm[f]['datatype'] in ['int', 'float', 'bool'] and
+                    (fm[f]['datatype'] in ['int', 'float', 'bool', 'datetime'] and
                      f not in ['id'])):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
@@ -527,7 +530,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         self.queries = JSONConfig("search_replace_queries")
         self.query_field.addItem("")
-        self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
+        self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+        self.query_field.addItems(self.query_field_values)
         self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
         self.search_field.setCurrentIndex(0)
@@ -1030,11 +1034,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.queries.commit()
 
     def s_r_save_query(self, *args):
-        name, ok =  QInputDialog.getText(self, _('Save search/replace'),
-                _('Search/replace name:'))
-        if not ok:
-            return
-
+        dex = self.query_field_values.index(self.saved_search_name)
+        name = ''
+        while not name:
+            name, ok =  QInputDialog.getItem(self, _('Save search/replace'),
+                    _('Search/replace name:'), self.query_field_values, dex, True)
+            if not ok:
+                return
+            if not name:
+                error_dialog(self, _("Save search/replace"),
+                        _("You must provide a name."), show=True)
         new = True
         name = unicode(name)
         if name in self.queries.keys():
@@ -1069,7 +1078,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(True)
             self.query_field.clear()
             self.query_field.addItem('')
-            self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
+            self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+            self.query_field.addItems(self.query_field_values)
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))
 
@@ -1081,6 +1091,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if item is None:
             self.s_r_reset_query_fields()
             return
+        self.saved_search_name = item_name
 
         def set_text(attr, key):
             try:

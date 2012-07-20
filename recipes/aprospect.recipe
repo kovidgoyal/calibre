@@ -12,7 +12,11 @@ class AmericanProspect(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
 
-    keep_only_tags = [dict(name='div', attrs={'class':'pad_10L10R'})]
-    remove_tags    = [dict(name='form'), dict(name='div', attrs={'class':['bkt_caption','sharebox noprint','badgebox']})]
+    #keep_only_tags = [dict(name='div', attrs={'class':'pad_10L10R'})]
+    #remove_tags    = [dict(name='form'), dict(name='div', attrs={'class':['bkt_caption','sharebox noprint','badgebox']})]
+    use_embedded_content = False
 
+    no_stylesheets = True
+    auto_cleanup = True
     feeds       = [(u'Articles', u'feed://www.prospect.org/articles_rss.jsp')]
+ 

@@ -1483,6 +1483,16 @@ class StoreManyBooksStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
 
+class StoreMillsBoonUKStore(StoreBase):
+    name = 'Mills and Boon UK'
+    author = 'Charles Haley'
+    description = u'"Bring Romance to Life" "[A] hallmark for romantic fiction, recognised around the world."'
+    actual_plugin = 'calibre.gui2.store.stores.mills_boon_uk_plugin:MillsBoonUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB']
+    affiliate = True
+
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
     description = u'Ebooks handcrafted with the utmost care.'
@@ -1646,6 +1656,7 @@ plugins += [
     StoreLibreDEStore,
     StoreLitResStore,
     StoreManyBooksStore,
+    StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
     StoreOpenBooksStore,

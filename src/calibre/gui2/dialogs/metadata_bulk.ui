@@ -667,7 +667,7 @@ Future conversion of these books will use the default settings.</string>
               <string>Load searc&amp;h/replace:</string>
              </property>
              <property name="buddy">
-              <cstring>search_field</cstring>
+              <cstring>query_field</cstring>
              </property>
             </widget>
            </item>

@@ -202,6 +202,7 @@ class PDFWriter(QObject): # {{{
         paged_display.set_geometry(1, 0, 0, 0);
         paged_display.layout();
         paged_display.fit_images();
+        paged_display.check_top_margin();
         ''')
         mf = self.view.page().mainFrame()
         while True:
@@ -223,7 +224,8 @@ class PDFWriter(QObject): # {{{
         if self.cover_data is None:
             return
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
-        printer = get_pdf_printer(self.opts, output_file_name=item_path)
+        printer = get_pdf_printer(self.opts, output_file_name=item_path,
+                for_comic=True)
         self.combine_queue.insert(0, item_path)
         p = QPixmap()
         p.loadFromData(self.cover_data)

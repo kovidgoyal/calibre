@@ -352,13 +352,21 @@ class FB2MLizer(object):
         @return: List of string representing the XHTML converted to FB2 markup.
         '''
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
+        elem = elem_tree
 
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.
         if not isinstance(elem_tree.tag, basestring) or namespace(elem_tree.tag) != XHTML_NS:
+            p = elem.getparent()
+            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+                    and elem.tail:
+                return [elem.tail]
             return []
 
         style = stylizer.style(elem_tree)
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
+           or style['visibility'] == 'hidden':
+            if hasattr(elem, 'tail') and elem.tail:
+                return [elem.tail]
             return []
 
         # FB2 generated output.
