@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-07-02 20:47+0000\n"
-"Last-Translator: Edison Henrique Andreassy <ehasis@hotmail.com>\n"
+"PO-Revision-Date: 2012-07-21 14:40+0000\n"
+"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-07-21 05:04+0000\n"
+"X-Launchpad-Export-Date: 2012-07-22 04:45+0000\n"
 "X-Generator: Launchpad (build 15654)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4510,7 +4510,7 @@ msgstr "Execute o download de capas do Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:41
 msgid "Download all metadata (slow)"
-msgstr "Executa o download de todos os metadados (lento)"
+msgstr "Baixar todos os metadados (lento)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:42
 msgid "Enable this option to gather all metadata available from Overdrive."
@@ -6440,7 +6440,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
 #, python-format
 msgid "Search for %s"
-msgstr ""
+msgstr "Procurar por %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:145
@@ -8600,7 +8600,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:870
 msgid "&Remove"
-msgstr ""
+msgstr "&Remover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid "Load a list of expressions from a previously saved file"
@@ -9560,7 +9560,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:234
 msgid "Copy &to clipboard"
-msgstr ""
+msgstr "&Copiar para a área de transferência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:237
 msgid "&Done"
@@ -10075,7 +10075,7 @@ msgstr "&Esconde todas as tarefas"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:296
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:51
 msgid "&Copy to clipboard"
-msgstr ""
+msgstr "&Copiar para a área de transferência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:299
@@ -11303,7 +11303,7 @@ msgstr "Adicionar uma fonte de notícias personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Baixar todas as novas fontes agendadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Go"
@@ -11407,7 +11407,7 @@ msgstr " dias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Baixar todas as novas fontes agendadas de uma vez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:232
 msgid "Download &all scheduled"
@@ -11765,7 +11765,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:167
 msgid "You must enter some text to search for"
-msgstr ""
+msgstr "Você deve entrar algum texto para pesquisar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 msgid "No tag found"
@@ -11773,7 +11773,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid "Search for an item in the Tag column"
-msgstr ""
+msgstr "Procurar por um item na coluna Tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:112
@@ -12994,7 +12994,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:502
 msgid "&Number:"
-msgstr ""
+msgstr "&Número:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:602
 #, python-format
@@ -13145,7 +13145,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1331
 msgid "&Publisher:"
-msgstr ""
+msgstr "&Editora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1395
 msgid "Clear date"
@@ -13153,7 +13153,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1429
 msgid "Publishe&d:"
-msgstr "Publicado&d:"
+msgstr "Publica&do"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:55
 msgid "Schedule download?"
@@ -14313,7 +14313,7 @@ msgstr "Formato para &datas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
 msgid "Format for &numbers"
-msgstr ""
+msgstr "Formato para &números"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "&Template"
@@ -15104,7 +15104,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:234
 msgid "Search for plugin"
-msgstr ""
+msgstr "Procurar por plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:248
 msgid "Could not find any matching plugins"
@@ -15875,7 +15875,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:331
 msgid "Search for tweak"
-msgstr ""
+msgstr "Procurar por ajuste fino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:367
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:407
@@ -15964,6 +15964,8 @@ msgid ""
 "Save current search under the name shown in the box. Press and hold for a "
 "pop-up options menu."
 msgstr ""
+"Salvar a busca atual sob o nome mostrado na caixa. Pressione e mantenha para "
+"um menu pop-up com opções."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:470
 msgid "Create saved search"
@@ -15994,6 +15996,8 @@ msgstr "(todos os livros)"
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
 msgstr ""
+"Mostra de livros será restrita aqueles correspondentes a pesquisa salva "
+"selecionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:54
 msgid " or the search "
@@ -16594,12 +16598,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Navegador por Tags alternativo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr ""
+msgstr "Ordenar por"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Sort by name"
@@ -16619,7 +16623,7 @@ msgstr "Configura forma de ordenação para entradas no Navegador de Tags"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Tipo de correspondência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
@@ -16683,7 +16687,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:474
 #, python-format
 msgid "Search for everything but %s"
-msgstr ""
+msgstr "Procurar por tudo menos %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:486
 #, python-format
@@ -16707,12 +16711,12 @@ msgstr "Mostrar categoria"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:509
 #, python-format
 msgid "Search for books in category %s"
-msgstr ""
+msgstr "Procurar por livros na categoria %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:515
 #, python-format
 msgid "Search for books not in category %s"
-msgstr ""
+msgstr "Procurar por livros que não estão na categoria %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:529
@@ -17430,7 +17434,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:198
 msgid "Search for text in book"
-msgstr "Pesquisar por texto no livro"
+msgstr "Procurar texto no livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:240
 #, python-format
@@ -19198,7 +19202,7 @@ msgstr "Compactando banco de dados"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:213
 msgid "Identifiers"
-msgstr ""
+msgstr "Identificadores"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"

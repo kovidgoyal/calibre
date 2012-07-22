@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-07-19 07:19+0000\n"
+"PO-Revision-Date: 2012-07-21 10:33+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-21 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-07-22 04:44+0000\n"
 "X-Generator: Launchpad (build 15654)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1703,10 +1703,10 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
-"Koboo aggiorna regolarmente la versione del firmware e del database. Con "
+"Kobo aggiorna regolarmente la versione del firmware e del database. Con "
 "questa opzione, calibre proverà a eseguire le funzionalità complete di "
-"lettura e scrittura - Qui serve coraggio! Abilitala solo se sei in grado di "
-"ripristinare il tuo Kobo alle impostazioni di fabbrica e provare il software."
+"lettura-scrittura. Qui server coraggio! Abilitala solo se sai come "
+"ripristinare le impostazioni di fabbrica del tuo Kobo e provare il software."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:607
 msgid "Kobo database version unsupported - See details"
@@ -1724,6 +1724,16 @@ msgid ""
 "firmware\" option. Doing so may require you to perform a factory reset of "
 "your Kobo."
 msgstr ""
+"Il tuo Kobo usa una versione aggiornata del firmware/database. Poiché "
+"calibre non è a conoscenza di tale aggiornamento, la modifica del database è "
+"disabilitata, per evitare danneggiamenti. Puoi ancora inviare libri al tuo "
+"Kobo con calibre, ma l'eliminazione dei libri e la gestione delle raccolte "
+"sono disabilitate. Se intendi sperimentare e sai come ripristinare le "
+"impostazioni di fabbrica di Kobo, puoi ignorare questo controllo facendo "
+"clic con il tasto destro sull'icona del dispositivo in calibre, selezionando "
+"\"Configura questo dispositivo\" e quindi l'opzione \"Prova a supportare un "
+"firmware più recente\". Questa operazione potrebbe richiedere il ripristino "
+"delle impostazioni di fabbrica del tuo Kobo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
@@ -3912,6 +3922,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Percorso a un file che contiene espressioni regolari di ricerca e "
+"sostituzione. Il file deve contenere righe alternate di un'espressione "
+"regolare seguita da un modello di sostituzione (anche una riga vuota). "
+"L'espressione regolare deve seguire la sintassi python regex e il file deve "
+"utilizzare la codifica UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:746
 msgid "Could not find an ebook inside the archive"
@@ -9474,7 +9489,7 @@ msgstr "Nessun dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "No device connected"
-msgstr ""
+msgstr "Nessun dispositivo connesso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:956
 #, python-format
@@ -10657,7 +10672,7 @@ msgstr "Nome della ricerca/sostituzione:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1046
 msgid "You must provide a name."
-msgstr ""
+msgstr "Devi fornire un nome."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1051
 msgid ""
@@ -16070,6 +16085,10 @@ msgid ""
 "changing the name then pressing Save. You can change the value\n"
 "of a search term by changing the value box then pressing Save."
 msgstr ""
+"Salva il termine di ricerca corrente. Puoi rinominare un termine di ricerca "
+"\n"
+"cambiando il nome e premendo Salva. Puoi cambiare il valore del\n"
+"termine di ricerca modificando la casella del valore e premendo Salva."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:189
 msgid "Make &user categories from:"
@@ -18056,34 +18075,38 @@ msgid ""
 "into pages, as in a paper book. To get into this mode, use the button with "
 "the yellow scroll icon in the top right corner of the viewer window."
 msgstr ""
+"<p>Queste opzioni si applicano solo alla modalità \"a pagine\", in cui il "
+"testo è suddiviso in pagine, come in un libro cartaceo. Per accedere a "
+"questa modalità, usa il pulsante con l'icona della pergamena gialla "
+"nell'angolo in alto a destra della finestra del visualizzatore."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:292
 msgid "The number of &pages of text to show on screen "
-msgstr ""
+msgstr "Il numero di &pagine di testo da mostrare sullo schermo "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:293
 msgid " page(s)"
-msgstr ""
+msgstr " pagina(e)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:294
 msgid "&Override the page margin settings specified in the book"
-msgstr ""
+msgstr "Ign&ora le impostazioni dei margini di pagina specificate nel libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:295
 msgid "&Top margin"
-msgstr ""
+msgstr "Margine s&uperiore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:297
 msgid "&Side margin"
-msgstr ""
+msgstr "Mar&gine laterale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:299
 msgid "&Bottom margin"
-msgstr ""
+msgstr "Margine in&feriore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:301
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "Disposizione del testo nella modalità a pagine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:302
 msgid "Maximum text width in &fullscreen:"
@@ -18095,7 +18118,7 @@ msgstr "Mostra orologio nella modalità a s&chermo intero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:306
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "Op&zioni schermo intero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:307
 msgid "Page flip &duration:"
@@ -18121,7 +18144,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:313
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "Opz&ioni di scorrimento delle pagine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:314
 msgid "H&yphenate (break line in the middle of large words)"
@@ -18151,7 +18174,7 @@ msgstr "Ricorda la pagina &corrente all'uscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:319
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "Opzioni &varie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:320
 msgid "&General"
@@ -18298,10 +18321,12 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"Passa alla modalità a pagine - il testo è suddiviso in pagine come un libro "
+"cartaceo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:157
 msgid "Switch to flow mode - where the text is not broken up into pages"
-msgstr ""
+msgstr "Passa alla modalità continua - il testo non è suddiviso in pagine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:198
 msgid "Search for text in book"
@@ -18515,7 +18540,7 @@ msgstr "Trova occorrenza precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 msgid "Toggle Paged mode"
-msgstr ""
+msgstr "Commuta la modalità a pagine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
