@@ -21,8 +21,12 @@ class anan(BasicNewsRecipe):
     remove_javascript = True
     encoding = 'utf-8'
 
-    remove_tags=[dict(name='a', attrs={'style':'width:110px; margin-top:0px;text-align:center;'}),
-		 dict(name='a', attrs={'style':'width:110px; margin-top:0px; margin-right:20px;text-align:center;'})]
+    remove_tags=[
+        dict(name='a', attrs={'style':'width:110px; margin-top:0px;text-align:center;'}),
+        dict(name='a', attrs={'style':'width:110px; margin-top:0px; margin-right:20px;text-align:center;'}),
+        {'attrs':{'class':['article_links', 'header', 'body_right']}},
+        {'id':['crumbs']},
+        ]
 
     feeds =  [ ('Anandtech', 'http://www.anandtech.com/rss/')]
 

@@ -22,7 +22,6 @@ from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.utils.config import tweaks
 from calibre.constants import isxp
 # }}}
 
@@ -60,7 +59,7 @@ class Document(QWebPage): # {{{
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
-        self.in_paged_mode = tweaks.get('viewer_test_paged_mode', False)
+        self.in_paged_mode = False
         # Use this to pass arbitrary JSON encodable objects between python and
         # javascript. In python get/set the value as: self.bridge_value. In
         # javascript, get/set the value as: py_bridge.value
@@ -135,6 +134,10 @@ class Document(QWebPage): # {{{
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
         self.fullscreen_clock = opts.fullscreen_clock
+        self.use_book_margins = opts.use_book_margins
+        self.cols_per_screen = opts.cols_per_screen
+        self.side_margin = opts.side_margin
+        self.top_margin, self.bottom_margin = opts.top_margin, opts.bottom_margin
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
@@ -180,6 +183,7 @@ class Document(QWebPage): # {{{
             fset=_pass_json_value_setter)
 
     def after_load(self):
+        self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
         self.init_hyphenate()
@@ -216,6 +220,14 @@ class Document(QWebPage): # {{{
     def switch_to_paged_mode(self, onresize=False):
         if onresize and not self.loaded_javascript:
             return
+        self.javascript('''
+            window.paged_display.use_document_margins = %s;
+            window.paged_display.set_geometry(%d, %d, %d, %d);
+            '''%(
+            ('true' if self.use_book_margins else 'false'),
+            self.cols_per_screen, self.top_margin, self.side_margin,
+            self.bottom_margin
+            ))
         side_margin = self.javascript('window.paged_display.layout()', typ=int)
         # Setup the contents size to ensure that there is a right most margin.
         # Without this webkit renders the final column with no margin, as the
@@ -229,6 +241,7 @@ class Document(QWebPage): # {{{
             sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
         self.javascript('window.paged_display.fit_images()')
+        self.javascript('window.paged_display.check_top_margin()')
 
     @property
     def column_boundaries(self):
@@ -647,6 +660,7 @@ class DocumentView(QWebView): # {{{
 
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
+        self.last_loaded_path = path
 
         def callback(lu):
             self.loading_url = lu
@@ -654,7 +668,7 @@ class DocumentView(QWebView): # {{{
                 self.manager.load_started()
 
         load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
-            'mime_type', None), pre_load_callback=callback)
+            'mime_type', 'text/html'), pre_load_callback=callback)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
             if ie.start_anchor:

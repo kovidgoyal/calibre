@@ -443,6 +443,12 @@ class Source(Plugin):
         '''
         return None
 
+    def get_book_url_name(self, idtype, idval, url):
+        '''
+        Return a human readable name from the return value of get_book_url().
+        '''
+        return self.name
+
     def get_cached_cover_url(self, identifiers):
         '''
         Return cached cover URL for the book identified by

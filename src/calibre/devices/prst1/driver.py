@@ -280,17 +280,17 @@ class PRST1(USBMS):
 
         try:
             cursor = connection.cursor()
-        
+
             debug_print("Removing Orphaned Collection Records")
-        
+
             # Purge any collections references that point into the abyss
             query = 'DELETE FROM collections WHERE content_id NOT IN (SELECT _id FROM books)'
             cursor.execute(query)
             query = 'DELETE FROM collections WHERE collection_id NOT IN (SELECT _id FROM collection)'
             cursor.execute(query)
-        
+
             debug_print("Removing Orphaned Book Records")
-        
+
             # Purge any references to books not in this database
             # Idea is to prevent any spill-over where these wind up applying to some other book
             query = 'DELETE FROM %s WHERE content_id NOT IN (SELECT _id FROM books)'
@@ -301,7 +301,7 @@ class PRST1(USBMS):
             cursor.execute(query%'history')
             cursor.execute(query%'layout_cache')
             cursor.execute(query%'preference')
-    
+
             cursor.close()
         except DatabaseError:
             import traceback
@@ -320,7 +320,7 @@ class PRST1(USBMS):
 		query = 'SELECT last_insert_rowid()'
 		cursor.execute(query)
 		row = cursor.fetchone()
-		
+
 		return long(row[0])
 
     def get_database_min_id(self, source_id):
@@ -376,6 +376,8 @@ class PRST1(USBMS):
         # Record what the max id being used is as well.
         db_books = {}
         for i, row in enumerate(cursor):
+            if row[0] is None:
+                continue
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]
             if row[1] < sequence_min:

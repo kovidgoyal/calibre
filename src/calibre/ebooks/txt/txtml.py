@@ -200,6 +200,8 @@ class TXTMLizer(object):
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
+            if hasattr(elem, 'tail') and elem.tail:
+                return [elem.tail]
             return ['']
 
         tag = barename(elem.tag)
