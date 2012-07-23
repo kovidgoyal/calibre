@@ -967,6 +967,11 @@ class DeviceMixin(object): # {{{
 
         fmt = None
         if specific:
+            if (not self.device_connected or not self.device_manager or
+                    self.device_manager.device is None):
+                error_dialog(self, _('No device'),
+                        _('No device connected'), show=True)
+                return
             formats = []
             aval_out_formats = available_output_formats()
             format_count = {}

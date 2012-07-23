@@ -160,7 +160,6 @@ class JsonCodec(object):
         js = []
         try:
             js = json.load(file_, encoding='utf-8')
-            self.raw_to_booklist(js, booklist, book_class, prefix)
             for item in js:
                 booklist.append(self.raw_to_book(item, book_class, prefix))
         except:
