@@ -376,7 +376,7 @@ class PRST1(USBMS):
         # Record what the max id being used is as well.
         db_books = {}
         for i, row in enumerate(cursor):
-            if row is None:
+            if row[0] is None:
                 continue
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]
