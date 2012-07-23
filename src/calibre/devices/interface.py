@@ -15,6 +15,8 @@ class DevicePlugin(Plugin):
 
     #: Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
+    # If True, the config dialog will not show the formats box
+    HIDE_FORMATS_CONFIG_BOX = False
 
     #: VENDOR_ID can be either an integer, a list of integers or a dictionary
     #: If it is a dictionary, it must be a dictionary of dictionaries,
@@ -495,6 +497,22 @@ class DevicePlugin(Plugin):
         point to addable versions of the books.
         '''
         return paths
+
+    def startup(self):
+        '''
+        Called when calibre is is starting the device. Do any initialization
+        required. Note that multiple instances of the class can be instantiated,
+        and thus __init__ can be called multiple times, but only one instance
+        will have this method called.
+        '''
+        pass
+
+    def shutdown(self):
+        '''
+        Called when calibre is shutting down, either for good or in preparation
+        to restart. Do any cleanup required.
+        '''
+        pass
 
 class BookList(list):
     '''

@@ -76,6 +76,33 @@ def publish(desc, type, port, properties=None, add_hostname=True):
                           server=hostname+'.local.')
     server.registerService(service)
 
+def unpublish(desc, type, port, properties=None, add_hostname=True):
+    '''
+    Unpublish a service.
+
+    The parameters must be the same as used in the corresponding call to publish
+    '''
+    port = int(port)
+    server = start_server()
+    try:
+        hostname = socket.gethostname().partition('.')[0]
+    except:
+        hostname = 'Unknown'
+
+    if add_hostname:
+        desc += ' (on %s)'%hostname
+    local_ip = get_external_ip()
+    type = type+'.local.'
+    from calibre.utils.Zeroconf import ServiceInfo
+    service = ServiceInfo(type, desc+'.'+type,
+                          address=socket.inet_aton(local_ip),
+                          port=port,
+                          properties=properties,
+                          server=hostname+'.local.')
+    server.unregisterService(service)
+    if server.countRegisteredServices() == 0:
+        stop_server()
+
 def stop_server():
     global _server
     if _server is not None:

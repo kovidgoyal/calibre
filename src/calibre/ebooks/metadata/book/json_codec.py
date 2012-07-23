@@ -117,8 +117,8 @@ class JsonCodec(object):
     def __init__(self):
         self.field_metadata = FieldMetadata()
 
-    def encode_to_file(self, file, booklist):
-        file.write(json.dumps(self.encode_booklist_metadata(booklist),
+    def encode_to_file(self, file_, booklist):
+        file_.write(json.dumps(self.encode_booklist_metadata(booklist),
                               indent=2, encoding='utf-8'))
 
     def encode_booklist_metadata(self, booklist):
@@ -156,21 +156,29 @@ class JsonCodec(object):
         else:
             return object_to_unicode(value)
 
-    def decode_from_file(self, file, booklist, book_class, prefix):
+    def decode_from_file(self, file_, booklist, book_class, prefix):
         js = []
         try:
-            js = json.load(file, encoding='utf-8')
+            js = json.load(file_, encoding='utf-8')
+            self.raw_to_booklist(js, booklist, book_class, prefix)
             for item in js:
-                book = book_class(prefix, item.get('lpath', None))
-                for key in item.keys():
-                    meta = self.decode_metadata(key, item[key])
-                    if key == 'user_metadata':
-                        book.set_all_user_metadata(meta)
-                    else:
-                        if key == 'classifiers':
-                            key = 'identifiers'
-                        setattr(book, key, meta)
-                booklist.append(book)
+                booklist.append(self.raw_to_book(item, book_class, prefix))
+        except:
+            print 'exception during JSON decode_from_file'
+            traceback.print_exc()
+
+    def raw_to_book(self, json_book, book_class, prefix):
+        try:
+            book = book_class(prefix, json_book.get('lpath', None))
+            for key,val in json_book.iteritems():
+                meta = self.decode_metadata(key, val)
+                if key == 'user_metadata':
+                    book.set_all_user_metadata(meta)
+                else:
+                    if key == 'classifiers':
+                        key = 'identifiers'
+                    setattr(book, key, meta)
+            return book
         except:
             print 'exception during JSON decoding'
             traceback.print_exc()

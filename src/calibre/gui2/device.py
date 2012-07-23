@@ -144,6 +144,7 @@ class DeviceManager(Thread): # {{{
         self.open_feedback_msg = open_feedback_msg
         self._device_information = None
         self.current_library_uuid = None
+        self.call_shutdown_on_disconnect = False
 
     def report_progress(self, *args):
         pass
@@ -197,6 +198,13 @@ class DeviceManager(Thread): # {{{
             self.ejected_devices.remove(self.connected_device)
         else:
             self.connected_slot(False, self.connected_device_kind)
+        if self.call_shutdown_on_disconnect:
+            # The current device is an instance of a plugin class instantiated
+            # to handle this connection, probably as a mounted device. We are
+            # now abandoning the instance that we created, so we tell it that it
+            # is being shut down.
+            self.connected_device.shutdown()
+            self.call_shutdown_on_disconnect = False
         self.connected_device = None
         self._device_information = None
 
@@ -265,7 +273,20 @@ class DeviceManager(Thread): # {{{
             except Queue.Empty:
                 pass
 
+    def run_startup(self, dev):
+        name = 'unknown'
+        try:
+            name = dev.__class__.__name__
+            dev.startup()
+        except:
+            prints('Startup method for device %s threw exception'%name)
+            traceback.print_exc()
+
     def run(self):
+        # Do any device-specific startup processing.
+        for d in self.devices:
+            self.run_startup(d)
+
         while self.keep_going:
             kls = None
             while True:
@@ -277,6 +298,11 @@ class DeviceManager(Thread): # {{{
             if kls is not None:
                 try:
                     dev = kls(folder_path)
+                    # We just created a new device instance. Call its startup
+                    # method and set the flag to call the shutdown method when
+                    # it disconnects.
+                    self.run_startup(dev)
+                    self.call_shutdown_on_disconnect = True
                     self.do_connect([[dev, None],], device_kind=device_kind)
                 except:
                     prints('Unable to open %s as device (%s)'%(device_kind, folder_path))
@@ -294,6 +320,13 @@ class DeviceManager(Thread): # {{{
                 else:
                     break
             time.sleep(self.sleep_time)
+
+        # We are exiting. Call the shutdown method for each plugin
+        for p in self.devices:
+            try:
+                p.shutdown()
+            except:
+                pass
 
     def create_job_step(self, func, done, description, to_job, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
@@ -934,11 +967,6 @@ class DeviceMixin(object): # {{{
 
         fmt = None
         if specific:
-            if (not self.device_connected or not self.device_manager or
-                    self.device_manager.device is None):
-                error_dialog(self, _('No device'),
-                        _('No device connected'), show=True)
-                return
             formats = []
             aval_out_formats = available_output_formats()
             format_count = {}
