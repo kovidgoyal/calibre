@@ -17,7 +17,7 @@ from calibre.utils.date import fromtimestamp
 from calibre.library.server import listen_on, log_access_file, log_error_file
 from calibre.library.server.utils import expose, AuthController
 from calibre.utils.mdns import publish as publish_zeroconf, \
-            stop_server as stop_zeroconf, get_external_ip
+            unpublish as unpublish_zeroconf, get_external_ip
 from calibre.library.server.content import ContentServer
 from calibre.library.server.mobile import MobileServer
 from calibre.library.server.xml import XMLServer
@@ -78,13 +78,18 @@ class BonJour(SimplePlugin): # {{{
         SimplePlugin.__init__(self, engine)
         self.port = port
         self.prefix = prefix
+        self.mdns_services = [
+            ('Books in calibre', '_stanza._tcp', self.port,
+                {'path':self.prefix+'/stanza'}),
+            ('Books in calibre', '_calibre._tcp', self.port,
+                {'path':self.prefix+'/opds'}),
+        ]
+
 
     def start(self):
         try:
-            publish_zeroconf('Books in calibre', '_stanza._tcp',
-                            self.port, {'path':self.prefix+'/stanza'})
-            publish_zeroconf('Books in calibre', '_calibre._tcp',
-                    self.port, {'path':self.prefix+'/opds'})
+            for s in self.mdns_services:
+                publish_zeroconf(*s)
         except:
             import traceback
             cherrypy.log.error('Failed to start BonJour:')
@@ -94,7 +99,8 @@ class BonJour(SimplePlugin): # {{{
 
     def stop(self):
         try:
-            stop_zeroconf()
+            for s in self.mdns_services:
+                unpublish_zeroconf(*s)
         except:
             import traceback
             cherrypy.log.error('Failed to stop BonJour:')
