@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-04-20 11:46+0000\n"
-"Last-Translator: vangelis <Unknown>\n"
+"PO-Revision-Date: 2012-07-22 09:51+0000\n"
+"Last-Translator: SteliosGero <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-21 04:52+0000\n"
+"X-Launchpad-Export-Date: 2012-07-23 05:16+0000\n"
 "X-Generator: Launchpad (build 15654)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1500,7 +1500,7 @@ msgstr "Επικοινωνία με το ηλ.αναγνωστήριο Kindle."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:186
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Τελευταία αναγνωσμένη σελίδα: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:192
 #, python-format
@@ -19746,11 +19746,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1281
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Άρθρα σε αυτό το τεύχος: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1353
 msgid "Untitled Article"
-msgstr ""
+msgstr "Άρθρο χωρίς τίτλο"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1425
 #, python-format

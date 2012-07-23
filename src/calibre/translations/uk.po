@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-07-19 16:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-07-22 23:36+0000\n"
+"Last-Translator: yurchor <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-07-21 05:02+0000\n"
+"X-Launchpad-Export-Date: 2012-07-23 05:17+0000\n"
 "X-Generator: Launchpad (build 15654)\n"
 "Language: uk\n"
 
@@ -1710,6 +1710,18 @@ msgid ""
 "firmware\" option. Doing so may require you to perform a factory reset of "
 "your Kobo."
 msgstr ""
+"На вашому пристрої Kobo працює оновлена мікропрограма або база даних. "
+"Оскільки calibre невідомі дані щодо оновленої мікропрограми, можливість "
+"редагування бази даних буде вимкнено, щоб запобігти її пошкодженню. Ви "
+"зможете надсилати книги на пристрій Kobo за допомогою calibre, але вилучення "
+"книг та керування збіркою буде вимкнено. Якщо вам все ж хочеться "
+"поекспериментувати і ви ознайомлені зі способом відновлення початкових "
+"налаштувань пристрою Kobo, ви можете вимкнути перевірку версії "
+"мікропрограми: клацніть правою кнопкою миші на піктограмі пристрою у "
+"calibre, виберіть пункт «Налаштувати цей пристрій», а потім позначте пункт "
+"«Намагатися підтримувати роботу з новою мікропрограмою». Виконання цієї дії "
+"може потребувати відновлення початкових параметрів роботи вашого пристрою "
+"Kobo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
@@ -9493,7 +9505,7 @@ msgstr "Немає пристрою"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "No device connected"
-msgstr ""
+msgstr "Не з’єднано жодного пристрою"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:956
 #, python-format
@@ -10682,7 +10694,7 @@ msgstr "Назва пошуку/заміни:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1046
 msgid "You must provide a name."
-msgstr ""
+msgstr "Вам слід вказати назву."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1051
 msgid ""
@@ -18258,34 +18270,38 @@ msgid ""
 "into pages, as in a paper book. To get into this mode, use the button with "
 "the yellow scroll icon in the top right corner of the viewer window."
 msgstr ""
+"<p>Ці параметри стосуються лише режиму поділу тексту на сторінки, коли текст "
+"показується так, як він виглядає на сторінках паперової книги. Щоб перевести "
+"програму у цей режим, скористайтеся кнопкою з жовтою піктограмою гортання, "
+"розташованою у верхньому правому куті вікна перегляду."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:292
 msgid "The number of &pages of text to show on screen "
-msgstr ""
+msgstr "&Кількість сторінок тексту, які слід показати на екрані "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:293
 msgid " page(s)"
-msgstr ""
+msgstr " сторінок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:294
 msgid "&Override the page margin settings specified in the book"
-msgstr ""
+msgstr "П&еревизначити параметри полів, вказані у самій книзі"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:295
 msgid "&Top margin"
-msgstr ""
+msgstr "&Верхнє поле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:297
 msgid "&Side margin"
-msgstr ""
+msgstr "&Бічне поле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:299
 msgid "&Bottom margin"
-msgstr ""
+msgstr "&Нижнє поле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:301
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "&Розташування тексту у режимі поділу на сторінки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:302
 msgid "Maximum text width in &fullscreen:"
@@ -18297,7 +18313,7 @@ msgstr "Показувати &годинник у повноекранному �
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:306
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "&Параметри повноекранного режиму"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:307
 msgid "Page flip &duration:"
@@ -18322,7 +18338,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:313
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "П&араметри гортання сторінок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:314
 msgid "H&yphenate (break line in the middle of large words)"
@@ -18350,7 +18366,7 @@ msgstr "Пам’&ятати поточну сторінку після вихо
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:319
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "&Інші параметри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:320
 msgid "&General"
@@ -18498,10 +18514,14 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"Перемкнутися на режим поділу на сторінки, коли текст буде розбито за "
+"сторінками, як у звичайній книзі."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:157
 msgid "Switch to flow mode - where the text is not broken up into pages"
 msgstr ""
+"Перемкнутися на неперервного тексту, коли текст не буде розбито за "
+"сторінками, як у звичайній книзі."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:198
 msgid "Search for text in book"
@@ -18716,7 +18736,7 @@ msgstr "Знайти попередній збіг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 msgid "Toggle Paged mode"
-msgstr ""
+msgstr "Перемикання режиму поділу на сторінки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
@@ -23805,6 +23825,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:518
 msgid "Do not preselect a completion when editing authors/tags/series/etc."
 msgstr ""
+"Не вибирати попередньо текст доповнення під час редагування метаданих"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:519
 msgid ""
@@ -23815,3 +23836,12 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
+"Це означає, що ви можете внести зміни, натиснути клавішу Enter, а внесені\n"
+"вами зміни не буде перезаписано відповідним пунктом з автоматичного "
+"доповнення.\n"
+"Якщо ж вам захочеться скористатися одним з пунктів автоматичного "
+"доповнення,\n"
+"вам доведеться натиснути клавішу Tab, щоб позначити його, а потім вже\n"
+"натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
+"у вашій\n"
+"бібліотеці та особистих уподобань у редагуванні."
