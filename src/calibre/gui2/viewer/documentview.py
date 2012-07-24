@@ -73,7 +73,6 @@ class Document(QWebPage): # {{{
         self.loaded_javascript = False
         self.js_loader = JavaScriptLoader(
                     dynamic_coffeescript=self.debug_javascript)
-        self.initial_left_margin = self.initial_right_margin = u''
         self.in_fullscreen_mode = False
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
@@ -187,10 +186,7 @@ class Document(QWebPage): # {{{
         self.set_bottom_padding(0)
         self.fit_images()
         self.init_hyphenate()
-        self.initial_left_margin = unicode(self.javascript(
-                        'document.body.style.marginLeft').toString())
-        self.initial_right_margin = unicode(self.javascript(
-                        'document.body.style.marginRight').toString())
+        self.javascript('full_screen.save_margins()')
         if self.in_paged_mode:
             self.switch_to_paged_mode()
         if self.in_fullscreen_mode:
@@ -257,27 +253,13 @@ class Document(QWebPage): # {{{
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
-        if self.in_paged_mode:
-            self.javascript('paged_display.max_col_width = %d'%self.max_fs_width)
-        else:
-            self.javascript('''
-                    var s = document.body.style;
-                    s.maxWidth = "%dpx";
-                    s.marginLeft = "auto";
-                    s.marginRight = "auto";
-                '''%self.max_fs_width)
+        self.javascript('full_screen.on(%d, %s)'%(self.max_fs_width,
+            'true' if self.in_paged_mode else 'false'))
 
     def switch_to_window_mode(self):
         self.in_fullscreen_mode = False
-        if self.in_paged_mode:
-            self.javascript('paged_display.max_col_width = %d'%-1)
-        else:
-            self.javascript('''
-                    var s = document.body.style;
-                    s.maxWidth = "none";
-                    s.marginLeft = "%s";
-                    s.marginRight = "%s";
-                '''%(self.initial_left_margin, self.initial_right_margin))
+        self.javascript('full_screen.off(%s)'%('true' if self.in_paged_mode
+            else 'false'))
 
     @pyqtSignature("QString")
     def debug(self, msg):
