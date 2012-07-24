@@ -14,6 +14,7 @@ from calibre.utils.smtp import config as email_config
 from calibre.constants import iswindows, isosx
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
+from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.gui2 import info_dialog
 
 class ShareConnMenu(QMenu): # {{{
@@ -220,13 +221,8 @@ class ConnectShareAction(InterfaceAction):
         self.stopping_msg.accept()
 
     def toggle_smartdevice(self):
-        info_dialog(self.gui, _('Foobar'),
-                    _('Start server bla bla blah...'),
-                    show_copy_button=False, show=True)
-        if self.gui.device_manager.is_running('smartdevice'):
-            self.gui.device_manager.stop_plugin('smartdevice')
-        else:
-            self.gui.device_manager.start_plugin('smartdevice')
+        sd_dialog = SmartdeviceDialog(self.gui)
+        sd_dialog.exec_()
         self.share_conn_menu.smartdevice_state_changed(
                             self.gui.device_manager.is_running('smartdevice'))
 
