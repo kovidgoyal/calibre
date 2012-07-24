@@ -333,7 +333,7 @@ class DeviceManager(Thread): # {{{
                 dynamic_method = None
                 try:
                     (dynamic_method, args, kwargs) = \
-                        self.dynamic_plugin_requests.get(self.sleep_time)
+                        self.dynamic_plugin_requests.get(timeout=self.sleep_time)
                     res = dynamic_method(*args, **kwargs)
                     self.dynamic_plugin_responses.put(res)
                 except Queue.Empty:
