@@ -145,6 +145,8 @@ class DeviceManager(Thread): # {{{
         self._device_information = None
         self.current_library_uuid = None
         self.call_shutdown_on_disconnect = False
+        self.devices_initialized = Queue.Queue(0)
+        self.dynamic_plugins = {}
 
     def report_progress(self, *args):
         pass
@@ -286,6 +288,10 @@ class DeviceManager(Thread): # {{{
         # Do any device-specific startup processing.
         for d in self.devices:
             self.run_startup(d)
+            n = d.is_dynamically_controllable()
+            if n:
+                self.dynamic_plugins[n] = d
+        self.devices_initialized.put(None)
 
         while self.keep_going:
             kls = None
@@ -508,6 +514,59 @@ class DeviceManager(Thread): # {{{
         if self.connected_device:
             self.connected_device.set_driveinfo_name(location_code, name)
 
+    # dynamic plugin interface
+
+    def start_plugin(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                d.start_plugin()
+        except:
+            pass
+
+    def stop_plugin(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                d.stop_plugin()
+        except:
+            pass
+
+    def get_option(self, name, opt_string):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                return d.get_option(opt_string)
+        except:
+            pass
+        return None
+
+    def set_option(self, name, opt_string, opt_value):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                d.set_option(opt_string, opt_value)
+        except:
+            pass
+
+    def is_running(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                return d.is_running()
+        except:
+            pass
+        return False
+
+    def is_enabled(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                return True
+        except:
+            pass
+        return False
+
     # }}}
 
 class DeviceAction(QAction): # {{{
@@ -708,6 +767,7 @@ class DeviceMixin(object): # {{{
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback))
         self.device_manager.start()
+        self.device_manager.devices_initialized.get()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 

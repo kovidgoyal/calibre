@@ -337,6 +337,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+        smartdevice_actions = self.iactions['Connect Share']
+        smartdevice_actions.check_smartdevice_menus()
+        if self.device_manager.get_option('smartdevice', 'autostart'):
+            try:
+                self.device_manager.start_plugin('smartdevice')
+                smartdevice_actions.smartdevice_state_changed(True)
+            except:
+                pass
+
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
         self.read_settings()

@@ -24,6 +24,7 @@ class ShareConnMenu(QMenu): # {{{
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
+    toggle_smartdevice = pyqtSignal()
     dont_add_to = frozenset(['context-menu-device'])
 
     def __init__(self, parent=None):
@@ -56,6 +57,11 @@ class ShareConnMenu(QMenu): # {{{
             _('Start Content Server'))
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
+        self.toggle_smartdevice_action = \
+            self.addAction(QIcon(I('devices/galaxy_s3.png')),
+            _('Start Smart Device Connections'))
+        self.toggle_smartdevice_action.triggered.connect(lambda x:
+                self.toggle_smartdevice.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -79,6 +85,15 @@ class ShareConnMenu(QMenu): # {{{
         if running:
             text = _('Stop Content Server') + ' [%s]'%get_external_ip()
         self.toggle_server_action.setText(text)
+
+    def smartdevice_state_changed(self, accepting):
+        if accepting:
+            self.toggle_smartdevice_action.setText(_('Stop Smart Device Connections'))
+        else:
+            self.toggle_smartdevice_action.setText(_('Start Smart Device Connections'))
+
+    def hide_smartdevice_menus(self):
+        self.toggle_smartdevice_action.setVisible(False)
 
     def build_email_entries(self, sync_menu):
         from calibre.gui2.device import DeviceAction
@@ -158,6 +173,7 @@ class ConnectShareAction(InterfaceAction):
     def genesis(self):
         self.share_conn_menu = ShareConnMenu(self.gui)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
+        self.share_conn_menu.toggle_smartdevice.connect(self.toggle_smartdevice)
         self.share_conn_menu.config_email.connect(partial(
             self.gui.iactions['Preferences'].do_config,
             initial_plugin=('Sharing', 'Email')))
@@ -200,8 +216,23 @@ class ConnectShareAction(InterfaceAction):
             if not self.stopping_msg.isVisible():
                 self.stopping_msg.exec_()
             return
-
-
         self.gui.content_server = None
         self.stopping_msg.accept()
 
+    def toggle_smartdevice(self):
+        info_dialog(self.gui, _('Foobar'),
+                    _('Start server bla bla blah...'),
+                    show_copy_button=False, show=True)
+        if self.gui.device_manager.is_running('smartdevice'):
+            self.gui.device_manager.stop_plugin('smartdevice')
+        else:
+            self.gui.device_manager.start_plugin('smartdevice')
+        self.share_conn_menu.smartdevice_state_changed(
+                            self.gui.device_manager.is_running('smartdevice'))
+
+    def smartdevice_state_changed(self, running):
+        self.share_conn_menu.smartdevice_state_changed(running)
+
+    def check_smartdevice_menus(self):
+        if not self.gui.device_manager.is_enabled('smartdevice'):
+            self.share_conn_menu.hide_smartdevice_menus()

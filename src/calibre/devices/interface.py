@@ -514,6 +514,54 @@ class DevicePlugin(Plugin):
         '''
         pass
 
+    # Dynamic control interface
+
+    def is_dynamically_controllable(self):
+        '''
+        Called by the device manager when starting plugins. If this method returns
+        a string, then a) it supports the device manager's dynamic control
+        interface, and b) that name is to be used when talking to the plugin
+        '''
+        return None
+
+    def start_plugin(self):
+        '''
+        This method is called to start the plugin. The plugin should begin
+        to accept device connections however it does that. If the plugin is
+        already accepting connections, then do nothing.
+        '''
+        pass
+
+    def stop_plugin(self):
+        '''
+        This method is called to stop the plugin. The plugin should no longer
+        accept connections, and should cleanup behind itself. It is likely that
+        this method should call shutdown. If the plugin is already not accepting
+        connections, then do nothing.
+        '''
+        pass
+
+    def get_option(self, opt_string):
+        '''
+        Return the value of the option indicated by opt_string. This method can
+        be called when the plugin is not started. Return None if the option does
+        not exist.
+        '''
+        return None
+
+    def set_option(self, opt_string, opt_value):
+        '''
+        Set the value of the option indicated by opt_string. This method can
+        be called when the plugin is not started.
+        '''
+        pass
+
+    def is_running(self):
+        '''
+        Return True if the plugin is started, otherwise false
+        '''
+        return False
+
 class BookList(list):
     '''
     A list of books. Each Book object must have the fields
