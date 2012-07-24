@@ -515,12 +515,15 @@ class DevicePlugin(Plugin):
         pass
 
     # Dynamic control interface
+    # All of these methods are called on the device_manager thread
 
     def is_dynamically_controllable(self):
         '''
         Called by the device manager when starting plugins. If this method returns
         a string, then a) it supports the device manager's dynamic control
-        interface, and b) that name is to be used when talking to the plugin
+        interface, and b) that name is to be used when talking to the plugin.
+
+        This method must be called from the device_manager thread.
         '''
         return None
 
@@ -529,6 +532,8 @@ class DevicePlugin(Plugin):
         This method is called to start the plugin. The plugin should begin
         to accept device connections however it does that. If the plugin is
         already accepting connections, then do nothing.
+
+        This method must be called from the device_manager thread.
         '''
         pass
 
@@ -538,27 +543,35 @@ class DevicePlugin(Plugin):
         accept connections, and should cleanup behind itself. It is likely that
         this method should call shutdown. If the plugin is already not accepting
         connections, then do nothing.
+
+        This method must be called from the device_manager thread.
         '''
         pass
 
-    def get_option(self, opt_string):
+    def get_option(self, opt_string, default=None):
         '''
         Return the value of the option indicated by opt_string. This method can
         be called when the plugin is not started. Return None if the option does
         not exist.
+
+        This method must be called from the device_manager thread.
         '''
-        return None
+        return default
 
     def set_option(self, opt_string, opt_value):
         '''
         Set the value of the option indicated by opt_string. This method can
         be called when the plugin is not started.
+
+        This method must be called from the device_manager thread.
         '''
         pass
 
     def is_running(self):
         '''
         Return True if the plugin is started, otherwise false
+
+        This method must be called from the device_manager thread.
         '''
         return False
 
