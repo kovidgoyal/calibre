@@ -344,6 +344,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.device_manager.start_plugin('smartdevice')
             except:
                 pass
+        smartdevice_actions.set_smartdevice_icon()
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 

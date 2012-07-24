@@ -59,7 +59,7 @@ class ShareConnMenu(QMenu): # {{{
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
         self.control_smartdevice_action = \
-            self.addAction(QIcon(I('devices/galaxy_s3.png')),
+            self.addAction(QIcon(I('dot_green.png')),
             _('Control Smart Device Connections'))
         self.control_smartdevice_action.triggered.connect(lambda x:
                 self.control_smartdevice.emit())
@@ -217,7 +217,15 @@ class ConnectShareAction(InterfaceAction):
     def control_smartdevice(self):
         sd_dialog = SmartdeviceDialog(self.gui)
         sd_dialog.exec_()
+        self.set_smartdevice_icon()
 
     def check_smartdevice_menus(self):
         if not self.gui.device_manager.is_enabled('smartdevice'):
             self.share_conn_menu.hide_smartdevice_menus()
+
+    def set_smartdevice_icon(self):
+        running = self.gui.device_manager.is_running('smartdevice')
+        if running:
+            self.share_conn_menu.control_smartdevice_action.setIcon(QIcon(I('dot_green.png')))
+        else:
+            self.share_conn_menu.control_smartdevice_action.setIcon(QIcon(I('dot_red.png')))
