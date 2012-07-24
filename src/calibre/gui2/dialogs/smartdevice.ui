@@ -18,7 +18,7 @@
     <normaloff>:/images/mimetypes/unknown.png</normaloff>:/images/mimetypes/unknown.png</iconset>
   </property>
   <layout class="QGridLayout">
-   <item row="0" column="1" colspan="2">
+   <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="msg">
      <property name="text">
       <string>TextLabel</string>
@@ -43,16 +43,6 @@
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="2" >
-    <widget class="QLabel" name="passwd_msg">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>100</horstretch>
@@ -69,61 +59,77 @@
     </widget>
    </item>
    <item row="3" column="1">
+    <widget class="QCheckBox" name="run_box">
+     <property name="text">
+      <string>&amp;Allow connections</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
     <widget class="QCheckBox" name="autostart_box">
      <property name="text">
-      <string>&amp;Auto-start</string>
+      <string>&amp;Automatically allow connections at startup</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="2" >
-    <widget class="QLabel" name="auto_start_msg">
-     <property name="wordWrap">
-      <bool>true</bool>
+   <item row="5" column="1">
+    <widget class="QLabel" name="label_43">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>100</verstretch>
+      </sizepolicy>
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QLabel" name="auto_start_msg">
-     <property name="text">
-      <string>All the buttons except Cancel will save the above settings</string>
+
+   <item row="6" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
-   </item>
-   <item row="5" column="1" colspan="2">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QPushButton" name="start_button">
-       <property name="text">
-        <string>Start interface</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="stop_button">
-       <property name="text">
-        <string>Stop interface</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="OK_button">
-       <property name="text">
-        <string>OK</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancel_button">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

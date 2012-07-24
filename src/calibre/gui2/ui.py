@@ -342,7 +342,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if self.device_manager.get_option('smartdevice', 'autostart'):
             try:
                 self.device_manager.start_plugin('smartdevice')
-                smartdevice_actions.smartdevice_state_changed(True)
             except:
                 pass
 
