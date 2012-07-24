@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-07-16 15:09+0000\n"
-"Last-Translator: Stanley <Unknown>\n"
+"PO-Revision-Date: 2012-07-23 15:15+0000\n"
+"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-21 04:51+0000\n"
-"X-Generator: Launchpad (build 15654)\n"
+"X-Launchpad-Export-Date: 2012-07-24 04:51+0000\n"
+"X-Generator: Launchpad (build 15668)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1703,8 +1703,8 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
-"Kobo updatet routinemäßig die Firmware und die Datenbankversion.  Bei dieser "
-"Option versucht Calibre die volle Lese-/ und Schreibfunktionalität zu "
+"Kobo aktualisiert routinemäßig die Firmware und die Datenbankversion.  Bei "
+"dieser Option versucht Calibre die volle Lese-/ und Schreibfunktionalität zu "
 "ermöglichen. --Achtung!!-- Aktivieren Sie diese Funktion nur, wenn es Ihnen "
 "nichts ausmacht, wenn der Kobo Reader auf die Auslieferunseinstellungen "
 "zurückgesetzt wird und Sie diese Funktion testen möchten."
@@ -9589,7 +9589,7 @@ msgstr "Kein Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "No device connected"
-msgstr ""
+msgstr "Kein Gerät angeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:956
 #, python-format
@@ -10783,7 +10783,7 @@ msgstr "Suchen/Ersetzen-Aktion Name:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1046
 msgid "You must provide a name."
-msgstr ""
+msgstr "Sie müssen einen Namen vergeben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1051
 msgid ""
@@ -18412,7 +18412,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:293
 msgid " page(s)"
-msgstr ""
+msgstr " Seite(n)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:294
 msgid "&Override the page margin settings specified in the book"
@@ -18420,15 +18420,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:295
 msgid "&Top margin"
-msgstr ""
+msgstr "obere Rand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:297
 msgid "&Side margin"
-msgstr ""
+msgstr "&Seitenrand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:299
 msgid "&Bottom margin"
-msgstr ""
+msgstr "untere Rand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:301
 msgid "Text &layout in paged mode"
@@ -18444,7 +18444,7 @@ msgstr "Uhr im Vollbildmodus anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:306
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "Vollbildoptionen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:307
 msgid "Page flip &duration:"
@@ -18498,7 +18498,7 @@ msgstr "&Aktuelle Seite beim Verlassen speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:319
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "Sonstige Optionen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:320
 msgid "&General"

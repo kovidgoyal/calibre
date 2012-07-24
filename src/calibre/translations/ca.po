@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-07-16 16:20+0000\n"
-"Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
+"PO-Revision-Date: 2012-07-23 10:57+0000\n"
+"Last-Translator: jmontane <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-21 04:49+0000\n"
-"X-Generator: Launchpad (build 15654)\n"
+"X-Launchpad-Export-Date: 2012-07-24 04:50+0000\n"
+"X-Generator: Launchpad (build 15668)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -9517,7 +9517,7 @@ msgstr "No hi ha cap dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "No device connected"
-msgstr ""
+msgstr "No hi ha cap dispositiu connectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:956
 #, python-format
@@ -10701,7 +10701,7 @@ msgstr "Nom del cerca/reemplaça:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1046
 msgid "You must provide a name."
-msgstr ""
+msgstr "Heu de proporcionar un nom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1051
 msgid ""
@@ -18281,7 +18281,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:293
 msgid " page(s)"
-msgstr ""
+msgstr " pàgina/-es"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:294
 msgid "&Override the page margin settings specified in the book"
