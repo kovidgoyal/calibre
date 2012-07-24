@@ -395,6 +395,18 @@ class PagedDisplay
             log('Viewport cfi:', ans)
         return ans
 
+    click_for_page_turn: (event) ->
+        # Check if the click event event should generate a apge turn. Returns
+        # null if it should not, true if it is a backwards page turn, false if
+        # it is a forward apge turn.
+        left_boundary = this.current_margin_side
+        right_bondary = this.screen_width - this.current_margin_side
+        if left_boundary > event.clientX
+            return true
+        if right_bondary < event.clientX
+            return false
+        return null
+
 if window?
     window.paged_display = new PagedDisplay()
 

@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QFontDatabase, QDialog, QColor, QPoint,
         QImage, QRegion, QIcon, pyqtSignature, QAction, QMenu, QString,
-        pyqtSignal, QSwipeGesture, QApplication)
+        pyqtSignal, QSwipeGesture, QApplication, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
@@ -33,6 +33,8 @@ def load_builtin_fonts():
 
 
 class Document(QWebPage): # {{{
+
+    page_turn = pyqtSignal(object)
 
     def set_font_settings(self):
         opts = config().parse()
@@ -171,6 +173,10 @@ class Document(QWebPage): # {{{
         if not isxp and self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
+    @pyqtSlot(int)
+    def page_turn_requested(self, backwards):
+        self.page_turn.emit(bool(backwards))
+
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
         return QString(val)
@@ -187,10 +193,10 @@ class Document(QWebPage): # {{{
         self.fit_images()
         self.init_hyphenate()
         self.javascript('full_screen.save_margins()')
-        if self.in_paged_mode:
-            self.switch_to_paged_mode()
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
+        if self.in_paged_mode:
+            self.switch_to_paged_mode()
         self.read_anchor_positions(use_cache=False)
         self.first_load = False
 
@@ -445,6 +451,7 @@ class DocumentView(QWebView): # {{{
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
+        self.document.page_turn.connect(self.page_turn_requested)
         copy_action = self.pageAction(self.document.Copy)
         copy_action.setIcon(QIcon(I('convert.png')))
         d = self.document
@@ -877,6 +884,12 @@ class DocumentView(QWebView): # {{{
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
             #print 'After all:', self.document.ypos
+
+    def page_turn_requested(self, backwards):
+        if backwards:
+            self.previous_page()
+        else:
+            self.next_page()
 
     def scroll_by(self, x=0, y=0, notify=True):
         old_pos = (self.document.xpos if self.document.in_paged_mode else
