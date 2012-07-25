@@ -148,8 +148,6 @@ class DeviceManager(Thread): # {{{
         self.call_shutdown_on_disconnect = False
         self.devices_initialized = Event()
         self.dynamic_plugins = {}
-        self.dynamic_plugin_requests = Queue.Queue(0)
-        self.dynamic_plugin_responses = Queue.Queue(0)
 
     def report_progress(self, *args):
         pass
@@ -329,15 +327,8 @@ class DeviceManager(Thread): # {{{
                     self.current_job = None
                 else:
                     break
-            while True:
-                dynamic_method = None
-                try:
-                    (dynamic_method, args, kwargs) = \
-                        self.dynamic_plugin_requests.get(timeout=self.sleep_time)
-                    res = dynamic_method(*args, **kwargs)
-                    self.dynamic_plugin_responses.put(res)
-                except Queue.Empty:
-                    break
+            time.sleep(self.sleep_time)
+
         # We are exiting. Call the shutdown method for each plugin
         for p in self.devices:
             try:
@@ -528,36 +519,29 @@ class DeviceManager(Thread): # {{{
     # dynamic plugin interface
 
     # This is a helper function that handles queueing with the device manager
-    def _queue_request(self, name, method, *args, **kwargs):
-        if not is_gui_thread():
-            raise ValueError(
-                'The device_manager dynamic plugin methods must be called from the GUI thread')
-        try:
-            d = self.dynamic_plugins.get(name, None)
-            if d:
-                self.dynamic_plugin_requests.put((getattr(d, method), args, kwargs))
-                return self.dynamic_plugin_responses.get()
-        except:
-            traceback.print_exc()
+    def _call_request(self, name, method, *args, **kwargs):
+        d = self.dynamic_plugins.get(name, None)
+        if d:
+            return getattr(d, method)(*args, **kwargs)
         return kwargs.get('default', None)
 
     # The dynamic plugin methods below must be called on the GUI thread. They
     # will switch to the device thread before calling the plugin.
 
     def start_plugin(self, name):
-        self._queue_request(name, 'start_plugin')
+        self._call_request(name, 'start_plugin')
 
     def stop_plugin(self, name):
-        self._queue_request(name, 'stop_plugin')
+        self._call_request(name, 'stop_plugin')
 
     def get_option(self, name, opt_string, default=None):
-        return self._queue_request(name, 'get_option', opt_string, default=default)
+        return self._call_request(name, 'get_option', opt_string, default=default)
 
     def set_option(self, name, opt_string, opt_value):
-        self._queue_request(name, 'set_option', opt_string, opt_value)
+        self._call_request(name, 'set_option', opt_string, opt_value)
 
     def is_running(self, name):
-        if self._queue_request(name, 'is_running'):
+        if self._call_request(name, 'is_running'):
             return True
         return False
 
