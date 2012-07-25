@@ -955,11 +955,16 @@ class Reaper(threading.Thread):
                 return
             if globals()['_GLOBAL_DONE']:
                 return
-            now = currentTimeMillis()
-            for record in self.zeroconf.cache.entries():
-                if record.isExpired(now):
-                    self.zeroconf.updateRecord(now, record)
-                    self.zeroconf.cache.remove(record)
+            try:
+                # can get here in a race condition with shutdown. Swallow the
+                # exception and run around the loop again.
+                now = currentTimeMillis()
+                for record in self.zeroconf.cache.entries():
+                    if record.isExpired(now):
+                        self.zeroconf.updateRecord(now, record)
+                        self.zeroconf.cache.remove(record)
+            except:
+                pass
 
 
 class ServiceBrowser(threading.Thread):

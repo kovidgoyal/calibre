@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
 import os, traceback, Queue, time, cStringIO, re, sys
-from threading import Thread
+from threading import Thread, Event
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
                      Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
@@ -30,6 +30,7 @@ from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
 from calibre.library.save_to_disk import find_plugboard
+from calibre.gui2 import is_gui_thread
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -145,6 +146,10 @@ class DeviceManager(Thread): # {{{
         self._device_information = None
         self.current_library_uuid = None
         self.call_shutdown_on_disconnect = False
+        self.devices_initialized = Event()
+        self.dynamic_plugins = {}
+        self.dynamic_plugin_requests = Queue.Queue(0)
+        self.dynamic_plugin_responses = Queue.Queue(0)
 
     def report_progress(self, *args):
         pass
@@ -286,6 +291,10 @@ class DeviceManager(Thread): # {{{
         # Do any device-specific startup processing.
         for d in self.devices:
             self.run_startup(d)
+            n = d.is_dynamically_controllable()
+            if n:
+                self.dynamic_plugins[n] = d
+        self.devices_initialized.set()
 
         while self.keep_going:
             kls = None
@@ -309,6 +318,7 @@ class DeviceManager(Thread): # {{{
                     traceback.print_exc()
             else:
                 self.detect_device()
+
             while True:
                 job = self.next()
                 if job is not None:
@@ -319,8 +329,15 @@ class DeviceManager(Thread): # {{{
                     self.current_job = None
                 else:
                     break
-            time.sleep(self.sleep_time)
-
+            while True:
+                dynamic_method = None
+                try:
+                    (dynamic_method, args, kwargs) = \
+                        self.dynamic_plugin_requests.get(timeout=self.sleep_time)
+                    res = dynamic_method(*args, **kwargs)
+                    self.dynamic_plugin_responses.put(res)
+                except Queue.Empty:
+                    break
         # We are exiting. Call the shutdown method for each plugin
         for p in self.devices:
             try:
@@ -507,6 +524,51 @@ class DeviceManager(Thread): # {{{
     def set_driveinfo_name(self, location_code, name):
         if self.connected_device:
             self.connected_device.set_driveinfo_name(location_code, name)
+
+    # dynamic plugin interface
+
+    # This is a helper function that handles queueing with the device manager
+    def _queue_request(self, name, method, *args, **kwargs):
+        if not is_gui_thread():
+            raise ValueError(
+                'The device_manager dynamic plugin methods must be called from the GUI thread')
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                self.dynamic_plugin_requests.put((getattr(d, method), args, kwargs))
+                return self.dynamic_plugin_responses.get()
+        except:
+            traceback.print_exc()
+        return kwargs.get('default', None)
+
+    # The dynamic plugin methods below must be called on the GUI thread. They
+    # will switch to the device thread before calling the plugin.
+
+    def start_plugin(self, name):
+        self._queue_request(name, 'start_plugin')
+
+    def stop_plugin(self, name):
+        self._queue_request(name, 'stop_plugin')
+
+    def get_option(self, name, opt_string, default=None):
+        return self._queue_request(name, 'get_option', opt_string, default=default)
+
+    def set_option(self, name, opt_string, opt_value):
+        self._queue_request(name, 'set_option', opt_string, opt_value)
+
+    def is_running(self, name):
+        if self._queue_request(name, 'is_running'):
+            return True
+        return False
+
+    def is_enabled(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                return True
+        except:
+            pass
+        return False
 
     # }}}
 
@@ -708,6 +770,7 @@ class DeviceMixin(object): # {{{
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback))
         self.device_manager.start()
+        self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
