@@ -10,7 +10,7 @@ import cStringIO
 
 from calibre.devices.usbms.driver import USBMS
 
-HTC_BCDS = [0x100, 0x0222, 0x0226, 0x227, 0x228, 0x229]
+HTC_BCDS = [0x100, 0x0222, 0x0226, 0x227, 0x228, 0x229, 0x9999]
 
 class ANDROID(USBMS):
 
@@ -41,9 +41,10 @@ class ANDROID(USBMS):
                        0xca9  : HTC_BCDS,
                        0xcac  : HTC_BCDS,
                        0xccf  : HTC_BCDS,
+                       0xcd6  : HTC_BCDS,
                        0xce5  : HTC_BCDS,
                        0x2910 : HTC_BCDS,
-                       0xff9  : HTC_BCDS + [0x9999],
+                       0xff9  : HTC_BCDS,
             },
 
             # Eken
