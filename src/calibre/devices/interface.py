@@ -514,8 +514,11 @@ class DevicePlugin(Plugin):
         '''
         pass
 
-    # Dynamic control interface
-    # All of these methods are called on the device_manager thread
+    # Dynamic control interface.
+    # The following methods are probably called on the GUI thread. Any driver
+    # that implements these methods must take pains to be thread safe, because
+    # the device_manager might be using the driver at the same time that one of
+    # these methods is called.
 
     def is_dynamically_controllable(self):
         '''
@@ -523,7 +526,8 @@ class DevicePlugin(Plugin):
         a string, then a) it supports the device manager's dynamic control
         interface, and b) that name is to be used when talking to the plugin.
 
-        This method must be called from the device_manager thread.
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
         '''
         return None
 
@@ -533,7 +537,8 @@ class DevicePlugin(Plugin):
         to accept device connections however it does that. If the plugin is
         already accepting connections, then do nothing.
 
-        This method must be called from the device_manager thread.
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
         '''
         pass
 
@@ -544,7 +549,8 @@ class DevicePlugin(Plugin):
         this method should call shutdown. If the plugin is already not accepting
         connections, then do nothing.
 
-        This method must be called from the device_manager thread.
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
         '''
         pass
 
@@ -554,7 +560,8 @@ class DevicePlugin(Plugin):
         be called when the plugin is not started. Return None if the option does
         not exist.
 
-        This method must be called from the device_manager thread.
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
         '''
         return default
 
@@ -563,7 +570,8 @@ class DevicePlugin(Plugin):
         Set the value of the option indicated by opt_string. This method can
         be called when the plugin is not started.
 
-        This method must be called from the device_manager thread.
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
         '''
         pass
 
@@ -571,7 +579,8 @@ class DevicePlugin(Plugin):
         '''
         Return True if the plugin is started, otherwise false
 
-        This method must be called from the device_manager thread.
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
         '''
         return False
 
