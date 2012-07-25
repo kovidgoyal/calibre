@@ -240,6 +240,7 @@ class XMLConfig(dict):
 
     def __init__(self, rel_path_to_cf_file):
         dict.__init__(self)
+        self.no_commit = False
         self.defaults = {}
         self.file_path = os.path.join(config_dir,
                 *(rel_path_to_cf_file.split('/')))
@@ -304,6 +305,7 @@ class XMLConfig(dict):
             self.commit()
 
     def commit(self):
+        if self.no_commit: return
         if hasattr(self, 'file_path') and self.file_path:
             dpath = os.path.dirname(self.file_path)
             if not os.path.exists(dpath):
@@ -313,6 +315,13 @@ class XMLConfig(dict):
                 f.seek(0)
                 f.truncate()
                 f.write(raw)
+
+    def __enter__(self):
+        self.no_commit = True
+
+    def __exit__(self, *args):
+        self.no_commit = False
+        self.commit()
 
 def to_json(obj):
     if isinstance(obj, bytearray):

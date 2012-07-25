@@ -702,9 +702,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.read_layout_settings()
 
     def write_settings(self):
-        config.set('main_window_geometry', self.saveGeometry())
-        dynamic.set('sort_history', self.library_view.model().sort_history)
-        self.save_layout_state()
+        with gprefs: # Only write to gprefs once
+            config.set('main_window_geometry', self.saveGeometry())
+            dynamic.set('sort_history', self.library_view.model().sort_history)
+            self.save_layout_state()
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True):
