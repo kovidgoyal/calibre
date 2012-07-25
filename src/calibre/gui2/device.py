@@ -539,7 +539,7 @@ class DeviceManager(Thread): # {{{
                 return self.dynamic_plugin_responses.get()
         except:
             traceback.print_exc()
-        return None
+        return kwargs.get('default', None)
 
     # The dynamic plugin methods below must be called on the GUI thread. They
     # will switch to the device thread before calling the plugin.
