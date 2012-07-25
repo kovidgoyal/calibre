@@ -534,8 +534,9 @@ class DeviceManager(Thread): # {{{
                 'The device_manager dynamic plugin methods must be called from the GUI thread')
         try:
             d = self.dynamic_plugins.get(name, None)
-            self.dynamic_plugin_requests.put((getattr(d, method), args, kwargs))
-            return self.dynamic_plugin_responses.get()
+            if d:
+                self.dynamic_plugin_requests.put((getattr(d, method), args, kwargs))
+                return self.dynamic_plugin_responses.get()
         except:
             traceback.print_exc()
         return None
@@ -556,7 +557,9 @@ class DeviceManager(Thread): # {{{
         self._queue_request(name, 'set_option', opt_string, opt_value)
 
     def is_running(self, name):
-        return self._queue_request(name, 'is_running')
+        if self._queue_request(name, 'is_running'):
+            return True
+        return False
 
     def is_enabled(self, name):
         try:
