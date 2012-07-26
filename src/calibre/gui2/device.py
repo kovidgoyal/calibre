@@ -30,7 +30,6 @@ from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
 from calibre.library.save_to_disk import find_plugboard
-from calibre.gui2 import is_gui_thread
 # }}}
 
 class DeviceJob(BaseJob): # {{{
