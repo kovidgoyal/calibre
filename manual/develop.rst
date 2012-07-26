@@ -150,9 +150,8 @@ the previously checked out |app| code directory, for example::
 calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the |app| commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the |app| GUI.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
-So, following the example above, it would be ``/Users/kovid/work/calibre/src``. Apple 
-`documentation <http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html#//apple_ref/doc/uid/20002093-BCIJIJBH>`_
-on how to set environment variables. 
+So, following the example above, it would be ``/Users/kovid/work/calibre/src``. 
+`How to set environment variables <http://www.dowdandassociates.com/content/howto-set-environment-variable-mac-os-x-etclaunchdconf>`_.
 
 Once you have set the environment variable, open a new Terminal and check that it was correctly set by using
 the command::
