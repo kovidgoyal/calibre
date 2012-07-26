@@ -1,6 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
-class Filmweb_pl(BasicNewsRecipe):
+import re
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+class FilmWebPl(BasicNewsRecipe):
     title          = u'FilmWeb'
     __author__        = 'fenuks'
     description   = 'FilmWeb - biggest polish movie site'
@@ -12,8 +13,9 @@ class Filmweb_pl(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets= True
     remove_empty_feeds=True
+    preprocess_regexps = [(re.compile(u'\(kliknij\,\ aby powiększyć\)', re.IGNORECASE), lambda m: ''), ]#(re.compile(ur' | ', re.IGNORECASE), lambda m: '')]
     extra_css      = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
-    remove_tags= [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'})]
+    remove_tags= [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'}), dict(attrs={'class':'userSurname anno'})]
     keep_only_tags= [dict(name='h1', attrs={'class':['hdrBig', 'hdrEntity']}), dict(name='div', attrs={'class':['newsInfo', 'newsInfoSmall', 'reviewContent description']})]
     feeds          = [(u'Wszystkie newsy', u'http://www.filmweb.pl/feed/news/latest'),
                          (u'News / Filmy w produkcji', 'http://www.filmweb.pl/feed/news/category/filminproduction'),
@@ -31,18 +33,22 @@ class Filmweb_pl(BasicNewsRecipe):
                          (u'News / Kino polskie', u'http://www.filmweb.pl/feed/news/category/polish.cinema'),
                          (u'News / Telewizja', u'http://www.filmweb.pl/feed/news/category/tv'),
                          (u'Recenzje redakcji', u'http://www.filmweb.pl/feed/reviews/latest'),
-                         (u'Recenzje użytkowników', u'http://www.filmweb.pl/feed/user-reviews/latest')]
+                         (u'Recenzje użytkowników', u'http://www.filmweb.pl/feed/user-reviews/latest')
+                          ]
 
-    def skip_ad_pages(self, soup):   
+    def skip_ad_pages(self, soup):
         skip_tag = soup.find('a', attrs={'class':'welcomeScreenButton'})
         if skip_tag is not None:
-            self.log.warn('skip_tag')
-            self.log.warn(skip_tag)
             return self.index_to_soup(skip_tag['href'], raw=True)
-        
+
 
     def preprocess_html(self, soup):
         for a in soup('a'):
             if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href']=self.index + a['href']
+        for i in soup.findAll('a', attrs={'class':'fn'}):
+            i.insert(len(i), BeautifulSoup('<br />'))
+        for i in soup.findAll('sup'):
+            if not i.string or i.string.startswith('(kliknij'):
+                i.extract()
         return soup
