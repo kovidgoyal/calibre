@@ -317,9 +317,11 @@ class DeviceManager(Thread): # {{{
             else:
                 self.detect_device()
 
+            do_sleep = True
             while True:
                 job = self.next()
                 if job is not None:
+                    do_sleep = False
                     self.current_job = job
                     if self.device is not None:
                         self.device.set_progress_reporter(job.report_progress)
@@ -327,7 +329,8 @@ class DeviceManager(Thread): # {{{
                     self.current_job = None
                 else:
                     break
-            time.sleep(self.sleep_time)
+            if do_sleep:
+                time.sleep(self.sleep_time)
 
         # We are exiting. Call the shutdown method for each plugin
         for p in self.devices:
