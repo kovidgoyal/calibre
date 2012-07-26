@@ -367,6 +367,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.keyboard.finalize()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
+        self.save_layout_state()
+
         # Collect cycles now
         gc.collect()
 
