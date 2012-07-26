@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
 
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name, strftime as _strftime
@@ -2427,8 +2427,9 @@ class ITUNES(DriverBase):
 
             if DEBUG:
                 logger().info("  %s %s" % (__appname__, __version__))
-                logger().info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
-                 (self.iTunes.name(), self.iTunes.version(), self.initial_status,
+                logger().info("  [OSX %s, %s %s (%s), driver version %d.%d.%d]" %
+                 (platform.mac_ver()[0],
+                  self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 logger().info("  communicating with iTunes via %s %s using %s binding" % (as_name, as_version, as_binding))
                 logger().info("  calibre_library_path: %s" % self.calibre_library_path)
