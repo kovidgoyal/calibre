@@ -37,7 +37,7 @@
     - title: "Advanced search dialog: When starting on the title/author/etc. tab, restore the previously used search kind as well."
       tickets: [1029745]
 
-    - title: "When presenting the calibre must be restarted warning after installing a new plugin, add a restart now button so that the user can conveniently restart calibre"
+    - title: "When presenting the calibre must be restarted warning after installing a new plugin, add a restart now button so that the user can conveniently restart calibre. Currently only works when going vie Preferences->Plugins->Get new plugins"
  
   bug fixes:
     - title: "Fix main window layout state being saved incorrectly if calibre is killed without a proper shutdown"
