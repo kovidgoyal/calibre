@@ -208,7 +208,7 @@ def get_metadata(stream, extract_cover=True):
         read_cover(stream, zin, mi, opfmeta, opfnocover, extract_cover)
     except:
         pass # Do not let an error reading the cover prevent reading other data
-
+    
 def read_cover(stream, zin, mi, opfmeta, opfnocover, extract_cover):
     otext = odLoad(stream)
     cover_href = None
