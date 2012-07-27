@@ -12,7 +12,7 @@ import re
 from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
         namespace, prefixname, urlnormalize)
 from calibre.ebooks.mobi.mobiml import MBP_NS
-from calibre.ebooks.mobi.utils import is_guide_ref_start
+from calibre.ebooks.mobi.utils import is_guide_ref_start, utf8_text
 
 from collections import defaultdict
 from urlparse import urldefrag
@@ -355,7 +355,7 @@ class Serializer(object):
         text = text.replace(u'\u00AD', '') # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
-        self.buf.write(text.encode('utf-8'))
+        self.buf.write(utf8_text(text))
 
     def fixup_links(self):
         '''
