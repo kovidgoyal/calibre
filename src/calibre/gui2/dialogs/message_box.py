@@ -272,10 +272,9 @@ class JobError(QDialog): # {{{
     WIDTH = 600
     do_pop = pyqtSignal()
 
-    def __init__(self, gui):
-        QDialog.__init__(self, gui)
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
-        self.gui = gui
         self.queue = []
         self.do_pop.connect(self.pop, type=Qt.QueuedConnection)
 
@@ -284,8 +283,8 @@ class JobError(QDialog): # {{{
         self.icon = QIcon(I('dialog_error.png'))
         self.setWindowIcon(self.icon)
         self.icon_label = QLabel()
-        self.icon_label.setPixmap(self.icon.pixmap(128, 128))
-        self.icon_label.setMaximumSize(QSize(128, 128))
+        self.icon_label.setPixmap(self.icon.pixmap(68, 68))
+        self.icon_label.setMaximumSize(QSize(68, 68))
         self.msg_label = QLabel('<p>&nbsp;')
         self.msg_label.setStyleSheet('QLabel { margin-top: 1ex; }')
         self.msg_label.setWordWrap(True)
@@ -306,23 +305,23 @@ class JobError(QDialog): # {{{
         self.det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))
         self.suppress = QCheckBox(self)
-        self.suppress.setVisible(False)
 
         l.addWidget(self.icon_label, 0, 0, 1, 1)
-        l.addWidget(self.msg_label,  0, 1, 1, 1, Qt.AlignTop)
+        l.addWidget(self.msg_label,  0, 1, 1, 1)
         l.addWidget(self.det_msg,    1, 0, 1, 2)
         l.addWidget(self.suppress,   2, 0, 1, 2, Qt.AlignLeft|Qt.AlignBottom)
         l.addWidget(self.bb,         3, 0, 1, 2, Qt.AlignRight|Qt.AlignBottom)
         l.setColumnStretch(1, 100)
 
         self.setModal(False)
-        self.base_height = max(200, self.sizeHint().height() + 20)
+        self.suppress.setVisible(False)
         self.do_resize()
 
     def update_suppress_state(self):
         self.suppress.setText(_(
             'Hide the remaining %d error messages'%len(self.queue)))
         self.suppress.setVisible(len(self.queue) > 3)
+        self.do_resize()
 
     def copy_to_clipboard(self, *args):
         d = QTextDocument()
@@ -343,9 +342,11 @@ class JobError(QDialog): # {{{
         self.do_resize()
 
     def do_resize(self):
-        h = self.base_height
-        if self.det_msg.isVisible():
-            h += 250
+        h = self.sizeHint().height()
+        self.setMinimumHeight(0) # Needed as this gets set if det_msg is shown
+        # Needed otherwise re-showing the box after showing det_msg causes the box
+        # to not reduce in height
+        self.setMaximumHeight(h)
         self.resize(QSize(self.WIDTH, h))
 
     def showEvent(self, ev):
@@ -377,19 +378,26 @@ class JobError(QDialog): # {{{
     def done(self, r):
         if self.suppress.isChecked():
             self.queue = []
+        QDialog.done(self, r)
         self.do_pop.emit()
-        return QDialog.done(self, r)
 
 # }}}
 
 if __name__ == '__main__':
     app = QApplication([])
-    from calibre.gui2.preferences import init_gui
-    gui = init_gui()
-    d = JobError(gui)
-    d.show_error('test title', 'some long meaningless test message')
+    d = JobError(None)
+    d.show_error('test title', 'some long meaningless test message', 'det msg')
+    d.show_error('test title', 'some long meaningless test message', 'det msg')
+    d.show_error('test title', 'some long meaningless test message', 'det msg')
+    d.show_error('test title', 'some long meaningless test message', 'det msg')
+    d.show_error('test title', 'some long meaningless test message', 'det msg')
+    d.show_error('test title', 'some long meaningless test message', 'det msg')
+    app.setQuitOnLastWindowClosed(False)
+    def checkd():
+        if not d.queue:
+            app.quit()
+    app.lastWindowClosed.connect(checkd)
     app.exec_()
-    gui.shutdown()
 
 # if __name__ == '__main__':
 #     app = QApplication([])
