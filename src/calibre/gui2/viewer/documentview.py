@@ -243,7 +243,6 @@ class Document(QWebPage): # {{{
             sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
         self.javascript('window.paged_display.fit_images()')
-        self.javascript('window.paged_display.check_top_margin()')
 
     @property
     def column_boundaries(self):

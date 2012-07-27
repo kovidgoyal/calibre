@@ -75,25 +75,12 @@ class PagedDisplay
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
         bs = document.body.style
-        # When laying body out in columns, webkit bleeds the top margin of the
-        # first block element out above the columns, leading to an extra top
-        # margin for the page. We compensate for that here. Computing the
-        # boundingrect of body is very expensive with column layout, so we do
-        # it before the column layout is applied.
         first_layout = false
         if not this.in_paged_mode
-            bs.setProperty('margin-top', '0px')
-            extra_margin = document.body.getBoundingClientRect().top
-            if extra_margin <= this.margin_top
-                extra_margin = 0
-            margin_top = (this.margin_top - extra_margin) + 'px'
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
             single_screen = (document.body.scrollWidth < window.innerWidth + 25 and document.body.scrollHeight < window.innerHeight + 25)
             first_layout = true
-        else
-            # resize event
-            margin_top = body_style.marginTop
 
         ww = window.innerWidth
 
@@ -124,10 +111,16 @@ class PagedDisplay
         bs.setProperty('-webkit-column-gap', (2*sm)+'px')
         bs.setProperty('-webkit-column-width', col_width+'px')
         bs.setProperty('-webkit-column-rule-color', fgcolor)
+
+        # Without this, webkit bleeds the margin of the first block(s) of body
+        # above the columns, which causes them to effectively be added to the
+        # page margins (the margin collapse algorithm)
+        bs.setProperty('-webkit-margin-collapse', 'separate')
+
         bs.setProperty('overflow', 'visible')
         bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
         bs.setProperty('width', (window.innerWidth - 2*sm)+'px')
-        bs.setProperty('margin-top', margin_top)
+        bs.setProperty('margin-top', this.margin_top + 'px')
         bs.setProperty('margin-bottom', this.margin_bottom+'px')
         bs.setProperty('margin-left', sm+'px')
         bs.setProperty('margin-right', sm+'px')
@@ -208,19 +201,6 @@ class PagedDisplay
                 # by keeping it part of its parent block
                 img.style.setProperty('display', 'block')
             calibre_utils.store(img, 'height-limited', true)
-
-    check_top_margin: () ->
-        # This is needed to handle the case when a descendant of body specifies
-        # a top margin as a percentage, which messes up the top margin
-        # calculations above
-        tm = document.body.getBoundingClientRect().top
-        if tm != this.margin_top
-            document.body.style.setProperty('margin-top', '0px')
-            tm = document.body.getBoundingClientRect().top
-            if tm <= this.margin_top
-                tm = 0
-            m = this.margin_top - tm
-            document.body.style.setProperty('margin-top', m+'px')
 
     scroll_to_pos: (frac) ->
         # Scroll to the position represented by frac (number between 0 and 1)
