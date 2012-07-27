@@ -19,6 +19,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.62
+  date: 2012-07-27
+
+  new features:
+    - title: "Book details panel: ALlow right clicking on a format to delete it."
+
+    - title: "When errors occur in lots of background jobs, add an option to the error message to temporarily suppress subsequent error messages."
+      tickets: [886904]
+
+    - title: "E-book viewer full screen mode: Allow clicking in the left and right page margins to turn pages."
+      tickets: [1024819]
+
+    - title: "Drivers for various Android devices"
+      tickets: [1028690,1027431]
+
+    - title: "Advanced search dialog: When starting on the title/author/etc. tab, restore the previously used search kind as well."
+      tickets: [1029745]
+
+    - title: "When presenting the calibre must be restarted warning after installing a new plugin, add a restart now button so that the user can conveniently restart calibre"
+ 
+  bug fixes:
+    - title: "Fix main window layout state being saved incorrectly if calibre is killed without a proper shutdown"
+
+    - title: "Fix boolean and date searching in non english calibre installs."
+
+    - title: "Conversion: Ignore invalid chapter detection and level n ToC expressions instead of erroring out"
+
+  improved recipes:
+    - Psychology Today
+    - The Smithsonian
+    - The New Republic
+    - Various updated Polish news sources
+    - The Sun
+    - San Francisco Bay Guardian
+    - AnandTech
+    - Smashing Magazine
+
+  new recipes:
+    - title: Linux Journal and Conowego.pl 
+      author: fenuks
+
+    - title: A list apart and .net magazine 
+      author: Marc Busque
+
 - version: 0.8.61
   date: 2012-07-20
 
