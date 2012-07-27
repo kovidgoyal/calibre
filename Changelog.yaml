@@ -23,7 +23,7 @@
   date: 2012-07-27
 
   new features:
-    - title: "Book details panel: ALlow right clicking on a format to delete it."
+    - title: "Book details panel: Allow right clicking on a format to delete it."
 
     - title: "When errors occur in lots of background jobs, add an option to the error message to temporarily suppress subsequent error messages."
       tickets: [886904]
