@@ -12,6 +12,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 
 box_values = {}
+last_matchkind = CONTAINS_MATCH
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -57,6 +58,9 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         current_tab = gprefs.get('advanced search dialog current tab', 0)
         self.tabWidget.setCurrentIndex(current_tab)
+        if current_tab == 1:
+            self.matchkind.setCurrentIndex(last_matchkind)
+
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(current_tab)
 
@@ -173,7 +177,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         general_index = unicode(self.general_combo.currentText())
         self.box_last_values['general_index'] = general_index
         global box_values
+        global last_matchkind
         box_values = copy.deepcopy(self.box_last_values)
+        last_matchkind = mk
         if general:
             ans.append(unicode(self.general_combo.currentText()) + ':"' +
                     self.mc + general + '"')
