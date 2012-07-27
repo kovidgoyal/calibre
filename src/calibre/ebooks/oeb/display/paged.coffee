@@ -26,6 +26,7 @@ class PagedDisplay
         this.current_margin_side = 0
         this.is_full_screen_layout = false
         this.max_col_width = -1
+        this.current_page_height = null
         this.document_margins = null
         this.use_document_margins = false
 
@@ -116,6 +117,7 @@ class PagedDisplay
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
+        this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
 
         fgcolor = body_style.getPropertyValue('color')
 
@@ -167,9 +169,15 @@ class PagedDisplay
         # that this method use getBoundingClientRect() which means it will
         # force a relayout if the render tree is dirty.
         images = []
+        vimages = []
+        maxh = this.current_page_height
         for img in document.getElementsByTagName('img')
             previously_limited = calibre_utils.retrieve(img, 'width-limited', false)
+            data = calibre_utils.retrieve(img, 'img-data', null)
             br = img.getBoundingClientRect()
+            if data == null
+                data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
+                calibre_utils.store(img, 'img-data', data)
             left = calibre_utils.viewport_to_document(br.left, 0, doc=img.ownerDocument)[0]
             col = this.column_at(left) * this.page_width
             rleft = left - col - this.current_margin_side
@@ -178,10 +186,28 @@ class PagedDisplay
             col_width = this.page_width - 2*this.current_margin_side
             if previously_limited or rright > col_width
                 images.push([img, col_width - rleft])
+            previously_limited = calibre_utils.retrieve(img, 'height-limited', false)
+            if previously_limited or br.height > maxh
+                vimages.push(img)
+            if previously_limited
+                img.style.setProperty('-webkit-column-break-before', 'auto')
+                img.style.setProperty('display', data.display)
+            img.style.setProperty('-webkit-column-break-inside', 'avoid')
 
         for [img, max_width] in images
             img.style.setProperty('max-width', max_width+'px')
             calibre_utils.store(img, 'width-limited', true)
+
+        for img in vimages
+            data = calibre_utils.retrieve(img, 'img-data', null)
+            img.style.setProperty('-webkit-column-break-before', 'always')
+            img.style.setProperty('max-height', maxh+'px')
+            if data.height > maxh
+                # This is needed to force the image onto a new page, without
+                # it, the webkit algorithm may still decide to split the image
+                # by keeping it part of its parent block
+                img.style.setProperty('display', 'block')
+            calibre_utils.store(img, 'height-limited', true)
 
     check_top_margin: () ->
         # This is needed to handle the case when a descendant of body specifies
