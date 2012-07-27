@@ -152,14 +152,17 @@ calibre is the directory that contains the src and resources sub-directories. En
 The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
 
 Create a plain text file::
+
     #!/bin/sh
     export CALIBRE_DEVELOP_FROM="/Users/kovid/work/calibre/src"
     calibre-debug -g
 
 Save this file as ``/usr/bin/calibre-develop``, then set its permissions so that it can be executed::
+
     chmod +x /usr/bin/calibre-develop
 
-Once you have done this, type::
+Once you have done this, run::
+
     calibre-develop
 
 You should see some diagnostic information in the Terminal window as calibre
