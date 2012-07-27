@@ -201,15 +201,18 @@ def get_metadata(stream, extract_cover=True):
             if cl:
                 mi.languages = [cl]
         opfnocover = data.get('opf.nocover', 'false') == 'true'
+    if not opfnocover:
+        try:
+            read_cover(stream, zin, mi, opfmeta, extract_cover)
+        except:
+            pass # Do not let an error reading the cover prevent reading other data
+
+    return mi
+    
+def read_cover(stream, zin, mi, opfmeta, extract_cover):
     # search for an draw:image in a draw:frame with the name 'opf.cover'
     # if opf.metadata prop is false, just use the first image that
     # has a proper size (borrowed from docx)
-    try:
-        read_cover(stream, zin, mi, opfmeta, opfnocover, extract_cover)
-    except:
-        pass # Do not let an error reading the cover prevent reading other data
-    
-def read_cover(stream, zin, mi, opfmeta, opfnocover, extract_cover):
     otext = odLoad(stream)
     cover_href = None
     cover_data = None
@@ -239,7 +242,7 @@ def read_cover(stream, zin, mi, opfmeta, opfnocover, extract_cover):
                 if not opfmeta:
                     break
 
-    if not opfnocover and cover_href is not None:
+    if cover_href is not None:
         mi.cover = cover_href
         if extract_cover:
             if not cover_data:
@@ -251,6 +254,4 @@ def read_cover(stream, zin, mi, opfmeta, opfnocover, extract_cover):
                 else:
                     cover_data = (fmt, raw)
             mi.cover_data = cover_data
-
-    return mi
 
