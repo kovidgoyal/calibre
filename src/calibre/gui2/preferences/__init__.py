@@ -236,6 +236,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
     '''
 
     changed_signal = pyqtSignal()
+    restart_now = pyqtSignal()
     supports_restoring_to_defaults = True
     restart_critical = False
 

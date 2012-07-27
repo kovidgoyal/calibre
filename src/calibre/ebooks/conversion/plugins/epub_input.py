@@ -198,11 +198,13 @@ class EPUBInput(InputFormatPlugin):
                 ('application/vnd.adobe-page-template+xml','application/text'):
                     not_for_spine.add(id_)
 
+        seen = set()
         for x in list(opf.iterspine()):
             ref = x.get('idref', None)
-            if ref is None or ref in not_for_spine:
+            if not ref or ref in not_for_spine or ref in seen:
                 x.getparent().remove(x)
                 continue
+            seen.add(ref)
 
         if len(list(opf.iterspine())) == 0:
             raise ValueError('No valid entries in the spine of this EPUB')

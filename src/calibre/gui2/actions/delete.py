@@ -139,6 +139,21 @@ class DeleteAction(InterfaceAction):
             return set([])
         return set(map(self.gui.library_view.model().id, rows))
 
+    def remove_format_by_id(self, book_id, fmt):
+        title = self.gui.current_db.title(book_id, index_is_id=True)
+        if not confirm('<p>'+(_(
+            'The %(fmt)s format will be <b>permanently deleted</b> from '
+            '%(title)s. Are you sure?')%dict(fmt=fmt, title=title))
+                            +'</p>', 'library_delete_specific_format', self.gui):
+            return
+
+        self.gui.library_view.model().db.remove_format(book_id, fmt,
+                index_is_id=True, notify=False)
+        self.gui.library_view.model().refresh_ids([book_id])
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+        self.gui.tags_view.recount()
+
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
         if not ids:

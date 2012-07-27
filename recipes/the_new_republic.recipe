@@ -1,45 +1,64 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from collections import OrderedDict
 
-class The_New_Republic(BasicNewsRecipe):
-    title = 'The New Republic'
-    __author__ = 'cix3'
+class TNR(BasicNewsRecipe):
+
+    title       = 'The New Republic'
+    __author__  = 'Rick Shang'
+
+    description = 'The New Republic is a journal of opinion with an emphasis on politics and domestic and international affairs. It carries feature articles by staff and contributing editors. The second half of each issue is devoted to book and the arts, theater, motion pictures, music and art.'
     language = 'en'
-    description = 'Intelligent, stimulating and rigorous examination of American politics, foreign policy and culture'
-    timefmt = ' [%b %d, %Y]'
-
-    oldest_article = 7
-    max_articles_per_feed = 100
+    category = 'news'
+    encoding = 'UTF-8'
+    remove_tags = [dict(attrs={'class':['print-logo','print-site_name','print-hr']})]
+    no_javascript = True
     no_stylesheets = True
 
-    remove_tags = [
-            dict(name='div', attrs={'class':['print-logo', 'print-site_name', 'img-left', 'print-source_url']}),
-            dict(name='hr', attrs={'class':'print-hr'}), dict(name='img')
-            ]
 
-    feeds = [
-        ('Politics', 'http://www.tnr.com/rss/articles/Politics'),
-        ('Books and Arts', 'http://www.tnr.com/rss/articles/Books-and-Arts'),
-        ('Economy', 'http://www.tnr.com/rss/articles/Economy'),
-        ('Environment and Energy', 'http://www.tnr.com/rss/articles/Environment-%2526-Energy'),
-        ('Health Care', 'http://www.tnr.com/rss/articles/Health-Care'),
-        ('Metro Policy', 'http://www.tnr.com/rss/articles/Metro-Policy'),
-        ('World', 'http://www.tnr.com/rss/articles/World'),
-        ('Film', 'http://www.tnr.com/rss/articles/Film'),
-        ('Books', 'http://www.tnr.com/rss/articles/books'),
-        ('The Book', 'http://www.tnr.com/rss/book'),
-        ('Jonathan Chait', 'http://www.tnr.com/rss/blogs/Jonathan-Chait'),
-        ('The Plank', 'http://www.tnr.com/rss/blogs/The-Plank'),
-        ('The Treatment', 'http://www.tnr.com/rss/blogs/The-Treatment'),
-        ('The Spine', 'http://www.tnr.com/rss/blogs/The-Spine'),
-        ('The Vine', 'http://www.tnr.com/rss/blogs/The-Vine'),
-        ('The Avenue', 'http://www.tnr.com/rss/blogs/The-Avenue'),
-        ('William Galston', 'http://www.tnr.com/rss/blogs/William-Galston'),
-        ('Simon Johnson', 'http://www.tnr.com/rss/blogs/Simon-Johnson'),
-        ('Ed Kilgore', 'http://www.tnr.com/rss/blogs/Ed-Kilgore'),
-        ('Damon Linker', 'http://www.tnr.com/rss/blogs/Damon-Linker'),
-        ('John McWhorter', 'http://www.tnr.com/rss/blogs/John-McWhorter')
-            ]
+    def parse_index(self):
 
-    def print_version(self, url):
-        return url.replace('http://www.tnr.com/', 'http://www.tnr.com/print/')
+        #Go to the issue
+        soup0 = self.index_to_soup('http://www.tnr.com/magazine-issues')
+        issue = soup0.find('div',attrs={'id':'current_issue'})
 
+        #Find date
+        date = self.tag_to_string(issue.find('div',attrs={'class':'date'})).strip()
+        self.timefmt = u' [%s]'%date
+
+        #Go to the main body
+        current_issue_url = 'http://www.tnr.com' + issue.find('a', href=True)['href']
+        soup = self.index_to_soup(current_issue_url)
+        div = soup.find ('div', attrs={'class':'article_detail_body'})
+
+
+
+        #Find cover
+        self.cover_url = div.find('img',src=True)['src']
+
+        feeds = OrderedDict()
+        section_title = ''
+        subsection_title = ''
+        for post in div.findAll('p'):
+            articles = []
+            em=post.find('em')
+            b=post.find('b')
+            a=post.find('a',href=True)
+            if em is not None:
+                section_title = self.tag_to_string(em).strip()
+                subsection_title = ''
+            elif b is not None:
+                subsection_title=self.tag_to_string(b).strip()
+            elif a is not None:
+                prefix = (subsection_title+': ') if subsection_title else ''
+                url=re.sub('www.tnr.com','www.tnr.com/print', a['href'])
+                author=re.sub('.*by\s', '', self.tag_to_string(post), re.DOTALL)
+                title=prefix + self.tag_to_string(a).strip()+ u' (%s)'%author
+                articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans

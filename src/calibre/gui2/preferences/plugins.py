@@ -384,6 +384,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._plugin_model.populate()
         self._plugin_model.reset()
         self.changed_signal.emit()
+        if d.do_restart:
+            self.restart_now.emit()
 
     def reload_store_plugins(self):
         self.gui.load_store_plugins()

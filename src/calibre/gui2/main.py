@@ -135,7 +135,8 @@ class GuiRunner(QObject):
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
-        main.initialize(self.library_path, db, self.listener, self.actions)
+        with gprefs: # Only write gui.json after initialization is complete
+            main.initialize(self.library_path, db, self.listener, self.actions)
         if self.splash_screen is not None:
             self.splash_screen.finish(main)
         if DEBUG:

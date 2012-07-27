@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
 import os, traceback, Queue, time, cStringIO, re, sys
-from threading import Thread
+from threading import Thread, Event
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
                      Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
@@ -144,6 +144,9 @@ class DeviceManager(Thread): # {{{
         self.open_feedback_msg = open_feedback_msg
         self._device_information = None
         self.current_library_uuid = None
+        self.call_shutdown_on_disconnect = False
+        self.devices_initialized = Event()
+        self.dynamic_plugins = {}
 
     def report_progress(self, *args):
         pass
@@ -197,6 +200,13 @@ class DeviceManager(Thread): # {{{
             self.ejected_devices.remove(self.connected_device)
         else:
             self.connected_slot(False, self.connected_device_kind)
+        if self.call_shutdown_on_disconnect:
+            # The current device is an instance of a plugin class instantiated
+            # to handle this connection, probably as a mounted device. We are
+            # now abandoning the instance that we created, so we tell it that it
+            # is being shut down.
+            self.connected_device.shutdown()
+            self.call_shutdown_on_disconnect = False
         self.connected_device = None
         self._device_information = None
 
@@ -265,7 +275,24 @@ class DeviceManager(Thread): # {{{
             except Queue.Empty:
                 pass
 
+    def run_startup(self, dev):
+        name = 'unknown'
+        try:
+            name = dev.__class__.__name__
+            dev.startup()
+        except:
+            prints('Startup method for device %s threw exception'%name)
+            traceback.print_exc()
+
     def run(self):
+        # Do any device-specific startup processing.
+        for d in self.devices:
+            self.run_startup(d)
+            n = d.is_dynamically_controllable()
+            if n:
+                self.dynamic_plugins[n] = d
+        self.devices_initialized.set()
+
         while self.keep_going:
             kls = None
             while True:
@@ -277,15 +304,23 @@ class DeviceManager(Thread): # {{{
             if kls is not None:
                 try:
                     dev = kls(folder_path)
+                    # We just created a new device instance. Call its startup
+                    # method and set the flag to call the shutdown method when
+                    # it disconnects.
+                    self.run_startup(dev)
+                    self.call_shutdown_on_disconnect = True
                     self.do_connect([[dev, None],], device_kind=device_kind)
                 except:
                     prints('Unable to open %s as device (%s)'%(device_kind, folder_path))
                     traceback.print_exc()
             else:
                 self.detect_device()
+
+            do_sleep = True
             while True:
                 job = self.next()
                 if job is not None:
+                    do_sleep = False
                     self.current_job = job
                     if self.device is not None:
                         self.device.set_progress_reporter(job.report_progress)
@@ -293,7 +328,15 @@ class DeviceManager(Thread): # {{{
                     self.current_job = None
                 else:
                     break
-            time.sleep(self.sleep_time)
+            if do_sleep:
+                time.sleep(self.sleep_time)
+
+        # We are exiting. Call the shutdown method for each plugin
+        for p in self.devices:
+            try:
+                p.shutdown()
+            except:
+                pass
 
     def create_job_step(self, func, done, description, to_job, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
@@ -474,6 +517,44 @@ class DeviceManager(Thread): # {{{
     def set_driveinfo_name(self, location_code, name):
         if self.connected_device:
             self.connected_device.set_driveinfo_name(location_code, name)
+
+    # dynamic plugin interface
+
+    # This is a helper function that handles queueing with the device manager
+    def _call_request(self, name, method, *args, **kwargs):
+        d = self.dynamic_plugins.get(name, None)
+        if d:
+            return getattr(d, method)(*args, **kwargs)
+        return kwargs.get('default', None)
+
+    # The dynamic plugin methods below must be called on the GUI thread. They
+    # will switch to the device thread before calling the plugin.
+
+    def start_plugin(self, name):
+        self._call_request(name, 'start_plugin')
+
+    def stop_plugin(self, name):
+        self._call_request(name, 'stop_plugin')
+
+    def get_option(self, name, opt_string, default=None):
+        return self._call_request(name, 'get_option', opt_string, default=default)
+
+    def set_option(self, name, opt_string, opt_value):
+        self._call_request(name, 'set_option', opt_string, opt_value)
+
+    def is_running(self, name):
+        if self._call_request(name, 'is_running'):
+            return True
+        return False
+
+    def is_enabled(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                return True
+        except:
+            pass
+        return False
 
     # }}}
 
@@ -675,6 +756,7 @@ class DeviceMixin(object): # {{{
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback))
         self.device_manager.start()
+        self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 

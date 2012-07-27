@@ -175,6 +175,8 @@ class UpdateMixin(object):
                 d = PluginUpdaterDialog(self,
                         initial_filter=FILTER_UPDATE_AVAILABLE)
                 d.exec_()
+                if d.do_restart:
+                    self.quit(restart=True)
 
     def plugin_update_found(self, number_of_updates):
         # Change the plugin icon to indicate there are updates available

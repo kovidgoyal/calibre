@@ -272,9 +272,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 <h1>%s</h1>
                 <h3>%s</h3>
                 <h3>%s</h3>
+                <h3>%s</h3>
                 </center>
                 '''%(_('Full screen mode'),
                     _('Right click to show controls'),
+                    _('Tap in the left or right page margin to turn pages'),
                     _('Press Esc to quit')),
                     self)
         self.full_screen_label.setVisible(False)
@@ -496,7 +498,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         a.setStartValue(QSize(width, 0))
         a.setEndValue(QSize(width, height))
         a.start()
-        QTimer.singleShot(2750, self.full_screen_label.hide)
+        QTimer.singleShot(3500, self.full_screen_label.hide)
         self.view.document.switch_to_fullscreen_mode()
         if self.view.document.fullscreen_clock:
             self.show_clock()

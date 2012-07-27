@@ -45,6 +45,8 @@ class PreferencesAction(InterfaceAction):
         d = PluginUpdaterDialog(self.gui,
                 initial_filter=FILTER_NOT_INSTALLED)
         d.exec_()
+        if d.do_restart:
+            self.gui.quit(restart=True)
 
     def do_config(self, checked=False, initial_plugin=None,
             close_after_initial=False):

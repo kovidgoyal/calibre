@@ -71,7 +71,6 @@ class Printing(QObject):
                 paged_display.set_geometry(1, 0, 0, 0);
                 paged_display.layout();
                 paged_display.fit_images();
-                paged_display.check_top_margin();
             ''')
 
             while True:

@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
-class AdvancedUserRecipe1312886443(BasicNewsRecipe):
+class WNP(BasicNewsRecipe):
     title          = u'WNP'
     cover_url= 'http://k.wnp.pl/images/wnpLogo.gif'
     __author__        = 'fenuks'
@@ -12,7 +12,7 @@ class AdvancedUserRecipe1312886443(BasicNewsRecipe):
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets= True
-    remove_tags=[dict(attrs={'class':'printF'})]
+    remove_tags=[dict(attrs={'class':['printF', 'border3B2 clearfix', 'articleMenu clearfix']})]
     feeds          = [(u'Wiadomości gospodarcze', u'http://www.wnp.pl/rss/serwis_rss.xml'),
                           (u'Serwis Energetyka - Gaz', u'http://www.wnp.pl/rss/serwis_rss_1.xml'),
           (u'Serwis Nafta - Chemia', u'http://www.wnp.pl/rss/serwis_rss_2.xml'),

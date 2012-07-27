@@ -151,25 +151,20 @@ calibre is the directory that contains the src and resources sub-directories. En
 
 The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
 
-Create a plain text file:
+Create a plain text file::
     #!/bin/sh
     export CALIBRE_DEVELOP_FROM="/Users/kovid/work/calibre/src"
     calibre-debug -g
 
-Save this file as ``/usr/bin/calibre-develop``, then set its permissions so that it can be run:
+Save this file as ``/usr/bin/calibre-develop``, then set its permissions so that it can be executed::
     chmod +x /usr/bin/calibre-develop
 
-Once you have done this, type
+Once you have done this, type::
     calibre-develop
 
-You should see some diagnostic information in the Terminal window as calibre starts up, and you should see an asterisk after the version number in the GUI window, indicating that you are running from source.
-
-That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
-in your favorite editor and add the line::
-
-    print ("Hello, world!")
-
-near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
+You should see some diagnostic information in the Terminal window as calibre
+starts up, and you should see an asterisk after the version number in the GUI
+window, indicating that you are running from source.
 
 Linux development environment
 ------------------------------
