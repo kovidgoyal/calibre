@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-20 04:36+0000\n"
-"PO-Revision-Date: 2012-07-25 16:28+0000\n"
+"PO-Revision-Date: 2012-07-26 18:51+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-26 04:39+0000\n"
-"X-Generator: Launchpad (build 15679)\n"
+"X-Launchpad-Export-Date: 2012-07-27 05:22+0000\n"
+"X-Generator: Launchpad (build 15694)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2954,12 +2954,11 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
-"Calibre wandelt alle Bilder die in das MOBI Format Konvertiert werden "
-"standardmäßig in das JPEG Format um. Das sorgt für eine maximale "
-"Kompatibilität, da einige ältere MOBI Leser Probleme mit anderen "
-"Bildformaten haben. Diese Option wird hiermit deaktiviert. Das ist nützlich, "
-"wenn die Dokomente viele GIF/PNG Bilder enthalten, die bei der Umwandlung in "
-"das JPEG Format sehr groß werden."
+"Calibre wandelt alle Bilder in einer MOBI-Ausgabedatei standardmäßig in das "
+"JPEG-Format um. Das sorgt für eine maximale Kompatibilität, da einige ältere "
+"MOBI-Leser Probleme mit anderen Bildformaten haben. Diese Option wird "
+"hiermit deaktiviert. Das ist nützlich, wenn die Dokomente viele GIF/PNG-"
+"Bilder enthalten, die bei der Umwandlung in das JPEG-Format sehr groß werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:127
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -6401,7 +6400,7 @@ msgstr "Nachrichten abrufen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
-msgstr "Rufe Nachrichten ab von "
+msgstr "Nachrichten werden abgerufen von "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:83
 msgid " fetched."
@@ -8613,7 +8612,7 @@ msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
 msgstr ""
-"Nicht alle Bilder in das &JPEG Format Konvertieren (Bilder können in älteren "
+"Nicht alle Bilder in das &JPEG-Format umwandeln (Bilder können in älteren "
 "Betrachtern möglicherweise nicht angezeigt werden)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
@@ -13339,7 +13338,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
-msgstr "Betrachter konfigurieren"
+msgstr "Betrachter einrichten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:53
 msgid "Use white background"
@@ -13355,7 +13354,7 @@ msgstr "<b>Änderungen werden erst nach einem Neustart wirksam.</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:70
 msgid " - LRF Viewer"
-msgstr " - LRF-Betrachter"
+msgstr " – LRF-Betrachter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #, python-format
@@ -13372,7 +13371,7 @@ msgstr "Analysiere LRF Datei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
-msgstr "LRF-Betrachter-Symbolleiste"
+msgstr "Symbolleiste des LRF-Betrachters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:504
@@ -16414,7 +16413,7 @@ msgid ""
 "book viewer, fetch news dialog, etc."
 msgstr ""
 "Alle Suchverläufe in Calibre entfernen, einschließlich des Suchverlaufs der "
-"Bücherliste, der e-Book Vorschau, \"lade Nachrichten\" Dialog usw."
+"Bücherliste, des E-Book-Betrachters, des »Nachrichten abrufen«-Dialogs usw."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:193
 msgid "Clear search &histories"
@@ -18343,7 +18342,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:274
 msgid "Configure Ebook viewer"
-msgstr "E-Book-Betrachter konfigurieren"
+msgstr "E-Book-Betrachter einrichten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:275
 msgid "Se&rif family:"
@@ -18416,10 +18415,15 @@ msgid ""
 "into pages, as in a paper book. To get into this mode, use the button with "
 "the yellow scroll icon in the top right corner of the viewer window."
 msgstr ""
+"<p>Diese Optionen betreffen nur den Modus »Seitenansicht«, in dem der Text "
+"wie bei einem Buch auf Seiten aufgeteilt ist. Um in diesen Modus zu "
+"wechseln, klicken Sie auf die Schaltfläche mit dem gelben Bildlauf-Symbol in "
+"der oberen rechten Ecke des Betrachter-Fensters."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:292
 msgid "The number of &pages of text to show on screen "
 msgstr ""
+"Die Anzahl der &Seiten, die auf dem Bildschirm angezeigt werden sollen "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:293
 msgid " page(s)"
@@ -18427,7 +18431,7 @@ msgstr " Seite(n)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:294
 msgid "&Override the page margin settings specified in the book"
-msgstr ""
+msgstr "Seitenränder-Einstellungen, die für das Buch gelten, &überschreiben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:295
 msgid "&Top margin"
@@ -18443,7 +18447,7 @@ msgstr "untere Rand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:301
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "Text-&Layout in der Seitenansicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:302
 msgid "Maximum text width in &fullscreen:"
@@ -18481,7 +18485,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:313
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "&Umblätter-Optionen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:314
 msgid "H&yphenate (break line in the middle of large words)"
@@ -18655,10 +18659,14 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"In den Modus »Seitenansicht« wechseln – in diesem Modus wird der Text wie "
+"bei einem Buch auf Seiten aufgeteilt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:157
 msgid "Switch to flow mode - where the text is not broken up into pages"
 msgstr ""
+"In den Modus »Fortlaufende Seiten« wechseln – in diesem Modus wird der Text "
+"nicht auf Seiten aufgeteilt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:198
 msgid "Search for text in book"
@@ -18778,14 +18786,14 @@ msgstr "Einstellungen zur Steuerung des E-Book-Betrachters"
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"Wenn ausgewählt, wird das Betrachterfenster nach Möglichkeit im Vordergrund "
+"Falls ausgewählt, wird das Betrachterfenster nach Möglichkeit im Vordergrund "
 "geöffnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1041
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
-"Wenn ausgewählt, wird das Betrachterfenster nach Möglichkeit im "
+"Falls ausgewählt, wird das Betrachterfenster nach Möglichkeit im "
 "Vollbildmodus geöffnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1046
@@ -18872,7 +18880,7 @@ msgstr "Finde vorherige Stelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 msgid "Toggle Paged mode"
-msgstr ""
+msgstr "Zum Modus »Seitenansicht« wechseln"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
