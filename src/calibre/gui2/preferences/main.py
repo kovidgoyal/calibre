@@ -290,6 +290,7 @@ class Preferences(QMainWindow):
         self.apply_action.setEnabled(False)
         self.showing_widget.changed_signal.connect(lambda :
                 self.apply_action.setEnabled(True))
+        self.showing_widget.restart_now.connect(self.restart_now)
         self.restore_action.setEnabled(self.showing_widget.supports_restoring_to_defaults)
         tt = self.showing_widget.restore_defaults_desc
         if not self.restore_action.isEnabled():
@@ -318,6 +319,15 @@ class Preferences(QMainWindow):
             self.cancel()
         elif self.stack.currentIndex() == 0:
             self.close()
+
+    def restart_now(self):
+        try:
+            self.showing_widget.commit()
+        except AbortCommit:
+            return
+        self.hide_plugin()
+        self.close()
+        self.gui.quit(restart=True)
 
     def commit(self, *args):
         try:

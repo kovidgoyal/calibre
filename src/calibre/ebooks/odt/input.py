@@ -142,7 +142,7 @@ class Extract(ODF2XHTML):
         from calibre.utils.zipfile import ZipFile
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
-
+        from calibre.customize.ui import quick_metadata
 
         if not os.path.exists(odir):
             os.makedirs(odir)
@@ -163,7 +163,10 @@ class Extract(ODF2XHTML):
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
             stream.seek(0)
-            mi = get_metadata(stream, 'odt')
+            with quick_metadata:
+                # We dont want the cover, as it will lead to a duplicated image
+                # if no external cover is specified.
+                mi = get_metadata(stream, 'odt')
             if not mi.title:
                 mi.title = _('Unknown')
             if not mi.authors:

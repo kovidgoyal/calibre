@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+#
 # Copyright (C) 2006 Søren Roug, European Environment Agency
 #
 # This is free software.  You may redistribute it under the terms
@@ -17,12 +19,20 @@
 #
 # Contributor(s):
 #
+from __future__ import division
+
 import zipfile, re
 import xml.sax.saxutils
 from cStringIO import StringIO
 
 from odf.namespaces import OFFICENS, DCNS, METANS
-from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from odf.opendocument import load as odLoad
+from odf.draw import Image as odImage, Frame as odFrame
+
+from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
+from calibre.utils.magick.draw import identify_data
+from calibre.utils.date import parse_date
+from calibre.utils.localization import canonicalize_lang
 
 whitespace = re.compile(r'\s+')
 
@@ -125,6 +135,10 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
         else:
             texttag = self._tag
         self.seenfields[texttag] = self.data()
+        # OpenOffice has the habit to capitalize custom properties, so we add a
+        # lowercase version for easy access
+        if texttag[:4].lower() == u'opf.':
+            self.seenfields[texttag.lower()] = self.data()
 
         if field in self.deletefields:
             self.output.dowrite = True
@@ -141,7 +155,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
     def data(self):
         return normalize(''.join(self._data))
 
-def get_metadata(stream):
+def get_metadata(stream, extract_cover=True):
     zin = zipfile.ZipFile(stream, 'r')
     odfs = odfmetaparser()
     parser = xml.sax.make_parser()
@@ -162,7 +176,82 @@ def get_metadata(stream):
     if data.has_key('language'):
         mi.language = data['language']
     if data.get('keywords', ''):
-        mi.tags = data['keywords'].split(',')
+        mi.tags = [x.strip() for x in data['keywords'].split(',') if x.strip()]
+    opfmeta = False # we need this later for the cover
+    opfnocover = False
+    if data.get('opf.metadata','') == 'true':
+        # custom metadata contains OPF information
+        opfmeta = True
+        if data.get('opf.titlesort', ''):
+            mi.title_sort = data['opf.titlesort']
+        if data.get('opf.authors', ''):
+            mi.authors = string_to_authors(data['opf.authors'])
+        if data.get('opf.authorsort', ''):
+            mi.author_sort = data['opf.authorsort']
+        if data.get('opf.isbn', ''):
+            isbn = check_isbn(data['opf.isbn'])
+            if isbn is not None:
+                mi.isbn = isbn
+        if data.get('opf.publisher', ''):
+            mi.publisher = data['opf.publisher']
+        if data.get('opf.pubdate', ''):
+            mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
+        if data.get('opf.language', ''):
+            cl = canonicalize_lang(data['opf.language'])
+            if cl:
+                mi.languages = [cl]
+        opfnocover = data.get('opf.nocover', 'false') == 'true'
+    if not opfnocover:
+        try:
+            read_cover(stream, zin, mi, opfmeta, extract_cover)
+        except:
+            pass # Do not let an error reading the cover prevent reading other data
 
     return mi
+
+def read_cover(stream, zin, mi, opfmeta, extract_cover):
+    # search for an draw:image in a draw:frame with the name 'opf.cover'
+    # if opf.metadata prop is false, just use the first image that
+    # has a proper size (borrowed from docx)
+    otext = odLoad(stream)
+    cover_href = None
+    cover_data = None
+    # check that it's really a ODT
+    if otext.mimetype == u'application/vnd.oasis.opendocument.text':
+        for elem in otext.text.getElementsByType(odFrame):
+            img = elem.getElementsByType(odImage)
+            if len(img) > 0: # there should be only one
+                i_href = img[0].getAttribute('href')
+                try:
+                    raw = zin.read(i_href)
+                except KeyError:
+                    continue
+                try:
+                    width, height, fmt = identify_data(raw)
+                except:
+                    continue
+            else:
+                continue
+            if opfmeta and elem.getAttribute('name').lower() == u'opf.cover':
+                cover_href = i_href
+                cover_data = (fmt, raw)
+                break
+            if cover_href is None and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+                cover_href = i_href
+                cover_data = (fmt, raw)
+                if not opfmeta:
+                    break
+
+    if cover_href is not None:
+        mi.cover = cover_href
+        if extract_cover:
+            if not cover_data:
+                raw = zin.read(cover_href)
+                try:
+                    width, height, fmt = identify_data(raw)
+                except:
+                    pass
+                else:
+                    cover_data = (fmt, raw)
+            mi.cover_data = cover_data
 

@@ -1,61 +1,67 @@
 import re
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from collections import OrderedDict
 
-class SmithsonianMagazine(BasicNewsRecipe):
-    title          = u'Smithsonian Magazine'
-    language       = 'en'
-    __author__     = 'Krittika Goyal and TerminalVeracity'
-    oldest_article = 31#days
-    max_articles_per_feed = 50
-    use_embedded_content = False
-    recursions = 1
-    cover_url = 'http://sphotos.xx.fbcdn.net/hphotos-snc7/431147_10150602715983253_764313347_n.jpg'
-    match_regexps = ['&page=[2-9]$']
-    preprocess_regexps = [
-        (re.compile(r'for more of Smithsonian\'s coverage on history, science and nature.', re.DOTALL), lambda m: '')
-        ]
-    extra_css             = """
-                               h1{font-size: large; margin: .2em 0}
-                               h2{font-size: medium; margin: .2em 0}
-                               h3{font-size: medium; margin: .2em 0}
-                               #byLine{margin: .2em 0}
-                               .articleImageCaptionwide{font-style: italic}
-                               .wp-caption-text{font-style: italic}
-                               img{display: block}
-                            """
+class Smithsonian(BasicNewsRecipe):
 
+    title       = 'Smithsonian Magazine'
+    __author__  = 'Rick Shang'
 
-    remove_stylesheets = True
-    remove_tags_after  = dict(name='div', attrs={'class':['post','articlePaginationWrapper']})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['article_sidebar_border','viewMorePhotos','addtoany_share_save_container','meta','social','OUTBRAIN','related-articles-inpage']}),
-       dict(name='div', attrs={'id':['article_sidebar_border', 'most-popular_large', 'most-popular-body_large','comment_section','article-related']}),
-       dict(name='ul', attrs={'class':'cat-breadcrumb col three last'}),
-       dict(name='h4', attrs={'id':'related-topics'}),
-       dict(name='table'),
-       dict(name='a', attrs={'href':['/subArticleBottomWeb','/subArticleTopWeb','/subArticleTopMag','/subArticleBottomMag']}),
-       dict(name='a', attrs={'name':'comments_shaded'}),
-    ]
+    description = 'This magazine chronicles the arts, environment, sciences and popular culture of the times. It is edited for modern, well-rounded individuals with diverse, general interests. With your order, you become a National Associate Member of the Smithsonian. Membership benefits include your subscription to Smithsonian magazine, a personalized membership card, discounts from the Smithsonian catalog, and more.'
+    language = 'en'
+    category = 'news'
+    encoding = 'UTF-8'
+    keep_only_tags = [dict(attrs={'id':['articleTitle', 'subHead', 'byLine', 'articleImage', 'article-text']})]
+    remove_tags = [dict(attrs={'class':['related-articles-inpage', 'viewMorePhotos']})]
+    no_javascript = True
+    no_stylesheets = True
 
+    def parse_index(self):
+        #Go to the issue
+        soup0 = self.index_to_soup('http://www.smithsonianmag.com/issue/archive/')
+        div = soup0.find('div',attrs={'id':'archives'})
+        issue = div.find('ul',attrs={'class':'clear-both'})
+        current_issue_url = issue.find('a', href=True)['href']
+        soup = self.index_to_soup(current_issue_url)
 
-    feeds          = [
-('History and Archeology',
- 'http://feeds.feedburner.com/smithsonianmag/history-archaeology'),
-('People and Places',
- 'http://feeds.feedburner.com/smithsonianmag/people-places'),
-('Science and Nature',
- 'http://feeds.feedburner.com/smithsonianmag/science-nature'),
-('Arts and Culture',
- 'http://feeds.feedburner.com/smithsonianmag/arts-culture'),
-('Travel',
- 'http://feeds.feedburner.com/smithsonianmag/travel'),
-]
+        #Go to the main body
+        div = soup.find ('div', attrs={'id':'content-inset'})
 
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id':'article-body'})
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        return soup
+        #Find date
+        date = re.sub('.*\:\W*', "", self.tag_to_string(div.find('h2')).strip())
+        self.timefmt = u' [%s]'%date
+
+        #Find cover
+        self.cover_url = div.find('img',src=True)['src']
+
+        feeds = OrderedDict()
+        section_title = ''
+        subsection_title = ''
+        for post in div.findAll('div', attrs={'class':['plainModule', 'departments plainModule']}):
+            articles = []
+            prefix = ''
+            h3=post.find('h3')
+            if h3 is not None:
+                section_title = self.tag_to_string(h3)
+            else:
+                subsection=post.find('p',attrs={'class':'article-cat'})
+                link=post.find('a',href=True)
+                url=link['href']+'?c=y&story=fullstory'
+                if subsection is not None:
+                    subsection_title = self.tag_to_string(subsection)
+                    prefix = (subsection_title+': ')
+                    description=self.tag_to_string(post('p', limit=2)[1]).strip()
+                else:
+                    description=self.tag_to_string(post.find('p')).strip()
+                desc=re.sub('\sBy\s.*', '', description, re.DOTALL)
+                author=re.sub('.*By\s', '', description, re.DOTALL)
+                title=prefix + self.tag_to_string(link).strip()+ u' (%s)'%author
+                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
+

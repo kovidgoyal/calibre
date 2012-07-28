@@ -31,3 +31,5 @@ class PluginUpdaterAction(InterfaceAction):
 
         d = PluginUpdaterDialog(self.gui, initial_filter=initial_filter)
         d.exec_()
+        if d.do_restart:
+            self.gui.quit(restart=True)

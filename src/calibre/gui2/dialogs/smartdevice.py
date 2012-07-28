@@ -1,11 +1,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re
+
 from PyQt4.QtGui import QDialog, QLineEdit
 from PyQt4.QtCore import SIGNAL, Qt
 
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
-from calibre.gui2 import dynamic
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 

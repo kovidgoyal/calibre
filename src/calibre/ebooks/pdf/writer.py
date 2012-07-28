@@ -202,7 +202,6 @@ class PDFWriter(QObject): # {{{
         paged_display.set_geometry(1, 0, 0, 0);
         paged_display.layout();
         paged_display.fit_images();
-        paged_display.check_top_margin();
         ''')
         mf = self.view.page().mainFrame()
         while True:
@@ -221,7 +220,7 @@ class PDFWriter(QObject): # {{{
             self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
 
     def insert_cover(self):
-        if self.cover_data is None:
+        if not isinstance(self.cover_data, bytes):
             return
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
         printer = get_pdf_printer(self.opts, output_file_name=item_path,

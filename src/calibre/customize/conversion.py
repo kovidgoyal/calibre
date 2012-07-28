@@ -91,6 +91,37 @@ class DummyReporter(object):
     def __call__(self, percent, msg=''):
         pass
 
+def gui_configuration_widget(name, parent, get_option_by_name,
+        get_option_help, db, book_id, for_output=True):
+    import importlib
+
+    def widget_factory(cls):
+        return cls(parent, get_option_by_name,
+            get_option_help, db, book_id)
+
+    if for_output:
+        try:
+            output_widget = importlib.import_module(
+                    'calibre.gui2.convert.'+name)
+            pw = output_widget.PluginWidget
+            pw.ICON = I('back.png')
+            pw.HELP = _('Options specific to the output format.')
+            return widget_factory(pw)
+        except ImportError:
+            pass
+    else:
+        try:
+            input_widget = importlib.import_module(
+                    'calibre.gui2.convert.'+name)
+            pw = input_widget.PluginWidget
+            pw.ICON = I('forward.png')
+            pw.HELP = _('Options specific to the input format.')
+            return widget_factory(pw)
+        except ImportError:
+            pass
+    return None
+
+
 class InputFormatPlugin(Plugin):
     '''
     InputFormatPlugins are responsible for converting a document into
@@ -225,6 +256,17 @@ class InputFormatPlugin(Plugin):
         '''
         pass
 
+    def gui_configuration_widget(self, parent, get_option_by_name,
+            get_option_help, db, book_id):
+        '''
+        Called to create the widget used for configuring this plugin in the
+        calibre GUI. The widget must be an instance of the PluginWidget class.
+        See the builting input plugins for examples.
+        '''
+        name = self.name.lower().replace(' ', '_')
+        return gui_configuration_widget(name, parent, get_option_by_name,
+                get_option_help, db, book_id, for_output=False)
+
 
 class OutputFormatPlugin(Plugin):
     '''
@@ -307,5 +349,17 @@ class OutputFormatPlugin(Plugin):
 
         '''
         pass
+
+    def gui_configuration_widget(self, parent, get_option_by_name,
+            get_option_help, db, book_id):
+        '''
+        Called to create the widget used for configuring this plugin in the
+        calibre GUI. The widget must be an instance of the PluginWidget class.
+        See the builtin output plugins for examples.
+        '''
+        name = self.name.lower().replace(' ', '_')
+        return gui_configuration_widget(name, parent, get_option_by_name,
+                get_option_help, db, book_id, for_output=True)
+
 
 
