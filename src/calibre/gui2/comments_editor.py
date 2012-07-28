@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from lxml import html
+import sip
 
 from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl,
@@ -42,6 +43,7 @@ class PageAction(QAction): # {{{
         self.page_action.trigger()
 
     def update_state(self, *args):
+        if sip.isdeleted(self) or sip.isdeleted(self.page_action): return
         if self.isCheckable():
             self.setChecked(self.page_action.isChecked())
         self.setEnabled(self.page_action.isEnabled())
