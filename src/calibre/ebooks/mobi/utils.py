@@ -302,7 +302,7 @@ def encode_tbs(val, extra, flag_size=4):
         ans += encint(extra[0b0001])
     return ans
 
-def utf8_text(text):
+def utf8_text(text, empty=False):
     '''
     Convert a possibly null string to utf-8 bytes, guaranteeing to return a non
     empty, normalized bytestring.
@@ -313,7 +313,10 @@ def utf8_text(text):
             text = text.decode('utf-8', 'replace')
         text = normalize(text).encode('utf-8')
     else:
-        text = _('Unknown').encode('utf-8')
+        if not empty:
+            text = _('Unknown').encode('utf-8')
+        else:
+            text = u''.encode('utf-8') # yeah, stupid
     return text
 
 def align_block(raw, multiple=4, pad=b'\0'):

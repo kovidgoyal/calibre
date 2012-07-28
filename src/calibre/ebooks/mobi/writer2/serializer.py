@@ -355,7 +355,7 @@ class Serializer(object):
         text = text.replace(u'\u00AD', '') # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
-        self.buf.write(utf8_text(text))
+        self.buf.write(utf8_text(text, empty=True))
 
     def fixup_links(self):
         '''
