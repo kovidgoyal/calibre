@@ -208,7 +208,7 @@ def get_metadata(stream, extract_cover=True):
             pass # Do not let an error reading the cover prevent reading other data
 
     return mi
-    
+
 def read_cover(stream, zin, mi, opfmeta, extract_cover):
     # search for an draw:image in a draw:frame with the name 'opf.cover'
     # if opf.metadata prop is false, just use the first image that
