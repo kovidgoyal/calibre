@@ -546,12 +546,9 @@ class TagsModel(QAbstractItemModel): # {{{
             return
         # }}}
 
-        import time
-        start_time = time.time()
         for category in self.category_nodes:
             process_one_node(category, collapse_model,
                              state_map.get(category.category_key, {}))
-        print(time.time() - start_time)
 
     def get_category_editor_data(self, category):
         for cat in self.root_item.children:
