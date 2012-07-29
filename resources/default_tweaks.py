@@ -506,16 +506,6 @@ compile_gpm_templates = True
 #   default_tweak_format = 'remember'
 default_tweak_format = None
 
-#: Enable multi-character first-letters in the tag browser
-# Some languages have letters that can be represented by multiple characters.
-# For example, Czech has a 'character' "ch" that sorts between "h" and "i".
-# If this tweak is True, then the tag browser will take these characters into
-# consideration when partitioning by first letter.
-# Examples:
-#    enable_multicharacters_in_tag_browser = True
-#    enable_multicharacters_in_tag_browser = False
-enable_multicharacters_in_tag_browser = True
-
 #: Do not preselect a completion when editing authors/tags/series/etc.
 # This means that you can make changes and press Enter and your changes will
 # not be overwritten by a matching completion. However, if you wish to use the
