@@ -1,0 +1,75 @@
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from collections import OrderedDict
+
+class PhilosophyNow(BasicNewsRecipe):
+
+    title       = 'Philosophy Now'
+    __author__  = 'Rick Shang'
+
+    description = '''Philosophy Now is a lively magazine for everyone
+    interested in ideas. It isn't afraid to tackle all the major questions of
+    life, the universe and everything. Published every two months, it tries to
+    corrupt innocent citizens by convincing them that philosophy can be
+    exciting, worthwhile and comprehensible, and also to provide some enjoyable
+    reading matter for those already ensnared by the muse, such as philosophy
+    students and academics.'''
+    language = 'en'
+    category = 'news'
+    encoding = 'UTF-8'
+
+    keep_only_tags = [dict(attrs={'id':'fullMainColumn'})]
+    remove_tags = [dict(attrs={'class':'articleTools'})]
+    no_javascript = True
+    no_stylesheets = True
+    needs_subscription = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('https://philosophynow.org/auth/login')
+        br.select_form(nr = 1)
+        br['username'] = self.username
+        br['password'] = self.password
+        br.submit()
+        return br
+
+    def parse_index(self):
+        #Go to the issue
+        soup0 = self.index_to_soup('http://philosophynow.org/')
+        issue = soup0.find('div',attrs={'id':'navColumn'})
+
+        #Find date & cover
+        cover = issue.find('div', attrs={'id':'cover'})
+        date = self.tag_to_string(cover.find('h3')).strip()
+        self.timefmt = u' [%s]'%date
+        img=cover.find('img',src=True)['src']
+        self.cover_url = 'http://philosophynow.org' + re.sub('medium','large',img)
+        issuenum = re.sub('/media/images/covers/medium/issue','',img)
+        issuenum = re.sub('.jpg','',issuenum)
+
+        #Go to the main body
+        current_issue_url = 'http://philosophynow.org/issues/' + issuenum
+        soup = self.index_to_soup(current_issue_url)
+        div = soup.find ('div', attrs={'class':'articlesColumn'})
+
+        feeds = OrderedDict()
+
+        for post in div.findAll('h3'):
+            articles = []
+            a=post.find('a',href=True)
+            if a is not None:
+                url="http://philosophynow.org" + a['href']
+                title=self.tag_to_string(a).strip()
+                s=post.findPrevious('h4')
+                section_title = self.tag_to_string(s).strip()
+                d=post.findNext('p')
+                desc = self.tag_to_string(d).strip()
+                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+
+                if articles:
+                    if section_title not in feeds:
+                        feeds[section_title] = []
+                    feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
+
