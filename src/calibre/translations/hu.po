@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-27 06:42+0000\n"
-"PO-Revision-Date: 2012-06-17 14:00+0000\n"
-"Last-Translator: Máté Eckl <ecklm@nejanet.hu>\n"
+"PO-Revision-Date: 2012-07-28 10:43+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-28 04:44+0000\n"
+"X-Launchpad-Export-Date: 2012-07-29 04:36+0000\n"
 "X-Generator: Launchpad (build 15694)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1365,7 +1365,7 @@ msgstr "Kommunikáció PocketBook 602/603/902/90 olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Kommunikálás a PocketBook 622-es olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1667,7 +1667,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Újabb firmware-ek támogatásának megkísérlése"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
 msgid ""
@@ -1679,7 +1679,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:607
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "Ez a Kobo adatbázis verzió nem támogatott."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:608
 msgid ""
@@ -7133,7 +7133,7 @@ msgstr "Borító méret: %(width)d x %(height)d"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:453
 #, python-format
 msgid "Delete the %s format"
-msgstr ""
+msgstr "%s formátum törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -9417,7 +9417,7 @@ msgstr "Nincs eszköz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1022
 msgid "No device connected"
-msgstr ""
+msgstr "Nincs eszköz csatlakoztatva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1038
 #, python-format
@@ -10584,7 +10584,7 @@ msgstr "Keresés/csere név:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1046
 msgid "You must provide a name."
-msgstr ""
+msgstr "Meg kell adnia egy nevet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1051
 msgid ""
@@ -11020,7 +11020,7 @@ msgstr "&Jelszó:"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:81
 msgid "&Show password"
-msgstr "Jelszó mutatása"
+msgstr "Jelszó &mutatása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:124
 msgid "Restart required"
@@ -12023,11 +12023,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:74
 msgid "Optional password for security"
-msgstr ""
+msgstr "Opcionális biztonsági jelszó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:75
 msgid "&Allow connections"
-msgstr ""
+msgstr "K&apcsolatok engedélyezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -12199,19 +12199,19 @@ msgstr "Volt"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
 msgid "Find"
-msgstr ""
+msgstr "Keresés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:167
 msgid "You must enter some text to search for"
-msgstr ""
+msgstr "Írjon be valamit szöveget a kereséshez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 msgid "No tag found"
-msgstr ""
+msgstr "Nem található címke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid "Search for an item in the Tag column"
-msgstr ""
+msgstr "Elem keresése a Címke oszlopban"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:112
@@ -13355,15 +13355,15 @@ msgstr "%s már fut."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:334
 msgid "No running calibre found"
-msgstr ""
+msgstr "Nem található futó calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:338
 msgid "Shutdown command sent, waiting for shutdown..."
-msgstr ""
+msgstr "Leállítás parancs elküldve, várakozás…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:343
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "Sikertelen a futó calibre leállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -13586,7 +13586,7 @@ msgstr[1] "Ismeretlen nyelvek: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1191
 msgid "I&ds:"
-msgstr "ID-k:"
+msgstr "&Azonosítók:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1192
 #, python-format
@@ -16156,7 +16156,7 @@ msgstr "A keresési előzmények &törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:194
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "Mit keressen hasonló könyvek keresésekor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:195
 msgid ""
@@ -16698,7 +16698,7 @@ msgstr "A kijelölt művelet mozgatása lefelé"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:347
 msgid "ID"
-msgstr ""
+msgstr "Azonosító"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:126
 msgid "This tweak has it default value"
@@ -17478,12 +17478,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Címkeböngésző megváltoztatása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr "Rendezés ... szerint"
+msgstr "Rendezés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Sort by name"
@@ -17503,7 +17503,7 @@ msgstr "A címke böngészőben lévő elemek rendezési sorrendje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Egyezések"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
@@ -17976,7 +17976,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:55
 msgid "Show a clock in fullscreen mode."
-msgstr ""
+msgstr "Óra megjelenítése teljes képernyős módban."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:62
 msgid "Font options"
@@ -18100,7 +18100,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:293
 msgid " page(s)"
-msgstr ""
+msgstr " oldal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:294
 msgid "&Override the page margin settings specified in the book"
@@ -18108,15 +18108,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:295
 msgid "&Top margin"
-msgstr ""
+msgstr "&Felső margó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:297
 msgid "&Side margin"
-msgstr ""
+msgstr "&Oldalsó margó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:299
 msgid "&Bottom margin"
-msgstr ""
+msgstr "&Alsó margó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:301
 msgid "Text &layout in paged mode"
@@ -18128,11 +18128,11 @@ msgstr "Teljesképernyős módban a szöveg maximális szélessége:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:305
 msgid "Show &clock in full screen mode"
-msgstr ""
+msgstr "&Óra megjelenítése teljes képernyős módban"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:306
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "&Teljes képernyős beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:307
 msgid "Page flip &duration:"
@@ -18186,7 +18186,7 @@ msgstr "Kilépéskor a jelenlegi oldal megjegyzése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:319
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "&Egyéb beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:320
 msgid "&General"
@@ -18308,6 +18308,7 @@ msgid ""
 "This ebook is corrupted and cannot be opened. If you downloaded it from "
 "somewhere, try downloading it again."
 msgstr ""
+"Ez az ebook sérült és nem lehet megnyitni. Próbálja meg letölteni újra."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:99
 msgid "Book format"
@@ -18352,7 +18353,7 @@ msgstr "Jobb egérgombbal kattintva megjelenik az olvasási menü"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:279
 msgid "Tap in the left or right page margin to turn pages"
-msgstr ""
+msgstr "Érintse meg a bal vagy a jobb margót a lapozáshoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:280
 msgid "Press Esc to quit"
@@ -18551,12 +18552,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
-msgstr ""
+msgstr "Sikertelen a renderelés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:67
 #, python-format
 msgid "Failed to render document %s"
-msgstr ""
+msgstr "Nem sikerült a következő dokumentum renderelése: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:102
 msgid "Test name invalid"
@@ -18683,7 +18684,7 @@ msgstr "Minden egy helyen, amire csak szüksége lehet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
-msgstr "Gyártók"
+msgstr "&Gyártók"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
@@ -18875,7 +18876,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
-msgstr "E-mail küldése a következőről:"
+msgstr "&E-mail küldése a következőről:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid ""
@@ -18893,7 +18894,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
 msgid "Mail &Server"
-msgstr "Levelező &kiszolgáló"
+msgstr "&Levelező kiszolgáló"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "calibre can <b>optionally</b> use a server to send mail"
@@ -18932,7 +18933,7 @@ msgstr "&Megjelenítés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
-msgstr "&Titkosítás:"
+msgstr "Titk&osítás:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:139
 msgid ""
@@ -18973,7 +18974,7 @@ msgstr "Hotmail használata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"
-msgstr "&Teszt e-mail küldése"
+msgstr "Tes&zt e-mail küldése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:49
 msgid ""
@@ -19423,7 +19424,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:45
 msgid "Symbols"
-msgstr ""
+msgstr "Szimbólumok"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:502
 msgid "No enabled genres found to catalog.\n"
@@ -19615,7 +19616,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:294
 #, python-format
 msgid "Added book ids: %s"
-msgstr ""
+msgstr "Könyvazonosítók hozzáadva: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:302
 msgid ""
@@ -20338,7 +20339,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:138
 msgid "Finished restoring preferences"
-msgstr ""
+msgstr "A beállítások visszaállítása befejeződött"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:143
 msgid "Restoring preferences and column metadata failed"
