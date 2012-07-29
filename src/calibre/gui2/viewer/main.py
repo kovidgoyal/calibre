@@ -508,8 +508,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.clock_label.setText('99:99 AA')
         self.clock_timer.start(1000)
         self.clock_label.setStyleSheet(self.clock_label_style%(
-                'rgba(0, 0, 0, 0)',
-                self.view.document.colors()[1]))
+                'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
         self.clock_label.resize(self.clock_label.sizeHint())
         sw = QApplication.desktop().screenGeometry(self.view)
         self.clock_label.move(sw.width() - self.vertical_scrollbar.width() - 15
