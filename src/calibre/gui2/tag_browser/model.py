@@ -9,7 +9,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy
-from itertools import repeat
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
@@ -17,7 +16,7 @@ from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp, contractions
+from calibre.utils.icu import sort_key, lower, strcmp, collation_order
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
@@ -258,16 +257,6 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.hidden_categories.add(cat)
         db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
 
-        conts = contractions()
-        if len(conts) == 0 or not tweaks['enable_multicharacters_in_tag_browser']:
-            self.do_contraction = False
-        else:
-            self.do_contraction = True
-            nconts = set()
-            for s in conts:
-                nconts.add(icu_upper(s))
-            self.contraction_set = frozenset(nconts)
-
         self.db = db
         self._run_rebuild()
         self.endResetModel()
@@ -416,53 +405,23 @@ class TagsModel(QAbstractItemModel): # {{{
             tt = key if in_uc else None
 
             if collapse_model == 'first letter':
-                # Build a list of 'equal' first letters by looking for
-                # overlapping ranges. If a range overlaps another, then the
-                # letters are assumed to be equivalent. ICU collating is complex
-                # beyond belief. This mechanism lets us determine the logical
-                # first character from ICU's standpoint.
-                chardict = {}
+                # Build a list of 'equal' first letters by noticing changes
+                # in ICU's 'ordinal' for the first letter. In this case, the
+                # first letter can actually be more than one letter long.
+                cl_list = [None] * len(data[key])
+                last_ordnum = 0
                 for idx,tag in enumerate(data[key]):
                     if not tag.sort:
                         c = ' '
                     else:
-                        if not self.do_contraction:
-                            c = icu_upper(tag.sort)[0]
-                        else:
-                            v = icu_upper(tag.sort)
-                            c = v[0]
-                            for s in self.contraction_set:
-                                if len(s) > len(c) and v.startswith(s):
-                                    c = s
-                    if c not in chardict:
-                        chardict[c] = [idx, idx]
-                    else:
-                        chardict[c][1] = idx
+                        c = tag.sort
+                    ordnum, ordlen = collation_order(c)
+                    if last_ordnum != ordnum:
+                        last_c = icu_upper(c[0:ordlen])
+                        last_ordnum = ordnum
+                    cl_list[idx] = last_c
+            top_level_component = 'z' + data[key][0].original_name
 
-                # sort the ranges to facilitate detecting overlap
-                if len(chardict) == 1 and ' ' in chardict:
-                    # The category could not be partitioned.
-                    collapse_model = 'disable'
-                else:
-                    ranges = sorted([(v[0], v[1], c) for c,v in chardict.items()])
-                    # Create a list of 'first letters' to use for each item in
-                    # the category. The list is generated using the ranges. Overlaps
-                    # are filled with the character that first occurs.
-                    cl_list = list(repeat(None, len(data[key])))
-                    for t in ranges:
-                        start = t[0]
-                        c = t[2]
-                        if cl_list[start] is None:
-                            nc = c
-                        else:
-                            nc = cl_list[start]
-                        for i in range(start, t[1]+1):
-                            cl_list[i] = nc
-
-            if len(data[key]) > 0:
-                top_level_component = 'z' + data[key][0].original_name
-            else:
-                top_level_component = ''
             last_idx = -collapse
             category_is_hierarchical = not (
                 key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
