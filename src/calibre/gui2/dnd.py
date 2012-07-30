@@ -142,14 +142,14 @@ def dnd_has_extension(md, extensions):
     if md.hasUrls():
         urls = [unicode(u.toString()) for u in
                 md.urls()]
-        purls = [urlparse(u) for u in urls]
-        paths = [u2p(x) for x in purls]
+        paths = [urlparse(u).path for u in urls]
+        exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
+            paths if u])
         if DEBUG:
             prints('URLS:', urls)
             prints('Paths:', paths)
+            prints('Extensions:', exts)
 
-        exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
-            paths])
         return bool(exts.intersection(frozenset(extensions)))
     return False
 
