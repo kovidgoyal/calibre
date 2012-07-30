@@ -135,7 +135,8 @@ def dnd_has_extension(md, extensions):
         prints('Debugging DND event')
         for f in md.formats():
             f = unicode(f)
-            prints(f, repr(data_as_string(f, md))[:300], '\n')
+            raw = data_as_string(f, md)
+            prints(f, len(raw), repr(raw[:300]), '\n')
         print ()
     if has_firefox_ext(md, extensions):
         return True
