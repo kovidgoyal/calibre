@@ -2637,8 +2637,10 @@ Author '{0}':
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
-            contentTag['src'] = "%s#%s_authors" % (HTML_file, self.generateUnicodeName(authors_by_letter[1]))
-
+            if authors_by_letter[1] == self.SYMBOLS:
+                contentTag['src'] = "%s#%s_authors" % (HTML_file, authors_by_letter[1])
+            else:
+                contentTag['src'] = "%s#%s_authors" % (HTML_file, self.generateUnicodeName(authors_by_letter[1]))
             navPointByLetterTag.insert(1,contentTag)
 
             if self.generateForKindle:
