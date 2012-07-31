@@ -10,6 +10,9 @@ import os
 
 from lxml import etree
 from odf.odf2xhtml import ODF2XHTML
+from odf.opendocument import load as odLoad
+from odf.draw import Frame as odFrame, Image as odImage
+from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 
@@ -138,9 +141,63 @@ class Extract(ODF2XHTML):
                 r.selectorText = '.'+replace_name
         return sheet.cssText, sel_map
 
+    def search_page_img(self, mi, log):
+        for frm in self.document.topnode.getElementsByType(odFrame):
+            try:
+                if frm.getAttrNS(odTEXTNS,u'anchor-type') == 'page':
+                    log.warn('Document has Pictures anchored to Page, will all end up before first page!')
+                    break
+            except ValueError:
+                pass
+
+    def filter_cover(self, mi, log):
+        # filter the Element tree (remove the detected cover)
+        if mi.cover and mi.odf_cover_frame:
+            for frm in self.document.topnode.getElementsByType(odFrame):
+                # search the right frame
+                if frm.getAttribute('name') == mi.odf_cover_frame:
+                    img = frm.getElementsByType(odImage)
+                    # only one draw:image allowed in the draw:frame
+                    if len(img) == 1 and img[0].getAttribute('href') == mi.cover:
+                        # ok, this is the right frame with the right image
+                        # check if there are more childs
+                        if len(frm.childNodes) != 1:
+                            break
+                        # check if the parent paragraph more childs
+                        para = frm.parentNode
+                        if para.tagName != 'text:p' or len(para.childNodes) != 1:
+                            break
+                        # now it should be safe to remove the text:p
+                        parent = para.parentNode
+                        parent.removeChild(para)
+                        log("Removed cover image paragraph from document...")
+                        break
+
+    def filter_load(self, odffile, mi, log):
+        """ This is an adaption from ODF2XHTML. It adds a step between
+            load and parse of the document where the Element tree can be
+            modified.
+        """
+        # first load the odf structure
+        self.lines = []
+        self._wfunc = self._wlines
+        if isinstance(odffile, basestring) \
+                or hasattr(odffile, 'read'): # Added by Kovid
+            self.document = odLoad(odffile)
+        else:
+            self.document = odffile
+        # filter stuff
+        self.search_page_img(mi, log)
+        try:
+            self.filter_cover(mi, log)
+        except:
+            pass
+        # parse the modified tree and generate xhtml
+        self._walknode(self.document.topnode)
+
     def __call__(self, stream, odir, log):
         from calibre.utils.zipfile import ZipFile
-        from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.ebooks.metadata.odt import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.customize.ui import quick_metadata
 
@@ -148,12 +205,20 @@ class Extract(ODF2XHTML):
             os.makedirs(odir)
         with CurrentDir(odir):
             log('Extracting ODT file...')
-            html = self.odf2xhtml(stream)
+            mi = get_metadata(stream, 'odt')
+            if not mi.title:
+                mi.title = _('Unknown')
+            if not mi.authors:
+                mi.authors = [_('Unknown')]
+            self.filter_load(stream, mi, log)
+            html = self.xhtml()
             # A blanket img specification like this causes problems
             # with EPUB output as the containing element often has
             # an absolute height and width set that is larger than
             # the available screen real estate
             html = html.replace('img { width: 100%; height: 100%; }', '')
+            # odf2xhtml creates empty title tag
+            html = html.replace('<title></title>','<title>%s</title>'%(mi.title,))
             try:
                 html = self.fix_markup(html, log)
             except:
@@ -162,15 +227,6 @@ class Extract(ODF2XHTML):
                 f.write(html.encode('utf-8'))
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
-            stream.seek(0)
-            with quick_metadata:
-                # We dont want the cover, as it will lead to a duplicated image
-                # if no external cover is specified.
-                mi = get_metadata(stream, 'odt')
-            if not mi.title:
-                mi.title = _('Unknown')
-            if not mi.authors:
-                mi.authors = [_('Unknown')]
             opf = OPFCreator(os.path.abspath(os.getcwdu()), mi)
             opf.create_manifest([(os.path.abspath(f), None) for f in
                 walk(os.getcwdu())])

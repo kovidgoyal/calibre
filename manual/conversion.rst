@@ -734,7 +734,11 @@ If this property is detected by |app|, the following custom properties are recog
     opf.pubdate
     opf.isbn
     opf.language
+    opf.series
+    opf.seriesindex
 
 In addition to this, you can specify the picture to use as the cover by naming it ``opf.cover`` (right click, Picture->Options->Name) in the ODT. If no picture with this name is found, the 'smart' method is used.
-To prevent this you can set the custom property ``opf.nocover`` ('Yes or No' type) to Yes.
+As the cover detection might result in double covers in certain output formats, the process will remove the paragraph (only if the only content is the cover!) from the document. But this works only with the named picture!
+
+To disable cover detection you can set the custom property ``opf.nocover`` ('Yes or No' type) to Yes in advanced mode.
 

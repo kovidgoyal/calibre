@@ -196,6 +196,13 @@ def get_metadata(stream, extract_cover=True):
             mi.publisher = data['opf.publisher']
         if data.get('opf.pubdate', ''):
             mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
+        if data.get('opf.series', ''):
+            mi.series = data['opf.series']
+            if data.get('opf.seriesindex', ''):
+                try:
+                    mi.series_index = int(data['opf.seriesindex'])
+                except ValueError:
+                    mi.series_index = 1
         if data.get('opf.language', ''):
             cl = canonicalize_lang(data['opf.language'])
             if cl:
@@ -206,7 +213,7 @@ def get_metadata(stream, extract_cover=True):
             read_cover(stream, zin, mi, opfmeta, extract_cover)
         except:
             pass # Do not let an error reading the cover prevent reading other data
-
+    
     return mi
 
 def read_cover(stream, zin, mi, opfmeta, extract_cover):
@@ -216,34 +223,35 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
     otext = odLoad(stream)
     cover_href = None
     cover_data = None
-    # check that it's really a ODT
-    if otext.mimetype == u'application/vnd.oasis.opendocument.text':
-        for elem in otext.text.getElementsByType(odFrame):
-            img = elem.getElementsByType(odImage)
-            if len(img) > 0: # there should be only one
-                i_href = img[0].getAttribute('href')
-                try:
-                    raw = zin.read(i_href)
-                except KeyError:
-                    continue
-                try:
-                    width, height, fmt = identify_data(raw)
-                except:
-                    continue
-            else:
+    cover_frame = None
+    for frm in otext.topnode.getElementsByType(odFrame):
+        img = frm.getElementsByType(odImage)
+        if len(img) > 0: # there should be only one
+            i_href = img[0].getAttribute('href')
+            try:
+                raw = zin.read(i_href)
+            except KeyError:
                 continue
-            if opfmeta and elem.getAttribute('name').lower() == u'opf.cover':
-                cover_href = i_href
-                cover_data = (fmt, raw)
+            try:
+                width, height, fmt = identify_data(raw)
+            except:
+                continue
+        else:
+            continue
+        if opfmeta and frm.getAttribute('name').lower() == u'opf.cover':
+            cover_href = i_href
+            cover_data = (fmt, raw)
+            cover_frame = frm.getAttribute('name') # could have upper case
+            break
+        if cover_href is None and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+            cover_href = i_href
+            cover_data = (fmt, raw)
+            if not opfmeta:
                 break
-            if cover_href is None and 0.8 <= height/width <= 1.8 and height*width >= 12000:
-                cover_href = i_href
-                cover_data = (fmt, raw)
-                if not opfmeta:
-                    break
 
     if cover_href is not None:
         mi.cover = cover_href
+        mi.odf_cover_frame = cover_frame
         if extract_cover:
             if not cover_data:
                 raw = zin.read(cover_href)
