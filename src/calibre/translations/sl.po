@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-27 06:42+0000\n"
-"PO-Revision-Date: 2012-07-15 22:21+0000\n"
+"PO-Revision-Date: 2012-07-30 13:09+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-07-28 04:51+0000\n"
-"X-Generator: Launchpad (build 15694)\n"
+"X-Launchpad-Export-Date: 2012-07-31 04:57+0000\n"
+"X-Generator: Launchpad (build 15702)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
@@ -928,6 +928,8 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"Za razvijalce vtičnikov: pot do mape, kjer razvijate vtičnik. Ta ukaz "
+"samodejno zapakira vtičnik in ga posodobi v programu calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:588
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1668,6 +1670,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Nazadnje brana knjiga:</b> %(time)s<br /><b>Odstotek "
+"prebranega:</b> %(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1098
 #, python-format
@@ -1793,7 +1797,7 @@ msgstr "Povezovanje z bralniki e-knjig Sony, starejšimi od PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "Komentarji so odstranjeni, ker ima bralnik SONY z njimi težave"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by title"
@@ -1819,6 +1823,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Na voljo sta posebni zbirki: %(abt)s:%(abtv)s in %(aba)s:%(abav)s. Ti "
+"vrednosti dodajte na seznam, da ju omogočite. Zbirke bodo poimenovane s "
+"podanim imenom po znaku \":\"."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1988,7 +1995,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:808
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Naprave ni mogoče priklopiti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:979
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:981
@@ -2144,7 +2151,7 @@ msgstr "Mapa kartice A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Zamenjaj glavno kartico in kartico A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""

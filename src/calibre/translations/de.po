@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-27 06:42+0000\n"
-"PO-Revision-Date: 2012-07-27 14:25+0000\n"
+"PO-Revision-Date: 2012-07-30 18:49+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-28 04:42+0000\n"
-"X-Generator: Launchpad (build 15694)\n"
+"X-Launchpad-Export-Date: 2012-07-31 04:57+0000\n"
+"X-Generator: Launchpad (build 15702)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -14021,23 +14021,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:132
 msgid "Set author sort from author"
-msgstr "Sortierung nach Autor- Feld nach Autorenfeld setzen"
+msgstr "\"Autor(en)\" in das \"Sortierung nach Autor\" -Feld setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:133
 msgid "Set author from author sort"
-msgstr "Autorenfeld nach Sortierung nach Autor- Feld setzen"
+msgstr "\"Sortierung nach Autor\" in das \"Autor(en)\" -Feld setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:136
 msgid "Copy author to author sort"
-msgstr "Kopiere Autor nach Autorensortierung"
+msgstr "Kopiere Autor(en) in die Autorensortierung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:138
 msgid "Copy author sort to author"
-msgstr "Kopiere Autorensortierung nach Autor"
+msgstr "Kopiere Autorensortierung in das Autor(en) -Feld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:149
 msgid "Swap the author and title"
-msgstr "Tausche Autor und Titel"
+msgstr "Titel und Autor vertauschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:155
 msgid ""
