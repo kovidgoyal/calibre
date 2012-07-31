@@ -140,7 +140,7 @@ extensions = [
                     ['calibre/utils/podofo/podofo.cpp'],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
-                    inc_dirs=[podofo_inc],
+                    inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],
                     optional=True,
                     error=podofo_error),
 
