@@ -36,13 +36,9 @@ def synchronous(tlockname):
 
     def _synched(func):
         @wraps(func)
-        def _synchronizer(self,*args, **kwargs):
-            tlock = self.__getattribute__( tlockname)
-            tlock.acquire()
-            try:
+        def _synchronizer(self, *args, **kwargs):
+            with self.__getattribute__(tlockname):
                 return func(self, *args, **kwargs)
-            finally:
-                tlock.release()
         return _synchronizer
     return _synched
 
