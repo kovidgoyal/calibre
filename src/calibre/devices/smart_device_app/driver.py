@@ -460,12 +460,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             ans = select.select((self.listen_socket,), (), (), 0)
             if len(ans[0]) > 0:
                 # timeout in 10 ms to detect rare case where the socket went
-                # way between the select and the accent
+                # way between the select and the accept
                 try:
                     self.device_socket = None
                     self.listen_socket.settimeout(0.010)
-                    self.device_socket, ign = \
-                                eintr_retry_call(self.listen_socket.accept)
+                    self.device_socket, ign = eintr_retry_call(
+                            self.listen_socket.accept)
                     self.listen_socket.settimeout(None)
                     self.device_socket.settimeout(None)
                     self.is_connected = True
