@@ -796,8 +796,10 @@ def catalog_option_parser(args):
     return parser, plugin, log
 
 def command_catalog(args, dbpath):
+    print("library.cli:command_catalog() EXPERIMENTAL MODE")
     parser, plugin, log = catalog_option_parser(args)
     opts, args = parser.parse_args(sys.argv[1:])
+
     if len(args) < 2:
         parser.print_help()
         print
