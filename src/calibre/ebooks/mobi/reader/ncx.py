@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
+from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
@@ -88,7 +89,8 @@ def build_toc(index_entries):
     for lvl in sorted(levels):
         for item in level_map[lvl]:
             parent = num_map[item['parent']]
-            child = parent.add_item(item['href'], item['idtag'], item['text'])
+            child = parent.add_item(item['href'], item['idtag'],
+                    replace_entities(item['text'], encoding=None))
             num_map[item['num']] = child
 
     # Set play orders in depth first order

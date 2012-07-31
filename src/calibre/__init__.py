@@ -201,7 +201,8 @@ def prints(*args, **kwargs):
         try:
             file.write(arg)
         except:
-            file.write(repr(arg))
+            import repr as reprlib
+            file.write(reprlib.repr(arg))
         if i != len(args)-1:
             file.write(bytes(sep))
     file.write(bytes(end))

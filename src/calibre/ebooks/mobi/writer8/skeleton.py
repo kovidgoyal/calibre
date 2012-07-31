@@ -76,15 +76,13 @@ def tostring(raw, **kwargs):
 
 class Chunk(object):
 
-    def __init__(self, raw, parent_tag):
+    def __init__(self, raw, selector):
         self.raw = raw
         self.starts_tags = []
         self.ends_tags = []
         self.insert_pos = None
-        self.parent_tag = parent_tag
-        self.parent_is_body = False
-        self.is_last_chunk = False
         self.is_first_chunk = False
+        self.selector = "%s-//*[@aid='%s']"%selector
 
     def __len__(self):
         return len(self.raw)
@@ -96,11 +94,6 @@ class Chunk(object):
     def __repr__(self):
         return 'Chunk(len=%r insert_pos=%r starts_tags=%r ends_tags=%r)'%(
                 len(self.raw), self.insert_pos, self.starts_tags, self.ends_tags)
-
-    @property
-    def selector(self):
-        typ = 'S' if (self.is_last_chunk and not self.parent_is_body) else 'P'
-        return "%s-//*[@aid='%s']"%(typ, self.parent_tag)
 
     __str__ = __repr__
 
@@ -251,13 +244,13 @@ class Chunker(object):
 
     def step_into_tag(self, tag, chunks):
         aid = tag.get('aid')
-        is_body = tag.tag == 'body'
+        self.chunk_selector = ('P', aid)
 
         first_chunk_idx = len(chunks)
 
         # First handle any text
         if tag.text and tag.text.strip(): # Leave pure whitespace in the skel
-            chunks.extend(self.chunk_up_text(tag.text, aid))
+            chunks.extend(self.chunk_up_text(tag.text))
             tag.text = None
 
         # Now loop over children
@@ -266,21 +259,21 @@ class Chunker(object):
             if child.tag == etree.Entity:
                 chunks.append(raw)
                 if child.tail:
-                    chunks.extend(self.chunk_up_text(child.tail, aid))
+                    chunks.extend(self.chunk_up_text(child.tail))
                 continue
             raw = close_self_closing_tags(raw)
             if len(raw) > CHUNK_SIZE and child.get('aid', None):
                 self.step_into_tag(child, chunks)
                 if child.tail and child.tail.strip(): # Leave pure whitespace
-                    chunks.extend(self.chunk_up_text(child.tail, aid))
+                    chunks.extend(self.chunk_up_text(child.tail))
                     child.tail = None
             else:
                 if len(raw) > CHUNK_SIZE:
                     self.log.warn('Tag %s has no aid and a too large chunk'
                             ' size. Adding anyway.'%child.tag)
-                chunks.append(Chunk(raw, aid))
+                chunks.append(Chunk(raw, self.chunk_selector))
                 if child.tail:
-                    chunks.extend(self.chunk_up_text(child.tail, aid))
+                    chunks.extend(self.chunk_up_text(child.tail))
                 tag.remove(child)
 
         if len(chunks) <= first_chunk_idx and chunks:
@@ -293,12 +286,9 @@ class Chunker(object):
             my_chunks = chunks[first_chunk_idx:]
             if my_chunks:
                 my_chunks[0].is_first_chunk = True
-                my_chunks[-1].is_last_chunk = True
-                if is_body:
-                    for chunk in my_chunks:
-                        chunk.parent_is_body = True
+        self.chunk_selector = ('S', aid)
 
-    def chunk_up_text(self, text, parent_tag):
+    def chunk_up_text(self, text):
         text = text.encode('utf-8')
         ans = []
 
@@ -314,7 +304,7 @@ class Chunker(object):
         while rest:
             start, rest = split_multibyte_text(rest)
             ans.append(b'<span class="AmznBigTextBlock">' + start + '</span>')
-        return [Chunk(x, parent_tag) for x in ans]
+        return [Chunk(x, self.chunk_selector) for x in ans]
 
     def merge_small_chunks(self, chunks):
         ans = chunks[:1]
