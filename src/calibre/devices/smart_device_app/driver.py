@@ -133,10 +133,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return
         total_elapsed = time.time() - self.debug_start_time
         elapsed = time.time() - self.debug_time
-        prints('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
+        print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
                                                inspect.stack()[1][3]), end='')
         for a in args:
-            prints(a, end='')
+            try:
+                prints('', a, end='')
+            except:
+                prints('', 'value too long', end='')
         print()
         self.debug_time = time.time()
 
@@ -281,16 +284,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return json.dumps([op, res], encoding='utf-8')
 
     # Network functions
-    def _read_string_from_net(self, conn):
+    def _read_string_from_net(self):
         data = bytes(0)
         while True:
-            dex = data.find('[')
+            dex = data.find(b'[')
             if dex >= 0:
                 break
-            # conn.recv seems to return a pointer into some internal buffer.
+            # recv seems to return a pointer into some internal buffer.
             # Things get trashed if we don't make a copy of the data.
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = conn.recv(self.BASE_PACKET_LEN)
+            v = self.device_socket.recv(self.BASE_PACKET_LEN)
             self.device_socket.settimeout(None)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
@@ -300,7 +303,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         pos = len(data)
         while pos < total_len:
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = conn.recv(total_len - pos)
+            v = self.device_socket.recv(total_len - pos)
             self.device_socket.settimeout(None)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
@@ -326,7 +329,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
             self.device_socket.sendall(('%d' % len(s))+s)
             self.device_socket.settimeout(None)
-            v = self._read_string_from_net(self.device_socket)
+            v = self._read_string_from_net()
             if print_debug_info and extra_debug:
                 self._debug('received string', v)
             if v:
@@ -448,13 +451,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 # through and actually try to talk to the client.
             try:
                 # This will usually toss an exception if the socket is gone.
-                try:
-                    if self._call_client('NOOP', dict())[0] is None:
-                        self.is_connected = False
-                except:
+                if self._call_client('NOOP', dict())[0] is None:
                     self.is_connected = False
             except:
                 self.is_connected = False
+            if not self.is_connected:
+                self.device_socket.close()
             return (self.is_connected, self)
         if getattr(self, 'listen_socket', None) is not None:
             ans = select.select((self.listen_socket,), (), (), 0)
