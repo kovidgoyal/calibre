@@ -501,8 +501,7 @@ class SMART_DEVICE_APP (DeviceConfig, DevicePlugin):
                                 'validExtensions': self.ALL_FORMATS,
                                 'passwordChallenge': challenge,
                                 'currentLibraryName': self.current_library_name,
-                                'currentLibraryUUID': library_uuid,
-                                'rightAnswer': hash_digest})
+                                'currentLibraryUUID': library_uuid})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
