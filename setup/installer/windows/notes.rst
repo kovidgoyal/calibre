@@ -322,24 +322,7 @@ cp build/podofo-*/build/src/Release/podofo.exp lib/
 cp build/podofo-*/build/podofo_config.h include/podofo/
 cp -r build/podofo-*/src/* include/podofo/
 
-You have to use >=0.8.2
-
-The following patch (against -r1269) was required to get it to compile:
-
-
-Index: src/PdfFiltersPrivate.cpp
-===================================================================
---- src/PdfFiltersPrivate.cpp   (revision 1261)
-+++ src/PdfFiltersPrivate.cpp   (working copy)
-@@ -1019,7 +1019,7 @@
- /*
-  * Prepare for input from a memory buffer.
-  */
--GLOBAL(void)
-+void
- jpeg_memory_src (j_decompress_ptr cinfo, const JOCTET * buffer, size_t bufsize)
- {
-     my_src_ptr src;
+You have to use >=0.9.1
 
 
 ImageMagick

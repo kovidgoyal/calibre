@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 '''
 Created on 29 Jun 2012
 
@@ -8,6 +12,7 @@ import hashlib, threading
 from base64 import b64encode, b64decode
 from functools import wraps
 
+from calibre import prints
 from calibre.constants import numeric_version, DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, BookList
@@ -23,10 +28,10 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
 from calibre.utils.date import isoformat, now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
-from calibre.utils.mdns import publish as publish_zeroconf
-from calibre.utils.mdns import unpublish as unpublish_zeroconf
+from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
+        unpublish_zeroconf)
 
-def synchronous( tlockname ):
+def synchronous(tlockname):
     """A decorator to place an instance based lock around a method """
 
     def _synched(func):
@@ -42,7 +47,7 @@ def synchronous( tlockname ):
     return _synched
 
 
-class SMART_DEVICE_APP (DeviceConfig, DevicePlugin):
+class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
     gui_name = _('SmartDevice')
     icon = I('devices/galaxy_s3.png')
@@ -132,11 +137,11 @@ class SMART_DEVICE_APP (DeviceConfig, DevicePlugin):
             return
         total_elapsed = time.time() - self.debug_start_time
         elapsed = time.time() - self.debug_time
-        print 'SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
-                                               inspect.stack()[1][3]),
+        prints('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
+                                               inspect.stack()[1][3]), end='')
         for a in args:
-            print a,
-        print
+            prints(a, end='')
+        print()
         self.debug_time = time.time()
 
     # Various methods required by the plugin architecture
