@@ -291,7 +291,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _read_string_from_net(self):
         data = bytes(0)
         while True:
-            dex = data.find('[')
+            dex = data.find(b'[')
             if dex >= 0:
                 break
             # recv seems to return a pointer into some internal buffer.
