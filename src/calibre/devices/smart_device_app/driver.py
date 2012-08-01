@@ -346,17 +346,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('timeout communicating with device')
             self.device_socket.close()
             self.device_socket = None
+            self.is_connected = False
             raise IOError(_('Device did not respond in reasonable time'))
         except socket.error:
             self._debug('device went away')
             self.device_socket.close()
             self.device_socket = None
+            self.is_connected = False
             raise IOError(_('Device closed the network connection'))
         except:
             self._debug('other exception')
             traceback.print_exc()
             self.device_socket.close()
             self.device_socket = None
+            self.is_connected = False
             raise
         raise IOError('Device responded with incorrect information')
 
@@ -481,11 +484,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except socket.timeout:
                     if self.device_socket is not None:
                         self.device_socket.close()
+                        self.is_connected = False
                 except socket.error:
                     x = sys.exc_info()[1]
                     self._debug('unexpected socket exception', x.args[0])
                     if self.device_socket is not None:
                         self.device_socket.close()
+                        self.is_connected = False
                     raise
                 return (True, self)
         return (False, None)
@@ -517,16 +522,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 # and continue.
                 self._debug('Protocol error - Opcode not OK')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             if not result.get('versionOK', False):
                 # protocol mismatch
                 self._debug('Protocol error - protocol version mismatch')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             if result.get('maxBookContentPacketLen', 0) <= 0:
                 # protocol mismatch
                 self._debug('Protocol error - bogus book packet length')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
@@ -534,6 +542,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if exts is None or not isinstance(exts, list) or len(exts) == 0:
                 self._debug('Protocol error - bogus accepted extensions')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             self.FORMATS = exts
             if password:
@@ -542,20 +551,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # protocol mismatch
                     self._debug('Protocol error - missing password hash')
                     self.device_socket.close()
+                    self.is_connected = False
                     return False
                 if returned_hash != hash_digest:
                     # bad password
                     self._debug('password mismatch')
                     self._call_client("DISPLAY_MESSAGE", {'messageKind':1})
+                    self.is_connected = False
                     self.device_socket.close()
                     return False
             return True
         except socket.timeout:
             self.device_socket.close()
+            self.is_connected = False
         except socket.error:
             x = sys.exc_info()[1]
             self._debug('unexpected socket exception', x.args[0])
             self.device_socket.close()
+            self.is_connected = False
             raise
         return False
 
@@ -811,6 +824,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Failed to allocate a port');
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
             return
 
         try:
@@ -819,6 +833,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('listen on socket failed', port)
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
             return
 
         try:
@@ -827,6 +842,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('registration with bonjour failed')
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
             return
 
         self._debug('listening on port', port)
@@ -838,6 +854,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             do_zeroconf(unpublish_zeroconf, self.port)
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
 
     # Methods for dynamic control
 
