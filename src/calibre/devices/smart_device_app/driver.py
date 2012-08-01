@@ -14,6 +14,7 @@ from functools import wraps
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
+from calibre.devices.errors import OpenFeedback
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -559,7 +560,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._call_client("DISPLAY_MESSAGE", {'messageKind':1})
                     self.is_connected = False
                     self.device_socket.close()
-                    return False
+                    raise OpenFeedback('Incorrect password supplied')
             return True
         except socket.timeout:
             self.device_socket.close()
