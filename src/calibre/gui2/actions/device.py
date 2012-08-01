@@ -28,6 +28,9 @@ class ShareConnMenu(QMenu): # {{{
     control_smartdevice = pyqtSignal()
     dont_add_to = frozenset(['context-menu-device'])
 
+    DEVICE_MSGS = [_('Start wireless device connection'),
+            _('Stop wireless device connection')]
+
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
         mitem = self.addAction(QIcon(I('devices/folder.png')), _('Connect to folder'))
@@ -59,8 +62,8 @@ class ShareConnMenu(QMenu): # {{{
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
         self.control_smartdevice_action = \
-            self.addAction(QIcon(I('dot_green.png')),
-            _('Control Smart Device Connections'))
+            self.addAction(QIcon(I('dot_red.png')),
+            self.DEVICE_MSGS[0])
         self.control_smartdevice_action.triggered.connect(lambda x:
                 self.control_smartdevice.emit())
         self.addSeparator()
@@ -215,17 +218,23 @@ class ConnectShareAction(InterfaceAction):
         self.stopping_msg.accept()
 
     def control_smartdevice(self):
-        sd_dialog = SmartdeviceDialog(self.gui)
-        sd_dialog.exec_()
-        self.set_smartdevice_icon()
+        dm = self.gui.device_manager
+        running = dm.is_running('smartdevice')
+        if running:
+            dm.stop_plugin('smartdevice')
+        else:
+            sd_dialog = SmartdeviceDialog(self.gui)
+            sd_dialog.exec_()
+        self.set_smartdevice_action_state()
 
     def check_smartdevice_menus(self):
         if not self.gui.device_manager.is_enabled('smartdevice'):
             self.share_conn_menu.hide_smartdevice_menus()
 
-    def set_smartdevice_icon(self):
+    def set_smartdevice_action_state(self):
         running = self.gui.device_manager.is_running('smartdevice')
-        if running:
-            self.share_conn_menu.control_smartdevice_action.setIcon(QIcon(I('dot_green.png')))
-        else:
-            self.share_conn_menu.control_smartdevice_action.setIcon(QIcon(I('dot_red.png')))
+        ac = self.share_conn_menu.control_smartdevice_action
+        text, icon = (1, 'green') if running else (0, 'red')
+        ac.setIcon(QIcon(I('dot_%s.png'%icon)))
+        ac.setText(self.share_conn_menu.DEVICE_MSGS[text])
+

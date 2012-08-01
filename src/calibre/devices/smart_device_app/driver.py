@@ -42,6 +42,10 @@ def synchronous(tlockname):
         return _synchronizer
     return _synched
 
+def do_zeroconf(f, port):
+    f('calibre smart device client',
+        '_calibresmartdeviceapp._tcp', port, {})
+
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
@@ -788,7 +792,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('creation of listen socket failed')
             return
 
-        for i in range(0, 100): # try up to 100 random port numbers
+        for i in xrange(100): # try up to 100 random port numbers
             port = random.randint(8192, 32000)
             try:
                 self._debug('try port', port)
@@ -815,8 +819,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return
 
         try:
-            publish_zeroconf('calibre smart device client',
-                             '_calibresmartdeviceapp._tcp', port, {})
+            do_zeroconf(publish_zeroconf, port)
         except:
             self._debug('registration with bonjour failed')
             self.listen_socket.close()
@@ -829,10 +832,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
+            do_zeroconf(unpublish_zeroconf, self.port)
             self.listen_socket.close()
             self.listen_socket = None
-            unpublish_zeroconf('calibre smart device client',
-                               '_calibresmartdeviceapp._tcp', self.port, {})
 
     # Methods for dynamic control
 
