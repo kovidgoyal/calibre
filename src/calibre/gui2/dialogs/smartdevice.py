@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.QtGui import QDialog, QLineEdit
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.Qt import (QDialog, QLineEdit, Qt)
 
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 
@@ -24,7 +27,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
               'smart device interface when calibre starts. You should not do '
               'this if you are using a network that is not secure and you '
               'are not setting a password.') + '</p>')
-        self.connect(self.show_password, SIGNAL('stateChanged(int)'), self.toggle_password)
+        self.show_password.stateChanged[int].connect(self.toggle_password)
 
         self.device_manager = parent.device_manager
 
@@ -34,6 +37,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         pw = self.device_manager.get_option('smartdevice', 'password')
         if pw:
             self.password_box.setText(pw)
+        self.resize(self.sizeHint())
 
     def toggle_password(self, state):
         if state == Qt.Unchecked:
