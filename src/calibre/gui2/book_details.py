@@ -383,6 +383,7 @@ class BookInfo(QWebView):
 
     link_clicked = pyqtSignal(object)
     remove_format = pyqtSignal(int, object)
+    save_format = pyqtSignal(int, object)
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
@@ -396,16 +397,23 @@ class BookInfo(QWebView):
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.css = P('templates/book_details.css', data=True).decode('utf-8')
-        self.remove_format_action = QAction(QIcon(I('trash.png')),
-                '', self)
-        self.remove_format_action.current_fmt = None
-        self.remove_format_action.triggered.connect(self.remove_format_triggerred)
+        for x, icon in [('remove', 'trash.png'), ('save', 'save.png')]:
+            ac = QAction(QIcon(I(icon)), '', self)
+            ac.current_fmt = None
+            ac.triggered.connect(getattr(self, '%s_format_triggerred'%x))
+            setattr(self, '%s_format_action'%x, ac)
 
-    def remove_format_triggerred(self):
-        f = self.remove_format_action.current_fmt
+    def context_action_triggered(self, which):
+        f = getattr(self, '%s_format_action'%which).current_fmt
         if f:
             book_id, fmt = f
-            self.remove_format.emit(book_id, fmt)
+            getattr(self, '%s_format'%which).emit(book_id, fmt)
+
+    def remove_format_triggerred(self):
+        self.context_action_triggered('remove')
+
+    def save_format_triggerred(self):
+        self.context_action_triggered('save')
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -449,10 +457,12 @@ class BookInfo(QWebView):
                 import traceback
                 traceback.print_exc()
             else:
-                self.remove_format_action.current_fmt = (book_id, fmt)
-                self.remove_format_action.setText(_('Delete the %s format')%parts[
-                    2])
-                menu.addAction(self.remove_format_action)
+                for a, t in [('remove', _('Delete the %s format')),
+                    ('save', _('Save the %s format to disk'))]:
+                    ac = getattr(self, '%s_format_action'%a)
+                    ac.current_fmt = (book_id, fmt)
+                    ac.setText(t%parts[2])
+                    menu.addAction(ac)
         if len(menu.actions()) > 0:
             menu.exec_(ev.globalPos())
 
@@ -551,6 +561,7 @@ class BookDetails(QWidget): # {{{
     open_containing_folder = pyqtSignal(int)
     view_specific_format = pyqtSignal(int, object)
     remove_specific_format = pyqtSignal(int, object)
+    save_specific_format = pyqtSignal(int, object)
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
@@ -618,6 +629,7 @@ class BookDetails(QWidget): # {{{
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self.handle_click)
         self.book_info.remove_format.connect(self.remove_specific_format)
+        self.book_info.save_format.connect(self.save_specific_format)
         self.setCursor(Qt.PointingHandCursor)
 
     def handle_click(self, link):
