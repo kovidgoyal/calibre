@@ -455,10 +455,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # protocol, this can only be a disconnect notification. Fall
                     # through and actually try to talk to the client.
                     # This will usually toss an exception if the socket is gone.
-                    if self._call_client('NOOP', dict())[0] is None:
-                        self.is_connected = False
                 except:
+                    pass
+            try:
+                if self._call_client('NOOP', dict())[0] is None:
                     self.is_connected = False
+            except:
+                self.is_connected = False
             if not self.is_connected:
                 self.device_socket.close()
             return (self.is_connected, self)
