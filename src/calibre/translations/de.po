@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-07-27 06:42+0000\n"
-"PO-Revision-Date: 2012-07-30 18:49+0000\n"
+"PO-Revision-Date: 2012-07-31 14:32+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-07-31 04:57+0000\n"
-"X-Generator: Launchpad (build 15702)\n"
+"X-Launchpad-Export-Date: 2012-08-01 04:43+0000\n"
+"X-Generator: Launchpad (build 15719)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -6035,6 +6035,8 @@ msgid ""
 "The %(fmt)s format will be <b>permanently deleted</b> from %(title)s. Are "
 "you sure?"
 msgstr ""
+"Das %(fmt)s Format wird von %(title)s <b>dauerhaft entfernt</b>. Sind Sie "
+"sich sicher?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid "Choose formats to be deleted"
@@ -10638,7 +10640,7 @@ msgstr "Log-Datei anschauen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr ""
+msgstr "Die verbleibenden %d Fehlermeldungen ausblenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-07-27 06:42+0000\n"
-"PO-Revision-Date: 2012-05-13 18:11+0000\n"
-"Last-Translator: Michal Horáček <horacekm@email.cz>\n"
+"PO-Revision-Date: 2012-07-31 12:00+0000\n"
+"Last-Translator: Štěpán Krb <stepan.krb@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-07-28 04:40+0000\n"
-"X-Generator: Launchpad (build 15694)\n"
+"X-Launchpad-Export-Date: 2012-08-01 04:42+0000\n"
+"X-Generator: Launchpad (build 15719)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -923,6 +923,8 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"Pro vývojáře pluginů: Cesta k pracovnímu adresáři. Tento příkaz automaticky "
+"zabalí plugin a updatuje jej v calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:588
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -992,6 +994,8 @@ msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"Vynutí ukončení běžících instancí calibre. Všechny zpracovávané úkoly budou "
+"zrušeny, používejte s rozmyslem."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:167
 msgid "Debug log"
@@ -1106,6 +1110,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Nepodporovaný způsob přímého připojení. Přejděte na "
+"http://www.mobileread.com/forums/showthread.php?t=118559 pro návod k použití "
+"'Connect to iTunes' (v angličtině)."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1113,6 +1120,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>Komunikaci s iTunes nebylo možno navázat.</p><p>Přejděte <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"sem</a> pro více informací (v angličtině).</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:380
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:383
@@ -1344,7 +1354,7 @@ msgstr "Komunikace se čtečkou PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Připojit ke čtečce PocketBook 622."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1472,7 +1482,7 @@ msgstr "Komunikace se čtečkou JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Připojit ke čtečce JetBook Color."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1549,7 +1559,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:312
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "Název vlastního sloupce s údajem o počtu stran"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:314
 msgid ""
@@ -1558,6 +1568,10 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
+"Pokud máte v knihovně vlastní sloupec, který používáte k uchovávání "
+"informací o počtu stran v knihách, calibre může použít tuto informaci "
+"namísto počítání stránek. Zde upřesněte název vlastního sloupce, například "
+"#pages. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:450
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1806,7 +1820,7 @@ msgstr "Komunikace se Sony eBook čtečkou starší než PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "Komentáře byly odebrány, protože způsobují zamrznutí čtečky SONY."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by title"
@@ -1920,6 +1934,9 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Čtečky SONY obvykle používají přebal ze samotného ebooku. Použitím této "
+"volby calibre odešle do čtečky obrázek zvlášť, což je užitečné, pokud "
+"odesíláte chráněné knihy, u kterých nemůžete změnit přebal."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
@@ -2177,13 +2194,15 @@ msgstr "Adresář karty A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Prohodit hlavní paměť a kartu A."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Zaškrtněte toto políčko, pokud se hlavní paměť zařízení zobrazuje jako karta "
+"a karta jako hlavní paměť."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
 #, python-format
