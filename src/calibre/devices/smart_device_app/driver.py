@@ -447,18 +447,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if self.is_connected:
             self.noop_counter += 1
             if only_presence and (self.noop_counter % 5) != 1:
-                ans = select.select((self.device_socket,), (), (), 0)
-                if len(ans[0]) == 0:
-                    return (True, self)
-                # The socket indicates that something is there. Given the
-                # protocol, this can only be a disconnect notification. Fall
-                # through and actually try to talk to the client.
-            try:
-                # This will usually toss an exception if the socket is gone.
-                if self._call_client('NOOP', dict())[0] is None:
+                try:
+                    ans = select.select((self.device_socket,), (), (), 0)
+                    if len(ans[0]) == 0:
+                        return (True, self)
+                    # The socket indicates that something is there. Given the
+                    # protocol, this can only be a disconnect notification. Fall
+                    # through and actually try to talk to the client.
+                    # This will usually toss an exception if the socket is gone.
+                    if self._call_client('NOOP', dict())[0] is None:
+                        self.is_connected = False
+                except:
                     self.is_connected = False
-            except:
-                self.is_connected = False
             if not self.is_connected:
                 self.device_socket.close()
             return (self.is_connected, self)
