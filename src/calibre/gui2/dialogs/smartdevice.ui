@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>612</width>
     <height>226</height>
    </rect>
   </property>
@@ -22,7 +22,7 @@
     <widget class="QLabel" name="msg">
      <property name="minimumSize">
       <size>
-       <width>500</width>
+       <width>600</width>
        <height>0</height>
       </size>
      </property>
@@ -57,7 +57,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>&amp;Password:</string>
+      <string>Optional &amp;password:</string>
      </property>
      <property name="buddy">
       <cstring>password_box</cstring>
@@ -81,10 +81,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="2">
+   <item row="3" column="0" colspan="3">
     <widget class="QCheckBox" name="autostart_box">
      <property name="text">
-      <string>&amp;Automatically allow connections at startup</string>
+      <string>&amp;Automatically allow connections at calibre startup</string>
      </property>
     </widget>
    </item>

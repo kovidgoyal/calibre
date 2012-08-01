@@ -15,7 +15,7 @@ from calibre.constants import iswindows, isosx
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
-from calibre.gui2 import info_dialog
+from calibre.gui2 import info_dialog, question_dialog
 
 class ShareConnMenu(QMenu): # {{{
 
@@ -222,6 +222,11 @@ class ConnectShareAction(InterfaceAction):
         running = dm.is_running('smartdevice')
         if running:
             dm.stop_plugin('smartdevice')
+            if dm.get_option('smartdevice', 'autostart'):
+                if not question_dialog(self.gui, _('Disable autostart'),
+                        _('Do you want wireless device connections to be'
+                            ' started automatically when calibre starts?')):
+                    dm.set_option('smartdevice', 'autostart', False)
         else:
             sd_dialog = SmartdeviceDialog(self.gui)
             sd_dialog.exec_()
