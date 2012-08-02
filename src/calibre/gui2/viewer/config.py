@@ -81,7 +81,45 @@ class ConfigDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
+        for x in ('text', 'background'):
+            getattr(self, 'change_%s_color_button'%x).clicked.connect(
+                            partial(self.change_color, x, reset=False))
+            getattr(self, 'reset_%s_color_button'%x).clicked.connect(
+                    partial(self.change_color, x, reset=True))
+        self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
+
+        self.shortcuts = shortcuts
+        self.shortcut_config = ShortcutConfig(shortcuts, parent=self)
+        bb = self.buttonBox
+        bb.button(bb.RestoreDefaults).clicked.connect(self.restore_defaults)
+
+        with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
+            allow_user_override=False), 'r') as zf:
+            pats = [x.split('.')[0].replace('-', '_') for x in zf.namelist()]
+        names = list(map(get_language, pats))
+        pmap = {}
+        for i in range(len(pats)):
+            pmap[names[i]] = pats[i]
+        for x in sorted(names):
+            self.hyphenate_default_lang.addItem(x, QVariant(pmap[x]))
+        self.hyphenate_pats = pats
+        self.hyphenate_names = names
+        p = self.tabs.widget(1)
+        p.layout().addWidget(self.shortcut_config)
+
+        if isxp:
+            self.hyphenate.setVisible(False)
+            self.hyphenate_default_lang.setVisible(False)
+            self.hyphenate_label.setVisible(False)
+
         opts = config().parse()
+        self.load_options(opts)
+
+    def restore_defaults(self):
+        opts = config('').parse()
+        self.load_options(opts)
+
+    def load_options(self, opts):
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
@@ -99,17 +137,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.mono_font_size.setValue(opts.mono_font_size)
         self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
-        self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_fs_width.setValue(opts.max_fs_width)
-        with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
-            allow_user_override=False), 'r') as zf:
-            pats = [x.split('.')[0].replace('-', '_') for x in zf.namelist()]
-        names = list(map(get_language, pats))
-        pmap = {}
-        for i in range(len(pats)):
-            pmap[names[i]] = pats[i]
-        for x in sorted(names):
-            self.hyphenate_default_lang.addItem(x, QVariant(pmap[x]))
+        pats, names = self.hyphenate_pats, self.hyphenate_names
         try:
             idx = pats.index(opts.hyphenate_default_lang)
         except ValueError:
@@ -118,15 +147,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.hyphenate_default_lang.setCurrentIndex(idx)
         self.hyphenate.setChecked(opts.hyphenate)
         self.hyphenate_default_lang.setEnabled(opts.hyphenate)
-        self.shortcuts = shortcuts
-        self.shortcut_config = ShortcutConfig(shortcuts, parent=self)
-        p = self.tabs.widget(1)
-        p.layout().addWidget(self.shortcut_config)
         self.opt_fit_images.setChecked(opts.fit_images)
-        if isxp:
-            self.hyphenate.setVisible(False)
-            self.hyphenate_default_lang.setVisible(False)
-            self.hyphenate_label.setVisible(False)
         self.opt_fullscreen_clock.setChecked(opts.fullscreen_clock)
         self.opt_cols_per_screen.setValue(opts.cols_per_screen)
         self.opt_override_book_margins.setChecked(not opts.use_book_margins)
@@ -135,10 +156,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 x+'_margin'))
         for x in ('text', 'background'):
             setattr(self, 'current_%s_color'%x, getattr(opts, '%s_color'%x))
-            getattr(self, 'change_%s_color_button'%x).clicked.connect(
-                            partial(self.change_color, x, reset=False))
-            getattr(self, 'reset_%s_color_button'%x).clicked.connect(
-                    partial(self.change_color, x, reset=True))
         self.update_sample_colors()
 
     def change_color(self, which, reset=False):

@@ -207,8 +207,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>352</height>
+            <width>397</width>
+            <height>232</height>
            </rect>
           </property>
           <attribute name="label">
@@ -337,8 +337,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>352</height>
+            <width>313</width>
+            <height>64</height>
            </rect>
           </property>
           <attribute name="label">
@@ -381,6 +381,14 @@ QToolBox::tab:hover {
           </layout>
          </widget>
          <widget class="QWidget" name="page_6">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>351</width>
+            <height>76</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>Colors and backgrounds</string>
           </attribute>
@@ -456,8 +464,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>352</height>
+            <width>410</width>
+            <height>120</height>
            </rect>
           </property>
           <attribute name="label">
@@ -527,8 +535,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>352</height>
+            <width>352</width>
+            <height>123</height>
            </rect>
           </property>
           <attribute name="label">
@@ -627,7 +635,7 @@ QToolBox::tab:hover {
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
      </property>
     </widget>
    </item>
