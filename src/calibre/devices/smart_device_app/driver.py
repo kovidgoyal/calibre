@@ -113,6 +113,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         _('Security password') + ':::<p>' +
             _('Enter a password that the device app must use to connect to calibre') + '</p>',
         '',
+        _('Use fixed network port') + ':::<p>' +
+            _('If checked, use the port number in the "Port" box, otherwise '
+              'the driver will pick a random port') + '</p>',
+        _('Port') + ':::<p>' +
+            _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
             _('Check this box if requested when reporting problems') + '</p>',
         ]
@@ -121,11 +126,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 '',
                 '',
                 '',
+                False, '9090',
                 False,
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
-    OPT_EXTRA_DEBUG             = 4
+    OPT_USE_PORT                = 4
+    OPT_PORT_NUMBER             = 5
+    OPT_EXTRA_DEBUG             = 6
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -809,8 +817,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('creation of listen socket failed')
             return
 
-        for i in xrange(100): # try up to 100 random port numbers
-            port = random.randint(8192, 32000)
+        i = 0
+        while i < 100: # try up to 100 random port numbers
+            if self.settings().extra_customization[self.OPT_USE_PORT]:
+                i = 100
+                try:
+                    port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
+                except:
+                    port = 0
+            else:
+                i += 1
+                port = random.randint(8192, 32000)
             try:
                 self._debug('try port', port)
                 self.listen_socket.bind(('', port))

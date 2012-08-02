@@ -237,9 +237,14 @@ class ConnectShareAction(InterfaceAction):
             self.share_conn_menu.hide_smartdevice_menus()
 
     def set_smartdevice_action_state(self):
+        from calibre.utils.mdns import get_external_ip
         running = self.gui.device_manager.is_running('smartdevice')
+        if not running:
+            text = self.share_conn_menu.DEVICE_MSGS[0]
+        else:
+            text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s]'%get_external_ip()
+        icon = 'green' if running else 'red'
         ac = self.share_conn_menu.control_smartdevice_action
-        text, icon = (1, 'green') if running else (0, 'red')
         ac.setIcon(QIcon(I('dot_%s.png'%icon)))
-        ac.setText(self.share_conn_menu.DEVICE_MSGS[text])
+        ac.setText(text)
 
