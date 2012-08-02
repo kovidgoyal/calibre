@@ -123,7 +123,6 @@ class Document(QWebPage): # {{{
         prefix = '''
             body { %s  }
         '''%('; '.join(brules))
-        print (prefix)
         raw = prefix + opts.user_css
         raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
