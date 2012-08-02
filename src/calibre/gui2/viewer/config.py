@@ -10,10 +10,11 @@ __docformat__ = 'restructuredtext en'
 import zipfile
 from functools import partial
 
-from PyQt4.Qt import QFont, QVariant, QDialog, Qt, QColor, QColorDialog
+from PyQt4.Qt import (QFont, QVariant, QDialog, Qt, QColor, QColorDialog,
+        QMenu, QInputDialog)
 
 from calibre.constants import iswindows, isxp
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.utils.localization import get_language
@@ -112,8 +113,55 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.hyphenate_default_lang.setVisible(False)
             self.hyphenate_label.setVisible(False)
 
+        self.themes = JSONConfig('viewer_themes')
+        self.save_theme_button.clicked.connect(self.save_theme)
+        self.load_theme_button.m = m = QMenu()
+        self.load_theme_button.setMenu(m)
+        m.triggered.connect(self.load_theme)
+        self.delete_theme_button.m = m = QMenu()
+        self.delete_theme_button.setMenu(m)
+        m.triggered.connect(self.delete_theme)
+
         opts = config().parse()
         self.load_options(opts)
+        self.init_load_themes()
+
+    def save_theme(self):
+        themename, ok = QInputDialog.getText(self, _('Theme name'),
+                _('Choose a name for this theme'))
+        if not ok: return
+        themename = unicode(themename).strip()
+        if not themename: return
+        c = config('')
+        c.add_opt('theme_name_xxx', default=themename)
+        self.save_options(c)
+        self.themes['theme_'+themename] = c.src
+        self.init_load_themes()
+        self.theming_message.setText(_('Saved settings as the theme named: %s')%
+            themename)
+
+    def init_load_themes(self):
+        for x in ('load', 'delete'):
+            m = getattr(self, '%s_theme_button'%x).menu()
+            m.clear()
+            for x in self.themes.iterkeys():
+                title = x[len('theme_'):]
+                ac = m.addAction(title)
+                ac.theme_id = x
+
+    def load_theme(self, ac):
+        theme = ac.theme_id
+        raw = self.themes[theme]
+        self.load_options(config(raw).parse())
+        self.theming_message.setText(_('Loaded settings from the theme %s')%
+                theme[len('theme_'):])
+
+    def delete_theme(self, ac):
+        theme = ac.theme_id
+        del self.themes[theme]
+        self.init_load_themes()
+        self.theming_message.setText(_('Deleted the theme named: %s')%
+                theme[len('theme_'):])
 
     def restore_defaults(self):
         opts = config('').parse()
@@ -193,11 +241,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
                         ' first complete that, by clicking outside the '
                         ' shortcut editing box.'), show=True)
             return
-        self.save_options()
+        self.save_options(config())
         return QDialog.accept(self, *args)
 
-    def save_options(self):
-        c = config()
+    def save_options(self, c):
         c.set('serif_family', unicode(self.serif_family.currentFont().family()))
         c.set('sans_family', unicode(self.sans_family.currentFont().family()))
         c.set('mono_family', unicode(self.mono_family.currentFont().family()))
@@ -228,6 +275,5 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('background_color', self.current_background_color)
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
-
 
 
