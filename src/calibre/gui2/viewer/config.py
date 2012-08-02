@@ -8,8 +8,9 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import zipfile
+from functools import partial
 
-from PyQt4.Qt import QFont, QVariant, QDialog
+from PyQt4.Qt import QFont, QVariant, QDialog, Qt, QColor, QColorDialog
 
 from calibre.constants import iswindows, isxp
 from calibre.utils.config import Config, StringConfig
@@ -58,6 +59,8 @@ def config(defaults=None):
     c.add_opt('top_margin', default=20)
     c.add_opt('side_margin', default=40)
     c.add_opt('bottom_margin', default=20)
+    c.add_opt('text_color', default=None)
+    c.add_opt('background_color', default=None)
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -130,6 +133,39 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for x in ('top', 'bottom', 'side'):
             getattr(self, 'opt_%s_margin'%x).setValue(getattr(opts,
                 x+'_margin'))
+        for x in ('text', 'background'):
+            setattr(self, 'current_%s_color'%x, getattr(opts, '%s_color'%x))
+            getattr(self, 'change_%s_color_button'%x).clicked.connect(
+                            partial(self.change_color, x, reset=False))
+            getattr(self, 'reset_%s_color_button'%x).clicked.connect(
+                    partial(self.change_color, x, reset=True))
+        self.update_sample_colors()
+
+    def change_color(self, which, reset=False):
+        if reset:
+            setattr(self, 'current_%s_color'%which, None)
+        else:
+            initial = getattr(self, 'current_%s_color'%which)
+            if initial:
+                initial = QColor(initial)
+            else:
+                initial = Qt.black if which == 'text' else Qt.white
+            title = (_('Choose text color') if which == 'text' else
+                    _('Choose background color'))
+            col = QColorDialog.getColor(initial, self,
+                    title, QColorDialog.ShowAlphaChannel)
+            if col.isValid():
+                name = unicode(col.name())
+                setattr(self, 'current_%s_color'%which, name)
+        self.update_sample_colors()
+
+    def update_sample_colors(self):
+        for x in ('text', 'background'):
+            val = getattr(self, 'current_%s_color'%x)
+            if not val: val = 'inherit' if x == 'text' else 'transparent'
+            ss = 'QLabel { %s: %s }'%('background-color' if x == 'background'
+                    else 'color', val)
+            getattr(self, '%s_color_sample'%x).setStyleSheet(ss)
 
     def accept(self, *args):
         if self.shortcut_config.is_editing:
@@ -165,6 +201,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('cols_per_screen', int(self.opt_cols_per_screen.value()))
         c.set('use_book_margins', not
                 self.opt_override_book_margins.isChecked())
+        c.set('text_color', self.current_text_color)
+        c.set('background_color', self.current_background_color)
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
         return QDialog.accept(self, *args)

@@ -58,7 +58,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>384</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -208,7 +208,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>384</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -338,7 +338,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>384</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -380,13 +380,84 @@ QToolBox::tab:hover {
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page_6">
+          <attribute name="label">
+           <string>Colors and backgrounds</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>Background color:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="background_color_sample">
+               <property name="text">
+                <string>Sample</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="change_background_color_button">
+               <property name="text">
+                <string>Change</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="reset_background_color_button">
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>Text color:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLabel" name="text_color_sample">
+               <property name="text">
+                <string>Sample</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="change_text_color_button">
+               <property name="text">
+                <string>Change</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="reset_text_color_button">
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="page_3">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>384</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -457,7 +528,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>384</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
