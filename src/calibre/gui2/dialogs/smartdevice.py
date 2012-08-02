@@ -40,10 +40,8 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         self.resize(self.sizeHint())
 
     def toggle_password(self, state):
-        if state == Qt.Unchecked:
-            self.password_box.setEchoMode(QLineEdit.Password)
-        else:
-            self.password_box.setEchoMode(QLineEdit.Normal)
+        self.password_box.setEchoMode(QLineEdit.Password if state ==
+                Qt.Unchecked else QLineEdit.Normal)
 
     def accept(self):
         self.device_manager.set_option('smartdevice', 'password',
