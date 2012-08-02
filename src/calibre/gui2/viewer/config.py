@@ -135,7 +135,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
         self.default_font_size.setValue(opts.default_font_size)
         self.mono_font_size.setValue(opts.mono_font_size)
-        self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
+        self.standard_font.setCurrentIndex(
+                {'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
         self.max_fs_width.setValue(opts.max_fs_width)
         pats, names = self.hyphenate_pats, self.hyphenate_names
@@ -192,13 +193,18 @@ class ConfigDialog(QDialog, Ui_Dialog):
                         ' first complete that, by clicking outside the '
                         ' shortcut editing box.'), show=True)
             return
+        self.save_options()
+        return QDialog.accept(self, *args)
+
+    def save_options(self):
         c = config()
         c.set('serif_family', unicode(self.serif_family.currentFont().family()))
         c.set('sans_family', unicode(self.sans_family.currentFont().family()))
         c.set('mono_family', unicode(self.mono_family.currentFont().family()))
         c.set('default_font_size', self.default_font_size.value())
         c.set('mono_font_size', self.mono_font_size.value())
-        c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
+        c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[
+            self.standard_font.currentIndex()])
         c.set('user_css', unicode(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('fit_images', self.opt_fit_images.isChecked())
@@ -222,7 +228,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('background_color', self.current_background_color)
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
-        return QDialog.accept(self, *args)
 
 
 
