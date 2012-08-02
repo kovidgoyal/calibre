@@ -14,6 +14,7 @@ from functools import wraps
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
+from calibre.devices.errors import OpenFeedback
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -112,6 +113,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         _('Security password') + ':::<p>' +
             _('Enter a password that the device app must use to connect to calibre') + '</p>',
         '',
+        _('Use fixed network port') + ':::<p>' +
+            _('If checked, use the port number in the "Port" box, otherwise '
+              'the driver will pick a random port') + '</p>',
+        _('Port') + ':::<p>' +
+            _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
             _('Check this box if requested when reporting problems') + '</p>',
         ]
@@ -120,11 +126,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 '',
                 '',
                 '',
+                False, '9090',
                 False,
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
-    OPT_EXTRA_DEBUG             = 4
+    OPT_USE_PORT                = 4
+    OPT_PORT_NUMBER             = 5
+    OPT_EXTRA_DEBUG             = 6
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -346,17 +355,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('timeout communicating with device')
             self.device_socket.close()
             self.device_socket = None
+            self.is_connected = False
             raise IOError(_('Device did not respond in reasonable time'))
         except socket.error:
             self._debug('device went away')
             self.device_socket.close()
             self.device_socket = None
+            self.is_connected = False
             raise IOError(_('Device closed the network connection'))
         except:
             self._debug('other exception')
             traceback.print_exc()
             self.device_socket.close()
             self.device_socket = None
+            self.is_connected = False
             raise
         raise IOError('Device responded with incorrect information')
 
@@ -447,14 +459,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if self.is_connected:
             self.noop_counter += 1
             if only_presence and (self.noop_counter % 5) != 1:
-                ans = select.select((self.device_socket,), (), (), 0)
-                if len(ans[0]) == 0:
-                    return (True, self)
-                # The socket indicates that something is there. Given the
-                # protocol, this can only be a disconnect notification. Fall
-                # through and actually try to talk to the client.
+                try:
+                    ans = select.select((self.device_socket,), (), (), 0)
+                    if len(ans[0]) == 0:
+                        return (True, self)
+                    # The socket indicates that something is there. Given the
+                    # protocol, this can only be a disconnect notification. Fall
+                    # through and actually try to talk to the client.
+                    # This will usually toss an exception if the socket is gone.
+                except:
+                    pass
             try:
-                # This will usually toss an exception if the socket is gone.
                 if self._call_client('NOOP', dict())[0] is None:
                     self.is_connected = False
             except:
@@ -478,11 +493,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except socket.timeout:
                     if self.device_socket is not None:
                         self.device_socket.close()
+                        self.is_connected = False
                 except socket.error:
                     x = sys.exc_info()[1]
                     self._debug('unexpected socket exception', x.args[0])
                     if self.device_socket is not None:
                         self.device_socket.close()
+                        self.is_connected = False
                     raise
                 return (True, self)
         return (False, None)
@@ -514,16 +531,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 # and continue.
                 self._debug('Protocol error - Opcode not OK')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             if not result.get('versionOK', False):
                 # protocol mismatch
                 self._debug('Protocol error - protocol version mismatch')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             if result.get('maxBookContentPacketLen', 0) <= 0:
                 # protocol mismatch
                 self._debug('Protocol error - bogus book packet length')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
@@ -531,6 +551,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if exts is None or not isinstance(exts, list) or len(exts) == 0:
                 self._debug('Protocol error - bogus accepted extensions')
                 self.device_socket.close()
+                self.is_connected = False
                 return False
             self.FORMATS = exts
             if password:
@@ -539,20 +560,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # protocol mismatch
                     self._debug('Protocol error - missing password hash')
                     self.device_socket.close()
+                    self.is_connected = False
                     return False
                 if returned_hash != hash_digest:
                     # bad password
                     self._debug('password mismatch')
                     self._call_client("DISPLAY_MESSAGE", {'messageKind':1})
+                    self.is_connected = False
                     self.device_socket.close()
-                    return False
+                    raise OpenFeedback('Incorrect password supplied')
             return True
         except socket.timeout:
             self.device_socket.close()
+            self.is_connected = False
         except socket.error:
             x = sys.exc_info()[1]
             self._debug('unexpected socket exception', x.args[0])
             self.device_socket.close()
+            self.is_connected = False
             raise
         return False
 
@@ -792,8 +817,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('creation of listen socket failed')
             return
 
-        for i in xrange(100): # try up to 100 random port numbers
-            port = random.randint(8192, 32000)
+        i = 0
+        while i < 100: # try up to 100 random port numbers
+            if self.settings().extra_customization[self.OPT_USE_PORT]:
+                i = 100
+                try:
+                    port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
+                except:
+                    port = 0
+            else:
+                i += 1
+                port = random.randint(8192, 32000)
             try:
                 self._debug('try port', port)
                 self.listen_socket.bind(('', port))
@@ -808,6 +842,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Failed to allocate a port');
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
             return
 
         try:
@@ -816,6 +851,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('listen on socket failed', port)
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
             return
 
         try:
@@ -824,6 +860,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('registration with bonjour failed')
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
             return
 
         self._debug('listening on port', port)
@@ -835,6 +872,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             do_zeroconf(unpublish_zeroconf, self.port)
             self.listen_socket.close()
             self.listen_socket = None
+            self.is_connected = False
 
     # Methods for dynamic control
 
