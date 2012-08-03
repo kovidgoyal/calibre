@@ -19,6 +19,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.63
+  date: 2012-08-02
+
+  new features:
+    - title: "E-book viewer: Allow quick saving and loading of viewer settings as 'themes'." 
+      tickets: [1024611]
+
+    - title: "Ebook-viewer: Add a restore defaults button to the viewer preferences dialog"
+
+    - title: "E-book viewer: Add simple settings for text and background colors"
+
+    - title: "Add an entry to save to disk when right clicking a format in the book details panel"
+
+    - title: "ODT metadata: Read first image as the metadata cover from ODT files. Also allow ODT authors to set custom properties for extended metadata."
+
+    - title: "E-book viewer and PDF Output: Resize images that are longer than the page to fit onto a single page"
+ 
+  bug fixes:
+    - title: "KF8 Output: Fix bug where some calibre generated KF8 files would cause the Amazon KF8 viewer on the Touch to go to into an infinite loop when using the next page function"
+      tickets: [1026421]
+
+    - title: "News download: Add support for <img> tags that link to SVG images."
+      tickets: [1031553]
+
+    - title: "Update podofo to 0.9.1 in all binary builds, to fix corruption of some PDFs when updating metadata."
+      tickets: [1031086]
+
+    - title: "Catalog generation: Handle authors whose last name is a number."
+
+    - title: "KF8 Input: Handle html entities in the NCX toc entries correctly"
+
+    - title: "Fix a calibre crash that affected some windows installs"
+      tickets: [1030234]
+
+    - title: "MOBI Output: Normalize unicode strings before writing to file, to workaround lack of support for non-normal unicode in Amazon's MOBI renderer."
+      tickets: [1029825]
+
+    - title: "EPUB Input: Handle files that have duplicate entries in the spine"
+
+  new recipes:
+    - title: Dziennik Polski 
+      author: Gregorz Maj 
+      
+    - title: High Country Blogs 
+      author: Armin Geller
+
+    - title: Philosophy Now 
+      author: Rick Shang
+
 - version: 0.8.62
   date: 2012-07-27
 
