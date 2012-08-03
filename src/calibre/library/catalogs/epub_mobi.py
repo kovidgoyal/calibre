@@ -51,7 +51,8 @@ class EPUB_MOBI(CatalogPlugin):
                           default=':',
                           dest='exclude_book_marker',
                           action = None,
-                          help=_("field:pattern specifying custom field/contents indicating book should be excluded.\n"
+                          help=_("#<custom field>:pattern specifying custom field/contents indicating book should be excluded.\n"
+                          "For example: '#status:Archived' will exclude a book with a value of 'Archived' in the custom column 'status'.\n"
                           "Default: '%default'\n"
                           "Applies to ePub, MOBI output formats")),
                    Option('--exclude-genre',
@@ -121,7 +122,7 @@ class EPUB_MOBI(CatalogPlugin):
                           default='::',
                           dest='merge_comments',
                           action = None,
-                          help=_("<custom field>:[before|after]:[True|False] specifying:\n"
+                          help=_("#<custom field>:[before|after]:[True|False] specifying:\n"
                           " <custom field> Custom field containing notes to merge with Comments\n"
                           " [before|after] Placement of notes with respect to Comments\n"
                           " [True|False] - A horizontal rule is inserted between notes and Comments\n"
@@ -134,11 +135,14 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Specifies the output profile.  In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
-                   Option('--read-book-marker',
-                          default='tag:+',
-                          dest='read_book_marker',
-                          action = None,
-                          help=_("field:pattern indicating book has been read.\n" "Default: '%default'\n"
+                   Option('--prefix-rules',
+                          default="(('Read books','tags','+','\u2713'),('Wishlist items','tags','Wishlist','\u00d7'))",
+                          dest='prefix_rules',
+                          action=None,
+                          help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specifed prefixes.\n"
+                          "The model for a prefix rule is ('<rule name>','<source field>','<pattern>','<prefix>').\n"
+                          "When multiple rules are defined, the first matching rule will be used.\n"
+                          "Default: '%default'\n"
                           "Applies to ePub, MOBI output formats")),
                    Option('--thumb-width',
                           default='1.0',
@@ -148,12 +152,6 @@ class EPUB_MOBI(CatalogPlugin):
                           "Range: 1.0 - 2.0\n"
                           "Default: '%default'\n"
                           "Applies to ePub, MOBI output formats")),
-                   Option('--wishlist-tag',
-                          default='Wishlist',
-                          dest='wishlist_tag',
-                          action = None,
-                          help=_("Tag indicating book to be displayed as wishlist item.\n" "Default: '%default'\n"
-                          "Applies to: ePub, MOBI output formats")),
                           ]
     # }}}
 
@@ -276,6 +274,15 @@ class EPUB_MOBI(CatalogPlugin):
             log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_SMALLEST))
             opts.thumb_width = "1.0"
 
+        # Pre-process prefix_rules
+        try:
+            opts.prefix_rules = eval(opts.prefix_rules)
+        except:
+            log.error("malformed --prefix-rules: %s" % opts.prefix_rules)
+            raise
+        for rule in opts.prefix_rules:
+            if len(rule) != 4:
+                log.error("incorrect number of args for --prefix-rules: %s" % repr(rule))
 
         # Display opts
         keys = opts_dict.keys()
@@ -285,7 +292,7 @@ class EPUB_MOBI(CatalogPlugin):
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
                        'exclude_book_marker','exclude_genre','exclude_tags',
                        'header_note_source_field','merge_comments',
-                       'output_profile','read_book_marker',
+                       'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                        'thumb_width','wishlist_tag']:
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))

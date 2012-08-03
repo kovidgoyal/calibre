@@ -10,8 +10,11 @@ from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4.Qt import QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit, \
-                     QRadioButton, QWidget
+from PyQt4 import QtGui
+from PyQt4.Qt import (Qt, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+                      QHBoxLayout, QIcon, QLabel, QLineEdit,
+                      QPlainTextEdit, QRadioButton, QSize, QTableWidget, QTableWidgetItem,
+                      QVBoxLayout, QWidget)
 
 class PluginWidget(QWidget,Ui_Form):
 
@@ -36,6 +39,7 @@ class PluginWidget(QWidget,Ui_Form):
         DoubleSpinBoxControls = []
         LineEditControls = []
         RadioButtonControls = []
+        TableWidgetControls = []
 
         for item in self.__dict__:
             if type(self.__dict__[item]) is QCheckBox:
@@ -48,6 +52,8 @@ class PluginWidget(QWidget,Ui_Form):
                 LineEditControls.append(str(self.__dict__[item].objectName()))
             elif type(self.__dict__[item]) is QRadioButton:
                 RadioButtonControls.append(str(self.__dict__[item].objectName()))
+            elif type(self.__dict__[item]) is QTableWidget:
+                TableWidgetControls.append(str(self.__dict__[item].objectName()))
 
         option_fields = zip(CheckBoxControls,
                             [True for i in CheckBoxControls],
@@ -60,14 +66,40 @@ class PluginWidget(QWidget,Ui_Form):
                             ['radio_button' for i in RadioButtonControls])
 
         # LineEditControls
-        option_fields += zip(['exclude_genre'],['\[.+\]'],['line_edit'])
+        option_fields += zip(['exclude_genre'],['\[.+\]|\+'],['line_edit'])
         option_fields += zip(['exclude_pattern'],[None],['line_edit'])
         option_fields += zip(['exclude_tags'],['~,'+_('Catalog')],['line_edit'])
-        option_fields += zip(['read_pattern'],['+'],['line_edit'])
-        option_fields += zip(['wishlist_tag'],['Wishlist'],['line_edit'])
 
         # SpinBoxControls
         option_fields += zip(['thumb_width'],[1.00],['spin_box'])
+
+        # Prefix rules TableWidget
+        # ordinal/enabled/rule name/source field/pattern/prefix
+        #option_fields += zip(['prefix_rules_tw','prefix_rules_tw','prefix_rules_tw'],
+        #                     [(1,True,'Read book','Tags','+','+'),
+        #                      (2,True,'Wishlist','Tags','Wishlist','x'),
+        #                      (3,False,'<new rule>','','','')],
+        #                     ['table_widget','table_widget','table_widget'])
+        option_fields += zip(['prefix_rules_tw','prefix_rules_tw','prefix_rules_tw'],
+                             [{'ordinal':1,
+                               'enabled':True,
+                               'name':'Read book',
+                               'field':'Tags',
+                               'pattern':'+',
+                               'prefix':'+'},
+                              {'ordinal':2,
+                               'enabled':True,
+                               'name':'Wishlist',
+                               'field':'Tags',
+                               'pattern':'Wishlist',
+                               'prefix':'x'},
+                              {'ordinal':3,
+                               'enabled':False,
+                               'name':'<new rule>',
+                               'field':'',
+                               'pattern':'',
+                               'prefix':''}],
+                             ['table_widget','table_widget','table_widget'])
 
         self.OPTION_FIELDS = option_fields
 
@@ -78,23 +110,25 @@ class PluginWidget(QWidget,Ui_Form):
             ['generate_titles','generate_series','generate_genres',
                             'generate_recently_added','generate_descriptions','include_hr']
         ComboBoxControls (c_type: combo_box):
-            ['read_source_field','exclude_source_field','header_note_source_field',
+            ['exclude_source_field','header_note_source_field',
                             'merge_source_field']
         LineEditControls (c_type: line_edit):
-            ['exclude_genre','exclude_pattern','exclude_tags','read_pattern',
-                            'wishlist_tag']
+            ['exclude_genre','exclude_pattern','exclude_tags']
         RadioButtonControls (c_type: radio_button):
             ['merge_before','merge_after']
         SpinBoxControls (c_type: spin_box):
             ['thumb_width']
+        TableWidgetControls (c_type: table_widget):
+            ['prefix_rules_tw']
 
         '''
-
         self.name = name
         self.db = db
-        self.populateComboBoxes()
+        self.all_custom_fields = self.db.custom_field_keys()
+        self.populate_combo_boxes()
 
         # Update dialog fields from stored options
+        prefix_rules = []
         for opt in self.OPTION_FIELDS:
             c_name, c_def, c_type = opt
             opt_value = gprefs.get(self.name + '_' + c_name, c_def)
@@ -114,11 +148,8 @@ class PluginWidget(QWidget,Ui_Form):
                 getattr(self, c_name).setChecked(opt_value)
             elif c_type in ['spin_box']:
                 getattr(self, c_name).setValue(float(opt_value))
-
-        # Init self.read_source_field_name
-        cs = unicode(self.read_source_field.currentText())
-        read_source_spec = self.read_source_fields[cs]
-        self.read_source_field_name = read_source_spec['field']
+            elif c_type in ['table_widget'] and c_name == 'prefix_rules_tw':
+                prefix_rules.append(opt_value)
 
         # Init self.exclude_source_field_name
         self.exclude_source_field_name = ''
@@ -146,6 +177,32 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Hook changes to Description section
         self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
+
+        # Init prefix_rules
+        self.initialize_prefix_rules(prefix_rules)
+        self.populate_prefix_rules(prefix_rules)
+
+    def initialize_prefix_rules(self, rules):
+
+        # Assign icons to buttons
+        self.move_rule_up_tb.setToolTip('Move rule up')
+        self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
+        self.add_rule_tb.setToolTip('Add a new rule')
+        self.add_rule_tb.setIcon(QIcon(I('plus.png')))
+        self.delete_rule_tb.setToolTip('Delete selected rule')
+        self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
+        self.move_rule_down_tb.setToolTip('Move rule down')
+        self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
+
+        # Configure the QTableWidget
+        # enabled/rule name/source field/pattern/prefix
+        self.prefix_rules_tw.clear()
+        header_labels = ['','Name','Source','Pattern','Prefix']
+        self.prefix_rules_tw.setColumnCount(len(header_labels))
+        self.prefix_rules_tw.setHorizontalHeaderLabels(header_labels)
+        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
+        self.prefix_rules_tw.setRowCount(len(rules))
+        self.prefix_rules_tw.setSortingEnabled(False)
 
     def options(self):
         # Save/return the current options
@@ -203,7 +260,7 @@ class PluginWidget(QWidget,Ui_Form):
                 print " %s: %s" % (opt, repr(opts_dict[opt]))
         return opts_dict
 
-    def populateComboBoxes(self):
+    def populate_combo_boxes(self):
         # Custom column types declared in
         #  gui2.preferences.create_custom_column:CreateCustomColumn()
         # As of 0.7.34:
@@ -219,25 +276,9 @@ class PluginWidget(QWidget,Ui_Form):
         #  text         Column shown in the tag browser
         #  *text        Comma-separated text, like tags, shown in tag browser
 
-        all_custom_fields = self.db.custom_field_keys()
-        # Populate the 'Read book' hybrid
-        custom_fields = {}
-        custom_fields['Tag'] = {'field':'tag', 'datatype':u'text'}
-        for custom_field in all_custom_fields:
-            field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
-        # Add the sorted eligible fields to the combo box
-        for cf in sorted(custom_fields):
-            self.read_source_field.addItem(cf)
-        self.read_source_fields = custom_fields
-        self.read_source_field.currentIndexChanged.connect(self.read_source_field_changed)
-
-
         # Populate the 'Excluded books' hybrid
         custom_fields = {}
-        for custom_field in all_custom_fields:
+        for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
             if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
                 custom_fields[field_md['name']] = {'field':custom_field,
@@ -253,7 +294,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Populate the 'Header note' combo box
         custom_fields = {}
-        for custom_field in all_custom_fields:
+        for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
             if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
                 custom_fields[field_md['name']] = {'field':custom_field,
@@ -269,7 +310,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Populate the 'Merge with Comments' combo box
         custom_fields = {}
-        for custom_field in all_custom_fields:
+        for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
             if field_md['datatype'] in ['text','comments','composite']:
                 custom_fields[field_md['name']] = {'field':custom_field,
@@ -284,6 +325,42 @@ class PluginWidget(QWidget,Ui_Form):
         self.merge_before.setEnabled(False)
         self.merge_after.setEnabled(False)
         self.include_hr.setEnabled(False)
+
+    def populate_prefix_rules(self,rules):
+
+        def populate_table_row(row, data):
+            self.prefix_rules_tw.blockSignals(True)
+            self.prefix_rules_tw.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
+            self.prefix_rules_tw.setItem(row, 1, QTableWidgetItem(data['name']))
+            set_source_field_in_row(row, field=data['field'])
+
+            self.prefix_rules_tw.setItem(row, 3, QTableWidgetItem(data['pattern']))
+            self.prefix_rules_tw.setItem(row, 4, QTableWidgetItem(data['prefix']))
+            self.prefix_rules_tw.blockSignals(False)
+
+        def set_source_field_in_row(row, field=''):
+            custom_fields = {}
+            custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
+            for custom_field in self.all_custom_fields:
+                field_md = self.db.metadata_for_field(custom_field)
+                if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
+                    custom_fields[field_md['name']] = {'field':custom_field,
+                                                       'datatype':field_md['datatype']}
+            self.prefix_rules_tw.setCellWidget(row, 2, SourceFieldComboBox(self, sorted(custom_fields.keys()), field))
+            # Need to connect to something that monitors changes to control pattern field based on source_field type
+
+        # Entry point
+
+        for row, data in enumerate(sorted(rules, key=lambda k: k['ordinal'])):
+            populate_table_row(row, data)
+
+
+
+
+
+        # Do this after populating cells
+        self.prefix_rules_tw.resizeColumnsToContents()
+
 
     def read_source_field_changed(self,new_index):
         '''
@@ -388,3 +465,55 @@ class PluginWidget(QWidget,Ui_Form):
         Process changes in the thumb_width spin box
         '''
         pass
+
+
+class CheckableTableWidgetItem(QTableWidgetItem):
+    '''
+    Borrowed from kiwidude
+    '''
+
+    def __init__(self, checked=False, is_tristate=False):
+        QTableWidgetItem.__init__(self, '')
+        self.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled ))
+        if is_tristate:
+            self.setFlags(self.flags() | Qt.ItemIsTristate)
+        if checked:
+            self.setCheckState(Qt.Checked)
+        else:
+            if is_tristate and checked is None:
+                self.setCheckState(Qt.PartiallyChecked)
+            else:
+                self.setCheckState(Qt.Unchecked)
+
+    def get_boolean_value(self):
+        '''
+        Return a boolean value indicating whether checkbox is checked
+        If this is a tristate checkbox, a partially checked value is returned as None
+        '''
+        if self.checkState() == Qt.PartiallyChecked:
+            return None
+        else:
+            return self.checkState() == Qt.Checked
+
+class NoWheelComboBox(QComboBox):
+
+    def wheelEvent (self, event):
+        # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
+        event.ignore()
+
+class SourceFieldComboBox(NoWheelComboBox):
+
+    def __init__(self, parent, format_names, selected_text):
+        NoWheelComboBox.__init__(self, parent)
+        self.populate_combo(format_names, selected_text)
+
+    def populate_combo(self, format_names, selected_text):
+        self.addItems([''])
+        self.addItems(format_names)
+        if selected_text:
+            idx = self.findText(selected_text)
+            self.setCurrentIndex(idx)
+        else:
+            self.setCurrentIndex(0)
+
+

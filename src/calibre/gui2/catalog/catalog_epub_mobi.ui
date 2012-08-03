@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>650</width>
-    <height>596</height>
+    <height>603</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -203,6 +203,9 @@ e.g., [Project Gutenberg]&lt;/p&gt;</string>
       <string>Excluded books</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+      </property>
       <item row="0" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
@@ -323,96 +326,66 @@ Default: ~,Catalog</string>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="readBooks">
+    <widget class="QGroupBox" name="prefixRules">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="toolTip">
-      <string>Matching books will be displayed with a check mark</string>
-     </property>
      <property name="title">
-      <string>Read books</string>
+      <string>Prefix rules</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="read_spec_hl">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
-        </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QLabel" name="label_3">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
+         <widget class="QTableWidget" name="prefix_rules_tw">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="maximumSize">
            <size>
-            <width>200</width>
-            <height>16777215</height>
+            <width>16777215</width>
+            <height>118</height>
            </size>
-          </property>
-          <property name="text">
-           <string>&amp;Column/value</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>read_source_field</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="read_source_field">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Column containing 'read' status</string>
-          </property>
-          <property name="statusTip">
-           <string/>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-          </property>
-          <property name="minimumContentsLength">
-           <number>18</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="read_pattern">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>'read book' pattern</string>
-          </property>
-          <property name="statusTip">
-           <string/>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QToolButton" name="move_rule_up_tb">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="add_rule_tb">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="delete_rule_tb">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="move_rule_down_tb">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -440,49 +413,7 @@ Default: ~,Catalog</string>
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::FieldsStayAtSizeHint</enum>
       </property>
-      <item row="1" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>&amp;Wishlist tag</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>wishlist_tag</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="wishlist_tag">
-          <property name="toolTip">
-           <string>Books tagged as Wishlist items will be displayed with an X</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0" colspan="2">
+      <item row="0" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QLabel" name="label_4">
@@ -542,7 +473,7 @@ Default: ~,Catalog</string>
         </item>
        </layout>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QLabel" name="label_6">
@@ -599,7 +530,7 @@ Default: ~,Catalog</string>
         </item>
        </layout>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="2" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QLabel" name="label_9">
