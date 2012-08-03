@@ -32,6 +32,8 @@ class SonyStore(BasicStoreConfig, StorePlugin):
                 d.setWindowTitle(self.name)
                 d.set_tags(self.config.get('tags', ''))
                 d.exec_()
+        else:
+            open_url(QUrl('http://ebookstore.sony.com'))
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://ebookstore.sony.com/search?keyword=%s'%urllib.quote_plus(

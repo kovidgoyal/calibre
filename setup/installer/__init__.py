@@ -28,7 +28,10 @@ def is_vm_running(name):
     pat = '/%s/'%name
     pids= [pid for pid in os.listdir('/proc') if pid.isdigit()]
     for pid in pids:
-        cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
+        try:
+            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
+        except IOError:
+            continue # file went away
         if 'vmware-vmx' in cmdline and pat in cmdline:
             return True
     return False

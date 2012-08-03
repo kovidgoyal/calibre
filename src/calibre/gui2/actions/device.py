@@ -15,7 +15,7 @@ from calibre.constants import iswindows, isosx
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
-from calibre.gui2 import info_dialog
+from calibre.gui2 import info_dialog, question_dialog
 
 class ShareConnMenu(QMenu): # {{{
 
@@ -27,6 +27,9 @@ class ShareConnMenu(QMenu): # {{{
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
     dont_add_to = frozenset(['context-menu-device'])
+
+    DEVICE_MSGS = [_('Start wireless device connection'),
+            _('Stop wireless device connection')]
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -59,8 +62,8 @@ class ShareConnMenu(QMenu): # {{{
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
         self.control_smartdevice_action = \
-            self.addAction(QIcon(I('dot_green.png')),
-            _('Control Smart Device Connections'))
+            self.addAction(QIcon(I('dot_red.png')),
+            self.DEVICE_MSGS[0])
         self.control_smartdevice_action.triggered.connect(lambda x:
                 self.control_smartdevice.emit())
         self.addSeparator()
@@ -215,17 +218,33 @@ class ConnectShareAction(InterfaceAction):
         self.stopping_msg.accept()
 
     def control_smartdevice(self):
-        sd_dialog = SmartdeviceDialog(self.gui)
-        sd_dialog.exec_()
-        self.set_smartdevice_icon()
+        dm = self.gui.device_manager
+        running = dm.is_running('smartdevice')
+        if running:
+            dm.stop_plugin('smartdevice')
+            if dm.get_option('smartdevice', 'autostart'):
+                if not question_dialog(self.gui, _('Disable autostart'),
+                        _('Do you want wireless device connections to be'
+                            ' started automatically when calibre starts?')):
+                    dm.set_option('smartdevice', 'autostart', False)
+        else:
+            sd_dialog = SmartdeviceDialog(self.gui)
+            sd_dialog.exec_()
+        self.set_smartdevice_action_state()
 
     def check_smartdevice_menus(self):
         if not self.gui.device_manager.is_enabled('smartdevice'):
             self.share_conn_menu.hide_smartdevice_menus()
 
-    def set_smartdevice_icon(self):
+    def set_smartdevice_action_state(self):
+        from calibre.utils.mdns import get_external_ip
         running = self.gui.device_manager.is_running('smartdevice')
-        if running:
-            self.share_conn_menu.control_smartdevice_action.setIcon(QIcon(I('dot_green.png')))
+        if not running:
+            text = self.share_conn_menu.DEVICE_MSGS[0]
         else:
-            self.share_conn_menu.control_smartdevice_action.setIcon(QIcon(I('dot_red.png')))
+            text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s]'%get_external_ip()
+        icon = 'green' if running else 'red'
+        ac = self.share_conn_menu.control_smartdevice_action
+        ac.setIcon(QIcon(I('dot_%s.png'%icon)))
+        ac.setText(text)
+

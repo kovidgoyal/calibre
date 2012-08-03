@@ -243,9 +243,6 @@ class Py2App(object):
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
-            if x.startswith('libpodofo'):
-                yield x, x
-                continue
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
                     '/opt/local/lib/',
                     SW+'/python/Python.framework/', SW+'/freetype/lib/'):
@@ -330,10 +327,6 @@ class Py2App(object):
         for f in glob.glob('src/calibre/plugins/*.so'):
             shutil.copy2(f, dest)
             self.fix_dependencies_in_lib(join(dest, basename(f)))
-            if 'podofo' in f:
-                self.change_dep('libpodofo.0.8.4.dylib',
-                self.FID+'/'+'libpodofo.0.8.4.dylib', join(dest, basename(f)))
-
 
     @flush
     def create_plist(self):
@@ -380,7 +373,7 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.8.4.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.9.1.dylib')
         self.install_dylib(pdf)
 
     @flush
