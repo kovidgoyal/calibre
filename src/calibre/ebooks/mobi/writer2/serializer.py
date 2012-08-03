@@ -7,11 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, unicodedata
 
 from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
         namespace, prefixname, urlnormalize)
-from calibre.ebooks import normalize
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
 
@@ -356,7 +355,9 @@ class Serializer(object):
         text = text.replace(u'\u00AD', '') # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
-        self.buf.write(normalize(text).encode('utf-8'))
+        if isinstance(text, unicode):
+            text = unicodedata.normalize('NFC', text)
+        self.buf.write(text.encode('utf-8'))
 
     def fixup_links(self):
         '''
