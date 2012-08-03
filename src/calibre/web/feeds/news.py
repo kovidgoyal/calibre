@@ -935,7 +935,8 @@ class BasicNewsRecipe(Recipe):
             npos = pos
         ans = src[:npos+1]
         if len(ans) < len(src):
-            return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
+            return (ans+u'\u2026') if isinstance(ans, unicode) else (ans +
+                    '...')
         return ans
 
     def feed2index(self, f, feeds):
