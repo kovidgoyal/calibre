@@ -58,6 +58,8 @@
 
     - title: "EPUB Input: Handle files that have duplicate entries in the spine"
 
+    - title: "Fix regression in Kobo driver that caused the on device column to not be updated after deleting books"
+
   new recipes:
     - title: Dziennik Polski 
       author: Gregorz Maj 
