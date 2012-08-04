@@ -48,6 +48,9 @@ class OpenFeedback(DeviceError):
         '''
         raise NotImplementedError
 
+class InitialConnectionError(OpenFeedback):
+    """ Errors detected during connection after detection but before open """
+
 class OpenFailed(ProtocolError):
     """ Raised when device cannot be opened this time. No retry is to be done.
         The device should continue to be polled for future opens. If the

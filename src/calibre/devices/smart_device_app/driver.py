@@ -14,7 +14,8 @@ from functools import wraps
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
-from calibre.devices.errors import OpenFailed, ControlError, TimeoutError
+from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
+                                    InitialConnectionError)
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -82,6 +83,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     BASE_PACKET_LEN             = 4096
     PROTOCOL_VERSION            = 1
     MAX_CLIENT_COMM_TIMEOUT     = 60.0 # Wait at most N seconds for an answer
+    MAX_UNSUCCESSFUL_CONNECTS   = 5
 
     opcodes = {
         'NOOP'                   : 12,
@@ -490,6 +492,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self.listen_socket.settimeout(None)
                     self.device_socket.settimeout(None)
                     self.is_connected = True
+                    try:
+                        peer = self.device_socket.getpeername()[0]
+                        attempts = self.connection_attempts.get(peer, 0)
+                        if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
+                            self._debug('too many connection attempts from', peer)
+                            self._close_device_socket()
+                            raise InitialConnectionError(_('Too many connection attempts from %s')%peer)
+                        else:
+                            self.connection_attempts[peer] = attempts + 1
+                    except InitialConnectionError:
+                        raise
+                    except:
+                        pass
                 except socket.timeout:
                     self._close_device_socket()
                 except socket.error:
@@ -497,7 +512,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._debug('unexpected socket exception', x.args[0])
                     self._close_device_socket()
                     raise
-                return (True, self)
+                return (self.is_connected, self)
         return (False, None)
 
     @synchronous('sync_lock')
@@ -570,6 +585,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # Don't bother with a message. The user will be informed on
                     # the device.
                     raise OpenFailed('')
+            try:
+                peer = self.device_socket.getpeername()
+                self.connection_attempts[peer] = 0
+            except:
+                pass
             return True
         except socket.timeout:
             self._close_device_socket()
@@ -807,6 +827,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.max_book_packet_len = 0
         self.noop_counter = 0
+        self.connection_attempts = {}
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except:

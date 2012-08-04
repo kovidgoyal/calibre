@@ -13,7 +13,8 @@ from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins)
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback, OpenFeedback, OpenFailed
+from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed,
+                                    InitialConnectionError)
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -232,8 +233,12 @@ class DeviceManager(Thread): # {{{
                 for device in self.devices:
                     if device in self.ejected_devices:
                         continue
-                    possibly_connected, detected_device = \
-                            self.scanner.is_device_connected(device)
+                    try:
+                        possibly_connected, detected_device = \
+                                self.scanner.is_device_connected(device)
+                    except InitialConnectionError as e:
+                        self.open_feedback_msg(device.get_gui_name(), e)
+                        continue
                     if possibly_connected:
                         possibly_connected_devices.append((device, detected_device))
                 if possibly_connected_devices:
