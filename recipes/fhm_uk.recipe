@@ -18,15 +18,15 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     keep_only_tags = [
                dict(name='h1'),
                dict(name='img',attrs={'id' : 'ctl00_Body_imgMainImage'}),
-               dict(name='div',attrs={'id' : ['articleLeft']}),
-                               dict(name='div',attrs={'class' : ['imagesCenterArticle','containerCenterArticle','articleBody']}),
+               dict(name='div',attrs={'id' : ['profileLeft','articleLeft','profileRight','profileBody']}),
+               dict(name='div',attrs={'class' : ['imagesCenterArticle','containerCenterArticle','articleBody',]}),
 
         ]
 
-    #remove_tags    = [
-                              #dict(attrs={'class' : ['player']}),
+    remove_tags    = [
+                              dict(attrs={'id' : ['ctl00_Body_divSlideShow' ]}),
 
-    #]
+    ]
     feeds          = [
         (u'Homepage 1',u'http://feed43.com/6655867614547036.xml'),
         (u'Homepage 2',u'http://feed43.com/4167731873103110.xml'),
@@ -34,7 +34,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         (u'Homepage 4',u'http://feed43.com/6550421522527341.xml'),
         (u'Funny - The Very Best Of The Internet',u'http://feed43.com/4538510106331565.xml'),
         (u'Gaming',u'http://feed43.com/6537162612465672.xml'),
-        (u'Girls',u'http://feed43.com/3674777224513254.xml'),
+        (u'Girls',u'http://feed43.com/4574262733341068.xml'),# edit link http://feed43.com/feed.html?name=4574262733341068
                            ]
 
     extra_css = '''
