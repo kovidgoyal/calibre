@@ -13,7 +13,7 @@ from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins)
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback, OpenFeedback
+from calibre.devices.errors import UserFeedback, OpenFeedback, OpenFailed
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -172,6 +172,8 @@ class DeviceManager(Thread): # {{{
                     self.open_feedback_msg(dev.get_gui_name(), e)
                     self.ejected_devices.add(dev)
                 continue
+            except OpenFailed:
+                raise
             except:
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
@@ -225,24 +227,28 @@ class DeviceManager(Thread): # {{{
                             only_presence=True, debug=True)
                 self.connected_device_removed()
         else:
-            possibly_connected_devices = []
-            for device in self.devices:
-                if device in self.ejected_devices:
-                    continue
-                possibly_connected, detected_device = \
-                        self.scanner.is_device_connected(device)
-                if possibly_connected:
-                    possibly_connected_devices.append((device, detected_device))
-            if possibly_connected_devices:
-                if not self.do_connect(possibly_connected_devices,
-                                       device_kind='device'):
-                    if DEBUG:
-                        prints('Connect to device failed, retrying in 5 seconds...')
-                    time.sleep(5)
+            try:
+                possibly_connected_devices = []
+                for device in self.devices:
+                    if device in self.ejected_devices:
+                        continue
+                    possibly_connected, detected_device = \
+                            self.scanner.is_device_connected(device)
+                    if possibly_connected:
+                        possibly_connected_devices.append((device, detected_device))
+                if possibly_connected_devices:
                     if not self.do_connect(possibly_connected_devices,
-                                       device_kind='usb'):
+                                           device_kind='device'):
                         if DEBUG:
-                            prints('Device connect failed again, giving up')
+                            prints('Connect to device failed, retrying in 5 seconds...')
+                        time.sleep(5)
+                        if not self.do_connect(possibly_connected_devices,
+                                           device_kind='usb'):
+                            if DEBUG:
+                                prints('Device connect failed again, giving up')
+            except OpenFailed as e:
+                if str(e):
+                    traceback.print_exc()
 
     # Mount devices that don't use USB, such as the folder device and iTunes
     # This will be called on the GUI thread. Because of this, we must store

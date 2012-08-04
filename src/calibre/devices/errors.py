@@ -48,6 +48,11 @@ class OpenFeedback(DeviceError):
         '''
         raise NotImplementedError
 
+class OpenFailed(ProtocolError):
+    """ Raised when device cannot be opened this time. No retry is to be done.
+        The device should continue to be polled for future opens. If the
+        message is empty, no exception trace is produced. """
+
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
     def __init__(self, uerr=""):
