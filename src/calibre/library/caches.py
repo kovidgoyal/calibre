@@ -568,6 +568,7 @@ class ResultCache(SearchQueryParser): # {{{
                     matches.add(id_)
                 continue
 
+            add_if_valq_false = valq == 'false'
             pairs = [p.strip() for p in item[loc].split(split_char)]
             for pair in pairs:
                 parts = pair.split(':')
@@ -583,9 +584,13 @@ class ResultCache(SearchQueryParser): # {{{
                             continue
                     elif valq == 'false':
                         if v:
+                            add_if_valq_false = False
                             continue
                     elif not _match(valq, v, valq_mkind):
                         continue
+                matches.add(id_)
+
+            if add_if_valq_false:
                 matches.add(id_)
         return matches
 
