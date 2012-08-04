@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>209</height>
+    <width>612</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,23 +15,26 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/mimetypes/unknown.png</normaloff>:/images/mimetypes/unknown.png</iconset>
+    <normaloff>:/images/devices/galaxy_s3.png</normaloff>:/images/devices/galaxy_s3.png</iconset>
   </property>
   <layout class="QGridLayout">
-   <item row="4" column="1">
-    <widget class="QCheckBox" name="autostart_box">
-     <property name="text">
-      <string>&amp;Automatically allow connections at startup</string>
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="msg">
+     <property name="minimumSize">
+      <size>
+       <width>600</width>
+       <height>0</height>
+      </size>
      </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QLabel" name="label_43">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>100</verstretch>
-      </sizepolicy>
+     <property name="styleSheet">
+      <string notr="true">QLabel { margin-bottom: 1ex; }</string>
+     </property>
+     <property name="text">
+      <string>&lt;p&gt;Start wireless device connections.
+ &lt;p&gt;You may see some messages from your computer's firewall or anti-virus manager asking you if it is OK for calibre to connect to the network. &lt;b&gt;Please answer yes&lt;/b&gt;. If you do not, wireless connections will not work.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -51,27 +54,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="run_box">
-     <property name="text">
-      <string>&amp;Allow connections</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="msg">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>&amp;Password:</string>
+      <string>Optional &amp;password:</string>
      </property>
      <property name="buddy">
       <cstring>password_box</cstring>
@@ -85,13 +71,20 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="3">
+   <item row="4" column="0" colspan="3">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QCheckBox" name="autostart_box">
+     <property name="text">
+      <string>&amp;Automatically allow connections at calibre startup</string>
      </property>
     </widget>
    </item>

@@ -274,15 +274,16 @@ class EPUB_MOBI(CatalogPlugin):
             log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_SMALLEST))
             opts.thumb_width = "1.0"
 
-        # Pre-process prefix_rules
-        try:
-            opts.prefix_rules = eval(opts.prefix_rules)
-        except:
-            log.error("malformed --prefix-rules: %s" % opts.prefix_rules)
-            raise
-        for rule in opts.prefix_rules:
-            if len(rule) != 4:
-                log.error("incorrect number of args for --prefix-rules: %s" % repr(rule))
+        # eval prefix_rules if passed from command line
+        if type(opts.prefix_rules) is not tuple:
+            try:
+                opts.prefix_rules = eval(opts.prefix_rules)
+            except:
+                log.error("malformed --prefix-rules: %s" % opts.prefix_rules)
+                raise
+            for rule in opts.prefix_rules:
+                if len(rule) != 4:
+                    log.error("incorrect number of args for --prefix-rules: %s" % repr(rule))
 
         # Display opts
         keys = opts_dict.keys()

@@ -3128,11 +3128,11 @@ Author '{0}':
 
         '''
         if self.opts.verbose:
-            self.opts.log.info("\tevaluating %s (%s) for prefix matches" % (record['title'], record['authors']))
+            self.opts.log.info("\tevaluating %s (%s)" % (record['title'], record['authors']))
         # Compare the record to each rule looking for a match
         for rule in self.prefixRules:
-            if False and self.opts.verbose:
-                self.opts.log.info("\t evaluating prefix_rule '%s'" % rule['name'])
+            if self.opts.verbose:
+                self.opts.log.info("\t prefix_rule '%s': %s" % (rule['name'], rule))
 
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags':
@@ -3147,22 +3147,34 @@ Author '{0}':
                 field_contents = self.__db.get_field(record['id'],
                                     rule['field'],
                                     index_is_id=True)
-                if field_contents:
+                if field_contents == '':
+                    field_contents = None
+
+                if self.opts.verbose:
+                    self.opts.log.info("\t field_contents: %s" % repr(field_contents))
+
+                if field_contents is not None:
                     try:
                         if re.search(rule['pattern'], unicode(field_contents),
                                 re.IGNORECASE) is not None:
                             if self.opts.verbose:
-                                self.opts.log.info("\t '%s' found in '%s' (%s)" %
+                                self.opts.log.info("\t '%s' matches '%s' value (%s)" %
                                   (rule['pattern'], rule['field'], rule['name']))
                             return rule['prefix']
                     except:
                         # Compiling of pat failed, ignore it
+                        if self.opts.verbose:
+                            self.opts.log.info("pattern failed to compile: %s" % rule['pattern'])
                         pass
+                elif field_contents is None and rule['pattern'] == 'None':
+                    if self.opts.verbose:
+                        self.opts.log.info("\t '%s' found in '%s' (%s)" %
+                          (rule['pattern'], rule['field'], rule['name']))
+                    return rule['prefix']
 
         if False and self.opts.verbose:
             self.opts.log.info("\t No prefix match found")
         return None
-
 
     def filterDbTags(self, tags):
         # Remove the special marker tags from the database's tag list,
@@ -3979,20 +3991,21 @@ Author '{0}':
         return merged
 
     def processPrefixRules(self):
-        # Put the prefix rules into an ordered list of dicts
-        try:
-            for rule in self.opts.prefix_rules:
-                prefix_rule = {}
-                prefix_rule['name'] = rule[0]
-                prefix_rule['field'] = rule[1]
-                prefix_rule['pattern'] = rule[2]
-                prefix_rule['prefix'] = rule[3]
-                self.prefixRules.append(prefix_rule)
-        except:
-            self.opts.log.error("malformed self.opts.prefix_rules: %s" % repr(self.opts.prefix_rules))
-            raise
-        # Use the highest order prefix symbol as default
-        self.defaultPrefix = self.opts.prefix_rules[0][3]
+        if self.opts.prefix_rules:
+            # Put the prefix rules into an ordered list of dicts
+            try:
+                for rule in self.opts.prefix_rules:
+                    prefix_rule = {}
+                    prefix_rule['name'] = rule[0]
+                    prefix_rule['field'] = rule[1]
+                    prefix_rule['pattern'] = rule[2]
+                    prefix_rule['prefix'] = rule[3]
+                    self.prefixRules.append(prefix_rule)
+            except:
+                self.opts.log.error("malformed self.opts.prefix_rules: %s" % repr(self.opts.prefix_rules))
+                raise
+            # Use the highest order prefix symbol as default
+            self.defaultPrefix = self.opts.prefix_rules[0][3]
 
     def processExclusions(self, data_set):
         '''

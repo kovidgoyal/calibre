@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-05-03 16:09+0000\n"
-"Last-Translator: Dídac Rios <didac@niorcs.com>\n"
+"PO-Revision-Date: 2012-07-23 10:54+0000\n"
+"Last-Translator: jmontane <Unknown>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-05-04 04:47+0000\n"
-"X-Generator: Launchpad (build 15195)\n"
+"X-Launchpad-Export-Date: 2012-07-24 04:52+0000\n"
+"X-Generator: Launchpad (build 15668)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -5612,7 +5612,7 @@ msgstr "Caixubi"
 
 #. name for csc
 msgid "Catalan Sign Language"
-msgstr "Llenguatge de signes català"
+msgstr "Llengua de signes catalana"
 
 #. name for csd
 msgid "Chiangmai Sign Language"
@@ -27348,7 +27348,7 @@ msgstr "Llenguatge de signes veneçolà"
 
 #. name for vsv
 msgid "Valencian Sign Language"
-msgstr "Llenguatge de signes valencià"
+msgstr "Llengua de signes valenciana"
 
 #. name for vto
 msgid "Vitou"

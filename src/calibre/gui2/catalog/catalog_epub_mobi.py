@@ -6,12 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
+
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, question_dialog
+from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
 from PyQt4 import QtGui
-from PyQt4.Qt import (Qt, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
+                      QDialogButtonBox, QDoubleSpinBox,
                       QHBoxLayout, QIcon, QLabel, QLineEdit,
                       QPlainTextEdit, QRadioButton, QSize, QTableWidget, QTableWidgetItem,
                       QVBoxLayout, QWidget)
@@ -74,34 +78,164 @@ class PluginWidget(QWidget,Ui_Form):
         option_fields += zip(['thumb_width'],[1.00],['spin_box'])
 
         # Prefix rules TableWidget
-        # ordinal/enabled/rule name/source field/pattern/prefix
-        #option_fields += zip(['prefix_rules_tw','prefix_rules_tw','prefix_rules_tw'],
-        #                     [(1,True,'Read book','Tags','+','+'),
-        #                      (2,True,'Wishlist','Tags','Wishlist','x'),
-        #                      (3,False,'<new rule>','','','')],
-        #                     ['table_widget','table_widget','table_widget'])
         option_fields += zip(['prefix_rules_tw','prefix_rules_tw','prefix_rules_tw'],
-                             [{'ordinal':1,
+                             [{'ordinal':0,
                                'enabled':True,
                                'name':'Read book',
                                'field':'Tags',
                                'pattern':'+',
-                               'prefix':'+'},
-                              {'ordinal':2,
+                               'prefix':u'\u2713'},
+                              {'ordinal':1,
                                'enabled':True,
-                               'name':'Wishlist',
+                               'name':'Wishlist item',
                                'field':'Tags',
                                'pattern':'Wishlist',
-                               'prefix':'x'},
-                              {'ordinal':3,
+                               'prefix':u'\u00d7'},
+                              {'ordinal':2,
                                'enabled':False,
-                               'name':'<new rule>',
+                               'name':'New rule',
                                'field':'',
                                'pattern':'',
                                'prefix':''}],
                              ['table_widget','table_widget','table_widget'])
 
         self.OPTION_FIELDS = option_fields
+
+    def fetchEligibleCustomFields(self):
+        self.all_custom_fields = self.db.custom_field_keys()
+        custom_fields = {}
+        custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
+        for custom_field in self.all_custom_fields:
+            field_md = self.db.metadata_for_field(custom_field)
+            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
+                custom_fields[field_md['name']] = {'field':custom_field,
+                                                   'datatype':field_md['datatype']}
+        self.eligible_custom_fields = custom_fields
+
+    def generatePrefixList(self):
+        def prefix_sorter(item):
+            key = item
+            if item[0] == "_":
+                key = 'zzz' + item
+            return key
+
+
+        # Create a list of prefixes for user selection
+        raw_prefix_list = [
+            ('Ampersand',u'&'),
+            ('Angle left double',u'\u00ab'),
+            ('Angle left',u'\u2039'),
+            ('Angle right double',u'\u00bb'),
+            ('Angle right',u'\u203a'),
+            ('Arrow double',u'\u2194'),
+            ('Arrow down',u'\u2193'),
+            ('Arrow left',u'\u2190'),
+            ('Arrow right',u'\u2192'),
+            ('Arrow up',u'\u2191'),
+            ('Asterisk',u'*'),
+            ('At sign',u'@'),
+            ('Bullet smallest',u'\u22c5'),
+            ('Bullet small',u'\u00b7'),
+            ('Bullet',u'\u2022'),
+            ('Caret',u'^'),
+            ('Checkmark',u'\u2713'),
+            ('Copyright',u'\u00a9'),
+            ('Currency dollar',u'$'),
+            ('Currency euro',u'\u20ac'),
+            ('Dagger double',u'\u2021'),
+            ('Dagger',u'\u2020'),
+            ('Degree',u'\u00b0'),
+            ('Dots3',u'\u2234'),
+            ('Hash',u'#'),
+            ('Infinity',u'\u221e'),
+            ('Lozenge',u'\u25ca'),
+            ('Math divide',u'\u00f7'),
+            ('Math empty',u'\u2205'),
+            ('Math equals',u'='),
+            ('Math minus',u'\u2212'),
+            ('Math plus circled',u'\u2295'),
+            ('Math times circled',u'\u2297'),
+            ('Math times',u'\u00d7'),
+            ('O slash',u'\u00d8'),
+            ('Paragraph',u'\u00b6'),
+            ('Percent',u'%'),
+            ('Plus-or-minus',u'\u00b1'),
+            ('Plus',u'+'),
+            ('Punctuation colon',u':'),
+            ('Punctuation colon-semi',u';'),
+            ('Punctuation exclamation',u'!'),
+            ('Punctuation question',u'?'),
+            ('Registered trademark',u'\u00ae'),
+            ('Section',u'\u00a7'),
+            ('Tilde',u'~'),
+            ('Vertical bar',u'|'),
+            ('Vertical bar broken',u'\u00a6'),
+            ('_0',u'0'),
+            ('_1',u'1'),
+            ('_2',u'2'),
+            ('_3',u'3'),
+            ('_4',u'4'),
+            ('_5',u'5'),
+            ('_6',u'6'),
+            ('_7',u'7'),
+            ('_8',u'8'),
+            ('_9',u'9'),
+            ('_A',u'A'),
+            ('_B',u'B'),
+            ('_C',u'C'),
+            ('_D',u'D'),
+            ('_E',u'E'),
+            ('_F',u'F'),
+            ('_G',u'G'),
+            ('_H',u'H'),
+            ('_I',u'I'),
+            ('_J',u'J'),
+            ('_K',u'K'),
+            ('_L',u'L'),
+            ('_M',u'M'),
+            ('_N',u'N'),
+            ('_O',u'O'),
+            ('_P',u'P'),
+            ('_Q',u'Q'),
+            ('_R',u'R'),
+            ('_S',u'S'),
+            ('_T',u'T'),
+            ('_U',u'U'),
+            ('_V',u'V'),
+            ('_W',u'W'),
+            ('_X',u'X'),
+            ('_Y',u'Y'),
+            ('_Z',u'Z'),
+            ('_a',u'a'),
+            ('_b',u'b'),
+            ('_c',u'c'),
+            ('_d',u'd'),
+            ('_e',u'e'),
+            ('_f',u'f'),
+            ('_g',u'g'),
+            ('_h',u'h'),
+            ('_i',u'i'),
+            ('_j',u'j'),
+            ('_k',u'k'),
+            ('_l',u'l'),
+            ('_m',u'm'),
+            ('_n',u'n'),
+            ('_o',u'o'),
+            ('_p',u'p'),
+            ('_q',u'q'),
+            ('_r',u'r'),
+            ('_s',u's'),
+            ('_t',u't'),
+            ('_u',u'u'),
+            ('_v',u'v'),
+            ('_w',u'w'),
+            ('_x',u'x'),
+            ('_y',u'y'),
+            ('_z',u'z'),
+            ]
+        #raw_prefix_list = sorted(raw_prefix_list, key=lambda k: sort_key(k[0]))
+        raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
+        self.prefixes = [x[1] for x in raw_prefix_list]
 
     def initialize(self, name, db):
         '''
@@ -124,8 +258,10 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         self.name = name
         self.db = db
-        self.all_custom_fields = self.db.custom_field_keys()
+        self.fetchEligibleCustomFields()
+        self.generatePrefixList()
         self.populate_combo_boxes()
+
 
         # Update dialog fields from stored options
         prefix_rules = []
@@ -149,7 +285,8 @@ class PluginWidget(QWidget,Ui_Form):
             elif c_type in ['spin_box']:
                 getattr(self, c_name).setValue(float(opt_value))
             elif c_type in ['table_widget'] and c_name == 'prefix_rules_tw':
-                prefix_rules.append(opt_value)
+                if opt_value not in prefix_rules:
+                    prefix_rules.append(opt_value)
 
         # Init self.exclude_source_field_name
         self.exclude_source_field_name = ''
@@ -178,31 +315,41 @@ class PluginWidget(QWidget,Ui_Form):
         # Hook changes to Description section
         self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
 
-        # Init prefix_rules
-        self.initialize_prefix_rules(prefix_rules)
+        # Neaten up the prefix rules
+        self.prefix_rules_initialize()
         self.populate_prefix_rules(prefix_rules)
+        self.prefix_rules_tw.resizeColumnsToContents()
+        self.prefix_rules_resize_name(1.5)
+        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
 
-    def initialize_prefix_rules(self, rules):
-
-        # Assign icons to buttons
+    def prefix_rules_initialize(self):
+        # Assign icons to buttons, hook clicks
         self.move_rule_up_tb.setToolTip('Move rule up')
         self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
+        self.move_rule_up_tb.clicked.connect(self.prefix_rules_move_row_up)
+
         self.add_rule_tb.setToolTip('Add a new rule')
         self.add_rule_tb.setIcon(QIcon(I('plus.png')))
+        self.add_rule_tb.clicked.connect(self.prefix_rules_add_row)
+
         self.delete_rule_tb.setToolTip('Delete selected rule')
         self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
+        self.delete_rule_tb.clicked.connect(self.prefix_rules_delete_row)
+
         self.move_rule_down_tb.setToolTip('Move rule down')
         self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
+        self.move_rule_down_tb.clicked.connect(self.prefix_rules_move_row_down)
 
         # Configure the QTableWidget
         # enabled/rule name/source field/pattern/prefix
         self.prefix_rules_tw.clear()
-        header_labels = ['','Name','Source','Pattern','Prefix']
+        header_labels = ['','Name','Prefix','Source','Pattern']
         self.prefix_rules_tw.setColumnCount(len(header_labels))
         self.prefix_rules_tw.setHorizontalHeaderLabels(header_labels)
-        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
-        self.prefix_rules_tw.setRowCount(len(rules))
         self.prefix_rules_tw.setSortingEnabled(False)
+        self.prefix_rules_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        self.prefix_rules_tw.cellDoubleClicked.connect(self.prefix_rules_cell_double_clicked)
 
     def options(self):
         # Save/return the current options
@@ -212,6 +359,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         opts_dict = {}
         # Save values to gprefs
+        prefix_rules_processed = False
         for opt in self.OPTION_FIELDS:
             c_name, c_def, c_type = opt
             if c_type in ['check_box', 'radio_button']:
@@ -222,18 +370,49 @@ class PluginWidget(QWidget,Ui_Form):
                 opt_value = unicode(getattr(self, c_name).text()).strip()
             elif c_type in ['spin_box']:
                 opt_value = unicode(getattr(self, c_name).value())
+            elif c_type in ['table_widget']:
+                opt_value = self.prefix_rules_get_data()
+
             gprefs.set(self.name + '_' + c_name, opt_value)
 
-            # Construct opts object
+            # Construct opts object for catalog builder
             if c_name == 'exclude_tags':
                 # store as list
                 opts_dict[c_name] = opt_value.split(',')
+            elif c_name == 'prefix_rules_tw':
+                if prefix_rules_processed:
+                    continue
+                rule_set = []
+                for rule in opt_value:
+                    # Test for empty name/field/pattern/prefix, continue
+                    # If pattern = any or unspecified, convert to regex
+                    if not rule['enabled']:
+                        continue
+                    elif not rule['field'] or not rule['pattern'] or not rule['prefix']:
+                        continue
+                    else:
+                        if rule['field'] != 'Tags':
+                            # Look up custom column name
+                            #print(self.eligible_custom_fields[rule['field']]['field'])
+                            rule['field'] = self.eligible_custom_fields[rule['field']]['field']
+                        if rule['pattern'].startswith('any'):
+                            rule['pattern'] = '.*'
+                        elif rule['pattern'] == 'unspecified':
+                            rule['pattern'] = 'None'
+
+                        pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
+                        rule_set.append(pr)
+
+                opt_value = tuple(rule_set)
+                opts_dict['prefix_rules'] = opt_value
+                prefix_rules_processed = True
+
             else:
                 opts_dict[c_name] = opt_value
 
         # Generate markers for hybrids
-        opts_dict['read_book_marker'] = "%s:%s" % (self.read_source_field_name,
-                                                   self.read_pattern.text())
+        #opts_dict['read_book_marker'] = "%s:%s" % (self.read_source_field_name,
+        #                                           self.read_pattern.text())
         opts_dict['exclude_book_marker'] = "%s:%s" % (self.exclude_source_field_name,
                                                        self.exclude_pattern.text())
 
@@ -256,7 +435,7 @@ class PluginWidget(QWidget,Ui_Form):
             opts_dict['output_profile'] = ['default']
         if False:
             print "opts_dict"
-            for opt in sorted(opts_dict.keys()):
+            for opt in sorted(opts_dict.keys(), key=sort_key):
                 print " %s: %s" % (opt, repr(opts_dict[opt]))
         return opts_dict
 
@@ -286,7 +465,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Blank field first
         self.exclude_source_field.addItem('')
         # Add the sorted eligible fields to the combo box
-        for cf in sorted(custom_fields):
+        for cf in sorted(custom_fields, key=sort_key):
             self.exclude_source_field.addItem(cf)
         self.exclude_source_fields = custom_fields
         self.exclude_source_field.currentIndexChanged.connect(self.exclude_source_field_changed)
@@ -302,7 +481,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Blank field first
         self.header_note_source_field.addItem('')
         # Add the sorted eligible fields to the combo box
-        for cf in sorted(custom_fields):
+        for cf in sorted(custom_fields, key=sort_key):
             self.header_note_source_field.addItem(cf)
         self.header_note_source_fields = custom_fields
         self.header_note_source_field.currentIndexChanged.connect(self.header_note_source_field_changed)
@@ -318,7 +497,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Blank field first
         self.merge_source_field.addItem('')
         # Add the sorted eligible fields to the combo box
-        for cf in sorted(custom_fields):
+        for cf in sorted(custom_fields, key=sort_key):
             self.merge_source_field.addItem(cf)
         self.merge_source_fields = custom_fields
         self.merge_source_field.currentIndexChanged.connect(self.merge_source_field_changed)
@@ -327,40 +506,218 @@ class PluginWidget(QWidget,Ui_Form):
         self.include_hr.setEnabled(False)
 
     def populate_prefix_rules(self,rules):
+        # Format of rules list is different if default values vs retrieved JSON
+        # Hack to normalize list style
+        if type(rules[0]) is list:
+            rules = rules[0]
+        self.prefix_rules_tw.setFocus()
+        for row, rule in enumerate(rules):
+            self.prefix_rules_tw.insertRow(row)
+            self.prefix_rules_select_and_scroll_to_row(row)
+            self.populate_prefix_rules_table_row(row, rule)
+        self.prefix_rules_tw.selectRow(0)
 
-        def populate_table_row(row, data):
-            self.prefix_rules_tw.blockSignals(True)
-            self.prefix_rules_tw.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
-            self.prefix_rules_tw.setItem(row, 1, QTableWidgetItem(data['name']))
-            set_source_field_in_row(row, field=data['field'])
+    def populate_prefix_rules_table_row(self, row, data):
 
-            self.prefix_rules_tw.setItem(row, 3, QTableWidgetItem(data['pattern']))
-            self.prefix_rules_tw.setItem(row, 4, QTableWidgetItem(data['prefix']))
-            self.prefix_rules_tw.blockSignals(False)
+        def set_prefix_field_in_row(row, col, field=''):
+            prefix_combo = PrefixRulesComboBox(self, self.prefixes, field)
+            self.prefix_rules_tw.setCellWidget(row, col, prefix_combo)
 
-        def set_source_field_in_row(row, field=''):
-            custom_fields = {}
-            custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
-            for custom_field in self.all_custom_fields:
-                field_md = self.db.metadata_for_field(custom_field)
-                if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
-                    custom_fields[field_md['name']] = {'field':custom_field,
-                                                       'datatype':field_md['datatype']}
-            self.prefix_rules_tw.setCellWidget(row, 2, SourceFieldComboBox(self, sorted(custom_fields.keys()), field))
-            # Need to connect to something that monitors changes to control pattern field based on source_field type
+        def set_rule_name_in_row(row, col, name=''):
+            rule_name = QLineEdit(name)
+            rule_name.home(False)
+            rule_name.editingFinished.connect(self.prefix_rules_rule_name_edited)
+            self.prefix_rules_tw.setCellWidget(row, col, rule_name)
+
+        def set_source_field_in_row(row, col, field=''):
+            source_combo = PrefixRulesComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
+            source_combo.currentIndexChanged.connect(partial(self.prefix_rules_source_index_changed, source_combo, row))
+            #source_combo.currentIndexChanged.connect(self.prefix_rules_source_index_changed, source_combo, row)
+            self.prefix_rules_tw.setCellWidget(row, col, source_combo)
+            return source_combo
+
 
         # Entry point
+        self.prefix_rules_tw.blockSignals(True)
+        #print("populate_prefix_rules_table_row processing rule:\n%s\n" % data)
 
-        for row, data in enumerate(sorted(rules, key=lambda k: k['ordinal'])):
-            populate_table_row(row, data)
+        # Column 0: Enabled
+        self.prefix_rules_tw.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
 
+        # Column 1: Rule name
+        #rule_name = QTableWidgetItem(data['name'])
+        #self.prefix_rules_tw.setItem(row, 1, rule_name)
+        set_rule_name_in_row(row, 1, name=data['name'])
 
+        # Column 2: Prefix
+        set_prefix_field_in_row(row, 2, field=data['prefix'])
 
+        # Column 3: Source field
+        source_combo = set_source_field_in_row(row, 3, field=data['field'])
 
+        # Column 4: Pattern
+        # The contents of the Pattern field is driven by the Source field
+        self.prefix_rules_source_index_changed(source_combo, row, 4, pattern=data['pattern'])
 
-        # Do this after populating cells
+        self.prefix_rules_tw.blockSignals(False)
+
+    def prefix_rules_add_row(self):
+        # Called when '+' clicked
+        self.prefix_rules_tw.setFocus()
+        row = self.prefix_rules_tw.currentRow() + 1
+        self.prefix_rules_tw.insertRow(row)
+        self.populate_prefix_rules_table_row(row, self.prefix_rules_create_blank_row_data())
+        self.prefix_rules_select_and_scroll_to_row(row)
         self.prefix_rules_tw.resizeColumnsToContents()
+        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
 
+    def prefix_rules_cell_double_clicked(self, row, col):
+        print("prefix_rules_cell_double_clicked: row:%d col:%d" % (row, col))
+
+    def prefix_rules_convert_row_to_data(self, row):
+        data = self.prefix_rules_create_blank_row_data()
+        data['ordinal'] = row
+        data['enabled'] = self.prefix_rules_tw.item(row,0).checkState() == Qt.Checked
+        data['name'] = unicode(self.prefix_rules_tw.cellWidget(row,1).text()).strip()
+        data['prefix'] = unicode(self.prefix_rules_tw.cellWidget(row,2).currentText()).strip()
+        data['field'] = unicode(self.prefix_rules_tw.cellWidget(row,3).currentText()).strip()
+        data['pattern'] = unicode(self.prefix_rules_tw.cellWidget(row,4).currentText()).strip()
+        return data
+
+    def prefix_rules_create_blank_row_data(self):
+        data = {}
+        data['ordinal'] = -1
+        data['enabled'] = False
+        data['name'] = 'New rule'
+        data['field'] = ''
+        data['pattern'] = ''
+        data['prefix'] = ''
+        return data
+
+    def prefix_rules_delete_row(self):
+        self.prefix_rules_tw.setFocus()
+        rows = self.prefix_rules_tw.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        message = '<p>Are you sure you want to delete this rule?'
+        if len(rows) > 1:
+            message = '<p>Are you sure you want to delete the %d selected rules?'%len(rows)
+        if not question_dialog(self, _('Are you sure?'), message, show_copy_button=False):
+            return
+        first_sel_row = self.prefix_rules_tw.currentRow()
+        for selrow in reversed(rows):
+            self.prefix_rules_tw.removeRow(selrow.row())
+        if first_sel_row < self.prefix_rules_tw.rowCount():
+            self.prefix_rules_select_and_scroll_to_row(first_sel_row)
+        elif self.prefix_rules_tw.rowCount() > 0:
+            self.prefix_rules_select_and_scroll_to_row(first_sel_row - 1)
+
+    def prefix_rules_get_data(self):
+        data_items = []
+        for row in range(self.prefix_rules_tw.rowCount()):
+            data = self.prefix_rules_convert_row_to_data(row)
+            data_items.append(
+                               {'ordinal':data['ordinal'],
+                                'enabled':data['enabled'],
+                                'name':data['name'],
+                                'field':data['field'],
+                                'pattern':data['pattern'],
+                                'prefix':data['prefix']})
+        return data_items
+
+    def prefix_rules_move_row_down(self):
+        self.prefix_rules_tw.setFocus()
+        rows = self.prefix_rules_tw.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        last_sel_row = rows[-1].row()
+        if last_sel_row == self.prefix_rules_tw.rowCount() - 1:
+            return
+
+        self.prefix_rules_tw.blockSignals(True)
+        for selrow in reversed(rows):
+            dest_row = selrow.row() + 1
+            src_row = selrow.row()
+
+            # Save the contents of the destination row
+            saved_data = self.prefix_rules_convert_row_to_data(dest_row)
+
+            # Remove the destination row
+            self.prefix_rules_tw.removeRow(dest_row)
+
+            # Insert a new row at the original location
+            self.prefix_rules_tw.insertRow(src_row)
+
+            # Populate it with the saved data
+            self.populate_prefix_rules_table_row(src_row, saved_data)
+        self.blockSignals(False)
+        scroll_to_row = last_sel_row + 1
+        if scroll_to_row < self.prefix_rules_tw.rowCount() - 1:
+            scroll_to_row = scroll_to_row + 1
+        self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.item(scroll_to_row, 0))
+
+    def prefix_rules_move_row_up(self):
+        self.prefix_rules_tw.setFocus()
+        rows = self.prefix_rules_tw.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        first_sel_row = rows[0].row()
+        if first_sel_row <= 0:
+            return
+        self.prefix_rules_tw.blockSignals(True)
+        for selrow in rows:
+            # Save the row above
+            saved_data = self.prefix_rules_convert_row_to_data(selrow.row() - 1)
+
+            # Add a row below us with the source data
+            self.prefix_rules_tw.insertRow(selrow.row() + 1)
+            self.populate_prefix_rules_table_row(selrow.row() + 1, saved_data)
+
+            # Delete the row above
+            self.prefix_rules_tw.removeRow(selrow.row() - 1)
+        self.blockSignals(False)
+
+        scroll_to_row = first_sel_row - 1
+        if scroll_to_row > 0:
+            scroll_to_row = scroll_to_row - 1
+        self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.item(scroll_to_row, 0))
+
+    def prefix_rules_resize_name(self, scale):
+        current_width = self.prefix_rules_tw.columnWidth(1)
+        self.prefix_rules_tw.setColumnWidth(1, min(225,int(current_width * scale)))
+
+    def prefix_rules_rule_name_edited(self):
+        current_row = self.prefix_rules_tw.currentRow()
+        self.prefix_rules_tw.cellWidget(current_row,1).home(False)
+        self.prefix_rules_tw.setFocus()
+        self.prefix_rules_select_and_scroll_to_row(current_row)
+
+    def prefix_rules_select_and_scroll_to_row(self, row):
+        self.prefix_rules_tw.selectRow(row)
+        self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.currentItem())
+
+    def prefix_rules_source_index_changed(self, combo, row, col, pattern=''):
+        # Populate the Pattern field based upon the Source field
+
+        source_field = str(combo.currentText())
+        if source_field == '':
+            values = []
+        elif source_field == 'Tags':
+            values = sorted(self.db.all_tags(), key=sort_key)
+        else:
+            if self.eligible_custom_fields[source_field]['datatype'] in ['enumeration', 'text']:
+                values = self.db.all_custom(self.db.field_metadata.key_to_label(
+                                            self.eligible_custom_fields[source_field]['field']))
+                values = sorted(values, key=sort_key)
+            elif self.eligible_custom_fields[source_field]['datatype'] in ['bool']:
+                values = ['True','False','unspecified']
+            elif self.eligible_custom_fields[source_field]['datatype'] in ['datetime']:
+                values = ['any date','unspecified']
+            elif self.eligible_custom_fields[source_field]['datatype'] in ['composite']:
+                values = ['any value','unspecified']
+
+        values_combo = PrefixRulesComboBox(self, values, pattern)
+        self.prefix_rules_tw.setCellWidget(row, 4, values_combo)
 
     def read_source_field_changed(self,new_index):
         '''
@@ -501,15 +858,16 @@ class NoWheelComboBox(QComboBox):
         # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
         event.ignore()
 
-class SourceFieldComboBox(NoWheelComboBox):
-
-    def __init__(self, parent, format_names, selected_text):
+class PrefixRulesComboBox(NoWheelComboBox):
+    # Caller is responsible for providing the list in the preferred order
+    def __init__(self, parent, items, selected_text,insert_blank=True):
         NoWheelComboBox.__init__(self, parent)
-        self.populate_combo(format_names, selected_text)
+        self.populate_combo(items, selected_text, insert_blank)
 
-    def populate_combo(self, format_names, selected_text):
-        self.addItems([''])
-        self.addItems(format_names)
+    def populate_combo(self, items, selected_text, insert_blank):
+        if insert_blank:
+            self.addItems([''])
+        self.addItems(items)
         if selected_text:
             idx = self.findText(selected_text)
             self.setCurrentIndex(idx)

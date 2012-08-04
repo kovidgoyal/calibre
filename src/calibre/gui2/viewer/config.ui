@@ -18,6 +18,16 @@
     <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabs">
      <property name="currentIndex">
@@ -58,7 +68,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>811</width>
-            <height>384</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -207,8 +217,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>384</height>
+            <width>397</width>
+            <height>232</height>
            </rect>
           </property>
           <attribute name="label">
@@ -337,8 +347,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>384</height>
+            <width>313</width>
+            <height>64</height>
            </rect>
           </property>
           <attribute name="label">
@@ -380,13 +390,92 @@ QToolBox::tab:hover {
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="page_6">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>351</width>
+            <height>76</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Colors and backgrounds</string>
+          </attribute>
+          <layout class="QFormLayout" name="formLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>Background color:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="background_color_sample">
+               <property name="text">
+                <string>Sample</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="change_background_color_button">
+               <property name="text">
+                <string>Change</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="reset_background_color_button">
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>Text color:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLabel" name="text_color_sample">
+               <property name="text">
+                <string>Sample</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="change_text_color_button">
+               <property name="text">
+                <string>Change</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="reset_text_color_button">
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="page_3">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>384</height>
+            <width>410</width>
+            <height>120</height>
            </rect>
           </property>
           <attribute name="label">
@@ -456,8 +545,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>384</height>
+            <width>352</width>
+            <height>123</height>
            </rect>
           </property>
           <attribute name="label">
@@ -548,16 +637,131 @@ QToolBox::tab:hover {
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>&amp;Theming</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_7">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_23">
+         <property name="text">
+          <string>You can save and load the viewer settings as &lt;i&gt;themes&lt;/i&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Save current settings as a theme:</string>
+         </property>
+         <property name="buddy">
+          <cstring>save_theme_button</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QToolButton" name="save_theme_button">
+         <property name="text">
+          <string>&amp;Save</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_20">
+         <property name="text">
+          <string>Load a previously saved theme:</string>
+         </property>
+         <property name="buddy">
+          <cstring>load_theme_button</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QToolButton" name="load_theme_button">
+         <property name="text">
+          <string>&amp;Load</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
+         </property>
+         <property name="popupMode">
+          <enum>QToolButton::InstantPopup</enum>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>Delete a saved theme:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QToolButton" name="delete_theme_button">
+         <property name="text">
+          <string>&amp;Delete</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+         </property>
+         <property name="popupMode">
+          <enum>QToolButton::InstantPopup</enum>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="QLabel" name="theming_message">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
