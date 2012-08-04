@@ -14,7 +14,8 @@ from functools import wraps
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
-from calibre.devices.errors import OpenFeedback
+from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
+                                    InitialConnectionError)
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -82,6 +83,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     BASE_PACKET_LEN             = 4096
     PROTOCOL_VERSION            = 1
     MAX_CLIENT_COMM_TIMEOUT     = 60.0 # Wait at most N seconds for an answer
+    MAX_UNSUCCESSFUL_CONNECTS   = 5
 
     opcodes = {
         'NOOP'                   : 12,
@@ -353,24 +355,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('protocol error -- empty json string')
         except socket.timeout:
             self._debug('timeout communicating with device')
-            self.device_socket.close()
-            self.device_socket = None
-            self.is_connected = False
-            raise IOError(_('Device did not respond in reasonable time'))
+            self._close_device_socket()
+            raise TimeoutError('Device did not respond in reasonable time')
         except socket.error:
             self._debug('device went away')
-            self.device_socket.close()
-            self.device_socket = None
-            self.is_connected = False
-            raise IOError(_('Device closed the network connection'))
+            self._close_device_socket()
+            raise ControlError('Device closed the network connection')
         except:
             self._debug('other exception')
             traceback.print_exc()
-            self.device_socket.close()
-            self.device_socket = None
-            self.is_connected = False
+            self._close_device_socket()
             raise
-        raise IOError('Device responded with incorrect information')
+        raise ControlError('Device responded with incorrect information')
 
     # Write a file as a series of base64-encoded strings.
     def _put_file(self, infile, lpath, book_metadata, this_book, total_books):
@@ -449,8 +445,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         else:
             self.known_metadata[lpath] = book.deepcopy()
 
-    # The public interface methods.
+    def _close_device_socket(self):
+        if self.device_socket is not None:
+            try:
+                self.device_socket.close()
+            except:
+                pass
+            self.device_socket = None
+        self.is_connected = False
 
+    # The public interface methods.
 
     @synchronous('sync_lock')
     def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
@@ -471,11 +475,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     pass
             try:
                 if self._call_client('NOOP', dict())[0] is None:
-                    self.is_connected = False
+                    self._close_device_socket()
             except:
-                self.is_connected = False
-            if not self.is_connected:
-                self.device_socket.close()
+                self._close_device_socket()
             return (self.is_connected, self)
         if getattr(self, 'listen_socket', None) is not None:
             ans = select.select((self.listen_socket,), (), (), 0)
@@ -490,23 +492,35 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self.listen_socket.settimeout(None)
                     self.device_socket.settimeout(None)
                     self.is_connected = True
+                    try:
+                        peer = self.device_socket.getpeername()[0]
+                        attempts = self.connection_attempts.get(peer, 0)
+                        if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
+                            self._debug('too many connection attempts from', peer)
+                            self._close_device_socket()
+                            raise InitialConnectionError(_('Too many connection attempts from %s')%peer)
+                        else:
+                            self.connection_attempts[peer] = attempts + 1
+                    except InitialConnectionError:
+                        raise
+                    except:
+                        pass
                 except socket.timeout:
-                    if self.device_socket is not None:
-                        self.device_socket.close()
-                        self.is_connected = False
+                    self._close_device_socket()
                 except socket.error:
                     x = sys.exc_info()[1]
                     self._debug('unexpected socket exception', x.args[0])
-                    if self.device_socket is not None:
-                        self.device_socket.close()
-                        self.is_connected = False
+                    self._close_device_socket()
                     raise
-                return (True, self)
+                return (self.is_connected, self)
         return (False, None)
 
     @synchronous('sync_lock')
     def open(self, connected_device, library_uuid):
         self._debug()
+        if not self.is_connected:
+            # We have been called to retry the connection. Give up immediately
+            raise ControlError('Attempt to open a closed device')
         self.current_library_uuid = library_uuid
         self.current_library_name = current_library_name()
         try:
@@ -530,28 +544,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 # Something wrong with the return. Close the socket
                 # and continue.
                 self._debug('Protocol error - Opcode not OK')
-                self.device_socket.close()
-                self.is_connected = False
+                self._close_device_socket()
                 return False
             if not result.get('versionOK', False):
                 # protocol mismatch
                 self._debug('Protocol error - protocol version mismatch')
-                self.device_socket.close()
-                self.is_connected = False
+                self._close_device_socket()
                 return False
             if result.get('maxBookContentPacketLen', 0) <= 0:
                 # protocol mismatch
                 self._debug('Protocol error - bogus book packet length')
-                self.device_socket.close()
-                self.is_connected = False
+                self._close_device_socket()
                 return False
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             exts = result.get('acceptedExtensions', None)
             if exts is None or not isinstance(exts, list) or len(exts) == 0:
                 self._debug('Protocol error - bogus accepted extensions')
-                self.device_socket.close()
-                self.is_connected = False
+                self._close_device_socket()
                 return False
             self.FORMATS = exts
             if password:
@@ -559,25 +569,34 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if result.get('passwordHash', None) is None:
                     # protocol mismatch
                     self._debug('Protocol error - missing password hash')
-                    self.device_socket.close()
-                    self.is_connected = False
+                    self._close_device_socket()
                     return False
                 if returned_hash != hash_digest:
                     # bad password
                     self._debug('password mismatch')
-                    self._call_client("DISPLAY_MESSAGE", {'messageKind':1})
-                    self.is_connected = False
-                    self.device_socket.close()
-                    raise OpenFeedback('Incorrect password supplied')
+                    try:
+                        self._call_client("DISPLAY_MESSAGE",
+                                {'messageKind':1,
+                                 'currentLibraryName': self.current_library_name,
+                                 'currentLibraryUUID': library_uuid})
+                    except:
+                        pass
+                    self._close_device_socket()
+                    # Don't bother with a message. The user will be informed on
+                    # the device.
+                    raise OpenFailed('')
+            try:
+                peer = self.device_socket.getpeername()
+                self.connection_attempts[peer] = 0
+            except:
+                pass
             return True
         except socket.timeout:
-            self.device_socket.close()
-            self.is_connected = False
+            self._close_device_socket()
         except socket.error:
             x = sys.exc_info()[1]
             self._debug('unexpected socket exception', x.args[0])
-            self.device_socket.close()
-            self.is_connected = False
+            self._close_device_socket()
             raise
         return False
 
@@ -656,7 +675,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
                 else:
-                    raise IOError(_('Protocol error -- book metadata not returned'))
+                    raise ControlError('book metadata not returned')
         return bl
 
     @synchronous('sync_lock')
@@ -675,15 +694,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                                   print_debug_info=False)
                 if opcode != 'OK':
                     self._debug('protocol error', opcode, i)
-                    raise IOError(_('Protocol error -- sync_booklists'))
+                    raise ControlError('sync_booklists')
 
     @synchronous('sync_lock')
     def eject(self):
         self._debug()
-        if self.device_socket:
-            self.device_socket.close()
-            self.device_socket = None
-            self.is_connected = False
+        self._close_device_socket()
 
     @synchronous('sync_lock')
     def post_yank_cleanup(self):
@@ -706,7 +722,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             book = Book(self.PREFIX, lpath, other=mdata)
             length = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
-                raise IOError(_('Sending book %s to device failed') % lpath)
+                raise ControlError('Sending book %s to device failed' % lpath)
             paths.append((lpath, length))
             # No need to deal with covers. The client will get the thumbnails
             # in the mi structure
@@ -747,7 +763,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if opcode == 'OK':
                 self._debug('removed book with UUID', result['uuid'])
             else:
-                raise IOError(_('Protocol error - delete books'))
+                raise ControlError('Protocol error - delete books')
 
     @synchronous('sync_lock')
     def remove_books_from_metadata(self, paths, booklists):
@@ -783,7 +799,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 else:
                     eof = True
             else:
-                raise IOError(_('request for book data failed'))
+                raise ControlError('request for book data failed')
 
     @synchronous('sync_lock')
     def set_plugboards(self, plugboards, pb_func):
@@ -811,6 +827,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.max_book_packet_len = 0
         self.noop_counter = 0
+        self.connection_attempts = {}
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except:
