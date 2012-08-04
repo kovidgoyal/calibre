@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-08-03 04:51+0000\n"
-"PO-Revision-Date: 2012-07-27 08:32+0000\n"
+"PO-Revision-Date: 2012-08-03 06:53+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-08-03 05:41+0000\n"
-"X-Generator: Launchpad (build 15734)\n"
+"X-Launchpad-Export-Date: 2012-08-04 05:04+0000\n"
+"X-Generator: Launchpad (build 15742)\n"
 "Language: uk\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2046,63 +2046,73 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:53
 msgid "SmartDevice"
-msgstr ""
+msgstr "Портативний пристрій"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:55
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Обмін даними з програмами на портативному пристрої"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:110
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Увімкнути з’єднання під час запуску"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:111
 msgid "Check this box to allow connections when calibre starts"
 msgstr ""
+"Позначте цей пункт, щоб дозволити Calibre вмикати з’єднання під час запуску"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:113
 msgid "Security password"
-msgstr ""
+msgstr "Захисний пароль"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:114
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
+"Вкажіть пароль, який програма на пристрої має використовувати для "
+"встановлення з’єднання з Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:116
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Фіксований порт мережі"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:117
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Якщо позначено цей пункт, драйвер використовуватиме порт з номером, вказаним "
+"у полі «Порт». Якщо пункт не буде позначено, використовуватиметься "
+"випадковий порт."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:119
 msgid "Port"
-msgstr ""
+msgstr "Порт"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:120
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
 msgstr ""
+"Вкажіть номер порту, який має використовувати драйвер, якщо позначено пункт "
+"«Фіксований порт мережі»."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:121
 msgid "Print extra debug information"
-msgstr ""
+msgstr "Виводити додаткові діагностичні дані"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:122
 msgid "Check this box if requested when reporting problems"
 msgstr ""
+"Позначте цей пункт, якщо вас попросять про додаткові дані під час "
+"обговорення вади."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:359
 msgid "Device did not respond in reasonable time"
-msgstr ""
+msgstr "Не отримано відповіді від пристрою протягом належного періоду"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:365
 msgid "Device closed the network connection"
-msgstr ""
+msgstr "З’єднання розірвано пристроєм"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:587
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2111,24 +2121,25 @@ msgstr "Отримую інформацію про пристрій…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:659
 msgid "Protocol error -- book metadata not returned"
-msgstr ""
+msgstr "Помилка протоколу — не повернуто метадані книги"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:678
 msgid "Protocol error -- sync_booklists"
-msgstr ""
+msgstr "Помилка протоколу — синхронізація списків книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:709
 #, python-format
 msgid "Sending book %s to device failed"
-msgstr ""
+msgstr "Спроба надсилання книги %s на пристрій зазнала невдачі"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:750
 msgid "Protocol error - delete books"
-msgstr ""
+msgstr "Помилка протоколу — вилучення книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:786
 msgid "request for book data failed"
 msgstr ""
+"спроба отримання даних у відповідь на запит щодо даних книги зазнала невдачі"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -6162,11 +6173,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Створити бездротове з’єднання з пристроєм"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Розірвати бездротове з’єднання з пристроєм"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to folder"
@@ -6234,13 +6245,15 @@ msgstr "Зупиняємо сервер, це може тривати до хв�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:226
 msgid "Disable autostart"
-msgstr ""
+msgstr "Вимкнути автозапуск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:227
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Хочете, щоб бездротове з’єднання з пристроєм встановлювалося під час запуску "
+"Calibre автоматично?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7348,7 +7361,7 @@ msgstr "Вилучити форматування %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:461
 #, python-format
 msgid "Save the %s format to disk"
-msgstr ""
+msgstr "Зберегти у форматі %s на диск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -12276,6 +12289,11 @@ msgid ""
 "manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Започаткування бездротових з’єднань з пристроєм.\n"
+" <p>Можливо, буде показано повідомлення з боку брандмауера або антивіруса, "
+"встановленого на вашому комп’ютері, щодо уможливлення доступу для calibre до "
+"мережі. <b>Будь ласка, дозвольте такий доступ</b>. Якщо ви цього не зробите, "
+"обмін даними бездротовим з’єднанням стане неможливим."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:66
 msgid "Optional password for security"
@@ -12283,11 +12301,11 @@ msgstr "Необов’язковий пароль для захисту"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:67
 msgid "Optional &password:"
-msgstr ""
+msgstr "Додатковий &пароль:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:69
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "&Автоматично дозволяти з’єднання під час запуску calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -18372,30 +18390,30 @@ msgstr "Стандартний тип шрифту"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:130
 msgid "Theme name"
-msgstr ""
+msgstr "Назва теми"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:131
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Виберіть назву для цієї теми"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:140
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "Параметри збережено у темі з назвою: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:156
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "Завантажено параметри з теми %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:163
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "Вилучено тему з назвою %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:219
 msgid "Choose text color"
-msgstr ""
+msgstr "Виберіть колір тексту"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Still editing"
@@ -18532,25 +18550,25 @@ msgstr "&Параметри повноекранного режиму"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Колір тла:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Зразок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Змінити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Колір тексту:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Кольори тексту і тла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -18634,22 +18652,23 @@ msgstr "&Таблиця стилів користувача"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "You can save and load the viewer settings as <i>themes</i>"
 msgstr ""
+"Зберігати і завантажувати параметри перегляду можна у форматі <i>тем</i>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "Зберегти поточні параметри у такій темі:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "Завантажити попередньо збережену тему:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Вилучити збережену тему:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:428
 msgid "&Theming"
-msgstr ""
+msgstr "&Теми"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -24070,57 +24089,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid "Enable multi-character first-letters in the tag browser"
-#~ msgstr "Увімкнути багатосимвольні перші літери на панелі перегляду міток"
-
-#~ msgid ""
-#~ "Some languages have letters that can be represented by multiple characters.\n"
-#~ "For example, Czech has a 'character' \"ch\" that sorts between \"h\" and "
-#~ "\"i\".\n"
-#~ "If this tweak is True, then the tag browser will take these characters into\n"
-#~ "consideration when partitioning by first letter.\n"
-#~ "Examples:\n"
-#~ "enable_multicharacters_in_tag_browser = True\n"
-#~ "enable_multicharacters_in_tag_browser = False"
-#~ msgstr ""
-#~ "У деяких мовах є літери, які записуються декількома символами.\n"
-#~ "Наприклад, у чеській є символ «ch», який під час впорядковування має стояти "
-#~ "між «h» і «i».\n"
-#~ "Якщо для цього коригування вказано значення True, на панелі показу міток "
-#~ "такі символи\n"
-#~ "братимуться до уваги під час розподілу пунктів за першою літерою.\n"
-#~ "Приклади:\n"
-#~ "enable_multicharacters_in_tag_browser = True\n"
-#~ "enable_multicharacters_in_tag_browser = False"
-
-#~ msgid "&Allow connections"
-#~ msgstr "&Дозволити з’єднання"
-
-#~ msgid "&Automatically allow connections at startup"
-#~ msgstr "&Автоматично дозволяти з’єднання під час запуску"
-
-#~ msgid "Control Smart Device Connections"
-#~ msgstr "Керування з’єднаннями з портативними пристроями"
-
-#~ msgid ""
-#~ "This dialog starts and stops the smart device app interface. When you start "
-#~ "the interface, you might see some messages from your computer's firewall or "
-#~ "anti-virus manager asking you if it is OK for calibre to connect to the "
-#~ "network. <B>Please answer yes</b>. If you do not, the app will not work. It "
-#~ "will be unable to connect to calibre."
-#~ msgstr ""
-#~ "За допомогою цього діалогового вікна можна увімкнути або вимкнути програмний "
-#~ "інтерфейс роботи з портативними пристроями. Під час вмикання інтерфейсу ви "
-#~ "можете побачити повідомлення від брандмауера або антивірусу щодо дозволу для "
-#~ "calibre встановлювати з’єднання з мережею. <b>Будь ласка, дозвольте такі "
-#~ "з’єднання.</b> Якщо ви забороните з’єднання, програма просто не працюватиме, "
-#~ "вона не зможе встановити з’єднання з calibre."
-
-#~ msgid ""
-#~ "Check this box to allow calibre to accept connections from the smart device. "
-#~ "Uncheck the box to prevent connections."
-#~ msgstr ""
-#~ "Позначте цей пункт, якщо calibre слід дозволити приймати з’єднання від "
-#~ "портативного пристрою. Зніміть позначку з пункту, якщо таким спробам "
-#~ "з’єднання слід запобігати."
