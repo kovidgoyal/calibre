@@ -561,7 +561,9 @@ class OPDSServer(object):
         if type_ != 'I':
             raise cherrypy.HTTPError(404, 'Non id categories not supported')
 
-        ids = self.db.get_books_for_category(category, which)
+        q = category
+        if q == 'news': q = 'tags'
+        ids = self.db.get_books_for_category(q, which)
         sort_by = 'series' if category == 'series' else 'title'
 
         return self.get_opds_acquisition_feed(ids, offset, page_url,
