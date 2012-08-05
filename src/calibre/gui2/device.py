@@ -252,7 +252,7 @@ class DeviceManager(Thread): # {{{
                             if DEBUG:
                                 prints('Device connect failed again, giving up')
             except OpenFailed as e:
-                if str(e):
+                if e.show_me:
                     traceback.print_exc()
 
     # Mount devices that don't use USB, such as the folder device and iTunes

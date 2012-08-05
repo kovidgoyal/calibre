@@ -49,12 +49,17 @@ class OpenFeedback(DeviceError):
         raise NotImplementedError
 
 class InitialConnectionError(OpenFeedback):
-    """ Errors detected during connection after detection but before open """
+    """ Errors detected during connection after detection but before open, for
+    e.g. in the is_connected() method. """
 
 class OpenFailed(ProtocolError):
     """ Raised when device cannot be opened this time. No retry is to be done.
         The device should continue to be polled for future opens. If the
         message is empty, no exception trace is produced. """
+
+    def __init__(self, msg):
+        ProtocolError.__init__(self, msg)
+        self.show_me = bool(msg and msg.strip())
 
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
