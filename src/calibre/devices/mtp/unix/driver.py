@@ -64,6 +64,10 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def open(self, connected_device, library_uuid):
+        def blacklist_device():
+            d = connected_device
+            self.blacklisted_devices.add((d.busnum, d.devnum, d.vendor_id,
+                    d.product_id, d.bcd, d.serial))
         try:
             self.detect.create_device(connected_device)
         except ValueError:
@@ -74,8 +78,9 @@ class MTP_DEVICE(MTPDeviceBase):
             except ValueError:
                 # Black list this device so that it is ignored for the
                 # remainder of this session.
-                d = connected_device
-                self.blacklisted_devices.add((d.busnum, d.devnum, d.vendor_id,
-                    d.product_id, d.bcd, d.serial))
+                blacklist_device()
                 raise OpenFailed('%s is not a MTP device'%connected_device)
+        except TypeError:
+            blacklist_device()
+            raise OpenFailed('')
 
