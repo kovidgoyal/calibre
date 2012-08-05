@@ -1,31 +1,42 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
-    description = 'News as provide by The Metro -UK'
+    description = 'Author Dave Asbury : News as provide by The Metro -UK'
     #timefmt = ''
     __author__ = 'Dave Asbury'
-    #last update 9/6/12
+    #last update 4/8/12
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
-    #no_stylesheets = True
+    no_stylesheets = True
     oldest_article = 1
-    max_articles_per_feed = 10
+    max_articles_per_feed = 12
     remove_empty_feeds = True
     remove_javascript     = True
-    auto_cleanup = True
+    #auto_cleanup = True
     encoding = 'UTF-8'
-
+    cover_url ='http://profile.ak.fbcdn.net/hprofile-ak-snc4/157897_117118184990145_840702264_n.jpg'
     language = 'en_GB'
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:1.6em;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:1.2em;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:1.0em;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:1.0em;}
+		'''
     keep_only_tags = [
-
-    ]
+		#dict(name='h1'),
+		#dict(name='h2'),
+		#dict(name='div', attrs={'class' : ['row','article','img-cnt figure','clrd']})
+	#dict(name='h3'),
+	#dict(attrs={'class' :  'BText'}),
+		]
     remove_tags    = [
-
+                                dict(name='span',attrs={'class' : 'share'}),
+		dict(name='li'),
+		dict(attrs={'class' : ['twitter-share-button','header-forms','hdr-lnks','close','art-rgt','fd-gr1-b clrd google-article','news m12 clrd clr-b p5t shareBtm','item-ds csl-3-img news','c-1of3 c-last','c-1of1','pd','item-ds csl-3-img sport']}),
+           		dict(attrs={'id' : ['','sky-left','sky-right','ftr-nav','and-ftr','notificationList','logo','miniLogo','comments-news','metro_extras']})
                                ]
-
+    remove_tags_before = dict(name='h1')
+    #remove_tags_after = dict(attrs={'id':['topic-buttons']})
 
     feeds          = [
         (u'News', u'http://www.metro.co.uk/rss/news/'), (u'Money', u'http://www.metro.co.uk/rss/money/'), (u'Sport', u'http://www.metro.co.uk/rss/sport/'), (u'Film', u'http://www.metro.co.uk/rss/metrolife/film/'), (u'Music', u'http://www.metro.co.uk/rss/metrolife/music/'), (u'TV', u'http://www.metro.co.uk/rss/tv/'), (u'Showbiz', u'http://www.metro.co.uk/rss/showbiz/'), (u'Weird News', u'http://www.metro.co.uk/rss/weird/'), (u'Travel', u'http://www.metro.co.uk/rss/travel/'), (u'Lifestyle', u'http://www.metro.co.uk/rss/lifestyle/'), (u'Books', u'http://www.metro.co.uk/rss/lifestyle/books/'), (u'Food', u'http://www.metro.co.uk/rss/lifestyle/restaurants/')]
-    extra_css  = '''
-	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-                	 '''
