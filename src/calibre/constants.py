@@ -93,6 +93,8 @@ class Plugins(collections.Mapping):
             plugins.append('winutil')
         if isosx:
             plugins.append('usbobserver')
+        if islinux:
+            plugins.append('libmtp')
         self.plugins = frozenset(plugins)
 
     def load_plugin(self, name):

@@ -1,0 +1,318 @@
+#define UNICODE
+#include <Python.h>
+
+#include <stdlib.h>
+#include <libmtp.h>
+
+#include "devices.h"
+
+// Device object definition {{{
+typedef struct {
+    PyObject_HEAD
+    // Type-specific fields go here.
+    LIBMTP_mtpdevice_t *device;
+    PyObject *ids;
+    PyObject *friendly_name;
+    PyObject *manufacturer_name;
+    PyObject *model_name;
+    PyObject *serial_number;
+    PyObject *device_version;
+
+} libmtp_Device;
+
+static void
+libmtp_Device_dealloc(libmtp_Device* self)
+{
+    if (self->device != NULL) LIBMTP_Release_Device(self->device);
+    self->device = NULL;
+
+    Py_XDECREF(self->ids); self->ids = NULL;
+    Py_XDECREF(self->friendly_name); self->friendly_name = NULL;
+    Py_XDECREF(self->manufacturer_name); self->manufacturer_name = NULL;
+    Py_XDECREF(self->model_name); self->model_name = NULL;
+    Py_XDECREF(self->serial_number); self->serial_number = NULL;
+    Py_XDECREF(self->device_version); self->device_version = NULL;
+
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static int
+libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
+{
+    int busnum, devnum, vendor_id, product_id;
+    PyObject *usb_serialnum;
+    char *vendor, *product, *friendly_name, *manufacturer_name, *model_name, *serial_number, *device_version;
+    LIBMTP_raw_device_t rawdev;
+    LIBMTP_mtpdevice_t *dev;
+    size_t i;
+
+    if (!PyArg_ParseTuple(args, "iiiissO", &busnum, &devnum, &vendor_id, &product_id, &vendor, &product, &usb_serialnum)) return -1;
+
+    if (devnum < 0 || devnum > 255 || busnum < 0) { PyErr_SetString(PyExc_TypeError, "Invalid busnum/devnum"); return -1; }
+
+    self->ids = Py_BuildValue("iiiiO", busnum, devnum, vendor_id, product_id, usb_serialnum);
+    if (self->ids == NULL) return -1;
+
+    rawdev.bus_location = (uint32_t)busnum;
+    rawdev.devnum = (uint8_t)devnum;
+    rawdev.device_entry.vendor = vendor;
+    rawdev.device_entry.product = product;
+    rawdev.device_entry.vendor_id = vendor_id;
+    rawdev.device_entry.product_id = product_id;
+    rawdev.device_entry.device_flags = 0x00000000U;
+
+    Py_BEGIN_ALLOW_THREADS;
+    for (i = 0; ; i++) {
+        if (calibre_mtp_device_table[i].vendor == NULL && calibre_mtp_device_table[i].product == NULL && calibre_mtp_device_table[i].vendor_id == 0xffff) break;
+        if (calibre_mtp_device_table[i].vendor_id == vendor_id && calibre_mtp_device_table[i].product_id == product_id) {
+            rawdev.device_entry.device_flags = calibre_mtp_device_table[i].device_flags;
+        }
+    }
+
+    dev = LIBMTP_Open_Raw_Device_Uncached(&rawdev);
+    Py_END_ALLOW_THREADS;
+
+    if (dev == NULL) { 
+        PyErr_SetString(PyExc_ValueError, "Unable to open raw device."); 
+        return -1;
+    }
+
+    self->device = dev;
+
+    Py_BEGIN_ALLOW_THREADS;
+    friendly_name = LIBMTP_Get_Friendlyname(self->device);
+    manufacturer_name = LIBMTP_Get_Manufacturername(self->device);
+    model_name = LIBMTP_Get_Modelname(self->device);
+    serial_number = LIBMTP_Get_Serialnumber(self->device);
+    device_version = LIBMTP_Get_Deviceversion(self->device);
+    Py_END_ALLOW_THREADS;
+
+    if (friendly_name != NULL) {
+        self->friendly_name = PyUnicode_FromString(friendly_name);
+        free(friendly_name);
+    }
+    if (self->friendly_name == NULL) { self->friendly_name = Py_None; Py_INCREF(Py_None); }
+
+    if (manufacturer_name != NULL) {
+        self->manufacturer_name = PyUnicode_FromString(manufacturer_name);
+        free(manufacturer_name);
+    }
+    if (self->manufacturer_name == NULL) { self->manufacturer_name = Py_None; Py_INCREF(Py_None); }
+
+    if (model_name != NULL) {
+        self->model_name = PyUnicode_FromString(model_name);
+        free(model_name);
+    }
+    if (self->model_name == NULL) { self->model_name = Py_None; Py_INCREF(Py_None); }
+
+    if (serial_number != NULL) {
+        self->serial_number = PyUnicode_FromString(serial_number);
+        free(serial_number);
+    }
+    if (self->serial_number == NULL) { self->serial_number = Py_None; Py_INCREF(Py_None); }
+
+    if (device_version != NULL) {
+        self->device_version = PyUnicode_FromString(device_version);
+        free(device_version);
+    }
+    if (self->device_version == NULL) { self->device_version = Py_None; Py_INCREF(Py_None); }
+
+    return 0;
+}
+
+// Collator.friendly_name {{{
+static PyObject *
+libmtp_Device_friendly_name(libmtp_Device *self, void *closure) {
+    return Py_BuildValue("O", self->friendly_name);
+} // }}}
+
+// Collator.manufacturer_name {{{
+static PyObject *
+libmtp_Device_manufacturer_name(libmtp_Device *self, void *closure) {
+    return Py_BuildValue("O", self->manufacturer_name);
+} // }}}
+
+// Collator.model_name {{{
+static PyObject *
+libmtp_Device_model_name(libmtp_Device *self, void *closure) {
+    return Py_BuildValue("O", self->model_name);
+} // }}}
+
+// Collator.serial_number {{{
+static PyObject *
+libmtp_Device_serial_number(libmtp_Device *self, void *closure) {
+    return Py_BuildValue("O", self->serial_number);
+} // }}}
+
+// Collator.device_version {{{
+static PyObject *
+libmtp_Device_device_version(libmtp_Device *self, void *closure) {
+    return Py_BuildValue("O", self->device_version);
+} // }}}
+
+// Collator.ids {{{
+static PyObject *
+libmtp_Device_ids(libmtp_Device *self, void *closure) {
+    return Py_BuildValue("O", self->ids);
+} // }}}
+
+static PyMethodDef libmtp_Device_methods[] = {
+    {NULL}  /* Sentinel */
+};
+
+static PyGetSetDef libmtp_Device_getsetters[] = {
+    {(char *)"friendly_name", 
+     (getter)libmtp_Device_friendly_name, NULL,
+     (char *)"The friendly name of this device, can be None.",
+     NULL},
+
+    {(char *)"manufacturer_name", 
+     (getter)libmtp_Device_manufacturer_name, NULL,
+     (char *)"The manufacturer name of this device, can be None.",
+     NULL},
+
+    {(char *)"model_name", 
+     (getter)libmtp_Device_model_name, NULL,
+     (char *)"The model name of this device, can be None.",
+     NULL},
+
+    {(char *)"serial_number", 
+     (getter)libmtp_Device_serial_number, NULL,
+     (char *)"The serial number of this device, can be None.",
+     NULL},
+
+    {(char *)"device_version", 
+     (getter)libmtp_Device_device_version, NULL,
+     (char *)"The device version of this device, can be None.",
+     NULL},
+
+    {(char *)"ids", 
+     (getter)libmtp_Device_ids, NULL,
+     (char *)"The ids of the device (busnum, devnum, vendor_id, product_id, usb_serialnum)",
+     NULL},
+
+    {NULL}  /* Sentinel */
+};
+
+static PyTypeObject libmtp_DeviceType = { // {{{
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "libmtp.Device",            /*tp_name*/
+    sizeof(libmtp_Device),      /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)libmtp_Device_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    "Device",                  /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    libmtp_Device_methods,             /* tp_methods */
+    0,             /* tp_members */
+    libmtp_Device_getsetters,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)libmtp_Device_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    0,                 /* tp_new */
+}; // }}}
+
+// }}} End Device object definition
+
+static PyObject *
+libmtp_set_debug_level(PyObject *self, PyObject *args) {
+    int level;
+    if (!PyArg_ParseTuple(args, "i", &level)) return NULL;
+    LIBMTP_Set_Debug(level);
+    Py_RETURN_NONE;
+}
+
+
+static PyObject *
+libmtp_is_mtp_device(PyObject *self, PyObject *args) {
+    int busnum, devnum, vendor_id, prod_id, ans = 0;
+    size_t i;
+
+    if (!PyArg_ParseTuple(args, "iiii", &busnum, &devnum, &vendor_id, &prod_id)) return NULL;
+
+    for (i = 0; ; i++) {
+        if (calibre_mtp_device_table[i].vendor == NULL && calibre_mtp_device_table[i].product == NULL && calibre_mtp_device_table[i].vendor_id == 0xffff) break;
+        if (calibre_mtp_device_table[i].vendor_id == vendor_id && calibre_mtp_device_table[i].product_id == prod_id) {
+            Py_RETURN_TRUE;
+        }
+    }
+
+    /*
+     * LIBMTP_Check_Specific_Device does not seem to work at least on my linux
+     * system. Need to investigate why later. Most devices are in the device
+     * table so this is not terribly important.
+     */
+    /* LIBMTP_Set_Debug(LIBMTP_DEBUG_ALL); */
+    /* printf("Calling check: %d %d\n", busnum, devnum); */
+    Py_BEGIN_ALLOW_THREADS;
+    ans = LIBMTP_Check_Specific_Device(busnum, devnum);
+    Py_END_ALLOW_THREADS;
+
+    if (ans) Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+
+}
+
+static PyMethodDef libmtp_methods[] = {
+    {"set_debug_level", libmtp_set_debug_level, METH_VARARGS,
+        "set_debug_level(level)\n\nSet the debug level bit mask, see LIBMTP_DEBUG_* constants."
+    },
+
+    {"is_mtp_device", libmtp_is_mtp_device, METH_VARARGS,
+        "is_mtp_device(busnum, devnum, vendor_id, prod_id)\n\nReturn True if the device is recognized as an MTP device by its vendor/product ids. If it is not recognized a probe is done and True returned if the probe succeeds. Note that probing can cause some devices to malfunction, and it is not very reliable, which is why we prefer to use the device database."
+    },
+
+    {NULL, NULL, 0, NULL}
+};
+
+
+PyMODINIT_FUNC
+initlibmtp(void) {
+    PyObject *m;
+
+    libmtp_DeviceType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&libmtp_DeviceType) < 0)
+        return;
+    
+    m = Py_InitModule3("libmtp", libmtp_methods, "Interface to libmtp.");
+    if (m == NULL) return;
+
+    LIBMTP_Init();
+    LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);
+
+    Py_INCREF(&libmtp_DeviceType);
+    PyModule_AddObject(m, "Device", (PyObject *)&libmtp_DeviceType);
+
+    PyModule_AddStringMacro(m, LIBMTP_VERSION_STRING);
+    PyModule_AddIntMacro(m, LIBMTP_DEBUG_NONE);
+    PyModule_AddIntMacro(m, LIBMTP_DEBUG_PTP);
+    PyModule_AddIntMacro(m, LIBMTP_DEBUG_PLST);
+    PyModule_AddIntMacro(m, LIBMTP_DEBUG_USB);
+    PyModule_AddIntMacro(m, LIBMTP_DEBUG_DATA);
+    PyModule_AddIntMacro(m, LIBMTP_DEBUG_ALL);
+}

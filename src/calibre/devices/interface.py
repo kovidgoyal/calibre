@@ -199,7 +199,7 @@ class DevicePlugin(Plugin):
     # }}}
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None) :
+            detected_device=None):
         """
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
