@@ -425,7 +425,8 @@ class TagsModel(QAbstractItemModel): # {{{
             last_idx = -collapse
             category_is_hierarchical = not (
                 key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
-                key not in self.db.prefs.get('categories_using_hierarchy', []))
+                key not in self.db.prefs.get('categories_using_hierarchy', []) or
+                config['sort_tags_by'] != 'name')
 
             for idx,tag in enumerate(data[key]):
                 components = None
