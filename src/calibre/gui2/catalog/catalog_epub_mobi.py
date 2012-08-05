@@ -112,131 +112,6 @@ class PluginWidget(QWidget,Ui_Form):
                                                    'datatype':field_md['datatype']}
         self.eligible_custom_fields = custom_fields
 
-    def generatePrefixList(self):
-        def prefix_sorter(item):
-            key = item
-            if item[0] == "_":
-                key = 'zzz' + item
-            return key
-
-
-        # Create a list of prefixes for user selection
-        raw_prefix_list = [
-            ('Ampersand',u'&'),
-            ('Angle left double',u'\u00ab'),
-            ('Angle left',u'\u2039'),
-            ('Angle right double',u'\u00bb'),
-            ('Angle right',u'\u203a'),
-            ('Arrow double',u'\u2194'),
-            ('Arrow down',u'\u2193'),
-            ('Arrow left',u'\u2190'),
-            ('Arrow right',u'\u2192'),
-            ('Arrow up',u'\u2191'),
-            ('Asterisk',u'*'),
-            ('At sign',u'@'),
-            ('Bullet smallest',u'\u22c5'),
-            ('Bullet small',u'\u00b7'),
-            ('Bullet',u'\u2022'),
-            ('Caret',u'^'),
-            ('Checkmark',u'\u2713'),
-            ('Copyright',u'\u00a9'),
-            ('Currency dollar',u'$'),
-            ('Currency euro',u'\u20ac'),
-            ('Dagger double',u'\u2021'),
-            ('Dagger',u'\u2020'),
-            ('Degree',u'\u00b0'),
-            ('Dots3',u'\u2234'),
-            ('Hash',u'#'),
-            ('Infinity',u'\u221e'),
-            ('Lozenge',u'\u25ca'),
-            ('Math divide',u'\u00f7'),
-            ('Math empty',u'\u2205'),
-            ('Math equals',u'='),
-            ('Math minus',u'\u2212'),
-            ('Math plus circled',u'\u2295'),
-            ('Math times circled',u'\u2297'),
-            ('Math times',u'\u00d7'),
-            ('O slash',u'\u00d8'),
-            ('Paragraph',u'\u00b6'),
-            ('Percent',u'%'),
-            ('Plus-or-minus',u'\u00b1'),
-            ('Plus',u'+'),
-            ('Punctuation colon',u':'),
-            ('Punctuation colon-semi',u';'),
-            ('Punctuation exclamation',u'!'),
-            ('Punctuation question',u'?'),
-            ('Registered trademark',u'\u00ae'),
-            ('Section',u'\u00a7'),
-            ('Tilde',u'~'),
-            ('Vertical bar',u'|'),
-            ('Vertical bar broken',u'\u00a6'),
-            ('_0',u'0'),
-            ('_1',u'1'),
-            ('_2',u'2'),
-            ('_3',u'3'),
-            ('_4',u'4'),
-            ('_5',u'5'),
-            ('_6',u'6'),
-            ('_7',u'7'),
-            ('_8',u'8'),
-            ('_9',u'9'),
-            ('_A',u'A'),
-            ('_B',u'B'),
-            ('_C',u'C'),
-            ('_D',u'D'),
-            ('_E',u'E'),
-            ('_F',u'F'),
-            ('_G',u'G'),
-            ('_H',u'H'),
-            ('_I',u'I'),
-            ('_J',u'J'),
-            ('_K',u'K'),
-            ('_L',u'L'),
-            ('_M',u'M'),
-            ('_N',u'N'),
-            ('_O',u'O'),
-            ('_P',u'P'),
-            ('_Q',u'Q'),
-            ('_R',u'R'),
-            ('_S',u'S'),
-            ('_T',u'T'),
-            ('_U',u'U'),
-            ('_V',u'V'),
-            ('_W',u'W'),
-            ('_X',u'X'),
-            ('_Y',u'Y'),
-            ('_Z',u'Z'),
-            ('_a',u'a'),
-            ('_b',u'b'),
-            ('_c',u'c'),
-            ('_d',u'd'),
-            ('_e',u'e'),
-            ('_f',u'f'),
-            ('_g',u'g'),
-            ('_h',u'h'),
-            ('_i',u'i'),
-            ('_j',u'j'),
-            ('_k',u'k'),
-            ('_l',u'l'),
-            ('_m',u'm'),
-            ('_n',u'n'),
-            ('_o',u'o'),
-            ('_p',u'p'),
-            ('_q',u'q'),
-            ('_r',u'r'),
-            ('_s',u's'),
-            ('_t',u't'),
-            ('_u',u'u'),
-            ('_v',u'v'),
-            ('_w',u'w'),
-            ('_x',u'x'),
-            ('_y',u'y'),
-            ('_z',u'z'),
-            ]
-        #raw_prefix_list = sorted(raw_prefix_list, key=lambda k: sort_key(k[0]))
-        raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
-        self.prefixes = [x[1] for x in raw_prefix_list]
-
     def initialize(self, name, db):
         '''
 
@@ -259,7 +134,6 @@ class PluginWidget(QWidget,Ui_Form):
         self.name = name
         self.db = db
         self.fetchEligibleCustomFields()
-        self.generatePrefixList()
         self.populate_combo_boxes()
 
 
@@ -315,41 +189,8 @@ class PluginWidget(QWidget,Ui_Form):
         # Hook changes to Description section
         self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
 
-        # Neaten up the prefix rules
-        self.prefix_rules_initialize()
-        self.populate_prefix_rules(prefix_rules)
-        self.prefix_rules_tw.resizeColumnsToContents()
-        self.prefix_rules_resize_name(1.5)
-        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
-
-    def prefix_rules_initialize(self):
-        # Assign icons to buttons, hook clicks
-        self.move_rule_up_tb.setToolTip('Move rule up')
-        self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
-        self.move_rule_up_tb.clicked.connect(self.prefix_rules_move_row_up)
-
-        self.add_rule_tb.setToolTip('Add a new rule')
-        self.add_rule_tb.setIcon(QIcon(I('plus.png')))
-        self.add_rule_tb.clicked.connect(self.prefix_rules_add_row)
-
-        self.delete_rule_tb.setToolTip('Delete selected rule')
-        self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
-        self.delete_rule_tb.clicked.connect(self.prefix_rules_delete_row)
-
-        self.move_rule_down_tb.setToolTip('Move rule down')
-        self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
-        self.move_rule_down_tb.clicked.connect(self.prefix_rules_move_row_down)
-
-        # Configure the QTableWidget
-        # enabled/rule name/source field/pattern/prefix
-        self.prefix_rules_tw.clear()
-        header_labels = ['','Name','Prefix','Source','Pattern']
-        self.prefix_rules_tw.setColumnCount(len(header_labels))
-        self.prefix_rules_tw.setHorizontalHeaderLabels(header_labels)
-        self.prefix_rules_tw.setSortingEnabled(False)
-        self.prefix_rules_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        self.prefix_rules_tw.cellDoubleClicked.connect(self.prefix_rules_cell_double_clicked)
+        # Initialize prefix rules
+        self.prefix_rules_initialize(prefix_rules)
 
     def options(self):
         # Save/return the current options
@@ -505,74 +346,17 @@ class PluginWidget(QWidget,Ui_Form):
         self.merge_after.setEnabled(False)
         self.include_hr.setEnabled(False)
 
-    def populate_prefix_rules(self,rules):
-        # Format of rules list is different if default values vs retrieved JSON
-        # Hack to normalize list style
-        if type(rules[0]) is list:
-            rules = rules[0]
-        self.prefix_rules_tw.setFocus()
-        for row, rule in enumerate(rules):
-            self.prefix_rules_tw.insertRow(row)
-            self.prefix_rules_select_and_scroll_to_row(row)
-            self.populate_prefix_rules_table_row(row, rule)
-        self.prefix_rules_tw.selectRow(0)
-
-    def populate_prefix_rules_table_row(self, row, data):
-
-        def set_prefix_field_in_row(row, col, field=''):
-            prefix_combo = PrefixRulesComboBox(self, self.prefixes, field)
-            self.prefix_rules_tw.setCellWidget(row, col, prefix_combo)
-
-        def set_rule_name_in_row(row, col, name=''):
-            rule_name = QLineEdit(name)
-            rule_name.home(False)
-            rule_name.editingFinished.connect(self.prefix_rules_rule_name_edited)
-            self.prefix_rules_tw.setCellWidget(row, col, rule_name)
-
-        def set_source_field_in_row(row, col, field=''):
-            source_combo = PrefixRulesComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
-            source_combo.currentIndexChanged.connect(partial(self.prefix_rules_source_index_changed, source_combo, row))
-            #source_combo.currentIndexChanged.connect(self.prefix_rules_source_index_changed, source_combo, row)
-            self.prefix_rules_tw.setCellWidget(row, col, source_combo)
-            return source_combo
-
-
-        # Entry point
-        self.prefix_rules_tw.blockSignals(True)
-        #print("populate_prefix_rules_table_row processing rule:\n%s\n" % data)
-
-        # Column 0: Enabled
-        self.prefix_rules_tw.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
-
-        # Column 1: Rule name
-        #rule_name = QTableWidgetItem(data['name'])
-        #self.prefix_rules_tw.setItem(row, 1, rule_name)
-        set_rule_name_in_row(row, 1, name=data['name'])
-
-        # Column 2: Prefix
-        set_prefix_field_in_row(row, 2, field=data['prefix'])
-
-        # Column 3: Source field
-        source_combo = set_source_field_in_row(row, 3, field=data['field'])
-
-        # Column 4: Pattern
-        # The contents of the Pattern field is driven by the Source field
-        self.prefix_rules_source_index_changed(source_combo, row, 4, pattern=data['pattern'])
-
-        self.prefix_rules_tw.blockSignals(False)
 
     def prefix_rules_add_row(self):
         # Called when '+' clicked
         self.prefix_rules_tw.setFocus()
         row = self.prefix_rules_tw.currentRow() + 1
         self.prefix_rules_tw.insertRow(row)
-        self.populate_prefix_rules_table_row(row, self.prefix_rules_create_blank_row_data())
+        self.prefix_rules_populate_table_row(row, self.prefix_rules_create_blank_row_data())
         self.prefix_rules_select_and_scroll_to_row(row)
         self.prefix_rules_tw.resizeColumnsToContents()
+        # Just in case table was empty
         self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
-
-    def prefix_rules_cell_double_clicked(self, row, col):
-        print("prefix_rules_cell_double_clicked: row:%d col:%d" % (row, col))
 
     def prefix_rules_convert_row_to_data(self, row):
         data = self.prefix_rules_create_blank_row_data()
@@ -612,6 +396,142 @@ class PluginWidget(QWidget,Ui_Form):
         elif self.prefix_rules_tw.rowCount() > 0:
             self.prefix_rules_select_and_scroll_to_row(first_sel_row - 1)
 
+    def prefix_rules_generate_prefix_list(self):
+        def prefix_sorter(item):
+            key = item
+            if item[0] == "_":
+                key = 'zzz' + item
+            return key
+
+
+        # Create a list of prefixes for user selection
+        raw_prefix_list = [
+            ('Ampersand',u'&'),
+            ('Angle left double',u'\u00ab'),
+            ('Angle left',u'\u2039'),
+            ('Angle right double',u'\u00bb'),
+            ('Angle right',u'\u203a'),
+            ('Arrow carriage return',u'\u21b5'),
+            ('Arrow double',u'\u2194'),
+            ('Arrow down',u'\u2193'),
+            ('Arrow left',u'\u2190'),
+            ('Arrow right',u'\u2192'),
+            ('Arrow up',u'\u2191'),
+            ('Asterisk',u'*'),
+            ('At sign',u'@'),
+            ('Bullet smallest',u'\u22c5'),
+            ('Bullet small',u'\u00b7'),
+            ('Bullet',u'\u2022'),
+            ('Cards clubs',u'\u2663'),
+            ('Cards diamonds',u'\u2666'),
+            ('Cards hearts',u'\u2665'),
+            ('Cards spades',u'\u2660'),
+            ('Caret',u'^'),
+            ('Checkmark',u'\u2713'),
+            ('Copyright circle c',u'\u00a9'),
+            ('Copyright circle r',u'\u00ae'),
+            ('Copyright trademark',u'\u2122'),
+            ('Currency cent',u'\u00a2'),
+            ('Currency dollar',u'$'),
+            ('Currency euro',u'\u20ac'),
+            ('Currency pound',u'\u00a3'),
+            ('Currency yen',u'\u00a5'),
+            ('Dagger double',u'\u2021'),
+            ('Dagger',u'\u2020'),
+            ('Degree',u'\u00b0'),
+            ('Dots3',u'\u2234'),
+            ('Hash',u'#'),
+            ('Infinity',u'\u221e'),
+            ('Lozenge',u'\u25ca'),
+            ('Math divide',u'\u00f7'),
+            ('Math empty',u'\u2205'),
+            ('Math equals',u'='),
+            ('Math minus',u'\u2212'),
+            ('Math plus circled',u'\u2295'),
+            ('Math times circled',u'\u2297'),
+            ('Math times',u'\u00d7'),
+            ('O slash',u'\u00d8'),
+            ('Paragraph',u'\u00b6'),
+            ('Percent',u'%'),
+            ('Plus-or-minus',u'\u00b1'),
+            ('Plus',u'+'),
+            ('Punctuation colon',u':'),
+            ('Punctuation colon-semi',u';'),
+            ('Punctuation exclamation',u'!'),
+            ('Punctuation question',u'?'),
+            ('Punctuation period',u'.'),
+            ('Punctuation slash back',u'\\'),
+            ('Punctuation slash forward',u'/'),
+            ('Section',u'\u00a7'),
+            ('Tilde',u'~'),
+            ('Vertical bar',u'|'),
+            ('Vertical bar broken',u'\u00a6'),
+            ('_0',u'0'),
+            ('_1',u'1'),
+            ('_2',u'2'),
+            ('_3',u'3'),
+            ('_4',u'4'),
+            ('_5',u'5'),
+            ('_6',u'6'),
+            ('_7',u'7'),
+            ('_8',u'8'),
+            ('_9',u'9'),
+            ('_A',u'A'),
+            ('_B',u'B'),
+            ('_C',u'C'),
+            ('_D',u'D'),
+            ('_E',u'E'),
+            ('_F',u'F'),
+            ('_G',u'G'),
+            ('_H',u'H'),
+            ('_I',u'I'),
+            ('_J',u'J'),
+            ('_K',u'K'),
+            ('_L',u'L'),
+            ('_M',u'M'),
+            ('_N',u'N'),
+            ('_O',u'O'),
+            ('_P',u'P'),
+            ('_Q',u'Q'),
+            ('_R',u'R'),
+            ('_S',u'S'),
+            ('_T',u'T'),
+            ('_U',u'U'),
+            ('_V',u'V'),
+            ('_W',u'W'),
+            ('_X',u'X'),
+            ('_Y',u'Y'),
+            ('_Z',u'Z'),
+            ('_a',u'a'),
+            ('_b',u'b'),
+            ('_c',u'c'),
+            ('_d',u'd'),
+            ('_e',u'e'),
+            ('_f',u'f'),
+            ('_g',u'g'),
+            ('_h',u'h'),
+            ('_i',u'i'),
+            ('_j',u'j'),
+            ('_k',u'k'),
+            ('_l',u'l'),
+            ('_m',u'm'),
+            ('_n',u'n'),
+            ('_o',u'o'),
+            ('_p',u'p'),
+            ('_q',u'q'),
+            ('_r',u'r'),
+            ('_s',u's'),
+            ('_t',u't'),
+            ('_u',u'u'),
+            ('_v',u'v'),
+            ('_w',u'w'),
+            ('_x',u'x'),
+            ('_y',u'y'),
+            ('_z',u'z'),
+            ]
+        raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
+        self.prefixes = [x[1] for x in raw_prefix_list]
+
     def prefix_rules_get_data(self):
         data_items = []
         for row in range(self.prefix_rules_tw.rowCount()):
@@ -624,6 +544,42 @@ class PluginWidget(QWidget,Ui_Form):
                                 'pattern':data['pattern'],
                                 'prefix':data['prefix']})
         return data_items
+
+    def prefix_rules_initialize(self, prefix_rules):
+        # Assign icons to buttons, hook clicks
+        self.move_rule_up_tb.setToolTip('Move rule up')
+        self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
+        self.move_rule_up_tb.clicked.connect(self.prefix_rules_move_row_up)
+
+        self.add_rule_tb.setToolTip('Add a new rule')
+        self.add_rule_tb.setIcon(QIcon(I('plus.png')))
+        self.add_rule_tb.clicked.connect(self.prefix_rules_add_row)
+
+        self.delete_rule_tb.setToolTip('Delete selected rule')
+        self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
+        self.delete_rule_tb.clicked.connect(self.prefix_rules_delete_row)
+
+        self.move_rule_down_tb.setToolTip('Move rule down')
+        self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
+        self.move_rule_down_tb.clicked.connect(self.prefix_rules_move_row_down)
+
+        # Configure the QTableWidget
+        # enabled/prefix/rule name/source field/pattern
+        self.prefix_rules_tw.clear()
+        header_labels = ['','Name','Prefix','Source','Pattern']
+        self.prefix_rules_tw.setColumnCount(len(header_labels))
+        self.prefix_rules_tw.setHorizontalHeaderLabels(header_labels)
+        self.prefix_rules_tw.setSortingEnabled(False)
+        self.prefix_rules_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        # Generate the prefix list
+        self.prefix_rules_generate_prefix_list()
+
+        # Populate the table
+        self.prefix_rules_populate(prefix_rules)
+        self.prefix_rules_tw.resizeColumnsToContents()
+        self.prefix_rules_resize_name(1.5)
+        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
 
     def prefix_rules_move_row_down(self):
         self.prefix_rules_tw.setFocus()
@@ -649,7 +605,7 @@ class PluginWidget(QWidget,Ui_Form):
             self.prefix_rules_tw.insertRow(src_row)
 
             # Populate it with the saved data
-            self.populate_prefix_rules_table_row(src_row, saved_data)
+            self.prefix_rules_populate_table_row(src_row, saved_data)
         self.blockSignals(False)
         scroll_to_row = last_sel_row + 1
         if scroll_to_row < self.prefix_rules_tw.rowCount() - 1:
@@ -671,7 +627,7 @@ class PluginWidget(QWidget,Ui_Form):
 
             # Add a row below us with the source data
             self.prefix_rules_tw.insertRow(selrow.row() + 1)
-            self.populate_prefix_rules_table_row(selrow.row() + 1, saved_data)
+            self.prefix_rules_populate_table_row(selrow.row() + 1, saved_data)
 
             # Delete the row above
             self.prefix_rules_tw.removeRow(selrow.row() - 1)
@@ -681,6 +637,63 @@ class PluginWidget(QWidget,Ui_Form):
         if scroll_to_row > 0:
             scroll_to_row = scroll_to_row - 1
         self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.item(scroll_to_row, 0))
+
+    def prefix_rules_populate(self,rules):
+        # Format of rules list is different if default values vs retrieved JSON
+        # Hack to normalize list style
+        if type(rules[0]) is list:
+            rules = rules[0]
+        self.prefix_rules_tw.setFocus()
+        rules = sorted(rules, key=lambda k: k['ordinal'])
+        for row, rule in enumerate(rules):
+            self.prefix_rules_tw.insertRow(row)
+            self.prefix_rules_select_and_scroll_to_row(row)
+            self.prefix_rules_populate_table_row(row, rule)
+        self.prefix_rules_tw.selectRow(0)
+
+    def prefix_rules_populate_table_row(self, row, data):
+
+        def set_prefix_field_in_row(row, col, field=''):
+            prefix_combo = PrefixRulesComboBox(self, self.prefixes, field)
+            self.prefix_rules_tw.setCellWidget(row, col, prefix_combo)
+
+        def set_rule_name_in_row(row, col, name=''):
+            rule_name = QLineEdit(name)
+            rule_name.home(False)
+            rule_name.editingFinished.connect(self.prefix_rules_rule_name_edited)
+            self.prefix_rules_tw.setCellWidget(row, col, rule_name)
+
+        def set_source_field_in_row(row, col, field=''):
+            source_combo = PrefixRulesComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
+            source_combo.currentIndexChanged.connect(partial(self.prefix_rules_source_index_changed, source_combo, row))
+            #source_combo.currentIndexChanged.connect(self.prefix_rules_source_index_changed, source_combo, row)
+            self.prefix_rules_tw.setCellWidget(row, col, source_combo)
+            return source_combo
+
+
+        # Entry point
+        self.prefix_rules_tw.blockSignals(True)
+        #print("prefix_rules_populate_table_row processing rule:\n%s\n" % data)
+
+        # Column 0: Enabled
+        self.prefix_rules_tw.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
+
+        # Column 1: Rule name
+        #rule_name = QTableWidgetItem(data['name'])
+        #self.prefix_rules_tw.setItem(row, 1, rule_name)
+        set_rule_name_in_row(row, 1, name=data['name'])
+
+        # Column 2: Prefix
+        set_prefix_field_in_row(row, 2, field=data['prefix'])
+
+        # Column 3: Source field
+        source_combo = set_source_field_in_row(row, 3, field=data['field'])
+
+        # Column 4: Pattern
+        # The contents of the Pattern field is driven by the Source field
+        self.prefix_rules_source_index_changed(source_combo, row, 4, pattern=data['pattern'])
+
+        self.prefix_rules_tw.blockSignals(False)
 
     def prefix_rules_resize_name(self, scale):
         current_width = self.prefix_rules_tw.columnWidth(1)
@@ -718,6 +731,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         values_combo = PrefixRulesComboBox(self, values, pattern)
         self.prefix_rules_tw.setCellWidget(row, 4, values_combo)
+
 
     def read_source_field_changed(self,new_index):
         '''
@@ -873,5 +887,3 @@ class PrefixRulesComboBox(NoWheelComboBox):
             self.setCurrentIndex(idx)
         else:
             self.setCurrentIndex(0)
-
-

@@ -3117,32 +3117,24 @@ Author '{0}':
 
     def discoverPrefix(self, record):
         '''
-        Given a field:pattern spec, discover if this book marked as read
-
-        if field == tag, scan tags for pattern
-        if custom field, try regex match for pattern
-        This allows maximum flexibility with fields of type
-            datatype bool: #field_name:True
-            datatype text: #field_name:<string>
-            datatype datetime: #field_name:.*
-
+        Evaluate conditions for including prefixes in various listings
         '''
-        if self.opts.verbose:
-            self.opts.log.info("\tevaluating %s (%s)" % (record['title'], record['authors']))
+        def log_prefix_rule_match_info(rule, record):
+            self.opts.log.info(" %s %s by %s (Prefix rule '%s': %s:%s)" %
+                               (rule['prefix'],record['title'],
+                                record['authors'][0], rule['name'],
+                                rule['field'],rule['pattern']))
+
         # Compare the record to each rule looking for a match
         for rule in self.prefixRules:
-            if self.opts.verbose:
-                self.opts.log.info("\t prefix_rule '%s': %s" % (rule['name'], rule))
-
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags':
                 if rule['pattern'].lower() in map(unicode.lower,record['tags']):
                     if self.opts.verbose:
-                        self.opts.log.info("\t '%s' found in '%s' (%s)" %
-                          (rule['pattern'], rule['field'], rule['name']))
+                        log_prefix_rule_match_info(rule, record)
                     return rule['prefix']
 
-            # Regex comparison for custom field
+            # Regex match for custom field
             elif rule['field'].startswith('#'):
                 field_contents = self.__db.get_field(record['id'],
                                     rule['field'],
@@ -3150,30 +3142,23 @@ Author '{0}':
                 if field_contents == '':
                     field_contents = None
 
-                if self.opts.verbose:
-                    self.opts.log.info("\t field_contents: %s" % repr(field_contents))
-
                 if field_contents is not None:
                     try:
                         if re.search(rule['pattern'], unicode(field_contents),
                                 re.IGNORECASE) is not None:
                             if self.opts.verbose:
-                                self.opts.log.info("\t '%s' matches '%s' value (%s)" %
-                                  (rule['pattern'], rule['field'], rule['name']))
+                                log_prefix_rule_match_info(rule, record)
                             return rule['prefix']
                     except:
                         # Compiling of pat failed, ignore it
                         if self.opts.verbose:
-                            self.opts.log.info("pattern failed to compile: %s" % rule['pattern'])
+                            self.opts.log.error("pattern failed to compile: %s" % rule['pattern'])
                         pass
                 elif field_contents is None and rule['pattern'] == 'None':
                     if self.opts.verbose:
-                        self.opts.log.info("\t '%s' found in '%s' (%s)" %
-                          (rule['pattern'], rule['field'], rule['name']))
+                        log_prefix_rule_match_info(rule, record)
                     return rule['prefix']
 
-        if False and self.opts.verbose:
-            self.opts.log.info("\t No prefix match found")
         return None
 
     def filterDbTags(self, tags):
