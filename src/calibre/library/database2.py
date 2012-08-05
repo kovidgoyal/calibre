@@ -31,7 +31,8 @@ from calibre.ptempfile import (PersistentTemporaryFile,
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp, parse_date
+from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
+        parse_only_date)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
@@ -2479,8 +2480,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_pubdate(self, id, dt, notify=True, commit=True):
         if dt:
-            if isinstance(dt, (str, unicode, bytes)):
-                dt = parse_date(dt)
+            if isinstance(dt, basestring):
+                dt = parse_only_date(dt)
             self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
             self.dirtied([id], commit=False)
