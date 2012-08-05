@@ -586,7 +586,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # the device.
                     raise OpenFailed('')
             try:
-                peer = self.device_socket.getpeername()
+                peer = self.device_socket.getpeername()[0]
                 self.connection_attempts[peer] = 0
             except:
                 pass
