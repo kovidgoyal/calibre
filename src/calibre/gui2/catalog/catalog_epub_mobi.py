@@ -17,8 +17,9 @@ from PyQt4 import QtGui
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
                       QDialogButtonBox, QDoubleSpinBox,
                       QHBoxLayout, QIcon, QLabel, QLineEdit,
-                      QPlainTextEdit, QRadioButton, QSize, QTableWidget, QTableWidgetItem,
-                      QVBoxLayout, QWidget)
+                      QPlainTextEdit, QRadioButton, QSize, QSizePolicy,
+                      QTableWidget, QTableWidgetItem,
+                      QToolButton, QVBoxLayout, QWidget)
 
 class PluginWidget(QWidget,Ui_Form):
 
@@ -190,7 +191,9 @@ class PluginWidget(QWidget,Ui_Form):
         self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
 
         # Initialize prefix rules
-        self.prefix_rules_initialize(prefix_rules)
+        self.prefix_rules_table = PrefixRules(self.prefix_rules_gb_hl, "prefix_rules_tw",
+                                              prefix_rules, self.eligible_custom_fields,
+                                              self.db)
 
     def options(self):
         # Save/return the current options
@@ -212,7 +215,7 @@ class PluginWidget(QWidget,Ui_Form):
             elif c_type in ['spin_box']:
                 opt_value = unicode(getattr(self, c_name).value())
             elif c_type in ['table_widget']:
-                opt_value = self.prefix_rules_get_data()
+                opt_value = self.prefix_rules_table.get_data()
 
             gprefs.set(self.name + '_' + c_name, opt_value)
 
@@ -345,393 +348,6 @@ class PluginWidget(QWidget,Ui_Form):
         self.merge_before.setEnabled(False)
         self.merge_after.setEnabled(False)
         self.include_hr.setEnabled(False)
-
-
-    def prefix_rules_add_row(self):
-        # Called when '+' clicked
-        self.prefix_rules_tw.setFocus()
-        row = self.prefix_rules_tw.currentRow() + 1
-        self.prefix_rules_tw.insertRow(row)
-        self.prefix_rules_populate_table_row(row, self.prefix_rules_create_blank_row_data())
-        self.prefix_rules_select_and_scroll_to_row(row)
-        self.prefix_rules_tw.resizeColumnsToContents()
-        # Just in case table was empty
-        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
-
-    def prefix_rules_convert_row_to_data(self, row):
-        data = self.prefix_rules_create_blank_row_data()
-        data['ordinal'] = row
-        data['enabled'] = self.prefix_rules_tw.item(row,0).checkState() == Qt.Checked
-        data['name'] = unicode(self.prefix_rules_tw.cellWidget(row,1).text()).strip()
-        data['prefix'] = unicode(self.prefix_rules_tw.cellWidget(row,2).currentText()).strip()
-        data['field'] = unicode(self.prefix_rules_tw.cellWidget(row,3).currentText()).strip()
-        data['pattern'] = unicode(self.prefix_rules_tw.cellWidget(row,4).currentText()).strip()
-        return data
-
-    def prefix_rules_create_blank_row_data(self):
-        data = {}
-        data['ordinal'] = -1
-        data['enabled'] = False
-        data['name'] = 'New rule'
-        data['field'] = ''
-        data['pattern'] = ''
-        data['prefix'] = ''
-        return data
-
-    def prefix_rules_delete_row(self):
-        self.prefix_rules_tw.setFocus()
-        rows = self.prefix_rules_tw.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        message = '<p>Are you sure you want to delete this rule?'
-        if len(rows) > 1:
-            message = '<p>Are you sure you want to delete the %d selected rules?'%len(rows)
-        if not question_dialog(self, _('Are you sure?'), message, show_copy_button=False):
-            return
-        first_sel_row = self.prefix_rules_tw.currentRow()
-        for selrow in reversed(rows):
-            self.prefix_rules_tw.removeRow(selrow.row())
-        if first_sel_row < self.prefix_rules_tw.rowCount():
-            self.prefix_rules_select_and_scroll_to_row(first_sel_row)
-        elif self.prefix_rules_tw.rowCount() > 0:
-            self.prefix_rules_select_and_scroll_to_row(first_sel_row - 1)
-
-    def prefix_rules_generate_prefix_list(self):
-        def prefix_sorter(item):
-            key = item
-            if item[0] == "_":
-                key = 'zzz' + item
-            return key
-
-
-        # Create a list of prefixes for user selection
-        raw_prefix_list = [
-            ('Ampersand',u'&'),
-            ('Angle left double',u'\u00ab'),
-            ('Angle left',u'\u2039'),
-            ('Angle right double',u'\u00bb'),
-            ('Angle right',u'\u203a'),
-            ('Arrow carriage return',u'\u21b5'),
-            ('Arrow double',u'\u2194'),
-            ('Arrow down',u'\u2193'),
-            ('Arrow left',u'\u2190'),
-            ('Arrow right',u'\u2192'),
-            ('Arrow up',u'\u2191'),
-            ('Asterisk',u'*'),
-            ('At sign',u'@'),
-            ('Bullet smallest',u'\u22c5'),
-            ('Bullet small',u'\u00b7'),
-            ('Bullet',u'\u2022'),
-            ('Cards clubs',u'\u2663'),
-            ('Cards diamonds',u'\u2666'),
-            ('Cards hearts',u'\u2665'),
-            ('Cards spades',u'\u2660'),
-            ('Caret',u'^'),
-            ('Checkmark',u'\u2713'),
-            ('Copyright circle c',u'\u00a9'),
-            ('Copyright circle r',u'\u00ae'),
-            ('Copyright trademark',u'\u2122'),
-            ('Currency cent',u'\u00a2'),
-            ('Currency dollar',u'$'),
-            ('Currency euro',u'\u20ac'),
-            ('Currency pound',u'\u00a3'),
-            ('Currency yen',u'\u00a5'),
-            ('Dagger double',u'\u2021'),
-            ('Dagger',u'\u2020'),
-            ('Degree',u'\u00b0'),
-            ('Dots3',u'\u2234'),
-            ('Hash',u'#'),
-            ('Infinity',u'\u221e'),
-            ('Lozenge',u'\u25ca'),
-            ('Math divide',u'\u00f7'),
-            ('Math empty',u'\u2205'),
-            ('Math equals',u'='),
-            ('Math minus',u'\u2212'),
-            ('Math plus circled',u'\u2295'),
-            ('Math times circled',u'\u2297'),
-            ('Math times',u'\u00d7'),
-            ('O slash',u'\u00d8'),
-            ('Paragraph',u'\u00b6'),
-            ('Percent',u'%'),
-            ('Plus-or-minus',u'\u00b1'),
-            ('Plus',u'+'),
-            ('Punctuation colon',u':'),
-            ('Punctuation colon-semi',u';'),
-            ('Punctuation exclamation',u'!'),
-            ('Punctuation question',u'?'),
-            ('Punctuation period',u'.'),
-            ('Punctuation slash back',u'\\'),
-            ('Punctuation slash forward',u'/'),
-            ('Section',u'\u00a7'),
-            ('Tilde',u'~'),
-            ('Vertical bar',u'|'),
-            ('Vertical bar broken',u'\u00a6'),
-            ('_0',u'0'),
-            ('_1',u'1'),
-            ('_2',u'2'),
-            ('_3',u'3'),
-            ('_4',u'4'),
-            ('_5',u'5'),
-            ('_6',u'6'),
-            ('_7',u'7'),
-            ('_8',u'8'),
-            ('_9',u'9'),
-            ('_A',u'A'),
-            ('_B',u'B'),
-            ('_C',u'C'),
-            ('_D',u'D'),
-            ('_E',u'E'),
-            ('_F',u'F'),
-            ('_G',u'G'),
-            ('_H',u'H'),
-            ('_I',u'I'),
-            ('_J',u'J'),
-            ('_K',u'K'),
-            ('_L',u'L'),
-            ('_M',u'M'),
-            ('_N',u'N'),
-            ('_O',u'O'),
-            ('_P',u'P'),
-            ('_Q',u'Q'),
-            ('_R',u'R'),
-            ('_S',u'S'),
-            ('_T',u'T'),
-            ('_U',u'U'),
-            ('_V',u'V'),
-            ('_W',u'W'),
-            ('_X',u'X'),
-            ('_Y',u'Y'),
-            ('_Z',u'Z'),
-            ('_a',u'a'),
-            ('_b',u'b'),
-            ('_c',u'c'),
-            ('_d',u'd'),
-            ('_e',u'e'),
-            ('_f',u'f'),
-            ('_g',u'g'),
-            ('_h',u'h'),
-            ('_i',u'i'),
-            ('_j',u'j'),
-            ('_k',u'k'),
-            ('_l',u'l'),
-            ('_m',u'm'),
-            ('_n',u'n'),
-            ('_o',u'o'),
-            ('_p',u'p'),
-            ('_q',u'q'),
-            ('_r',u'r'),
-            ('_s',u's'),
-            ('_t',u't'),
-            ('_u',u'u'),
-            ('_v',u'v'),
-            ('_w',u'w'),
-            ('_x',u'x'),
-            ('_y',u'y'),
-            ('_z',u'z'),
-            ]
-        raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
-        self.prefixes = [x[1] for x in raw_prefix_list]
-
-    def prefix_rules_get_data(self):
-        data_items = []
-        for row in range(self.prefix_rules_tw.rowCount()):
-            data = self.prefix_rules_convert_row_to_data(row)
-            data_items.append(
-                               {'ordinal':data['ordinal'],
-                                'enabled':data['enabled'],
-                                'name':data['name'],
-                                'field':data['field'],
-                                'pattern':data['pattern'],
-                                'prefix':data['prefix']})
-        return data_items
-
-    def prefix_rules_initialize(self, prefix_rules):
-        # Assign icons to buttons, hook clicks
-        self.move_rule_up_tb.setToolTip('Move rule up')
-        self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
-        self.move_rule_up_tb.clicked.connect(self.prefix_rules_move_row_up)
-
-        self.add_rule_tb.setToolTip('Add a new rule')
-        self.add_rule_tb.setIcon(QIcon(I('plus.png')))
-        self.add_rule_tb.clicked.connect(self.prefix_rules_add_row)
-
-        self.delete_rule_tb.setToolTip('Delete selected rule')
-        self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
-        self.delete_rule_tb.clicked.connect(self.prefix_rules_delete_row)
-
-        self.move_rule_down_tb.setToolTip('Move rule down')
-        self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
-        self.move_rule_down_tb.clicked.connect(self.prefix_rules_move_row_down)
-
-        # Configure the QTableWidget
-        # enabled/prefix/rule name/source field/pattern
-        self.prefix_rules_tw.clear()
-        header_labels = ['','Name','Prefix','Source','Pattern']
-        self.prefix_rules_tw.setColumnCount(len(header_labels))
-        self.prefix_rules_tw.setHorizontalHeaderLabels(header_labels)
-        self.prefix_rules_tw.setSortingEnabled(False)
-        self.prefix_rules_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        # Generate the prefix list
-        self.prefix_rules_generate_prefix_list()
-
-        # Populate the table
-        self.prefix_rules_populate(prefix_rules)
-        self.prefix_rules_tw.resizeColumnsToContents()
-        self.prefix_rules_resize_name(1.5)
-        self.prefix_rules_tw.horizontalHeader().setStretchLastSection(True)
-
-    def prefix_rules_move_row_down(self):
-        self.prefix_rules_tw.setFocus()
-        rows = self.prefix_rules_tw.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        last_sel_row = rows[-1].row()
-        if last_sel_row == self.prefix_rules_tw.rowCount() - 1:
-            return
-
-        self.prefix_rules_tw.blockSignals(True)
-        for selrow in reversed(rows):
-            dest_row = selrow.row() + 1
-            src_row = selrow.row()
-
-            # Save the contents of the destination row
-            saved_data = self.prefix_rules_convert_row_to_data(dest_row)
-
-            # Remove the destination row
-            self.prefix_rules_tw.removeRow(dest_row)
-
-            # Insert a new row at the original location
-            self.prefix_rules_tw.insertRow(src_row)
-
-            # Populate it with the saved data
-            self.prefix_rules_populate_table_row(src_row, saved_data)
-        self.blockSignals(False)
-        scroll_to_row = last_sel_row + 1
-        if scroll_to_row < self.prefix_rules_tw.rowCount() - 1:
-            scroll_to_row = scroll_to_row + 1
-        self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.item(scroll_to_row, 0))
-
-    def prefix_rules_move_row_up(self):
-        self.prefix_rules_tw.setFocus()
-        rows = self.prefix_rules_tw.selectionModel().selectedRows()
-        if len(rows) == 0:
-            return
-        first_sel_row = rows[0].row()
-        if first_sel_row <= 0:
-            return
-        self.prefix_rules_tw.blockSignals(True)
-        for selrow in rows:
-            # Save the row above
-            saved_data = self.prefix_rules_convert_row_to_data(selrow.row() - 1)
-
-            # Add a row below us with the source data
-            self.prefix_rules_tw.insertRow(selrow.row() + 1)
-            self.prefix_rules_populate_table_row(selrow.row() + 1, saved_data)
-
-            # Delete the row above
-            self.prefix_rules_tw.removeRow(selrow.row() - 1)
-        self.blockSignals(False)
-
-        scroll_to_row = first_sel_row - 1
-        if scroll_to_row > 0:
-            scroll_to_row = scroll_to_row - 1
-        self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.item(scroll_to_row, 0))
-
-    def prefix_rules_populate(self,rules):
-        # Format of rules list is different if default values vs retrieved JSON
-        # Hack to normalize list style
-        if type(rules[0]) is list:
-            rules = rules[0]
-        self.prefix_rules_tw.setFocus()
-        rules = sorted(rules, key=lambda k: k['ordinal'])
-        for row, rule in enumerate(rules):
-            self.prefix_rules_tw.insertRow(row)
-            self.prefix_rules_select_and_scroll_to_row(row)
-            self.prefix_rules_populate_table_row(row, rule)
-        self.prefix_rules_tw.selectRow(0)
-
-    def prefix_rules_populate_table_row(self, row, data):
-
-        def set_prefix_field_in_row(row, col, field=''):
-            prefix_combo = PrefixRulesComboBox(self, self.prefixes, field)
-            self.prefix_rules_tw.setCellWidget(row, col, prefix_combo)
-
-        def set_rule_name_in_row(row, col, name=''):
-            rule_name = QLineEdit(name)
-            rule_name.home(False)
-            rule_name.editingFinished.connect(self.prefix_rules_rule_name_edited)
-            self.prefix_rules_tw.setCellWidget(row, col, rule_name)
-
-        def set_source_field_in_row(row, col, field=''):
-            source_combo = PrefixRulesComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
-            source_combo.currentIndexChanged.connect(partial(self.prefix_rules_source_index_changed, source_combo, row))
-            #source_combo.currentIndexChanged.connect(self.prefix_rules_source_index_changed, source_combo, row)
-            self.prefix_rules_tw.setCellWidget(row, col, source_combo)
-            return source_combo
-
-
-        # Entry point
-        self.prefix_rules_tw.blockSignals(True)
-        #print("prefix_rules_populate_table_row processing rule:\n%s\n" % data)
-
-        # Column 0: Enabled
-        self.prefix_rules_tw.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
-
-        # Column 1: Rule name
-        #rule_name = QTableWidgetItem(data['name'])
-        #self.prefix_rules_tw.setItem(row, 1, rule_name)
-        set_rule_name_in_row(row, 1, name=data['name'])
-
-        # Column 2: Prefix
-        set_prefix_field_in_row(row, 2, field=data['prefix'])
-
-        # Column 3: Source field
-        source_combo = set_source_field_in_row(row, 3, field=data['field'])
-
-        # Column 4: Pattern
-        # The contents of the Pattern field is driven by the Source field
-        self.prefix_rules_source_index_changed(source_combo, row, 4, pattern=data['pattern'])
-
-        self.prefix_rules_tw.blockSignals(False)
-
-    def prefix_rules_resize_name(self, scale):
-        current_width = self.prefix_rules_tw.columnWidth(1)
-        self.prefix_rules_tw.setColumnWidth(1, min(225,int(current_width * scale)))
-
-    def prefix_rules_rule_name_edited(self):
-        current_row = self.prefix_rules_tw.currentRow()
-        self.prefix_rules_tw.cellWidget(current_row,1).home(False)
-        self.prefix_rules_tw.setFocus()
-        self.prefix_rules_select_and_scroll_to_row(current_row)
-
-    def prefix_rules_select_and_scroll_to_row(self, row):
-        self.prefix_rules_tw.selectRow(row)
-        self.prefix_rules_tw.scrollToItem(self.prefix_rules_tw.currentItem())
-
-    def prefix_rules_source_index_changed(self, combo, row, col, pattern=''):
-        # Populate the Pattern field based upon the Source field
-
-        source_field = str(combo.currentText())
-        if source_field == '':
-            values = []
-        elif source_field == 'Tags':
-            values = sorted(self.db.all_tags(), key=sort_key)
-        else:
-            if self.eligible_custom_fields[source_field]['datatype'] in ['enumeration', 'text']:
-                values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                            self.eligible_custom_fields[source_field]['field']))
-                values = sorted(values, key=sort_key)
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['bool']:
-                values = ['True','False','unspecified']
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['datetime']:
-                values = ['any date','unspecified']
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['composite']:
-                values = ['any value','unspecified']
-
-        values_combo = PrefixRulesComboBox(self, values, pattern)
-        self.prefix_rules_tw.setCellWidget(row, 4, values_combo)
-
 
     def read_source_field_changed(self,new_index):
         '''
@@ -887,3 +503,463 @@ class PrefixRulesComboBox(NoWheelComboBox):
             self.setCurrentIndex(idx)
         else:
             self.setCurrentIndex(0)
+
+class GenericRulesTable(QTableWidget):
+    '''
+    Generic methods for managing rows
+    Add QTableWidget, controls to parent QGroupBox
+    placeholders for basic methods to be overriden
+    '''
+
+    def __init__(self, parent_gb_hl, object_name, prefix_rules, eligible_custom_fields, db):
+        self.prefix_rules = prefix_rules
+        self.eligible_custom_fields = eligible_custom_fields
+        self.db = db
+        QTableWidget.__init__(self)
+        self.setObjectName(object_name)
+        self.layout = parent_gb_hl
+
+        # Add ourselves to the layout
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(sizePolicy)
+        self.setMaximumSize(QSize(16777215, 118))
+        self.setColumnCount(0)
+        self.setRowCount(0)
+        self.layout.addWidget(self)
+
+
+        self._init_table_widget()
+        self._init_controls()
+        self._initialize()
+
+    def _init_controls(self):
+        # Add the control set
+        vbl = QVBoxLayout()
+        self.move_rule_up_tb = QToolButton()
+        self.move_rule_up_tb.setObjectName("move_rule_up_tb")
+        self.move_rule_up_tb.setToolTip('Move rule up')
+        self.move_rule_up_tb.setIcon(QIcon(I('arrow-up.png')))
+        self.move_rule_up_tb.clicked.connect(self.move_row_up)
+        vbl.addWidget(self.move_rule_up_tb)
+
+        self.add_rule_tb = QToolButton()
+        self.add_rule_tb.setObjectName("add_rule_tb")
+        self.add_rule_tb.setToolTip('Add a new rule')
+        self.add_rule_tb.setIcon(QIcon(I('plus.png')))
+        self.add_rule_tb.clicked.connect(self.add_row)
+        vbl.addWidget(self.add_rule_tb)
+
+        self.delete_rule_tb = QToolButton()
+        self.delete_rule_tb.setObjectName("delete_rule_tb")
+        self.delete_rule_tb.setToolTip('Delete selected rule')
+        self.delete_rule_tb.setIcon(QIcon(I('list_remove.png')))
+        self.delete_rule_tb.clicked.connect(self.delete_row)
+        vbl.addWidget(self.delete_rule_tb)
+
+        self.move_rule_down_tb = QToolButton()
+        self.move_rule_down_tb.setObjectName("move_rule_down_tb")
+        self.move_rule_down_tb.setToolTip('Move rule down')
+        self.move_rule_down_tb.setIcon(QIcon(I('arrow-down.png')))
+        self.move_rule_down_tb.clicked.connect(self.move_row_down)
+        vbl.addWidget(self.move_rule_down_tb)
+
+        self.layout.addLayout(vbl)
+
+    def _init_table_widget(self):
+        '''
+        Override this in the specific instance
+        '''
+        pass
+
+    def _initialize(self):
+        '''
+        Override this in the specific instance
+        '''
+        pass
+
+    def add_row(self):
+        self.setFocus()
+        row = self.currentRow() + 1
+        self.insertRow(row)
+        self.populate_table_row(row, self.create_blank_row_data())
+        self.select_and_scroll_to_row(row)
+        self.resizeColumnsToContents()
+        # Just in case table was empty
+        self.horizontalHeader().setStretchLastSection(True)
+
+    def convert_row_to_data(self):
+        '''
+        override
+        '''
+        pass
+
+    def create_blank_row_data(self):
+        '''
+        ovverride
+        '''
+        pass
+
+    def delete_row(self):
+        self.setFocus()
+        rows = self.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        message = '<p>Are you sure you want to delete this rule?'
+        if len(rows) > 1:
+            message = '<p>Are you sure you want to delete the %d selected rules?'%len(rows)
+        if not question_dialog(self, _('Are you sure?'), message, show_copy_button=False):
+            return
+        first_sel_row = self.currentRow()
+        for selrow in reversed(rows):
+            self.removeRow(selrow.row())
+        if first_sel_row < self.rowCount():
+            self.select_and_scroll_to_row(first_sel_row)
+        elif self.rowCount() > 0:
+            self.select_and_scroll_to_row(first_sel_row - 1)
+
+    def get_data(self):
+        pass
+
+    def move_row_down(self):
+        self.setFocus()
+        rows = self.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        last_sel_row = rows[-1].row()
+        if last_sel_row == self.rowCount() - 1:
+            return
+
+        self.blockSignals(True)
+        for selrow in reversed(rows):
+            dest_row = selrow.row() + 1
+            src_row = selrow.row()
+
+            # Save the contents of the destination row
+            saved_data = self.convert_row_to_data(dest_row)
+
+            # Remove the destination row
+            self.removeRow(dest_row)
+
+            # Insert a new row at the original location
+            self.insertRow(src_row)
+
+            # Populate it with the saved data
+            self.populate_table_row(src_row, saved_data)
+        self.blockSignals(False)
+        scroll_to_row = last_sel_row + 1
+        if scroll_to_row < self.rowCount() - 1:
+            scroll_to_row = scroll_to_row + 1
+        self.scrollToItem(self.item(scroll_to_row, 0))
+
+    def move_row_up(self):
+        self.setFocus()
+        rows = self.selectionModel().selectedRows()
+        if len(rows) == 0:
+            return
+        first_sel_row = rows[0].row()
+        if first_sel_row <= 0:
+            return
+        self.blockSignals(True)
+        for selrow in rows:
+            # Save the row above
+            saved_data = self.convert_row_to_data(selrow.row() - 1)
+
+            # Add a row below us with the source data
+            self.insertRow(selrow.row() + 1)
+            self.populate_table_row(selrow.row() + 1, saved_data)
+
+            # Delete the row above
+            self.removeRow(selrow.row() - 1)
+        self.blockSignals(False)
+
+        scroll_to_row = first_sel_row - 1
+        if scroll_to_row > 0:
+            scroll_to_row = scroll_to_row - 1
+        self.scrollToItem(self.item(scroll_to_row, 0))
+
+    def populate_table_row(self):
+        '''
+        override
+        '''
+        pass
+
+class PrefixRules(GenericRulesTable):
+
+    def _init_table_widget(self):
+        header_labels = ['','Name','Prefix','Source','Pattern']
+        self.setColumnCount(len(header_labels))
+        self.setHorizontalHeaderLabels(header_labels)
+        self.setSortingEnabled(False)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+    def _initialize(self):
+        self.generate_prefix_list()
+        self.populate()
+        self.resizeColumnsToContents()
+        self.resize_name(1.5)
+        self.horizontalHeader().setStretchLastSection(True)
+
+    def convert_row_to_data(self, row):
+        data = self.create_blank_row_data()
+        data['ordinal'] = row
+        data['enabled'] = self.item(row,0).checkState() == Qt.Checked
+        data['name'] = unicode(self.cellWidget(row,1).text()).strip()
+        data['prefix'] = unicode(self.cellWidget(row,2).currentText()).strip()
+        data['field'] = unicode(self.cellWidget(row,3).currentText()).strip()
+        data['pattern'] = unicode(self.cellWidget(row,4).currentText()).strip()
+        return data
+
+    def create_blank_row_data(self):
+        data = {}
+        data['ordinal'] = -1
+        data['enabled'] = False
+        data['name'] = 'New rule'
+        data['field'] = ''
+        data['pattern'] = ''
+        data['prefix'] = ''
+        return data
+
+    def generate_prefix_list(self):
+        def prefix_sorter(item):
+            key = item
+            if item[0] == "_":
+                key = 'zzz' + item
+            return key
+
+        # Create a list of prefixes for user selection
+        raw_prefix_list = [
+            ('Ampersand',u'&'),
+            ('Angle left double',u'\u00ab'),
+            ('Angle left',u'\u2039'),
+            ('Angle right double',u'\u00bb'),
+            ('Angle right',u'\u203a'),
+            ('Arrow carriage return',u'\u21b5'),
+            ('Arrow double',u'\u2194'),
+            ('Arrow down',u'\u2193'),
+            ('Arrow left',u'\u2190'),
+            ('Arrow right',u'\u2192'),
+            ('Arrow up',u'\u2191'),
+            ('Asterisk',u'*'),
+            ('At sign',u'@'),
+            ('Bullet smallest',u'\u22c5'),
+            ('Bullet small',u'\u00b7'),
+            ('Bullet',u'\u2022'),
+            ('Cards clubs',u'\u2663'),
+            ('Cards diamonds',u'\u2666'),
+            ('Cards hearts',u'\u2665'),
+            ('Cards spades',u'\u2660'),
+            ('Caret',u'^'),
+            ('Checkmark',u'\u2713'),
+            ('Copyright circle c',u'\u00a9'),
+            ('Copyright circle r',u'\u00ae'),
+            ('Copyright trademark',u'\u2122'),
+            ('Currency cent',u'\u00a2'),
+            ('Currency dollar',u'$'),
+            ('Currency euro',u'\u20ac'),
+            ('Currency pound',u'\u00a3'),
+            ('Currency yen',u'\u00a5'),
+            ('Dagger double',u'\u2021'),
+            ('Dagger',u'\u2020'),
+            ('Degree',u'\u00b0'),
+            ('Dots3',u'\u2234'),
+            ('Hash',u'#'),
+            ('Infinity',u'\u221e'),
+            ('Lozenge',u'\u25ca'),
+            ('Math divide',u'\u00f7'),
+            ('Math empty',u'\u2205'),
+            ('Math equals',u'='),
+            ('Math minus',u'\u2212'),
+            ('Math plus circled',u'\u2295'),
+            ('Math times circled',u'\u2297'),
+            ('Math times',u'\u00d7'),
+            ('O slash',u'\u00d8'),
+            ('Paragraph',u'\u00b6'),
+            ('Percent',u'%'),
+            ('Plus-or-minus',u'\u00b1'),
+            ('Plus',u'+'),
+            ('Punctuation colon',u':'),
+            ('Punctuation colon-semi',u';'),
+            ('Punctuation exclamation',u'!'),
+            ('Punctuation question',u'?'),
+            ('Punctuation period',u'.'),
+            ('Punctuation slash back',u'\\'),
+            ('Punctuation slash forward',u'/'),
+            ('Section',u'\u00a7'),
+            ('Tilde',u'~'),
+            ('Vertical bar',u'|'),
+            ('Vertical bar broken',u'\u00a6'),
+            ('_0',u'0'),
+            ('_1',u'1'),
+            ('_2',u'2'),
+            ('_3',u'3'),
+            ('_4',u'4'),
+            ('_5',u'5'),
+            ('_6',u'6'),
+            ('_7',u'7'),
+            ('_8',u'8'),
+            ('_9',u'9'),
+            ('_A',u'A'),
+            ('_B',u'B'),
+            ('_C',u'C'),
+            ('_D',u'D'),
+            ('_E',u'E'),
+            ('_F',u'F'),
+            ('_G',u'G'),
+            ('_H',u'H'),
+            ('_I',u'I'),
+            ('_J',u'J'),
+            ('_K',u'K'),
+            ('_L',u'L'),
+            ('_M',u'M'),
+            ('_N',u'N'),
+            ('_O',u'O'),
+            ('_P',u'P'),
+            ('_Q',u'Q'),
+            ('_R',u'R'),
+            ('_S',u'S'),
+            ('_T',u'T'),
+            ('_U',u'U'),
+            ('_V',u'V'),
+            ('_W',u'W'),
+            ('_X',u'X'),
+            ('_Y',u'Y'),
+            ('_Z',u'Z'),
+            ('_a',u'a'),
+            ('_b',u'b'),
+            ('_c',u'c'),
+            ('_d',u'd'),
+            ('_e',u'e'),
+            ('_f',u'f'),
+            ('_g',u'g'),
+            ('_h',u'h'),
+            ('_i',u'i'),
+            ('_j',u'j'),
+            ('_k',u'k'),
+            ('_l',u'l'),
+            ('_m',u'm'),
+            ('_n',u'n'),
+            ('_o',u'o'),
+            ('_p',u'p'),
+            ('_q',u'q'),
+            ('_r',u'r'),
+            ('_s',u's'),
+            ('_t',u't'),
+            ('_u',u'u'),
+            ('_v',u'v'),
+            ('_w',u'w'),
+            ('_x',u'x'),
+            ('_y',u'y'),
+            ('_z',u'z'),
+            ]
+        raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
+        self.prefix_list = [x[1] for x in raw_prefix_list]
+
+    def get_data(self):
+        data_items = []
+        for row in range(self.rowCount()):
+            data = self.convert_row_to_data(row)
+            data_items.append(
+                               {'ordinal':data['ordinal'],
+                                'enabled':data['enabled'],
+                                'name':data['name'],
+                                'field':data['field'],
+                                'pattern':data['pattern'],
+                                'prefix':data['prefix']})
+        return data_items
+
+    def populate(self):
+        # Format of rules list is different if default values vs retrieved JSON
+        # Hack to normalize list style
+        rules = self.prefix_rules
+        if type(rules[0]) is list:
+            rules = rules[0]
+        self.setFocus()
+        rules = sorted(rules, key=lambda k: k['ordinal'])
+        for row, rule in enumerate(rules):
+            self.insertRow(row)
+            self.select_and_scroll_to_row(row)
+            self.populate_table_row(row, rule)
+        self.selectRow(0)
+
+    def populate_table_row(self, row, data):
+
+        def set_prefix_field_in_row(row, col, field=''):
+            prefix_combo = PrefixRulesComboBox(self, self.prefix_list, field)
+            self.setCellWidget(row, col, prefix_combo)
+
+        def set_rule_name_in_row(row, col, name=''):
+            rule_name = QLineEdit(name)
+            rule_name.home(False)
+            rule_name.editingFinished.connect(self.rule_name_edited)
+            self.setCellWidget(row, col, rule_name)
+
+        def set_source_field_in_row(row, col, field=''):
+            source_combo = PrefixRulesComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
+            source_combo.currentIndexChanged.connect(partial(self.source_index_changed, source_combo, row))
+            self.setCellWidget(row, col, source_combo)
+            return source_combo
+
+
+        # Entry point
+        self.blockSignals(True)
+        #print("prefix_rules_populate_table_row processing rule:\n%s\n" % data)
+
+        # Column 0: Enabled
+        self.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
+
+        # Column 1: Rule name
+        #rule_name = QTableWidgetItem(data['name'])
+        set_rule_name_in_row(row, 1, name=data['name'])
+
+        # Column 2: Prefix
+        set_prefix_field_in_row(row, 2, field=data['prefix'])
+
+        # Column 3: Source field
+        source_combo = set_source_field_in_row(row, 3, field=data['field'])
+
+        # Column 4: Pattern
+        # The contents of the Pattern field is driven by the Source field
+        self.source_index_changed(source_combo, row, 4, pattern=data['pattern'])
+
+        self.blockSignals(False)
+
+    def resize_name(self, scale):
+        current_width = self.columnWidth(1)
+        self.setColumnWidth(1, min(225,int(current_width * scale)))
+
+    def rule_name_edited(self):
+        current_row = self.currentRow()
+        self.cellWidget(current_row,1).home(False)
+        self.setFocus()
+        self.select_and_scroll_to_row(current_row)
+
+    def select_and_scroll_to_row(self, row):
+        self.selectRow(row)
+        self.scrollToItem(self.currentItem())
+
+    def source_index_changed(self, combo, row, col, pattern=''):
+        # Populate the Pattern field based upon the Source field
+
+        source_field = str(combo.currentText())
+        if source_field == '':
+            values = []
+        elif source_field == 'Tags':
+            values = sorted(self.db.all_tags(), key=sort_key)
+        else:
+            if self.eligible_custom_fields[source_field]['datatype'] in ['enumeration', 'text']:
+                values = self.db.all_custom(self.db.field_metadata.key_to_label(
+                                            self.eligible_custom_fields[source_field]['field']))
+                values = sorted(values, key=sort_key)
+            elif self.eligible_custom_fields[source_field]['datatype'] in ['bool']:
+                values = ['True','False','unspecified']
+            elif self.eligible_custom_fields[source_field]['datatype'] in ['datetime']:
+                values = ['any date','unspecified']
+            elif self.eligible_custom_fields[source_field]['datatype'] in ['composite']:
+                values = ['any value','unspecified']
+
+        values_combo = PrefixRulesComboBox(self, values, pattern)
+        self.setCellWidget(row, 4, values_combo)
+
