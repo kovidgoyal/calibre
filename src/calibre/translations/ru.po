@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-03 04:51+0000\n"
-"PO-Revision-Date: 2012-07-06 13:56+0000\n"
+"PO-Revision-Date: 2012-08-04 15:27+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-08-04 05:00+0000\n"
+"X-Launchpad-Export-Date: 2012-08-05 04:50+0000\n"
 "X-Generator: Launchpad (build 15742)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -941,6 +941,9 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"Для разработчиков плагинов: Путь к папке в которой вы создаёте плагин. Эта "
+"команда будет автоматически архивировать плагин в zip и обновлять его в "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:588
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1686,7 +1689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Пытаться поддерживать новые прошивки"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
 msgid ""
@@ -1695,10 +1698,14 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo регулярно обновляет прошивки и версии базы данных. С этой опцией "
+"Calibre будет пытаться представлять полную функциональность чтения-записи. "
+"Включайте только если вы знакомы с функцией восстановления заводских "
+"настроек и тестированием программ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:607
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "Версия базы данных Kobo не поддерживается - Смотри подробности"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:608
 msgid ""
@@ -1712,6 +1719,15 @@ msgid ""
 "firmware\" option. Doing so may require you to perform a factory reset of "
 "your Kobo."
 msgstr ""
+"Ваш Kobo запущен с обновлённой версией прошивки или базы данных. Так как "
+"calibre не знает об этом обновлении прошивки, то редактирование базы данных "
+"отключено для предотвращения повреждения. Вы можете продолжать посылать "
+"книги на ваш  Kobo с calibre, но удаление книг и управление коллекциями "
+"отключено. Если вы эксперементируете и знаете как загружать на вашем Kobo "
+"заводские настройки, вы можете отключить эту проверку нажав правой кнопкой "
+"на значке устройства в calibre и выбрав опцию \"Настроить устройство\" - "
+"\"Пытаться поддерживать новые прошивки\". После этого может понадобится "
+"загрузка заводских настроек."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
@@ -2013,63 +2029,70 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:53
 msgid "SmartDevice"
-msgstr ""
+msgstr "SmartDevice"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:55
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Соединиться с приложением Smart Device"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:110
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Включить соединения при запуске"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:111
 msgid "Check this box to allow connections when calibre starts"
 msgstr ""
+"Установите эту настройку что бы позволить соединения при запуске calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:113
 msgid "Security password"
-msgstr ""
+msgstr "Защитный пароль"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:114
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
+"Введите пароль который приложение устройства будет использовать что бы "
+"соединиться с calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:116
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Использовать постоянный сетевой порт"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:117
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Если включено, то будет использоваться номер порта указанный в поле "
+"\"Порт\", иначе порт будет выбираться случайно"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:119
 msgid "Port"
-msgstr ""
+msgstr "Порт"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:120
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
 msgstr ""
+"Введите номер порта который будет использоваться если включена настройка "
+"\"постоянного порта\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:121
 msgid "Print extra debug information"
-msgstr ""
+msgstr "Вывести дополнительную отладочную информацию"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:122
 msgid "Check this box if requested when reporting problems"
-msgstr ""
+msgstr "Включите это поле при проблемах с отчётами"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:359
 msgid "Device did not respond in reasonable time"
-msgstr ""
+msgstr "Устройство не ответило за приемлимое время"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:365
 msgid "Device closed the network connection"
-msgstr ""
+msgstr "Устройство закрыло сетевое соединение"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:587
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2078,24 +2101,24 @@ msgstr "Получение информацию об устройстве..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:659
 msgid "Protocol error -- book metadata not returned"
-msgstr ""
+msgstr "Ошибка протокола -- метаданные книги не вернулись"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:678
 msgid "Protocol error -- sync_booklists"
-msgstr ""
+msgstr "Ошибка протокола -- sync_booklists"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:709
 #, python-format
 msgid "Sending book %s to device failed"
-msgstr ""
+msgstr "Передача книги %s на устройство не удалась"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:750
 msgid "Protocol error - delete books"
-msgstr ""
+msgstr "Ошибка протокола -- удаление книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:786
 msgid "request for book data failed"
-msgstr ""
+msgstr "запрос данных книги не удался"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2833,6 +2856,8 @@ msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
 msgstr ""
+"Если установить эту настройку, то имя html файла внутри htmlz архива будет "
+"основываться на заголовке книги."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -3573,6 +3598,8 @@ msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
 msgstr ""
+"Выражение XPath. Разрывы страниц вставляются перед указанными элементами. "
+"Для отключения выражения используйте : /"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:334
 msgid ""
@@ -6005,6 +6032,7 @@ msgid ""
 "The %(fmt)s format will be <b>permanently deleted</b> from %(title)s. Are "
 "you sure?"
 msgstr ""
+"Формат %(fmt)s будет <b>полностью удалён</b> из %(title)s. Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid "Choose formats to be deleted"
@@ -6089,11 +6117,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Запустить беспроводное соединение устройств"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Остановить беспроводное соединение устройств"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to folder"
@@ -6162,13 +6190,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:226
 msgid "Disable autostart"
-msgstr ""
+msgstr "Отключить автозапуск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:227
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Вы желаете что бы беспроводное соединение устройств запускалось "
+"автоматически при старте calibre?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7259,12 +7289,12 @@ msgstr "Размер обложки: %(width)d x %(height)d"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:460
 #, python-format
 msgid "Delete the %s format"
-msgstr ""
+msgstr "Удалить формат %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:461
 #, python-format
 msgid "Save the %s format to disk"
-msgstr ""
+msgstr "Сохранить формат %s на диск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8190,7 +8220,7 @@ msgstr "Как обрабатывать CSS основанные на класс
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
-msgstr ""
+msgstr "Использовать заголовок книги как имя HTML файла внутри архива"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -9549,7 +9579,7 @@ msgstr "Нет устройства"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1022
 msgid "No device connected"
-msgstr ""
+msgstr "Нет присоединённых устройств"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1038
 #, python-format
@@ -10530,7 +10560,7 @@ msgstr "Просмотреть журнал"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr ""
+msgstr "Спрятать напоминающие %d сообщения об ошибках"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"
@@ -10702,7 +10732,7 @@ msgstr "Имя поиска/замены"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1046
 msgid "You must provide a name."
-msgstr ""
+msgstr "Вы должны ввести имя"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1051
 msgid ""
@@ -12101,6 +12131,9 @@ msgid ""
 "example, if you run calibre on a laptop, use that laptop in an airport, and "
 "want to connect your smart device to calibre, you should use a password."
 msgstr ""
+"Использовать пароль если calibre запущен в незащищённой сети. Например, если "
+"вы запустили calibre на ноутбуке в аэропорту и хотите присоединить ваше "
+"смарт-устройство к calibre, вы должны использовать пароль."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:26
 msgid ""
@@ -12108,10 +12141,13 @@ msgid ""
 "interface when calibre starts. You should not do this if you are using a "
 "network that is not secure and you are not setting a password."
 msgstr ""
+"Установите это поле если вы хотите что бы calibre автоматически запускал "
+"интерфейс смарт-устройства при запуске calibre. Вам не стоит делать этого "
+"если вы используете незащищённую сеть и не установили пароль."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:63
 msgid "Smart device control"
-msgstr ""
+msgstr "Управление смарт устройством"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:64
 msgid ""
@@ -12120,18 +12156,22 @@ msgid ""
 "manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Запуск соединений беспроводных устройств.\n"
+" <p>Вы можете видеть некоторые сообщения от вашего фаервола или антивирус "
+"спрашивает можно ли позволить calibre подключиться к сети. <b>Пожалуйста "
+"ответте да</b>, иначе беспроводные соединения не будут работать."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:66
 msgid "Optional password for security"
-msgstr ""
+msgstr "Дополнительный пароль для безопасности"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:67
 msgid "Optional &password:"
-msgstr ""
+msgstr "Дополнительный &пароль:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:69
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "&Автоматически позволять соединения при запуске calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -13451,7 +13491,7 @@ msgstr "%s уже запущен."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:334
 msgid "No running calibre found"
-msgstr ""
+msgstr "Не обнаружено работающего calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:338
 msgid "Shutdown command sent, waiting for shutdown..."
@@ -13459,7 +13499,7 @@ msgstr "Отключение после отправки команды, ожи�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:343
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "Не удалось отключить работающий calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -16155,7 +16195,7 @@ msgstr "Поиск по мере &ввода"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr ""
+msgstr "Безударные символы ищутся вместе с ударными"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
@@ -16795,7 +16835,7 @@ msgstr "Переместить выбранную команду вниз"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:347
 msgid "ID"
-msgstr ""
+msgstr "Идентификатор"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:126
 msgid "This tweak has it default value"
@@ -18095,7 +18135,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:57
 msgid "Show a clock in fullscreen mode."
-msgstr ""
+msgstr "Показать часы в полноэкранном режиме"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:66
 msgid "Font options"
@@ -18127,30 +18167,30 @@ msgstr "Стандартный шрифт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:130
 msgid "Theme name"
-msgstr ""
+msgstr "Название темы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:131
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Выберите имя для этой темы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:140
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "Настройки сохранены как тема с именем %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:156
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "Настройки загружены из темы %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:163
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "Удалена тема с названием: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:219
 msgid "Choose text color"
-msgstr ""
+msgstr "Выберите цвет текста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Still editing"
@@ -18239,34 +18279,38 @@ msgid ""
 "into pages, as in a paper book. To get into this mode, use the button with "
 "the yellow scroll icon in the top right corner of the viewer window."
 msgstr ""
+"<p>Эта настройка применяется только в \"страничном\" режиме, где текст "
+"разбит на страницы, как в бумажной книге. Что бы включить этот режим, "
+"используйте кнопку с жёлтым значком прокрутки в верхнем правом углу окна "
+"просмотра."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:379
 msgid "The number of &pages of text to show on screen "
-msgstr ""
+msgstr "Количество страниц текста для отображения на экране "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:380
 msgid " page(s)"
-msgstr ""
+msgstr " страница(.цы)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:381
 msgid "&Override the page margin settings specified in the book"
-msgstr ""
+msgstr "Заменить настройки полей указанные в книге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:382
 msgid "&Top margin"
-msgstr ""
+msgstr "Верхнее поле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:384
 msgid "&Side margin"
-msgstr ""
+msgstr "Боковое поле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:386
 msgid "&Bottom margin"
-msgstr ""
+msgstr "Нижнее поле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:388
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "Расположение текста в страничном режиме"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:389
 msgid "Maximum text width in &fullscreen:"
@@ -18274,33 +18318,33 @@ msgstr "Максимальная ширина текста в полноэкра
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:392
 msgid "Show &clock in full screen mode"
-msgstr ""
+msgstr "Показать часы в полноэкранном режиме"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:393
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "Настройки полноэкранного режима"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Цвет фона:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Пример"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Изменить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Цвет текста:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Цвета и фон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -18326,7 +18370,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "Настройки перелистывания страниц"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "H&yphenate (break line in the middle of large words)"
@@ -18354,7 +18398,7 @@ msgstr "Запоминать т&екущую страницу при выход�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:415
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "Прочие настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:416
 msgid "&General"
@@ -18386,22 +18430,23 @@ msgstr "Пользовательская &таблица стилей"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "You can save and load the viewer settings as <i>themes</i>"
 msgstr ""
+"Вы можете сохранять и загружать настройки просмотрщика как <i>темы</i>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "Сохранить текущие настройки как тему:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "Загрузить предыдущую сохранённую тему:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Удалить сохранённую тему:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:428
 msgid "&Theming"
-msgstr ""
+msgstr "Темы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -18522,10 +18567,12 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"Переключить в страничный режим - текст разбит на страницы как в бумажной "
+"книге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:157
 msgid "Switch to flow mode - where the text is not broken up into pages"
-msgstr ""
+msgstr "Переключить в поточный режим - текст не разбит на страницы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:198
 msgid "Search for text in book"
@@ -18546,7 +18593,7 @@ msgstr "Нажмите правой кнопкой что бы увидеть у
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:279
 msgid "Tap in the left or right page margin to turn pages"
-msgstr ""
+msgstr "Нажмите на левом или правом поле что бы перевернуть страницу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:280
 msgid "Press Esc to quit"
@@ -18741,7 +18788,7 @@ msgstr "Найти предыдущее вхождение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 msgid "Toggle Paged mode"
-msgstr ""
+msgstr "Переключить Страничный режим"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
@@ -19611,7 +19658,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:45
 msgid "Symbols"
-msgstr ""
+msgstr "Символы"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:502
 msgid "No enabled genres found to catalog.\n"
@@ -21143,6 +21190,11 @@ msgid ""
 "Spanish it will only match n. Note that this is much slower than a simple "
 "search on very large libraries."
 msgstr ""
+"Символы набраные в поле поиска будут искаться вместе с их ударными версиями, "
+"основанными на языке который вы выбрали для интерфейса calibre. Например, в "
+"Английском, поиск для n будет искать %s и n, но если ваш язык Испанский, то "
+"будет искаться только n. Помните, что в большой библиотеке это будет "
+"работать намного медленнее, чем простой поиск."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
