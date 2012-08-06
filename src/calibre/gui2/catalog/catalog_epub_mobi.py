@@ -18,7 +18,7 @@ from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
                       QDialogButtonBox, QDoubleSpinBox,
                       QHBoxLayout, QIcon, QLabel, QLineEdit,
                       QPlainTextEdit, QRadioButton, QSize, QSizePolicy,
-                      QTableWidget, QTableWidgetItem,
+                      QTableWidget, QTableWidgetItem, QTimer,
                       QToolButton, QVBoxLayout, QWidget)
 
 class PluginWidget(QWidget,Ui_Form):
@@ -72,8 +72,6 @@ class PluginWidget(QWidget,Ui_Form):
 
         # LineEditControls
         option_fields += zip(['exclude_genre'],['\[.+\]|\+'],['line_edit'])
-        #***option_fields += zip(['exclude_pattern'],[None],['line_edit'])
-        #***option_fields += zip(['exclude_tags'],['~,'+_('Catalog')],['line_edit'])
 
         # SpinBoxControls
         option_fields += zip(['thumb_width'],[1.00],['spin_box'])
@@ -84,12 +82,7 @@ class PluginWidget(QWidget,Ui_Form):
                                'enabled':True,
                                'name':'Catalogs',
                                'field':'Tags',
-                               'pattern':'Catalog'},
-                              {'ordinal':1,
-                               'enabled':False,
-                               'name':'New rule',
-                               'field':'',
-                               'pattern':''}],
+                               'pattern':'Catalog'},],
                              ['table_widget','table_widget'])
 
         # Prefix rules
@@ -105,13 +98,7 @@ class PluginWidget(QWidget,Ui_Form):
                                'name':'Wishlist item',
                                'field':'Tags',
                                'pattern':'Wishlist',
-                               'prefix':u'\u00d7'},
-                              {'ordinal':2,
-                               'enabled':False,
-                               'name':'New rule',
-                               'field':'',
-                               'pattern':'',
-                               'prefix':''}],
+                               'prefix':u'\u00d7'},],
                              ['table_widget','table_widget','table_widget'])
 
         self.OPTION_FIELDS = option_fields
@@ -181,15 +168,9 @@ class PluginWidget(QWidget,Ui_Form):
                 if opt_value not in prefix_rules:
                     prefix_rules.append(opt_value)
 
-        '''
-        ***
-        # Init self.exclude_source_field_name
-        self.exclude_source_field_name = ''
-        cs = unicode(self.exclude_source_field.currentText())
-        if cs > '':
-            exclude_source_spec = self.exclude_source_fields[cs]
-            self.exclude_source_field_name = exclude_source_spec['field']
-        '''
+        # Add icon to the reset button
+        self.reset_exclude_genres_tb.setIcon(QIcon(I('trash.png')))
+        self.reset_exclude_genres_tb.clicked.connect(self.reset_exclude_genres)
 
         # Init self.merge_source_field_name
         self.merge_source_field_name = ''
@@ -205,12 +186,6 @@ class PluginWidget(QWidget,Ui_Form):
             header_note_source_spec = self.header_note_source_fields[cs]
             self.header_note_source_field_name = header_note_source_spec['field']
 
-        # Hook changes to thumb_width
-        self.thumb_width.valueChanged.connect(self.thumb_width_changed)
-
-        # Hook changes to Description section
-        self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
-
         # Initialize exclusion rules
         self.exclusion_rules_table = ExclusionRules(self.exclusion_rules_gb_hl,
             "exclusion_rules_tw",exclusion_rules, self.eligible_custom_fields,self.db)
@@ -218,6 +193,13 @@ class PluginWidget(QWidget,Ui_Form):
         # Initialize prefix rules
         self.prefix_rules_table = PrefixRules(self.prefix_rules_gb_hl,
             "prefix_rules_tw",prefix_rules, self.eligible_custom_fields,self.db)
+
+        # Hook changes to thumb_width
+        self.thumb_width.valueChanged.connect(self.thumb_width_changed)
+
+        # Hook changes to Description section
+        self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
+
 
     def options(self):
         # Save/return the current options
@@ -310,15 +292,6 @@ class PluginWidget(QWidget,Ui_Form):
             else:
                 opts_dict[c_name] = opt_value
 
-        '''
-        ***
-        # Generate markers for hybrids
-        #opts_dict['read_book_marker'] = "%s:%s" % (self.read_source_field_name,
-        #                                           self.read_pattern.text())
-        opts_dict['exclude_book_marker'] = "%s:%s" % (self.exclude_source_field_name,
-                                                       self.exclude_pattern.text())
-        '''
-
         # Generate specs for merge_comments, header_note_source_field
         checked = ''
         if self.merge_before.isChecked():
@@ -365,17 +338,6 @@ class PluginWidget(QWidget,Ui_Form):
             if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
                 custom_fields[field_md['name']] = {'field':custom_field,
                                                    'datatype':field_md['datatype']}
-        '''
-        ***
-        # Blank field first
-        self.exclude_source_field.addItem('')
-        # Add the sorted eligible fields to the combo box
-        for cf in sorted(custom_fields, key=sort_key):
-            self.exclude_source_field.addItem(cf)
-        self.exclude_source_fields = custom_fields
-        self.exclude_source_field.currentIndexChanged.connect(self.exclude_source_field_changed)
-        '''
-
         # Populate the 'Header note' combo box
         custom_fields = {}
         for custom_field in self.all_custom_fields:
@@ -508,6 +470,12 @@ class PluginWidget(QWidget,Ui_Form):
             self.merge_after.setEnabled(False)
             self.include_hr.setEnabled(False)
 
+    def reset_exclude_genres(self):
+        for default in self.OPTION_FIELDS:
+            if default[0] == 'exclude_genre':
+                self.exclude_genre.setText(default[1])
+                break
+
     def thumb_width_changed(self,new_value):
         '''
         Process changes in the thumb_width spin box
@@ -581,19 +549,20 @@ class GenericRulesTable(QTableWidget):
         self.layout = parent_gb_hl
 
         # Add ourselves to the layout
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        #print("verticalHeader: %s" % dir(self.verticalHeader()))
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        #sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
-        self.setMaximumSize(QSize(16777215, 114))
+        self.setMaximumSize(QSize(16777215, 113))
+
         self.setColumnCount(0)
         self.setRowCount(0)
+
         self.layout.addWidget(self)
 
-        self._init_table_widget()
         self._init_controls()
-        self._initialize()
 
     def _init_controls(self):
         # Add the control set
@@ -627,18 +596,6 @@ class GenericRulesTable(QTableWidget):
         vbl.addWidget(self.move_rule_down_tb)
 
         self.layout.addLayout(vbl)
-
-    def _init_table_widget(self):
-        '''
-        Override this in the specific instance
-        '''
-        pass
-
-    def _initialize(self):
-        '''
-        Override this in the specific instance
-        '''
-        pass
 
     def add_row(self):
         self.setFocus()
@@ -682,6 +639,10 @@ class GenericRulesTable(QTableWidget):
 
     def get_data(self):
         pass
+
+    def focusOutEvent(self,e):
+        # Override of QTableWidget method
+        self.clearSelection()
 
     def move_row_down(self):
         self.setFocus()
@@ -760,7 +721,20 @@ class GenericRulesTable(QTableWidget):
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
 
+    def tweak_height(self, height=4):
+        for i in range(min(3,self.rowCount())):
+            height += self.rowHeight(i)
+        height += self.verticalHeader().sizeHint().height()
+        print("computed table height for %d rows: %d" % (self.rowCount(),height, ))
+        self.setMinimumSize(QSize(16777215, height))
+        self.setMaximumSize(QSize(16777215, height))
+
 class ExclusionRules(GenericRulesTable):
+
+    def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
+        super(ExclusionRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
+        self._init_table_widget()
+        self._initialize()
 
     def _init_table_widget(self):
         header_labels = ['','Name','Field','Value']
@@ -770,13 +744,11 @@ class ExclusionRules(GenericRulesTable):
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def _initialize(self):
-        # Override max size (118) set in GenericRulesTable
-        self.setMaximumSize(QSize(16777215, 83))
-
         self.populate()
         self.resizeColumnsToContents()
         self.resize_name(1.5)
         self.horizontalHeader().setStretchLastSection(True)
+        self.clearSelection()
 
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
@@ -790,7 +762,7 @@ class ExclusionRules(GenericRulesTable):
     def create_blank_row_data(self):
         data = {}
         data['ordinal'] = -1
-        data['enabled'] = False
+        data['enabled'] = True
         data['name'] = 'New rule'
         data['field'] = ''
         data['pattern'] = ''
@@ -876,6 +848,11 @@ class ExclusionRules(GenericRulesTable):
 
 class PrefixRules(GenericRulesTable):
 
+    def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
+        super(PrefixRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
+        self._init_table_widget()
+        self._initialize()
+
     def _init_table_widget(self):
         header_labels = ['','Name','Prefix','Field','Value']
         self.setColumnCount(len(header_labels))
@@ -889,6 +866,7 @@ class PrefixRules(GenericRulesTable):
         self.resizeColumnsToContents()
         self.resize_name(1.5)
         self.horizontalHeader().setStretchLastSection(True)
+        self.clearSelection()
 
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
@@ -903,7 +881,7 @@ class PrefixRules(GenericRulesTable):
     def create_blank_row_data(self):
         data = {}
         data['ordinal'] = -1
-        data['enabled'] = False
+        data['enabled'] = True
         data['name'] = 'New rule'
         data['field'] = ''
         data['pattern'] = ''

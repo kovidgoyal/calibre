@@ -111,7 +111,8 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Project Gutenberg], and '+', the default tag for a read book.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A regular expression describing genres to be excluded from the generated catalog. Genres are derived from the tags applied to your books.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Project Gutenberg], and '+', the default tag for a read book.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="title">
       <string>Excluded genres</string>
@@ -175,6 +176,16 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="toolTip">
            <string extracomment="Default: \[[\w]*\]"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="reset_exclude_genres_tb">
+          <property name="toolTip">
+           <string>Reset to default</string>
+          </property>
+          <property name="text">
+           <string>...</string>
           </property>
          </widget>
         </item>

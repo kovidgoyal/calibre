@@ -666,19 +666,13 @@ Author '{0}':
         # Remove dups
         self.exclude_tags = exclude_tags = list(set(exclude_tags))
 
+        # Report tag exclusions
         if self.opts.verbose and self.exclude_tags:
-            #self.opts.log.info(" excluding tag list %s" % exclude_tags)
-            search_terms = []
-            for tag in exclude_tags:
-                search_terms.append("tag:=%s" % tag)
-            search_phrase = "%s" % " or ".join(search_terms)
-            self.opts.search_text = search_phrase
-            data = self.plugin.search_sort_db(self.db, self.opts)
+            data = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
-                self.opts.log.info("\t- %s (Exclusion rule %s)" % (record['title'], exclude_tags))
-            # Reset the database
-            self.opts.search_text = ''
-            data = self.plugin.search_sort_db(self.db, self.opts)
+                matched = list(set(record['tags']) & set(exclude_tags))
+                if matched :
+                    self.opts.log.info("    - %s (Exclusion rule %s)" % (record['title'], matched))
 
         search_phrase = ''
         if exclude_tags:
@@ -3141,7 +3135,7 @@ Author '{0}':
         Evaluate conditions for including prefixes in various listings
         '''
         def log_prefix_rule_match_info(rule, record):
-            self.opts.log.info("\t%s %s by %s (Prefix rule '%s': %s:%s)" %
+            self.opts.log.info("     %s %s by %s (Prefix rule '%s': %s:%s)" %
                                (rule['prefix'],record['title'],
                                 record['authors'][0], rule['name'],
                                 rule['field'],rule['pattern']))
