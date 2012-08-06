@@ -6,6 +6,24 @@
 
 #include "devices.h"
 
+#define ENSURE_DEV(rval) \
+    if (self->device == NULL) { \
+        PyErr_SetString(PyExc_ValueError, "This device has not been initialized."); \
+        return rval; \
+    }
+
+// Storage types
+#define ST_Undefined            0x0000
+#define ST_FixedROM             0x0001
+#define ST_RemovableROM         0x0002
+#define ST_FixedRAM             0x0003
+#define ST_RemovableRAM         0x0004
+
+// Storage Access capability
+#define AC_ReadWrite            0x0000
+#define AC_ReadOnly             0x0001
+#define AC_ReadOnly_with_Object_Deletion    0x0002
+
 // Device object definition {{{
 typedef struct {
     PyObject_HEAD
@@ -20,6 +38,7 @@ typedef struct {
 
 } libmtp_Device;
 
+// Device.__init__() {{{
 static void
 libmtp_Device_dealloc(libmtp_Device* self)
 {
@@ -119,44 +138,100 @@ libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
 
     return 0;
 }
+// }}}
 
-// Collator.friendly_name {{{
+// Device.friendly_name {{{
 static PyObject *
 libmtp_Device_friendly_name(libmtp_Device *self, void *closure) {
-    return Py_BuildValue("O", self->friendly_name);
+    Py_INCREF(self->friendly_name); return self->friendly_name;
 } // }}}
 
-// Collator.manufacturer_name {{{
+// Device.manufacturer_name {{{
 static PyObject *
 libmtp_Device_manufacturer_name(libmtp_Device *self, void *closure) {
-    return Py_BuildValue("O", self->manufacturer_name);
+    Py_INCREF(self->manufacturer_name); return self->manufacturer_name;
 } // }}}
 
-// Collator.model_name {{{
+// Device.model_name {{{
 static PyObject *
 libmtp_Device_model_name(libmtp_Device *self, void *closure) {
-    return Py_BuildValue("O", self->model_name);
+    Py_INCREF(self->model_name); return self->model_name;
 } // }}}
 
-// Collator.serial_number {{{
+// Device.serial_number {{{
 static PyObject *
 libmtp_Device_serial_number(libmtp_Device *self, void *closure) {
-    return Py_BuildValue("O", self->serial_number);
+    Py_INCREF(self->serial_number); return self->serial_number;
 } // }}}
 
-// Collator.device_version {{{
+// Device.device_version {{{
 static PyObject *
 libmtp_Device_device_version(libmtp_Device *self, void *closure) {
-    return Py_BuildValue("O", self->device_version);
+    Py_INCREF(self->device_version); return self->device_version;
 } // }}}
 
-// Collator.ids {{{
+// Device.ids {{{
 static PyObject *
 libmtp_Device_ids(libmtp_Device *self, void *closure) {
-    return Py_BuildValue("O", self->ids);
+    Py_INCREF(self->ids); return self->ids;
+} // }}}
+
+// Device.update_storage_info() {{{
+static PyObject*
+libmtp_Device_update_storage_info(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    ENSURE_DEV(NULL);
+    if (LIBMTP_Get_Storage(self->device, LIBMTP_STORAGE_SORTBY_NOTSORTED) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to get storage infor for device.");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+// }}}
+
+// Device.storage_info {{{
+static PyObject *
+libmtp_Device_storage_info(libmtp_Device *self, void *closure) {
+    PyObject *ans, *loc;
+    LIBMTP_devicestorage_t *storage;
+    ENSURE_DEV(NULL);
+    if (self->device->storage == NULL) { PyErr_SetString(PyExc_RuntimeError, "The device has no storage information."); return NULL; }
+
+    ans = PyList_New(0);
+    if (ans == NULL) { PyErr_NoMemory(); return NULL; }
+
+    for (storage = self->device->storage; storage != NULL; storage = storage->next) {
+        // Ignore read only storage
+        if (storage->StorageType == ST_FixedROM || storage->StorageType == ST_RemovableROM) continue;
+        // Storage IDs with the lower 16 bits 0x0000 are not supposed to be
+        // writeable.
+        if ((storage->id & 0x0000FFFFU) == 0x00000000U) continue;
+        // Also check the access capability to avoid e.g. deletable only storages
+        if (storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion) continue;
+
+        loc = Py_BuildValue("{s:I,s:O,s:K,s:K,s:K,s:s,s:s}", 
+                "id", storage->id, 
+                "removable", ((storage->StorageType == ST_RemovableRAM) ? Py_True : Py_False),
+                "capacity", storage->MaxCapacity,
+                "freespace_bytes", storage->FreeSpaceInBytes,
+                "freespace_objects", storage->FreeSpaceInObjects,
+                "storage_desc", storage->StorageDescription,
+                "volume_id", storage->VolumeIdentifier
+        );
+
+        if (loc == NULL) return NULL; 
+        if (PyList_Append(ans, loc) != 0) return NULL;
+        Py_DECREF(loc);
+
+    }
+
+    return ans;
 } // }}}
 
 static PyMethodDef libmtp_Device_methods[] = {
+    {"update_storage_info", (PyCFunction)libmtp_Device_update_storage_info, METH_VARARGS,
+     "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
+    },
+
     {NULL}  /* Sentinel */
 };
 
@@ -189,6 +264,11 @@ static PyGetSetDef libmtp_Device_getsetters[] = {
     {(char *)"ids", 
      (getter)libmtp_Device_ids, NULL,
      (char *)"The ids of the device (busnum, devnum, vendor_id, product_id, usb_serialnum)",
+     NULL},
+
+    {(char *)"storage_info",
+     (getter)libmtp_Device_storage_info, NULL,
+     (char *)"Information about the storage locations on the device. Returns a list of dictionaries where each dictionary corresponds to the LIBMTP_devicestorage_struct.",
      NULL},
 
     {NULL}  /* Sentinel */

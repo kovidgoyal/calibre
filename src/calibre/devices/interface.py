@@ -297,7 +297,7 @@ class DevicePlugin(Plugin):
 
         :return: (device name, device version, software version on device, mime type)
                  The tuple can optionally have a fifth element, which is a
-                 drive information diction. See usbms.driver for an example.
+                 drive information dictionary. See usbms.driver for an example.
 
         """
         raise NotImplementedError()
