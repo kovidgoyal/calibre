@@ -470,6 +470,7 @@ class CatalogBuilder(object):
                 return self.__output_profile.empty_ratings_char
             return property(fget=fget)
         @dynamic_property
+
         def READ_PROGRESS_SYMBOL(self):
             def fget(self):
                 return "&#9642;" if self.generateForKindle else '+'
@@ -672,7 +673,7 @@ Author '{0}':
             for record in data:
                 matched = list(set(record['tags']) & set(exclude_tags))
                 if matched :
-                    self.opts.log.info("    - %s (Exclusion rule %s)" % (record['title'], matched))
+                    self.opts.log.info("    - %s (Exclusion rule Tags: '%s')" % (record['title'], str(matched[0])))
 
         search_phrase = ''
         if exclude_tags:
@@ -4038,7 +4039,9 @@ Author '{0}':
                         if re.search(pat, unicode(field_contents),
                                 re.IGNORECASE) is not None:
                             if self.opts.verbose:
-                                self.opts.log.info(" excluding '%s' (%s:%s)" % (record['title'], field, pat))
+                                field_md = self.db.metadata_for_field(field)
+                                self.opts.log.info("    - %s (Exclusion rule '%s': %s:%s)" %
+                                                   (record['title'], field_md['name'], field,pat))
                             exclusion_set.append(record)
                             if record in filtered_data_set:
                                 filtered_data_set.remove(record)

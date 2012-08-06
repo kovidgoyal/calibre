@@ -35,7 +35,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Sections to include in catalog.</string>
+      <string>Enabled sections will be included in the generated catalog.</string>
      </property>
      <property name="title">
       <string>Included sections</string>
@@ -107,12 +107,8 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A regular expression describing genres to be excluded from the generated catalog. Genres are derived from the tags applied to your books.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Project Gutenberg], and '+', the default tag for a read book.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>A regular expression describing genres to be excluded from the generated catalog. Genres are derived from the tags applied to your books.
+The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book], and '+', the default tag for a read book.</string>
      </property>
      <property name="title">
       <string>Excluded genres</string>
@@ -209,16 +205,11 @@ p, li { white-space: pre-wrap; }
       </size>
      </property>
      <property name="toolTip">
-      <string>Matching books will not be included in generated catalog. </string>
+      <string>Books matching any of the exclusion rules will be excluded from the generated catalog. </string>
      </property>
      <property name="title">
       <string>Excluded books</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <layout class="QHBoxLayout" name="exclusion_rules_gb_hl"/>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -230,16 +221,11 @@ p, li { white-space: pre-wrap; }
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>The earliest enabled matching rule will be used to add a prefix to book listings in the generated catalog.</string>
+      <string>The first enabled matching rule will be used to add a prefix to book listings in the generated catalog.</string>
      </property>
      <property name="title">
       <string>Prefix rules</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_8">
-      <item>
-       <layout class="QHBoxLayout" name="prefix_rules_gb_hl"/>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -305,7 +291,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="toolTip">
-           <string>Size hint for Description cover thumbnails</string>
+           <string>Size hint for cover thumbnails included in Descriptions section.</string>
           </property>
           <property name="suffix">
            <string> inch</string>
@@ -362,7 +348,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="toolTip">
-           <string>Custom column source for note to include in Description header area</string>
+           <string>Custom column source for text to include in Description section.</string>
           </property>
          </widget>
         </item>
@@ -404,7 +390,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="toolTip">
-           <string>Additional content merged with Comments during catalog generation</string>
+           <string>Custom column containing additional content to be merged with Comments metadata.</string>
           </property>
          </widget>
         </item>
@@ -418,7 +404,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QRadioButton" name="merge_before">
           <property name="toolTip">
-           <string>Merge additional content before Comments</string>
+           <string>Merge additional content before Comments metadata.</string>
           </property>
           <property name="text">
            <string>&amp;Before</string>
@@ -428,7 +414,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QRadioButton" name="merge_after">
           <property name="toolTip">
-           <string>Merge additional content after Comments</string>
+           <string>Merge additional content after Comments metadata.</string>
           </property>
           <property name="text">
            <string>&amp;After</string>
@@ -445,7 +431,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QCheckBox" name="include_hr">
           <property name="toolTip">
-           <string>Separate Comments and additional content with horizontal rule</string>
+           <string>Separate Comments metadata and additional content with a horizontal rule.</string>
           </property>
           <property name="text">
            <string>&amp;Separator</string>
