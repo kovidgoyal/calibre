@@ -607,7 +607,7 @@ class BookList(list):
         pass
 
     def supports_collections(self):
-        ''' Return True if the the device supports collections for this book list. '''
+        ''' Return True if the device supports collections for this book list. '''
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):
