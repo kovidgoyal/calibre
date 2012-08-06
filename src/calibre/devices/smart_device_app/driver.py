@@ -693,16 +693,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def sync_booklists(self, booklists, end_session=True):
-        self._debug()
-        collections = [x.strip() for x in
+        colattrs = [x.strip() for x in
                 self.settings().extra_customization[self.OPT_COLLECTIONS].split(',')]
-        collections = booklists[0].get_collections(collections)
+        self._debug('collection attributes', colattrs)
         coldict = {}
-        for k,v in collections.iteritems():
-            lpaths = []
-            for book in v:
-                lpaths.append(book.lpath)
-            coldict[k] = lpaths
+        if colattrs:
+            collections = booklists[0].get_collections(colattrs)
+            for k,v in collections.iteritems():
+                lpaths = []
+                for book in v:
+                    lpaths.append(book.lpath)
+                coldict[k] = lpaths
 
         # If we ever do device_db plugboards, this is where it will go. We will
         # probably need to send two booklists, one with calibre's data that is
