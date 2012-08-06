@@ -703,7 +703,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             for book in v:
                 lpaths.append(book.lpath)
             coldict[k] = lpaths
-        self._debug(coldict)
+
         # If we ever do device_db plugboards, this is where it will go. We will
         # probably need to send two booklists, one with calibre's data that is
         # given back by "books", and one that has been plugboarded.
