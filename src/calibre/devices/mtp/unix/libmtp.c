@@ -6,9 +6,16 @@
 
 #include "devices.h"
 
+// Macros and utilities
 #define ENSURE_DEV(rval) \
     if (self->device == NULL) { \
         PyErr_SetString(PyExc_ValueError, "This device has not been initialized."); \
+        return rval; \
+    }
+
+#define ENSURE_STORAGE(rval) \
+    if (self->device->storage == NULL) { \
+        PyErr_SetString(PyExc_RuntimeError, "The device has no storage information."); \
         return rval; \
     }
 
@@ -23,6 +30,41 @@
 #define AC_ReadWrite            0x0000
 #define AC_ReadOnly             0x0001
 #define AC_ReadOnly_with_Object_Deletion    0x0002
+
+typedef struct {
+    PyObject *obj;
+    PyThreadState *state;
+} ProgressCallback;
+
+static int report_progress(uint64_t const sent, uint64_t const total, void const *const data) {
+    PyObject *res;
+    ProgressCallback *cb;
+
+    cb = (ProgressCallback *)data;
+    if (cb->obj != NULL) {
+        PyEval_RestoreThread(cb->state);
+        res = PyObject_CallMethod(cb->obj, "report_progress", "KK", sent, total);
+        Py_XDECREF(res);
+        cb->state = PyEval_SaveThread();
+    }
+    return 0;
+}
+
+static void dump_errorstack(LIBMTP_mtpdevice_t *dev, PyObject *list) {
+    LIBMTP_error_t *stack;
+    PyObject *err;
+
+    for(stack = LIBMTP_Get_Errorstack(dev); stack != NULL; stack=stack->next) {
+        err = Py_BuildValue("Is", stack->errornumber, stack->error_text);
+        if (err == NULL) break;
+        PyList_Append(list, err);
+        Py_DECREF(err);
+    }
+
+    LIBMTP_Clear_Errorstack(dev);
+}
+
+// }}}
 
 // Device object definition {{{
 typedef struct {
@@ -88,7 +130,9 @@ libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    dev = LIBMTP_Open_Raw_Device_Uncached(&rawdev);
+    // Note that contrary to what the libmtp docs imply, we cannot use
+    // LIBMTP_Open_Raw_Device_Uncached as using it causes file listing to fail
+    dev = LIBMTP_Open_Raw_Device(&rawdev);
     Py_END_ALLOW_THREADS;
 
     if (dev == NULL) { 
@@ -193,8 +237,7 @@ static PyObject *
 libmtp_Device_storage_info(libmtp_Device *self, void *closure) {
     PyObject *ans, *loc;
     LIBMTP_devicestorage_t *storage;
-    ENSURE_DEV(NULL);
-    if (self->device->storage == NULL) { PyErr_SetString(PyExc_RuntimeError, "The device has no storage information."); return NULL; }
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
     ans = PyList_New(0);
     if (ans == NULL) { PyErr_NoMemory(); return NULL; }
@@ -208,7 +251,7 @@ libmtp_Device_storage_info(libmtp_Device *self, void *closure) {
         // Also check the access capability to avoid e.g. deletable only storages
         if (storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion) continue;
 
-        loc = Py_BuildValue("{s:I,s:O,s:K,s:K,s:K,s:s,s:s}", 
+        loc = Py_BuildValue("{s:k,s:O,s:K,s:K,s:K,s:s,s:s}", 
                 "id", storage->id, 
                 "removable", ((storage->StorageType == ST_RemovableRAM) ? Py_True : Py_False),
                 "capacity", storage->MaxCapacity,
@@ -227,9 +270,127 @@ libmtp_Device_storage_info(libmtp_Device *self, void *closure) {
     return ans;
 } // }}}
 
+// Device.get_filelist {{{
+static PyObject *
+libmtp_Device_get_filelist(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *ans, *fo, *callback = NULL, *errs;
+    ProgressCallback cb;
+    LIBMTP_file_t *f, *tf;
+
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+
+    if (!PyArg_ParseTuple(args, "|O", &callback)) return NULL;
+    cb.obj = callback;
+
+    ans = PyList_New(0);
+    errs = PyList_New(0);
+    if (ans == NULL || errs == NULL) { PyErr_NoMemory(); return NULL; }
+
+    cb.state = PyEval_SaveThread();
+    tf = LIBMTP_Get_Filelisting_With_Callback(self->device, report_progress, &cb);
+    PyEval_RestoreThread(cb.state);
+
+    if (tf == NULL) { 
+        dump_errorstack(self->device, errs);
+        return Py_BuildValue("NN", ans, errs);
+    }
+
+    for (f=tf; f != NULL; f=f->next) {
+        fo = Py_BuildValue("{s:k,s:k,s:k,s:s,s:K,s:k}",
+                "id", f->item_id,
+                "parent_id", f->parent_id,
+                "storage_id", f->storage_id,
+                "filename", f->filename,
+                "size", f->filesize,
+                "modtime", f->modificationdate
+        );
+        if (fo == NULL || PyList_Append(ans, fo) != 0) break;
+        Py_DECREF(fo);
+    }
+
+    // Release memory
+    f = tf;
+    while (f != NULL) {
+        tf = f; f = f->next; LIBMTP_destroy_file_t(tf);
+    }
+
+    if (callback != NULL) {
+        // Bug in libmtp where it does not call callback with 100%
+        fo = PyObject_CallMethod(callback, "report_progress", "KK", PyList_Size(ans), PyList_Size(ans));
+        Py_XDECREF(fo);
+    }
+
+    return Py_BuildValue("NN", ans, errs);
+} // }}}
+
+// Device.get_folderlist {{{
+
+int folderiter(LIBMTP_folder_t *f, PyObject *parent) {
+    PyObject *folder, *children;
+
+    children = PyList_New(0);
+    if (children == NULL) { PyErr_NoMemory(); return 1;}
+
+    folder = Py_BuildValue("{s:k,s:k,s:k,s:s,s:N}",
+            "id", f->folder_id,
+            "parent_d", f->parent_id,
+            "storage_id", f->storage_id,
+            "name", f->name,
+            "children", children);
+    if (folder == NULL) return 1;
+    PyList_Append(parent, folder);
+    Py_DECREF(folder);
+
+    if (f->sibling != NULL) {
+        if (folderiter(f->sibling, parent)) return 1;
+    }
+
+    if (f->child != NULL) {
+        if (folderiter(f->child, children)) return 1;
+    }
+
+    return 0;
+}
+
+static PyObject *
+libmtp_Device_get_folderlist(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *ans, *errs;
+    LIBMTP_folder_t *f;
+
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+    ans = PyList_New(0);
+    errs = PyList_New(0);
+    if (errs == NULL || ans == NULL) { PyErr_NoMemory(); return NULL; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    f = LIBMTP_Get_Folder_List(self->device);
+    Py_END_ALLOW_THREADS;
+
+    if (f == NULL) {
+        dump_errorstack(self->device, errs);
+        return Py_BuildValue("NN", ans, errs);
+    }
+
+    if (folderiter(f, ans)) return NULL;
+    LIBMTP_destroy_folder_t(f);
+
+    return Py_BuildValue("NN", ans, errs);
+
+} // }}}
+
 static PyMethodDef libmtp_Device_methods[] = {
     {"update_storage_info", (PyCFunction)libmtp_Device_update_storage_info, METH_VARARGS,
      "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
+    },
+
+    {"get_filelist", (PyCFunction)libmtp_Device_get_filelist, METH_VARARGS,
+     "get_filelist(callback=None) -> Get the list of files on the device. callback must be an object that has a method named 'report_progress(current, total)'. Returns files, errors."
+    },
+
+    {"get_folderlist", (PyCFunction)libmtp_Device_get_folderlist, METH_VARARGS,
+     "get_folderlist() -> Get the list of folders on the device. Returns files, erros."
     },
 
     {NULL}  /* Sentinel */

@@ -33,6 +33,14 @@ class MTP_DEVICE(MTPDeviceBase):
         self.lock = RLock()
         self.blacklisted_devices = set()
 
+    def report_progress(self, sent, total):
+        try:
+            p = int(sent/total * 100)
+        except ZeroDivisionError:
+            p = 100
+        if self.progress_reporter is not None:
+            self.progress_reporter(p)
+
     @synchronous
     def get_gui_name(self):
         if self.dev is None or not self.dev.friendly_name: return self.name
@@ -152,4 +160,8 @@ if __name__ == '__main__':
     print ("Storage info:")
     pprint(d.storage_info)
     print("Free space:", dev.free_space())
+    files, errs = d.get_filelist(dev)
+    pprint((len(files), errs))
+    folders, errs = d.get_folderlist()
+    pprint((len(folders), errs))
 
