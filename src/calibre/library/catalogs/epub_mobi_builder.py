@@ -657,14 +657,36 @@ Author '{0}':
 
         # Merge opts.exclude_tags with opts.search_text
         # Updated to use exact match syntax
-        empty_exclude_tags = False if len(self.opts.exclude_tags) else True
+
+        exclude_tags = []
+        for rule in self.opts.exclusion_rules:
+            if rule[1].lower() == 'tags':
+                exclude_tags.extend(rule[2].split(','))
+
+        # Remove dups
+        self.exclude_tags = exclude_tags = list(set(exclude_tags))
+
+        if self.opts.verbose and self.exclude_tags:
+            #self.opts.log.info(" excluding tag list %s" % exclude_tags)
+            search_terms = []
+            for tag in exclude_tags:
+                search_terms.append("tag:=%s" % tag)
+            search_phrase = "%s" % " or ".join(search_terms)
+            self.opts.search_text = search_phrase
+            data = self.plugin.search_sort_db(self.db, self.opts)
+            for record in data:
+                self.opts.log.info("\t- %s (Exclusion rule %s)" % (record['title'], exclude_tags))
+            # Reset the database
+            self.opts.search_text = ''
+            data = self.plugin.search_sort_db(self.db, self.opts)
+
         search_phrase = ''
-        if not empty_exclude_tags:
-            exclude_tags = self.opts.exclude_tags.split(',')
+        if exclude_tags:
             search_terms = []
             for tag in exclude_tags:
                 search_terms.append("tag:=%s" % tag)
             search_phrase = "not (%s)" % " or ".join(search_terms)
+
         # If a list of ids are provided, don't use search_text
         if self.opts.ids:
             self.opts.search_text = search_phrase
@@ -1672,14 +1694,13 @@ Author '{0}':
 
         self.opts.sort_by = 'series'
 
-        # Merge opts.exclude_tags with opts.search_text
+        # Merge self.exclude_tags with opts.search_text
         # Updated to use exact match syntax
-        empty_exclude_tags = False if len(self.opts.exclude_tags) else True
+
         search_phrase = 'series:true '
-        if not empty_exclude_tags:
-            exclude_tags = self.opts.exclude_tags.split(',')
+        if self.exclude_tags:
             search_terms = []
-            for tag in exclude_tags:
+            for tag in self.exclude_tags:
                 search_terms.append("tag:=%s" % tag)
             search_phrase += "not (%s)" % " or ".join(search_terms)
 
@@ -3120,7 +3141,7 @@ Author '{0}':
         Evaluate conditions for including prefixes in various listings
         '''
         def log_prefix_rule_match_info(rule, record):
-            self.opts.log.info(" %s %s by %s (Prefix rule '%s': %s:%s)" %
+            self.opts.log.info("\t%s %s by %s (Prefix rule '%s': %s:%s)" %
                                (rule['prefix'],record['title'],
                                 record['authors'][0], rule['name'],
                                 rule['field'],rule['pattern']))
@@ -3816,9 +3837,14 @@ Author '{0}':
                 return friendly_tag
 
     def getMarkerTags(self):
-        ''' Return a list of special marker tags to be excluded from genre list '''
+        '''
+        Return a list of special marker tags to be excluded from genre list
+        exclusion_rules = ('name','Tags|#column','[]|pattern')
+        '''
         markerTags = []
-        markerTags.extend(self.opts.exclude_tags.split(','))
+        for rule in self.opts.exclusion_rules:
+            if rule[1].lower() == 'tags':
+                markerTags.extend(rule[2].split(','))
         return markerTags
 
     def letter_or_symbol(self,char):
@@ -3996,21 +4022,40 @@ Author '{0}':
         '''
         Remove excluded entries
         '''
-        field, pat = self.opts.exclude_book_marker.split(':')
-        if pat == '':
-            return data_set
         filtered_data_set = []
-        for record in data_set:
-            field_contents = self.__db.get_field(record['id'],
-                                        field,
-                                        index_is_id=True)
-            if field_contents:
-                if re.search(pat, unicode(field_contents),
-                        re.IGNORECASE) is not None:
-                    continue
-            filtered_data_set.append(record)
+        exclusion_pairs = []
+        exclusion_set = []
+        for rule in self.opts.exclusion_rules:
+            if rule[1].startswith('#') and rule[2] != '':
+                field = rule[1]
+                pat = rule[2]
+                exclusion_pairs.append((field,pat))
+            else:
+                continue
 
-        return filtered_data_set
+        if exclusion_pairs:
+            for record in data_set:
+                for exclusion_pair in exclusion_pairs:
+                    field,pat = exclusion_pair
+                    field_contents = self.__db.get_field(record['id'],
+                                                field,
+                                                index_is_id=True)
+                    if field_contents:
+                        if re.search(pat, unicode(field_contents),
+                                re.IGNORECASE) is not None:
+                            if self.opts.verbose:
+                                self.opts.log.info(" excluding '%s' (%s:%s)" % (record['title'], field, pat))
+                            exclusion_set.append(record)
+                            if record in filtered_data_set:
+                                filtered_data_set.remove(record)
+                            break
+                    else:
+                        if (record not in filtered_data_set and
+                            record not in exclusion_set):
+                            filtered_data_set.append(record)
+            return filtered_data_set
+        else:
+            return data_set
 
     def processSpecialTags(self, tags, this_title, opts):
 

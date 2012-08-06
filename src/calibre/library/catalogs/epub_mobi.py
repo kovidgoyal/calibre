@@ -48,28 +48,12 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'\n"
                            "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[.+\]',
+                          default='\[.+\]|\+',
                           dest='exclude_genre',
                           action = None,
-                          help=_("Regex describing tags to exclude as genres.\n" "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
+                          help=_("Regex describing tags to exclude as genres.\n"
+                          "Default: '%default' excludes bracketed tags, e.g. '[Project Gutenberg]', and '+', the default tag for read books.\n"
                           "Applies to: ePub, MOBI output formats")),
-
-#                    Option('--exclude-book-marker',
-#                           default=':',
-#                           dest='exclude_book_marker',
-#                           action = None,
-#                           help=_("#<custom field>:pattern specifying custom field/contents indicating book should be excluded.\n"
-#                           "For example: '#status:Archived' will exclude a book with a value of 'Archived' in the custom column 'status'.\n"
-#                           "Default: '%default'\n"
-#                           "Applies to ePub, MOBI output formats")),
-#                    Option('--exclude-tags',
-#                           default=('~,Catalog'),
-#                           dest='exclude_tags',
-#                           action = None,
-#                           help=_("Comma-separated list of tag words indicating book should be excluded from output. "
-#                               "For example: 'skip' will match 'skip this book' and 'Skip will like this'. "
-#                               "Default:'%default'\n"
-#                               "Applies to: ePub, MOBI output formats")),
 
                    Option('--exclusion-rules',
                           default="(('Excluded tags','Tags','~,Catalog'),)",
