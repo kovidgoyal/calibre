@@ -25,7 +25,7 @@ from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
-    HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
+    HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -402,7 +402,6 @@ class PluginWidget(QWidget,Ui_Form):
                 self.exclude_genre.setText(default[1])
                 break
 
-
 class CheckableTableWidgetItem(QTableWidgetItem):
     '''
     Borrowed from kiwidude
@@ -637,8 +636,9 @@ class GenericRulesTable(QTableWidget):
         pass
 
     def resize_name(self, scale):
-        current_width = self.columnWidth(1)
-        self.setColumnWidth(1, min(225,int(current_width * scale)))
+        #current_width = self.columnWidth(1)
+        #self.setColumnWidth(1, min(225,int(current_width * scale)))
+        self.setColumnWidth(1, 225)
 
     def rule_name_edited(self):
         current_row = self.currentRow()
