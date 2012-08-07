@@ -17,7 +17,7 @@ from calibre.constants import numeric_version, DEBUG
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
                                     InitialConnectionError)
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.usbms.books import Book, BookList
+from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -107,6 +107,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     }
     reverse_opcodes = dict([(v, k) for k,v in opcodes.iteritems()])
 
+    ALL_BY_TITLE  = _('All by title')
+    ALL_BY_AUTHOR = _('All by author')
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Enable connections at startup') + ':::<p>' +
@@ -122,6 +124,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
             _('Check this box if requested when reporting problems') + '</p>',
+        '',
+        _('Comma separated list of metadata fields '
+            'to turn into collections on the device. Possibilities include: ')+\
+                    'series, tags, authors' +\
+            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
+            'these values to the list to enable them. The collections will be '
+            'given the name provided after the ":" character.')%dict(
+                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR)
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False,
@@ -130,12 +140,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 '',
                 False, '9090',
                 False,
+                '',
+                ''
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
     OPT_USE_PORT                = 4
     OPT_PORT_NUMBER             = 5
     OPT_EXTRA_DEBUG             = 6
+    OPT_COLLECTIONS             = 8
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -586,7 +599,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # the device.
                     raise OpenFailed('')
             try:
-                peer = self.device_socket.getpeername()
+                peer = self.device_socket.getpeername()[0]
                 self.connection_attempts[peer] = 0
             except:
                 pass
@@ -659,9 +672,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def books(self, oncard=None, end_session=True):
         self._debug(oncard)
         if oncard is not None:
-            return BookList(None, None, None)
+            return CollectionsBookList(None, None, None)
         opcode, result = self._call_client('GET_BOOK_COUNT', {})
-        bl = BookList(None, self.PREFIX, self.settings)
+        bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
             for i in range(0, count):
@@ -680,11 +693,23 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def sync_booklists(self, booklists, end_session=True):
-        self._debug()
+        colattrs = [x.strip() for x in
+                self.settings().extra_customization[self.OPT_COLLECTIONS].split(',')]
+        self._debug('collection attributes', colattrs)
+        coldict = {}
+        if colattrs:
+            collections = booklists[0].get_collections(colattrs)
+            for k,v in collections.iteritems():
+                lpaths = []
+                for book in v:
+                    lpaths.append(book.lpath)
+                coldict[k] = lpaths
+
         # If we ever do device_db plugboards, this is where it will go. We will
         # probably need to send two booklists, one with calibre's data that is
         # given back by "books", and one that has been plugboarded.
-        self._call_client('SEND_BOOKLISTS', { 'count': len(booklists[0]) } )
+        self._call_client('SEND_BOOKLISTS', { 'count': len(booklists[0]),
+                                              'collections': coldict} )
         for i,book in enumerate(booklists[0]):
             if not self._metadata_already_on_device(book):
                 self._set_known_metadata(book)

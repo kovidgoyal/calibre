@@ -174,6 +174,20 @@ if isosx:
                 ldflags=['-framework', 'IOKit'])
             )
 
+if islinux:
+    extensions.append(Extension('libmtp',
+        [
+        'calibre/devices/mtp/unix/devices.c',
+        'calibre/devices/mtp/unix/libmtp.c'
+        ],
+        headers=[
+        'calibre/devices/mtp/unix/devices.h',
+        'calibre/devices/mtp/unix/upstream/music-players.h',
+        'calibre/devices/mtp/unix/upstream/device-flags.h',
+        ],
+        libraries=['mtp']
+    ))
+
 if isunix:
     cc = os.environ.get('CC', 'gcc')
     cxx = os.environ.get('CXX', 'g++')
