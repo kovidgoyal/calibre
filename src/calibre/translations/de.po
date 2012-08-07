@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-03 04:51+0000\n"
-"PO-Revision-Date: 2012-07-31 14:32+0000\n"
-"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2012-08-06 19:40+0000\n"
+"Last-Translator: Andreas E. <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-04 04:53+0000\n"
-"X-Generator: Launchpad (build 15742)\n"
+"X-Launchpad-Export-Date: 2012-08-07 04:46+0000\n"
+"X-Generator: Launchpad (build 15745)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2058,15 +2058,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:53
 msgid "SmartDevice"
-msgstr ""
+msgstr "SmartDevice"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:55
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Mit SmartDevice Apps kommunizieren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:110
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Verbindungen beim Start erlauben"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:111
 msgid "Check this box to allow connections when calibre starts"
@@ -2074,15 +2074,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:113
 msgid "Security password"
-msgstr ""
+msgstr "Security Passwort"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:114
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
+"Ein Passwort, das die Device App zum Verbindungsaufbau zu Calibre benutzen "
+"muss, eingeben"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:116
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Festen Netzwerk-Port benutzen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:117
 msgid ""
@@ -2092,7 +2094,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:119
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:120
 msgid ""
@@ -2102,7 +2104,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:121
 msgid "Print extra debug information"
-msgstr ""
+msgstr "Zusätzliche Debug-Informationen ausdrucken"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:122
 msgid "Check this box if requested when reporting problems"
@@ -2123,7 +2125,7 @@ msgstr "Geräte-Information beziehen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:659
 msgid "Protocol error -- book metadata not returned"
-msgstr ""
+msgstr "Protokollfehler -- Metadaten des Buches nicht zurückgegeben"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:678
 msgid "Protocol error -- sync_booklists"
@@ -2132,7 +2134,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:709
 #, python-format
 msgid "Sending book %s to device failed"
-msgstr ""
+msgstr "Senden des Buches %s zum Device fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:750
 msgid "Protocol error - delete books"
@@ -3664,6 +3666,8 @@ msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
 msgstr ""
+"Ein XPath-Ausdruck. Seitenumbrüche werden vor den angegebenen Elementen "
+"eingefügt. Benutzen Sie den Ausdruk '/' zum Deaktivieren."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:334
 msgid ""
@@ -6220,11 +6224,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Starte drahtlose Verbindung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Beende drahtlose Verbindung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to folder"
@@ -6293,13 +6297,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:226
 msgid "Disable autostart"
-msgstr ""
+msgstr "Autostart deaktivieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:227
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Sollen drahtlose Verbindungen automatisch mit Calibre gestartet werden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7413,7 +7418,7 @@ msgstr "Entferne das %s Format"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:461
 #, python-format
 msgid "Save the %s format to disk"
-msgstr ""
+msgstr "Das Format %s speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8190,12 +8195,12 @@ msgstr ""
 "für Ihre Bedürfnisse zu finden. Geben Sie einfach die Basis-Schriftgröße des "
 "Eingabedokuments ein und geben Sie dann eine Eingabe-Schriftgröße an. Der "
 "Assistent wird Ihnen zeigen, welche Schriftgröße vom Skalierungsalgorithmus "
-"in welche andere Schriftgröße umgewandelt wird.  Sie können den Algorithmus "
+"in welche andere Schriftgröße umgewandelt wird. Sie können den Algorithmus "
 "anpassen, indem Sie die Basis-Schriftgröße und den Schriftgrößenschlüssel "
 "des Ausgabedokuments unten verändern. Wenn Sie mit den Werten zufrieden "
 "sind, klicken Sie OK</p>\n"
 "<p>Wenn die Basis-Schriftgröße des Ausgabedokuments Null ist und/oder kein "
-"Schriftgrößenschlüssel definiert wurde, wird Calibre standartmäßig die Werte "
+"Schriftgrößenschlüssel definiert wurde, wird Calibre standardmäßig die Werte "
 "des aktuellen Ausgabe-Profils verwenden.</p>\n"
 "<p>Lesen Sie im <a href=\"http://manual.calibre-"
 "ebook.com/conversion.html#font-size-rescaling\">Benutzerhandbuch</a> nach, "
@@ -12381,15 +12386,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:66
 msgid "Optional password for security"
-msgstr ""
+msgstr "Optionales Sicherheitspasswort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:67
 msgid "Optional &password:"
-msgstr ""
+msgstr "Optionales &Passwort:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:69
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "Verbindungen beim Start von Calibre &autmatisch erlauben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -18507,30 +18512,30 @@ msgstr "Standardschriftart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:130
 msgid "Theme name"
-msgstr ""
+msgstr "Name des Themas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:131
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Wählen Sie einen Namen für dieses Thema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:140
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "Einstellungen als Thema %s gespeichert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:156
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "Einstellungen vom Thema %s geladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:163
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "Thema %s gelöscht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:219
 msgid "Choose text color"
-msgstr ""
+msgstr "Wählen Sie die Textfarbe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Still editing"
@@ -18667,12 +18672,12 @@ msgstr "Vollbildoptionen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Hintergrundfarbe :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Beispiel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
@@ -18681,11 +18686,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Schriftfarbe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Farben und Hintergründe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -18770,18 +18775,20 @@ msgstr "Benutzer &Stylesheet"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "You can save and load the viewer settings as <i>themes</i>"
 msgstr ""
+"Sie können die Einstellungen des Viewers als <i>Themen</i> speichern und "
+"laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "Aktuelle Einstellungen als ein Thema speichern:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "Früher gespeichertes Thema laden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Gespeichertes Thema löschen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:428
 msgid "&Theming"
@@ -23021,12 +23028,14 @@ msgid ""
 "specified regular expression matches.\n"
 "Default: r'(?i),?\\s+(and|with)\\s+'"
 msgstr ""
-"Calibre teilt standardmäßig einen String, der mehrere Autoren Namen enthält, "
-"\n"
-"durch ein Und-Zeichen und die Wörter \"und\" und \"mit\".\n"
-"Die Aufteilung kann durch die unten aufgeführten Ausdrücke geändert werden.\n"
-"Strings werden durch festgelegte, reguläre Ausdrücke getrennt.\n"
-"Standartmäßig: r'(?i),?\\s+(und|mit)\\s+'"
+"Calibre teilt standardmäßig einen String, der mehrere Namen von Autoren "
+"enthält,\n"
+"durch ein Und-Zeichen ('&') und die Wörter \"und\" und \"mit\".\n"
+"Die Aufteilung kann durch den unten aufgeführten regulären Ausdruck geändert "
+"werden.\n"
+"Strings werden an den Stellen getrennt, auf die der reguläre Ausdruck "
+"passt.\n"
+"Standard: r'(?i),?\\s+(und|mit)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid "Use author sort in Tag Browser"
@@ -23802,7 +23811,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:494
 msgid "What format to default to when using the Tweak feature"
-msgstr "Welches Format standartmäßig zum Tweaken ausgewählt wird"
+msgstr "Welches Format standardmäßig für die Kniffes gewählt wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:495
 msgid ""

@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-03 04:51+0000\n"
-"PO-Revision-Date: 2012-07-21 10:33+0000\n"
+"PO-Revision-Date: 2012-08-06 14:17+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-04 04:55+0000\n"
-"X-Generator: Launchpad (build 15742)\n"
+"X-Launchpad-Export-Date: 2012-08-07 04:46+0000\n"
+"X-Generator: Launchpad (build 15745)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2057,63 +2057,70 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:53
 msgid "SmartDevice"
-msgstr ""
+msgstr "SmartDevice"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:55
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Comunica con applicazioni Smart Device"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:110
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Abilita connessioni all'avvio"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:111
 msgid "Check this box to allow connections when calibre starts"
-msgstr ""
+msgstr "Marca questa casella per consentire connessioni all'avvio di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:113
 msgid "Security password"
-msgstr ""
+msgstr "Password di sicurezza"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:114
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
+"Digita una password che l'applicazione del dispositivo deve utilizzare per "
+"connettersi a calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:116
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Usa porta fissa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:117
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Se marcata, usa il numero di porta nel campo \"Porta\", altrimenti il driver "
+"utilizzerà una porta casuale"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:119
 msgid "Port"
-msgstr ""
+msgstr "Porta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:120
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
 msgstr ""
+"Digita il numero di porta che il driver utilizzerà se la casella \"Porta "
+"fissa\" è marcata"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:121
 msgid "Print extra debug information"
-msgstr ""
+msgstr "Stampa informazioni aggiuntive di debug"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:122
 msgid "Check this box if requested when reporting problems"
 msgstr ""
+"Marca questa casella se necessario in caso di segnalazione di problemi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:359
 msgid "Device did not respond in reasonable time"
-msgstr ""
+msgstr "Il dispositivo non ha risposto in tempi ragionevoli"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:365
 msgid "Device closed the network connection"
-msgstr ""
+msgstr "Il dispositivo ha terminato la connessione di rete"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:587
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2122,24 +2129,24 @@ msgstr "Recupero informazioni del dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:659
 msgid "Protocol error -- book metadata not returned"
-msgstr ""
+msgstr "Errore di protocollo -- metadati del libro non restituiti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:678
 msgid "Protocol error -- sync_booklists"
-msgstr ""
+msgstr "Errore di protocollo -- sync_booklists"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:709
 #, python-format
 msgid "Sending book %s to device failed"
-msgstr ""
+msgstr "Invio del libro %s al dispositivo non riuscito"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:750
 msgid "Protocol error - delete books"
-msgstr ""
+msgstr "Errore di protocollo - eliminazione libri"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:786
 msgid "request for book data failed"
-msgstr ""
+msgstr "richiesta dati libro non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -3439,8 +3446,8 @@ msgstr ""
 "Dimensione base dei caratteri in punti. Tutte le dimensioni dei caratteri "
 "nel libro prodotto saranno scalate in base a questa dimensione. Scegliendo "
 "una dimensione maggiore si possono ottenere caratteri più grandi nell'output "
-"e viceversa. Come predefinito, la dimensione base dei caratteri è scelta in "
-"base al profilo scelto."
+"e viceversa. In modo predefinito, la dimensione base dei caratteri è scelta "
+"in base al profilo scelto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:154
 msgid ""
@@ -6076,6 +6083,7 @@ msgid ""
 "The %(fmt)s format will be <b>permanently deleted</b> from %(title)s. Are "
 "you sure?"
 msgstr ""
+"Il formato %(fmt)s sarà <b>eliminato definitivamente</b> da %(title)s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid "Choose formats to be deleted"
@@ -6160,11 +6168,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Avvia connessione wireless del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Ferma connessione wireless del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to folder"
@@ -6232,13 +6240,15 @@ msgstr "Server in arresto. Attendere: potrebbe richiedere qualche minuto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:226
 msgid "Disable autostart"
-msgstr ""
+msgstr "Disabilita avvio automatico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:227
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Vuoi che le connessioni wireless del dispositivo siano avviate "
+"automaticamente all'avvio di calibre?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7313,12 +7323,12 @@ msgstr "Dimensione copertina: %(width)d x %(height)d"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:460
 #, python-format
 msgid "Delete the %s format"
-msgstr ""
+msgstr "Elimina il formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:461
 #, python-format
 msgid "Save the %s format to disk"
-msgstr ""
+msgstr "Salva il formato %s su disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -10628,7 +10638,7 @@ msgstr "Mostra log"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr ""
+msgstr "Nascondi i rimanenti %d messaggi di errore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"
@@ -12203,6 +12213,9 @@ msgid ""
 "example, if you run calibre on a laptop, use that laptop in an airport, and "
 "want to connect your smart device to calibre, you should use a password."
 msgstr ""
+"Usa una password se calibre è in esecuzione in una rete non sicura. Ad "
+"esempio, se esegui calibre su un portatile, in un aeroporto, e vuoi "
+"collegare uno smart device a calibre, dovresti utilizzare una password."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:26
 msgid ""
@@ -12210,10 +12223,13 @@ msgid ""
 "interface when calibre starts. You should not do this if you are using a "
 "network that is not secure and you are not setting a password."
 msgstr ""
+"Marca questa casella se vuoi che calibre esegua automaticamente "
+"l'interfaccia smart device al suo avvio. Non dovresti farlo se usi una rete "
+"non sicura e non intendi impostare una password."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:63
 msgid "Smart device control"
-msgstr ""
+msgstr "Controllo Smart device"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:64
 msgid ""
@@ -12222,18 +12238,22 @@ msgid ""
 "manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Avvia connessioni wireless del dispositivo.\n"
+"<p>Potrebbero apparire alcuni messaggi dal firewall o dall'antivirus del tuo "
+"computer con la richiesta di consentire a calibre di collegarsi alla rete. "
+"<b>Rispondi Sì</b>. Altrimenti, le connessioni wireless non funzioneranno."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:66
 msgid "Optional password for security"
-msgstr ""
+msgstr "Password opzionale di sicurezza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:67
 msgid "Optional &password:"
-msgstr ""
+msgstr "&Password opzionale:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:69
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "Consenti &automaticamente connessioni all'avvio di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -18164,30 +18184,30 @@ msgstr "Il tipo di carattere predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:130
 msgid "Theme name"
-msgstr ""
+msgstr "Nome del tema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:131
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Scegli un nome per il tema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:140
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "Impostazioni salvate per il tema con nome: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:156
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "Impostazioni caricate dal tema %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:163
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "Eliminato il tema con nome: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:219
 msgid "Choose text color"
-msgstr ""
+msgstr "Scegli il colore del testo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Still editing"
@@ -18324,25 +18344,25 @@ msgstr "Op&zioni schermo intero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Colore di sfondo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Campione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Cambia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Colore del testo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Colori e sfondi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -18429,22 +18449,23 @@ msgstr "Foglio di &stile dell'utente"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "You can save and load the viewer settings as <i>themes</i>"
 msgstr ""
+"Puoi salvare e caricare le impostazioni del visualizzatore come <i>temi</i>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "Salva le impostazioni attuali come un tema:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "Carica un tema salvato in precedenza:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Elimina un tema salvato:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:428
 msgid "&Theming"
-msgstr ""
+msgstr "&Temi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -18591,7 +18612,7 @@ msgstr "Clic con il tasto destro per mostrare i controlli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:279
 msgid "Tap in the left or right page margin to turn pages"
-msgstr ""
+msgstr "Tocca il margine sinistro o destro per sfogliare le pagine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:280
 msgid "Press Esc to quit"
@@ -20591,8 +20612,8 @@ msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
 msgstr ""
-"Lista di formati separati da virgole da salvare per ogni libro. Come "
-"predefinito saranno salvati tutti i formati disponibili."
+"Elenco di formati separati da virgole da salvare per ogni libro. In modo "
+"predefinito, saranno salvati tutti i formati disponibili."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:95
 #, python-format
