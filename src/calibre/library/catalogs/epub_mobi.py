@@ -13,6 +13,9 @@ from collections import namedtuple
 from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
+from calibre.ebooks import calibre_cover
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.magick.draw import save_cover_data_to
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
@@ -338,7 +341,7 @@ class EPUB_MOBI(CatalogPlugin):
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
-            # Use to debug generated catalog code before conversion
+            # >>> Use to debug generated catalog code before conversion <<<
             #setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
 
             dp = getattr(opts, 'debug_pipeline', None)
@@ -356,6 +359,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # If cover exists, use it
             cpath = None
+            generate_new_cover = False
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
@@ -365,8 +369,25 @@ class EPUB_MOBI(CatalogPlugin):
                     if cpath and os.path.exists(cpath):
                         recommendations.append(('cover', cpath,
                             OptionRecommendation.HIGH))
+                        log.info("using existing cover")
+                    else:
+                        log.info("no existing cover, generating new cover")
+                        generate_new_cover = True
+                else:
+                    log.info("no existing cover, generating new cover")
+                    generate_new_cover = True
             except:
                 pass
+
+            if generate_new_cover:
+                new_cover_path = PersistentTemporaryFile(suffix='.jpg')
+                new_cover_path.close()
+                new_cover = calibre_cover(opts.catalog_title.replace('"', '\\"'), 'calibre')
+                save_cover_data_to(new_cover,new_cover_path.name)
+                recommendations.append(('cover', new_cover_path.name, OptionRecommendation.HIGH))
+
+            if opts.verbose:
+                log.info("Invoking Plumber with recommendations:\n %s" % recommendations)
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber
