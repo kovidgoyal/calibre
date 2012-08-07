@@ -25,7 +25,7 @@ from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
-    HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
+    HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
 
     # Output synced to the connected device?
     sync_enabled = True
