@@ -60,7 +60,7 @@ htmlhelp:
 
 latex:
 	mkdir -p .build/latex .build/doctrees
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) .build/latex
+	$(SPHINXBUILD) -b mylatex $(ALLSPHINXOPTS) .build/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in .build/latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \

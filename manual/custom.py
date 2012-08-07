@@ -14,6 +14,7 @@ from sphinx.util.console import bold
 sys.path.append(os.path.abspath('../../../'))
 from calibre.linux import entry_points
 from epub import EPUBHelpBuilder
+from latex import LaTeXHelpBuilder
 
 def substitute(app, doctree):
     pass
@@ -251,6 +252,7 @@ def template_docs(app):
 def setup(app):
     app.add_config_value('kovid_epub_cover', None, False)
     app.add_builder(EPUBHelpBuilder)
+    app.add_builder(LaTeXHelpBuilder)
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', generate_docs)
     app.connect('build-finished', finished)
