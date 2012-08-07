@@ -1337,7 +1337,7 @@ Author '{0}':
                     pBookTag['class'] = "line_item"
                     ptc = 0
 
-                    pBookTag.insert(ptc, self.formatPrefix(book['prefix'],soup))
+                    pBookTag.insert(ptc, self.formatPrefix(new_entry['prefix'],soup))
                     ptc += 1
 
                     spanTag = Tag(soup, "span")
