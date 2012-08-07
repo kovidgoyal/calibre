@@ -199,7 +199,7 @@ class DevicePlugin(Plugin):
     # }}}
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None) :
+            detected_device=None):
         """
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
@@ -297,7 +297,7 @@ class DevicePlugin(Plugin):
 
         :return: (device name, device version, software version on device, mime type)
                  The tuple can optionally have a fifth element, which is a
-                 drive information diction. See usbms.driver for an example.
+                 drive information dictionary. See usbms.driver for an example.
 
         """
         raise NotImplementedError()
@@ -607,7 +607,7 @@ class BookList(list):
         pass
 
     def supports_collections(self):
-        ''' Return True if the the device supports collections for this book list. '''
+        ''' Return True if the device supports collections for this book list. '''
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):
