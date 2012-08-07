@@ -140,7 +140,7 @@ extensions = [
                     ['calibre/utils/podofo/podofo.cpp'],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
-                    inc_dirs=[podofo_inc],
+                    inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],
                     optional=True,
                     error=podofo_error),
 
@@ -173,6 +173,20 @@ if isosx:
                 ['calibre/devices/usbobserver/usbobserver.c'],
                 ldflags=['-framework', 'IOKit'])
             )
+
+if islinux:
+    extensions.append(Extension('libmtp',
+        [
+        'calibre/devices/mtp/unix/devices.c',
+        'calibre/devices/mtp/unix/libmtp.c'
+        ],
+        headers=[
+        'calibre/devices/mtp/unix/devices.h',
+        'calibre/devices/mtp/unix/upstream/music-players.h',
+        'calibre/devices/mtp/unix/upstream/device-flags.h',
+        ],
+        libraries=['mtp']
+    ))
 
 if isunix:
     cc = os.environ.get('CC', 'gcc')

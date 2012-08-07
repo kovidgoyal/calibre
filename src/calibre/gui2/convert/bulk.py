@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, importlib
+import shutil
 
 from PyQt4.Qt import QString, SIGNAL
 
@@ -86,17 +86,9 @@ class BulkConfig(Config):
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
 
-        output_widget = None
-        name = self.plumber.output_plugin.name.lower().replace(' ', '_')
-        try:
-            output_widget = importlib.import_module(
-                    'calibre.gui2.convert.'+name)
-            pw = output_widget.PluginWidget
-            pw.ICON = I('back.png')
-            pw.HELP = _('Options specific to the output format.')
-            output_widget = widget_factory(pw)
-        except ImportError:
-            pass
+        output_widget = self.plumber.output_plugin.gui_configuration_widget(
+                self.stack, self.plumber.get_option_by_name,
+                self.plumber.get_option_help, self.db)
 
         while True:
             c = self.stack.currentWidget()

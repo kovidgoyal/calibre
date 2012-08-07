@@ -13,7 +13,6 @@ import datetime, os, re, sys, json, hashlib
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime
-from calibre.utils.logging import default_log
 
 '''
 Notes on collections:
@@ -389,6 +388,7 @@ class KINDLE2(KINDLE):
         self.upload_apnx(path, filename, metadata, filepath)
 
     def upload_kindle_thumbnail(self, metadata, filepath):
+        from calibre.utils.logging import default_log
         coverdata = getattr(metadata, 'thumbnail', None)
         if not coverdata or not coverdata[2]:
             return

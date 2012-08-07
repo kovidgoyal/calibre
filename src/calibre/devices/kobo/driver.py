@@ -461,7 +461,7 @@ class KOBO(USBMS):
         self.report_progress(1.0, _('Removing books from device...'))
 
     def remove_books_from_metadata(self, paths, booklists):
-        if self.modify_datbase_check("remove_books_from_metatata") == False:
+        if self.modify_database_check("remove_books_from_metatata") == False:
             return
 
         for i, path in enumerate(paths):

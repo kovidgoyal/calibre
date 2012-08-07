@@ -37,6 +37,7 @@ class Win32(VMInstaller):
     SHUTDOWN_CMD = ['shutdown.exe', '-s', '-f', '-t', '0']
 
     def sign_msi(self):
+        print ('Signing .msi ...')
         raw = open(self.VM).read()
         vmx = re.search(r'''launch_vmware\(['"](.+?)['"]''', raw).group(1)
         subprocess.check_call(['vmrun', '-T', 'ws', '-gu', 'kovid', '-gp',

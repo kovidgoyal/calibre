@@ -44,6 +44,7 @@ from calibre.gui2.keyboard import Manager
 from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
 from calibre.gui2.proceed import ProceedQuestion
+from calibre.gui2.dialogs.message_box import JobError
 
 class Listener(Thread): # {{{
 
@@ -111,6 +112,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.QueuedConnection)
         self.proceed_question = ProceedQuestion(self)
+        self.job_error_dialog = JobError(self)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
@@ -337,6 +339,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+        smartdevice_action = self.iactions['Connect Share']
+        smartdevice_action.check_smartdevice_menus()
+        if self.device_manager.get_option('smartdevice', 'autostart'):
+            try:
+                self.device_manager.start_plugin('smartdevice')
+            except:
+                pass
+        smartdevice_action.set_smartdevice_action_state()
+
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
         self.read_settings()
@@ -357,6 +368,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         self.keyboard.finalize()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
+
+        self.save_layout_state()
 
         # Collect cycles now
         gc.collect()
@@ -679,12 +692,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except:
             pass
         if not minz:
-            d = error_dialog(self, dialog_title,
+            self.job_error_dialog.show_error(dialog_title,
                     _('<b>Failed</b>')+': '+unicode(job.description),
                     det_msg=job.details)
-            d.setModal(False)
-            d.show()
-            self._modeless_dialogs.append(d)
 
     def read_settings(self):
         geometry = config['main_window_geometry']
@@ -693,9 +703,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.read_layout_settings()
 
     def write_settings(self):
-        config.set('main_window_geometry', self.saveGeometry())
-        dynamic.set('sort_history', self.library_view.model().sort_history)
-        self.save_layout_state()
+        with gprefs: # Only write to gprefs once
+            config.set('main_window_geometry', self.saveGeometry())
+            dynamic.set('sort_history', self.library_view.model().sort_history)
+            self.save_layout_state()
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True):

@@ -32,7 +32,7 @@ binary_includes = [
                 '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
-                '/usr/lib/libpodofo.so.0.8.4',
+                '/usr/lib/libpodofo.so.0.9.1',
                 '/lib/libz.so.1',
                 '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',

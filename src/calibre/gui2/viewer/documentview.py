@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QFontDatabase, QDialog, QColor, QPoint,
         QImage, QRegion, QIcon, pyqtSignature, QAction, QMenu, QString,
-        pyqtSignal, QSwipeGesture, QApplication)
+        pyqtSignal, QSwipeGesture, QApplication, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
@@ -33,6 +33,8 @@ def load_builtin_fonts():
 
 
 class Document(QWebPage): # {{{
+
+    page_turn = pyqtSignal(object)
 
     def set_font_settings(self):
         opts = config().parse()
@@ -73,7 +75,6 @@ class Document(QWebPage): # {{{
         self.loaded_javascript = False
         self.js_loader = JavaScriptLoader(
                     dynamic_coffeescript=self.debug_javascript)
-        self.initial_left_margin = self.initial_right_margin = u''
         self.in_fullscreen_mode = False
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
@@ -114,8 +115,16 @@ class Document(QWebPage): # {{{
         mf.setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     def set_user_stylesheet(self):
-        raw = config().parse().user_css
-        raw = '::selection {background:#ffff00; color:#000;}\nbody {background-color: white;}\n'+raw
+        opts = config().parse()
+        bg = opts.background_color or 'white'
+        brules = ['background-color: %s !important'%bg]
+        if opts.text_color:
+            brules += ['color: %s !important'%opts.text_color]
+        prefix = '''
+            body { %s  }
+        '''%('; '.join(brules))
+        raw = prefix + opts.user_css
+        raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
         data += b64encode(raw.encode('utf-8'))
         self.settings().setUserStyleSheetUrl(QUrl(data))
@@ -172,6 +181,10 @@ class Document(QWebPage): # {{{
         if not isxp and self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
+    @pyqtSlot(int)
+    def page_turn_requested(self, backwards):
+        self.page_turn.emit(bool(backwards))
+
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
         return QString(val)
@@ -187,14 +200,11 @@ class Document(QWebPage): # {{{
         self.set_bottom_padding(0)
         self.fit_images()
         self.init_hyphenate()
-        self.initial_left_margin = unicode(self.javascript(
-                        'document.body.style.marginLeft').toString())
-        self.initial_right_margin = unicode(self.javascript(
-                        'document.body.style.marginRight').toString())
-        if self.in_paged_mode:
-            self.switch_to_paged_mode()
+        self.javascript('full_screen.save_margins()')
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
+        if self.in_paged_mode:
+            self.switch_to_paged_mode()
         self.read_anchor_positions(use_cache=False)
         self.first_load = False
 
@@ -241,7 +251,6 @@ class Document(QWebPage): # {{{
             sz.setWidth(scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
         self.javascript('window.paged_display.fit_images()')
-        self.javascript('window.paged_display.check_top_margin()')
 
     @property
     def column_boundaries(self):
@@ -257,27 +266,13 @@ class Document(QWebPage): # {{{
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
-        if self.in_paged_mode:
-            self.javascript('paged_display.max_col_width = %d'%self.max_fs_width)
-        else:
-            self.javascript('''
-                    var s = document.body.style;
-                    s.maxWidth = "%dpx";
-                    s.marginLeft = "auto";
-                    s.marginRight = "auto";
-                '''%self.max_fs_width)
+        self.javascript('full_screen.on(%d, %s)'%(self.max_fs_width,
+            'true' if self.in_paged_mode else 'false'))
 
     def switch_to_window_mode(self):
         self.in_fullscreen_mode = False
-        if self.in_paged_mode:
-            self.javascript('paged_display.max_col_width = %d'%-1)
-        else:
-            self.javascript('''
-                    var s = document.body.style;
-                    s.maxWidth = "none";
-                    s.marginLeft = "%s";
-                    s.marginRight = "%s";
-                '''%(self.initial_left_margin, self.initial_right_margin))
+        self.javascript('full_screen.off(%s)'%('true' if self.in_paged_mode
+            else 'false'))
 
     @pyqtSignature("QString")
     def debug(self, msg):
@@ -463,6 +458,7 @@ class DocumentView(QWebView): # {{{
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
+        self.document.page_turn.connect(self.page_turn_requested)
         copy_action = self.pageAction(self.document.Copy)
         copy_action.setIcon(QIcon(I('convert.png')))
         d = self.document
@@ -895,6 +891,12 @@ class DocumentView(QWebView): # {{{
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
             #print 'After all:', self.document.ypos
+
+    def page_turn_requested(self, backwards):
+        if backwards:
+            self.previous_page()
+        else:
+            self.next_page()
 
     def scroll_by(self, x=0, y=0, notify=True):
         old_pos = (self.document.xpos if self.document.in_paged_mode else

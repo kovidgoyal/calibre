@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, itertools, operator
 from functools import partial
 from future_builtins import map
+from collections import OrderedDict
 
 from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
@@ -792,6 +793,17 @@ class BooksView(QTableView): # {{{
             if select:
                 sm = self.selectionModel()
                 sm.select(index, sm.ClearAndSelect|sm.Rows)
+
+    def ids_to_rows(self, ids):
+        row_map = OrderedDict()
+        ids = frozenset(ids)
+        m = self.model()
+        for row in xrange(m.rowCount(QModelIndex())):
+            if len(row_map) >= len(ids): break
+            c = m.id(row)
+            if c in ids:
+                row_map[c] = row
+        return row_map
 
     def select_rows(self, identifiers, using_ids=True, change_current=True,
             scroll=True):

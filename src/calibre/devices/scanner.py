@@ -7,6 +7,7 @@ manner.
 
 import sys, os, re
 from threading import RLock
+from collections import namedtuple
 
 from calibre import prints, as_unicode
 from calibre.constants import iswindows, isosx, plugins, islinux, isfreebsd
@@ -107,6 +108,15 @@ class WinPNPScanner(object):
 
 win_pnp_drives = WinPNPScanner()
 
+_USBDevice = namedtuple('USBDevice',
+    'vendor_id product_id bcd manufacturer product serial')
+
+class USBDevice(_USBDevice):
+
+    def __init__(self, *args, **kwargs):
+        _USBDevice.__init__(self, *args, **kwargs)
+        self.busnum = self.devnum = -1
+
 class LinuxScanner(object):
 
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')
@@ -122,6 +132,10 @@ class LinuxScanner(object):
         if not self.ok:
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
 
+        def read(f):
+            with open(f, 'rb') as s:
+                return s.read().strip()
+
         for x in os.listdir(self.base):
             base = os.path.join(self.base, x)
             ven = os.path.join(base, 'idVendor')
@@ -132,31 +146,46 @@ class LinuxScanner(object):
             prod_string = os.path.join(base, 'product')
             dev = []
             try:
-                dev.append(int('0x'+open(ven).read().strip(), 16))
+                # Ignore USB HUBs
+                if read(os.path.join(base, 'bDeviceClass')) == b'09':
+                    continue
             except:
                 continue
             try:
-                dev.append(int('0x'+open(prod).read().strip(), 16))
+                dev.append(int(b'0x'+read(ven), 16))
             except:
                 continue
             try:
-                dev.append(int('0x'+open(bcd).read().strip(), 16))
+                dev.append(int(b'0x'+read(prod), 16))
             except:
                 continue
             try:
-                dev.append(open(man).read().strip())
+                dev.append(int(b'0x'+read(bcd), 16))
             except:
-                dev.append('')
+                continue
             try:
-                dev.append(open(prod_string).read().strip())
+                dev.append(read(man))
             except:
-                dev.append('')
+                dev.append(b'')
             try:
-                dev.append(open(serial).read().strip())
+                dev.append(read(prod_string))
             except:
-                dev.append('')
+                dev.append(b'')
+            try:
+                dev.append(read(serial))
+            except:
+                dev.append(b'')
 
-            ans.add(tuple(dev))
+            dev = USBDevice(*dev)
+            try:
+                dev.busnum = int(read(os.path.join(base, 'busnum')))
+            except:
+                pass
+            try:
+                dev.devnum = int(read(os.path.join(base, 'devnum')))
+            except:
+                pass
+            ans.add(dev)
         return ans
 
 class FreeBSDScanner(object):

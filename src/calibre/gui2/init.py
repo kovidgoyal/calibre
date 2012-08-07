@@ -265,6 +265,10 @@ class LayoutMixin(object): # {{{
                 type=Qt.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
+        self.book_details.remove_specific_format.connect(
+                self.iactions['Remove Books'].remove_format_by_id)
+        self.book_details.save_specific_format.connect(
+                self.iactions['Save To Disk'].save_library_format_by_ids)
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:

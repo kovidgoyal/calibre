@@ -4,6 +4,7 @@
 #include <unicode/utypes.h>
 #include <unicode/uclean.h>
 #include <unicode/ucol.h>
+#include <unicode/ucoleitr.h>
 #include <unicode/ustring.h>
 #include <unicode/usearch.h>
 
@@ -310,6 +311,41 @@ icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     Py_RETURN_FALSE;
 } // }}}
 
+// Collator.startswith {{{
+static PyObject *
+icu_Collator_collation_order(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_;
+    size_t asz;
+    int32_t actual_a;
+    UChar *a;
+    wchar_t *aw;
+    UErrorCode status = U_ZERO_ERROR;
+    UCollationElements *iter = NULL;
+    int order = 0, len = -1;
+  
+    if (!PyArg_ParseTuple(args, "U", &a_)) return NULL;
+    asz = PyUnicode_GetSize(a_); 
+    
+    a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
+    aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
+
+    if (a == NULL || aw == NULL ) return PyErr_NoMemory();
+
+    actual_a = (int32_t)PyUnicode_AsWideChar((PyUnicodeObject*)a_, aw, asz*4+1);
+    if (actual_a > -1) {
+        u_strFromWCS(a, asz*4 + 1, &actual_a, aw, -1, &status);
+        iter = ucol_openElements(self->collator, a, actual_a, &status);
+        if (iter != NULL && U_SUCCESS(status)) {
+            order = ucol_next(iter, &status);
+            len = ucol_getOffset(iter);
+            ucol_closeElements(iter); iter = NULL;
+        }
+    }
+
+    free(a); free(aw); 
+    return Py_BuildValue("ii", order, len);
+} // }}}
+
 static PyObject*
 icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs);
 
@@ -336,6 +372,10 @@ static PyMethodDef icu_Collator_methods[] = {
 
     {"startswith", (PyCFunction)icu_Collator_startswith, METH_VARARGS,
         "startswith(a, b) -> returns True iff a startswith b, following the current collation rules."
+    },
+
+    {"collation_order", (PyCFunction)icu_Collator_collation_order, METH_VARARGS,
+        "collation_order(string) -> returns (order, length) where order is an integer that gives the position of string in a list. length gives the number of characters used for order."
     },
 
     {NULL}  /* Sentinel */
