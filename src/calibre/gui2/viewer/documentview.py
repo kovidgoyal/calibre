@@ -1036,14 +1036,14 @@ class DocumentView(QWebView): # {{{
         if not self.handle_key_press(event):
             return QWebView.keyPressEvent(self, event)
 
-    def paged_col_scroll(self, forward=True):
+    def paged_col_scroll(self, forward=True, scroll_past_end=True):
         dir = 'next' if forward else 'previous'
         loc = self.document.javascript(
                 'paged_display.%s_col_location()'%dir, typ='int')
         if loc > -1:
             self.document.scroll_to(x=loc, y=0)
             self.manager.scrolled(self.document.scroll_fraction)
-        else:
+        elif scroll_past_end:
             (self.manager.next_document() if forward else
                     self.manager.previous_document())
 
@@ -1059,7 +1059,8 @@ class DocumentView(QWebView): # {{{
                 self.is_auto_repeat_event = False
         elif key == 'Down':
             if self.document.in_paged_mode:
-                self.paged_col_scroll()
+                self.paged_col_scroll(scroll_past_end=not
+                        self.document.line_scrolling_stops_on_pagebreaks)
             else:
                 if (not self.document.line_scrolling_stops_on_pagebreaks and
                         self.document.at_bottom):
@@ -1068,7 +1069,8 @@ class DocumentView(QWebView): # {{{
                     self.scroll_by(y=15)
         elif key == 'Up':
             if self.document.in_paged_mode:
-                self.paged_col_scroll(forward=False)
+                self.paged_col_scroll(forward=False, scroll_past_end=not
+                        self.document.line_scrolling_stops_on_pagebreaks)
             else:
                 if (not self.document.line_scrolling_stops_on_pagebreaks and
                         self.document.at_top):
