@@ -719,6 +719,7 @@ def catalog_option_parser(args):
     def add_plugin_parser_options(fmt, parser, log):
 
         # Fetch the extension-specific CLI options from the plugin
+        # library.catalogs.<format>.py
         plugin = plugin_for_catalog_format(fmt)
         for option in plugin.cli_options:
             if option.action:
@@ -798,6 +799,7 @@ def catalog_option_parser(args):
 def command_catalog(args, dbpath):
     parser, plugin, log = catalog_option_parser(args)
     opts, args = parser.parse_args(sys.argv[1:])
+
     if len(args) < 2:
         parser.print_help()
         print
