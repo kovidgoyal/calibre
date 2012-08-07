@@ -301,7 +301,7 @@ libmtp_Device_get_filelist(libmtp_Device *self, PyObject *args, PyObject *kwargs
                 "id", f->item_id,
                 "parent_id", f->parent_id,
                 "storage_id", f->storage_id,
-                "filename", f->filename,
+                "name", f->filename,
                 "size", f->filesize,
                 "modtime", f->modificationdate
         );
@@ -334,7 +334,7 @@ int folderiter(LIBMTP_folder_t *f, PyObject *parent) {
 
     folder = Py_BuildValue("{s:k,s:k,s:k,s:s,s:N}",
             "id", f->folder_id,
-            "parent_d", f->parent_id,
+            "parent_id", f->parent_id,
             "storage_id", f->storage_id,
             "name", f->name,
             "children", children);
