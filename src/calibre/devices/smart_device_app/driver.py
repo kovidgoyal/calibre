@@ -111,14 +111,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     ALL_BY_AUTHOR = _('All by author')
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ')+\
-                    'series, tags, authors' +\
-            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
-            'these values to the list to enable them. The collections will be '
-            'given the name provided after the ":" character.')%dict(
-                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
-        '',
         _('Enable connections at startup') + ':::<p>' +
             _('Check this box to allow connections when calibre starts') + '</p>',
         '',
@@ -132,23 +124,31 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
             _('Check this box if requested when reporting problems') + '</p>',
+        '',
+        _('Comma separated list of metadata fields '
+            'to turn into collections on the device. Possibilities include: ')+\
+                    'series, tags, authors' +\
+            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
+            'these values to the list to enable them. The collections will be '
+            'given the name provided after the ":" character.')%dict(
+                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR)
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-                'tags, series',
-                '',
                 False,
                 '',
                 '',
                 '',
                 False, '9090',
                 False,
+                '',
+                ''
     ]
-    OPT_COLLECTIONS             = 0
-    OPT_AUTOSTART               = 2
-    OPT_PASSWORD                = 4
-    OPT_USE_PORT                = 6
-    OPT_PORT_NUMBER             = 7
-    OPT_EXTRA_DEBUG             = 8
+    OPT_AUTOSTART               = 0
+    OPT_PASSWORD                = 2
+    OPT_USE_PORT                = 4
+    OPT_PORT_NUMBER             = 5
+    OPT_EXTRA_DEBUG             = 6
+    OPT_COLLECTIONS             = 8
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
