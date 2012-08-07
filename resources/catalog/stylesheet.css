@@ -151,14 +151,23 @@ p.title  {
 	font-size:xx-large;
 	}
 
-p.wishlist_item, p.unread_book, p.read_book {
-	text-align:left;
+p.wishlist_item, p.unread_book, p.read_book, p.line_item {
+    font-family:monospace;
 	margin-top:0px;
 	margin-bottom:0px;
 	margin-left:2em;
+	text-align:left;
 	text-indent:-2em;
 	}
 
+span.prefix {}
+span.entry {
+    font-family: serif;
+    }
+
+/*
+*   Book Descriptions
+*/
 td.publisher, td.date {
 	font-weight:bold;
 	text-align:center;
