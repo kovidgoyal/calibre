@@ -31,7 +31,7 @@ class PluginWidget(QWidget,Ui_Form):
     sync_enabled = True
 
     # Formats supported by this plugin
-    formats = set(['epub','mobi'])
+    formats = set(['azw3','epub','mobi'])
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -872,7 +872,6 @@ class PrefixRules(GenericRulesTable):
             ('Math plus circled',u'\u2295'),
             ('Math times circled',u'\u2297'),
             ('Math times',u'\u00d7'),
-            ('O slash',u'\u00d8'),
             ('Paragraph',u'\u00b6'),
             ('Percent',u'%'),
             ('Plus-or-minus',u'\u00b1'),
