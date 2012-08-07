@@ -33,6 +33,7 @@
 
 typedef struct {
     PyObject *obj;
+    PyObject *extra;
     PyThreadState *state;
 } ProgressCallback;
 
@@ -62,6 +63,48 @@ static void dump_errorstack(LIBMTP_mtpdevice_t *dev, PyObject *list) {
     }
 
     LIBMTP_Clear_Errorstack(dev);
+}
+
+static uint16_t data_to_python(void *params, void *priv, uint32_t sendlen, unsigned char *data, uint32_t *putlen) {
+    PyObject *res;
+    ProgressCallback *cb;
+    uint16_t ret = LIBMTP_HANDLER_RETURN_OK;
+
+    cb = (ProgressCallback *)priv;
+    *putlen = sendlen;
+    PyEval_RestoreThread(cb->state);
+    res = PyObject_CallMethod(cb->extra, "write", "s#", data, sendlen);
+    if (res == NULL) {
+        ret = LIBMTP_HANDLER_RETURN_ERROR;
+        *putlen = 0;
+        PyErr_Print();
+    } else Py_DECREF(res);
+
+    cb->state = PyEval_SaveThread();
+    return ret;
+}
+
+static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, unsigned char *data, uint32_t *gotlen) {
+    PyObject *res;
+    ProgressCallback *cb;
+    char *buf = NULL;
+    Py_ssize_t len = 0;
+    uint16_t ret = LIBMTP_HANDLER_RETURN_ERROR;
+
+    *gotlen = 0;
+
+    cb = (ProgressCallback *)priv;
+    PyEval_RestoreThread(cb->state);
+    res = PyObject_CallMethod(cb->extra, "read", "k", wantlen);
+    if (res != NULL && PyBytes_AsStringAndSize(res, &buf, &len) != -1 && len <= wantlen) {
+        memcpy(data, buf, len);
+        *gotlen = len;
+        ret = LIBMTP_HANDLER_RETURN_OK;
+    } else PyErr_Print();
+
+    Py_XDECREF(res);
+    cb->state = PyEval_SaveThread();
+    return ret;
 }
 
 // }}}
@@ -287,9 +330,11 @@ libmtp_Device_get_filelist(libmtp_Device *self, PyObject *args, PyObject *kwargs
     errs = PyList_New(0);
     if (ans == NULL || errs == NULL) { PyErr_NoMemory(); return NULL; }
 
+    Py_XINCREF(callback);
     cb.state = PyEval_SaveThread();
     tf = LIBMTP_Get_Filelisting_With_Callback(self->device, report_progress, &cb);
     PyEval_RestoreThread(cb.state);
+    Py_XDECREF(callback);
 
     if (tf == NULL) { 
         dump_errorstack(self->device, errs);
@@ -380,6 +425,36 @@ libmtp_Device_get_folderlist(libmtp_Device *self, PyObject *args, PyObject *kwar
 
 } // }}}
 
+// Device.get_file {{{
+static PyObject *
+libmtp_Device_get_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *stream, *callback = NULL, *errs;
+    ProgressCallback cb;
+    uint32_t fileid;
+    int ret;
+
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+
+    if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL; 
+    errs = PyList_New(0);
+    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+
+    cb.obj = callback; cb.extra = stream;
+    Py_XINCREF(callback); Py_INCREF(stream);
+    cb.state = PyEval_SaveThread();
+    ret = LIBMTP_Get_File_To_Handler(self->device, fileid, data_to_python, &cb, report_progress, &cb);
+    PyEval_RestoreThread(cb.state);
+    Py_XDECREF(callback); Py_DECREF(stream);
+
+    if (ret != 0) { 
+        dump_errorstack(self->device, errs);
+    }
+    Py_XDECREF(PyObject_CallMethod(stream, "flush", NULL));
+    return Py_BuildValue("ON", (ret == 0) ? Py_True : Py_False, errs);
+
+} // }}}
+
 static PyMethodDef libmtp_Device_methods[] = {
     {"update_storage_info", (PyCFunction)libmtp_Device_update_storage_info, METH_VARARGS,
      "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
@@ -390,7 +465,11 @@ static PyMethodDef libmtp_Device_methods[] = {
     },
 
     {"get_folderlist", (PyCFunction)libmtp_Device_get_folderlist, METH_VARARGS,
-     "get_folderlist() -> Get the list of folders on the device. Returns files, erros."
+     "get_folderlist() -> Get the list of folders on the device. Returns files, errors."
+    },
+
+    {"get_file", (PyCFunction)libmtp_Device_get_file, METH_VARARGS,
+     "get_file(fileid, stream, callback=None) -> Get the file specified by fileid from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns ok, errs, where errs is a list of errors (if any)."
     },
 
     {NULL}  /* Sentinel */

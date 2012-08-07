@@ -91,6 +91,12 @@ class MTP_DEVICE(MTPDeviceBase):
         self.filesystem_cache = None
         self.lock = RLock()
         self.blacklisted_devices = set()
+        for x in vars(self.detect.libmtp):
+            if x.startswith('LIBMTP'):
+                setattr(self, x, getattr(self.detect.libmtp, x))
+
+    def set_debug_level(self, lvl):
+        self.detect.libmtp.set_debug_level(lvl)
 
     def report_progress(self, sent, total):
         try:
@@ -223,6 +229,10 @@ class MTP_DEVICE(MTPDeviceBase):
 
 
 if __name__ == '__main__':
+    class PR:
+        def report_progress(self, sent, total):
+            print (sent, total, end=', ')
+
     from pprint import pprint
     dev = MTP_DEVICE(None)
     from calibre.devices.scanner import linux_scanner
@@ -234,5 +244,14 @@ if __name__ == '__main__':
     print ("Storage info:")
     pprint(d.storage_info)
     print("Free space:", dev.free_space())
-    dev.filesystem_cache.dump_filesystem()
+    # dev.filesystem_cache.dump_filesystem()
+    # with open('/tmp/flint.epub', 'wb') as f:
+    #     print(d.get_file(786, f, PR()))
+    # print()
+    # with open('/tmp/bleak.epub', 'wb') as f:
+    #     print(d.get_file(601, f, PR()))
+    # print()
+    dev.set_debug_level(dev.LIBMTP_DEBUG_ALL)
+    del d
+    dev.shutdown()
 
