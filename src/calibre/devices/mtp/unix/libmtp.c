@@ -127,7 +127,11 @@ typedef struct {
 static void
 libmtp_Device_dealloc(libmtp_Device* self)
 {
-    if (self->device != NULL) LIBMTP_Release_Device(self->device);
+    if (self->device != NULL) {
+        Py_BEGIN_ALLOW_THREADS;
+        LIBMTP_Release_Device(self->device);
+        Py_END_ALLOW_THREADS;
+    }
     self->device = NULL;
 
     Py_XDECREF(self->ids); self->ids = NULL;
