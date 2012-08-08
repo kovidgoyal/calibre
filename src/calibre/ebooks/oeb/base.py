@@ -186,8 +186,9 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     '''
-    from cssutils import parseString, parseStyle, replaceUrls, log
+    from cssutils import replaceUrls, log, CSSParser
     log.setLevel(logging.WARN)
+    log.raiseExceptions = False
 
     if resolve_base_href:
         resolve_base_href(root)
@@ -214,6 +215,8 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 new = cur[:pos] + new_link + cur[pos+len(link):]
                 el.attrib[attrib] = new
 
+    parser = CSSParser(raiseExceptions=False, log=_css_logger,
+            fetcher=lambda x:(None, None))
     for el in root.iter(etree.Element):
         try:
             tag = el.tag
@@ -223,7 +226,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if tag == XHTML('style') and el.text and \
                 (_css_url_re.search(el.text) is not None or '@import' in
                         el.text):
-            stylesheet = parseString(el.text, validate=False)
+            stylesheet = parser.parseString(el.text, validate=False)
             replaceUrls(stylesheet, link_repl_func)
             repl = stylesheet.cssText
             if isbytestring(repl):
@@ -234,7 +237,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
                 try:
-                    stext = parseStyle(text, validate=False)
+                    stext = parser.parseStyle(text, validate=False)
                 except:
                     # Parsing errors are raised by cssutils
                     continue
@@ -862,6 +865,7 @@ class Manifest(object):
         def _parse_css(self, data):
             from cssutils import CSSParser, log, resolveImports
             log.setLevel(logging.WARN)
+            log.raiseExceptions = False
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
             data = self.oeb.css_preprocessor(data, add_namespace=True)
