@@ -210,6 +210,11 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
      <property name="title">
       <string>Excluded books</string>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -221,11 +226,16 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>The first enabled matching rule will be used to add a prefix to book listings in the generated catalog.</string>
+      <string>The first matching prefix rule applies a prefix to book listings in the generated catalog.</string>
      </property>
      <property name="title">
-      <string>Prefix rules</string>
+      <string>Prefixes</string>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
