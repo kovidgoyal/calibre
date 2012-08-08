@@ -1541,7 +1541,7 @@ class TOC(object):
             if title:
                 title = re.sub(r'\s+', ' ', title)
             element(label, NCX('text')).text = title
-            element(point, NCX('content'), src=urlunquote(node.href))
+            element(point, NCX('content'), src=node.href)
             node.to_ncx(point)
         return parent
 
