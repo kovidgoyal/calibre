@@ -237,6 +237,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
 
 if __name__ == '__main__':
+    BytesIO
     class PR:
         def report_progress(self, sent, total):
             print (sent, total, end=', ')
@@ -252,11 +253,13 @@ if __name__ == '__main__':
     print ("Storage info:")
     pprint(d.storage_info)
     print("Free space:", dev.free_space())
-    raw = b'test'
-    fname = b'moose.txt'
-    src = BytesIO(raw)
-    print (d.put_file(dev._main_id, 0, fname, src, len(raw), PR()))
-    # dev.filesystem_cache.dump_filesystem()
+    for x in (1015, 1014, 1013, 1012):
+        print (d.delete_object(x))
+    # raw = b'test'
+    # fname = b'moose.txt'
+    # src = BytesIO(raw)
+    # print (d.put_file(dev._main_id, 0, fname, src, len(raw), PR()))
+    dev.filesystem_cache.dump_filesystem()
     # with open('/tmp/flint.epub', 'wb') as f:
     #     print(d.get_file(786, f, PR()))
     # print()

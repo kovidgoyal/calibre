@@ -497,12 +497,33 @@ libmtp_Device_put_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
                     "size", nf->filesize,
                     "modtime", nf->modificationdate
             );
+            LIBMTP_destroy_file_t(nf);
         }
     }
 
     return Py_BuildValue("ONN", (ret == 0) ? Py_True : Py_False, fo, errs);
 
 } // }}}
+
+// Device.delete_object {{{
+static PyObject *
+libmtp_Device_delete_object(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *errs;
+    uint32_t id;
+    int res;
+
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+    if (!PyArg_ParseTuple(args, "k", &id)) return NULL;
+    errs = PyList_New(0);
+    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+
+    res = LIBMTP_Delete_Object(self->device, id);
+    if (res != 0) dump_errorstack(self->device, errs);
+
+    return Py_BuildValue("ON", (res == 0) ? Py_True : Py_False, errs);
+} // }}}
+
 static PyMethodDef libmtp_Device_methods[] = {
     {"update_storage_info", (PyCFunction)libmtp_Device_update_storage_info, METH_VARARGS,
      "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
@@ -523,6 +544,11 @@ static PyMethodDef libmtp_Device_methods[] = {
     {"put_file", (PyCFunction)libmtp_Device_put_file, METH_VARARGS,
      "put_file(storage_id, parent_id, filename, stream, size, callback=None) -> Put a file on the device. The file is read from stream. It is put inside the folder identified by parent_id on the storage identified by storage_id. Use parent_id=0 to put it in the root. Use storage_id=0 to put it on the primary storage. stream must be a file-like object. size is the size in bytes of the data in stream. callback works the same as in get_filelist(). Returns ok, fileinfo, errs, where errs is a list of errors (if any), and fileinfo is a file information dictionary, as returned by get_filelist()."
     },
+
+    {"delete_object", (PyCFunction)libmtp_Device_delete_object, METH_VARARGS,
+     "delete_object(id) -> Delete the object identified by id from the device. Can be used to delete files, folders, etc. Returns ok, errs."
+    },
+
 
     {NULL}  /* Sentinel */
 };
