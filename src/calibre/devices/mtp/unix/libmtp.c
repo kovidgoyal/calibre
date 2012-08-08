@@ -484,17 +484,15 @@ libmtp_Device_put_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
     PyEval_RestoreThread(cb.state);
     Py_XDECREF(callback); Py_DECREF(stream);
 
-    if (ret != 0) { 
-        dump_errorstack(self->device, errs);
-        fo = Py_None; Py_INCREF(fo);
-    } else {
+    fo = Py_None; Py_INCREF(fo);
+    if (ret != 0) dump_errorstack(self->device, errs);
+    else {
         Py_BEGIN_ALLOW_THREADS;
         nf = LIBMTP_Get_Filemetadata(self->device, f.item_id);
         Py_END_ALLOW_THREADS;
-        if (nf == NULL) {
-            dump_errorstack(self->device, errs);
-            fo = Py_None; Py_INCREF(fo);
-        } else {
+        if (nf == NULL) dump_errorstack(self->device, errs);
+        else {
+            Py_DECREF(fo);
             fo = Py_BuildValue("{s:k,s:k,s:k,s:s,s:K,s:k}",
                     "id", nf->item_id,
                     "parent_id", nf->parent_id,
@@ -507,7 +505,7 @@ libmtp_Device_put_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
         }
     }
 
-    return Py_BuildValue("ONN", (ret == 0) ? Py_True : Py_False, fo, errs);
+    return Py_BuildValue("NN", fo, errs);
 
 } // }}}
 
@@ -532,6 +530,58 @@ libmtp_Device_delete_object(libmtp_Device *self, PyObject *args, PyObject *kwarg
     return Py_BuildValue("ON", (res == 0) ? Py_True : Py_False, errs);
 } // }}}
 
+// Device.create_folder {{{
+static PyObject *
+libmtp_Device_create_folder(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *errs, *fo, *children, *temp;
+    uint32_t parent_id, storage_id;
+    char *name;
+    uint32_t folder_id;
+    LIBMTP_folder_t *f = NULL, *cf;
+
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+    if (!PyArg_ParseTuple(args, "kks", &storage_id, &parent_id, &name)) return NULL;
+    errs = PyList_New(0);
+    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+
+    fo = Py_None; Py_INCREF(fo);
+
+    Py_BEGIN_ALLOW_THREADS;
+    folder_id = LIBMTP_Create_Folder(self->device, name, parent_id, storage_id);
+    Py_END_ALLOW_THREADS;
+    if (folder_id == 0) dump_errorstack(self->device, errs);
+    else {
+        Py_BEGIN_ALLOW_THREADS;
+        // Cannot use Get_Folder_List_For_Storage as it fails
+        f = LIBMTP_Get_Folder_List(self->device);
+        Py_END_ALLOW_THREADS;
+        if (f == NULL) dump_errorstack(self->device, errs);
+        else {
+            cf = LIBMTP_Find_Folder(f, folder_id);
+            if (cf == NULL) {
+                temp = Py_BuildValue("is", 1, "Newly created folder not present on device!");
+                if (temp == NULL) { PyErr_NoMemory(); return NULL;}
+                PyList_Append(errs, temp);
+                Py_DECREF(temp);
+            } else {
+                Py_DECREF(fo);
+                children = PyList_New(0);
+                if (children == NULL) { PyErr_NoMemory(); return NULL; }
+                fo = Py_BuildValue("{s:k,s:k,s:k,s:s,s:N}",
+                        "id", cf->folder_id,
+                        "parent_id", cf->parent_id,
+                        "storage_id", cf->storage_id,
+                        "name", cf->name,
+                        "children", children);
+            }
+            LIBMTP_destroy_folder_t(f);
+        }
+    }
+
+    return Py_BuildValue("NN", fo, errs);
+} // }}}
+
 static PyMethodDef libmtp_Device_methods[] = {
     {"update_storage_info", (PyCFunction)libmtp_Device_update_storage_info, METH_VARARGS,
      "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
@@ -550,7 +600,11 @@ static PyMethodDef libmtp_Device_methods[] = {
     },
 
     {"put_file", (PyCFunction)libmtp_Device_put_file, METH_VARARGS,
-     "put_file(storage_id, parent_id, filename, stream, size, callback=None) -> Put a file on the device. The file is read from stream. It is put inside the folder identified by parent_id on the storage identified by storage_id. Use parent_id=0 to put it in the root. Use storage_id=0 to put it on the primary storage. stream must be a file-like object. size is the size in bytes of the data in stream. callback works the same as in get_filelist(). Returns ok, fileinfo, errs, where errs is a list of errors (if any), and fileinfo is a file information dictionary, as returned by get_filelist()."
+     "put_file(storage_id, parent_id, filename, stream, size, callback=None) -> Put a file on the device. The file is read from stream. It is put inside the folder identified by parent_id on the storage identified by storage_id. Use parent_id=0 to put it in the root. stream must be a file-like object. size is the size in bytes of the data in stream. callback works the same as in get_filelist(). Returns fileinfo, errs, where errs is a list of errors (if any), and fileinfo is a file information dictionary, as returned by get_filelist(). fileinfo will be None if case or errors."
+    },
+
+    {"create_folder", (PyCFunction)libmtp_Device_create_folder, METH_VARARGS,
+     "create_folder(storage_id, parent_id, name) -> Create a folder named name under parent parent_id (use 0 for root) in the storage identified by storage_id. Returns folderinfo, errors, where folderinfo is the same dict as returned by get_folderlist(), it will be None if there are errors."
     },
 
     {"delete_object", (PyCFunction)libmtp_Device_delete_object, METH_VARARGS,

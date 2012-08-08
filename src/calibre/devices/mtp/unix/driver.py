@@ -253,8 +253,7 @@ if __name__ == '__main__':
     print ("Storage info:")
     pprint(d.storage_info)
     print("Free space:", dev.free_space())
-    for x in (1015, 1014, 1013, 1012):
-        print (d.delete_object(x))
+    # print (d.create_folder(dev._main_id, 0, 'testf'))
     # raw = b'test'
     # fname = b'moose.txt'
     # src = BytesIO(raw)
