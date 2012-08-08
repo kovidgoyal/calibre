@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
         QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon, Qt)
 
-from calibre.gui2 import choose_save_file
+from calibre.gui2 import choose_save_file, gprefs
 
 class ImageView(QDialog):
 
@@ -81,11 +81,17 @@ class ImageView(QDialog):
         self.label.setPixmap(self.current_img)
         self.label.adjustSize()
         self.resize(QSize(int(geom.width()/2.5), geom.height()-50))
+        geom = gprefs.get('viewer_image_popup_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
         self.current_image_name = unicode(self.current_url.toString()).rpartition('/')[-1]
         title = _('View Image: %s')%self.current_image_name
         self.setWindowTitle(title)
         self.show()
 
+    def done(self, e):
+        gprefs['viewer_image_popup_geometry'] = bytearray(self.saveGeometry())
+        return QDialog.done(self, e)
 
 class ImagePopup(object):
 
