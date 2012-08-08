@@ -11,7 +11,8 @@ import time, operator
 from threading import RLock
 from functools import wraps
 from itertools import chain
-from collections import deque
+from collections import deque, OrderedDict
+from io import BytesIO
 
 from calibre import prints
 from calibre.devices.errors import OpenFailed
@@ -34,6 +35,7 @@ class FilesystemCache(object):
         self.folder_id_map = {f['id']:f for f in self.iterfolders(set_level=0)}
 
         # Set the parents of each file
+        self.files_in_root = OrderedDict()
         for f in files:
             parents = deque()
             pid = f['parent_id']
@@ -44,6 +46,9 @@ class FilesystemCache(object):
                     break
                 parents.appendleft(pid)
                 pid = parent['parent_id']
+            f['parents'] = parents
+            if not parents:
+                self.files_in_root[f['id']] = f
 
         # Set the files in each folder
         for f in self.iterfolders():
@@ -79,6 +84,9 @@ class FilesystemCache(object):
                 prints(prefix, ' '*indent, '-', leaf['name'],
                         'id=%d'%leaf['id'], 'size=%d'%leaf['size'],
                         'modtime=%d'%leaf['modtime'])
+        for leaf in self.files_in_root.itervalues():
+            prints('-', leaf['name'], 'id=%d'%leaf['id'],
+                    'size=%d'%leaf['size'], 'modtime=%d'%leaf['modtime'])
 
 class MTP_DEVICE(MTPDeviceBase):
 
@@ -138,11 +146,11 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def post_yank_cleanup(self):
-        self.dev = None
+        self.dev = self.filesystem_cache = None
 
     @synchronous
     def shutdown(self):
-        self.dev = None
+        self.dev = self.filesystem_cache = None
 
     def format_errorstack(self, errs):
         return '\n'.join(['%d:%s'%(code, msg.decode('utf-8', 'replace')) for
@@ -244,6 +252,10 @@ if __name__ == '__main__':
     print ("Storage info:")
     pprint(d.storage_info)
     print("Free space:", dev.free_space())
+    raw = b'test'
+    fname = b'moose.txt'
+    src = BytesIO(raw)
+    print (d.put_file(dev._main_id, 0, fname, src, len(raw), PR()))
     # dev.filesystem_cache.dump_filesystem()
     # with open('/tmp/flint.epub', 'wb') as f:
     #     print(d.get_file(786, f, PR()))

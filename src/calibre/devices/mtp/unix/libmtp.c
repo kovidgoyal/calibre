@@ -455,6 +455,54 @@ libmtp_Device_get_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
 
 } // }}}
 
+// Device.put_file {{{
+static PyObject *
+libmtp_Device_put_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *stream, *callback = NULL, *errs, *fo;
+    ProgressCallback cb;
+    uint32_t parent_id, storage_id;
+    uint64_t filesize;
+    int ret;
+    char *name;
+    LIBMTP_file_t f, *nf;
+
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+    if (!PyArg_ParseTuple(args, "kksOK|O", &storage_id, &parent_id, &name, &stream, &filesize, &callback)) return NULL; 
+    errs = PyList_New(0);
+    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+
+    cb.obj = callback; cb.extra = stream;
+    f.parent_id = parent_id; f.storage_id = storage_id; f.item_id = 0; f.filename = name; f.filetype = LIBMTP_FILETYPE_UNKNOWN; f.filesize = filesize;
+    Py_XINCREF(callback); Py_INCREF(stream);
+    cb.state = PyEval_SaveThread();
+    ret = LIBMTP_Send_File_From_Handler(self->device, data_from_python, &cb, &f, report_progress, &cb);
+    PyEval_RestoreThread(cb.state);
+    Py_XDECREF(callback); Py_DECREF(stream);
+
+    if (ret != 0) { 
+        dump_errorstack(self->device, errs);
+        fo = Py_None; Py_INCREF(fo);
+    } else {
+        nf = LIBMTP_Get_Filemetadata(self->device, f.item_id);
+        if (nf == NULL) {
+            dump_errorstack(self->device, errs);
+            fo = Py_None; Py_INCREF(fo);
+        } else {
+            fo = Py_BuildValue("{s:k,s:k,s:k,s:s,s:K,s:k}",
+                    "id", nf->item_id,
+                    "parent_id", nf->parent_id,
+                    "storage_id", nf->storage_id,
+                    "name", nf->filename,
+                    "size", nf->filesize,
+                    "modtime", nf->modificationdate
+            );
+        }
+    }
+
+    return Py_BuildValue("ONN", (ret == 0) ? Py_True : Py_False, fo, errs);
+
+} // }}}
 static PyMethodDef libmtp_Device_methods[] = {
     {"update_storage_info", (PyCFunction)libmtp_Device_update_storage_info, METH_VARARGS,
      "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
@@ -470,6 +518,10 @@ static PyMethodDef libmtp_Device_methods[] = {
 
     {"get_file", (PyCFunction)libmtp_Device_get_file, METH_VARARGS,
      "get_file(fileid, stream, callback=None) -> Get the file specified by fileid from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns ok, errs, where errs is a list of errors (if any)."
+    },
+
+    {"put_file", (PyCFunction)libmtp_Device_put_file, METH_VARARGS,
+     "put_file(storage_id, parent_id, filename, stream, size, callback=None) -> Put a file on the device. The file is read from stream. It is put inside the folder identified by parent_id on the storage identified by storage_id. Use parent_id=0 to put it in the root. Use storage_id=0 to put it on the primary storage. stream must be a file-like object. size is the size in bytes of the data in stream. callback works the same as in get_filelist(). Returns ok, fileinfo, errs, where errs is a list of errors (if any), and fileinfo is a file information dictionary, as returned by get_filelist()."
     },
 
     {NULL}  /* Sentinel */
