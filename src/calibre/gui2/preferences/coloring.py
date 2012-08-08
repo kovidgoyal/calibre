@@ -20,6 +20,8 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns, rule_from_template)
+from calibre.utils.localization import lang_map
+from calibre.utils.icu import lower
 
 class ConditionEditor(QWidget): # {{{
 
@@ -143,7 +145,11 @@ class ConditionEditor(QWidget): # {{{
 
     @property
     def current_val(self):
-        return unicode(self.value_box.text()).strip()
+        ans = unicode(self.value_box.text()).strip()
+        if self.current_col == 'languages':
+            rmap = {lower(v):k for k, v in lang_map().iteritems()}
+            ans = rmap.get(lower(ans), ans)
+        return ans
 
     @dynamic_property
     def condition(self):
@@ -210,6 +216,9 @@ class ConditionEditor(QWidget): # {{{
         if col == 'identifiers':
             tt = _('Enter either an identifier type or an '
                     'identifier type and value of the form identifier:value')
+        elif col == 'languages':
+            tt = _('Enter a 3 letter ISO language code, like fra for French'
+                    ' or deu for German or eng for English')
         elif dt in ('int', 'float', 'rating'):
             tt = _('Enter a number')
             v = QIntValidator if dt == 'int' else QDoubleValidator
