@@ -218,7 +218,9 @@ class ConditionEditor(QWidget): # {{{
                     'identifier type and value of the form identifier:value')
         elif col == 'languages':
             tt = _('Enter a 3 letter ISO language code, like fra for French'
-                    ' or deu for German or eng for English')
+                    ' or deu for German or eng for English. You can also use'
+                    ' the full language name, in which case calibre will try to'
+                    ' automatically convert it to the language code.')
         elif dt in ('int', 'float', 'rating'):
             tt = _('Enter a number')
             v = QIntValidator if dt == 'int' else QDoubleValidator
