@@ -484,7 +484,9 @@ libmtp_Device_put_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
         dump_errorstack(self->device, errs);
         fo = Py_None; Py_INCREF(fo);
     } else {
+        Py_BEGIN_ALLOW_THREADS;
         nf = LIBMTP_Get_Filemetadata(self->device, f.item_id);
+        Py_END_ALLOW_THREADS;
         if (nf == NULL) {
             dump_errorstack(self->device, errs);
             fo = Py_None; Py_INCREF(fo);
@@ -518,7 +520,9 @@ libmtp_Device_delete_object(libmtp_Device *self, PyObject *args, PyObject *kwarg
     errs = PyList_New(0);
     if (errs == NULL) { PyErr_NoMemory(); return NULL; }
 
+    Py_BEGIN_ALLOW_THREADS;
     res = LIBMTP_Delete_Object(self->device, id);
+    Py_END_ALLOW_THREADS;
     if (res != 0) dump_errorstack(self->device, errs);
 
     return Py_BuildValue("ON", (res == 0) ? Py_True : Py_False, errs);
