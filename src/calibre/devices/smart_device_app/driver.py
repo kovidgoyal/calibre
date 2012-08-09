@@ -576,7 +576,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('Protocol error - bogus accepted extensions')
                 self._close_device_socket()
                 return False
-            self.FORMATS = exts
+            config = self._configProxy()
+            config['format_map'] = exts
+            self._debug('selected formats', config['format_map']);
             if password:
                 returned_hash = result.get('passwordHash', None)
                 if result.get('passwordHash', None) is None:
@@ -678,7 +680,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if opcode == 'OK':
             count = result['count']
             for i in range(0, count):
-                self._debug('retrieve metadata book', i)
                 opcode, result = self._call_client('GET_BOOK_METADATA', {'index': i},
                                                   print_debug_info=False)
                 if opcode == 'OK':
