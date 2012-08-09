@@ -9,22 +9,14 @@ __docformat__ = 'restructuredtext en'
 
 import time, operator
 from threading import RLock
-from functools import wraps
 from itertools import chain
 from collections import deque, OrderedDict
 from io import BytesIO
 
 from calibre import prints
 from calibre.devices.errors import OpenFailed
-from calibre.devices.mtp.base import MTPDeviceBase
+from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 from calibre.devices.mtp.unix.detect import MTPDetect
-
-def synchronous(func):
-    @wraps(func)
-    def synchronizer(self, *args, **kwargs):
-        with self.lock:
-            return func(self, *args, **kwargs)
-    return synchronizer
 
 class FilesystemCache(object):
 
