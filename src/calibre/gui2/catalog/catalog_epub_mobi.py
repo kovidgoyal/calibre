@@ -25,13 +25,13 @@ from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
-    HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
+    HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
 
     # Output synced to the connected device?
     sync_enabled = True
 
     # Formats supported by this plugin
-    formats = set(['epub','mobi'])
+    formats = set(['azw3','epub','mobi'])
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -402,7 +402,6 @@ class PluginWidget(QWidget,Ui_Form):
                 self.exclude_genre.setText(default[1])
                 break
 
-
 class CheckableTableWidgetItem(QTableWidgetItem):
     '''
     Borrowed from kiwidude
@@ -466,8 +465,7 @@ class GenericRulesTable(QTableWidget):
         self.db = db
         QTableWidget.__init__(self)
         self.setObjectName(object_name)
-        self.layout = QHBoxLayout()
-        parent_gb.setLayout(self.layout)
+        self.layout = parent_gb.layout()
 
         # Add ourselves to the layout
         #print("verticalHeader: %s" % dir(self.verticalHeader()))
@@ -538,7 +536,7 @@ class GenericRulesTable(QTableWidget):
 
     def create_blank_row_data(self):
         '''
-        ovverride
+        override
         '''
         pass
 
@@ -571,6 +569,9 @@ class GenericRulesTable(QTableWidget):
         self.clearSelection()
 
     def get_data(self):
+        '''
+        override
+        '''
         pass
 
     def move_row_down(self):
@@ -598,6 +599,7 @@ class GenericRulesTable(QTableWidget):
 
             # Populate it with the saved data
             self.populate_table_row(src_row, saved_data)
+
         self.blockSignals(False)
         scroll_to_row = last_sel_row + 1
         if scroll_to_row < self.rowCount() - 1:
@@ -637,8 +639,9 @@ class GenericRulesTable(QTableWidget):
         pass
 
     def resize_name(self, scale):
-        current_width = self.columnWidth(1)
-        self.setColumnWidth(1, min(225,int(current_width * scale)))
+        #current_width = self.columnWidth(1)
+        #self.setColumnWidth(1, min(225,int(current_width * scale)))
+        self.setColumnWidth(1, 225)
 
     def rule_name_edited(self):
         current_row = self.currentRow()
@@ -650,15 +653,12 @@ class GenericRulesTable(QTableWidget):
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
 
-    def tweak_height(self, height=4):
-        for i in range(min(3,self.rowCount())):
-            height += self.rowHeight(i)
-        height += self.verticalHeader().sizeHint().height()
-        print("computed table height for %d rows: %d" % (self.rowCount(),height, ))
-        self.setMinimumSize(QSize(16777215, height))
-        self.setMaximumSize(QSize(16777215, height))
-
 class ExclusionRules(GenericRulesTable):
+
+    COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
+                'NAME':   {'ordinal': 1, 'name': 'Name'},
+                'FIELD':  {'ordinal': 2, 'name': 'Field'},
+                'PATTERN':  {'ordinal': 3, 'name': 'Value'},}
 
     def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
         super(ExclusionRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
@@ -666,7 +666,8 @@ class ExclusionRules(GenericRulesTable):
         self._initialize()
 
     def _init_table_widget(self):
-        header_labels = ['','Name','Field','Value']
+        header_labels = [self.COLUMNS[index]['name'] \
+                         for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -682,10 +683,10 @@ class ExclusionRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row,0).checkState() == Qt.Checked
-        data['name'] = unicode(self.cellWidget(row,1).text()).strip()
-        data['field'] = unicode(self.cellWidget(row,2).currentText()).strip()
-        data['pattern'] = unicode(self.cellWidget(row,3).currentText()).strip()
+        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.Checked
+        data['name'] = unicode(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
+        data['field'] = unicode(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
+        data['pattern'] = unicode(self.cellWidget(row,self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
         return data
 
     def create_blank_row_data(self):
@@ -740,18 +741,18 @@ class ExclusionRules(GenericRulesTable):
         # Entry point
         self.blockSignals(True)
 
-        # Column 0: Enabled
-        self.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
+        # Enabled
+        self.setItem(row, self.COLUMNS['ENABLED']['ordinal'], CheckableTableWidgetItem(data['enabled']))
 
-        # Column 1: Rule name
-        set_rule_name_in_row(row, 1, name=data['name'])
+        # Rule name
+        set_rule_name_in_row(row, self.COLUMNS['NAME']['ordinal'], name=data['name'])
 
-        # Column 2: Source field
-        source_combo = set_source_field_in_row(row, 2, field=data['field'])
+        # Source field
+        source_combo = set_source_field_in_row(row, self.COLUMNS['FIELD']['ordinal'], field=data['field'])
 
-        # Column 3: Pattern
+        # Pattern
         # The contents of the Pattern field is driven by the Source field
-        self.source_index_changed(source_combo, row, 3, pattern=data['pattern'])
+        self.source_index_changed(source_combo, row, self.COLUMNS['PATTERN']['ordinal'], pattern=data['pattern'])
 
         self.blockSignals(False)
 
@@ -775,9 +776,15 @@ class ExclusionRules(GenericRulesTable):
                 values = ['any date','unspecified']
 
         values_combo = ComboBox(self, values, pattern)
-        self.setCellWidget(row, 3, values_combo)
+        self.setCellWidget(row, self.COLUMNS['PATTERN']['ordinal'], values_combo)
 
 class PrefixRules(GenericRulesTable):
+
+    COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
+                'NAME':   {'ordinal': 1, 'name': 'Name'},
+                'PREFIX': {'ordinal': 2, 'name': 'Prefix'},
+                'FIELD':  {'ordinal': 3, 'name': 'Field'},
+                'PATTERN':{'ordinal': 4, 'name': 'Value'},}
 
     def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
         super(PrefixRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
@@ -785,7 +792,8 @@ class PrefixRules(GenericRulesTable):
         self._initialize()
 
     def _init_table_widget(self):
-        header_labels = ['','Name','Prefix','Field','Value']
+        header_labels = [self.COLUMNS[index]['name'] \
+                         for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -803,10 +811,10 @@ class PrefixRules(GenericRulesTable):
         data = self.create_blank_row_data()
         data['ordinal'] = row
         data['enabled'] = self.item(row,0).checkState() == Qt.Checked
-        data['name'] = unicode(self.cellWidget(row,1).text()).strip()
-        data['prefix'] = unicode(self.cellWidget(row,2).currentText()).strip()
-        data['field'] = unicode(self.cellWidget(row,3).currentText()).strip()
-        data['pattern'] = unicode(self.cellWidget(row,4).currentText()).strip()
+        data['name'] = unicode(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
+        data['prefix'] = unicode(self.cellWidget(row,self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
+        data['field'] = unicode(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
+        data['pattern'] = unicode(self.cellWidget(row,self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
         return data
 
     def create_blank_row_data(self):
@@ -872,7 +880,6 @@ class PrefixRules(GenericRulesTable):
             ('Math plus circled',u'\u2295'),
             ('Math times circled',u'\u2297'),
             ('Math times',u'\u00d7'),
-            ('O slash',u'\u00d8'),
             ('Paragraph',u'\u00b6'),
             ('Percent',u'%'),
             ('Plus-or-minus',u'\u00b1'),
@@ -1004,22 +1011,21 @@ class PrefixRules(GenericRulesTable):
         self.blockSignals(True)
         #print("prefix_rules_populate_table_row processing rule:\n%s\n" % data)
 
-        # Column 0: Enabled
-        self.setItem(row, 0, CheckableTableWidgetItem(data['enabled']))
+        # Enabled
+        self.setItem(row, self.COLUMNS['ENABLED']['ordinal'], CheckableTableWidgetItem(data['enabled']))
 
-        # Column 1: Rule name
-        #rule_name = QTableWidgetItem(data['name'])
-        set_rule_name_in_row(row, 1, name=data['name'])
+        # Rule name
+        set_rule_name_in_row(row, self.COLUMNS['NAME']['ordinal'], name=data['name'])
 
-        # Column 2: Prefix
-        set_prefix_field_in_row(row, 2, field=data['prefix'])
+        # Prefix
+        set_prefix_field_in_row(row, self.COLUMNS['PREFIX']['ordinal'], field=data['prefix'])
 
-        # Column 3: Source field
-        source_combo = set_source_field_in_row(row, 3, field=data['field'])
+        # Source field
+        source_combo = set_source_field_in_row(row, self.COLUMNS['FIELD']['ordinal'], field=data['field'])
 
-        # Column 4: Pattern
+        # Pattern
         # The contents of the Pattern field is driven by the Source field
-        self.source_index_changed(source_combo, row, 4, pattern=data['pattern'])
+        self.source_index_changed(source_combo, row, self.COLUMNS['PATTERN']['ordinal'], pattern=data['pattern'])
 
         self.blockSignals(False)
 
@@ -1045,5 +1051,5 @@ class PrefixRules(GenericRulesTable):
                 values = ['any date','unspecified']
 
         values_combo = ComboBox(self, values, pattern)
-        self.setCellWidget(row, 4, values_combo)
+        self.setCellWidget(row, self.COLUMNS['PATTERN']['ordinal'], values_combo)
 

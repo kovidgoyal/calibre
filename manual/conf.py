@@ -14,10 +14,10 @@
 import sys, os
 
 # If your extensions are in another directory, add it here.
-sys.path.append(os.path.abspath('../src'))
 sys.path.append(os.path.abspath('.'))
-__appname__ = os.environ.get('__appname__', 'calibre')
-__version__ = os.environ.get('__version__', '0.0.0')
+import init_calibre
+init_calibre
+from calibre.constants import __appname__, __version__
 import custom
 custom
 # General configuration
@@ -154,7 +154,8 @@ latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
-#latex_documents = []
+latex_documents = [('index', 'calibre.tex', 'calibre User Manual',
+    'Kovid Goyal', 'manual', False)]
 
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
@@ -164,3 +165,11 @@ latex_font_size = '10pt'
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+latex_logo = 'resources/logo.png'
+latex_show_pagerefs = True
+latex_show_urls = 'footnote'
+latex_elements = {
+'papersize':'letterpaper',
+'fontenc':r'\usepackage[T2A,T1]{fontenc}'
+}

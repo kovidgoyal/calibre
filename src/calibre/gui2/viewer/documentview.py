@@ -21,6 +21,7 @@ from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
+from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp
 # }}}
@@ -470,6 +471,9 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
+        self.image_popup = ImagePopup(self)
+        self.view_image_action = QAction(_('View &image...'), self)
+        self.view_image_action.triggered.connect(self.image_popup)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)
         self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
@@ -554,6 +558,11 @@ class DocumentView(QWebView): # {{{
             self.manager.selection_changed(unicode(self.document.selectedText()))
 
     def contextMenuEvent(self, ev):
+        mf = self.document.mainFrame()
+        r = mf.hitTestContent(ev.pos())
+        img = r.pixmap()
+        self.image_popup.current_img = img
+        self.image_popup.current_url = r.imageUrl()
         menu = self.document.createStandardContextMenu()
         for action in self.unimplemented_actions:
             menu.removeAction(action)
@@ -561,6 +570,8 @@ class DocumentView(QWebView): # {{{
         if text:
             menu.insertAction(list(menu.actions())[0], self.dictionary_action)
             menu.insertAction(list(menu.actions())[0], self.search_action)
+        if not img.isNull():
+            menu.addAction(self.view_image_action)
         menu.addSeparator()
         menu.addAction(self.goto_location_action)
         if self.document.in_fullscreen_mode and self.manager is not None:

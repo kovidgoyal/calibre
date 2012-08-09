@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, cStringIO, re, sys
+import os, traceback, Queue, time, cStringIO, re, sys, weakref
 from threading import Thread, Event
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
@@ -368,6 +368,18 @@ class DeviceManager(Thread): # {{{
             return bool(self.device.card_prefix())
         except:
             return False
+
+    def _debug_detection(self):
+        from calibre.devices import debug
+        raw = debug(plugins=self.devices)
+        return raw
+
+    def debug_detection(self, done):
+        if self.is_device_connected:
+            raise ValueError('Device is currently detected in calibre, cannot'
+                    ' debug device detection')
+        self.create_job(self._debug_detection, done,
+                _('Debug device detection'))
 
     def _get_device_information(self):
         info = self.device.get_device_information(end_session=False)
@@ -770,6 +782,15 @@ class DeviceMixin(object): # {{{
         self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def debug_detection(self, done):
+        self.debug_detection_callback = weakref.ref(done)
+        self.device_manager.debug_detection(FunctionDispatcher(self.debug_detection_done))
+
+    def debug_detection_done(self, job):
+        d = self.debug_detection_callback()
+        if d is not None:
+            d(job)
 
     def show_open_feedback(self, devname, e):
         try:

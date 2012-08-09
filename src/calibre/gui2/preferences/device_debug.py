@@ -10,15 +10,18 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
     QDialogButtonBox, QPushButton, QApplication, QIcon
 
+from calibre.gui2 import error_dialog
+
 class DebugDevice(QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, gui, parent=None):
         QDialog.__init__(self, parent)
+        self.gui = gui
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
         self.log = QPlainTextEdit(self)
         self._layout.addWidget(self.log)
-        self.log.setPlainText(_('Getting debug information')+'...')
+        self.log.setPlainText(_('Getting debug information, please wait')+'...')
         self.copy = QPushButton(_('Copy to &clipboard'))
         self.copy.setDefault(True)
         self.setWindowTitle(_('Debug device detection'))
@@ -36,12 +39,26 @@ class DebugDevice(QDialog):
         QTimer.singleShot(1000, self.debug)
 
     def debug(self):
-        try:
-            from calibre.devices import debug
-            raw = debug()
-            self.log.setPlainText(raw)
-        finally:
+        if self.gui.device_manager.is_device_connected:
+            error_dialog(self, _('Device already detected'),
+                    _('A device (%s) is already detected by calibre.'
+                        ' If you wish to debug the detection of another device'
+                        ', first disconnect this device.')%
+                    self.gui.device_manager.connected_device.get_gui_name(),
+                    show=True)
             self.bbox.setEnabled(True)
+            return
+        self.gui.debug_detection(self)
+
+    def __call__(self, job):
+        if not self.isVisible(): return
+        self.bbox.setEnabled(True)
+        if job.failed:
+            return error_dialog(self, _('Debugging failed'),
+                    _('Running debug device detection failed. Click Show '
+                        'Details for more information.'), det_msg=job.details,
+                    show=True)
+        self.log.setPlainText(job.result)
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.log.toPlainText())

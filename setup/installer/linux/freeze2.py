@@ -23,6 +23,8 @@ MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/bin/pdfinfo',
+                '/usr/lib/libusb-1.0.so.0',
+                '/usr/lib/libmtp.so.9',
                 '/usr/lib/libglib-2.0.so.0',
                 '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',

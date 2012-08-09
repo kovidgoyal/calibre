@@ -577,7 +577,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 if not os.path.exists(item.abspath):
                     return error_dialog(self, _('No such location'),
                             _('The location pointed to by this item'
-                                ' does not exist.'), show=True)
+                                ' does not exist.'), det_msg=item.abspath, show=True)
                 url = QUrl.fromLocalFile(item.abspath)
                 if item.fragment:
                     url.setFragment(item.fragment)

@@ -1126,7 +1126,7 @@ Author '{0}':
                 aTag = Tag(soup, "a")
                 current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                 if current_letter == self.SYMBOLS:
-                    aTag['id'] = self.SYMBOLS
+                    aTag['id'] = self.SYMBOLS + '_authors'
                 else:
                     aTag['id'] = "%s_authors" % self.generateUnicodeName(current_letter)
                 pIndexTag.insert(0,aTag)
@@ -1337,7 +1337,7 @@ Author '{0}':
                     pBookTag['class'] = "line_item"
                     ptc = 0
 
-                    pBookTag.insert(ptc, self.formatPrefix(book['prefix'],soup))
+                    pBookTag.insert(ptc, self.formatPrefix(new_entry['prefix'],soup))
                     ptc += 1
 
                     spanTag = Tag(soup, "span")
