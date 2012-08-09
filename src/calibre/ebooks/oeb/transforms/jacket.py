@@ -188,13 +188,13 @@ def render_jacket(mi, output_profile,
                     footer=''
                     )
         for key in mi.custom_field_keys():
-            display_name, val = mi.format_field_extended(key)[:2]
-            key = key.replace('#', '_')
-            if val:
+            try:
+                display_name, val = mi.format_field_extended(key)[:2]
+                key = key.replace('#', '_')
                 args[key] = escape(val)
-            else:
-                args[key] = ''
-            args[key+'_label'] = escape(display_name)
+                args[key+'_label'] = escape(display_name)
+            except:
+                pass
 
         if False:
             print("Custom column values available in jacket template:")
