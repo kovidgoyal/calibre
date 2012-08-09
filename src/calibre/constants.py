@@ -90,7 +90,7 @@ class Plugins(collections.Mapping):
                 'speedup',
             ]
         if iswindows:
-            plugins.append('winutil')
+            plugins.extend(['winutil', 'wpd'])
         if isosx:
             plugins.append('usbobserver')
         if islinux:
