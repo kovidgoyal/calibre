@@ -15,6 +15,7 @@
 
 static int _com_initialized = 0;
 static PyObject *WPDError = NULL;
+static PyObject *NoWPD = NULL;
 static IPortableDeviceManager *portable_device_manager = NULL;
 
 static PyObject *
@@ -33,7 +34,7 @@ wpd_init(PyObject *self, PyObject *args) {
 
         if (FAILED(hr)) {
             portable_device_manager = NULL;
-            PyErr_SetString(WPDError, (hr == REGDB_E_CLASSNOTREG) ? 
+            PyErr_SetString((hr == REGDB_E_CLASSNOTREG) ? NoWPD : WPDError, (hr == REGDB_E_CLASSNOTREG) ? 
                 "This computer is not running the Windows Portable Device framework. You may need to install Windows Media Player 11 or newer." : 
                 "Failed to create the WPD device manager interface");
             return NULL;
@@ -81,6 +82,8 @@ initwpd(void) {
     WPDError = PyErr_NewException("wpd.WPDError", NULL, NULL);
     if (WPDError == NULL) return;
 
+    NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
+    if (NoWPD == NULL) return;
 }
 
 
