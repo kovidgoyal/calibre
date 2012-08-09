@@ -45,14 +45,14 @@ wpd_init(PyObject *self, PyObject *args) {
 
 static PyObject *
 wpd_uninit(PyObject *self, PyObject *args) {
-    if (_com_initialized) {
-        CoUninitialize();
-        _com_initialized = 0;
-    }
-
     if (portable_device_manager != NULL) {
         portable_device_manager->Release();
         portable_device_manager = NULL;
+    }
+
+    if (_com_initialized) {
+        CoUninitialize();
+        _com_initialized = 0;
     }
 
     Py_RETURN_NONE;
