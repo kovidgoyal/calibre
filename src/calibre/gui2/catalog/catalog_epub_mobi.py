@@ -14,13 +14,9 @@ from calibre.gui2 import gprefs, question_dialog
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4 import QtGui
-from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
-                      QDialogButtonBox, QDoubleSpinBox,
-                      QHBoxLayout, QIcon, QLabel, QLineEdit,
-                      QPlainTextEdit, QRadioButton, QSize, QSizePolicy,
-                      QTableWidget, QTableWidgetItem, QTimer,
-                      QToolButton, QVBoxLayout, QWidget)
+from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
+        QDoubleSpinBox, QIcon, QLineEdit, QRadioButton, QSize, QSizePolicy,
+        QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout, QWidget)
 
 class PluginWidget(QWidget,Ui_Form):
 
