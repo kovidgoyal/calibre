@@ -17,7 +17,7 @@ from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs)
+        icu_lib_dirs, win_ddk_lib_dirs)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -162,11 +162,19 @@ extensions = [
 
 
 if iswindows:
-    extensions.append(Extension('winutil',
+    extensions.extend([
+        Extension('winutil',
                 ['calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi', 'wininet'],
                 cflags=['/X']
-                ))
+                ),
+        Extension('wpd',
+            ['calibre/devices/mtp/windows/wpd.cpp'],
+            libraries=['ole32', 'portabledeviceguids'],
+            # needs_ddk=True,
+            cflags=['/X']
+            ),
+        ])
 
 if isosx:
     extensions.append(Extension('usbobserver',
@@ -325,8 +333,8 @@ class Build(Command):
         obj_dir = self.j(self.obj_dir, ext.name)
         if ext.needs_ddk:
             ddk_flags = ['-I'+x for x in win_ddk]
-            i = [i for i in range(len(cflags)) if 'VC\\INCLUDE' in cflags[i]][0]
-            cflags[i+1:i+2] = ddk_flags
+            cflags.extend(ddk_flags)
+            ldflags.extend(['/LIBPATH:'+x for x in win_ddk_lib_dirs])
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
         for src in ext.sources:
