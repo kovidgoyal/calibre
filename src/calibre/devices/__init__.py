@@ -55,7 +55,7 @@ def get_connected_device():
             break
     return dev
 
-def debug(ioreg_to_tmp=False, buf=None):
+def debug(ioreg_to_tmp=False, buf=None, plugins=None):
     import textwrap
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
@@ -66,9 +66,19 @@ def debug(ioreg_to_tmp=False, buf=None):
     if buf is None:
         buf = StringIO()
     sys.stdout = sys.stderr = buf
+    out = partial(prints, file=buf)
+
+    devplugins = device_plugins() if plugins is None else plugins
+    devplugins = list(sorted(devplugins, cmp=lambda
+            x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
+    if plugins is None:
+        for d in devplugins:
+            try:
+                d.startup()
+            except:
+                out('Startup failed for device plugin: %s'%d)
 
     try:
-        out = partial(prints, file=buf)
         out('Version:', __version__)
         s = DeviceScanner()
         s.scan()
@@ -96,8 +106,6 @@ def debug(ioreg_to_tmp=False, buf=None):
             ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
             ioreg += Device.run_ioreg()
         connected_devices = []
-        devplugins = list(sorted(device_plugins(), cmp=lambda
-                x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
         out('Available plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
             devplugins])))
         out(' ')
@@ -155,6 +163,12 @@ def debug(ioreg_to_tmp=False, buf=None):
     finally:
         sys.stdout = oldo
         sys.stderr = olde
+        if plugins is None:
+            for d in devplugins:
+                try:
+                    d.shutdown()
+                except:
+                    pass
 
 def device_info(ioreg_to_tmp=False, buf=None):
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
