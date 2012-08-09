@@ -7,15 +7,17 @@
 #include "devices.h"
 
 // Macros and utilities
+static PyObject *MTPError = NULL;
+
 #define ENSURE_DEV(rval) \
     if (self->device == NULL) { \
-        PyErr_SetString(PyExc_ValueError, "This device has not been initialized."); \
+        PyErr_SetString(MTPError, "This device has not been initialized."); \
         return rval; \
     }
 
 #define ENSURE_STORAGE(rval) \
     if (self->device->storage == NULL) { \
-        PyErr_SetString(PyExc_RuntimeError, "The device has no storage information."); \
+        PyErr_SetString(MTPError, "The device has no storage information."); \
         return rval; \
     }
 
@@ -30,6 +32,7 @@
 #define AC_ReadWrite            0x0000
 #define AC_ReadOnly             0x0001
 #define AC_ReadOnly_with_Object_Deletion    0x0002
+
 
 typedef struct {
     PyObject *obj;
@@ -183,7 +186,7 @@ libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
     Py_END_ALLOW_THREADS;
 
     if (dev == NULL) { 
-        PyErr_SetString(PyExc_ValueError, "Unable to open raw device."); 
+        PyErr_SetString(MTPError, "Unable to open raw device."); 
         return -1;
     }
 
@@ -272,7 +275,7 @@ static PyObject*
 libmtp_Device_update_storage_info(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
     ENSURE_DEV(NULL);
     if (LIBMTP_Get_Storage(self->device, LIBMTP_STORAGE_SORTBY_NOTSORTED) < 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to get storage infor for device.");
+        PyErr_SetString(MTPError, "Failed to get storage infor for device.");
         return NULL;
     }
     Py_RETURN_NONE;
@@ -761,6 +764,8 @@ initlibmtp(void) {
     
     m = Py_InitModule3("libmtp", libmtp_methods, "Interface to libmtp.");
     if (m == NULL) return;
+    MTPError = PyErr_NewException("libmtp.MTPError", NULL, NULL);
+    if (MTPError == NULL) return;
 
     LIBMTP_Init();
     LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);
