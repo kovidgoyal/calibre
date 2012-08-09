@@ -86,14 +86,10 @@ class MTP_DEVICE(MTPDeviceBase):
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
-        self.detect = MTPDetect()
         self.dev = None
         self.filesystem_cache = None
         self.lock = RLock()
         self.blacklisted_devices = set()
-        for x in vars(self.detect.libmtp):
-            if x.startswith('LIBMTP'):
-                setattr(self, x, getattr(self.detect.libmtp, x))
 
     def set_debug_level(self, lvl):
         self.detect.libmtp.set_debug_level(lvl)
@@ -139,6 +135,13 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def post_yank_cleanup(self):
         self.dev = self.filesystem_cache = None
+
+    @synchronous
+    def startup(self):
+        self.detect = MTPDetect()
+        for x in vars(self.detect.libmtp):
+            if x.startswith('LIBMTP'):
+                setattr(self, x, getattr(self.detect.libmtp, x))
 
     @synchronous
     def shutdown(self):
@@ -240,6 +243,7 @@ if __name__ == '__main__':
 
     from pprint import pprint
     dev = MTP_DEVICE(None)
+    dev.startup()
     from calibre.devices.scanner import linux_scanner
     devs = linux_scanner()
     mtp_devs = dev.detect(devs)
