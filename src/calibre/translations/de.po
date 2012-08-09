@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-03 04:51+0000\n"
-"PO-Revision-Date: 2012-08-06 19:40+0000\n"
-"Last-Translator: Andreas E. <Unknown>\n"
+"PO-Revision-Date: 2012-08-08 13:16+0000\n"
+"Last-Translator: Stanley <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-07 04:46+0000\n"
-"X-Generator: Launchpad (build 15745)\n"
+"X-Launchpad-Export-Date: 2012-08-09 04:39+0000\n"
+"X-Generator: Launchpad (build 15761)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2071,6 +2071,7 @@ msgstr "Verbindungen beim Start erlauben"
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:111
 msgid "Check this box to allow connections when calibre starts"
 msgstr ""
+"Aktiviere diese Option, um Verbindungen zu erlauben, sobald Calibre startet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:113
 msgid "Security password"
@@ -2091,6 +2092,8 @@ msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Wenn aktiviert, wird der eingestellte Port im Feld \"Port\" genutzt. Sonst "
+"wird ein zufälliger Port vom Treiber gewählt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:119
 msgid "Port"
@@ -2101,6 +2104,8 @@ msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
 msgstr ""
+"Port Nummer eingeben, die genutzt werden soll, wenn die Option \"Fester "
+"Port\" aktiviert ist."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:121
 msgid "Print extra debug information"
@@ -2112,11 +2117,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:359
 msgid "Device did not respond in reasonable time"
-msgstr ""
+msgstr "Das Gerät hat nach einer bestimmten Zeit nicht geantwortet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:365
 msgid "Device closed the network connection"
-msgstr ""
+msgstr "Gerät hat die Netzwerkverbindung getrennt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:587
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2129,7 +2134,7 @@ msgstr "Protokollfehler -- Metadaten des Buches nicht zurückgegeben"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:678
 msgid "Protocol error -- sync_booklists"
-msgstr ""
+msgstr "Protokoll Fehler -- sync_booklists"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:709
 #, python-format
@@ -2138,11 +2143,11 @@ msgstr "Senden des Buches %s zum Device fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:750
 msgid "Protocol error - delete books"
-msgstr ""
+msgstr "Protokoll Fehler- Bücher löschen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:786
 msgid "request for book data failed"
-msgstr ""
+msgstr "Anfrage nach Buch-Daten ist fehlgeschlagen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -12364,6 +12369,10 @@ msgid ""
 "example, if you run calibre on a laptop, use that laptop in an airport, and "
 "want to connect your smart device to calibre, you should use a password."
 msgstr ""
+"Verwenden Sie ein Passwort, wenn Calibre in einem unsicheren Netzwerk läuft. "
+"Wenn Sie zum Beispiel Calibre auf einem Laptop ausführen, und diesen Laptop "
+"auf einem Flughafen  verwenden, weil Sie Ihr Multimediagerät mit Calibre "
+"verbinden möchten, dann sollten Sie ein Passwort verwenden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:26
 msgid ""
@@ -12374,7 +12383,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:63
 msgid "Smart device control"
-msgstr ""
+msgstr "Multimediagerät-Steuerung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:64
 msgid ""
@@ -12383,6 +12392,11 @@ msgid ""
 "manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Drahtlose Verbindung aufbauen.\n"
+" <p>Es kann passieren, dass die Firewall oder ein Anti-Viren Programm um "
+"Erlaubnis fragt, ob sich Calibre mit dem Netzwerk verbinden darf. <b>Diese "
+"Anfrage bitte bestätigen.</b> Andererseits wird die Drahtlosverbindung nicht "
+"funktionieren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:66
 msgid "Optional password for security"
@@ -18682,7 +18696,7 @@ msgstr "Beispiel"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Ãndern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
@@ -21891,6 +21905,10 @@ msgid ""
 "value in the list. If the pattern matches a value, return found_val, "
 "otherwise return not_found_val."
 msgstr ""
+"in_list(val, separator, pattern, found_val, not_found_val) -- val wird als "
+"Liste von Werten, welche durch ein Trennzeichen getrennt werden behandelt. "
+"Das Pattern wird mit jedem dieser Werte verglichen. Wenn eine "
+"Übereinstimmung auftritt, wird found_val zurückgegeben, sonst not_found_val."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:439
 msgid ""
@@ -21918,6 +21936,10 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, pattern, replacement) -- Ersetzt alle Teile von val, auf die das "
+"Pattern 'pattern' zutrifft mit 'replacement' und gibt das Ergebnis zurück.  "
+"Der reguläre Ausdruck des Patterns muss, wie alles bei Calibre, Python "
+"Komptaibel sein."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:498
 msgid ""
@@ -21958,6 +21980,11 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separator) -- 'val' wird als Liste von Werten interpretiert, "
+"welche alle durch 'seperator' voneinander getrennt sind. Die Anzahl der "
+"Items wird zurückgegeben. In den meisten Listen wird ein Komma (,) "
+"verwendet. Allerdings wird zum Beispiel in der Liste der Autoren ein "
+"kaufmännisches Und (&) genutzt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:561
 msgid ""
