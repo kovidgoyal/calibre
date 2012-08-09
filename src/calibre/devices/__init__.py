@@ -56,6 +56,12 @@ def get_connected_device():
     return dev
 
 def debug(ioreg_to_tmp=False, buf=None, plugins=None):
+    '''
+    If plugins is None, then this method calls startup and shutdown on the
+    device plugins. So if you are using it in a context where startup could
+    already have been called (for example in the main GUI), pass in the list of
+    device plugins as the plugins parameter.
+    '''
     import textwrap
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
