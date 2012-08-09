@@ -196,7 +196,14 @@ def render_jacket(mi, output_profile,
             except:
                 pass
 
+        if False:
+            print("Custom column values available in jacket template:")
+            for key in args.keys():
+                if key.startswith('_') and not key.endswith('_label'):
+                    print(" %s: %s" % ('#' + key[1:], args[key]))
+
         # Used in the comment describing use of custom columns in templates
+        # Don't change this unless you also change it in template.xhtml
         args['_genre_label'] = args.get('_genre_label', '{_genre_label}')
         args['_genre'] = args.get('_genre', '{_genre}')
 
