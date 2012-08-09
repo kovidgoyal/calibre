@@ -9,22 +9,14 @@ __docformat__ = 'restructuredtext en'
 
 import time, operator
 from threading import RLock
-from functools import wraps
 from itertools import chain
 from collections import deque, OrderedDict
 from io import BytesIO
 
 from calibre import prints
 from calibre.devices.errors import OpenFailed
-from calibre.devices.mtp.base import MTPDeviceBase
+from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 from calibre.devices.mtp.unix.detect import MTPDetect
-
-def synchronous(func):
-    @wraps(func)
-    def synchronizer(self, *args, **kwargs):
-        with self.lock:
-            return func(self, *args, **kwargs)
-    return synchronizer
 
 class FilesystemCache(object):
 
@@ -190,15 +182,19 @@ class MTP_DEVICE(MTPDeviceBase):
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
 
-        files, errs = self.dev.get_filelist(self)
-        if errs and not files:
-            raise OpenFailed('Failed to read files from device. Underlying errors:\n'
-                    +self.format_errorstack(errs))
-        folders, errs = self.dev.get_folderlist()
-        if errs and not folders:
-            raise OpenFailed('Failed to read folders from device. Underlying errors:\n'
-                    +self.format_errorstack(errs))
-        self.filesystem_cache = FilesystemCache(files, folders)
+        try:
+            files, errs = self.dev.get_filelist(self)
+            if errs and not files:
+                raise OpenFailed('Failed to read files from device. Underlying errors:\n'
+                        +self.format_errorstack(errs))
+            folders, errs = self.dev.get_folderlist()
+            if errs and not folders:
+                raise OpenFailed('Failed to read folders from device. Underlying errors:\n'
+                        +self.format_errorstack(errs))
+            self.filesystem_cache = FilesystemCache(files, folders)
+        except:
+            self.dev = self._main_id = self._carda_id = self._cardb_id = None
+            raise
 
     @synchronous
     def get_device_information(self, end_session=True):
