@@ -194,6 +194,7 @@ def render_jacket(mi, output_profile,
                 args[key] = escape(val)
                 args[key+'_label'] = escape(display_name)
             except:
+                # if the val (custom column contents) is None, don't add to args
                 pass
 
         if False:
