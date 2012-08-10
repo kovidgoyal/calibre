@@ -141,7 +141,7 @@ class EPUB_MOBI(CatalogPlugin):
                           default="(('Read books','tags','+','\u2713'),('Wishlist items','tags','Wishlist','\u00d7'))",
                           dest='prefix_rules',
                           action=None,
-                          help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specifed prefixes.\n"
+                          help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
                           "The model for a prefix rule is ('<rule name>','<source field>','<pattern>','<prefix>').\n"
                           "When multiple rules are defined, the first matching rule will be used.\n"
                           "Default:\n" + '"' + '%default' + '"' + "\n"
