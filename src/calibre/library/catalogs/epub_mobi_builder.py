@@ -1126,7 +1126,7 @@ Author '{0}':
                 aTag = Tag(soup, "a")
                 current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                 if current_letter == self.SYMBOLS:
-                    aTag['id'] = self.SYMBOLS
+                    aTag['id'] = self.SYMBOLS + '_authors'
                 else:
                     aTag['id'] = "%s_authors" % self.generateUnicodeName(current_letter)
                 pIndexTag.insert(0,aTag)
@@ -1337,7 +1337,7 @@ Author '{0}':
                     pBookTag['class'] = "line_item"
                     ptc = 0
 
-                    pBookTag.insert(ptc, self.formatPrefix(book['prefix'],soup))
+                    pBookTag.insert(ptc, self.formatPrefix(new_entry['prefix'],soup))
                     ptc += 1
 
                     spanTag = Tag(soup, "span")
@@ -3252,17 +3252,22 @@ Author '{0}':
 
     def formatPrefix(self,prefix_char,soup):
         # Generate the HTML for the prefix portion of the listing
-        spanTag = Tag(soup, "span")
-        if prefix_char is None:
-            spanTag['style'] = "color:white"
-            spanTag.insert(0,NavigableString(self.defaultPrefix))
-            # 2e3a is 'two-em dash', which matches width in Kindle Previewer
-            # too wide in calibre viewer
-            # minimal visual distraction
-            # spanTag.insert(0,NavigableString(u'\u2e3a'))
+        # Kindle Previewer doesn't properly handle style=color:white
+        # MOBI does a better job allocating blank space with <code>
+        if self.opts.fmt == 'mobi':
+            codeTag = Tag(soup, "code")
+            if prefix_char is None:
+                codeTag.insert(0,NavigableString('&nbsp;'))
+            else:
+                codeTag.insert(0,NavigableString(prefix_char))
+            return codeTag
         else:
+            spanTag = Tag(soup, "span")
+            if prefix_char is None:
+                spanTag['style'] = "color:white"
+                prefix_char = self.defaultPrefix
             spanTag.insert(0,NavigableString(prefix_char))
-        return spanTag
+            return spanTag
 
     def generateAuthorAnchor(self, author):
         # Strip white space to ''

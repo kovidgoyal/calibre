@@ -7,7 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import wraps
+
 from calibre.devices.interface import DevicePlugin
+
+def synchronous(func):
+    @wraps(func)
+    def synchronizer(self, *args, **kwargs):
+        with self.lock:
+            return func(self, *args, **kwargs)
+    return synchronizer
 
 class MTPDeviceBase(DevicePlugin):
     name = 'SmartDevice App Interface'

@@ -196,8 +196,8 @@ class TOC(list):
                     content = content[0]
                     src = get_attr(content, attr='src')
                     if src:
-                        purl = urlparse(unquote(content.get('src')))
-                        href, fragment = purl[2], purl[5]
+                        purl = urlparse(content.get('src'))
+                        href, fragment = unquote(purl[2]), unquote(purl[5])
                         nd = dest.add_item(href, fragment, text)
                         nd.play_order = play_order
 

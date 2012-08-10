@@ -503,14 +503,16 @@ class DevicePlugin(Plugin):
         Called when calibre is is starting the device. Do any initialization
         required. Note that multiple instances of the class can be instantiated,
         and thus __init__ can be called multiple times, but only one instance
-        will have this method called.
+        will have this method called. This method is called on the device
+        thread, not the GUI thread.
         '''
         pass
 
     def shutdown(self):
         '''
         Called when calibre is shutting down, either for good or in preparation
-        to restart. Do any cleanup required.
+        to restart. Do any cleanup required. This method is called on the
+        device thread, not the GUI thread.
         '''
         pass
 

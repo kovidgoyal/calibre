@@ -19,6 +19,59 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.64
+  date: 2012-08-09
+
+  new features:
+    - title: "E-book viewer: Allow viewing images in the book in a separate pop-up window by right clicking on the image. Useful if you want to keep some image, like a map to the side while reading the book."
+
+    - title: "Catalogs: Allow generation of catalogs in AZW3 format. Also add more powerful configuration options to exclude books and set prefixes. See http://www.mobileread.com/forums/showthread.php?t=187298 for details."
+
+    - title: "Generate a PDF version of the User Manual"
+ 
+  bug fixes:
+    - title: "News download: Fix broken handling of nesting for HTML 5 tags when parsing with BeautifulSoup"
+
+    - title: "EPUB: Handle files in the EPUB that have semi-colons in their file names. This means in particular using URL escaping when creating the NCX as ADE cannot handle unescaped semi-colons in the NCX."
+      tickets: [1033665]
+
+    - title: "Conversion pipeline: Ignore unparseable CSS instead of erroring out on it."
+      tickets: [1034074]
+
+    - title: "When setting up a column coloring rule based on the languages column, allow entry of localized language names instead of only ISO codes"
+
+    - title: "Catalogs: Generate cover for mobi/azw3 catalogs"
+
+    - title: "Update the last modified column record of a book, whenever a format is added to the book."
+
+    - title: "E-book viewer: Fix line scrolling stops at breaks option not working in paged mode"
+      tickets: [1033430]
+
+    - title: "MOBI Output: Fix ToC at start option having no effect when converting some input documents that have an out-of-spine ToC."
+      tickets: [1033656]
+
+    - title: "Catalog Generation: When generating EPUB/MOBI catalogs add more flexible rules for excluding books. Also add rules to customize the prefix characters used."
+
+    - title: "Make setting published date using metadata search/replace more robust."
+
+    - title: "Tag Browser: Flatten the display of sub-groups when sort by is not set to 'name'."
+      tickets: [1032746]
+
+    - title: "Fix isbn:false not matching if other identifiers are attached to the book."
+
+  improved recipes:
+    - The New Republic
+    - ZDNet
+    - Metro UK
+    - FHM UK
+
+  new recipes:
+    - title: eKundelek.pl 
+      author: Artur Stachecki
+
+    - title: Sueddeutsche Mobil 
+      author: Andreas Zeiser
+
 - version: 0.8.63
   date: 2012-08-02
 

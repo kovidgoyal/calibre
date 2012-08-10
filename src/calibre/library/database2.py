@@ -1425,6 +1425,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         size=stream.tell()
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
+        self.update_last_modified([id], commit=False)
         self.conn.commit()
         self.format_filename_cache[id][format.upper()] = name
         self.refresh_ids([id])

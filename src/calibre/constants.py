@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 63)
+numeric_version = (0, 8, 64)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -90,7 +90,7 @@ class Plugins(collections.Mapping):
                 'speedup',
             ]
         if iswindows:
-            plugins.append('winutil')
+            plugins.extend(['winutil', 'wpd'])
         if isosx:
             plugins.append('usbobserver')
         if islinux:
