@@ -63,7 +63,7 @@ static wchar_t *unicode_to_wchar(PyObject *o) {
     return buf;
 }
 
-static IPortableDeviceValues *get_client_information() {
+static IPortableDeviceValues *get_client_information() { // {{{
     IPortableDeviceValues *client_information;
     HRESULT hr;
 
@@ -98,9 +98,9 @@ static IPortableDeviceValues *get_client_information() {
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to set quality of service", hr); return NULL; }
     return client_information;
-}
+} // }}}
 
-static IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information) {
+static IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information) { // {{{
     IPortableDevice *device = NULL;
     HRESULT hr;
 
@@ -124,9 +124,9 @@ static IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues
 
     return device;
 
-}
+} // }}}
 
-static PyObject* get_device_information(IPortableDevice *device) {
+static PyObject* get_device_information(IPortableDevice *device) { // {{{
     IPortableDeviceContent *content = NULL;
     IPortableDeviceProperties *properties = NULL;
     IPortableDeviceKeyCollection *keys = NULL;
@@ -244,7 +244,8 @@ end:
     if (properties != NULL) properties->Release();
     if (content != NULL) content->Release();
     return ans;
-} 
+} // }}}
+
 // }}}
 
 // Module startup/shutdown {{{
