@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-06-15 15:18+0000\n"
 "Last-Translator: Jane Dong <jane.dong.0328@gmail.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:57+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:44+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -18153,7 +18153,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -21381,195 +21381,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Getting debug information"
-#~ msgstr "获得调试信息"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr "生成分类中不包含能够匹配任意条件的书籍。 "
-
-#~ msgid "&Column/value"
-#~ msgstr "栏/值(&C)"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "包含附加排除条件的栏"
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "排除条件"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "缩略图宽度(&T)"
-
-#~ msgid "Read books"
-#~ msgstr "阅读书籍"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "列中包含“阅读”状态"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "“阅读书籍”模式"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "在评论前合并额外信息"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "在评论后合并额外信息"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "在目录中要包含的章节"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>默认模式 \n"
-#~ "\\[.+\\]\n"
-#~ "不包括 [tag] 形式的标签，\n"
-#~ "例如： [Project Gutenberg]</p>"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>要排除的标签列表，以逗号隔开。\n"
-#~ "默认值： ~,Catalog"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "相匹配的文件将会显示一个勾号"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "“心愿单”标签(&W)"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "打有“心愿单”标签的书籍显示时会加上 X 标记"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "封面缩略图的大小"
-
-#~ msgid "&Description note"
-#~ msgstr "附加描述信息(&D)"
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr "选择一个自定义栏目作为书籍附加的描述信息"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr "需要在目录生成过程中与注释合并的额外信息"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "用水平分隔线分隔评论与附加的额外信息"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "所生成的分类目录的标题，将作为元数据中的标题值\n"
-#~ "默认值： '%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Save the output from different stages of the conversion pipeline to the "
-#~ "specified directory. Useful if you are unsure at which stage of the "
-#~ "conversion process a bug is occurring.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "把转换过程中各阶段的输出保存到指定的目录。当你需要定位在转换过程中哪一步发生了错误的时候使用。\n"
-#~ "默认值： '%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在分类目录中包含“最新添加”信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在分类目录中包含“标题”信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "满足指定正则表达式的标签将被排除不做为流派值使用。\n"
-#~ "默认值： '%default' 排除以方括号括起来的标签，比如：'[<tag>]'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Authors' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在分类目录中包含“作者”信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Descriptions' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在分类目录中包含“描述”信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在分类目录中包含“系列”信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Custom field containing note text to insert in Description header.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在“描述”前加入自定义的文本信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Genres' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "在分类目录中包含“流派”信息。\n"
-#~ "默认值：'%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern specifying custom field/contents indicating book should be "
-#~ "excluded.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "以“字段:模式”的格式指定匹配自定义字段/内容的书籍将被排除。\n"
-#~ "默认值： '%default'\n"
-#~ "适用于： ePub, MOBI 输出格式"

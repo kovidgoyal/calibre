@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-05-31 10:38+0000\n"
 "Last-Translator: Michal Kaliňák <michal.kalinak@gmail.com>\n"
 "Language-Team: Slovak <sk@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:52+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:39+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -19260,7 +19260,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -23053,179 +23053,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Zahrnúť sekciu 'Séria' do katalógu.\n"
-#~ "Štandardne: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub, MOBI"
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr ""
-#~ "Zdroj vlastného stĺpca pre vloženie poznámky v oblasti hlavičky poznámky"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>Zoznam značiek oddelených čiarkou na vyňanie.\n"
-#~ "Štandardne: ~,Catalog"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Názov generovaného katalógu použitého ako názov v metadátach.\n"
-#~ "Štandardne: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Save the output from different stages of the conversion pipeline to the "
-#~ "specified directory. Useful if you are unsure at which stage of the "
-#~ "conversion process a bug is occurring.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Uložiť výstup z rôznych etáp konverzného procesu do určeného priečinka. "
-#~ "Užitočné ak si nie ste istý v ktorej etape konverzie sa vyskytuje chyba.\n"
-#~ "Štandardne: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Určuje výstupný profil. Výstupný profil je v niektorých prípadoch nevyhnutný "
-#~ "na optimalizáciu katalógu pre zariadenie. Napr. 'kindle', alebo 'kindle_dx' "
-#~ "vytvárajú štruktúrovaný Obsah so sekciami a článkami.\n"
-#~ "Štandardne: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Sekcie na vloženie do katalógu."
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "Knihy vyhovujúce niektorému vzoru nebudú zahrnuté do vytváraného katalógu. "
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Vzor pre vynechanie"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Vyhovujúce knihy budú zobrazené s kvačkou"
-
-#~ msgid "Read books"
-#~ msgstr "Čítať knihy"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Stĺpec/hodnota"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "Knihy označené ako 'želám si' budú zobrazené s X"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Stĺpec obsahujúci stav 'prečítané'"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "vzorec pre 'prečítanú knihu'"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "Značka '&želám si'"
-
-#, python-format
-#~ msgid ""
-#~ "Tag indicating book to be displayed as wishlist item.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Značka indikujúca, že kniha sa má zobraziť ako položka 'želám si'.\n"
-#~ "Štandardne: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "Šírka &náhľadu"
-
-#~ msgid "&Description note"
-#~ msgstr "&Popisná poznámka"
-
-#~ msgid "Getting debug information"
-#~ msgstr "Získavam ladiace informácie"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Zahrnúť do katalógu sekciu 'Tituly'.\n"
-#~ "Východzie: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Zahrnúť do katalógu sekciu 'Nedávno pridané'.\n"
-#~ "Východzie: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Authors' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Zahrnúť do katalógu sekciu 'Autori'.\n"
-#~ "Východzie: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Descriptions' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Zahrnúť do katalógu sekciu 'Popis'.\n"
-#~ "Východzie: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Genres' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Zahrnúť do katalógu sekciu 'Źánre'.\n"
-#~ "Východzie: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern indicating book has been read.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "pole:maska indikujúca, že kniha bola prečítaná.\n"
-#~ "Východzie: '%default'\n"
-#~ "Platí pre: výstupné formáty ePub a MOBI"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Stĺpec obsahujúci ďalšie kritériá na vyňatie"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Tip na veľkosť pre miniatúry popisov obálky"

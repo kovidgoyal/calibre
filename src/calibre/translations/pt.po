@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-07-26 20:48+0000\n"
 "Last-Translator: Rafael Antonio Belokurows <rafadv123@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:50+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:38+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18276,7 +18276,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -21551,46 +21551,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Secções para incluir no catálogo"
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Padrçao de exclusão"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Coluna que contém critérios adicionais de exclusão"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Coluna/valor"
-
-#~ msgid "Read books"
-#~ msgstr "Ler livros"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "Livros com tag"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Coluna que contém o estado da 'leitura'"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "&Largura da Miniatura"
-
-#~ msgid "&Description note"
-#~ msgstr "&Nota de descrição"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "Separar Comentários e conteúdo adicional com uma linha horizontal"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Livros que coincidam serão mostrados com um símbolo de seleccionado"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Convergir conteúdo adicional antes dos Comentários"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr ""
-#~ "Conteúdo adicional convergido com Comentários durante a geração do catálogo"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Convergir conteúdo adicional depois dos Comentários"

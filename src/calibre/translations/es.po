@@ -10,16 +10,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
-"PO-Revision-Date: 2012-08-03 08:02+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
+"PO-Revision-Date: 2012-08-10 13:12+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:52+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:40+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid ""
@@ -1882,11 +1882,11 @@ msgstr "Comunicar con el Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:23
 msgid "MTP Device"
-msgstr ""
+msgstr "Dispositivo MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:25
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "Comunicar con dispositivos MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2134,7 +2134,7 @@ msgstr "Marque esta casilla si es necesario para informar de algún problema"
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:514
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Demasiados intentos de conexión desde %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:621
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -7556,7 +7556,7 @@ msgstr "Opciones de libro digital"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:218
 msgid "Enabled sections will be included in the generated catalog."
-msgstr ""
+msgstr "Las secciones activadas se incluirán en el catálogo generado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:219
 msgid "Included sections"
@@ -7593,6 +7593,11 @@ msgid ""
 "The default pattern \\[.+\\]|\\+ excludes tags of the form [tag], e.g., "
 "[Test book], and '+', the default tag for a read book."
 msgstr ""
+"Una expresión regular que describe los géneros que se excluirán del catálogo "
+"generado. Los géneros derivan de las etiquetas asignadas a los libros. El "
+"patrón predeterminado «\\[.+\\]|\\+» excluye las etiquetas con la forma "
+"[etiqueta], como «[Prueba]», y «+», que es la etiqueta predeterminada para "
+"marcar un libro como leído."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:228
 msgid "Excluded genres"
@@ -7604,13 +7609,15 @@ msgstr "Etiquetas a &excluir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:230
 msgid "Reset to default"
-msgstr ""
+msgstr "Restaurar valor predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:232
 msgid ""
 "Books matching any of the exclusion rules will be excluded from the "
 "generated catalog. "
 msgstr ""
+"Los libros que coincidan con cualquiera de las reglas de exclusión no "
+"aparecerán en el catálogo generado. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:233
 msgid "Excluded books"
@@ -7621,10 +7628,12 @@ msgid ""
 "The first matching prefix rule applies a prefix to book listings in the "
 "generated catalog."
 msgstr ""
+"La primera regla de prefijo que coincida aplica un prefijo a las listas de "
+"libros en el catálogo generado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:235
 msgid "Prefixes"
-msgstr ""
+msgstr "Prefijos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:236
 msgid "Other options"
@@ -7632,11 +7641,13 @@ msgstr "Otras opciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:237
 msgid "&Thumb width"
-msgstr ""
+msgstr "Anchura de &miniatura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:238
 msgid "Size hint for cover thumbnails included in Descriptions section."
 msgstr ""
+"Medida del tamaño para las miniaturas de portadas incluidas en la sección "
+"«Descripción»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:239
 msgid " inch"
@@ -7644,11 +7655,13 @@ msgstr " pulgadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:240
 msgid "&Extra note"
-msgstr ""
+msgstr "&Nota adicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:241
 msgid "Custom column source for text to include in Description section."
 msgstr ""
+"Columna personalizada que sirve de origen para el texto que se incluye en la "
+"sección «Descripción»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:242
 msgid "&Merge with Comments"
@@ -7659,10 +7672,12 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata."
 msgstr ""
+"Columna personalizada con contenido adicional que se añade a los metadatos "
+"de «Comentarios»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:244
 msgid "Merge additional content before Comments metadata."
-msgstr ""
+msgstr "Unir contenido adicional antes de los metadatos de «Comentarios»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:245
 msgid "&Before"
@@ -7670,7 +7685,7 @@ msgstr "&Delante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:246
 msgid "Merge additional content after Comments metadata."
-msgstr ""
+msgstr "Unir contenido adicional después de los metadatos de «Comentarios»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:247
 msgid "&After"
@@ -7680,6 +7695,8 @@ msgstr "&Detrás"
 msgid ""
 "Separate Comments metadata and additional content with a horizontal rule."
 msgstr ""
+"Separar los metadatos de «Comentarios» y el contenido adicional con una "
+"línea horizontal."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:249
 msgid "&Separator"
@@ -14645,6 +14662,10 @@ msgid ""
 "eng for English. You can also use the full language name, in which case "
 "calibre will try to automatically convert it to the language code."
 msgstr ""
+"Introduzca un código ISO de idioma de tres letras, como «fra» para francés, "
+"«deu» para alemán o «spa» para español. También puede usar el nombre "
+"completo del idioma, en tal caso calibre intentará convertirlo "
+"automáticamente al código de idioma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:225
 msgid "Enter a number"
@@ -15264,7 +15285,7 @@ msgstr "Colores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr ""
+msgstr "Obteniendo información de depuración, espere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -15273,7 +15294,7 @@ msgstr "&Copiar al portapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:43
 msgid "Device already detected"
-msgstr ""
+msgstr "Dispositivo ya detectado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:44
 #, python-format
@@ -15281,16 +15302,20 @@ msgid ""
 "A device (%s) is already detected by calibre. If you wish to debug the "
 "detection of another device, first disconnect this device."
 msgstr ""
+"Calibre ya ha detectado un dispositivo (%s). Si quiere depurar la detección "
+"de otro dispositivo, desconecte primero el actual."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
-msgstr ""
+msgstr "Falló la depuración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:58
 msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
 msgstr ""
+"La depuración para le detección del dispositivo ha fallado. Pulse en "
+"«Mostrar detalles» para más información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -18626,7 +18651,7 @@ msgstr "&Localizar en el diccionario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:475
 msgid "View &image..."
-msgstr ""
+msgstr "Ver &imagen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:478
 msgid "&Search for next occurrence"
@@ -18663,24 +18688,24 @@ msgstr "Final de la sección"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:37
 msgid "Zoom &in"
-msgstr ""
+msgstr "A&cercar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 msgid "Zoom &out"
-msgstr ""
+msgstr "A&lejar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
 msgid "&Save as"
-msgstr ""
+msgstr "&Guardar como"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:63
 msgid "Choose a file to save to"
-msgstr ""
+msgstr "Elija un archivo donde guardar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:88
 #, python-format
 msgid "View Image: %s"
-msgstr ""
+msgstr "Ver imagen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -19651,6 +19676,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Título del catálogo generado, se usará como título en los metadatos.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:46
 #, python-format
@@ -19661,6 +19689,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Guardar la salida de las distintas fases del proceso de conversión\n"
+"en el directorio especificado. Es útil si no está seguro de\n"
+"en qué etapa del proceso ocurre un fallo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:56
 #, python-format
@@ -19670,6 +19703,13 @@ msgid ""
 "'+', the default tag for read books.\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Expresión regular que describe las etiquetas que no se considerarán como "
+"géneros. \n"
+"Valor predeterminado: «%default» excluye las etiquetas entre corchetes,\n"
+"por ejemplo «[Project Gutenberg]», y «+» que es la etiqueta "
+"pretedeterminada\n"
+"para marcar los libros como leídos.\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:64
 msgid ""
@@ -19684,6 +19724,18 @@ msgid ""
 "When multiple rules are defined, all rules will be applied.\n"
 "Default: \n"
 msgstr ""
+"Especifica las reglas que se usarán para excluir libros del catálogo "
+"generado.\n"
+"El modelo para una regla de exclusión es bien\n"
+"('<nombre de la regla>','Etiquetas','<lista de etiquetas separadas por "
+"comas>')\n"
+"o bien ('nombre de la regla','<columna personalizada>','<patrón>').\n"
+"Por ejemplo:\n"
+"(('Libros almacenados','#estado','Almacenado'),)\n"
+"excluirá cualquier libro con el valor «Almacenado» en la columna\n"
+"personalizada «estado».\n"
+"Si se definen varias reglas, se aplican todas.\n"
+"Valor predeterminado: \n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:78
 #, python-format
@@ -19692,6 +19744,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección «Autores» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:85
 #, python-format
@@ -19700,6 +19755,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección «Descripciones» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:92
 #, python-format
@@ -19708,6 +19766,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección «Géneros» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:99
 #, python-format
@@ -19716,6 +19777,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección «Títulos» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:106
 #, python-format
@@ -19724,6 +19788,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección «Series» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:113
 #, python-format
@@ -19732,6 +19799,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección «Añadidos recientemente» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:120
 #, python-format
@@ -19740,6 +19810,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Campo personalizado que incluye el texto que se insertará en la cabecera de "
+"«Descripción».\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:127
 #, python-format
@@ -19751,6 +19825,15 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"#<campo personalizado>:[before|after]:[True|False] para especificar:\n"
+" <campo personalizado> Campo personalizado que contiene las notas para unir "
+"con Comentarios\n"
+" [before|after] Posición de las notas con respecto a Comentarios "
+"(«before»=antes, «after»=después)\n"
+" [True|False] Si «True», se insertará una línea horizontal entre las notas y "
+"Comentarios\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:137
 #, python-format
@@ -19762,16 +19845,29 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Especifica el perfil de salida. En algunos casos, se requiere un perfil de "
+"salida para optimizar el catálogo para un dispositivo. Por ejemplo, «kindle» "
+"o «kindle_dx» crea un Índice estructurado con secciones y artículos.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
 "Default:\n"
 msgstr ""
+"Especifica las reglas que se usarán para incluir prefijos que indiquen los "
+"libros leídos, libros de la lista de deseos y otros prefijos definidos por "
+"el usuario.\n"
+"El modelo para una regla de prefijos es ('<nombre de la regla>','<campo de "
+"origen>','<patrón>','<prefijo>').\n"
+"Si se definen varias reglas, se usará la primera que dé lugar a una "
+"coincidencia.\n"
+"Valor predeterminado:\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:153
 #, python-format
@@ -19781,6 +19877,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Tamaño preferido (en pulgadas) para las portadas en el catálogo.\n"
+"Rango: 1.0 - 2.0\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:259
 msgid ""
@@ -23987,307 +24087,3 @@ msgstr ""
 "Intro. Dependiendo del estado de los metadatos en la biblioteca y del "
 "estilo\n"
 "personal de edición que tenga, preferirá una u otra opción."
-
-#~ msgid "Getting debug information"
-#~ msgstr "Obteniendo información de depuración"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Columna/valor"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "&Ancho de la miniatura"
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Patrón de exclusión"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "Los libros que coincidan con alguno de los patrones no se incluirán en el "
-#~ "catálogo generado. "
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Columna que contiene la condición de «leído»"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "Patrón de «libro leído»"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Poner el contenido adicional delante de los Comentarios"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr ""
-#~ "Contenido que se añadirá a los Comentarios en la generación del catálogo"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Poner el contenido adicional detrás de los Comentarios"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Tamaño para las miniaturas de portadas en Descripción"
-
-#~ msgid "&Description note"
-#~ msgstr "&Nota en Descripción"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "Etiqueta de «deseado»"
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr ""
-#~ "Columna personalizada de origen para la nota que se incluirá en el área de "
-#~ "cabecera de Descripción"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr ""
-#~ "Separar los Comentarios y el contenido adicional con una barra horizontal"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Los libros que coincidan se mostrarán con una marca"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "Los libros etiquetados como deseados se mostrarán con una X"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>Lista de etiquetas a excluir, separadas por comas.\n"
-#~ "Valor predeterminado: ~, Catalog"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>Patrón predeterminado\n"
-#~ "\\[.+\\]\n"
-#~ "excluye las etiquetas de la forma [etiqueta].\n"
-#~ "por ejemplo, [Project Gutenberg]</p>"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Columna que contiene criterios de exclusión adicionales"
-
-#~ msgid "Read books"
-#~ msgstr "Libros leídos"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Secciones que se incluirán en el catálogo."
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Authors' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluye una sección «Autores» en el catálogo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub y MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Descriptions' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluye una sección «Descripciones» en el catálogo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub y MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Save the output from different stages of the conversion pipeline to the "
-#~ "specified directory. Useful if you are unsure at which stage of the "
-#~ "conversion process a bug is occurring.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Guarda la salida de las distintas fases del proceso de conversión en el "
-#~ "directorio especificado. Es útil si no está seguro de en qué etapa del "
-#~ "proceso ocurre un fallo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluir la sección «Añadidos recientemente» en el catálogo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluir la sección «Títulos» en el catálogo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Expresión regular que describe las etiquetas que no se considerarán como "
-#~ "géneros.\n"
-#~ "Valor predeterminado: «%default» excluye las etiquetas entre corchetes, por "
-#~ "ejemplo «[<etiqueta>]»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Título del catálogo generado, se usará como título en los metadatos.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluir la sección «Series» en el catálogo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Especifica el perfil de salida. En algunos casos, se requiere un perfil de "
-#~ "salida para optimizar el catálogo para un dispositivo. Por ejemplo, «kindle» "
-#~ "o «kindle_dx» crea un Índice estructurado con secciones y artículos.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub y MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern indicating book has been read.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "campo:patrón que indica que un libro ya está leído.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a los formatos de salida ePub y MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Custom field containing note text to insert in Description header.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Campo personalizado que incluye el texto que se insertará en la cabecera de "
-#~ "Descripción.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Genres' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluir una sección Géneros en el catálogo.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern specifying custom field/contents indicating book should be "
-#~ "excluded.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "campo:patrón que especifica el campo personalizado y contenido que indica "
-#~ "que un libro debe excluirse.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOB I"
-
-#, python-format
-#~ msgid ""
-#~ "<custom field>:[before|after]:[True|False] specifying:\n"
-#~ " <custom field> Custom field containing notes to merge with Comments\n"
-#~ " [before|after] Placement of notes with respect to Comments\n"
-#~ " [True|False] - A horizontal rule is inserted between notes and Comments\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "<campo personalizado>:[before|after]:[True|False] que especifica:\n"
-#~ " <campo personalizado> El campo personalizado que contiene las notas a unir "
-#~ "con los Comentarios\n"
-#~ " [before|after] La posición de las notas con respecto a los comentarios "
-#~ "(before: antes, after: después)\n"
-#~ " [True|False] Insertar (True) o no (False) una línea horizontal entre notas "
-#~ "y Comentarios\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Tag indicating book to be displayed as wishlist item.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Etiqueta que indica que un libro se mostrará como deseado.\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub y MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Size hint (in inches) for book covers in catalog.\n"
-#~ "Range: 1.0 - 2.0\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Tamaño preferido (en pulgadas) para las portadas en el catálogo.\n"
-#~ "Rango: 1.0 - 2.0\n"
-#~ "Valor predeterminado: «%default»\n"
-#~ "Se aplica a: formatos de salida ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Comma-separated list of tag words indicating book should be excluded from "
-#~ "output. For example: 'skip' will match 'skip this book' and 'Skip will like "
-#~ "this'. Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Lista palabras en etiquetas que indican que debe excluirse un libro de la "
-#~ "salida, separadas por comas. Por ejemplo: «salta» coincide con «salta este "
-#~ "libro» y con «folklore de Salta». Valor predeterminado: '%default'\n"
-#~ "Se aplica a: formatos de salida ePub y MOBI"
-
-#~ msgid "request for book data failed"
-#~ msgstr "Fallo al solicitar datos del libro"
-
-#~ msgid "Device closed the network connection"
-#~ msgstr "El dispositivo cerró la conexión de red"
-
-#~ msgid "Device did not respond in reasonable time"
-#~ msgstr "El dispositivo no respondió en un tiempo razonable"
-
-#~ msgid "Protocol error - delete books"
-#~ msgstr "Error de protocolo -- borrar libros"
-
-#, python-format
-#~ msgid "Sending book %s to device failed"
-#~ msgstr "Fallo al envar el libro %s al dispositivo"
-
-#~ msgid "Protocol error -- sync_booklists"
-#~ msgstr "Error de protocolo -- sync_booklists"
-
-#~ msgid "Protocol error -- book metadata not returned"
-#~ msgstr "Error de protocolo -- no se han devuelto los metadatos del libro"

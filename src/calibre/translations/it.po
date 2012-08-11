@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-08-08 09:51+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:45+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:33+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -19587,7 +19587,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -23119,217 +23119,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Getting debug information"
-#~ msgstr "Ottieni le informazioni di debug"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "La creazione del catalogo usa il Titolo presente nei metadati\n"
-#~ "Valore predefinito: '%default'\n"
-#~ "Applicabile ai formati di output: ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Includi la sezione 'Titoli' nel catalogo.\n"
-#~ "Valore predefinito: '%default'\n"
-#~ "Applicabile ai formati di output: epub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Includi la sezione 'Ultimi Aggiunti' nel catalogo.\n"
-#~ "Valore predefinito: '%default'\n"
-#~ "Applicabile ai formati di output: ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Espressione regolare per descrivere i tag come generi.\n"
-#~ "Valore predefinito: '%default' che esclude i tag con parentesi, ad esempio "
-#~ "'[<tag>]'\n"
-#~ "Applicabile ai formati di output: ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Specifica un profilo di output. In alcuni casi un profilo di output è "
-#~ "necessario per ottimizzare il catalogo per alcuni dispositivi. Per esempio, "
-#~ "i dispositivi Kindle e Kindle dx creano un indice organizzato in sezioni e "
-#~ "articoli.\n"
-#~ "Valore predefinito: '%default'\n"
-#~ "Applicabile ai formati di output: ePub, MOBI"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "I libri che corrispondono alla regola non verranno inclusi nel catalogo "
-#~ "generato. "
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Regola di esclusione"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Colonna/valore"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Colonna contenente lo stato di 'lettura'"
-
-#~ msgid "Read books"
-#~ msgstr "Leggi libri"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "Regola 'libro letto'"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Unisci contenuto aggiuntivo prima dei commenti"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Unisci contenuto aggiuntivo dopo i commenti"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Sezioni da includere nel catalogo."
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "Separa i Commenti e i contenuti aggiuntivi con una riga orizzontale"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr ""
-#~ "Contenuti aggiuntivi fusi con i Commenti durante la generazione del catalogo"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Grandezza suggerita per i thumbnail delle copertine."
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr ""
-#~ "Sorgente della colonna personalizzata per la nota da includere nella zona "
-#~ "Descrizione intestazione"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Includi sezione 'Serie' nel catalogo.\n"
-#~ "Predefinito:'%default'\n"
-#~ "Applicabile ai formati di output: ePub, MOBI"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Colonne contenenti criteri di esclusione aggiuntivi"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "I libri etichettati come desiderati saranno mostrati con una X"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "Larghezza minia&tura"
-
-#~ msgid "&Description note"
-#~ msgstr "Nota &descrittiva"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Descriptions' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Includi la sezione 'Descrizioni' nel catalogo.\n"
-#~ "Predefinito: '%default'\n"
-#~ "Si applica a: formati di output ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Authors' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Includi la sezione 'Autori' nel catalogo.\n"
-#~ "Predefinito: '%default'\n"
-#~ "Si applica a: formati di output ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Custom field containing note text to insert in Description header.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Campo personalizzato contenente una nota di testo da inserire "
-#~ "nell'intestazione Descrizione.\n"
-#~ "Predefinito: '%default'\n"
-#~ "Si applica a: formati di output ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Genres' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Includi la sezione 'Generi' nel catalogo.\n"
-#~ "Predefinito: '%default'\n"
-#~ "Si applica a: formati di output ePub, MOBI"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>Pattern predefinito \n"
-#~ "\\[.+\\]\n"
-#~ "esclude i tag del tipo [tag], \n"
-#~ "ad es., [Project Gutenberg]</p>"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>Elenco separato da virgole dei tag da escludere.\n"
-#~ "Predefinito: ~,Catalog"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "E&lenco dei tag desiderati"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "I libri corrispondenti saranno evidenziati"
-
-#~ msgid "request for book data failed"
-#~ msgstr "richiesta dati libro non riuscita"
-
-#~ msgid "Device closed the network connection"
-#~ msgstr "Il dispositivo ha terminato la connessione di rete"
-
-#~ msgid "Device did not respond in reasonable time"
-#~ msgstr "Il dispositivo non ha risposto in tempi ragionevoli"
-
-#~ msgid "Protocol error - delete books"
-#~ msgstr "Errore di protocollo - eliminazione libri"
-
-#, python-format
-#~ msgid "Sending book %s to device failed"
-#~ msgstr "Invio del libro %s al dispositivo non riuscito"
-
-#~ msgid "Protocol error -- sync_booklists"
-#~ msgstr "Errore di protocollo -- sync_booklists"
-
-#~ msgid "Protocol error -- book metadata not returned"
-#~ msgstr "Errore di protocollo -- metadati del libro non restituiti"

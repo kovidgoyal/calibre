@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-05-12 04:56+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:49+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:36+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18494,7 +18494,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -21868,171 +21868,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Getting debug information"
-#~ msgstr "Motta feilsøkingsinformasjon"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Regex beskriver emneord som skal utelates som sjangere.\n"
-#~ "Standard: '%default' utelater emneord i braketter, f.eks. '[<temneord>]'\n"
-#~ "Gjelder: ePub, MOBI utdata-formater"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Spesifiserer utdataprofil. I enkelte tilfeller vil en utdataprofil være "
-#~ "nødvendig for å forbedre katalogen for enheten. F.eks. 'kindle' eller "
-#~ "'kindle_dx' lager en strukturert tabell av innhold med seksjoner og "
-#~ "artikler.\n"
-#~ "Standard: '%default'\n"
-#~ "Gjelder: ePub, MOBI utdataformater"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Tittel for generert katalog benyttet som tittel i metadata.\n"
-#~ "Standard: '%default'\n"
-#~ "Gjelder: ePub, MOBI utdata-formater"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Inkluder 'Nylig lagt til' seksjonen i katalogen.\n"
-#~ "Standard: '%default'\n"
-#~ "Gjelder: ePub, MOBI utdataformater"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Inkluder 'Tittel' seksjonen i katalogen.\n"
-#~ "Standard: '%default'\n"
-#~ "Gjelder: ePub, MOBI utdataformater"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Inkluder 'Serier' i katalogen.\n"
-#~ "Standard: '%default'\n"
-#~ "Gjelder: Epub, MOBI utdataformater"
-
-#, python-format
-#~ msgid ""
-#~ "Tag indicating book to be displayed as wishlist item.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Nøkkelord indikerer at boken skal vises i ønskelistefeltet.\n"
-#~ "Standard: '%default'"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern indicating book has been read.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "felt:brukermønster indikerer at boken tidligere har blitt lest.\n"
-#~ "Standard: '%default'\n"
-#~ "Gjelder ePub, MOBI utdata-formater"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "Bøker som samsvarer med valgene vil ikke bli inkludert i den genererte "
-#~ "katalogen. "
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Ekskludereingsvalg"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Kolonnen inneholder tillagte ekskluderingskriterier"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Kolonne/verdi"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Kolonnen inneholder 'lest' status"
-
-#~ msgid "Read books"
-#~ msgstr "Les bøker"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>Kommaseparert liste av emneord som skal utelates.\n"
-#~ "Standard: ~,Katalog"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>Standard mønster \n"
-#~ "\\[.+\\]\n"
-#~ "ekskluderer emneord av typen [tag], \n"
-#~ "f.eks., [Project Gutenberg]</p>"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Samsvarende bøker vil bli vist med et merke"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "Bøker merket som ønskelisteobjekter vil bli vist med en X"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "&Mikrobilde-bredde"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Størrelseshint for å beskrive mikrobilde av omslag"
-
-#~ msgid "&Description note"
-#~ msgstr "&Beskrivelsesnotat"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "'leste bøker' mønster"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "&Ønskeliste-merke"
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr ""
-#~ "Egendefinert kolonnekilde for notat som inkluderer "
-#~ "beskrivelseoverskriftområde"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "Separate kommentarer og tilleggsinnhold med horisontal regel"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Slå sammen tilleggsinnhold før kommentarer"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr "Tilleggsinnhold sammenslått med kommentarer under kataloggenerering"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Slå sammen tilleggsinnhold etter kommentarer"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Seksjon som skal inkluderes i katalogen."

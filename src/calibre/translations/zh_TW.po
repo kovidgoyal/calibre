@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-07-21 12:23+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:57+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:44+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -17912,7 +17912,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -21128,102 +21128,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Getting debug information"
-#~ msgstr "正在取得除錯資訊"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "產生分類的標題，用於元數據的標題。\n"
-#~ "預設：「%default」\n"
-#~ "套用到：ePub、MOBI 輸出格式"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "指定輸出設定檔。在某些情況，需要輸出設定檔才能最佳化裝置的分類。例如「kindle」或「kindle_dx」會建立有結構的目錄頁和文章。\n"
-#~ "預設值：「%default」\n"
-#~ "套用到：ePub、MOBI 輸出格式"
-
-#~ msgid "&Column/value"
-#~ msgstr "欄位/數值(&C)"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "描述封面縮圖的大小提示"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "縮圖寬度(&T)"
-
-#~ msgid "&Description note"
-#~ msgstr "描述備註(&D)"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>預設的樣式 \n"
-#~ "\\[.+\\]\n"
-#~ "排除標籤的形式為 [tag]，\n"
-#~ "例如，[Project Gutenberg]</p>"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr "符合樣式的書籍就不會包含在產生的分類中。 "
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>要排除的標籤清單，以逗號分隔。\n"
-#~ "預設值： ~,Catalog"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "包含額外排除條件的欄"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "符合的書籍會以核取標記顯示"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "包含「閱讀」狀態的欄"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "標記為希望得 到清單的書籍會加上 X 顯示"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr "在產生分類時與評論合併的額外內容"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "在評論與額外的內容間以水平尺規分隔"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "在評論前合併額外的內容"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "在評論後合併額外的內容"
-
-#~ msgid "Read books"
-#~ msgstr "已讀書籍"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "要包含在分類中的節。"
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "排除的模式"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "'read book' 模式"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "希望購買清單標籤(&W)"

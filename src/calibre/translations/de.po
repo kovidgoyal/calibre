@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
-"PO-Revision-Date: 2012-08-08 13:16+0000\n"
-"Last-Translator: Stanley <Unknown>\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
+"PO-Revision-Date: 2012-08-10 21:16+0000\n"
+"Last-Translator: Andreas E. <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:43+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:30+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1874,11 +1874,11 @@ msgstr "Kommuniziere mit dem Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:23
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:25
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "kommuniziere mit MTP Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2128,7 +2128,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:514
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Zu viele Verbindungsversuche von %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:621
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2262,7 +2262,7 @@ msgstr "Metadaten aus Dateien auf dem Gerät lesen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:67
 msgid "Use author sort instead of author"
-msgstr "Verwende Sortierung nach Autor statt Autor"
+msgstr "Verwende Autorensortierung statt Autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:69
 msgid "Template to control how books are saved"
@@ -7579,7 +7579,7 @@ msgstr "E-Book Einstellungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:218
 msgid "Enabled sections will be included in the generated catalog."
-msgstr ""
+msgstr "Aktiviert Bereiche werden in der generierten Katalog aufgenommen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:219
 msgid "Included sections"
@@ -7627,7 +7627,7 @@ msgstr "Auszuschließende Tags"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:230
 msgid "Reset to default"
-msgstr ""
+msgstr "Auf Voreinstellungen zurücksetzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:232
 msgid ""
@@ -10599,29 +10599,29 @@ msgid ""
 "generated from the author. Exactly how this value is automatically\n"
 "generated can be controlled via Preferences->Advanced->Tweaks"
 msgstr ""
-"Setzt alle Werte für die Sortierung nach Autoren auf einen\n"
-"automatisch aus dem Autorenfeld generierten Wert zurück.\n"
+"Setzt alle Werte für die Autorensortierung auf einen\n"
+"automatisch aus dem Autor(en) -Feld generierten Wert zurück.\n"
 "Wie genau dieser Wert erzeugt wird, kann in Einstellungen->\n"
 "Erweitert->Kniffe eingestellt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
-msgstr "Neuerzeugung aller Sortierung nach Autor- Werte"
+msgstr "Neuerzeugung aller Autorensortierungs- Werte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:97
 msgid ""
 "Copy author sort to author for every author. You typically use this button\n"
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
-"Kopiert für jeden Autor den Wert der Sortierung nach Autor in das "
-"Autorenfeld. Üblicherweise\n"
+"Kopiert für jeden Autor den Wert der Autorensortierung in das Autor(en) -"
+"Feld. Üblicherweise\n"
 "nutzen Sie diese Möglichkeit nach der Änderung von Einstellungen->Erweitert-"
 ">Kniffe->\n"
 "Algorithmus für Autorensortierung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
-msgstr "Kopiert alle Sortierung nach Autor- Einträge ins Autorenfeld"
+msgstr "Kopiert alle Autorensortierungs- Einträge in das Autorenfeld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:45
 msgid "Details of job"
@@ -13294,7 +13294,7 @@ msgstr "Kann keine Tastenkombination mit %s finden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:58
 msgid "Eject this device"
-msgstr "Diese Gerät auswerfen"
+msgstr "Dieses Gerät auswerfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:61
 msgid "Configure this device"
@@ -13753,17 +13753,17 @@ msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
 msgstr ""
-" Die grüne Farbe zeigt an, dass die derzeitige Sortierung nach Titel mit dem "
-"Titel übereinstimmt."
+" Die grüne Farbe zeigt an, dass die derzeitige Titelsortierung mit dem Titel "
+"übereinstimmt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:151
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
 msgstr ""
-" Die rote Farbe zeigt an, dass die derzeitige Sortierung nach Titel nicht "
-"mit dem Titel übereinstimmt. Es ist keine Maßnahme erforderlich sollten Sie "
-"dies so wünschen."
+" Die rote Farbe zeigt an, dass die derzeitige Titelsortierung nicht mit dem "
+"Titel übereinstimmt. Es ist keine Maßnahme erforderlich sollten Sie dies so "
+"wünschen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:225
 msgid "Authors changed"
@@ -13798,7 +13798,7 @@ msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
 msgstr ""
-" Die grüne Farbe zeigt an, dass die derzeitige Sortierung nach Autor mit dem "
+" Die grüne Farbe zeigt an, dass die derzeitige Autorensortierung mit dem "
 "Autor übereinstimmt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:323
@@ -13806,9 +13806,9 @@ msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
 msgstr ""
-" Die rote Farbe zeigt an, dass die derzeitige Sortierung nach Autor nicht "
-"mit dem Autor übereinstimmt. Es ist keine Maßnahme erforderlich sollten Sie "
-"dies so wünschen."
+" Die rote Farbe zeigt an, dass die derzeitige Autorensortierung nicht mit "
+"dem Autor übereinstimmt. Es ist keine Maßnahme erforderlich sollten Sie dies "
+"so wünschen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:502
 msgid "&Number:"
@@ -14081,9 +14081,9 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
-"Erstellt automatisch die Sortierung nach Titel anhand des aktuellen Titels.\n"
-"Bei Benutzung dieses Buttons wird das Feld \"Sortierung nach Title\" von Rot "
-"nach Grün wechseln."
+"Erstellt automatisch die Titelsortierung anhand des aktuellen Titels.\n"
+"Bei Benutzung dieses Buttons wird das Feld \"Titelsortierung\" von Rot nach "
+"Grün wechseln."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:126
 msgid ""
@@ -14100,11 +14100,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:132
 msgid "Set author sort from author"
-msgstr "\"Autor(en)\" in das \"Sortierung nach Autor\" -Feld setzen"
+msgstr "Die Autorensortierung aus Feld Autor übernehmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:133
 msgid "Set author from author sort"
-msgstr "\"Sortierung nach Autor\" in das \"Autor(en)\" -Feld setzen"
+msgstr "Autor aus Feld Autorensortierung übernehmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:136
 msgid "Copy author to author sort"
@@ -14310,7 +14310,7 @@ msgid ""
 "the default settings."
 msgstr ""
 "Einstellungen auf Standardwerte zurücksetzen. Zum tatsächlichen Speichern "
-"der Standardeinstellungen muß Übernehmen geklickt werden."
+"der Standardeinstellungen muß \"Anwenden\" geklickt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:340
 msgid "Configure "
@@ -15377,7 +15377,7 @@ msgstr "Farben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr ""
+msgstr "Sammle Debug-Informationen, bitte warten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -15386,7 +15386,7 @@ msgstr "In die Zwis&chenablage kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:43
 msgid "Device already detected"
-msgstr ""
+msgstr "Geräte bereits erkannt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:44
 #, python-format
@@ -15394,16 +15394,21 @@ msgid ""
 "A device (%s) is already detected by calibre. If you wish to debug the "
 "detection of another device, first disconnect this device."
 msgstr ""
+"Ein Gerät (%s) ist bereits von Calibre erkannt worden. Wenn Sie die "
+"Erkennung von einem anderen Gerät zu debuggen möchten, trennen Sie zuerst "
+"das angeschlossene Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
-msgstr ""
+msgstr "Debugging gescheitert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:58
 msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
 msgstr ""
+"Laufende Debug-Geräte-Erkennung fehlgeschlagen. Klicken Sie auf \"Zeige "
+"Details\" für weitere Informationen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -17167,9 +17172,9 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
-"Hinzufügen/bearbeiten von Tweaks für alle Plugins, die Sie installiert "
+"Hinzufügen/Bearbeiten von Tweaks für alle Plugins, die Sie installiert "
 "haben. Eine Anleitung für diesen Tweak sollte auf der Webseite, von der Sie "
-"dieses Plugin geladen haben verfügbar sein."
+"dieses Plugin geladen haben, verfügbar sein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:331
 msgid "Search for tweak"
@@ -17203,9 +17208,9 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
-"Werte für die Einstellungen werden unten gezeigt. Editiere sie um die "
-"Funktionalität von Calibre zu ändern. Dein Einstellungen werden erst nach "
-"einem <b>Neustart</b> von Calibre Wirkung haben."
+"Werte für die Einstellungen werden unten angezeigt. Editieren Sie sie, um "
+"das Verhalten von Calibre zu ändern. Ihre Änderungen werden erst nach einem "
+"<b>Neustart</b> von Calibre wirksam."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:116
 msgid "Edit tweaks for any custom plugins you have installed"
@@ -18797,7 +18802,7 @@ msgstr "Im Wörterbuch nachsch&lagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:475
 msgid "View &image..."
-msgstr ""
+msgstr "Betrachte Bild..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:478
 msgid "&Search for next occurrence"
@@ -18834,24 +18839,24 @@ msgstr "Ende des Abschnitts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:37
 msgid "Zoom &in"
-msgstr ""
+msgstr "Vergrößern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 msgid "Zoom &out"
-msgstr ""
+msgstr "Verkleinern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
 msgid "&Save as"
-msgstr ""
+msgstr "Speichern als"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:63
 msgid "Choose a file to save to"
-msgstr ""
+msgstr "Wählen Sie eine Datei zum speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:88
 #, python-format
 msgid "View Image: %s"
-msgstr ""
+msgstr "Zeige Bild: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -19939,7 +19944,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -19986,13 +19991,13 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
-"Widersprüchliche Werte für die Sortierung nach Autor\n"
+"Widersprüchliche Werte für die Autorensortierung\n"
 "Autor '{0}':\n"
 "'{1}' <> '{2}'\n"
 "MOBI Katalog kann nicht erstellt werden.\n"
 "\n"
 "Wählen Sie alle Bücher von '{0}' aus und korrigieren Sie den Wert für die "
-"Sortierung nach Autor unter \"Metadaten bearbeiten\". Erstellen Sie dann den "
+"Autorensortierung unter \"Metadaten bearbeiten\". Erstellen Sie dann den "
 "Katalog erneut.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:601
@@ -20001,8 +20006,8 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
-"Warnung: widersprüchliche Werte für Sortierung nach\n"
-"Autor '{0}':\n"
+"Warnung: widersprüchliche Werte für die Autorensortierung \n"
+"'{0}':\n"
 "'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:816
@@ -20898,7 +20903,7 @@ msgstr "Kennungen"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
-msgstr "Sortierung nach Autor"
+msgstr "Autorensortierung"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Series Sort"
@@ -23499,10 +23504,10 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
-"Datumsangaben enthalten ein Datum und eine Zeit. Wenn sortiert wird, werden "
-"alle Felder\n"
-"benutzt, unabhängig von dem, welches angezeigt wird. Setzte diese "
-"Optimierung auf True, um nur\n"
+"Datumsangaben enthalten ein Datum und eine Zeit. Zum Sortieren werden alle "
+"Felder\n"
+"benutzt, unabhängig davon, was angezeigt wird. Setzen Sie diese Optimierung "
+"auf True, um nur\n"
 "die Felder zu benutzen, die gerade angezeigt werden."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:379
@@ -23608,7 +23613,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:436
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
-"Die maximale Breite und Höhe für in der Calibre-Bibliothek gespeicherten "
+"Die maximale Breite und Höhe für in der Calibre-Bibliothek gespeicherte "
 "Umschlagbilder"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:437
@@ -23686,10 +23691,14 @@ msgid ""
 "on at your own risk!"
 msgstr ""
 "Wenn Sie diese Option einschalten und Calibre neu starten, wird die "
-"Werkzeugleiste mit der Titelleiste vereinheitlicht, wie bei OS X Programmen "
-"üblich. Diese Option hat jedoch noch verschiedene Bugs, zum Beispiel kann es "
-"sein, dass die Breite der Symbolleiste verdoppelt wird. Es können noch "
-"einige andere Bugs auftreten. Sie aktivieren diese Option auf eigene Gefahr!"
+"Werkzeugleiste\n"
+"mit der Titelleiste vereinheitlicht, wie bei OS X Programmen üblich. Diese "
+"Option hat\n"
+"jedoch noch verschiedene Bugs. Zum Beispiel kann es sein, dass die Breite "
+"der\n"
+"Symbolleiste verdoppelt wird. Es können noch einige andere Bugs auftreten. "
+"Sie\n"
+"aktivieren diese Option auf eigene Gefahr!"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:466
 msgid "Save original file when converting from same format to same format"
@@ -23720,9 +23729,9 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
-"Ein Rechtsklick auf den Anzeige-Knopf um kürzlich angesehene Bücher "
-"anzuzeigen. Stelle hier\n"
-"ein, wie viele angezeigt werden sollen."
+"Ein Rechtsklick auf den Anzeige-Knopf zeigt die kürzlich angesehenen "
+"Bücher.\n"
+"Stellen Sie hier ein, wie viele angezeigt werden sollen."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:478
 msgid "Change the font size of book details in the interface"
@@ -23767,7 +23776,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:494
 msgid "What format to default to when using the Tweak feature"
-msgstr "Welches Format standardmäßig für die Kniffes gewählt wird"
+msgstr "Welches Format standardmäßig für die Kniffe gewählt wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:495
 msgid ""
@@ -23798,306 +23807,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "'Zuletzt hinzugefügt' Abschnitt im Katalog einschließen.\n"
-#~ "Standard: '%default'\n"
-#~ "Betrifft: ePub und MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "'Titel' Abschnitt im Katalog einschließen.\n"
-#~ "Standard: '%default'\n"
-#~ "Betrifft: ePub und MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Titel des erzeugten Katalogs für die Verwendung in den Metadaten.\n"
-#~ "Standard: '%default'\n"
-#~ "Betrifft: ePub und MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Bestimmt das Ausgabeprofil. In einigen Fällen ist ein Ausgabeprofil "
-#~ "notwendig um den Katalog für ein Gerät zu optimieren. Beispielsweise erzeugt "
-#~ "'kindle' oder 'kindle_dx' eine strukturierte Inhaltstabelle mit Sektionen "
-#~ "und Artikeln.\n"
-#~ "Standard: '%default'\n"
-#~ "Betrifft: ePub und MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Serien- Sektion im Katalog erstellen.\n"
-#~ "Standard: '%default'\n"
-#~ "Angewendet bei: ePub-, MOBI- Ausgabeformaten"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern indicating book has been read.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Feldmuster, das anzeigt, dass das Buch gelesen wurde.\n"
-#~ "Standard: '%default'\n"
-#~ "Angewendet bei ePub und MOBI- Ausgabe"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Abschnitte zur Übernahme in den Katalog"
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Ausschlusskriterien"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "Breite der Vorschau"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr ""
-#~ "Zusätzliche Inhalte und Kommentare werden während der Katalogerzeugung "
-#~ "zusammengeführt"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Spalte/Wert"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "Bücher, die einem der Suchmuster entsprechen, werden nicht in den "
-#~ "generierten Katalog aufgenommen. "
-
-#~ msgid "Read books"
-#~ msgstr "Gelesene Bücher"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Entsprechende Bücher werden mit einem Häkchen versehen"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Spalte mit zusätzlichen Ausschlußkriterien"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Spalte mit 'Gelesen'- Status"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Größenhinweis für Umschlagbild- Vorschauen"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "Muster für 'Gelesenes Buch'"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "Kommentare und zusätzliche Inhalte durch horizontale Linie trennen"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Zusätzliche Inhalte vor den Kommentaren einfügen"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Zusätzliche Inhalte nach den Kommentaren einfügen"
-
-#~ msgid "&Description note"
-#~ msgstr "Beschreibungshinweis"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr ""
-#~ "Bücher, die als Wunschlisten- Eintrag gekennzeichnet sind, werden mit einem "
-#~ "X angezeigt"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "&Wunschlisten-Schlagwort"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>Komma separierte Liste von auszuschließenden Schlagwörtern.\n"
-#~ "Voreinstellung: ~,Catalog"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>Vorgabemuster \n"
-#~ " \\[.+\\]\n"
-#~ "schließt Schlagwörter der Form [tag] aus, \n"
-#~ " z.B. [Project Gutenberg]</p>"
-
-#, python-format
-#~ msgid ""
-#~ "Tag indicating book to be displayed as wishlist item.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Schlagwort, das anzeigt, dass das Buch auf der Wunschliste angezeigt werden "
-#~ "soll.\n"
-#~ "Standard: '%default'\n"
-#~ "Betrifft: ePub und MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Regex Ausdruck für Schlagwörter, die als Genres ausgeschlossen werden.\n"
-#~ "Standard: '%default' schließt in eckigen Klammern aufgeführe Schlagwörter "
-#~ "aus, z.B. '[<tag>]'\n"
-#~ "Betrifft: ePub und MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Save the output from different stages of the conversion pipeline to the "
-#~ "specified directory. Useful if you are unsure at which stage of the "
-#~ "conversion process a bug is occurring.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Speichern Sie die Ausgabe von verschiedenen Phasen der Konvertierungs-"
-#~ "Pipeline in das angegebene Verzeichnis. Nützlich, wenn Sie nicht sicher sind "
-#~ "in welchem Stadium des Konvertierungsprozesses ein Fehler auftritt.\n"
-#~ "Standard: '%default'\n"
-#~ "Gilt für: ePub, MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern specifying custom field/contents indicating book should be "
-#~ "excluded.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Feld: Benutzerdefinierte Felder/Inhalte - Muster für Bücher, welche "
-#~ "ausgeschlossen werden sollen.\n"
-#~ "Standard: '%default'\n"
-#~ "Gilt für: ePub, MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Authors' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "'Autoren' Sektion in den Katalog einfügen.\n"
-#~ "Standard: '%default'\n"
-#~ "Wird angewendet bei: ePub, MOBI Ausgabeformaten"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Descriptions' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "'Beschreibungen' Sektion in den Katalog einfügen.\n"
-#~ "Standard: '%default'\n"
-#~ "Wird angewendet bei: ePub, MOBI Ausgabeformaten"
-
-#, python-format
-#~ msgid ""
-#~ "Custom field containing note text to insert in Description header.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Benutzerdefiniertes Feld mit Notizen für den Beschreibungskopf.\n"
-#~ "Standard: '%default'\n"
-#~ "Wird angewendet bei: ePub, MOBI Ausgabeformaten"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Genres' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "'Genre' Sektion in den Katalog einfügen.\n"
-#~ "Standard: '%default'\n"
-#~ "Wird angewendet bei: ePub, MOBI Ausgabeformaten"
-
-#~ msgid "Getting debug information"
-#~ msgstr "Erhalte Information zur Fehlerdiagnose"
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr "Benutzerdefinierte Spaltenquelle für Notizen in der Beschreibung"
-
-#, python-format
-#~ msgid ""
-#~ "Comma-separated list of tag words indicating book should be excluded from "
-#~ "output. For example: 'skip' will match 'skip this book' and 'Skip will like "
-#~ "this'. Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Durch ein Komma getrennte Liste mit Tags die angeben, welche Bücher von der "
-#~ "Ausgabe ausgenommen sind. Zum Beispiel: 'skip' wird 'skip this book' und "
-#~ "'Skip will like this' erzielen. Standard: '%default'\n"
-#~ "Angewendet auf: ePub, MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "Size hint (in inches) for book covers in catalog.\n"
-#~ "Range: 1.0 - 2.0\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Empfehlung für die Größe des Buchcovers (in Inches) im Katalog.\n"
-#~ "Berreich: 1.0 - 2.0\n"
-#~ "Standard: '%default'\n"
-#~ "Gilt für ePub und Mobi Ausgabeformate"
-
-#, python-format
-#~ msgid ""
-#~ "<custom field>:[before|after]:[True|False] specifying:\n"
-#~ " <custom field> Custom field containing notes to merge with Comments\n"
-#~ " [before|after] Placement of notes with respect to Comments\n"
-#~ " [True|False] - A horizontal rule is inserted between notes and Comments\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "<custom field>:[before|after]:[True|False] Bedeutung:\n"
-#~ " <custom field> Benutzerdefiniertes Feld (costom field) mit Notizen mit den "
-#~ "Kommentaren zusammenführen\n"
-#~ " [before|after] Setzen von Notizen mit Rücksicht auf die Kommentare\n"
-#~ " [True|False] - Eine horizontale Linie wird zwischen Notiz und Kommentar "
-#~ "eingefügt\n"
-#~ "Standard: '%default'\n"
-#~ "Betrifft: ePub, MOBI Ausgabeformate"
-
-#, python-format
-#~ msgid "Sending book %s to device failed"
-#~ msgstr "Senden des Buches %s zum Device fehlgeschlagen"
-
-#~ msgid "Protocol error -- book metadata not returned"
-#~ msgstr "Protokollfehler -- Metadaten des Buches nicht zurückgegeben"
-
-#~ msgid "request for book data failed"
-#~ msgstr "Anfrage nach Buch-Daten ist fehlgeschlagen."
-
-#~ msgid "Device closed the network connection"
-#~ msgstr "Gerät hat die Netzwerkverbindung getrennt."
-
-#~ msgid "Device did not respond in reasonable time"
-#~ msgstr "Das Gerät hat nach einer bestimmten Zeit nicht geantwortet."
-
-#~ msgid "Protocol error - delete books"
-#~ msgstr "Protokoll Fehler- Bücher löschen"
-
-#~ msgid "Protocol error -- sync_booklists"
-#~ msgstr "Protokoll Fehler -- sync_booklists"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
 "PO-Revision-Date: 2012-07-27 11:49+0000\n"
 "Last-Translator: Rafael Antonio Belokurows <rafadv123@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:55+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:43+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18640,7 +18640,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -22013,115 +22013,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Getting debug information"
-#~ msgstr "Coletando informações de depuração"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "tags Regex descrevendo para excluir generos\n"
-#~ "Padrão: '%default' exclui tags entre colchetes, ex. '[<tag>]'\n"
-#~ "Aplicado em: arquivos de saída ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Título do catálogo gerado usado como título no metadado.\n"
-#~ "Padrão: '%default'\n"
-#~ "Aplicado em: arquivos de saída ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Inclui a seção 'Adicionado Recentemente' no catálogo.\n"
-#~ "Padrão: '%default'\n"
-#~ "Aplicado em: arquivos de saída ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Incluir seção 'Títulos' no catálogo.\n"
-#~ "Padrão: '%default'\n"
-#~ "Aplicado em: arquivos de saída ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Especifica o perfil de saída. Em alguns casos, um perfil de saída é "
-#~ "necessário para otimizar o catálogo para o dispositivo. Por exemplo, "
-#~ "'kindle' ou 'kindle_dx' cria um Sumário estruturado com Seções e Artigos.\n"
-#~ "Padrão: '%default'\n"
-#~ "Aplicado em: arquivos de saída ePub, MOBI"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Sessões a serem incluidas no catálogo."
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Padrão de exclusão"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Coluna contendo critérios adicionais de exclusão"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "Livros contendo estes padrões não serão incluidos no catálogo gerado. "
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "Livros marcados como 'Item Desejado' serão mostrados com um X"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Coluna contendo o 'status de leitura'"
-
-#~ msgid "Read books"
-#~ msgstr "Ler livros"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Fundir conteúdo adicional antes dos Comentários"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr ""
-#~ "Conteúdo adicional fundido com Comentários durante a geração do catálogo"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Fundir conteúdo adicional depois dos Comentários"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "padrão 'ler livro'"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr "Separe comentários e conteúdos adicionais com uma linha horizontal"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Coluna/valor"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "&Largura da Miniatura"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Tamanho da sugestão para a Descrição da miniatura da capa"
-
-#~ msgid "&Description note"
-#~ msgstr "&Nota de Descrição"
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Livros selecionados serão mostrado com uma marcação"

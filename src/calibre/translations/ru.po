@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-10 03:42+0000\n"
-"PO-Revision-Date: 2012-08-04 15:27+0000\n"
+"POT-Creation-Date: 2012-08-10 06:01+0000\n"
+"PO-Revision-Date: 2012-08-10 14:12+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-08-10 04:50+0000\n"
-"X-Generator: Launchpad (build 15761)\n"
+"X-Launchpad-Export-Date: 2012-08-11 05:38+0000\n"
+"X-Generator: Launchpad (build 15780)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1848,11 +1848,11 @@ msgstr "Установить связь с Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:23
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP Устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:25
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "Соединиться с MTP устройством"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2099,7 +2099,7 @@ msgstr "Включите это поле при проблемах с отчёт
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:514
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Слишком много попыток соединения из %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:621
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -5562,11 +5562,11 @@ msgstr "Создание каталога завершено с некоторы
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:86
 msgid "Catalog generated."
-msgstr "Каталог произведен."
+msgstr "Каталог создан."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:89
 msgid "Export Catalog Directory"
-msgstr "Экспортировать каталог директории"
+msgstr "Экспортировать папку Каталога"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:90
 #, python-format
@@ -7450,7 +7450,7 @@ msgstr "Параметры книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:218
 msgid "Enabled sections will be included in the generated catalog."
-msgstr ""
+msgstr "Выделенные секции будут включены и создаваемый каталог."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:219
 msgid "Included sections"
@@ -7487,6 +7487,10 @@ msgid ""
 "The default pattern \\[.+\\]|\\+ excludes tags of the form [tag], e.g., "
 "[Test book], and '+', the default tag for a read book."
 msgstr ""
+"Регулярное выражение описывающее жанры, которые надо исключить из "
+"создаваемого каталога. Жанры полученные из тэгов применяются к книгам.\n"
+"По умолчанию шаблон \\[.+\\]|\\+ исключает тэги в виде [tag], например [Test "
+"book], и '+', тэг по умолчанию для читаемой книги."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:228
 msgid "Excluded genres"
@@ -7498,13 +7502,15 @@ msgstr "Тэги для &исключения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:230
 msgid "Reset to default"
-msgstr ""
+msgstr "Сбросить по умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:232
 msgid ""
 "Books matching any of the exclusion rules will be excluded from the "
 "generated catalog. "
 msgstr ""
+"Книги совпадающие с одним из исключающих правил не войдут в создаваемый "
+"каталог. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:233
 msgid "Excluded books"
@@ -7515,10 +7521,12 @@ msgid ""
 "The first matching prefix rule applies a prefix to book listings in the "
 "generated catalog."
 msgstr ""
+"Первое совпадающее правило префикса применяет префикс к записям книги в "
+"создаваемом каталоге."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:235
 msgid "Prefixes"
-msgstr ""
+msgstr "Префиксы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:236
 msgid "Other options"
@@ -7526,11 +7534,12 @@ msgstr "Другие настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:237
 msgid "&Thumb width"
-msgstr ""
+msgstr "Ширина иконки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:238
 msgid "Size hint for cover thumbnails included in Descriptions section."
 msgstr ""
+"Подсказка размера для миниатюры обложки включённой в Раздел описания."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:239
 msgid " inch"
@@ -19565,7 +19574,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:144
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
-"items and other user-specifed prefixes.\n"
+"items and other user-specified prefixes.\n"
 "The model for a prefix rule is ('<rule name>','<source "
 "field>','<pattern>','<prefix>').\n"
 "When multiple rules are defined, the first matching rule will be used.\n"
@@ -23579,302 +23588,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Getting debug information"
-#~ msgstr "Получение отладочной информации"
-
-#~ msgid "Exclusion pattern"
-#~ msgstr "Шаблон исключения"
-
-#~ msgid "&Column/value"
-#~ msgstr "&Столбец/значение"
-
-#~ msgid "Read books"
-#~ msgstr "Прочитанные книги"
-
-#~ msgid "&Thumbnail width"
-#~ msgstr "Ширина миниатюр"
-
-#~ msgid "'read book' pattern"
-#~ msgstr "шаблон 'Прочитанные книги'"
-
-#~ msgid "Column containing 'read' status"
-#~ msgstr "Колонка содержащая статус 'прочитано'"
-
-#~ msgid "Merge additional content before Comments"
-#~ msgstr "Объединение дополнительного контента перед Комментариями"
-
-#~ msgid "Size hint for Description cover thumbnails"
-#~ msgstr "Размер подсказок для Описания эскизов обложек"
-
-#~ msgid ""
-#~ "<p>Comma-separated list of tags to exclude.\n"
-#~ "Default: ~,Catalog"
-#~ msgstr ""
-#~ "<p>Список исключаемых тегов через запятую.\n"
-#~ "По умолчанию: ~,Catalog"
-
-#~ msgid "Column containing additional exclusion criteria"
-#~ msgstr "Столбец, содержащий дополнительные критерии исключения"
-
-#~ msgid "Sections to include in catalog."
-#~ msgstr "Разделы для включения в каталог."
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Recently Added' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Включить раздел 'Недавно добавленные' в каталог\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Применимо к: форматы вывода ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Titles' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Включить раздел 'Заголовок' в каталог\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Применимо к: форматы вывода ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Authors' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Включить раздел 'Авторы' в каталог\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Применимо к: форматы вывода ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Descriptions' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Включить раздел 'Описание' в каталог\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Применимо к: форматы вывода ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Series' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Включить раздел 'Серии' в каталог\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Применимо к: форматы вывода ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Include 'Genres' section in catalog.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Включить раздел 'Жанры' в каталог\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Применимо к: форматы вывода ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Size hint (in inches) for book covers in catalog.\n"
-#~ "Range: 1.0 - 2.0\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Размер подсказки (в дюймах) для обложки книг в каталоге.\n"
-#~ "Диапазон: 1.0 - 2.0\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к выходным форматам ePub, MOBI"
-
-#~ msgid ""
-#~ "Books matching either pattern will not be included in generated catalog. "
-#~ msgstr ""
-#~ "Книги, соответствующие шаблону, не будут включены в генерируемый каталог. "
-
-#~ msgid "Matching books will be displayed with a check mark"
-#~ msgstr "Соответствующие книги будут отображаться с галочкой"
-
-#~ msgid ""
-#~ "<p>Default pattern \n"
-#~ "\\[.+\\]\n"
-#~ "excludes tags of the form [tag], \n"
-#~ "e.g., [Project Gutenberg]</p>"
-#~ msgstr ""
-#~ "<p>Шаблон по умолчанию \n"
-#~ "\\[.+\\]\n"
-#~ "исключая тэги из [tag], \n"
-#~ "например, [Project Gutenberg]</p>"
-
-#~ msgid "Books tagged as Wishlist items will be displayed with an X"
-#~ msgstr "Книги отмеченые этим тэгом будут отображаться с Х"
-
-#~ msgid "&Wishlist tag"
-#~ msgstr "Тэг для пометки"
-
-#, python-format
-#~ msgid ""
-#~ "Tag indicating book to be displayed as wishlist item.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Тэг указывает книге отображаться как осбый объект.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к форматам: ePub, MOBI"
-
-#~ msgid "Additional content merged with Comments during catalog generation"
-#~ msgstr ""
-#~ "Дополнительная информация соединяется с комментариями в процессе создания "
-#~ "каталога"
-
-#~ msgid "Merge additional content after Comments"
-#~ msgstr "Объединить дополнительные данные после комментариев"
-
-#~ msgid "Separate Comments and additional content with horizontal rule"
-#~ msgstr ""
-#~ "Разделить комментарии и дополнительное содержание горизонтальной линией"
-
-#, python-format
-#~ msgid ""
-#~ "Custom field containing note text to insert in Description header.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Выберите поле содержащее текст для вставки в заголовок описания\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Title of generated catalog used as title in metadata.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Заголовок созданного каталога испльзуется как заголовок метаданных.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Save the output from different stages of the conversion pipeline to the "
-#~ "specified directory. Useful if you are unsure at which stage of the "
-#~ "conversion process a bug is occurring.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Сохранить вывод с различных этапов преобразования в указанную папку. Полезно "
-#~ "если вы не уверены на каком этапе преобразования появляется ошибка.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Regex describing tags to exclude as genres.\n"
-#~ "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Регулярное выражение описывающее тэги для исключения как жанров.\n"
-#~ "По умолчанию: '%default' исключая тэги в скобках, например '[<tag>]'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "Specifies the output profile.  In some cases, an output profile is required "
-#~ "to optimize the catalog for the device.  For example, 'kindle' or "
-#~ "'kindle_dx' creates a structured Table of Contents with Sections and "
-#~ "Articles.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Определяет выходной набор настроек(профиль). В некоторых случаях, выходные "
-#~ "настройки требуют оптимизировать папку для устройства. Например, 'kindle' "
-#~ "или 'kindle_dx' создают упорядоченное оглавление с Отделами и Статьями.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern indicating book has been read.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "поле:шаблон означающие прочтённую книгу.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#~ msgid "&Description note"
-#~ msgstr "Описание"
-
-#~ msgid "Custom column source for note to include in Description header area"
-#~ msgstr ""
-#~ "Выберите пользовательский столбец, который будет включён в раздел описания"
-
-#, python-format
-#~ msgid ""
-#~ "Comma-separated list of tag words indicating book should be excluded from "
-#~ "output. For example: 'skip' will match 'skip this book' and 'Skip will like "
-#~ "this'. Default: '%default'\n"
-#~ "Applies to: ePub, MOBI output formats"
-#~ msgstr ""
-#~ "Разделённый запятыми список тэгов-слов указывающих книгу, которая должна "
-#~ "быть удалена из вывода. Например: 'skip' совпадает с 'skip this book' и "
-#~ "'Skip will like this'.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "field:pattern specifying custom field/contents indicating book should be "
-#~ "excluded.\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "поле:шаблон указанное пользовательское поле/содержание означает исключаемую "
-#~ "книгу.\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#, python-format
-#~ msgid ""
-#~ "<custom field>:[before|after]:[True|False] specifying:\n"
-#~ " <custom field> Custom field containing notes to merge with Comments\n"
-#~ " [before|after] Placement of notes with respect to Comments\n"
-#~ " [True|False] - A horizontal rule is inserted between notes and Comments\n"
-#~ "Default: '%default'\n"
-#~ "Applies to ePub, MOBI output formats"
-#~ msgstr ""
-#~ "<custom field>:[before|after]:[True|False] указывает:\n"
-#~ " <custom field> Пользовательское поле содержащее записи для объединения с "
-#~ "Комментариями\n"
-#~ " [before|after] Положение записей по отношению к Комментариям\n"
-#~ " [True|False] - Горизонтальная линия, вставляемая между записями и "
-#~ "Комментариями\n"
-#~ "По умолчанию: '%default'\n"
-#~ "Относится к: выходным форматам ePub, MOBI"
-
-#~ msgid "Device closed the network connection"
-#~ msgstr "Устройство закрыло сетевое соединение"
-
-#~ msgid "Device did not respond in reasonable time"
-#~ msgstr "Устройство не ответило за приемлимое время"
-
-#~ msgid "request for book data failed"
-#~ msgstr "запрос данных книги не удался"
-
-#~ msgid "Protocol error - delete books"
-#~ msgstr "Ошибка протокола -- удаление книг"
-
-#, python-format
-#~ msgid "Sending book %s to device failed"
-#~ msgstr "Передача книги %s на устройство не удалась"
-
-#~ msgid "Protocol error -- sync_booklists"
-#~ msgstr "Ошибка протокола -- sync_booklists"
-
-#~ msgid "Protocol error -- book metadata not returned"
-#~ msgstr "Ошибка протокола -- метаданные книги не вернулись"
