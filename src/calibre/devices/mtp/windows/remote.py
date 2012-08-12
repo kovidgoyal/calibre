@@ -78,6 +78,6 @@ def test():
     print (list(get_subkeys(dev)))
 
 if __name__ == '__main__':
-    # main()
-    winutil()
+    main()
+    # winutil()
 
