@@ -141,7 +141,7 @@ class EPUB_MOBI(CatalogPlugin):
                           default="(('Read books','tags','+','\u2713'),('Wishlist items','tags','Wishlist','\u00d7'))",
                           dest='prefix_rules',
                           action=None,
-                          help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specifed prefixes.\n"
+                          help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
                           "The model for a prefix rule is ('<rule name>','<source field>','<pattern>','<prefix>').\n"
                           "When multiple rules are defined, the first matching rule will be used.\n"
                           "Default:\n" + '"' + '%default' + '"' + "\n"
@@ -174,14 +174,14 @@ class EPUB_MOBI(CatalogPlugin):
         if op is None:
             op = 'default'
 
-        if opts.connected_device['name'] and \
-                opts.connected_device['short_name'] in ['kindle','kindle dx']:
+        if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
             opts.connected_kindle = True
             if opts.connected_device['serial'] and \
                opts.connected_device['serial'][:4] in ['B004','B005']:
                 op = "kindle_dx"
             else:
                 op = "kindle"
+
         opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 100
         opts.authorClip = 100 if op.endswith('dx') or 'kindle' not in op else 60
         opts.output_profile = op
@@ -384,9 +384,6 @@ class EPUB_MOBI(CatalogPlugin):
                 new_cover_path.write(new_cover)
                 new_cover_path.close()
                 recommendations.append(('cover', new_cover_path.name, OptionRecommendation.HIGH))
-
-            if opts.verbose:
-                log.info("Invoking Plumber with recommendations:\n %s" % recommendations)
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber

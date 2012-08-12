@@ -14,13 +14,9 @@ from calibre.gui2 import gprefs, question_dialog
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4 import QtGui
-from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox, QDialog,
-                      QDialogButtonBox, QDoubleSpinBox,
-                      QHBoxLayout, QIcon, QLabel, QLineEdit,
-                      QPlainTextEdit, QRadioButton, QSize, QSizePolicy,
-                      QTableWidget, QTableWidgetItem, QTimer,
-                      QToolButton, QVBoxLayout, QWidget)
+from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
+        QDoubleSpinBox, QIcon, QLineEdit, QRadioButton, QSize, QSizePolicy,
+        QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout, QWidget)
 
 class PluginWidget(QWidget,Ui_Form):
 
@@ -549,9 +545,9 @@ class GenericRulesTable(QTableWidget):
         first = rows[0].row() + 1
         last = rows[-1].row() + 1
 
-        message = '<p>Are you sure you want to delete rule %d?' % first
+        message = _('Are you sure you want to delete rule %d?') % first
         if len(rows) > 1:
-            message = '<p>Are you sure you want to delete rules %d-%d?' % (first, last)
+            message = _('Are you sure you want to delete rules %d-%d?') % (first, last)
         if not question_dialog(self, _('Are you sure?'), message, show_copy_button=False):
             return
         first_sel_row = self.currentRow()
@@ -656,9 +652,9 @@ class GenericRulesTable(QTableWidget):
 class ExclusionRules(GenericRulesTable):
 
     COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
-                'NAME':   {'ordinal': 1, 'name': 'Name'},
-                'FIELD':  {'ordinal': 2, 'name': 'Field'},
-                'PATTERN':  {'ordinal': 3, 'name': 'Value'},}
+                'NAME':   {'ordinal': 1, 'name': _('Name')},
+                'FIELD':  {'ordinal': 2, 'name': _('Field')},
+                'PATTERN':  {'ordinal': 3, 'name': _('Value')},}
 
     def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
         super(ExclusionRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
@@ -764,15 +760,15 @@ class ExclusionRules(GenericRulesTable):
         elif source_field == 'Tags':
             values = sorted(self.db.all_tags(), key=sort_key)
         else:
-            if self.eligible_custom_fields[source_field]['datatype'] in ['enumeration', 'text']:
+            if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:
                 values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                            self.eligible_custom_fields[source_field]['field']))
+                                            self.eligible_custom_fields[unicode(source_field)]['field']))
                 values = sorted(values, key=sort_key)
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['bool']:
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['bool']:
                 values = ['True','False','unspecified']
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['composite']:
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['composite']:
                 values = ['any value','unspecified']
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['datetime']:
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['datetime']:
                 values = ['any date','unspecified']
 
         values_combo = ComboBox(self, values, pattern)
@@ -781,10 +777,10 @@ class ExclusionRules(GenericRulesTable):
 class PrefixRules(GenericRulesTable):
 
     COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
-                'NAME':   {'ordinal': 1, 'name': 'Name'},
-                'PREFIX': {'ordinal': 2, 'name': 'Prefix'},
-                'FIELD':  {'ordinal': 3, 'name': 'Field'},
-                'PATTERN':{'ordinal': 4, 'name': 'Value'},}
+                'NAME':   {'ordinal': 1, 'name': _('Name')},
+                'PREFIX': {'ordinal': 2, 'name': _('Prefix')},
+                'FIELD':  {'ordinal': 3, 'name': _('Field')},
+                'PATTERN':{'ordinal': 4, 'name': _('Value')},}
 
     def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
         super(PrefixRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
@@ -1039,15 +1035,15 @@ class PrefixRules(GenericRulesTable):
         elif source_field == 'Tags':
             values = sorted(self.db.all_tags(), key=sort_key)
         else:
-            if self.eligible_custom_fields[source_field]['datatype'] in ['enumeration', 'text']:
+            if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:
                 values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                            self.eligible_custom_fields[source_field]['field']))
+                                            self.eligible_custom_fields[unicode(source_field)]['field']))
                 values = sorted(values, key=sort_key)
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['bool']:
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['bool']:
                 values = ['True','False','unspecified']
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['composite']:
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['composite']:
                 values = ['any value','unspecified']
-            elif self.eligible_custom_fields[source_field]['datatype'] in ['datetime']:
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['datetime']:
                 values = ['any date','unspecified']
 
         values_combo = ComboBox(self, values, pattern)

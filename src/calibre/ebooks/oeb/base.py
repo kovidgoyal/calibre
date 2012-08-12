@@ -1541,6 +1541,8 @@ class TOC(object):
             if title:
                 title = re.sub(r'\s+', ' ', title)
             element(label, NCX('text')).text = title
+            # Do not unescape this URL as ADE requires it to be escaped to
+            # handle semi colons and other special characters in the file names
             element(point, NCX('content'), src=node.href)
             node.to_ncx(point)
         return parent

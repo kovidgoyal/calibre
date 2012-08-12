@@ -15,7 +15,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, is_date_undefined, now as nowf
 from calibre.utils.filenames import ascii_text
-from calibre.utils.icu import capitalize, sort_key
+from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile
 
@@ -517,19 +517,19 @@ class CatalogBuilder(object):
         self.generateOPF()
         self.generateNCXHeader()
         if self.opts.generate_authors:
-            self.generateNCXByAuthor("Authors")
+            self.generateNCXByAuthor(_("Authors"))
         if self.opts.generate_titles:
-            self.generateNCXByTitle("Titles")
+            self.generateNCXByTitle(_("Titles"))
         if self.opts.generate_series:
-            self.generateNCXBySeries("Series")
+            self.generateNCXBySeries(_("Series"))
         if self.opts.generate_genres:
-            self.generateNCXByGenre("Genres")
+            self.generateNCXByGenre(_("Genres"))
         if self.opts.generate_recently_added:
-            self.generateNCXByDateAdded("Recently Added")
+            self.generateNCXByDateAdded(_("Recently Added"))
             if self.generateRecentlyRead:
-                self.generateNCXByDateRead("Recently Read")
+                self.generateNCXByDateRead(_("Recently Read"))
         if self.opts.generate_descriptions:
-            self.generateNCXDescriptions("Descriptions")
+            self.generateNCXDescriptions(_("Descriptions"))
 
         self.writeNCX()
         return True
@@ -673,7 +673,8 @@ Author '{0}':
             for record in data:
                 matched = list(set(record['tags']) & set(exclude_tags))
                 if matched :
-                    self.opts.log.info("    - %s (Exclusion rule Tags: '%s')" % (record['title'], str(matched[0])))
+                    self.opts.log.info("     - %s by %s (Exclusion rule Tags: '%s')" %
+                        (record['title'], record['authors'][0], str(matched[0])))
 
         search_phrase = ''
         if exclude_tags:
@@ -960,7 +961,7 @@ Author '{0}':
             aTag['id'] = "bytitle"
             pTag.insert(ptc,aTag)
             ptc += 1
-            pTag.insert(ptc,NavigableString('Titles'))
+            pTag.insert(ptc,NavigableString(_('Titles')))
 
         body.insert(btc,pTag)
         btc += 1
@@ -976,6 +977,9 @@ Author '{0}':
             nspt = sorted(nspt, key=lambda x: sort_key(x['title_sort'].upper()))
             self.booksByTitle_noSeriesPrefix = nspt
 
+        # Establish initial letter equivalencies
+        sort_equivalents = self.establish_equivalencies(self.booksByTitle, key='title_sort')
+
         # Loop through the books by title
         # Generate one divRunningTag per initial letter for the purposes of
         # minimizing widows and orphans on readers that can handle large
@@ -985,8 +989,8 @@ Author '{0}':
             title_list = self.booksByTitle_noSeriesPrefix
         drtc = 0
         divRunningTag = None
-        for book in title_list:
-            if self.letter_or_symbol(book['title_sort'][0]) != current_letter :
+        for idx, book in enumerate(title_list):
+            if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
                 # Start a new letter
                 if drtc and divRunningTag is not None:
                     divTag.insert(dtc, divRunningTag)
@@ -998,13 +1002,15 @@ Author '{0}':
                 pIndexTag = Tag(soup, "p")
                 pIndexTag['class'] = "author_title_letter_index"
                 aTag = Tag(soup, "a")
-                current_letter = self.letter_or_symbol(book['title_sort'][0])
+                current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 if current_letter == self.SYMBOLS:
-                    aTag['id'] = self.SYMBOLS
+                    aTag['id'] = self.SYMBOLS + "_titles"
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(self.SYMBOLS))
                 else:
-                    aTag['id'] = "%s" % self.generateUnicodeName(current_letter)
-                pIndexTag.insert(0,aTag)
-                pIndexTag.insert(1,NavigableString(self.letter_or_symbol(book['title_sort'][0])))
+                    aTag['id'] = self.generateUnicodeName(current_letter) + "_titles"
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(sort_equivalents[idx]))
                 divRunningTag.insert(dtc,pIndexTag)
                 drtc += 1
 
@@ -1079,7 +1085,7 @@ Author '{0}':
         '''
         self.updateProgressFullStep("'Authors'")
 
-        friendly_name = "Authors"
+        friendly_name = _("Authors")
 
         soup = self.generateHTMLEmptyHeader(friendly_name)
         body = soup.find('body')
@@ -1100,11 +1106,14 @@ Author '{0}':
         current_author = ''
         current_letter = ''
         current_series = None
-        #for book in sorted(self.booksByAuthor, key = self.booksByAuthorSorter_author_sort):
-        for book in self.booksByAuthor:
+        # Establish initial letter equivalencies
+        sort_equivalents = self.establish_equivalencies(self.booksByAuthor,key='author_sort')
 
+        #for book in sorted(self.booksByAuthor, key = self.booksByAuthorSorter_author_sort):
+        #for book in self.booksByAuthor:
+        for idx, book in enumerate(self.booksByAuthor):
             book_count += 1
-            if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
+            if self.letter_or_symbol(sort_equivalents[idx]) != current_letter :
                 # Start a new letter with Index letter
                 if divOpeningTag is not None:
                     divTag.insert(dtc, divOpeningTag)
@@ -1124,13 +1133,16 @@ Author '{0}':
                 pIndexTag = Tag(soup, "p")
                 pIndexTag['class'] = "author_title_letter_index"
                 aTag = Tag(soup, "a")
-                current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
+                #current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
+                current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 if current_letter == self.SYMBOLS:
                     aTag['id'] = self.SYMBOLS + '_authors'
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(self.SYMBOLS))
                 else:
-                    aTag['id'] = "%s_authors" % self.generateUnicodeName(current_letter)
-                pIndexTag.insert(0,aTag)
-                pIndexTag.insert(1,NavigableString(self.letter_or_symbol(book['author_sort'][0].upper())))
+                    aTag['id'] = self.generateUnicodeName(current_letter) + '_authors'
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(sort_equivalents[idx]))
                 divOpeningTag.insert(dotc,pIndexTag)
                 dotc += 1
 
@@ -1180,7 +1192,7 @@ Author '{0}':
                 if self.opts.generate_series:
                     aTag = Tag(soup,'a')
                     aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                                    re.sub('\W','',book['series']).lower())
+                                                    re.sub('\s','',book['series']).lower())
                     aTag.insert(0, book['series'])
                     pSeriesTag.insert(0, aTag)
                 else:
@@ -1282,7 +1294,7 @@ Author '{0}':
         def add_books_to_HTML_by_month(this_months_list, dtc):
             if len(this_months_list):
 
-                #this_months_list = sorted(this_months_list, key=self.booksByAuthorSorter_author_sort)
+                this_months_list = sorted(this_months_list, key=self.booksByAuthorSorter_author_sort)
 
                 # Create a new month anchor
                 date_string = strftime(u'%B %Y', current_date.timetuple())
@@ -1307,7 +1319,7 @@ Author '{0}':
                         pAuthorTag['class'] = "author_index"
                         aTag = Tag(soup, "a")
                         if self.opts.generate_authors:
-                            aTag['id'] = "%s" % self.generateAuthorAnchor(current_author)
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(current_author))
                         aTag.insert(0,NavigableString(current_author))
                         pAuthorTag.insert(0,aTag)
                         divTag.insert(dtc,pAuthorTag)
@@ -1425,7 +1437,7 @@ Author '{0}':
                     dtc += 1
             return dtc
 
-        friendly_name = "Recently Added"
+        friendly_name = _("Recently Added")
 
         soup = self.generateHTMLEmptyHeader(friendly_name)
         body = soup.find('body')
@@ -1518,7 +1530,7 @@ Author '{0}':
         '''
         Write books by active bookmarks
         '''
-        friendly_name = 'Recently Read'
+        friendly_name = _('Recently Read')
         self.updateProgressFullStep("'%s'" % friendly_name)
         if not self.bookmarked_books:
             return
@@ -1710,6 +1722,8 @@ Author '{0}':
 
         # Fetch the database as a dictionary
         data = self.plugin.search_sort_db(self.db, self.opts)
+
+        # Remove exclusions
         self.booksBySeries = self.processExclusions(data)
 
         if not self.booksBySeries:
@@ -1717,24 +1731,25 @@ Author '{0}':
             self.opts.log(" no series found in selected books, cancelling series generation")
             return
 
-        friendly_name = "Series"
+        # Generate series_sort
+        for book in self.booksBySeries:
+            book['series_sort'] = self.generateSortTitle(book['series'])
+
+        friendly_name = _("Series")
 
         soup = self.generateHTMLEmptyHeader(friendly_name)
         body = soup.find('body')
 
         btc = 0
 
-        # Insert section tag
+        pTag = Tag(soup, "p")
+        pTag['style'] = 'display:none'
+        ptc = 0
         aTag = Tag(soup,'a')
-        aTag['name'] = 'section_start'
-        body.insert(btc, aTag)
-        btc += 1
-
-        # Insert the anchor
-        aTag = Tag(soup, "a")
-        anchor_name = friendly_name.lower()
-        aTag['name'] = anchor_name.replace(" ","")
-        body.insert(btc, aTag)
+        aTag['id'] = 'section_start'
+        pTag.insert(ptc, aTag)
+        ptc += 1
+        body.insert(btc, pTag)
         btc += 1
 
         divTag = Tag(soup, "div")
@@ -1742,23 +1757,29 @@ Author '{0}':
         current_letter = ""
         current_series = None
 
+        # Establish initial letter equivalencies
+        sort_equivalents = self.establish_equivalencies(self.booksBySeries, key='series_sort')
+
         # Loop through booksBySeries
         series_count = 0
-        for book in self.booksBySeries:
+        for idx, book in enumerate(self.booksBySeries):
             # Check for initial letter change
-            sort_title = self.generateSortTitle(book['series'])
-            if self.letter_or_symbol(sort_title[0].upper()) != current_letter :
+            if self.letter_or_symbol(sort_equivalents[idx]) != current_letter :
                 # Start a new letter with Index letter
-                current_letter = self.letter_or_symbol(sort_title[0].upper())
+                current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 pIndexTag = Tag(soup, "p")
                 pIndexTag['class'] = "series_letter_index"
                 aTag = Tag(soup, "a")
-                aTag['name'] = "%s_series" % self.letter_or_symbol(current_letter)
-                pIndexTag.insert(0,aTag)
-                pIndexTag.insert(1,NavigableString(self.letter_or_symbol(sort_title[0].upper())))
+                if current_letter == self.SYMBOLS:
+                    aTag['id'] = self.SYMBOLS + "_series"
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(self.SYMBOLS))
+                else:
+                    aTag['id'] = self.generateUnicodeName(current_letter) + "_series"
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(sort_equivalents[idx]))
                 divTag.insert(dtc,pIndexTag)
                 dtc += 1
-
             # Check for series change
             if book['series'] != current_series:
                 # Start a new series
@@ -1767,7 +1788,10 @@ Author '{0}':
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
                 aTag = Tag(soup, 'a')
-                aTag['name'] = "%s_series" % re.sub('\W','',book['series']).lower()
+                if self.letter_or_symbol(book['series']):
+                    aTag['id'] = "symbol_%s_series" % re.sub('\W','',book['series']).lower()
+                else:
+                    aTag['id'] = "%s_series" % re.sub('\W','',book['series']).lower()
                 pSeriesTag.insert(0,aTag)
                 pSeriesTag.insert(1,NavigableString('%s' % book['series']))
                 divTag.insert(dtc,pSeriesTag)
@@ -1830,7 +1854,7 @@ Author '{0}':
             pTag['class'] = 'title'
             aTag = Tag(soup, "a")
             anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
+            aTag['id'] = anchor_name.replace(" ","")
             pTag.insert(0,aTag)
             #h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, series_count)))
             pTag.insert(1,NavigableString('%s' % friendly_name))
@@ -1984,7 +2008,7 @@ Author '{0}':
                 thumb_generated = False
 
             if not thumb_generated:
-                self.opts.log.warn(" using default cover for '%s' (%d)" % (title['title'], title['id']))
+                self.opts.log.warn("     using default cover for '%s' (%d)" % (title['title'], title['id']))
                 # Confirm thumb exists, default is current
                 default_thumb_fp = os.path.join(image_dir,"thumbnail_default.jpg")
                 cover = os.path.join(self.catalogPath, "DefaultCover.png")
@@ -2376,22 +2400,30 @@ Author '{0}':
         nptc += 1
 
         series_by_letter = []
+        # Establish initial letter equivalencies
+        sort_equivalents = self.establish_equivalencies(self.booksBySeries, key='series_sort')
 
         # Loop over the series titles, find start of each letter, add description_preview_count books
         # Special switch for using different title list
+
         title_list = self.booksBySeries
-        current_letter = self.letter_or_symbol(self.generateSortTitle(title_list[0]['series'])[0])
+
+        # Prime the pump
+        current_letter = self.letter_or_symbol(sort_equivalents[0])
+
         title_letters = [current_letter]
         current_series_list = []
         current_series = ""
-        for book in title_list:
+        for idx, book in enumerate(title_list):
             sort_title = self.generateSortTitle(book['series'])
-            if self.letter_or_symbol(sort_title[0]) != current_letter:
+            sort_title_equivalent = self.establish_equivalencies([sort_title])[0]
+            if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
+
                 # Save the old list
                 add_to_series_by_letter(current_series_list)
 
                 # Start the new list
-                current_letter = self.letter_or_symbol(sort_title[0])
+                current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 title_letters.append(current_letter)
                 current_series = book['series']
                 current_series_list = [book['series']]
@@ -2413,12 +2445,17 @@ Author '{0}':
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(u"Series beginning with %s" % \
+            textTag.insert(0, NavigableString(_(u"Series beginning with %s") % \
                 (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
-            contentTag['src'] = "content/%s.html#%s_series" % (output, title_letters[i])
+            #contentTag['src'] = "content/%s.html#%s_series" % (output, title_letters[i])
+            if title_letters[i] == self.SYMBOLS:
+                contentTag['src'] = "content/%s.html#%s_series" % (output, self.SYMBOLS)
+            else:
+                contentTag['src'] = "content/%s.html#%s_series" % (output, self.generateUnicodeName(title_letters[i]))
+
             navPointByLetterTag.insert(1,contentTag)
 
             if self.generateForKindle:
@@ -2469,23 +2506,31 @@ Author '{0}':
 
         books_by_letter = []
 
+        # Establish initial letter equivalencies
+        sort_equivalents = self.establish_equivalencies(self.booksByTitle, key='title_sort')
+
         # Loop over the titles, find start of each letter, add description_preview_count books
         # Special switch for using different title list
         if self.useSeriesPrefixInTitlesSection:
             title_list = self.booksByTitle
         else:
             title_list = self.booksByTitle_noSeriesPrefix
-        current_letter = self.letter_or_symbol(title_list[0]['title_sort'][0])
+
+        # Prime the list
+        current_letter = self.letter_or_symbol(sort_equivalents[0])
         title_letters = [current_letter]
         current_book_list = []
         current_book = ""
-        for book in title_list:
-            if self.letter_or_symbol(book['title_sort'][0]) != current_letter:
+        for idx, book in enumerate(title_list):
+            #if self.letter_or_symbol(book['title_sort'][0]) != current_letter:
+            if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
+
                 # Save the old list
                 add_to_books_by_letter(current_book_list)
 
                 # Start the new list
-                current_letter = self.letter_or_symbol(book['title_sort'][0])
+                #current_letter = self.letter_or_symbol(book['title_sort'][0])
+                current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 title_letters.append(current_letter)
                 current_book = book['title']
                 current_book_list = [book['title']]
@@ -2507,15 +2552,15 @@ Author '{0}':
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(u"Titles beginning with %s" % \
+            textTag.insert(0, NavigableString(_(u"Titles beginning with %s") % \
                 (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
             if title_letters[i] == self.SYMBOLS:
-                contentTag['src'] = "content/%s.html#%s" % (output, title_letters[i])
+                contentTag['src'] = "content/%s.html#%s_titles" % (output, self.SYMBOLS)
             else:
-                contentTag['src'] = "content/%s.html#%s" % (output, self.generateUnicodeName(title_letters[i]))
+                contentTag['src'] = "content/%s.html#%s_titles" % (output, self.generateUnicodeName(title_letters[i]))
             navPointByLetterTag.insert(1,contentTag)
 
             if self.generateForKindle:
@@ -2570,17 +2615,22 @@ Author '{0}':
         # Loop over the sorted_authors list, find start of each letter,
         # add description_preview_count artists
         # self.authors[0]:friendly [1]:author_sort [2]:book_count
+        # (<friendly name>, author_sort, book_count)
+
+        # Need to extract a list of author_sort, generate sort_equivalents from that
+        sort_equivalents = self.establish_equivalencies([x[1] for x in self.authors])
+
         master_author_list = []
-        # self.authors[0][1][0] = Initial letter of author_sort[0]
-        current_letter = self.letter_or_symbol(self.authors[0][1][0])
+        # Prime the pump
+        current_letter = self.letter_or_symbol(sort_equivalents[0])
         current_author_list = []
-        for author in self.authors:
-            if self.letter_or_symbol(author[1][0]) != current_letter:
+        for idx, author in enumerate(self.authors):
+            if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
                 # Save the old list
                 add_to_author_list(current_author_list, current_letter)
 
                 # Start the new list
-                current_letter = self.letter_or_symbol(author[1][0])
+                current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 current_author_list = [author[0]]
             else:
                 if len(current_author_list) < self.descriptionClip:
@@ -2599,7 +2649,7 @@ Author '{0}':
             self.playOrder += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString("Authors beginning with '%s'" % (authors_by_letter[1])))
+            textTag.insert(0, NavigableString(_("Authors beginning with '%s'") % (authors_by_letter[1])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
@@ -3177,6 +3227,46 @@ Author '{0}':
 
         return None
 
+    def establish_equivalencies(self, item_list, key=None):
+        # Filter for leading letter equivalencies
+
+        # Hack to force the cataloged leading letter to be
+        # an unadorned character if the accented version sorts before the unaccented
+        exceptions = {
+                        u'Ä':u'A',
+                        u'Ö':u'O',
+                        u'Ü':u'U'
+                     }
+
+        if key is not None:
+            sort_field = key
+
+        cl_list = [None] * len(item_list)
+        last_ordnum = 0
+
+        for idx, item in enumerate(item_list):
+            if key:
+                c = item[sort_field]
+            else:
+                c = item
+
+            ordnum, ordlen = collation_order(c)
+            if last_ordnum != ordnum:
+                last_c = icu_upper(c[0:ordlen])
+                if last_c in exceptions.keys():
+                    last_c = exceptions[unicode(last_c)]
+                last_ordnum = ordnum
+            cl_list[idx] = last_c
+
+        if False:
+            if key:
+                for idx, item in enumerate(item_list):
+                    print("%s %s" % (cl_list[idx],item[sort_field]))
+            else:
+                    print("%s %s" % (cl_list[0], item))
+
+        return cl_list
+
     def filterDbTags(self, tags):
         # Remove the special marker tags from the database's tag list,
         # return sorted list of normalized genre tags
@@ -3252,17 +3342,22 @@ Author '{0}':
 
     def formatPrefix(self,prefix_char,soup):
         # Generate the HTML for the prefix portion of the listing
-        spanTag = Tag(soup, "span")
-        if prefix_char is None:
-            spanTag['style'] = "color:white"
-            spanTag.insert(0,NavigableString(self.defaultPrefix))
-            # 2e3a is 'two-em dash', which matches width in Kindle Previewer
-            # too wide in calibre viewer
-            # minimal visual distraction
-            # spanTag.insert(0,NavigableString(u'\u2e3a'))
+        # Kindle Previewer doesn't properly handle style=color:white
+        # MOBI does a better job allocating blank space with <code>
+        if self.opts.fmt == 'mobi':
+            codeTag = Tag(soup, "code")
+            if prefix_char is None:
+                codeTag.insert(0,NavigableString('&nbsp;'))
+            else:
+                codeTag.insert(0,NavigableString(prefix_char))
+            return codeTag
         else:
+            spanTag = Tag(soup, "span")
+            if prefix_char is None:
+                spanTag['style'] = "color:white"
+                prefix_char = self.defaultPrefix
             spanTag.insert(0,NavigableString(prefix_char))
-        return spanTag
+            return spanTag
 
     def generateAuthorAnchor(self, author):
         # Strip white space to ''
@@ -3453,11 +3548,11 @@ Author '{0}':
         author = book['author']
 
         if book['prefix']:
-            author_prefix = book['prefix'] + " by "
+            author_prefix = book['prefix'] + ' ' +  _("by ")
         elif self.opts.connected_kindle and book['id'] in self.bookmarked_books:
-            author_prefix = self.READING_SYMBOL + " by "
+            author_prefix = self.READING_SYMBOL + ' ' + _("by ")
         else:
-            author_prefix = "by "
+            author_prefix = _("by ")
 
         # Genres
         genres = ''
@@ -3546,8 +3641,12 @@ Author '{0}':
         if aTag:
             if book['series']:
                 if self.opts.generate_series:
-                    aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                    if self.letter_or_symbol(book['series']):
+                        aTag['href'] = "%s.html#symbol_%s_series" % ('BySeries',
                                     re.sub('\W','',book['series']).lower())
+                    else:
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                    re.sub('\s','',book['series']).lower())
             else:
                 aTag.extract()
 
@@ -4040,7 +4139,7 @@ Author '{0}':
                                 re.IGNORECASE) is not None:
                             if self.opts.verbose:
                                 field_md = self.db.metadata_for_field(field)
-                                self.opts.log.info("    - %s (Exclusion rule '%s': %s:%s)" %
+                                self.opts.log.info("     - %s (Exclusion rule '%s': %s:%s)" %
                                                    (record['title'], field_md['name'], field,pat))
                             exclusion_set.append(record)
                             if record in filtered_data_set:

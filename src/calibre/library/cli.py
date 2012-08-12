@@ -165,7 +165,7 @@ List the books available in the calibre database.
 
 def command_list(args, dbpath):
     pre = get_parser('')
-    pargs = [x for x in args if x in ('--with-library', '--library-path')
+    pargs = [x for x in args if x.startswith('--with-library') or x.startswith('--library-path')
         or not x.startswith('-')]
     opts = pre.parse_args(sys.argv[:1] + pargs)[0]
     db = get_db(dbpath, opts)

@@ -169,7 +169,14 @@ if iswindows:
                 cflags=['/X']
                 ),
         Extension('wpd',
-            ['calibre/devices/mtp/windows/wpd.cpp'],
+            [
+                'calibre/devices/mtp/windows/utils.cpp',
+                'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/wpd.cpp',
+            ],
+            headers=[
+                'calibre/devices/mtp/windows/global.h',
+            ],
             libraries=['ole32', 'portabledeviceguids'],
             # needs_ddk=True,
             cflags=['/X']

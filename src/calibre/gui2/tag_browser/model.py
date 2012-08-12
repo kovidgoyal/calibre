@@ -410,6 +410,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 # first letter can actually be more than one letter long.
                 cl_list = [None] * len(data[key])
                 last_ordnum = 0
+                last_c = ' '
                 for idx,tag in enumerate(data[key]):
                     if not tag.sort:
                         c = ' '
