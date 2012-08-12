@@ -148,6 +148,7 @@ wpd_device_info(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "O", &py_pnp_id)) return NULL;
     pnp_id = unicode_to_wchar(py_pnp_id);
+    if (wcslen(pnp_id) < 1) { PyErr_SetString(WPDError, "The PNP id must not be empty."); return NULL; }
     if (pnp_id == NULL) return NULL;
 
     client_information = get_client_information();
