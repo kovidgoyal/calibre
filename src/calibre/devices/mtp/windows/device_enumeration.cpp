@@ -77,7 +77,10 @@ PyObject* get_device_information(IPortableDevice *device) { // {{{
     IPortableDeviceProperties *properties = NULL;
     IPortableDeviceKeyCollection *keys = NULL;
     IPortableDeviceValues *values = NULL;
+    IPortableDeviceCapabilities *capabilities = NULL;
+    IPortableDevicePropVariantCollection *categories = NULL;
     HRESULT hr;
+    DWORD num_of_categories, i;
     LPWSTR temp;
     ULONG ti;
     PyObject *t, *ans = NULL;
@@ -116,6 +119,21 @@ PyObject* get_device_information(IPortableDevice *device) { // {{{
     hr = properties->GetValues(WPD_DEVICE_OBJECT_ID, keys, &values);
     Py_END_ALLOW_THREADS;
     if(FAILED(hr)) {hresult_set_exc("Failed to get device info", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Capabilities(&capabilities);
+    Py_END_ALLOW_THREADS;
+    if(FAILED(hr)) {hresult_set_exc("Failed to get device capabilities", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = capabilities->GetFunctionalCategories(&categories);
+    Py_END_ALLOW_THREADS;
+    if(FAILED(hr)) {hresult_set_exc("Failed to get device functional categories", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = categories->GetCount(&num_of_categories);
+    Py_END_ALLOW_THREADS;
+    if(FAILED(hr)) {hresult_set_exc("Failed to get device functional categories number", hr); goto end; }
 
     ans = PyDict_New();
     if (ans == NULL) {PyErr_NoMemory(); goto end;}
@@ -184,11 +202,27 @@ PyObject* get_device_information(IPortableDevice *device) { // {{{
         CoTaskMemFree(temp);
     }
 
+    t = Py_False;
+    for (i = 0; i < num_of_categories; i++) {
+        PROPVARIANT pv;
+        PropVariantInit(&pv);
+        if (SUCCEEDED(categories->GetAt(i, &pv)) && pv.puuid != NULL) {
+            if (IsEqualGUID(WPD_FUNCTIONAL_CATEGORY_STORAGE, *pv.puuid)) {
+                t = Py_True;
+            }
+        }
+        PropVariantClear(&pv);
+        if (t == Py_True) break;
+    }
+    PyDict_SetItemString(ans, "has_storage", t);
+
 end:
     if (keys != NULL) keys->Release();
     if (values != NULL) values->Release();
     if (properties != NULL) properties->Release();
     if (content != NULL) content->Release();
+    if (capabilities != NULL) capabilities->Release();
+    if (categories != NULL) categories->Release();
     return ans;
 } // }}}
 
