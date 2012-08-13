@@ -10,7 +10,8 @@ from threading import RLock
 from collections import namedtuple
 
 from calibre import prints, as_unicode
-from calibre.constants import iswindows, isosx, plugins, islinux, isfreebsd
+from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
+        isnetbsd)
 
 osx_scanner = win_scanner = linux_scanner = None
 
@@ -253,13 +254,18 @@ freebsd_scanner = None
 if isfreebsd:
     freebsd_scanner = FreeBSDScanner()
 
+netbsd_scanner = None
+
+''' NetBSD support currently not written yet '''
+if isnetbsd:
+    netbsd_scanner = None
 
 class DeviceScanner(object):
 
     def __init__(self, *args):
         if isosx and osx_scanner is None:
             raise RuntimeError('The Python extension usbobserver must be available on OS X.')
-        self.scanner = win_scanner if iswindows else osx_scanner if isosx else freebsd_scanner if isfreebsd else linux_scanner
+        self.scanner = win_scanner if iswindows else osx_scanner if isosx else freebsd_scanner if isfreebsd else netbsd_scanner if isnetbsd else linux_scanner
         self.devices = []
 
     def scan(self):
