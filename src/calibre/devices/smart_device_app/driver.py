@@ -11,11 +11,12 @@ import socket, select, json, inspect, os, traceback, time, sys, random
 import hashlib, threading
 from base64 import b64encode, b64decode
 from functools import wraps
+from errno import EAGAIN, EINTR
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
-                                    InitialConnectionError)
+                                    InitialConnectionError, PacketError)
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -360,6 +361,26 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             pos += len(v)
         return data
 
+    def _send_byte_string(self, s):
+        if not isinstance(s, bytes):
+            self._debug('given a non-byte string!')
+            raise PacketError("Internal error: found a string that isn't bytes")
+        sent_len = 0;
+        total_len = len(s)
+        while sent_len < total_len:
+            try:
+                if sent_len == 0:
+                    amt_sent = self.device_socket.send(s)
+                else:
+                    amt_sent = self.device_socket.send(s[sent_len:])
+                if amt_sent <= 0:
+                    raise IOError('Bad write on device socket');
+                sent_len += amt_sent
+            except socket.error as e:
+                self._debug('socket error', e, e.errno)
+                if e.args[0] != EAGAIN and e.args[0] != EINTR:
+                    raise
+
     def _call_client(self, op, arg, print_debug_info=True):
         if op != 'NOOP':
             self.noop_counter = 0
@@ -376,9 +397,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            self.device_socket.sendall(('%d' % len(s))+s)
-            self.device_socket.settimeout(None)
+            self._send_byte_string((b'%d' % len(s))+s)
             v = self._read_string_from_net()
+            self.device_socket.settimeout(None)
             if print_debug_info and extra_debug:
                 self._debug('received string', v)
             if v:
