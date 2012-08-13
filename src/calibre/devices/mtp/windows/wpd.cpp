@@ -92,14 +92,10 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
 
     ENSURE_WPD(NULL);
 
-    if (!PyArg_ParseTuple(args, "|O", &refresh)) return NULL;
-
-    if (refresh != NULL && PyObject_IsTrue(refresh)) {
-        Py_BEGIN_ALLOW_THREADS;
-        hr = portable_device_manager->RefreshDeviceList();
-        Py_END_ALLOW_THREADS;
-        if (FAILED(hr)) return hresult_set_exc("Failed to refresh the list of portable devices", hr);
-    }
+    Py_BEGIN_ALLOW_THREADS;
+    hr = portable_device_manager->RefreshDeviceList();
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) return hresult_set_exc("Failed to refresh the list of portable devices", hr);
 
     hr = portable_device_manager->GetDevices(NULL, &num_of_devices);
     num_of_devices += 15; // Incase new devices were connected between this call and the next
@@ -175,7 +171,7 @@ static PyMethodDef wpd_methods[] = {
     },
 
     {"enumerate_devices", wpd_enumerate_devices, METH_VARARGS,
-        "enumerate_devices(refresh=False)\n\n Get the list of device PnP ids for all connected devices recognized by the WPD service. The result is cached, unless refresh=True. Do not call with refresh=True too often as it is resource intensive."
+        "enumerate_devices()\n\n Get the list of device PnP ids for all connected devices recognized by the WPD service. Do not call too often as it is resource intensive."
     },
 
     {"device_info", wpd_device_info, METH_VARARGS,
