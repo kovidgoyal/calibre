@@ -15,8 +15,9 @@ from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
-        QDoubleSpinBox, QIcon, QLineEdit, QRadioButton, QSize, QSizePolicy,
-        QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout, QWidget)
+        QDoubleSpinBox, QIcon, QLineEdit, QObject, QRadioButton, QSize, QSizePolicy,
+        QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout, QWidget,
+        SIGNAL)
 
 class PluginWidget(QWidget,Ui_Form):
 
@@ -454,6 +455,8 @@ class GenericRulesTable(QTableWidget):
     Add QTableWidget, controls to parent QGroupBox
     placeholders for basic methods to be overriden
     '''
+    FOCUS_SWITCHING = True
+    DEBUG = False
 
     def __init__(self, parent_gb, object_name, rules, eligible_custom_fields, db):
         self.rules = rules
@@ -476,10 +479,14 @@ class GenericRulesTable(QTableWidget):
         self.setRowCount(0)
         self.layout.addWidget(self)
 
-        self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
+        if self.FOCUS_SWITCHING:
+            self.last_row_selected = self.currentRow()
+            self.last_rows_selected = self.selectionModel().selectedRows()
 
         self._init_controls()
+
+        # Hook check_box changes. Everything else is already hooked
+        QObject.connect(self, SIGNAL('cellChanged(int,int)'), self.enabled_state_changed)
 
     def _init_controls(self):
         # Add the control set
@@ -516,7 +523,12 @@ class GenericRulesTable(QTableWidget):
 
     def add_row(self):
         self.setFocus()
-        row = self.last_row_selected + 1
+        if self.FOCUS_SWITCHING:
+            row = self.last_row_selected + 1
+        else:
+            row = self.currentRow() + 1
+        if self.DEBUG and self.FOCUS_SWITCHING:
+            print("%s:add_row(): last_row_selected: %d, row: %d" % (self.objectName(), self.last_row_selected, row))
         self.insertRow(row)
         self.populate_table_row(row, self.create_blank_row_data())
         self.select_and_scroll_to_row(row)
@@ -538,7 +550,10 @@ class GenericRulesTable(QTableWidget):
 
     def delete_row(self):
         self.setFocus()
-        rows = self.last_rows_selected
+        if self.FOCUS_SWITCHING:
+            rows = self.last_rows_selected
+        else:
+            rows = self.selectionModel().selectedRows()
         if len(rows) == 0:
             return
 
@@ -558,11 +573,18 @@ class GenericRulesTable(QTableWidget):
         elif self.rowCount() > 0:
             self.select_and_scroll_to_row(first_sel_row - 1)
 
+    def focusInEvent(self,e):
+        if self.DEBUG:
+            print("%s:focusInEvent()" % self.objectName())
+
     def focusOutEvent(self,e):
         # Override of QTableWidget method - clear selection when table loses focus
-        self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
-        self.clearSelection()
+        if self.FOCUS_SWITCHING:
+            self.last_row_selected = self.currentRow()
+            self.last_rows_selected = self.selectionModel().selectedRows()
+            self.clearSelection()
+            if self.DEBUG:
+                print("%s:focusOutEvent(): self.last_row_selected: %d" % (self.objectName(),self.last_row_selected))
 
     def get_data(self):
         '''
@@ -572,7 +594,10 @@ class GenericRulesTable(QTableWidget):
 
     def move_row_down(self):
         self.setFocus()
-        rows = self.last_rows_selected
+        if self.FOCUS_SWITCHING:
+            rows = self.last_rows_selected
+        else:
+            rows = self.selectionModel().selectedRows()
         if len(rows) == 0:
             return
         last_sel_row = rows[-1].row()
@@ -598,13 +623,16 @@ class GenericRulesTable(QTableWidget):
 
         self.blockSignals(False)
         scroll_to_row = last_sel_row + 1
-        if scroll_to_row < self.rowCount() - 1:
-            scroll_to_row = scroll_to_row + 1
+        #if scroll_to_row < self.rowCount() - 1:
+        #    scroll_to_row = scroll_to_row + 1
         self.select_and_scroll_to_row(scroll_to_row)
 
     def move_row_up(self):
         self.setFocus()
-        rows = self.last_rows_selected
+        if self.FOCUS_SWITCHING:
+            rows = self.last_rows_selected
+        else:
+            rows = self.selectionModel().selectedRows()
         if len(rows) == 0:
             return
         first_sel_row = rows[0].row()
@@ -623,10 +651,14 @@ class GenericRulesTable(QTableWidget):
             self.removeRow(selrow.row() - 1)
         self.blockSignals(False)
 
-        scroll_to_row = first_sel_row - 1
+        scroll_to_row = first_sel_row
         if scroll_to_row > 0:
             scroll_to_row = scroll_to_row - 1
         self.select_and_scroll_to_row(scroll_to_row)
+        if self.DEBUG:
+            print("%s:move_row_up(): first_sel_row: %d" % (self.objectName(), first_sel_row))
+            print("%s:move_row_up(): scroll_to_row: %d" % (self.objectName(), scroll_to_row))
+            print("%s move_row_down(): current_row: %d" % (self.objectName(), self.currentRow()))
 
     def populate_table_row(self):
         '''
@@ -642,12 +674,68 @@ class GenericRulesTable(QTableWidget):
     def rule_name_edited(self):
         current_row = self.currentRow()
         self.cellWidget(current_row,1).home(False)
-        self.setFocus()
         self.select_and_scroll_to_row(current_row)
 
     def select_and_scroll_to_row(self, row):
+        self.setFocus()
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
+
+    def _source_index_changed(self, combo):
+        # Figure out which row we're in
+        for row in range(self.rowCount()):
+            if self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']) is combo:
+                break
+
+        if self.DEBUG:
+            print("%s:_source_index_changed(): calling source_index_changed with row: %d " %
+                  (self.objectName(), row))
+
+        self.source_index_changed(combo, row)
+
+    def source_index_changed(self, combo, row, pattern=''):
+        # Populate the Pattern field based upon the Source field
+
+        source_field = str(combo.currentText())
+        if source_field == '':
+            values = []
+        elif source_field == 'Tags':
+            values = sorted(self.db.all_tags(), key=sort_key)
+        else:
+            if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:
+                values = self.db.all_custom(self.db.field_metadata.key_to_label(
+                                            self.eligible_custom_fields[unicode(source_field)]['field']))
+                values = sorted(values, key=sort_key)
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['bool']:
+                values = [_('True'),_('False'),_('unspecified')]
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['composite']:
+                values = [_('any value'),_('unspecified')]
+            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['datetime']:
+                values = [_('any date'),_('unspecified')]
+
+        values_combo = ComboBox(self, values, pattern)
+        values_combo.currentIndexChanged.connect(partial(self.values_index_changed, values_combo))
+        self.setCellWidget(row, self.COLUMNS['PATTERN']['ordinal'], values_combo)
+        self.select_and_scroll_to_row(row)
+
+    def values_index_changed(self, combo):
+        # After edit, select row
+        for row in range(self.rowCount()):
+            if self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']) is combo:
+                self.select_and_scroll_to_row(row)
+                break
+
+        if self.DEBUG:
+            print("%s:values_index_changed(): row %d " %
+                  (self.objectName(), row))
+
+    def enabled_state_changed(self, row, col):
+        # After state change, select row
+        if col in [self.COLUMNS['ENABLED']['ordinal']]:
+            self.select_and_scroll_to_row(row)
+            if self.DEBUG:
+                print("%s:enabled_state_changed(): row %d col %d" %
+                      (self.objectName(), row, col))
 
 class ExclusionRules(GenericRulesTable):
 
@@ -658,6 +746,7 @@ class ExclusionRules(GenericRulesTable):
 
     def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
         super(ExclusionRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
+        self.setObjectName("exclusion_rules_table")
         self._init_table_widget()
         self._initialize()
 
@@ -730,7 +819,7 @@ class ExclusionRules(GenericRulesTable):
 
         def set_source_field_in_row(row, col, field=''):
             source_combo = ComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
-            source_combo.currentIndexChanged.connect(partial(self.source_index_changed, source_combo, row))
+            source_combo.currentIndexChanged.connect(partial(self._source_index_changed, source_combo))
             self.setCellWidget(row, col, source_combo)
             return source_combo
 
@@ -738,7 +827,8 @@ class ExclusionRules(GenericRulesTable):
         self.blockSignals(True)
 
         # Enabled
-        self.setItem(row, self.COLUMNS['ENABLED']['ordinal'], CheckableTableWidgetItem(data['enabled']))
+        check_box = CheckableTableWidgetItem(data['enabled'])
+        self.setItem(row, self.COLUMNS['ENABLED']['ordinal'], check_box)
 
         # Rule name
         set_rule_name_in_row(row, self.COLUMNS['NAME']['ordinal'], name=data['name'])
@@ -748,31 +838,9 @@ class ExclusionRules(GenericRulesTable):
 
         # Pattern
         # The contents of the Pattern field is driven by the Source field
-        self.source_index_changed(source_combo, row, self.COLUMNS['PATTERN']['ordinal'], pattern=data['pattern'])
+        self.source_index_changed(source_combo, row, pattern=data['pattern'])
 
         self.blockSignals(False)
-
-    def source_index_changed(self, combo, row, col, pattern=''):
-        # Populate the Pattern field based upon the Source field
-        source_field = str(combo.currentText())
-        if source_field == '':
-            values = []
-        elif source_field == 'Tags':
-            values = sorted(self.db.all_tags(), key=sort_key)
-        else:
-            if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:
-                values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                            self.eligible_custom_fields[unicode(source_field)]['field']))
-                values = sorted(values, key=sort_key)
-            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['bool']:
-                values = ['True','False','unspecified']
-            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['composite']:
-                values = ['any value','unspecified']
-            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['datetime']:
-                values = ['any date','unspecified']
-
-        values_combo = ComboBox(self, values, pattern)
-        self.setCellWidget(row, self.COLUMNS['PATTERN']['ordinal'], values_combo)
 
 class PrefixRules(GenericRulesTable):
 
@@ -784,6 +852,7 @@ class PrefixRules(GenericRulesTable):
 
     def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
         super(PrefixRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
+        self.setObjectName("prefix_rules_table")
         self._init_table_widget()
         self._initialize()
 
@@ -998,14 +1067,12 @@ class PrefixRules(GenericRulesTable):
 
         def set_source_field_in_row(row, col, field=''):
             source_combo = ComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
-            source_combo.currentIndexChanged.connect(partial(self.source_index_changed, source_combo, row))
+            source_combo.currentIndexChanged.connect(partial(self._source_index_changed, source_combo))
             self.setCellWidget(row, col, source_combo)
             return source_combo
 
-
         # Entry point
         self.blockSignals(True)
-        #print("prefix_rules_populate_table_row processing rule:\n%s\n" % data)
 
         # Enabled
         self.setItem(row, self.COLUMNS['ENABLED']['ordinal'], CheckableTableWidgetItem(data['enabled']))
@@ -1021,31 +1088,7 @@ class PrefixRules(GenericRulesTable):
 
         # Pattern
         # The contents of the Pattern field is driven by the Source field
-        self.source_index_changed(source_combo, row, self.COLUMNS['PATTERN']['ordinal'], pattern=data['pattern'])
+        self.source_index_changed(source_combo, row, pattern=data['pattern'])
 
         self.blockSignals(False)
-
-    def source_index_changed(self, combo, row, col, pattern=''):
-        # Populate the Pattern field based upon the Source field
-        # row, col are the control that changed
-
-        source_field = str(combo.currentText())
-        if source_field == '':
-            values = []
-        elif source_field == 'Tags':
-            values = sorted(self.db.all_tags(), key=sort_key)
-        else:
-            if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:
-                values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                            self.eligible_custom_fields[unicode(source_field)]['field']))
-                values = sorted(values, key=sort_key)
-            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['bool']:
-                values = ['True','False','unspecified']
-            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['composite']:
-                values = ['any value','unspecified']
-            elif self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['datetime']:
-                values = ['any date','unspecified']
-
-        values_combo = ComboBox(self, values, pattern)
-        self.setCellWidget(row, self.COLUMNS['PATTERN']['ordinal'], values_combo)
 
