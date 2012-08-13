@@ -154,20 +154,17 @@ PyObject* get_storage_info(IPortableDevice *device) {
                         if (so == NULL) { PyErr_NoMemory(); goto end; }
                         if (SUCCEEDED(values->GetStringValue(WPD_STORAGE_DESCRIPTION, &storage_desc))) {
                                 desc = PyUnicode_FromWideChar(storage_desc, wcslen(storage_desc));
-                                if (desc != NULL) PyDict_SetItemString(so, "description", desc);
-                                Py_DECREF(desc);
+                                if (desc != NULL) { PyDict_SetItemString(so, "description", desc); Py_DECREF(desc);}
                                 CoTaskMemFree(storage_desc); storage_desc = NULL;
                         }
                         if (SUCCEEDED(values->GetStringValue(WPD_OBJECT_NAME, &storage_desc))) {
                                 desc = PyUnicode_FromWideChar(storage_desc, wcslen(storage_desc));
-                                if (desc != NULL) PyDict_SetItemString(so, "name", desc);
-                                Py_DECREF(desc);
+                                if (desc != NULL) { PyDict_SetItemString(so, "name", desc); Py_DECREF(desc);}
                                 CoTaskMemFree(storage_desc); storage_desc = NULL;
                         }
                         if (SUCCEEDED(values->GetStringValue(WPD_STORAGE_FILE_SYSTEM_TYPE, &storage_desc))) {
                                 desc = PyUnicode_FromWideChar(storage_desc, wcslen(storage_desc));
-                                if (desc != NULL) PyDict_SetItemString(so, "filesystem", desc);
-                                Py_DECREF(desc);
+                                if (desc != NULL) { PyDict_SetItemString(so, "filesystem", desc); Py_DECREF(desc);}
                                 CoTaskMemFree(storage_desc); storage_desc = NULL;
                         }
                         PyList_Append(storage, so);
