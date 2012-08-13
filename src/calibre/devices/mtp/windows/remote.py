@@ -8,6 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import subprocess, sys, os, pprint
+pprint
 
 def build(mod='wpd'):
     builder = subprocess.Popen('ssh xp_build ~/build-wpd'.split())
