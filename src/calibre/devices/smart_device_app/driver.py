@@ -177,7 +177,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                                inspect.stack()[1][3]), end='')
         for a in args:
             try:
-                prints('', a, end='')
+                if isinstance(a, dict):
+                    printable = {}
+                    for k,v in a.iteritems():
+                        if isinstance(v, (str, unicode)) and len(v) > 50:
+                            printable[k] = 'too long'
+                        else:
+                            printable[k] = v
+                    prints('', printable, end='');
+                else:
+                    prints('', a, end='')
             except:
                 prints('', 'value too long', end='')
         print()
@@ -587,6 +596,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('Protocol error - bogus book packet length')
                 self._close_device_socket()
                 return False
+            self._debug('CC version #:', result.get('ccVersionNumber', 'unknown'))
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             exts = result.get('acceptedExtensions', None)
