@@ -73,7 +73,7 @@ IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *clien
 } // }}}
 
 PyObject* get_storage_info(IPortableDevice *device) {
-    HRESULT hr;
+    HRESULT hr, hr2;
     IPortableDeviceContent *content = NULL;
     IEnumPortableDeviceObjectIDs *objects = NULL;
     IPortableDeviceProperties *properties = NULL;
@@ -132,7 +132,10 @@ PyObject* get_storage_info(IPortableDevice *device) {
         Py_END_ALLOW_THREADS;
         if (SUCCEEDED(hr)) {
             for(i = 0; i < fetched; i++) {
-                if SUCCEEDED(properties->GetValues(object_ids[i], storage_properties, &values)) {
+                Py_BEGIN_ALLOW_THREADS;
+                hr2 = properties->GetValues(object_ids[i], storage_properties, &values);
+                Py_END_ALLOW_THREADS;
+                if SUCCEEDED(hr2) {
                     if (
                         SUCCEEDED(values->GetGuidValue(WPD_OBJECT_CONTENT_TYPE, &guid)) && IsEqualGUID(guid, WPD_CONTENT_TYPE_FUNCTIONAL_OBJECT) &&
                         SUCCEEDED(values->GetGuidValue(WPD_FUNCTIONAL_OBJECT_CATEGORY, &guid)) && IsEqualGUID(guid, WPD_FUNCTIONAL_CATEGORY_STORAGE)
