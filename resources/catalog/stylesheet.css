@@ -74,7 +74,7 @@ p.date_read {
 p.author {
 	font-size:large;
 	margin-top:0em;
-	margin-bottom:0em;
+	margin-bottom:0.1em;
 	text-align: center;
 	text-indent: 0em;
   	}
@@ -122,7 +122,7 @@ p.genres {
 
 p.series {
 	font-style:italic;
-	margin-top:0.25em;
+	margin-top:0.10em;
 	margin-bottom:0em;
 	margin-left:2em;
 	text-align:left;
