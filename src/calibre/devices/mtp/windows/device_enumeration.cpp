@@ -2,7 +2,7 @@
  * device_enumeration.cpp
  * Copyright (C) 2012 Kovid Goyal <kovid at kovidgoyal.net>
  *
- * Distributed under terms of the MIT license.
+ * Distributed under terms of the GPL3 license.
  */
 
 #include "global.h"
@@ -72,7 +72,7 @@ IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *clien
 
 } // }}}
 
-PyObject* get_storage_info(IPortableDevice *device) {
+PyObject* get_storage_info(IPortableDevice *device) { // {{{
     HRESULT hr, hr2;
     IPortableDeviceContent *content = NULL;
     IEnumPortableDeviceObjectIDs *objects = NULL;
@@ -183,7 +183,7 @@ end:
     if (storage_properties != NULL) storage_properties->Release();
     if (values != NULL) values->Release();
     return ans;
-}
+} // }}}
 
 PyObject* get_device_information(IPortableDevice *device) { // {{{
     IPortableDeviceContent *content = NULL;
