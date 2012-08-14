@@ -23,6 +23,7 @@ class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
+    DEBUG = False
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -100,6 +101,39 @@ class PluginWidget(QWidget,Ui_Form):
                              ['table_widget','table_widget','table_widget'])
 
         self.OPTION_FIELDS = option_fields
+
+    def construct_tw_opts_object(self, c_name, opt_value, opts_dict):
+        '''
+        Build an opts object from the UI settings to pass to the catalog builder
+        Handles two types of rules sets, with and without ['prefix'] field
+        Store processed opts object to opt_dict
+        '''
+        rule_set = []
+        for stored_rule in opt_value:
+            rule = copy(stored_rule)
+            # Skip disabled and incomplete rules
+            if not rule['enabled']:
+                continue
+            elif not rule['field'] or not rule['pattern']:
+                continue
+            elif 'prefix' in rule and not rule['prefix']:
+                continue
+            else:
+                if rule['field'] != 'Tags':
+                    # Look up custom column friendly name
+                    rule['field'] = self.eligible_custom_fields[rule['field']]['field']
+                    if rule['pattern'] in [_('any value'),_('any date')]:
+                        rule_pattern = '.*'
+                    elif rule['pattern'] == _('unspecified'):
+                        rule['pattern'] = 'None'
+            if 'prefix' in rule:
+                pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
+            else:
+                pr = (rule['name'],rule['field'],rule['pattern'])
+            rule_set.append(pr)
+        opt_value = tuple(rule_set)
+        # Strip off the trailing '_tw'
+        opts_dict[c_name[:-3]] = opt_value
 
     def fetchEligibleCustomFields(self):
         self.all_custom_fields = self.db.custom_field_keys()
@@ -195,11 +229,10 @@ class PluginWidget(QWidget,Ui_Form):
     def options(self):
         # Save/return the current options
         # exclude_genre stores literally
-        # generate_titles, generate_recently_added store as True/False
+        # Section switches store as True/False
         # others store as lists
 
         opts_dict = {}
-        # Save values to gprefs
         prefix_rules_processed = False
         exclusion_rules_processed = False
 
@@ -230,56 +263,8 @@ class PluginWidget(QWidget,Ui_Form):
             gprefs.set(self.name + '_' + c_name, opt_value)
 
             # Construct opts object for catalog builder
-            if c_name == 'prefix_rules_tw':
-                rule_set = []
-                for stored_rule in opt_value:
-                    # Test for empty name/field/pattern/prefix, continue
-                    # If pattern = any or unspecified, convert to regex
-                    rule = copy(stored_rule)
-                    if not rule['enabled']:
-                        continue
-                    elif not rule['field'] or not rule['pattern'] or not rule['prefix']:
-                        continue
-                    else:
-                        if rule['field'] != 'Tags':
-                            # Look up custom column name
-                            #print(self.eligible_custom_fields[rule['field']]['field'])
-                            rule['field'] = self.eligible_custom_fields[rule['field']]['field']
-                            if rule['pattern'].startswith('any'):
-                                rule['pattern'] = '.*'
-                            elif rule['pattern'] == 'unspecified':
-                                rule['pattern'] = 'None'
-
-                    pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
-                    rule_set.append(pr)
-                opt_value = tuple(rule_set)
-                opts_dict['prefix_rules'] = opt_value
-
-            elif c_name == 'exclusion_rules_tw':
-                rule_set = []
-                for stored_rule in opt_value:
-                    # Test for empty name/field/pattern/prefix, continue
-                    # If pattern = any or unspecified, convert to regex
-                    rule = copy(stored_rule)
-                    if not rule['enabled']:
-                        continue
-                    elif not rule['field'] or not rule['pattern']:
-                        continue
-                    else:
-                        if rule['field'] != 'Tags':
-                            # Look up custom column name
-                            #print(self.eligible_custom_fields[rule['field']]['field'])
-                            rule['field'] = self.eligible_custom_fields[rule['field']]['field']
-                            if rule['pattern'].startswith('any'):
-                                rule['pattern'] = '.*'
-                            elif rule['pattern'] == 'unspecified':
-                                rule['pattern'] = 'None'
-
-                    pr = (rule['name'],rule['field'],rule['pattern'])
-                    rule_set.append(pr)
-                opt_value = tuple(rule_set)
-                opts_dict['exclusion_rules'] = opt_value
-
+            if c_name in ['exclusion_rules_tw','prefix_rules_tw']:
+                self.construct_tw_opts_object(c_name, opt_value, opts_dict)
             else:
                 opts_dict[c_name] = opt_value
 
@@ -300,7 +285,7 @@ class PluginWidget(QWidget,Ui_Form):
             opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
         except:
             opts_dict['output_profile'] = ['default']
-        if False:
+        if self.DEBUG:
             print "opts_dict"
             for opt in sorted(opts_dict.keys(), key=sort_key):
                 print " %s: %s" % (opt, repr(opts_dict[opt]))
@@ -343,7 +328,6 @@ class PluginWidget(QWidget,Ui_Form):
             self.header_note_source_field.addItem(cf)
         self.header_note_source_fields = custom_fields
         self.header_note_source_field.currentIndexChanged.connect(self.header_note_source_field_changed)
-
 
         # Populate the 'Merge with Comments' combo box
         custom_fields = {}
@@ -451,12 +435,11 @@ class ComboBox(NoWheelComboBox):
 
 class GenericRulesTable(QTableWidget):
     '''
-    Generic methods for managing rows
-    Add QTableWidget, controls to parent QGroupBox
-    placeholders for basic methods to be overriden
+    Generic methods for managing rows in a QTableWidget
     '''
-    FOCUS_SWITCHING = True
     DEBUG = False
+    MAXIMUM_TABLE_HEIGHT = 113
+    NAME_FIELD_WIDTH = 225
 
     def __init__(self, parent_gb, object_name, rules, eligible_custom_fields, db):
         self.rules = rules
@@ -467,25 +450,23 @@ class GenericRulesTable(QTableWidget):
         self.layout = parent_gb.layout()
 
         # Add ourselves to the layout
-        #print("verticalHeader: %s" % dir(self.verticalHeader()))
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         #sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
-        self.setMaximumSize(QSize(16777215, 113))
+        self.setMaximumSize(QSize(16777215, self.MAXIMUM_TABLE_HEIGHT))
 
         self.setColumnCount(0)
         self.setRowCount(0)
         self.layout.addWidget(self)
 
-        if self.FOCUS_SWITCHING:
-            self.last_row_selected = self.currentRow()
-            self.last_rows_selected = self.selectionModel().selectedRows()
+        self.last_row_selected = self.currentRow()
+        self.last_rows_selected = self.selectionModel().selectedRows()
 
         self._init_controls()
 
-        # Hook check_box changes. Everything else is already hooked
+        # Hook check_box changes
         QObject.connect(self, SIGNAL('cellChanged(int,int)'), self.enabled_state_changed)
 
     def _init_controls(self):
@@ -523,12 +504,9 @@ class GenericRulesTable(QTableWidget):
 
     def add_row(self):
         self.setFocus()
-        if self.FOCUS_SWITCHING:
-            row = self.last_row_selected + 1
-        else:
-            row = self.currentRow() + 1
-        if self.DEBUG and self.FOCUS_SWITCHING:
-            print("%s:add_row(): last_row_selected: %d, row: %d" % (self.objectName(), self.last_row_selected, row))
+        row = self.last_row_selected + 1
+        if self.DEBUG:
+            print("%s:add_row(): at row: %d" % (self.objectName(), row))
         self.insertRow(row)
         self.populate_table_row(row, self.create_blank_row_data())
         self.select_and_scroll_to_row(row)
@@ -536,33 +514,22 @@ class GenericRulesTable(QTableWidget):
         # In case table was empty
         self.horizontalHeader().setStretchLastSection(True)
 
-    def convert_row_to_data(self):
-        '''
-        override
-        '''
-        pass
-
-    def create_blank_row_data(self):
-        '''
-        override
-        '''
-        pass
-
     def delete_row(self):
+        if self.DEBUG:
+            print("%s:delete_row()" % self.objectName())
+
         self.setFocus()
-        if self.FOCUS_SWITCHING:
-            rows = self.last_rows_selected
-        else:
-            rows = self.selectionModel().selectedRows()
+        rows = self.last_rows_selected
         if len(rows) == 0:
             return
 
         first = rows[0].row() + 1
         last = rows[-1].row() + 1
 
-        message = _('Are you sure you want to delete rule %d?') % first
+        first_rule_name = unicode(self.cellWidget(first-1,self.COLUMNS['NAME']['ordinal']).text()).strip()
+        message = _("Are you sure you want to delete rule #%d '%s'?") % (first,first_rule_name)
         if len(rows) > 1:
-            message = _('Are you sure you want to delete rules %d-%d?') % (first, last)
+            message = _('Are you sure you want to delete rules #%d-%d?') % (first, last)
         if not question_dialog(self, _('Are you sure?'), message, show_copy_button=False):
             return
         first_sel_row = self.currentRow()
@@ -573,31 +540,31 @@ class GenericRulesTable(QTableWidget):
         elif self.rowCount() > 0:
             self.select_and_scroll_to_row(first_sel_row - 1)
 
+    def enabled_state_changed(self, row, col):
+        if col in [self.COLUMNS['ENABLED']['ordinal']]:
+            self.select_and_scroll_to_row(row)
+            if self.DEBUG:
+                print("%s:enabled_state_changed(): row %d col %d" %
+                      (self.objectName(), row, col))
+
     def focusInEvent(self,e):
         if self.DEBUG:
             print("%s:focusInEvent()" % self.objectName())
 
     def focusOutEvent(self,e):
         # Override of QTableWidget method - clear selection when table loses focus
-        if self.FOCUS_SWITCHING:
-            self.last_row_selected = self.currentRow()
-            self.last_rows_selected = self.selectionModel().selectedRows()
-            self.clearSelection()
-            if self.DEBUG:
-                print("%s:focusOutEvent(): self.last_row_selected: %d" % (self.objectName(),self.last_row_selected))
-
-    def get_data(self):
-        '''
-        override
-        '''
-        pass
+        self.last_row_selected = self.currentRow()
+        self.last_rows_selected = self.selectionModel().selectedRows()
+        self.clearSelection()
+        if self.DEBUG:
+            print("%s:focusOutEvent(): self.last_row_selected: %d" % (self.objectName(),self.last_row_selected))
 
     def move_row_down(self):
+        if self.DEBUG:
+            print("%s:move_row_down()" % self.objectName())
+
         self.setFocus()
-        if self.FOCUS_SWITCHING:
-            rows = self.last_rows_selected
-        else:
-            rows = self.selectionModel().selectedRows()
+        rows = self.last_rows_selected
         if len(rows) == 0:
             return
         last_sel_row = rows[-1].row()
@@ -623,16 +590,14 @@ class GenericRulesTable(QTableWidget):
 
         self.blockSignals(False)
         scroll_to_row = last_sel_row + 1
-        #if scroll_to_row < self.rowCount() - 1:
-        #    scroll_to_row = scroll_to_row + 1
         self.select_and_scroll_to_row(scroll_to_row)
 
     def move_row_up(self):
+        if self.DEBUG:
+            print("%s:move_row_up()" % self.objectName())
+
         self.setFocus()
-        if self.FOCUS_SWITCHING:
-            rows = self.last_rows_selected
-        else:
-            rows = self.selectionModel().selectedRows()
+        rows = self.last_rows_selected
         if len(rows) == 0:
             return
         first_sel_row = rows[0].row()
@@ -655,23 +620,28 @@ class GenericRulesTable(QTableWidget):
         if scroll_to_row > 0:
             scroll_to_row = scroll_to_row - 1
         self.select_and_scroll_to_row(scroll_to_row)
-        if self.DEBUG:
-            print("%s:move_row_up(): first_sel_row: %d" % (self.objectName(), first_sel_row))
-            print("%s:move_row_up(): scroll_to_row: %d" % (self.objectName(), scroll_to_row))
-            print("%s move_row_down(): current_row: %d" % (self.objectName(), self.currentRow()))
 
-    def populate_table_row(self):
-        '''
-        override
-        '''
-        pass
+    def populate_table(self):
+        # Format of rules list is different if default values vs retrieved JSON
+        # Hack to normalize list style
+        rules = self.rules
+        if rules and type(rules[0]) is list:
+            rules = rules[0]
+        self.setFocus()
+        rules = sorted(rules, key=lambda k: k['ordinal'])
+        for row, rule in enumerate(rules):
+            self.insertRow(row)
+            self.select_and_scroll_to_row(row)
+            self.populate_table_row(row, rule)
+        self.selectRow(0)
 
-    def resize_name(self, scale):
-        #current_width = self.columnWidth(1)
-        #self.setColumnWidth(1, min(225,int(current_width * scale)))
-        self.setColumnWidth(1, 225)
+    def resize_name(self):
+        self.setColumnWidth(1, self.NAME_FIELD_WIDTH)
 
     def rule_name_edited(self):
+        if self.DEBUG:
+            print("%s:rule_name_edited()" % self.objectName())
+
         current_row = self.currentRow()
         self.cellWidget(current_row,1).home(False)
         self.select_and_scroll_to_row(current_row)
@@ -729,14 +699,6 @@ class GenericRulesTable(QTableWidget):
             print("%s:values_index_changed(): row %d " %
                   (self.objectName(), row))
 
-    def enabled_state_changed(self, row, col):
-        # After state change, select row
-        if col in [self.COLUMNS['ENABLED']['ordinal']]:
-            self.select_and_scroll_to_row(row)
-            if self.DEBUG:
-                print("%s:enabled_state_changed(): row %d col %d" %
-                      (self.objectName(), row, col))
-
 class ExclusionRules(GenericRulesTable):
 
     COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
@@ -752,7 +714,7 @@ class ExclusionRules(GenericRulesTable):
 
     def _init_table_widget(self):
         header_labels = [self.COLUMNS[index]['name'] \
-                         for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
+            for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -761,7 +723,7 @@ class ExclusionRules(GenericRulesTable):
     def _initialize(self):
         self.populate_table()
         self.resizeColumnsToContents()
-        self.resize_name(1.5)
+        self.resize_name()
         self.horizontalHeader().setStretchLastSection(True)
         self.clearSelection()
 
@@ -794,20 +756,6 @@ class ExclusionRules(GenericRulesTable):
                                 'field':data['field'],
                                 'pattern':data['pattern']})
         return data_items
-
-    def populate_table(self):
-        # Format of rules list is different if default values vs retrieved JSON
-        # Hack to normalize list style
-        rules = self.rules
-        if rules and type(rules[0]) is list:
-            rules = rules[0]
-        self.setFocus()
-        rules = sorted(rules, key=lambda k: k['ordinal'])
-        for row, rule in enumerate(rules):
-            self.insertRow(row)
-            self.select_and_scroll_to_row(row)
-            self.populate_table_row(row, rule)
-        self.selectRow(0)
 
     def populate_table_row(self, row, data):
 
@@ -858,7 +806,7 @@ class PrefixRules(GenericRulesTable):
 
     def _init_table_widget(self):
         header_labels = [self.COLUMNS[index]['name'] \
-                         for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
+            for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -868,14 +816,14 @@ class PrefixRules(GenericRulesTable):
         self.generate_prefix_list()
         self.populate_table()
         self.resizeColumnsToContents()
-        self.resize_name(1.5)
+        self.resize_name()
         self.horizontalHeader().setStretchLastSection(True)
         self.clearSelection()
 
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row,0).checkState() == Qt.Checked
+        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.Checked
         data['name'] = unicode(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
         data['prefix'] = unicode(self.cellWidget(row,self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
         data['field'] = unicode(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
@@ -1038,20 +986,6 @@ class PrefixRules(GenericRulesTable):
                                 'pattern':data['pattern'],
                                 'prefix':data['prefix']})
         return data_items
-
-    def populate_table(self):
-        # Format of rules list is different if default values vs retrieved JSON
-        # Hack to normalize list style
-        rules = self.rules
-        if rules and type(rules[0]) is list:
-            rules = rules[0]
-        self.setFocus()
-        rules = sorted(rules, key=lambda k: k['ordinal'])
-        for row, rule in enumerate(rules):
-            self.insertRow(row)
-            self.select_and_scroll_to_row(row)
-            self.populate_table_row(row, rule)
-        self.selectRow(0)
 
     def populate_table_row(self, row, data):
 
