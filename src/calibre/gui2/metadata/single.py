@@ -310,8 +310,18 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.update_from_mi(mi)
 
     def cover_from_format(self, *args):
-        mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
-                self.book_id)
+        try:
+            mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
+                    self.book_id)
+        except (IOError, OSError) as err:
+            if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                import traceback
+                fname = err.filename if err.filename else 'file'
+                error_dialog(self, _('Permission denied'),
+                        _('Could not open %s. Is it being used by another'
+                        ' program?')%fname, det_msg=traceback.format_exc(),
+                        show=True)
+                return False
         if mi is None:
             return
         cdata = None
