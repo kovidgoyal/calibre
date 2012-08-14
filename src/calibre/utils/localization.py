@@ -26,7 +26,7 @@ def get_system_locale():
     from calibre.constants import iswindows
     lang = None
     if iswindows:
-        from calibre import get_windows_user_locale_name
+        from calibre.constants import get_windows_user_locale_name
         try:
             lang = get_windows_user_locale_name()
             lang = lang.strip()
