@@ -677,6 +677,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         from calibre.utils.localization import (available_translations,
             get_language, get_lang)
         lang = get_lang()
+        lang = lang.split('_')[0].lower() if lang else lang
         if lang is None or lang not in available_translations():
             lang = 'en'
         def get_esc_lang(l):
