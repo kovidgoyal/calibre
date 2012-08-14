@@ -560,9 +560,6 @@ class GenericRulesTable(QTableWidget):
             print("%s:focusOutEvent(): self.last_row_selected: %d" % (self.objectName(),self.last_row_selected))
 
     def move_row_down(self):
-        if self.DEBUG:
-            print("%s:move_row_down()" % self.objectName())
-
         self.setFocus()
         rows = self.last_rows_selected
         if len(rows) == 0:
@@ -575,6 +572,8 @@ class GenericRulesTable(QTableWidget):
         for selrow in reversed(rows):
             dest_row = selrow.row() + 1
             src_row = selrow.row()
+            if self.DEBUG:
+                print("%s:move_row_down() %d -> %d" % (self.objectName(),src_row, dest_row))
 
             # Save the contents of the destination row
             saved_data = self.convert_row_to_data(dest_row)
@@ -590,12 +589,11 @@ class GenericRulesTable(QTableWidget):
 
         scroll_to_row = last_sel_row + 1
         self.select_and_scroll_to_row(scroll_to_row)
+        self.last_row_selected = self.currentRow()
+        self.last_rows_selected = self.selectionModel().selectedRows()
         self.blockSignals(False)
 
     def move_row_up(self):
-        if self.DEBUG:
-            print("%s:move_row_up()" % self.objectName())
-
         self.setFocus()
         rows = self.last_rows_selected
         if len(rows) == 0:
@@ -606,6 +604,9 @@ class GenericRulesTable(QTableWidget):
         self.blockSignals(True)
 
         for selrow in rows:
+            if self.DEBUG:
+                print("%s:move_row_up() %d -> %d" % (self.objectName(),selrow.row(), selrow.row()-1))
+
             # Save the row above
             saved_data = self.convert_row_to_data(selrow.row() - 1)
 
@@ -620,6 +621,8 @@ class GenericRulesTable(QTableWidget):
         if scroll_to_row > 0:
             scroll_to_row = scroll_to_row - 1
         self.select_and_scroll_to_row(scroll_to_row)
+        self.last_row_selected = self.currentRow()
+        self.last_rows_selected = self.selectionModel().selectedRows()
         self.blockSignals(False)
 
     def populate_table(self):
