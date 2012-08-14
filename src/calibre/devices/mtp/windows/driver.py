@@ -48,6 +48,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def shutdown(self):
+        self.dev = self.filesystem_cache = None
         if self.wpd is not None:
             self.wpd.uninit()
 
@@ -122,7 +123,7 @@ class MTP_DEVICE(MTPDeviceBase):
     def post_yank_cleanup(self):
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = None
+        self.dev = self.filesystem_cache = None
 
     @synchronous
     def eject(self):
@@ -130,7 +131,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.ejected_devices.add(self.currently_connected_pnp_id)
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = None
+        self.dev = self.filesystem_cache = None
 
     @synchronous
     def open(self, connected_device, library_uuid):
