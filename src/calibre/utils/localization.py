@@ -55,7 +55,7 @@ def get_lc_messages_path(lang):
         if lang in available_translations():
             hlang = lang
         else:
-            xlang = lang.split('_')[0]
+            xlang = lang.split('_')[0].lower()
             if xlang in available_translations():
                 hlang = xlang
     return hlang
