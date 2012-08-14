@@ -321,7 +321,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                         _('Could not open %s. Is it being used by another'
                         ' program?')%fname, det_msg=traceback.format_exc(),
                         show=True)
-                return False
+                return
         if mi is None:
             return
         cdata = None
