@@ -216,3 +216,13 @@ def get_windows_temp_path():
     ans = buf.value
     return ans if ans else None
 
+def get_windows_user_locale_name():
+    import ctypes
+    k32 = ctypes.windll.kernel32
+    n = 200
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    n = k32.GetUserDefaultLocaleName(buf, n)
+    if n == 0:
+        return None
+    return u'_'.join(buf.value.split(u'-')[:2])
+

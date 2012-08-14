@@ -22,6 +22,34 @@ def available_translations():
         _available_translations = [x for x in stats if stats[x] > 0.1]
     return _available_translations
 
+def get_system_locale():
+    from calibre.constants import iswindows
+    lang = None
+    if iswindows:
+        from calibre import get_windows_user_locale_name
+        try:
+            lang = get_windows_user_locale_name()
+            lang = lang.strip()
+            if not lang: lang = None
+        except:
+            pass # Windows XP does not have the GetUserDefaultLocaleName fn
+    if lang is None:
+        try:
+            lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
+                                        'LC_MESSAGES', 'LANG'])[0]
+        except:
+            pass # This happens on Ubuntu apparently
+        if lang is None and os.environ.has_key('LANG'): # Needed for OS X
+            try:
+                lang = os.environ['LANG']
+            except:
+                pass
+    if lang:
+        lang = lang.replace('-', '_')
+        lang = '_'.join(lang.split('_')[:2])
+    return lang
+
+
 def get_lang():
     'Try to figure out what language to display the interface in'
     from calibre.utils.config_base import prefs
@@ -29,16 +57,7 @@ def get_lang():
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang:
         return lang
-    try:
-        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
-                                    'LC_MESSAGES', 'LANG'])[0]
-    except:
-        pass # This happens on Ubuntu apparently
-    if lang is None and os.environ.has_key('LANG'): # Needed for OS X
-        try:
-            lang = os.environ['LANG']
-        except:
-            pass
+    lang = get_system_locale()
     if lang:
         match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
         if match:
