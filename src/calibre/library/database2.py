@@ -11,7 +11,7 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
 from collections import defaultdict
 import threading, random
 from itertools import repeat
-from math import ceil
+from math import ceil, floor
 
 from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -640,12 +640,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if name and name != fname:
                 changed = True
                 break
-        if path == current_path and not changed:
-            return
-
         tpath = os.path.join(self.library_path, *path.split('/'))
         if not os.path.exists(tpath):
             os.makedirs(tpath)
+        if path == current_path and not changed:
+            return
+
         spath = os.path.join(self.library_path, *current_path.split('/'))
 
         if current_path and os.path.exists(spath): # Migrate existing files
@@ -1150,7 +1150,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         `data`: Can be either a QImage, QPixmap, file object or bytestring
         '''
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        base_path = os.path.join(self.library_path, self.path(id,
+            index_is_id=True))
+        if not os.path.exists(base_path):
+            self.set_path(id, index_is_id=True)
+            base_path = os.path.join(self.library_path, self.path(id,
+                index_is_id=True))
+            self.dirtied([id])
+
+        path = os.path.join(base_path, 'cover.jpg')
+
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
@@ -2080,7 +2089,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return 1.0
         series_indices = [x[0] for x in series_indices]
         if tweaks['series_index_auto_increment'] == 'next':
-            return series_indices[-1] + 1
+            return floor(series_indices[-1]) + 1
         if tweaks['series_index_auto_increment'] == 'first_free':
             for i in range(1, 10000):
                 if i not in series_indices:

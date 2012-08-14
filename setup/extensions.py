@@ -169,7 +169,15 @@ if iswindows:
                 cflags=['/X']
                 ),
         Extension('wpd',
-            ['calibre/devices/mtp/windows/wpd.cpp'],
+            [
+                'calibre/devices/mtp/windows/utils.cpp',
+                'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/device.cpp',
+                'calibre/devices/mtp/windows/wpd.cpp',
+            ],
+            headers=[
+                'calibre/devices/mtp/windows/global.h',
+            ],
             libraries=['ole32', 'portabledeviceguids'],
             # needs_ddk=True,
             cflags=['/X']
@@ -291,7 +299,8 @@ class Build(Command):
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
-        self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
+        if not opts.only:
+            self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue

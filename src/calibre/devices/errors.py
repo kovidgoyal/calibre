@@ -92,6 +92,7 @@ class ControlError(ProtocolError):
     def __init__(self, query=None, response=None, desc=None):
         self.query = query
         self.response = response
+        self.desc = desc
         ProtocolError.__init__(self, desc)
 
     def __str__(self):

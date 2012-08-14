@@ -88,6 +88,15 @@ class MOBIOutput(OutputFormatPlugin):
                 'formats. This option tells calibre not to do this. '
                 'Useful if your document contains lots of GIF/PNG images that '
                 'become very large when converted to JPEG.')),
+        OptionRecommendation(name='mobi_file_type', choices=['old', 'both',
+            'new'], recommended_value='old',
+            help=_('By default calibre generates MOBI files that contain the '
+                'old MOBI 6 format. This format is compatible with all '
+                'devices. However, by changing this setting, you can tell '
+                'calibre to generate MOBI files that contain both MOBI 6 and '
+                'the new KF8 format, or only the new KF8 format. KF8 has '
+                'more features than MOBI 6, but only works with newer Kindles.')),
+
     ])
 
     def check_for_periodical(self):
@@ -165,11 +174,10 @@ class MOBIOutput(OutputFormatPlugin):
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
-        from calibre.utils.config import tweaks
         from calibre.ebooks.mobi.writer2.resources import Resources
         self.log, self.opts, self.oeb = log, opts, oeb
 
-        mobi_type = tweaks.get('test_mobi_output_type', 'old')
+        mobi_type = opts.mobi_file_type
         if self.is_periodical:
             mobi_type = 'old' # Amazon does not support KF8 periodicals
         create_kf8 = mobi_type in ('new', 'both')

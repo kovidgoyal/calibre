@@ -1,3 +1,11 @@
+/*
+ * libmtp.c
+ * Copyright (C) 2012 Kovid Goyal <kovid at kovidgoyal.net>
+ *
+ * Distributed under terms of the GPL3 license.
+ */
+
+
 #define UNICODE
 #include <Python.h>
 

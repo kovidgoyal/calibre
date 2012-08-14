@@ -22,6 +22,34 @@ def available_translations():
         _available_translations = [x for x in stats if stats[x] > 0.1]
     return _available_translations
 
+def get_system_locale():
+    from calibre.constants import iswindows
+    lang = None
+    if iswindows:
+        from calibre.constants import get_windows_user_locale_name
+        try:
+            lang = get_windows_user_locale_name()
+            lang = lang.strip()
+            if not lang: lang = None
+        except:
+            pass # Windows XP does not have the GetUserDefaultLocaleName fn
+    if lang is None:
+        try:
+            lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
+                                        'LC_MESSAGES', 'LANG'])[0]
+        except:
+            pass # This happens on Ubuntu apparently
+        if lang is None and os.environ.has_key('LANG'): # Needed for OS X
+            try:
+                lang = os.environ['LANG']
+            except:
+                pass
+    if lang:
+        lang = lang.replace('-', '_')
+        lang = '_'.join(lang.split('_')[:2])
+    return lang
+
+
 def get_lang():
     'Try to figure out what language to display the interface in'
     from calibre.utils.config_base import prefs
@@ -30,15 +58,11 @@ def get_lang():
     if lang:
         return lang
     try:
-        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
-                                    'LC_MESSAGES', 'LANG'])[0]
+        lang = get_system_locale()
     except:
-        pass # This happens on Ubuntu apparently
-    if lang is None and os.environ.has_key('LANG'): # Needed for OS X
-        try:
-            lang = os.environ['LANG']
-        except:
-            pass
+        import traceback
+        traceback.print_exc()
+        lang = None
     if lang:
         match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
         if match:
@@ -55,7 +79,7 @@ def get_lc_messages_path(lang):
         if lang in available_translations():
             hlang = lang
         else:
-            xlang = lang.split('_')[0]
+            xlang = lang.split('_')[0].lower()
             if xlang in available_translations():
                 hlang = xlang
     return hlang
