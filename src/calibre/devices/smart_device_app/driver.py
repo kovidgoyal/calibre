@@ -380,6 +380,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('socket error', e, e.errno)
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
                     raise
+                time.sleep(0.1) # lets not hammer the OS too hard
 
     def _call_client(self, op, arg, print_debug_info=True):
         if op != 'NOOP':
