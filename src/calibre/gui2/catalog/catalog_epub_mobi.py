@@ -588,9 +588,9 @@ class GenericRulesTable(QTableWidget):
             # Populate it with the saved data
             self.populate_table_row(src_row, saved_data)
 
-        self.blockSignals(False)
         scroll_to_row = last_sel_row + 1
         self.select_and_scroll_to_row(scroll_to_row)
+        self.blockSignals(False)
 
     def move_row_up(self):
         if self.DEBUG:
@@ -604,6 +604,7 @@ class GenericRulesTable(QTableWidget):
         if first_sel_row <= 0:
             return
         self.blockSignals(True)
+
         for selrow in rows:
             # Save the row above
             saved_data = self.convert_row_to_data(selrow.row() - 1)
@@ -614,12 +615,12 @@ class GenericRulesTable(QTableWidget):
 
             # Delete the row above
             self.removeRow(selrow.row() - 1)
-        self.blockSignals(False)
 
         scroll_to_row = first_sel_row
         if scroll_to_row > 0:
             scroll_to_row = scroll_to_row - 1
         self.select_and_scroll_to_row(scroll_to_row)
+        self.blockSignals(False)
 
     def populate_table(self):
         # Format of rules list is different if default values vs retrieved JSON
