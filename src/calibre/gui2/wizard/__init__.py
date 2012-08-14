@@ -440,8 +440,7 @@ class KindlePage(QWizardPage, KindleUI):
         x = unicode(self.to_address.text()).strip()
         parts = x.split('@')
 
-        if (self.send_email_widget.set_email_settings(True) and len(parts) >= 2
-                and parts[0]):
+        if (len(parts) >= 2 and parts[0] and self.send_email_widget.set_email_settings(True)):
             conf = smtp_prefs()
             accounts = conf.parse().accounts
             if not accounts: accounts = {}

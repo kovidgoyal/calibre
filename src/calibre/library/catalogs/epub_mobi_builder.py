@@ -1188,7 +1188,8 @@ Author '{0}':
                 current_series = book['series']
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
-
+                if self.opts.fmt == 'mobi':
+                    pSeriesTag['class'] = "series_mobi"
                 if self.opts.generate_series:
                     aTag = Tag(soup,'a')
                     aTag['href'] = "%s.html#%s" % ('BySeries',self.generateSeriesAnchor(book['series']))
@@ -1330,6 +1331,8 @@ Author '{0}':
                         current_series = new_entry['series']
                         pSeriesTag = Tag(soup,'p')
                         pSeriesTag['class'] = "series"
+                        if self.opts.fmt == 'mobi':
+                            pSeriesTag['class'] = "series_mobi"
                         if self.opts.generate_series:
                             aTag = Tag(soup,'a')
 
@@ -1776,6 +1779,8 @@ Author '{0}':
                 current_series = book['series']
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
+                if self.opts.fmt == 'mobi':
+                    pSeriesTag['class'] = "series_mobi"
                 aTag = Tag(soup, 'a')
                 aTag['id'] = self.generateSeriesAnchor(book['series'])
                 pSeriesTag.insert(0,aTag)
@@ -3343,11 +3348,17 @@ Author '{0}':
             return codeTag
         else:
             spanTag = Tag(soup, "span")
-            #spanTag['class'] = "prefix"
+            spanTag['class'] = "prefix"
+
+            # color:white was the original technique used to align columns.
+            # The new technique is to float the prefix left with CSS.
             if prefix_char is None:
-                spanTag['style'] = "color:white"
-                prefix_char = self.defaultPrefix
-                #prefix_char = "&nbsp;"
+                if True:
+                    prefix_char = "&nbsp;"
+                else:
+                    del spanTag['class']
+                    spanTag['style'] = "color:white"
+                    prefix_char = self.defaultPrefix
             spanTag.insert(0,NavigableString(prefix_char))
             return spanTag
 
@@ -3428,6 +3439,8 @@ Author '{0}':
                 current_series = book['series']
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
+                if self.opts.fmt == 'mobi':
+                    pSeriesTag['class'] = "series_mobi"
                 if self.opts.generate_series:
                     aTag = Tag(soup,'a')
                     aTag['href'] = "%s.html#%s" % ('BySeries', self.generateSeriesAnchor(book['series']))
@@ -3772,7 +3785,6 @@ Author '{0}':
             return "symbol_%s_series" % re.sub('\W','',series).lower()
         else:
             return "%s_series" % re.sub('\W','',ascii_text(series)).lower()
-
 
     def generateShortDescription(self, description, dest=None):
         # Truncate the description, on word boundaries if necessary

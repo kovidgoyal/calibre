@@ -193,7 +193,11 @@ class PRST1(USBMS):
 
                 time_offsets = {}
                 for i, row in enumerate(cursor):
-                    comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000);
+                    try:
+                        comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000);
+                    except (OSError, IOError):
+                        # In case the db has incorrect path info
+                        continue
                     device_date = int(row[1]);
                     offset = device_date - comp_date
                     time_offsets.setdefault(offset, 0)
