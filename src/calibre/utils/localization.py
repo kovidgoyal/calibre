@@ -57,7 +57,12 @@ def get_lang():
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang:
         return lang
-    lang = get_system_locale()
+    try:
+        lang = get_system_locale()
+    except:
+        import traceback
+        traceback.print_exc()
+        lang = None
     if lang:
         match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
         if match:
