@@ -39,6 +39,7 @@ class MTPDeviceBase(DevicePlugin):
     def __init__(self, *args, **kwargs):
         DevicePlugin.__init__(self, *args, **kwargs)
         self.progress_reporter = None
+        self.current_friendly_name = None
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
@@ -46,4 +47,8 @@ class MTPDeviceBase(DevicePlugin):
 
     def set_progress_reporter(self, report_progress):
         self.progress_reporter = report_progress
+
+    def get_gui_name(self):
+        return self.current_friendly_name or self.name
+
 

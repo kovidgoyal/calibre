@@ -34,6 +34,18 @@ typedef struct {
 } ClientInfo;
 extern ClientInfo client_info;
 
+// Device type
+typedef struct {
+    PyObject_HEAD
+    // Type-specific fields go here.
+    wchar_t *pnp_id;
+    IPortableDeviceValues *client_information;
+    IPortableDevice *device;
+    PyObject *device_information;
+
+} Device;
+extern PyTypeObject DeviceType;
+
 // Utility functions
 PyObject *hresult_set_exc(const char *msg, HRESULT hr);
 wchar_t *unicode_to_wchar(PyObject *o);

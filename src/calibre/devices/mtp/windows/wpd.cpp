@@ -186,6 +186,10 @@ PyMODINIT_FUNC
 initwpd(void) {
     PyObject *m;
 
+    wpd::DeviceType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&wpd::DeviceType) < 0)
+        return;
+ 
     m = Py_InitModule3("wpd", wpd_methods, "Interface to the WPD windows service.");
     if (m == NULL) return;
 
@@ -194,6 +198,10 @@ initwpd(void) {
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) return;
+
+    Py_INCREF(&DeviceType);
+    PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);
+
 }
 
 

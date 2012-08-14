@@ -172,6 +172,7 @@ if iswindows:
             [
                 'calibre/devices/mtp/windows/utils.cpp',
                 'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/device.cpp',
                 'calibre/devices/mtp/windows/wpd.cpp',
             ],
             headers=[
