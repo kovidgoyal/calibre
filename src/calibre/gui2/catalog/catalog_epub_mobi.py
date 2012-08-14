@@ -527,10 +527,10 @@ class GenericRulesTable(QTableWidget):
         last = rows[-1].row() + 1
 
         first_rule_name = unicode(self.cellWidget(first-1,self.COLUMNS['NAME']['ordinal']).text()).strip()
-        message = _("Are you sure you want to delete rule #%d '%s'?") % (first,first_rule_name)
+        message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
         if len(rows) > 1:
             message = _('Are you sure you want to delete rules #%d-%d?') % (first, last)
-        if not question_dialog(self, _('Are you sure?'), message, show_copy_button=False):
+        if not question_dialog(self, _('Delete Rule'), message, show_copy_button=False):
             return
         first_sel_row = self.currentRow()
         for selrow in reversed(rows):
@@ -589,8 +589,6 @@ class GenericRulesTable(QTableWidget):
 
         scroll_to_row = last_sel_row + 1
         self.select_and_scroll_to_row(scroll_to_row)
-        self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
         self.blockSignals(False)
 
     def move_row_up(self):
@@ -621,8 +619,6 @@ class GenericRulesTable(QTableWidget):
         if scroll_to_row > 0:
             scroll_to_row = scroll_to_row - 1
         self.select_and_scroll_to_row(scroll_to_row)
-        self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
         self.blockSignals(False)
 
     def populate_table(self):
@@ -654,6 +650,8 @@ class GenericRulesTable(QTableWidget):
         self.setFocus()
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
+        self.last_row_selected = self.currentRow()
+        self.last_rows_selected = self.selectionModel().selectedRows()
 
     def _source_index_changed(self, combo):
         # Figure out which row we're in
