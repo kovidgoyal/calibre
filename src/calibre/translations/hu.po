@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-08-10 06:01+0000\n"
-"PO-Revision-Date: 2012-07-28 10:43+0000\n"
+"PO-Revision-Date: 2012-08-13 16:10+0000\n"
 "Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-11 05:32+0000\n"
-"X-Generator: Launchpad (build 15780)\n"
+"X-Launchpad-Export-Date: 2012-08-14 04:43+0000\n"
+"X-Generator: Launchpad (build 15791)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1829,11 +1829,11 @@ msgstr "Kommunikáció Ex124G-vel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:23
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP eszköz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:25
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "Kommunikáció az MTP eszközzel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2025,52 +2025,59 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:114
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Kapcsolódás engedélyezése induláskor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:115
 msgid "Check this box to allow connections when calibre starts"
-msgstr ""
+msgstr "Itt engedélyezheti, hogy  kapcsolódjon-e a calibre induláskor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:117
 msgid "Security password"
-msgstr ""
+msgstr "Biztonsági jelszó"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:118
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
+"Adja meg az eszköz alkalmazása milyen jelszóval kapcsolódjon a calibrehez"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:120
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Állandó hálózati port használata"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:121
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Ha engedélyezve van,  a „Port” mezőben megadott port lesz használva. Más "
+"különben mindig véletlenszerűen lesz kiválasztva"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:123
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:124
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
 msgstr ""
+"Adja meg melyik port legyen használva, ha az „Állandó hálózati port "
+"használata” engedélyezve van"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:125
 msgid "Print extra debug information"
-msgstr ""
+msgstr "Bővebb hibakeresési információ megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:126
 msgid "Check this box if requested when reporting problems"
 msgstr ""
+"Hibajelentéskor használja ezt a lehetőséget, hogy bővebb hibakeresési "
+"információt kapjon"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:514
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Túl sok kapcsolódási kísérlet érkezett innen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:621
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2319,7 +2326,7 @@ msgstr "„A” memóriakártya mappa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "A főkártya és az A kártya megcserélése"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
@@ -6056,11 +6063,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Vezeték nélküli eszközhöz kapcsolódás indítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Vezeték nélküli eszközhöz kapcsolódás leállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to folder"
@@ -6128,13 +6135,15 @@ msgstr "Kiszolgáló leállítása, ez egy percig is eltarthat, kérjük várjon
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:226
 msgid "Disable autostart"
-msgstr ""
+msgstr "Automatikus indítás letiltása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:227
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Szeretné, ha a vezeték nélküli eszközhöz kapcsolódás a calibre indításakor "
+"automatikusan elindulna?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7187,7 +7196,7 @@ msgstr "Mappa megnyitása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:171
 msgid "Ids"
-msgstr "ID-k"
+msgstr "Azonosítók"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:209
 #, python-format
@@ -7455,7 +7464,7 @@ msgstr "Kihagyni kívánt c&ímkék"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:230
 msgid "Reset to default"
-msgstr ""
+msgstr "Visszaállítás az alapértelmezésre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:232
 msgid ""
@@ -7475,7 +7484,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:235
 msgid "Prefixes"
-msgstr ""
+msgstr "Előtagok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:236
 msgid "Other options"
@@ -7495,7 +7504,7 @@ msgstr " hüvelyk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:240
 msgid "&Extra note"
-msgstr ""
+msgstr "&További információ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:241
 msgid "Custom column source for text to include in Description section."
@@ -9328,7 +9337,7 @@ msgstr "eltávolítandó címkék"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:50
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:148
 msgid "No details available."
-msgstr "Részletek nem elérhetőek."
+msgstr "Nem érhetőek el információk."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:195
 msgid "Device no longer connected."
@@ -10415,7 +10424,7 @@ msgstr "Kijelölt műveletek &leállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr "&Kiválasztott műveletek rejtése"
+msgstr "&Kiválasztott műveletek elrejtése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -10427,11 +10436,11 @@ msgstr "&Minden művelet megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
-msgstr "Összes nem eszközre von&atkozó művelet megállítása"
+msgstr "Összes nem az eszközre von&atkozó művelet megállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr "Minden művelet &rejtése"
+msgstr "M&inden művelet elrejtése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:298
@@ -12085,11 +12094,11 @@ msgstr "Opcionális biztonsági jelszó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:67
 msgid "Optional &password:"
-msgstr ""
+msgstr "Opcionális &jelszó:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:69
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "&Automatikus kapcsolódás a calibre indulásakor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -12693,10 +12702,10 @@ msgstr ""
 "<div style=\"font-size:10pt;\">\n"
 "<p>Adjon meg egy reguláris kifejezést a metaadatok fájlnévből történő "
 "kiolvasásához. </p>\n"
-"<p>Bővebb információ az <a href=\"http://manual.calibre-"
-"ebook.com/regexp.html\">oktatóban</a>-ben.</p>\n"
+"<p>Bővebb információt <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">ebben</a> az angol nyelvű leírásban talál.</p>\n"
 "<p>Használja a  <b>Teszt</b> funkciót az képernyő alsó részén, ahol "
-"kipróbálhatja az összeállított reguláris kifejezést minta fájlneveken. Ne "
+"kipróbálhatja az összeállított reguláris kifejezést mintafájlneveken. Ne "
 "feledje megadni a fájl kiterjesztését is! Ha az egérkurzort a metaadat "
 "találati mező fölé viszi, akkor megjelenik, hogy az adott adathoz milyen "
 "reguláris kifejezést kell használni.</p></div>"
@@ -13584,7 +13593,7 @@ msgstr "Nem lehet kiolvasni a metaadatokat a %s formátumból."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:866
 msgid "&Browse"
-msgstr "&Tallózás"
+msgstr "T&allózás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:868
 msgid "T&rim"
@@ -15076,7 +15085,7 @@ msgstr "Színek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr ""
+msgstr "Hibakeresési információk kigyűjtése, kérem várjon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -15085,7 +15094,7 @@ msgstr "Másolás a vágólapra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:43
 msgid "Device already detected"
-msgstr ""
+msgstr "Az eszköz már észlelve van"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:44
 #, python-format
@@ -15096,7 +15105,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
-msgstr ""
+msgstr "A hibakeresés sikertelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:58
 msgid ""
@@ -15570,7 +15579,7 @@ msgstr "A be nem jelölt mezőkhöz nem lesz letöltve metaadat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:71
 msgid "&Select all"
-msgstr "&Mind kijelölése"
+msgstr "&Mindegyik kijelölése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:75
 msgid "&Clear all"
@@ -15608,11 +15617,11 @@ msgstr "Szer&ző keresztnév(KN) vezetéknév(VN) cseréje VN, KN-re"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:98
 msgid "Max. number of &tags to download:"
-msgstr "Letölthető címkék ma&x. száma:"
+msgstr "Letölthető címkék ma&ximális száma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:105
 msgid "Max. &time to wait after first match is found:"
-msgstr "Az első találat utáni max. &várakozási idő:"
+msgstr "Az első találat utáni maximális &várakozási idő:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
@@ -15622,7 +15631,7 @@ msgstr " másodperc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:113
 msgid "Max. time to wait after first &cover is found:"
-msgstr "Az első &borítótalálat utáni max. várakozási idő:"
+msgstr "Az első &borítótalálat utáni maximális várakozási idő:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:121
 msgid ""
@@ -16368,7 +16377,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:145
 msgid "Max. &cover size:"
-msgstr "Max. &borító méret:"
+msgstr "Maximális &borító méret:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:146
 msgid "Server &port:"
@@ -16376,11 +16385,11 @@ msgstr "Kiszolgáló &port:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:149
 msgid "Max. &OPDS items per query:"
-msgstr "Max. &OPDS elemszám kérésenként:"
+msgstr "Maximális &OPDS elemszám kérésenként:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:150
 msgid "Max. OPDS &ungrouped items:"
-msgstr "Nem &csoportosított OPDS elemek max. száma:"
+msgstr "Nem &csoportosított OPDS elemek maximális száma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:151
 msgid "Restriction (saved search) to apply:"
@@ -18097,30 +18106,30 @@ msgstr "Alap betűtípus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:130
 msgid "Theme name"
-msgstr ""
+msgstr "Téma neve"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:131
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Adjon meg egy nevet a témának"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:140
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "A beállítások elmentve a következő néven: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:156
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "A következő téma beállításainak betöltése: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:163
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "A következő téma törlése: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:219
 msgid "Choose text color"
-msgstr ""
+msgstr "Szöveg színének kiválasztása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Still editing"
@@ -18252,25 +18261,25 @@ msgstr "&Teljes képernyős beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Háttérszín:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Minta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Módosítás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Szövegszín:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Színek és hátterek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -18419,15 +18428,15 @@ msgstr "Szakasz vége"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:37
 msgid "Zoom &in"
-msgstr ""
+msgstr "&Nagyítás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 msgid "Zoom &out"
-msgstr ""
+msgstr "&Kicsinyítés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
 msgid "&Save as"
-msgstr ""
+msgstr "&Mentés másként"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:63
 msgid "Choose a file to save to"
@@ -18436,7 +18445,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:88
 #, python-format
 msgid "View Image: %s"
-msgstr ""
+msgstr "Kép megtekintése: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -18544,7 +18553,7 @@ msgstr "Nyomja meg az Esc-t a kilépéshez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:294
 msgid "Show/hide controls"
-msgstr "Vezérlők mutatása/rejtése"
+msgstr "Vezérlők megjelenítése/elrejtése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:323
 msgid "Print Preview"
@@ -18752,8 +18761,8 @@ msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
 msgstr ""
-"A <b>%r</b> név végén nincs fájlkiterjesztés. A névnek kiterjesztéssel kell "
-"végződnie, mint pl. „.epub” vagy „.mobi”."
+"A megadott név (<b>%r</b>) végén nincs fájlkiterjesztés. A névnek "
+"kiterjesztéssel kell végződnie, mint pl. „.epub” vagy „.mobi”."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:950
 msgid "Drag to resize"
