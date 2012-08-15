@@ -1,105 +1,141 @@
 #!/usr/bin/env  python
 # -*- coding: utf-8 -*-
-
 __license__   = 'GPL v3'
 
 '''
 www.canada.com
 '''
-
-import re
+import string, re
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
+
+import string, re
+from calibre import strftime
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 
 class CanWestPaper(BasicNewsRecipe):
 
-    # un-comment the following four lines for the Victoria Times Colonist
-##    title = u'Victoria Times Colonist'
-##    url_prefix = 'http://www.timescolonist.com'
-##    description = u'News from Victoria, BC'
-##    fp_tag = 'CAN_TC'
+    postmedia_index_pages = [
+        (u'Headlines',u'/index.html'),
+        (u'Ottawa & Area',u'/news/ottawa/index.html'),
+        (u'Vancouver',u'/news/vancouver/index.html'),
+        (u'Calgary',u'/news/calgary/index.html'),
+        (u'Edmonton',u'/news/edmonton/index.html'),
+        (u'Montreal',u'/news/montreal/index.html'),
+        (u'Fraser Valley',u'/news/fraser-valley/index.html'),
+        (u'British Columbia',u'/news/bc/index.html'),
+        (u'Alberta',u'/news/alberta/index.html'),
+        (u'Canada',u'/news/canada/index.html'),
+        (u'National',u'/news/national/index.html'),
+        (u'Politics',u'/news/politics/index.html'),
+        (u'Insight',u'/news/insight/index.html'),
+        (u'Special Reports',u'/news/specialreports/index.html'),
+        (u'Gangs',u'/news/gangs/index.html'),
+        (u'Education',u'/news/education/index.html'),
+        (u'Health',u'/news/health/index.html'),
+        (u'Environment',u'/news/environment/index.html'),
+        (u'World',u'/news/world/index.html'),
+        (u'Police Blotter',u'/news/crime-and-justice/index.html'),
+        (u'Crime',u'/news/blotter/index.html'),
+        (u'Around Town',u'/news/topic.html?t=keyword&q=Around+Town'),
+        (u'Diplomatica',u'/news/diplomatica/index.html'),
+        (u'Opinion',u'/opinion/index.html'),
+        (u'Columnists',u'/columnists/index.html'),
+        (u'Editorials',u'/opinion/editorials/index.html'),
+        (u'Letters',u'/opinion/letters/index.html'),
+        (u'Business',u'/business/index.html'),
+        (u'Sports',u'/sports/index.html'),
+        (u'Arts',u'/entertainment/index.html'),
+        (u'Life',u'/life/index.html'),
+        (u'Technology',u'/technology/index.html'),
+        (u'Travel',u'/travel/index.html'),
+        (u'Health',u'/health/index.html')
+        ]
 
-    # un-comment the following four lines for the Vancouver Province
+
+    # un-comment the following six lines for the Vancouver Province
 ##    title = u'Vancouver Province'
 ##    url_prefix = 'http://www.theprovince.com'
 ##    description = u'News from Vancouver, BC'
-##    fp_tag = 'CAN_VP'
+##    std_logo_url = 'http://www.theprovince.com/images/logo_theprovince.jpg'
+##    logo_url = 'vplogo.jpg'
+##    fp_tag = 'CAN_TP'
 
-    # un-comment the following four lines for the Vancouver Sun
+    # un-comment the following six lines for the Vancouver Sun
     title = u'Vancouver Sun'
     url_prefix = 'http://www.vancouversun.com'
     description = u'News from Vancouver, BC'
+    std_logo_url = 'http://www.vancouversun.com/images/logo_vancouversun.jpg'
+    logo_url = 'vslogo.jpg'
     fp_tag = 'CAN_VS'
 
-    # un-comment the following four lines for the Edmonton Journal
-##    title = u'Edmonton Journal'
-##    url_prefix = 'http://www.edmontonjournal.com'
-##    description = u'News from Edmonton, AB'
-##    fp_tag = 'CAN_EJ'
-
-    # un-comment the following four lines for the Calgary Herald
+    # un-comment the following six lines for the Calgary Herald
 ##    title = u'Calgary Herald'
 ##    url_prefix = 'http://www.calgaryherald.com'
 ##    description = u'News from Calgary, AB'
+##    std_logo_url = 'http://www.calgaryherald.com/images/logo_calgaryherald.jpg'
+##    logo_url = 'chlogo.jpg'
 ##    fp_tag = 'CAN_CH'
 
-    # un-comment the following four lines for the Regina Leader-Post
-##    title = u'Regina Leader-Post'
-##    url_prefix = 'http://www.leaderpost.com'
-##    description = u'News from Regina, SK'
-##    fp_tag = ''
+    # un-comment the following six lines for the Edmonton Journal
+##    title = u'Edmonton Journal'
+##    url_prefix = 'http://www.edmontonjournal.com'
+##    description = u'News from Edmonton, AB'
+##    std_logo_url = 'http://www.edmontonjournal.com/images/logo_edmontonjournal.jpg'
+##    logo_url = 'ejlogo.jpg'
+##    fp_tag = 'CAN_EJ'
 
-    # un-comment the following four lines for the Saskatoon Star-Phoenix
-##    title = u'Saskatoon Star-Phoenix'
-##    url_prefix = 'http://www.thestarphoenix.com'
-##    description = u'News from Saskatoon, SK'
-##    fp_tag = ''
-
-    # un-comment the following four lines for the Windsor Star
-##    title = u'Windsor Star'
-##    url_prefix = 'http://www.windsorstar.com'
-##    description = u'News from Windsor, ON'
-##    fp_tag = 'CAN_'
-
-    # un-comment the following four lines for the Ottawa Citizen
+    # un-comment the following six lines for the Ottawa Citizen
 ##    title = u'Ottawa Citizen'
 ##    url_prefix = 'http://www.ottawacitizen.com'
-##    description = u'News from Ottawa, ON'
+##    description = u'News from Ottawa, ON'   
+##    std_logo_url = 'http://www.ottawacitizen.com/images/logo_ottawacitizen.jpg'
+##    logo_url = 'oclogo.jpg'
 ##    fp_tag = 'CAN_OC'
 
-    # un-comment the following four lines for the Montreal Gazette
+    # un-comment the following six lines for the Montreal Gazette
 ##    title = u'Montreal Gazette'
 ##    url_prefix = 'http://www.montrealgazette.com'
 ##    description = u'News from Montreal, QC'
+##    std_logo_url = 'http://www.montrealgazette.com/images/logo_montrealgazette.jpg'
+##    logo_url = 'mglogo.jpg'
 ##    fp_tag = 'CAN_MG'
 
+    Kindle_Fire=False
+    masthead_url = std_logo_url
 
+    url_list = []    
     language = 'en_CA'
     __author__ = 'Nick Redding'
     no_stylesheets = True
-    timefmt = ' [%b %d]'
+    timefmt =  ' [%b %d]'
+    encoding = 'utf-8'
     extra_css = '''
                 .timestamp {  font-size:xx-small; display: block; }
                 #storyheader { font-size: medium; }
                 #storyheader h1 { font-size: x-large; }
-                #storyheader h2 { font-size: large;  font-style: italic; }
+                #storyheader h2 { font-size: small;  font-style: italic; }
                 .byline { font-size:xx-small; }
-                #photocaption { font-size: small; font-style: italic }
-                #photocredit { font-size: xx-small; }'''
-    keep_only_tags = [dict(name='div', attrs={'id':'storyheader'}),dict(name='div', attrs={'id':'storycontent'})]
+                #photocaption { font-size: xx-small; font-style: italic; font-weight: normal; }
+                .photocaption { font-size: xx-small; font-style: italic; font-weight: normal; }
+                #photocredit { font-size: xx-small; font-weight: normal; }'''
+    
+    keep_only_tags = [dict(name='div', attrs={'id':'storyheader'}),dict(name='div', attrs={'id':'storycontent'}),dict(name='div', attrs={'id':'storyphoto'})]
+
     remove_tags = [{'class':'comments'},
                    dict(name='div', attrs={'class':'navbar'}),dict(name='div', attrs={'class':'morelinks'}),
+                   dict(name='h2', attrs={'id':'photocredit'}),
                    dict(name='div', attrs={'class':'viewmore'}),dict(name='li', attrs={'class':'email'}),
                    dict(name='div', attrs={'class':'story_tool_hr'}),dict(name='div', attrs={'class':'clear'}),
                    dict(name='div', attrs={'class':'story_tool'}),dict(name='div', attrs={'class':'copyright'}),
                    dict(name='div', attrs={'class':'rule_grey_solid'}),
                    dict(name='li', attrs={'class':'print'}),dict(name='li', attrs={'class':'share'}),dict(name='ul', attrs={'class':'bullet'})]
 
+
     def get_cover_url(self):
-        from datetime import timedelta, date
-        if self.fp_tag=='':
-            return None
+        from datetime import timedelta, datetime, date
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.fp_tag+'.jpg'
         br = BasicNewsRecipe.get_browser()
         daysback=1
@@ -119,6 +155,19 @@ class CanWestPaper(BasicNewsRecipe):
             self.log("\nCover unavailable")
             cover = None
         return cover
+
+    def prepare_masthead_image(self, path_to_image, out_path):
+        if self.Kindle_Fire:
+            from calibre import fit_image
+            from calibre.utils.magick import Image, create_canvas
+            img = Image()
+            img.open(path_to_image)
+            width, height = img.size
+            img2 = create_canvas(width, height)
+            img2.compose(img)
+            img2.save(out_path)
+        else:
+            BasicNewsRecipe.prepare_masthead_image(self, path_to_image, out_path)
 
     def fixChars(self,string):
         # Replace lsquo (\x91)
@@ -166,55 +215,106 @@ class CanWestPaper(BasicNewsRecipe):
                     a.replaceWith(a.renderContents().decode('cp1252','replace'))
         return soup
 
-    def preprocess_html(self, soup):
+
+    def preprocess_html(self,soup):
+        #delete empty id attributes--they screw up the TOC for unknown reasons
+        divtags = soup.findAll('div',attrs={'id':''})
+        if divtags:
+            for div in divtags:
+                del(div['id'])
+
+        pgall = soup.find('div',attrs={'id':'storyphoto'})
+        if pgall is not None: # photo gallery perhaps
+            if (soup.find('div',attrs={'id':'storycontent'}) is None):
+                allpics = Tag(soup,'div')
+                first_img = pgall.find('div','storyimage')
+                if first_img is not None:
+                    first_img.extract()
+                    tlist = pgall.find('div',attrs={'id':'relatedthumbs'})
+                    if tlist is not None:
+                        for atag in tlist.findAll('a'):
+                            img = Tag(soup,'img')
+                            srcpre, sep, srcpost = atag.img['src'].partition('?')
+                            img['src'] = srcpre
+                            pdesc = Tag(soup,'p')
+                            pdesc.insert(0,atag.img['alt'])
+                            pdesc['class']='photocaption'
+                            div = Tag(soup,'div')
+                            div.insert(0,pdesc)
+                            div.insert(0,img)
+                            allpics.append(div)
+                pgall.replaceWith(allpics)
+            
+        for pg in soup.findAll('div',attrs={'id':'storyphoto'}):
+            pg.extract()
         return self.strip_anchors(soup)
 
-
+                        
 
     def parse_index(self):
-        soup = self.index_to_soup(self.url_prefix+'/news/todays-paper/index.html')
 
         articles = {}
-        key = 'News'
-        ans = ['News']
+        ans = []
 
-        # Find each instance of class="sectiontitle", class="featurecontent"
-        for divtag in soup.findAll('div',attrs={'class' : ["section_title02","featurecontent"]}):
-                #self.log(" div class = %s" % divtag['class'])
-                if divtag['class'].startswith('section_title'):
-                    # div contains section title
-                    if not divtag.h3:
-                        continue
-                    key = self.tag_to_string(divtag.h3,False)
-                    ans.append(key)
-                    self.log("Section name %s" % key)
-                    continue
-                # div contains article data
-                h1tag = divtag.find('h1')
-                if not h1tag:
-                    continue
-                atag = h1tag.find('a',href=True)
-                if not atag:
-                    continue
-                url = self.url_prefix+'/news/todays-paper/'+atag['href']
-                #self.log("Section %s" % key)
-                #self.log("url %s" % url)
-                title = self.tag_to_string(atag,False)
-                #self.log("title %s" % title)
-                pubdate = ''
-                description = ''
-                ptag = divtag.find('p');
-                if ptag:
-                    description = self.tag_to_string(ptag,False)
-                    #self.log("description %s" % description)
-                author = ''
-                autag = divtag.find('h4')
-                if autag:
-                    author = self.tag_to_string(autag,False)
-                    #self.log("author %s" % author)
-                if not articles.has_key(key):
-                    articles[key] = []
-                articles[key].append(dict(title=title,url=url,date=pubdate,description=description,author=author,content=''))
 
+        def handle_article(adiv,key):
+            h1tag = adiv.h1
+            if h1tag is not None:
+                atag = h1tag.a
+                if atag is not None:
+                    url = atag['href']
+                    if atag['href'].startswith('http'):
+                        return
+                    elif atag['href'].startswith('/'):
+                        url = self.url_prefix+atag['href']
+                    else:
+                        url = self.url_prefix+'/'+atag['href']
+                    if url in self.url_list:
+                        return
+                    self.url_list.append(url)
+                    title = self.tag_to_string(atag,False)
+                    if 'VIDEO' in title.upper():
+                        return
+                    if 'GALLERY' in title.upper():
+                        return
+                    if 'PHOTOS' in title.upper():
+                        return                  
+                    dtag = adiv.find('div','content')
+                    description=''
+                    print("URL "+url)
+                    print("TITLE "+title)
+                    if dtag is not None:
+                        stag = dtag.span
+                        if stag is not None:
+                            if stag['class'] != 'timestamp':
+                                description = self.tag_to_string(stag,False)
+                        else:
+                            description = self.tag_to_string(dtag,False)
+                        print("DESCRIPTION: "+description)
+                    if not articles.has_key(key):
+                        articles[key] = []
+                    articles[key].append(dict(title=title,url=url,date='',description=description,author='',content=''))
+
+        def parse_web_index(key, keyurl):
+            try:
+                soup = self.index_to_soup(self.url_prefix+keyurl)
+            except:
+                return
+            ans.append(key)
+            mainsoup = soup.find('div','bodywrapper')
+            footer = mainsoup.find(attrs={'id':'footerfeature'})
+            if footer is not None:
+                footer.extract()
+            print("Section: "+key)
+            for wdiv in mainsoup.findAll('div',attrs={'id':re.compile('^HorizontalFeatureSlider_1_Story')}):
+                handle_article(wdiv,key)
+                wdiv.extract()
+            for wdiv in mainsoup.findAll(attrs={'id':['featurewidget','textfeature','textlinks_timestamp']}):
+                for adiv in wdiv.findAll('div','featurecontent'):
+                    handle_article(adiv,key)
+
+        for (k,url) in self.postmedia_index_pages:
+            parse_web_index(k,url)
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
+                    
