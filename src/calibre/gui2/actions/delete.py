@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from collections import Counter
 
 from PyQt4.Qt import QObject, QTimer
 
@@ -115,15 +116,17 @@ class DeleteAction(InterfaceAction):
         for action in list(self.delete_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def _get_selected_formats(self, msg, ids):
+    def _get_selected_formats(self, msg, ids, exclude=False, single=False):
         from calibre.gui2.dialogs.select_formats import SelectFormats
-        fmts = set([])
+        c = Counter()
         db = self.gui.library_view.model().db
         for x in ids:
             fmts_ = db.formats(x, index_is_id=True, verify_formats=False)
             if fmts_:
-                fmts.update(frozenset([x.lower() for x in fmts_.split(',')]))
-        d = SelectFormats(list(sorted(fmts)), msg, parent=self.gui)
+                for x in frozenset([x.lower() for x in fmts_.split(',')]):
+                    c[x] += 1
+        d = SelectFormats(c, msg, parent=self.gui, exclude=exclude,
+                single=single)
         if d.exec_() != d.Accepted:
             return None
         return d.selected_formats
@@ -160,7 +163,8 @@ class DeleteAction(InterfaceAction):
             return
         fmts = self._get_selected_formats(
             '<p>'+_('Choose formats <b>not</b> to be deleted.<p>Note that '
-                'this will never remove all formats from a book.'), ids)
+                'this will never remove all formats from a book.'), ids,
+            exclude=True)
         if fmts is None:
             return
         for id in ids:
@@ -262,8 +266,10 @@ class DeleteAction(InterfaceAction):
             v.model().clear_ondevice(ids_deleted)
         if current_row is not None:
             ci = view.model().index(current_row, 0)
-            if ci.isValid():
-                view.set_current_row(current_row)
+            if not ci.isValid():
+                # Current row is after the last row, set it to the last row
+                current_row = view.row_count() - 1
+            view.set_current_row(current_row)
 
     def delete_books(self, *args):
         '''

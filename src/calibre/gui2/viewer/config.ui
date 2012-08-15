@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>479</width>
+    <width>839</width>
     <height>630</height>
    </rect>
   </property>
@@ -167,20 +167,6 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="8" column="0" colspan="2">
-          <widget class="QCheckBox" name="opt_remember_window_size">
-           <property name="text">
-            <string>Remember last used &amp;window size and layout</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" colspan="2">
-          <widget class="QCheckBox" name="opt_remember_current_page">
-           <property name="text">
-            <string>Remember the &amp;current page when quitting</string>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="0" colspan="2">
           <widget class="QCheckBox" name="hyphenate">
            <property name="text">
@@ -196,19 +182,12 @@
           </widget>
          </item>
          <item row="6" column="0">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="hyphenate_label">
            <property name="text">
             <string>Default &amp;language for hyphenation:</string>
            </property>
            <property name="buddy">
             <cstring>hyphenate_default_lang</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" colspan="2">
-          <widget class="QCheckBox" name="opt_fit_images">
-           <property name="text">
-            <string>&amp;Resize images larger than the viewer window (needs restart)</string>
            </property>
           </widget>
          </item>
@@ -244,13 +223,6 @@
            </property>
            <property name="value">
             <double>0.500000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" colspan="2">
-          <widget class="QCheckBox" name="opt_wheel_flips_pages">
-           <property name="text">
-            <string>Mouse &amp;wheel flips pages</string>
            </property>
           </widget>
          </item>
@@ -298,6 +270,48 @@
            </property>
            <property name="suffix">
             <string>%</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QCheckBox" name="opt_fit_images">
+           <property name="text">
+            <string>&amp;Resize images larger than the viewer window (needs restart)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QCheckBox" name="opt_remember_window_size">
+           <property name="text">
+            <string>Remember last used &amp;window size and layout</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QCheckBox" name="opt_wheel_flips_pages">
+           <property name="text">
+            <string>Mouse &amp;wheel flips pages</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QCheckBox" name="opt_remember_current_page">
+           <property name="text">
+            <string>Remember the &amp;current page when quitting</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
+           <property name="text">
+            <string>Line &amp;scrolling stops at page breaks</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QCheckBox" name="opt_fullscreen_clock">
+           <property name="text">
+            <string>Show &amp;clock in full screen mode</string>
            </property>
           </widget>
          </item>

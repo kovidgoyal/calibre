@@ -17,7 +17,8 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/html.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, ['htmlz_css_type', 'htmlz_class_style'])
+        Widget.__init__(self, parent, ['htmlz_css_type', 'htmlz_class_style',
+            'htmlz_title_filename'])
         self.db, self.book_id = db, book_id
         for x in get_option('htmlz_css_type').option.choices:
             self.opt_htmlz_css_type.addItem(x)

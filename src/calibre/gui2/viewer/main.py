@@ -6,9 +6,10 @@ from functools import partial
 from threading import Thread
 
 from PyQt4.Qt import (QApplication, Qt, QIcon, QTimer, QByteArray, QSize,
-        QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation, QPainter,
-        QBrush, QColor, pyqtSignal, QUrl, QRegExpValidator, QRegExp, QLineEdit,
-        QToolButton, QMenu, QInputDialog, QAction, QKeySequence, QModelIndex)
+        QTime, QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation,
+        QPainter, QBrush, QColor, pyqtSignal, QUrl, QRegExpValidator, QRegExp,
+        QLineEdit, QToolButton, QMenu, QInputDialog, QAction, QKeySequence,
+        QModelIndex)
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -28,6 +29,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
 from calibre.ptempfile import reset_base_dir
+from calibre.utils.zipfile import BadZipfile
 
 vprefs = JSONConfig('viewer')
 
@@ -37,6 +39,11 @@ class Worker(Thread):
         try:
             Thread.run(self)
             self.exception = self.traceback = None
+        except BadZipfile:
+            self.exception = _(
+                'This ebook is corrupted and cannot be opened. If you '
+                'downloaded it from somewhere, try downloading it again.')
+            self.traceback = ''
         except Exception as err:
             self.exception = err
             self.traceback = traceback.format_exc()
@@ -132,7 +139,9 @@ class Reference(QLineEdit):
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        self.goto.emit(unicode(self.text()))
+        text = unicode(self.text())
+        self.setText('')
+        self.goto.emit(text)
 
 class RecentAction(QAction):
 
@@ -236,7 +245,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 x:self.goto_page(x/100.))
         self.search.search.connect(self.find)
         self.search.focus_to_library.connect(lambda: self.view.setFocus(Qt.OtherFocusReason))
-        self.toc.clicked[QModelIndex].connect(self.toc_clicked)
+        self.toc.pressed[QModelIndex].connect(self.toc_clicked)
         self.reference.goto.connect(self.goto)
 
         self.bookmarks_menu = QMenu()
@@ -280,6 +289,23 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, 'size')
+        self.clock_label = QLabel('99:99', self)
+        self.clock_label.setVisible(False)
+        self.clock_label.setFocusPolicy(Qt.NoFocus)
+        self.clock_label_style = '''
+            QLabel {
+                text-align: right;
+                border-width: 1px;
+                border-style: solid;
+                border-radius: 8px;
+                background-color: %s;
+                color: %s;
+                font-family: monospace;
+                font-size: larger;
+                padding: 5px;
+        }'''
+        self.clock_timer = QTimer(self)
+        self.clock_timer.timeout.connect(self.update_clock)
         self.esc_full_screen_action = a = QAction(self)
         self.addAction(a)
         a.setShortcut(Qt.Key_Escape)
@@ -405,10 +431,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return c.remember_current_page
 
     def print_book(self):
-        Printing(self.iterator.spine, False)
+        p = Printing(self.iterator, self)
+        p.start_print()
 
     def print_preview(self):
-        Printing(self.iterator.spine, True)
+        p = Printing(self.iterator, self)
+        p.start_preview()
 
     def toggle_fullscreen(self, x):
         if self.isFullScreen():
@@ -444,9 +472,29 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         a.start()
         QTimer.singleShot(2750, self.full_screen_label.hide)
         self.view.document.switch_to_fullscreen_mode()
+        if self.view.document.fullscreen_clock:
+            self.show_clock()
+
+    def show_clock(self):
+        self.clock_label.setVisible(True)
+        self.clock_label.setText('99:99 AA')
+        self.clock_timer.start(1000)
+        self.clock_label.setStyleSheet(self.clock_label_style%
+                tuple(self.view.document.colors()))
+        self.clock_label.resize(self.clock_label.sizeHint())
+        sw = QApplication.desktop().screenGeometry(self.view)
+        self.clock_label.move(sw.width() - self.vertical_scrollbar.width() - 15
+                - self.clock_label.width(), sw.height() -
+                self.clock_label.height()-10)
+        self.update_clock()
+
+    def update_clock(self):
+        self.clock_label.setText(QTime.currentTime().toString('h:mm a'))
 
     def showNormal(self):
         self.view.document.page_position.save()
+        self.clock_label.setVisible(False)
+        self.clock_timer.stop()
         self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
         self.tool_bar.setVisible(True)
@@ -467,6 +515,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()
+            self.scrolled(self.view.scroll_fraction)
 
     def goto(self, ref):
         if ref:
@@ -493,17 +542,19 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.pending_bookmark = None
             self.load_path(self.iterator.spine[spine_index])
 
-    def toc_clicked(self, index):
-        item = self.toc_model.itemFromIndex(index)
-        if item.abspath is not None:
-            if not os.path.exists(item.abspath):
-                return error_dialog(self, _('No such location'),
-                        _('The location pointed to by this item'
-                            ' does not exist.'), show=True)
-            url = QUrl.fromLocalFile(item.abspath)
-            if item.fragment:
-                url.setFragment(item.fragment)
-            self.link_clicked(url)
+    def toc_clicked(self, index, force=False):
+        if force or QApplication.mouseButtons() & Qt.LeftButton:
+            item = self.toc_model.itemFromIndex(index)
+            if item.abspath is not None:
+                if not os.path.exists(item.abspath):
+                    return error_dialog(self, _('No such location'),
+                            _('The location pointed to by this item'
+                                ' does not exist.'), show=True)
+                url = QUrl.fromLocalFile(item.abspath)
+                if item.fragment:
+                    url.setFragment(item.fragment)
+                self.link_clicked(url)
+        self.view.setFocus(Qt.OtherFocusReason)
 
     def selection_changed(self, selected_text):
         self.selected_text = selected_text.strip()
@@ -623,11 +674,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.pending_anchor = frag
                 self.load_path(path)
             else:
+                oldpos = self.view.document.ypos
                 if frag:
                     self.view.scroll_to(frag)
                 else:
                     # Scroll to top
                     self.view.scroll_to('#')
+                if self.view.document.ypos == oldpos:
+                    # If we are coming from goto_next_section() call this will
+                    # cause another goto next section call with the next toc
+                    # entry, since this one did not cause any scrolling at all.
+                    QTimer.singleShot(10, self.update_indexing_state)
         else:
             open_url(url)
 
@@ -644,6 +701,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.current_page = self.iterator.spine[index]
         self.current_index = index
         self.set_page_number(self.view.scroll_fraction)
+        QTimer.singleShot(100, self.update_indexing_state)
         if self.pending_search is not None:
             self.do_search(self.pending_search,
                     self.pending_search_dir=='backwards')
@@ -661,13 +719,50 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return self.current_index
 
     def goto_next_section(self):
-        nindex = (self.current_index + 1)%len(self.iterator.spine)
-        self.load_path(self.iterator.spine[nindex])
+        if hasattr(self, 'current_index'):
+            entry = self.toc_model.next_entry(self.current_index,
+                    self.view.document.read_anchor_positions(),
+                    self.view.viewport_rect, self.view.document.in_paged_mode)
+            if entry is not None:
+                self.pending_goto_next_section = (
+                        self.toc_model.currently_viewed_entry, entry, False)
+                self.toc_clicked(entry.index(), force=True)
 
     def goto_previous_section(self):
-        pindex = (self.current_index - 1 + len(self.iterator.spine)) \
-                % len(self.iterator.spine)
-        self.load_path(self.iterator.spine[pindex])
+        if hasattr(self, 'current_index'):
+            entry = self.toc_model.next_entry(self.current_index,
+                    self.view.document.read_anchor_positions(),
+                    self.view.viewport_rect, self.view.document.in_paged_mode,
+                    backwards=True)
+            if entry is not None:
+                self.pending_goto_next_section = (
+                        self.toc_model.currently_viewed_entry, entry, True)
+                self.toc_clicked(entry.index(), force=True)
+
+    def update_indexing_state(self, anchor_positions=None):
+        pgns = getattr(self, 'pending_goto_next_section', None)
+        if hasattr(self, 'current_index'):
+            if anchor_positions is None:
+                anchor_positions = self.view.document.read_anchor_positions()
+            items = self.toc_model.update_indexing_state(self.current_index,
+                        self.view.viewport_rect, anchor_positions,
+                        self.view.document.in_paged_mode)
+            if items:
+                self.toc.scrollTo(items[-1].index())
+            if pgns is not None:
+                self.pending_goto_next_section = None
+                # Check that we actually progressed
+                if pgns[0] is self.toc_model.currently_viewed_entry:
+                    entry = self.toc_model.next_entry(self.current_index,
+                            self.view.document.read_anchor_positions(),
+                            self.view.viewport_rect,
+                            self.view.document.in_paged_mode,
+                            backwards=pgns[2], current_entry=pgns[1])
+                    if entry is not None:
+                        self.pending_goto_next_section = (
+                                self.toc_model.currently_viewed_entry, entry,
+                                pgns[2])
+                        self.toc_clicked(entry.index(), force=True)
 
     def load_path(self, path, pos=0.0):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
@@ -703,6 +798,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.handle_window_mode_toggle()
         else:
             self.view.document.page_position.restore()
+        self.view.document.after_resize()
 
     def close_progress_indicator(self):
         self.pi.stop()
@@ -859,8 +955,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.pos.set_value(page)
             self.set_vscrollbar_value(page)
 
-    def scrolled(self, frac):
+    def scrolled(self, frac, onload=False):
         self.set_page_number(frac)
+        if not onload:
+            ap = self.view.document.read_anchor_positions()
+            self.update_indexing_state(ap)
 
     def next_document(self):
         if (hasattr(self, 'current_index') and self.current_index <
@@ -945,12 +1044,19 @@ def main(args=sys.argv):
     except:
         open_at = None
     if pid <= 0:
-        app = Application(args)
+        override = 'calibre-ebook-viewer' if islinux else None
+        app = Application(args, override_program_name=override)
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,
                 debug_javascript=opts.debug_javascript, open_at=open_at)
+        # This is needed for paged mode. Without it, the first document that is
+        # loaded will have extra blank space at the bottom, as
+        # turn_off_internal_scrollbars does not take effect for the first
+        # rendered document
+        main.view.load_path(P('viewer/blank.html', allow_user_override=False))
+
         sys.excepthook = main.unhandled_exception
         main.show()
         if opts.raise_window:

@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>, 2012 Bernd Leinfelder <skoll1975@gmail.com>'
 
 '''
 www.nzz.ch
@@ -10,7 +10,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class Nzz(BasicNewsRecipe):
     title                 = 'NZZ Online'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic, Bernd Leinfelder'
     description           = 'Laufend aktualisierte Nachrichten, Analysen und Hintergruende zu Politik, Wirtschaft, Kultur und Sport'
     publisher             = 'NZZ AG'
     category              = 'news, politics, nachrichten, Switzerland'
@@ -41,31 +41,31 @@ class Nzz(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-    keep_only_tags = [dict(name='div', attrs={'class':'zone'})]
-    remove_tags_before = dict(name='p', attrs={'class':'dachzeile'})
-    remove_tags_after=dict(name='p', attrs={'class':'fussnote'})
+
     remove_attributes=['width','height','lang']
+    remove_tags_before = dict(id='main')
+    remove_tags_after = dict(id='articleBodyText')
     remove_tags = [
                      dict(name=['object','link','base','meta','iframe'])
-                    ,dict(attrs={'id':'content_rectangle_1'})
-                    ,dict(attrs={'class':['weiterfuehrendeLinks','fussnote','video']})                    
+                    ,dict(id='social-media-floater')
+                    ,dict(name='div',attrs={'class':['box']})
+
                   ]
 
     feeds = [
-               (u'International' , u'http://www.nzz.ch/nachrichten/international?rss=true')
-              ,(u'Schweiz'       , u'http://www.nzz.ch/nachrichten/schweiz?rss=true')
-              ,(u'Wirtschaft'    , u'http://www.nzz.ch/nachrichten/wirtschaft/aktuell?rss=true')
-              ,(u'Finanzmaerkte' , u'http://www.nzz.ch/finanzen/nachrichten?rss=true')
-              ,(u'Zuerich'       , u'http://www.nzz.ch/nachrichten/zuerich?rss=true')
-              ,(u'Sport'         , u'http://www.nzz.ch/nachrichten/sport?rss=true')
-              ,(u'Panorama'      , u'http://www.nzz.ch/nachrichten/panorama?rss=true')
-              ,(u'Kultur'        , u'http://www.nzz.ch/nachrichten/kultur/aktuell?rss=true')
-              ,(u'Wissenschaft'  , u'http://www.nzz.ch/nachrichten/wissenschaft?rss=true')
-              ,(u'Medien'        , u'http://www.nzz.ch/nachrichten/medien?rss=true')
-              ,(u'Reisen'        , u'http://www.nzz.ch/magazin/reisen?rss=true')
+               (u'International' , u'http://www.nzz.ch/aktuell/international.rss')
+              ,(u'Schweiz'       , u'http://www.nzz.ch/aktuell/schweiz.rss')
+              ,(u'Wirtschaft'    , u'http://www.nzz.ch/aktuell/wirtschaft/uebersicht.rss')
+              ,(u'Finanzmaerkte' , u'http://www.nzz.ch/finanzen/uebersicht/finanznachrichten.rss')
+              ,(u'Zuerich'       , u'http://www.nzz.ch/aktuell/zuerich/uebersicht.rss')
+              ,(u'Sport'         , u'http://www.nzz.ch/aktuell/sport/uebersicht.rss')
+              ,(u'Panorama'      , u'http://www.nzz.ch/aktuell/panorama.rss')
+              ,(u'Kultur'        , u'http://www.nzz.ch/aktuell/feuilleton/uebersicht.rss')
+              ,(u'Wissenschaft'  , u'http://www.nzz.ch/wissen/uebersicht.rss')
+              ,(u'Reisen'        , u'http://www.nzz.ch/lebensart/reisen-freizeit.rss')
+              ,(u'Auto Mobil'    , u'http://www.nzz.ch/lebensart/auto-mobil.rss')
+              ,(u'Digital'       , u'http://www.nzz.ch/lebensart/digital.rss')
+              ,(u'Stil'          , u'http://www.nzz.ch/lebensart/stil.rss')
+              ,(u'Wein-Keller'   , u'http://www.nzz.ch/lebensart/wein-keller.rss')
             ]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)

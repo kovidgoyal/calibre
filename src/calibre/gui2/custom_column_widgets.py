@@ -13,7 +13,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
         QPushButton, QMessageBox, QToolButton
 
 from calibre.utils.date import qt_to_dt, now
-from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -235,7 +235,7 @@ class MultipleWidget(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = MultiCompleteLineEdit(parent)
+        self.tags_box = EditWithComplete(parent)
         layout.addWidget(self.tags_box, stretch=1000)
         self.editor_button = QToolButton(self)
         self.editor_button.setToolTip(_('Open Item Editor'))
@@ -293,7 +293,7 @@ class Text(Base):
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             w.get_editor_button().clicked.connect(self.edit)
         else:
-            w = MultiCompleteComboBox(parent)
+            w = EditWithComplete(parent)
             w.set_separator(None)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
@@ -314,14 +314,7 @@ class Text(Base):
         if self.col_metadata['is_multiple']:
             self.setter(val)
         else:
-            idx = None
-            for i, c in enumerate(values):
-                if c == val:
-                    idx = i
-                self.widgets[1].addItem(c)
-            self.widgets[1].setEditText('')
-            if idx is not None:
-                self.widgets[1].setCurrentIndex(idx)
+            self.widgets[1].show_initial_value(val)
 
     def setter(self, val):
         if self.col_metadata['is_multiple']:
@@ -349,7 +342,8 @@ class Text(Base):
         return d.exec_()
 
     def edit(self):
-        if self.getter() != self.initial_val:
+        if (self.getter() != self.initial_val and (self.getter() or
+            self.initial_val)):
             d = self._save_dialog(self.parent, _('Values changed'),
                     _('You have changed the values. In order to use this '
                        'editor, you must either discard or apply these '
@@ -369,7 +363,7 @@ class Text(Base):
 class Series(Base):
 
     def setup_ui(self, parent):
-        w = MultiCompleteComboBox(parent)
+        w = EditWithComplete(parent)
         w.set_separator(None)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -395,16 +389,8 @@ class Series(Base):
         self.initial_index = s_index
         self.initial_val = val
         val = self.normalize_db_val(val)
-        idx = None
-        self.name_widget.clear()
-        for i, c in enumerate(values):
-            if c == val:
-                idx = i
-            self.name_widget.addItem(c)
         self.name_widget.update_items_cache(values)
-        self.name_widget.setEditText('')
-        if idx is not None:
-            self.widgets[1].setCurrentIndex(idx)
+        self.name_widget.show_initial_value(val)
 
     def getter(self):
         n = unicode(self.name_widget.currentText()).strip()
@@ -821,7 +807,7 @@ class BulkDateTime(BulkBase):
 class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, MultiCompleteComboBox)
+        self.make_widgets(parent, EditWithComplete)
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         self.main_widget.setSizeAdjustPolicy(self.main_widget.AdjustToMinimumContentsLengthWithIcon)
@@ -859,8 +845,6 @@ class BulkSeries(BulkBase):
         self.idx_widget.setChecked(False)
         self.main_widget.set_separator(None)
         self.main_widget.update_items_cache(self.all_values)
-        for c in self.all_values:
-            self.main_widget.addItem(c)
         self.main_widget.setEditText('')
         self.a_c_checkbox.setChecked(False)
 
@@ -950,7 +934,7 @@ class RemoveTags(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = MultiCompleteLineEdit(parent)
+        self.tags_box = EditWithComplete(parent)
         self.tags_box.update_items_cache(values)
         layout.addWidget(self.tags_box, stretch=3)
         self.checkbox = QCheckBox(_('Remove all tags'), parent)
@@ -972,7 +956,7 @@ class BulkText(BulkBase):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            self.make_widgets(parent, MultiCompleteLineEdit,
+            self.make_widgets(parent, EditWithComplete,
                               extra_label_text=_('tags to add'))
             self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.adding_widget = self.main_widget
@@ -992,7 +976,7 @@ class BulkText(BulkBase):
                 self.main_widget.set_add_separator(
                                 tweaks['authors_completer_append_separator'])
         else:
-            self.make_widgets(parent, MultiCompleteComboBox)
+            self.make_widgets(parent, EditWithComplete)
             self.main_widget.set_separator(None)
             self.main_widget.setSizeAdjustPolicy(
                         self.main_widget.AdjustToMinimumContentsLengthWithIcon)
@@ -1004,15 +988,8 @@ class BulkText(BulkBase):
         if not self.col_metadata['is_multiple']:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)
-            idx = None
             self.main_widget.blockSignals(True)
-            for i, c in enumerate(self.all_values):
-                if c == val:
-                    idx = i
-                self.main_widget.addItem(c)
-            self.main_widget.setEditText('')
-            if idx is not None:
-                self.main_widget.setCurrentIndex(idx)
+            self.main_widget.show_initial_value(val)
             self.main_widget.blockSignals(False)
 
     def commit(self, book_ids, notify=False):

@@ -206,11 +206,12 @@ class Preferences(QMainWindow):
         self.cw.layout().addWidget(self.stack)
         self.bb = QDialogButtonBox(QDialogButtonBox.Close)
         self.wizard_button = self.bb.addButton(_('Run welcome wizard'),
-                self.bb.DestructiveRole)
+                self.bb.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard,
                 type=Qt.QueuedConnection)
         self.cw.layout().addWidget(self.bb)
+        self.bb.button(self.bb.Close).setDefault(True)
         self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
         self.setCentralWidget(self.cw)
         self.browser = Browser(self)
@@ -380,8 +381,8 @@ class Preferences(QMainWindow):
         return QMainWindow.closeEvent(self, *args)
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     app
     gui = init_gui()
 

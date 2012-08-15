@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -87,11 +87,6 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None):
 
     return printer
 
-def get_printer_page_size(opts, for_comic=False):
-    printer = get_pdf_printer(opts, for_comic=for_comic)
-    size =  printer.paperSize(QPrinter.Millimeter)
-    return size.width() / 10., size.height() / 10.
-
 def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
     page_rect = printer.pageRect()
     if preserve_aspect_ratio:
@@ -122,7 +117,6 @@ class PDFMetadata(object):
             if len(oeb_metadata.creator) >= 1:
                 self.author = authors_to_string([x.value for x in oeb_metadata.creator])
 
-
 class PDFWriter(QObject): # {{{
 
     def __init__(self, opts, log, cover_data=None):
@@ -138,13 +132,16 @@ class PDFWriter(QObject): # {{{
         self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.view.loadFinished.connect(self._render_html,
                 type=Qt.QueuedConnection)
+        for x in (Qt.Horizontal, Qt.Vertical):
+            self.view.page().mainFrame().setScrollBarPolicy(x,
+                    Qt.ScrollBarAlwaysOff)
         self.render_queue = []
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory(u'_pdf_output_parts')
 
         self.opts = opts
-        self.size = get_printer_page_size(opts)
         self.cover_data = cover_data
+        self.paged_js = None
 
     def dump(self, items, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
@@ -176,18 +173,46 @@ class PDFWriter(QObject): # {{{
         if ok:
             item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
             self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-            printer = get_pdf_printer(self.opts, output_file_name=item_path)
-            self.view.page().mainFrame().evaluateJavaScript('''
-                document.body.style.backgroundColor = "white";
-
-                ''')
-            self.view.print_(printer)
-            printer.abort()
+            self.do_paged_render(item_path)
         else:
             # The document is so corrupt that we can't render the page.
             self.loop.exit(0)
             raise Exception('Document cannot be rendered.')
         self._render_book()
+
+    def do_paged_render(self, outpath):
+        from PyQt4.Qt import QSize, QPainter
+        if self.paged_js is None:
+            from calibre.utils.resources import compiled_coffeescript
+            self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
+            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
+        printer = get_pdf_printer(self.opts, output_file_name=outpath)
+        painter = QPainter(printer)
+        zoomx = printer.logicalDpiX()/self.view.logicalDpiX()
+        zoomy = printer.logicalDpiY()/self.view.logicalDpiY()
+        painter.scale(zoomx, zoomy)
+
+        pr = printer.pageRect()
+        evaljs = self.view.page().mainFrame().evaluateJavaScript
+        evaljs(self.paged_js)
+        self.view.page().setViewportSize(QSize(pr.width()/zoomx,
+            pr.height()/zoomy))
+        evaljs('''
+        document.body.style.backgroundColor = "white";
+        paged_display.set_geometry(1, 0, 0, 0);
+        paged_display.layout();
+        paged_display.fit_images();
+        ''')
+        mf = self.view.page().mainFrame()
+        while True:
+            mf.render(painter)
+            nsl = evaljs('paged_display.next_screen_location()').toInt()
+            if not nsl[1] or nsl[0] <= 0: break
+            evaljs('window.scrollTo(%d, 0)'%nsl[0])
+            printer.newPage()
+
+        painter.end()
+        printer.abort()
 
     def _delete_tmpdir(self):
         if os.path.exists(self.tmp_path):
@@ -198,7 +223,8 @@ class PDFWriter(QObject): # {{{
         if self.cover_data is None:
             return
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
-        printer = get_pdf_printer(self.opts, output_file_name=item_path)
+        printer = get_pdf_printer(self.opts, output_file_name=item_path,
+                for_comic=True)
         self.combine_queue.insert(0, item_path)
         p = QPixmap()
         p.loadFromData(self.cover_data)
@@ -237,7 +263,6 @@ class ImagePDFWriter(object):
     def __init__(self, opts, log, cover_data=None):
         self.opts = opts
         self.log = log
-        self.size = get_printer_page_size(opts, for_comic=True)
 
     def dump(self, items, out_stream, pdf_metadata):
         f = PersistentTemporaryFile('_comic2pdf.pdf')

@@ -312,7 +312,7 @@ class %(classname)s(%(base_class)s):
         item = items[-1]
         id_ = unicode(item.data(Qt.UserRole).toString())
         title = unicode(item.data(Qt.DisplayRole).toString()).rpartition(' [')[0]
-        profile = get_builtin_recipe_by_id(id_)
+        profile = get_builtin_recipe_by_id(id_, download_recipe=True)
         if profile is None:
             raise Exception('Something weird happened')
 

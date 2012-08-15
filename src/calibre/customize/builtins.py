@@ -276,6 +276,16 @@ class ODTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.odt import get_metadata
         return get_metadata(stream)
 
+class DocXMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read DOCX metadata'
+    file_types  = set(['docx'])
+    description = _('Read metadata from %s files')%'DOCX'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.docx import get_metadata
+        return get_metadata(stream)
+
 class OPFMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read OPF metadata'
@@ -419,6 +429,16 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
+        set_metadata(stream, mi, apply_null=self.apply_null)
+
+class FB2MetadataWriter(MetadataWriterPlugin):
+
+    name = 'Set FB2 metadata'
+    file_types = set(['fb2'])
+    description = _('Set metadata in %s files')%'FB2'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.fb2 import set_metadata
         set_metadata(stream, mi, apply_null=self.apply_null)
 
 class HTMLZMetadataWriter(MetadataWriterPlugin):
@@ -623,7 +643,7 @@ from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
-                POCKETBOOK701, POCKETBOOK360P, PI2)
+                POCKETBOOK701, POCKETBOOK360P, PI2, POCKETBOOK622)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
@@ -669,7 +689,7 @@ plugins += [
     JETBOOK, JETBOOK_MINI, MIBUK, JETBOOK_COLOR,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
-    PI2,
+    POCKETBOOK622, PI2,
     KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE,
     NOOK, NOOK_COLOR,
     PRS505, PRST1,
@@ -1157,6 +1177,16 @@ class StoreAmazonKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+class StoreSonyStore(StoreBase):
+    name = 'SONY Reader Store'
+    description = u'SONY Reader books.'
+    author = 'Kovid Goyal'
+    actual_plugin = 'calibre.gui2.store.stores.sony_plugin:SonyStore'
+
+    headquarters = 'US'
+    formats = ['SONY']
+    affiliate = False
+
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     author = 'Charles Haley'
@@ -1173,7 +1203,7 @@ class StoreAmazonFRKindleStore(StoreBase):
     description = u'Tous les ebooks Kindle'
     actual_plugin = 'calibre.gui2.store.stores.amazon_fr_plugin:AmazonFRKindleStore'
 
-    headquarters = 'DE'
+    headquarters = 'FR'
     formats = ['KINDLE']
     affiliate = True
 
@@ -1232,7 +1262,6 @@ class StoreBNStore(StoreBase):
 
     headquarters = 'US'
     formats = ['NOOK']
-    affiliate = True
 
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
@@ -1321,15 +1350,15 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-class StoreEBookShoppeUKStore(StoreBase):
-    name = 'ebookShoppe UK'
-    author = u'Charles Haley'
-    description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
-    actual_plugin = 'calibre.gui2.store.stores.ebookshoppe_uk_plugin:EBookShoppeUKStore'
-
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-    affiliate = True
+# class StoreEBookShoppeUKStore(StoreBase):
+#     name = 'ebookShoppe UK'
+#     author = u'Charles Haley'
+#     description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
+#     actual_plugin = 'calibre.gui2.store.stores.ebookshoppe_uk_plugin:EBookShoppeUKStore'
+#
+#     headquarters = 'UK'
+#     formats = ['EPUB', 'PDF']
+#     affiliate = True
 
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
@@ -1454,6 +1483,16 @@ class StoreManyBooksStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
 
+class StoreMillsBoonUKStore(StoreBase):
+    name = 'Mills and Boon UK'
+    author = 'Charles Haley'
+    description = u'"Bring Romance to Life" "[A] hallmark for romantic fiction, recognised around the world."'
+    actual_plugin = 'calibre.gui2.store.stores.mills_boon_uk_plugin:MillsBoonUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB']
+    affiliate = True
+
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
     description = u'Ebooks handcrafted with the utmost care.'
@@ -1480,15 +1519,6 @@ class StoreOpenBooksStore(StoreBase):
 
     drm_free_only = True
     headquarters = 'US'
-
-class StoreOReillyStore(StoreBase):
-    name = 'OReilly'
-    description = u'Programming and tech ebooks from OReilly.'
-    actual_plugin = 'calibre.gui2.store.stores.oreilly_plugin:OReillyStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
 
 class StoreOzonRUStore(StoreBase):
     name = 'OZON.ru'
@@ -1603,7 +1633,7 @@ plugins += [
     StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
-    StoreBNStore,
+    StoreBNStore, StoreSonyStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,
@@ -1613,7 +1643,6 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
-    StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
     StoreEscapeMagazineStore,
@@ -1627,10 +1656,10 @@ plugins += [
     StoreLibreDEStore,
     StoreLitResStore,
     StoreManyBooksStore,
+    StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
     StoreOpenBooksStore,
-    StoreOReillyStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StoreRW2010Store,

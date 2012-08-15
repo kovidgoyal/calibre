@@ -4,11 +4,6 @@ License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
-Files: src/calibre/ebooks/pdf/*.h,*.cpp
-License: GPL-2 or later
- The full text of the GPL is distributed as in
- /usr/share/common-licenses/GPL-2 on Debian systems.
-
 Files: setup/iso_639/*
 Copyright: Various
 License: LGPL 2.1
@@ -20,6 +15,12 @@ Copyright: Copyright (c) 2004-2007, Leonard Richardson
 License: BSD
  The full text of the BSD license is distributed as in
  /usr/share/common-licenses/BSD on Debian systems.
+
+Files: src/qtcurve/*
+Copyright: Craig Drummond, 2007 - 2010 craig.p.drummond@gmail.com
+License: GPL-2
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-2 on Debian systems.
 
 Files: src/calibre/ebooks/chardet/*
 Copyright: Copyright (C) 1998-2001 Netscape Communications Corporation

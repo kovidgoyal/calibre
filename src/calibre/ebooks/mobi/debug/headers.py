@@ -163,6 +163,7 @@ class EXTHRecord(object):
                 501 : 'cdetype', # 4 chars (PDOC or EBOK)
                 502 : 'lastupdatetime',
                 503 : 'updatedtitle',
+                524 : 'language',
         }.get(self.type, repr(self.type))
 
         if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',
@@ -377,6 +378,7 @@ class MOBIHeader(object): # {{{
 
         a('Compression: %s'%self.compression)
         a('Unused: %r'%self.unused)
+        a('Text length: %d'%self.text_length)
         a('Number of text records: %d'%self.number_of_text_records)
         a('Text record size: %d'%self.text_record_size)
         a('Encryption: %s'%self.encryption_type)

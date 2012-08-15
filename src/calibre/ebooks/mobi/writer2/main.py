@@ -297,10 +297,13 @@ class MobiWriter(object):
 
         # 0x70 - 0x73 : EXTH flags
         # Bit 6 (0b1000000) being set indicates the presence of an EXTH header
+        # Bit 12 being set indicates the presence of embedded fonts
         # The purpose of the other bits is unknown
         exth_flags = 0b1010000
         if self.is_periodical:
             exth_flags |= 0b1000
+        if self.resources.has_fonts:
+            exth_flags |= 0b1000000000000
         record0.write(pack(b'>I', exth_flags))
 
         # 0x74 - 0x93 : Unknown
@@ -406,11 +409,15 @@ class MobiWriter(object):
         # Now change the header fields that need to be different in the MOBI 6
         # header
         header_fields['first_resource_record'] = first_image_record
-        header_fields['exth_flags'] = 0b100001010000 # Kinglegen uses this
+        ef = 0b100001010000 # Kinglegen uses this
+        if self.resources.has_fonts:
+            ef |= 0b1000000000000
+        header_fields['exth_flags'] = ef
         header_fields['fdst_record'] = pack(b'>HH', 1, last_content_record)
         header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
         header_fields['flis_record'] = flis_number
         header_fields['fcis_record'] = fcis_number
+        header_fields['text_length'] = self.text_length
         extra_data_flags = 0b1 # Has multibyte overlap bytes
         if self.primary_index_record_idx is not None:
             extra_data_flags |= 0b10

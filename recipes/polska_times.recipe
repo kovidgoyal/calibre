@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 class Polska_times(BasicNewsRecipe):
     title          = u'Polska Times'
     __author__        = 'fenuks'
@@ -11,69 +10,18 @@ class Polska_times(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_emty_feeds= True
     no_stylesheets = True
-    preprocess_regexps = [(re.compile(ur'<b>Czytaj także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur',<b>Czytaj też:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>Zobacz także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<center><h4><a.*?</a></h4></center>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TEŻ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ WIĘCEJ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TAKŻE:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>\* CZYTAJ KONIECZNIE:.*', re.DOTALL), lambda match: '</body>'), (re.compile(ur'<b>Nasze serwisy:</b>.*', re.DOTALL), lambda match: '</body>') ]
-    keep_only_tags= [dict(id=['tytul-artykulu', 'kontent'])]
-    remove_tags_after= dict(id='material-tagi')
-    remove_tags=[dict(attrs={'id':'reklama_srodtekst_0'}), dict(attrs={'id':'material-tagi'}), dict(name='div', attrs={'class':'zakladki'}), dict(attrs={'title':u'CZYTAJ TAKŻE'}), dict(attrs={'id':'podobne'}), dict(name='a', attrs={'href':'http://www.dzienniklodzki.pl/newsletter'})]
+    #preprocess_regexps = [(re.compile(ur'<b>Czytaj także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur',<b>Czytaj też:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>Zobacz także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<center><h4><a.*?</a></h4></center>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TEŻ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ WIĘCEJ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TAKŻE:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>\* CZYTAJ KONIECZNIE:.*', re.DOTALL), lambda match: '</body>'), (re.compile(ur'<b>Nasze serwisy:</b>.*', re.DOTALL), lambda match: '</body>') ]
+    remove_tags_after= dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})
+    remove_tags=[dict(id='mat-podobne'), dict(name='a', attrs={'class':'czytajDalej'}), dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})]
     feeds          = [(u'Fakty', u'http://polskatimes.feedsportal.com/c/32980/f/533648/index.rss'), (u'Opinie', u'http://www.polskatimes.pl/rss/opinie.xml'), (u'Sport', u'http://polskatimes.feedsportal.com/c/32980/f/533649/index.rss'), (u'Pieni\u0105dze', u'http://polskatimes.feedsportal.com/c/32980/f/533657/index.rss'), (u'Twoje finanse', u'http://www.polskatimes.pl/rss/twojefinanse.xml'), (u'Kultura', u'http://polskatimes.feedsportal.com/c/32980/f/533650/index.rss'), (u'Dodatki', u'http://www.polskatimes.pl/rss/dodatki.xml')]
+
+    def print_version(self, url):
+        return url.replace('artykul', 'drukuj')
 
     def skip_ad_pages(self, soup):
         if 'Advertisement' in soup.title:
             nexturl=soup.find('a')['href']
             return self.index_to_soup(nexturl, raw=True)
-
-    def append_page(self, soup, appendtag):
-        nexturl=soup.find(id='nastepna_strona')
-        while nexturl:
-            soup2= self.index_to_soup(nexturl['href'])
-            nexturl=soup2.find(id='nastepna_strona')
-            pagetext = soup2.find(id='tresc')
-            for dictionary in self.remove_tags:
-                 v=pagetext.findAll(attrs=dictionary['attrs'])
-                 for delete in v:
-                     delete.extract()
-            for b in pagetext.findAll(name='b'):
-                if b.string:
-                    if u'CZYTAJ TEŻ' in b.string or u'Czytaj także' in b.string or u'Czytaj też' in b.string or u'Zobacz także' in b.string:
-                        b.extract()
-            for center in pagetext.findAll(name='center'):
-                if center.h4:
-                    if center.h4.a:
-                        center.extract()
-            pos = len(appendtag.contents)
-            appendtag.insert(pos, pagetext)
-        for paginator in appendtag.findAll(attrs={'class':'stronicowanie'}):
-            paginator.extract()
-
-    def image_article(self, soup, appendtag):
-        nexturl=soup.find('a', attrs={'class':'nastepna'})
-        urls=[]
-        while nexturl:
-            if nexturl not in urls:
-                urls.append(nexturl)
-            else:
-                break
-            soup2= self.index_to_soup('http://www.polskatimes.pl/artykul/' + nexturl['href'])
-            nexturl=soup2.find('a', attrs={'class':'nastepna'})
-            if nexturl in urls:
-                break;
-            pagetext = soup2.find(id='galeria-material')
-            pos = len(appendtag.contents)
-            appendtag.insert(pos, '<br />')
-            pos = len(appendtag.contents)
-            appendtag.insert(pos, pagetext)
-        for rem in appendtag.findAll(attrs={'class':['galeriaNawigator', 'miniaturyPojemnik']}):
-            rem.extract()
-        for paginator in appendtag.findAll(attrs={'class':'stronicowanie'}):
-            paginator.extract()
-
-    def preprocess_html(self, soup):
-        if soup.find('a', attrs={'class':'nastepna'}):
-            self.image_article(soup, soup.body)
-        elif soup.find(id='nastepna_strona'):
-            self.append_page(soup, soup.body)
-        return soup
-
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.prasa24.pl/gazeta/metropolia-warszawska/')

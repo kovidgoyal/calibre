@@ -457,7 +457,9 @@ class Stylizer(object):
                     value = primitives.pop()
             for key in composition:
                 if key not in style:
-                    style[key] = DEFAULTS[key]
+                    val = ('inherit' if key in {'font-family', 'font-size'}
+                        else 'normal')
+                    style[key] = val
         return style
 
     def style(self, element):

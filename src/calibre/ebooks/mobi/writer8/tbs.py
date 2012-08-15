@@ -106,6 +106,9 @@ def collect_indexing_data(entries, text_record_lengths):
 
     return data
 
+class NegativeStrandIndex(Exception):
+    pass
+
 def encode_strands_as_sequences(strands, tbs_type=8):
     ''' Encode the list of strands for a single text record into a list of
     sequences, ready to be converted into TBS bytes.    '''
@@ -144,10 +147,16 @@ def encode_strands_as_sequences(strands, tbs_type=8):
             index = entries[0].index - (entries[0].parent or 0)
             if ans and not strand_seqs:
                 # We are in the second or later strands, so we need to use a
-                # special flag and index value. The index value if the entry
+                # special flag and index value. The index value is the entry
                 # index - the index of the last entry in the previous strand.
-                extra[0b1000] = True
                 index = last_index - entries[0].index
+                if index < 0:
+                    if tbs_type == 5:
+                        index = -index
+                    else:
+                        raise NegativeStrandIndex()
+                else:
+                    extra[0b1000] = True
             last_index = entries[-1].index
             strand_seqs.append((index, extra))
 
@@ -167,9 +176,17 @@ def sequences_to_bytes(sequences):
     flag_size = 3
     for val, extra in sequences:
         ans.append(encode_tbs(val, extra, flag_size))
-        flag_size = 4 # only the first seuqence has flag size 3 as all
+        flag_size = 4 # only the first sequence has flag size 3 as all
                       # subsequent sequences could need the 0b1000 flag
     return b''.join(ans)
+
+def calculate_all_tbs(indexing_data, tbs_type=8):
+    rmap = {}
+    for i, strands in enumerate(indexing_data):
+        sequences = encode_strands_as_sequences(strands, tbs_type=tbs_type)
+        tbs_bytes = sequences_to_bytes(sequences)
+        rmap[i+1] = tbs_bytes
+    return rmap
 
 def apply_trailing_byte_sequences(index_table, records, text_record_lengths):
     entries = tuple(Entry(r['index'], r['offset'], r['length'], r['depth'],
@@ -177,10 +194,13 @@ def apply_trailing_byte_sequences(index_table, records, text_record_lengths):
             None), r['label'], None, None, None, None) for r in index_table)
 
     indexing_data = collect_indexing_data(entries, text_record_lengths)
-    for i, strands in enumerate(indexing_data):
-        sequences = encode_strands_as_sequences(strands)
-        tbs_bytes = sequences_to_bytes(sequences)
-        records[i+1] += encode_trailing_data(tbs_bytes)
+    try:
+        rmap = calculate_all_tbs(indexing_data)
+    except NegativeStrandIndex:
+        rmap = calculate_all_tbs(indexing_data, tbs_type=5)
+
+    for i, tbs_bytes in rmap.iteritems():
+        records[i] += encode_trailing_data(tbs_bytes)
 
     return True
 

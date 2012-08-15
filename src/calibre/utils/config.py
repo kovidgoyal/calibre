@@ -8,7 +8,7 @@ Manage application-wide preferences.
 '''
 import os, cPickle, base64, datetime, json, plistlib
 from copy import deepcopy
-from optparse import OptionParser as _OptionParser
+from optparse import OptionParser as _OptionParser, OptionGroup
 from optparse import IndentedHelpFormatter
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
@@ -89,6 +89,11 @@ class OptionParser(_OptionParser):
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
         self.gui_mode = gui_mode
+        if False:
+            # Translatable string from optparse
+            _("Options")
+            _("show this help message and exit")
+            _("show program's version number and exit")
 
     def error(self, msg):
         if self.gui_mode:
@@ -154,6 +159,10 @@ class OptionParser(_OptionParser):
                upper.__dict__[dest] == opt.default:
                 upper.__dict__[dest] = lower.__dict__[dest]
 
+    def add_option_group(self, *args, **kwargs):
+        if isinstance(args[0], type(u'')):
+            args = [OptionGroup(self, *args, **kwargs)] + list(args[1:])
+        return _OptionParser.add_option_group(self, *args, **kwargs)
 
 class DynamicConfig(dict):
     '''

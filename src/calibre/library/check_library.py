@@ -93,7 +93,8 @@ class CheckLibrary(object):
 
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
-            if self.ignore_name(auth_dir) or auth_dir == 'metadata.db':
+            if self.ignore_name(auth_dir) or auth_dir in {'metadata.db',
+                    'metadata_db_prefs_backup.json'}:
                 continue
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory

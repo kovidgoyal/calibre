@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElMundoTodayRecipe(BasicNewsRecipe):
@@ -7,11 +8,32 @@ class ElMundoTodayRecipe(BasicNewsRecipe):
     category = 'Noticias, humor'
     cover_url = 'http://www.elmundotoday.com/wp-content/themes/EarthlyTouch/images/logo.png'
     oldest_article = 30
-    max_articles_per_feed = 30
-    auto_cleanup = True
+    max_articles_per_feed = 60
+    auto_cleanup = False
     no_stylesheets = True
+    remove_javascript = True
     language = 'es'
-    use_embedded_content  = True
+    use_embedded_content  = False
+
+    preprocess_regexps = [
+        (re.compile(r'</title>.*<!--Begin Article Single-->', re.DOTALL),
+        lambda match: '</title><body>'),
+        #(re.compile(r'^\t{5}<a href.*Permanent Link to ">$'), lambda match: ''),
+        #(re.compile(r'\t{5}</a>$'), lambda match: ''),
+        (re.compile(r'<div class="social4i".*</body>', re.DOTALL),
+        lambda match: '</body>'),
+    ]
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'post-wrapper'})
+    ]
+
+    remove_attributes = [ 'href', 'title', 'alt' ]
+
+    extra_css = '''
+        .antetitulo{font-variant:small-caps; font-weight:bold} .articleinfo{font-size:small}
+        img{margin-bottom:0.4em; display:block; margin-left:auto; margin-right:auto}
+    '''
 
     feeds = [('El Mundo Today', 'http://www.elmundotoday.com/feed/')]
 

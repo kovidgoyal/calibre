@@ -17,7 +17,7 @@ from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp
+from calibre.utils.icu import sort_key, lower, strcmp, contractions
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
@@ -45,6 +45,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None, temporary=False):
         self.parent = parent
         self.children = []
+        self.blank = QIcon()
         self.id_set = set()
         self.is_gst = False
         self.boxed = False
@@ -257,6 +258,16 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.hidden_categories.add(cat)
         db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
 
+        conts = contractions()
+        if len(conts) == 0 or not tweaks['enable_multicharacters_in_tag_browser']:
+            self.do_contraction = False
+        else:
+            self.do_contraction = True
+            nconts = set()
+            for s in conts:
+                nconts.add(icu_upper(s))
+            self.contraction_set = frozenset(nconts)
+
         self.db = db
         self._run_rebuild()
         self.endResetModel()
@@ -334,7 +345,6 @@ class TagsModel(QAbstractItemModel): # {{{
                         node.is_gst = is_gst
                         if not is_gst:
                             node.tag.is_hierarchical = '5state'
-                        if not is_gst:
                             tree_root[p] = {}
                             tree_root = tree_root[p]
                     else:
@@ -377,6 +387,12 @@ class TagsModel(QAbstractItemModel): # {{{
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
 
+        def get_name_components(name):
+            components = [t.strip() for t in name.split('.') if t.strip()]
+            if len(components) == 0 or '.'.join(components) != name:
+                components = [name]
+            return components
+
         def process_one_node(category, collapse_model, state_map): # {{{
             collapse_letter = None
             category_node = category
@@ -410,50 +426,97 @@ class TagsModel(QAbstractItemModel): # {{{
                     if not tag.sort:
                         c = ' '
                     else:
-                        c = icu_upper(tag.sort[0])
+                        if not self.do_contraction:
+                            c = icu_upper(tag.sort)[0]
+                        else:
+                            v = icu_upper(tag.sort)
+                            c = v[0]
+                            for s in self.contraction_set:
+                                if len(s) > len(c) and v.startswith(s):
+                                    c = s
                     if c not in chardict:
                         chardict[c] = [idx, idx]
                     else:
                         chardict[c][1] = idx
 
                 # sort the ranges to facilitate detecting overlap
-                ranges = sorted([(v[0], v[1], c) for c,v in chardict.items()])
+                if len(chardict) == 1 and ' ' in chardict:
+                    # The category could not be partitioned.
+                    collapse_model = 'disable'
+                else:
+                    ranges = sorted([(v[0], v[1], c) for c,v in chardict.items()])
+                    # Create a list of 'first letters' to use for each item in
+                    # the category. The list is generated using the ranges. Overlaps
+                    # are filled with the character that first occurs.
+                    cl_list = list(repeat(None, len(data[key])))
+                    for t in ranges:
+                        start = t[0]
+                        c = t[2]
+                        if cl_list[start] is None:
+                            nc = c
+                        else:
+                            nc = cl_list[start]
+                        for i in range(start, t[1]+1):
+                            cl_list[i] = nc
 
-                # Create a list of 'first letters' to use for each item in
-                # the category. The list is generated using the ranges. Overlaps
-                # are filled with the character that first occurs.
-                cl_list = list(repeat(None, len(data[key])))
-                for t in ranges:
-                    start = t[0]
-                    c = t[2]
-                    if cl_list[start] is None:
-                        nc = c
-                    else:
-                        nc = cl_list[start]
-                    for i in range(start, t[1]+1):
-                        cl_list[i] = nc
+            if len(data[key]) > 0:
+                top_level_component = 'z' + data[key][0].original_name
+            else:
+                top_level_component = ''
+            last_idx = -collapse
+            category_is_hierarchical = not (
+                key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
+                key not in self.db.prefs.get('categories_using_hierarchy', []))
 
             for idx,tag in enumerate(data[key]):
+                components = None
                 if clear_rating:
                     tag.avg_rating = None
                 tag.state = state_map.get((tag.name, tag.category), 0)
 
                 if collapse_model != 'disable' and cat_len > collapse:
                     if collapse_model == 'partition':
-                        if (idx % collapse) == 0:
-                            d = {'first': tag}
+                        # Only partition at the top level. This means that we must
+                        # not do a break until the outermost component changes.
+                        if idx >= last_idx + collapse and \
+                                 not tag.original_name.startswith(top_level_component+'.'):
                             if cat_len > idx + collapse:
-                                d['last'] = data[key][idx+collapse-1]
+                                last = idx + collapse - 1
                             else:
-                                d['last'] = data[key][cat_len-1]
+                                last = cat_len - 1
+                            if category_is_hierarchical:
+                                ct = copy.copy(data[key][last])
+                                components = get_name_components(ct.original_name)
+                                ct.sort = ct.name = components[0]
+                                d = {'last': ct}
+                                # Do the first node after the last node so that
+                                # the components array contains the right values
+                                # to be used later
+                                ct2 = copy.copy(tag)
+                                components = get_name_components(ct2.original_name)
+                                ct2.sort = ct2.name = components[0]
+                                d['first'] = ct2
+                            else:
+                                d = {'first': tag}
+                                d['last'] = data[key][last]
+
                             name = eval_formatter.safe_format(collapse_template,
-                                                              d, 'TAG_VIEW', None)
-                            sub_cat = self.create_node(parent=category, data = name,
+                                                        d, '##TAG_VIEW##', None)
+                            if name.startswith('##TAG_VIEW##'):
+                                # Formatter threw an exception. Don't create subnode
+                                node_parent = sub_cat = category
+                            else:
+                                sub_cat = self.create_node(parent=category, data = name,
                                      tooltip = None, temporary=True,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
-                            sub_cat.tag.is_searchable = False
+                                sub_cat.tag.is_searchable = False
+                                sub_cat.is_gst = is_gst
+                                node_parent = sub_cat
+                            last_idx = idx # remember where we last partitioned
+                        else:
+                            node_parent = sub_cat
                     else: # by 'first letter'
                         cl = cl_list[idx]
                         if cl != collapse_letter:
@@ -464,23 +527,22 @@ class TagsModel(QAbstractItemModel): # {{{
                                      tooltip = None, temporary=True,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
-                    sub_cat.is_gst = is_gst
-                    node_parent = sub_cat
+                        sub_cat.is_gst = is_gst
+                        node_parent = sub_cat
                 else:
                     node_parent = category
 
                 # category display order is important here. The following works
-                # only of all the non-user categories are displayed before the
+                # only if all the non-user categories are displayed before the
                 # user categories
-                components = [t.strip() for t in tag.original_name.split('.')
-                              if t.strip()]
-                if len(components) == 0 or '.'.join(components) != tag.original_name:
+                if category_is_hierarchical or tag.is_hierarchical:
+                    components = get_name_components(tag.original_name)
+                else:
                     components = [tag.original_name]
+
                 if (not tag.is_hierarchical) and (in_uc or
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
-                        key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
-                        key not in self.db.prefs.get('categories_using_hierarchy', []) or
-                        len(components) == 1):
+                        not category_is_hierarchical or len(components) == 1):
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
@@ -490,6 +552,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     for i,comp in enumerate(components):
                         if i == 0:
                             child_map = category_child_map
+                            top_level_component = comp
                         else:
                             child_map = dict([((t.tag.name, t.tag.category), t)
                                         for t in node_parent.children
@@ -533,6 +596,14 @@ class TagsModel(QAbstractItemModel): # {{{
             if cat.category_key == category:
                 return [(t.tag.id, t.tag.original_name, t.tag.count)
                         for t in cat.child_tags() if t.tag.count > 0]
+
+    def is_in_user_category(self, index):
+        if not index.isValid():
+            return False
+        p = self.get_node(index)
+        while p.type != TagTreeItem.CATEGORY:
+            p = p.parent
+        return p.tag.category.startswith('@')
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -599,13 +670,13 @@ class TagsModel(QAbstractItemModel): # {{{
         action is Qt.CopyAction or Qt.MoveAction
         '''
         def process_source_node(user_cats, src_parent, src_parent_is_gst,
-                                is_uc, dest_key, node):
+                                is_uc, dest_key, idx):
             '''
             Copy/move an item and all its children to the destination
             '''
             copied = False
-            src_name = node.tag.original_name
-            src_cat = node.tag.category
+            src_name = idx.tag.original_name
+            src_cat = idx.tag.category
             # delete the item if the source is a user category and action is move
             if is_uc and not src_parent_is_gst and src_parent in user_cats and \
                                     action == Qt.MoveAction:
@@ -628,7 +699,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if add_it:
                 user_cats[dest_key].append([src_name, src_cat, 0])
 
-            for c in node.children:
+            for c in idx.children:
                 copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
                                              is_uc, dest_key, c)
             return copied
@@ -649,11 +720,11 @@ class TagsModel(QAbstractItemModel): # {{{
             if dest_key not in user_cats:
                 continue
 
-            node = self.index_for_path(path)
-            if node:
+            idx = self.index_for_path(path)
+            if idx.isValid():
                 process_source_node(user_cats, src_parent, src_parent_is_gst,
                                              is_uc, dest_key,
-                                             self.get_node(node))
+                                             self.get_node(idx))
 
         self.db.prefs.set('user_categories', user_cats)
         self.refresh_required.emit()
@@ -1020,7 +1091,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return NONE
 
     def flags(self, index, *args):
-        ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+        ans = Qt.ItemIsEnabled|Qt.ItemIsEditable
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
@@ -1092,6 +1163,8 @@ class TagsModel(QAbstractItemModel): # {{{
             return QModelIndex()
 
         ans = self.createIndex(parent_item.row(), 0, parent_item)
+        if not ans.isValid():
+            return QModelIndex()
         return ans
 
     def rowCount(self, parent):
@@ -1175,14 +1248,18 @@ class TagsModel(QAbstractItemModel): # {{{
                         k = 'author_sort' if key == 'authors' else key
                         letters_seen = {}
                         for subnode in tag_item.children:
-                            letters_seen[subnode.tag.sort[0]] = True
-                        charclass = ''.join(letters_seen)
-                        if k == 'author_sort':
-                            expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
-                        elif k == 'series':
-                            expr = r'series_sort:"~^[%s]"'%(charclass)
+                            if subnode.tag.sort:
+                                letters_seen[subnode.tag.sort[0]] = True
+                        if letters_seen:
+                            charclass = ''.join(letters_seen)
+                            if k == 'author_sort':
+                                expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                            elif k == 'series':
+                                expr = r'series_sort:"~^[%s]"'%(charclass)
+                            else:
+                                expr = r'%s:"~^[%s]"'%(k, charclass)
                         else:
-                            expr = r'%s:"~^[%s]"'%(k, charclass)
+                            expr = r'%s:false'%(k)
                         if node_searches[tag_item.tag.state] == 'true':
                             ans.append(expr)
                         else:

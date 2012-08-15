@@ -11,7 +11,7 @@ class OCLab(BasicNewsRecipe):
     no_stylesheets = True
     keep_only_tags=[dict(id='main')]
     remove_tags_after= dict(attrs={'class':'single-postmetadata'})
-    remove_tags=[dict(attrs={'class':['single-postmetadata', 'pagebar']})]
+    remove_tags=[dict(attrs={'class':['single-postmetadata', 'pagebar', 'shr-bookmarks shr-bookmarks-expand shr-bookmarks-center shr-bookmarks-bg-enjoy']})]
     feeds          = [(u'Wpisy', u'http://oclab.pl/feed/')]
 
 

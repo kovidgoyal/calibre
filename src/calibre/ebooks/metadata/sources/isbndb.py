@@ -154,10 +154,11 @@ class ISBNDB(Source):
         total_results = int(bl.get('total_results'))
         shown_results = int(bl.get('shown_results'))
         for bd in bl.xpath('.//BookData'):
-            isbn = check_isbn(bd.get('isbn13', bd.get('isbn', None)))
-            if not isbn:
+            isbn = check_isbn(bd.get('isbn', None))
+            isbn13 = check_isbn(bd.get('isbn13', None))
+            if not isbn and not isbn13:
                 continue
-            if orig_isbn and isbn != orig_isbn:
+            if orig_isbn and orig_isbn not in {isbn, isbn13}:
                 continue
             title = tostring(bd.find('Title'))
             if not title:
@@ -173,10 +174,6 @@ class ISBNDB(Source):
             if not authors:
                 continue
             comments = tostring(bd.find('Summary'))
-            if not comments:
-                # Require comments, since without them the result is useless
-                # anyway
-                continue
             id_ = (title, tuple(authors))
             if id_ in seen:
                 continue

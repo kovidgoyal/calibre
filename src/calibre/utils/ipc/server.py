@@ -14,6 +14,7 @@ from multiprocessing.connection import Listener, arbitrary_address
 from collections import deque
 from binascii import hexlify
 
+from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre import detect_ncpus as cpu_count
@@ -38,7 +39,7 @@ class ConnectedWorker(Thread):
 
     def start_job(self, job):
         notification = PARALLEL_FUNCS[job.name][-1] is not None
-        self.conn.send((job.name, job.args, job.kwargs, job.description))
+        eintr_retry_call(self.conn.send, (job.name, job.args, job.kwargs, job.description))
         if notification:
             self.start()
         else:
@@ -48,7 +49,7 @@ class ConnectedWorker(Thread):
     def run(self):
         while True:
             try:
-                x = self.conn.recv()
+                x = eintr_retry_call(self.conn.recv)
                 self.notifications.put(x)
             except BaseException:
                 break
@@ -129,12 +130,7 @@ class Server(Thread):
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
-        for i in range(2):
-            # Try launch twice as occasionally on OS X
-            # Listener.accept fails with EINTR
-            cw = self.do_launch(env, gui, redirect_output, rfile)
-            if isinstance(cw, ConnectedWorker):
-                break
+        cw = self.do_launch(env, gui, redirect_output, rfile)
         if isinstance(cw, basestring):
             raise CriticalError('Failed to launch worker process:\n'+cw)
         if DEBUG:
@@ -146,7 +142,7 @@ class Server(Thread):
 
         try:
             w(redirect_output=redirect_output)
-            conn = self.listener.accept()
+            conn = eintr_retry_call(self.listener.accept)
             if conn is None:
                 raise Exception('Failed to launch worker process')
         except BaseException:

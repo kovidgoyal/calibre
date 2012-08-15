@@ -25,10 +25,6 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
-        for i in all_authors:
-            id, name = i
-            name = name.strip().replace('|', ',')
-            self.authors_box.addItem(name)
         self.authors_box.setEditText('')
         self.authors_box.set_separator('&')
         self.authors_box.set_space_before_sep(True)
@@ -39,10 +35,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         all_series.sort(key=lambda x : sort_key(x[1]))
         self.series_box.set_separator(None)
         self.series_box.update_items_cache([x[1] for x in all_series])
-        for i in all_series:
-            id, name = i
-            self.series_box.addItem(name)
-        self.series_box.setEditText('')
+        self.series_box.show_initial_value('')
 
         all_tags = db.all_tags()
         self.tags_box.update_items_cache(all_tags)
@@ -182,7 +175,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         global box_values
         box_values = copy.deepcopy(self.box_last_values)
         if general:
-            ans.append(unicode(self.general_combo.currentText()) + ':"' + general + '"')
+            ans.append(unicode(self.general_combo.currentText()) + ':"' +
+                    self.mc + general + '"')
         if ans:
             return ' and '.join(ans)
         return ''

@@ -48,7 +48,7 @@ class CheckForUpdates(QThread):
             except Exception as e:
                 prints('Failed to check for calibre update:', as_unicode(e))
             try:
-                update_plugins = get_plugin_updates_available()
+                update_plugins = get_plugin_updates_available(raise_error=True)
                 if update_plugins is not None:
                     plugins_update_found = len(update_plugins)
             except Exception as e:

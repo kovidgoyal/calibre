@@ -60,6 +60,11 @@ Run an embedded python interpreter.
             'editing tools, and then rebuilds the file from the edited HTML. '
             'Makes no additional changes to the HTML, unlike a full calibre '
             'conversion).')
+    parser.add_option('-s', '--shutdown-running-calibre', default=False,
+            action='store_true',
+            help=_('Cause a running calibre instance, if any, to be'
+                ' shutdown. Note that if there are running jobs, they '
+                'will be silently aborted, so use with care.'))
 
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
@@ -182,6 +187,12 @@ def main(args=sys.argv):
     from calibre.constants import debug
     debug()
     if len(args) > 2 and args[1] in ('-e', '--exec-file'):
+
+        # Load all plugins user defined plugins so the script can import from the
+        # calibre_plugins namespace
+        import calibre.customize.ui as dummy
+        dummy
+
         sys.argv = [args[2]] + args[3:]
         ef = os.path.abspath(args[2])
         base = os.path.dirname(ef)
@@ -252,6 +263,9 @@ def main(args=sys.argv):
     elif opts.test_build:
         from calibre.test_build import test
         test()
+    elif opts.shutdown_running_calibre:
+        from calibre.gui2.main import shutdown_other
+        shutdown_other()
     else:
         from calibre import ipython
         ipython()

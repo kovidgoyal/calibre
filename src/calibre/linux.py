@@ -3,8 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat, importlib
+import sys, os, cPickle, textwrap, stat
 from subprocess import check_call
+from functools import partial
 
 from calibre import  __appname__, prints, guess_type
 from calibre.constants import islinux, isnetbsd, isbsd
@@ -177,7 +178,6 @@ class PostInstall:
         self.mime_resources = []
         if islinux or isbsd:
             self.setup_completion()
-        self.install_man_pages()
         if islinux or isbsd:
             self.setup_desktop_integration()
         self.create_uninstaller()
@@ -343,55 +343,32 @@ class PostInstall:
             self.task_failed('Setting up completion failed')
     # }}}
 
-    def install_man_pages(self): # {{{
-        try:
-            from calibre.utils.help2man import create_man_page
-            if isbsd:
-                manpath = os.path.join(self.opts.staging_root, 'man/man1')
-            else:
-                manpath = os.path.join(self.opts.staging_sharedir, 'man/man1')
-            if not os.path.exists(manpath):
-                os.makedirs(manpath)
-            self.info('Installing MAN pages...')
-            for src in entry_points['console_scripts']:
-                prog, right = src.split('=')
-                prog = prog.strip()
-                module = importlib.import_module(right.split(':')[0].strip())
-                parser = getattr(module, 'option_parser', None)
-                if parser is None:
-                    continue
-                parser = parser()
-                raw = create_man_page(prog, parser)
-                if isbsd:
-                    manfile = os.path.join(manpath, prog+'.1')
-                else:
-                    manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
-                self.info('\tInstalling MAN page for', prog)
-                open(manfile, 'wb').write(raw)
-                self.manifest.append(manfile)
-        except:
-            if self.opts.fatal_errors:
-                raise
-            self.task_failed('Installing MAN pages failed')
-    # }}}
-
     def setup_desktop_integration(self): # {{{
         try:
             self.info('Setting up desktop integration...')
 
+            env = os.environ.copy()
+            cc = check_call
+            if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
+                paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
+                paths = [x for x in paths if x]
+                npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+                env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+                cc = partial(check_call, env=env)
+
             with TemporaryDirectory() as tdir, CurrentDir(tdir), \
                                 PreserveMIMEDefaults():
                 render_img('mimetypes/lrf.png', 'calibre-lrf.png')
-                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
                 self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
-                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
                 self.icon_resources.append(('mimetypes', 'application-lrs',
                 '128'))
-                render_img('lt.png', 'calibre-gui.png')
-                check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
+                render_img('lt.png', 'calibre-gui.png', width=256, height=256)
+                cc('xdg-icon-resource install --noupdate --size 256 calibre-gui.png calibre-gui', shell=True)
                 self.icon_resources.append(('apps', 'calibre-gui', '128'))
                 render_img('viewer.png', 'calibre-viewer.png')
-                check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
+                cc('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
                 mimetypes = set([])
@@ -418,14 +395,14 @@ class PostInstall:
                         'calibre-ebook-viewer.desktop')
                 for x in des:
                     cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
-                    check_call(' '.join(cmd), shell=True)
+                    cc(' '.join(cmd), shell=True)
                     self.menu_resources.append(x)
-                check_call(['xdg-desktop-menu', 'forceupdate'])
+                cc(['xdg-desktop-menu', 'forceupdate'])
                 f = open('calibre-mimetypes', 'wb')
                 f.write(MIME)
                 f.close()
                 self.mime_resources.append('calibre-mimetypes')
-                check_call('xdg-mime install ./calibre-mimetypes', shell=True)
+                cc('xdg-mime install ./calibre-mimetypes', shell=True)
         except Exception:
             if self.opts.fatal_errors:
                 raise

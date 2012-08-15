@@ -34,6 +34,8 @@ from BeautifulSoup import BeautifulSoup
     Added new feeds
     Updated css
     Changed order of regex to speedup proces
+ Version 1.9.3 23-05-2012
+    Updated Cover image
 '''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
@@ -51,7 +53,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
-    cover_url = 'http://www.oldreadmetro.com/img/en/metroholland/last/1/small.jpg'
+    cover_url = 'http://www.readmetro.com/en/holland/metro-holland/image/large/last/'
     publication_type = 'newspaper'
     encoding = 'utf-8'
     remove_attributes = ['style', 'font', 'width', 'height', 'itemtype', 'itemprop', 'itemscope']#, 'href']

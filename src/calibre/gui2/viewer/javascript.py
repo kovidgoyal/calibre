@@ -29,10 +29,13 @@ class JavaScriptLoader(object):
 
     CS = {
             'cfi':'ebooks.oeb.display.cfi',
+            'indexing':'ebooks.oeb.display.indexing',
+            'paged':'ebooks.oeb.display.paged',
+            'utils':'ebooks.oeb.display.utils',
         }
 
     ORDER = ('jquery', 'jquery_scrollTo', 'bookmarks', 'referencing', 'images',
-            'hyphenation', 'hyphenator', 'cfi',)
+            'hyphenation', 'hyphenator', 'utils', 'cfi', 'indexing', 'paged')
 
 
     def __init__(self, dynamic_coffeescript=False):
@@ -64,6 +67,7 @@ class JavaScriptLoader(object):
                         os.path.exists(calibre.__file__))
                 ans = compiled_coffeescript(src, dynamic=dynamic).decode('utf-8')
             self._cache[name] = ans
+
         return ans
 
     def __call__(self, evaljs, lang, default_lang):

@@ -181,7 +181,7 @@ class Hex2Utf8:
             self.__dingbats_dict.update(dingbats_base_dict)
             self.__dingbats_dict.update(ms_dingbats_dict)
         # load dictionary for caps, and make a string for the replacement
-        self.__caps_uni_dict = char_map_obj.get_char_map(map='caps_uni')
+        self.__caps_uni_dict = char_map_obj.get_char_map(map = 'caps_uni')
         # # print self.__caps_uni_dict
         # don't think I'll need this
         ##keys = self.__caps_uni_dict.keys()

@@ -177,12 +177,12 @@ class UploadUserManual(Command): # {{{
             subprocess.check_call(['scp', f.name, 'divok:'+dest])
 
     def run(self, opts):
-        path = self.j(self.SRC, 'calibre', 'manual', 'plugin_examples')
+        path = self.j(self.SRC, '..', 'manual', 'plugin_examples')
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
         check_call(' '.join(['rsync', '-z', '-r', '--progress',
-            'src/calibre/manual/.build/html/',
+            'manual/.build/html/',
                     'bugs:%s'%USER_MANUAL]), shell=True)
 # }}}
 
