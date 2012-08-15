@@ -13,7 +13,7 @@ from lxml import etree
 
 from PyQt4.Qt import QUrl
 
-from calibre import browser
+from calibre import (browser, guess_extension)
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
@@ -81,7 +81,7 @@ class OpenSearchOPDSStore(StorePlugin):
                             s.detail_item = href
                         elif 'http://opds-spec.org/acquisition' in rel:
                             if type:
-                                ext = mimetypes.guess_extension(type)
+                                ext = guess_extension(type)
                                 if ext:
                                     ext = ext[1:].upper().strip()
                                     s.downloads[ext] = href

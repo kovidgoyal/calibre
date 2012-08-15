@@ -40,6 +40,9 @@ def _init_mimetypes():
     global _mt_inited
     import mimetypes
     mimetypes.init([P('mime.types')])
+    mimetypes.add_type('application/epub+zip', '.epub')
+    mimetypes.add_type('application/x-mobipocket-ebook', '.mobi')
+    mimetypes.add_type('application/x-palmreader', '.pdb')
     _mt_inited = True
 
 def guess_type(*args, **kwargs):
@@ -53,6 +56,13 @@ def guess_all_extensions(*args, **kwargs):
     if not _mt_inited:
         _init_mimetypes()
     return mimetypes.guess_all_extensions(*args, **kwargs)
+
+
+def guess_extension(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.guess_extension(*args, **kwargs)
 
 def get_types_map():
     import mimetypes
