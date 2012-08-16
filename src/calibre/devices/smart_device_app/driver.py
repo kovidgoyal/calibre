@@ -11,11 +11,12 @@ import socket, select, json, inspect, os, traceback, time, sys, random
 import hashlib, threading
 from base64 import b64encode, b64decode
 from functools import wraps
+from errno import EAGAIN, EINTR
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
-                                    InitialConnectionError)
+                                    InitialConnectionError, PacketError)
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -85,6 +86,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     MAX_CLIENT_COMM_TIMEOUT     = 60.0 # Wait at most N seconds for an answer
     MAX_UNSUCCESSFUL_CONNECTS   = 5
 
+    SEND_NOOP_EVERY_NTH_PROBE   = 5
+    DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
+
     opcodes = {
         'NOOP'                   : 12,
         'OK'                     : 0,
@@ -120,7 +124,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         _('Use fixed network port') + ':::<p>' +
             _('If checked, use the port number in the "Port" box, otherwise '
               'the driver will pick a random port') + '</p>',
-        _('Port') + ':::<p>' +
+        _('Port number: ') + ':::<p>' +
             _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
             _('Check this box if requested when reporting problems') + '</p>',
@@ -131,7 +135,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
             'these values to the list to enable them. The collections will be '
             'given the name provided after the ":" character.')%dict(
-                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR)
+                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
+        '',
+        _('Enable the no-activity timeout') + ':::<p>' +
+            _('If this box is checked, calibre will automatically disconnect if '
+              'a connected device does nothing for %d minutes. Unchecking this '
+              ' box disables this timeout, so calibre will never automatically '
+              'disconnect.')%(DISCONNECT_AFTER_N_SECONDS/60,) + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False,
@@ -141,7 +151,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '9090',
                 False,
                 '',
-                ''
+                '',
+                '',
+                True,
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -149,6 +161,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_PORT_NUMBER             = 5
     OPT_EXTRA_DEBUG             = 6
     OPT_COLLECTIONS             = 8
+    OPT_AUTODISCONNECT          = 10
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -165,7 +178,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                                inspect.stack()[1][3]), end='')
         for a in args:
             try:
-                prints('', a, end='')
+                if isinstance(a, dict):
+                    printable = {}
+                    for k,v in a.iteritems():
+                        if isinstance(v, (str, unicode)) and len(v) > 50:
+                            printable[k] = 'too long'
+                        else:
+                            printable[k] = v
+                    prints('', printable, end='');
+                else:
+                    prints('', a, end='')
             except:
                 prints('', 'value too long', end='')
         print()
@@ -339,6 +361,27 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             pos += len(v)
         return data
 
+    def _send_byte_string(self, s):
+        if not isinstance(s, bytes):
+            self._debug('given a non-byte string!')
+            raise PacketError("Internal error: found a string that isn't bytes")
+        sent_len = 0;
+        total_len = len(s)
+        while sent_len < total_len:
+            try:
+                if sent_len == 0:
+                    amt_sent = self.device_socket.send(s)
+                else:
+                    amt_sent = self.device_socket.send(s[sent_len:])
+                if amt_sent <= 0:
+                    raise IOError('Bad write on device socket');
+                sent_len += amt_sent
+            except socket.error as e:
+                self._debug('socket error', e, e.errno)
+                if e.args[0] != EAGAIN and e.args[0] != EINTR:
+                    raise
+                time.sleep(0.1) # lets not hammer the OS too hard
+
     def _call_client(self, op, arg, print_debug_info=True):
         if op != 'NOOP':
             self.noop_counter = 0
@@ -355,9 +398,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            self.device_socket.sendall(('%d' % len(s))+s)
-            self.device_socket.settimeout(None)
+            self._send_byte_string((b'%d' % len(s))+s)
             v = self._read_string_from_net()
+            self.device_socket.settimeout(None)
             if print_debug_info and extra_debug:
                 self._debug('received string', v)
             if v:
@@ -373,13 +416,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except socket.error:
             self._debug('device went away')
             self._close_device_socket()
-            raise ControlError('Device closed the network connection')
+            raise ControlError(desc='Device closed the network connection')
         except:
             self._debug('other exception')
             traceback.print_exc()
             self._close_device_socket()
             raise
-        raise ControlError('Device responded with incorrect information')
+        raise ControlError(desc='Device responded with incorrect information')
 
     # Write a file as a series of base64-encoded strings.
     def _put_file(self, infile, lpath, book_metadata, this_book, total_books):
@@ -475,7 +518,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.is_connected = False
         if self.is_connected:
             self.noop_counter += 1
-            if only_presence and (self.noop_counter % 5) != 1:
+            if only_presence and (
+                    self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1:
                 try:
                     ans = select.select((self.device_socket,), (), (), 0)
                     if len(ans[0]) == 0:
@@ -486,11 +530,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # This will usually toss an exception if the socket is gone.
                 except:
                     pass
-            try:
-                if self._call_client('NOOP', dict())[0] is None:
-                    self._close_device_socket()
-            except:
+            if (self.settings().extra_customization[self.OPT_AUTODISCONNECT] and
+                    self.noop_counter > self.DISCONNECT_AFTER_N_SECONDS):
                 self._close_device_socket()
+                self._debug('timeout -- disconnected')
+            else:
+                try:
+                    if self._call_client('NOOP', dict())[0] is None:
+                        self._close_device_socket()
+                except:
+                    self._close_device_socket()
             return (self.is_connected, self)
         if getattr(self, 'listen_socket', None) is not None:
             ans = select.select((self.listen_socket,), (), (), 0)
@@ -533,7 +582,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug()
         if not self.is_connected:
             # We have been called to retry the connection. Give up immediately
-            raise ControlError('Attempt to open a closed device')
+            raise ControlError(desc='Attempt to open a closed device')
         self.current_library_uuid = library_uuid
         self.current_library_name = current_library_name()
         try:
@@ -569,6 +618,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('Protocol error - bogus book packet length')
                 self._close_device_socket()
                 return False
+            self._debug('CC version #:', result.get('ccVersionNumber', 'unknown'))
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             exts = result.get('acceptedExtensions', None)
@@ -689,7 +739,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
                 else:
-                    raise ControlError('book metadata not returned')
+                    raise ControlError(desc='book metadata not returned')
         return bl
 
     @synchronous('sync_lock')
@@ -720,7 +770,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                                   print_debug_info=False)
                 if opcode != 'OK':
                     self._debug('protocol error', opcode, i)
-                    raise ControlError('sync_booklists')
+                    raise ControlError(desc='sync_booklists')
 
     @synchronous('sync_lock')
     def eject(self):
@@ -748,7 +798,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             book = Book(self.PREFIX, lpath, other=mdata)
             length = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
-                raise ControlError('Sending book %s to device failed' % lpath)
+                raise ControlError(desc='Sending book %s to device failed' % lpath)
             paths.append((lpath, length))
             # No need to deal with covers. The client will get the thumbnails
             # in the mi structure
@@ -789,7 +839,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if opcode == 'OK':
                 self._debug('removed book with UUID', result['uuid'])
             else:
-                raise ControlError('Protocol error - delete books')
+                raise ControlError(desc='Protocol error - delete books')
 
     @synchronous('sync_lock')
     def remove_books_from_metadata(self, paths, booklists):
@@ -825,7 +875,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 else:
                     eof = True
             else:
-                raise ControlError('request for book data failed')
+                raise ControlError(desc='request for book data failed')
 
     @synchronous('sync_lock')
     def set_plugboards(self, plugboards, pb_func):

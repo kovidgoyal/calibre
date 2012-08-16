@@ -1188,11 +1188,11 @@ Author '{0}':
                 current_series = book['series']
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
-
+                if self.opts.fmt == 'mobi':
+                    pSeriesTag['class'] = "series_mobi"
                 if self.opts.generate_series:
                     aTag = Tag(soup,'a')
-                    aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                                    re.sub('\s','',book['series']).lower())
+                    aTag['href'] = "%s.html#%s" % ('BySeries',self.generateSeriesAnchor(book['series']))
                     aTag.insert(0, book['series'])
                     pSeriesTag.insert(0, aTag)
                 else:
@@ -1331,10 +1331,13 @@ Author '{0}':
                         current_series = new_entry['series']
                         pSeriesTag = Tag(soup,'p')
                         pSeriesTag['class'] = "series"
+                        if self.opts.fmt == 'mobi':
+                            pSeriesTag['class'] = "series_mobi"
                         if self.opts.generate_series:
                             aTag = Tag(soup,'a')
-                            aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                                            re.sub('\W','',new_entry['series']).lower())
+
+                            if self.letter_or_symbol(new_entry['series']) == self.SYMBOLS:
+                                aTag['href'] = "%s.html#%s" % ('BySeries',self.generateSeriesAnchor(new_entry['series']))
                             aTag.insert(0, new_entry['series'])
                             pSeriesTag.insert(0, aTag)
                         else:
@@ -1741,17 +1744,6 @@ Author '{0}':
         body = soup.find('body')
 
         btc = 0
-
-        pTag = Tag(soup, "p")
-        pTag['style'] = 'display:none'
-        ptc = 0
-        aTag = Tag(soup,'a')
-        aTag['id'] = 'section_start'
-        pTag.insert(ptc, aTag)
-        ptc += 1
-        body.insert(btc, pTag)
-        btc += 1
-
         divTag = Tag(soup, "div")
         dtc = 0
         current_letter = ""
@@ -1787,11 +1779,10 @@ Author '{0}':
                 current_series = book['series']
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
+                if self.opts.fmt == 'mobi':
+                    pSeriesTag['class'] = "series_mobi"
                 aTag = Tag(soup, 'a')
-                if self.letter_or_symbol(book['series']):
-                    aTag['id'] = "symbol_%s_series" % re.sub('\W','',book['series']).lower()
-                else:
-                    aTag['id'] = "%s_series" % re.sub('\W','',book['series']).lower()
+                aTag['id'] = self.generateSeriesAnchor(book['series'])
                 pSeriesTag.insert(0,aTag)
                 pSeriesTag.insert(1,NavigableString('%s' % book['series']))
                 divTag.insert(dtc,pSeriesTag)
@@ -1847,19 +1838,23 @@ Author '{0}':
             divTag.insert(dtc, pBookTag)
             dtc += 1
 
+        pTag = Tag(soup, "p")
+        pTag['class'] = 'title'
+        ptc = 0
+        aTag = Tag(soup,'a')
+        aTag['id'] = 'section_start'
+        pTag.insert(ptc, aTag)
+        ptc += 1
+
         if not self.__generateForKindle:
             # Insert the <h2> tag with book_count at the head
-            #<h2><a name="byseries" id="byseries"></a>By Series</h2>
-            pTag = Tag(soup, "p")
-            pTag['class'] = 'title'
             aTag = Tag(soup, "a")
             anchor_name = friendly_name.lower()
             aTag['id'] = anchor_name.replace(" ","")
             pTag.insert(0,aTag)
-            #h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, series_count)))
             pTag.insert(1,NavigableString('%s' % friendly_name))
-            body.insert(btc,pTag)
-            btc += 1
+        body.insert(btc,pTag)
+        btc += 1
 
         # Add the divTag to the body
         body.insert(btc, divTag)
@@ -3353,15 +3348,23 @@ Author '{0}':
             return codeTag
         else:
             spanTag = Tag(soup, "span")
+            spanTag['class'] = "prefix"
+
+            # color:white was the original technique used to align columns.
+            # The new technique is to float the prefix left with CSS.
             if prefix_char is None:
-                spanTag['style'] = "color:white"
-                prefix_char = self.defaultPrefix
+                if True:
+                    prefix_char = "&nbsp;"
+                else:
+                    del spanTag['class']
+                    spanTag['style'] = "color:white"
+                    prefix_char = self.defaultPrefix
             spanTag.insert(0,NavigableString(prefix_char))
             return spanTag
 
     def generateAuthorAnchor(self, author):
-        # Strip white space to ''
-        return re.sub("\W","", author)
+        # Generate a legal XHTML id/href string
+        return re.sub("\W","", ascii_text(author))
 
     def generateFormatArgs(self, book):
         series_index = str(book['series_index'])
@@ -3436,10 +3439,11 @@ Author '{0}':
                 current_series = book['series']
                 pSeriesTag = Tag(soup,'p')
                 pSeriesTag['class'] = "series"
+                if self.opts.fmt == 'mobi':
+                    pSeriesTag['class'] = "series_mobi"
                 if self.opts.generate_series:
                     aTag = Tag(soup,'a')
-                    aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                                    re.sub('\W','',book['series']).lower())
+                    aTag['href'] = "%s.html#%s" % ('BySeries', self.generateSeriesAnchor(book['series']))
                     aTag.insert(0, book['series'])
                     pSeriesTag.insert(0, aTag)
                 else:
@@ -3641,12 +3645,7 @@ Author '{0}':
         if aTag:
             if book['series']:
                 if self.opts.generate_series:
-                    if self.letter_or_symbol(book['series']):
-                        aTag['href'] = "%s.html#symbol_%s_series" % ('BySeries',
-                                    re.sub('\W','',book['series']).lower())
-                    else:
-                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                    re.sub('\s','',book['series']).lower())
+                    aTag['href'] = "%s.html#%s" % ('BySeries',self.generateSeriesAnchor(book['series']))
             else:
                 aTag.extract()
 
@@ -3779,6 +3778,13 @@ Author '{0}':
             # Rating could be None
             pass
         return rating
+
+    def generateSeriesAnchor(self, series):
+        # Generate a legal XHTML id/href string
+        if self.letter_or_symbol(series) == self.SYMBOLS:
+            return "symbol_%s_series" % re.sub('\W','',series).lower()
+        else:
+            return "%s_series" % re.sub('\W','',ascii_text(series)).lower()
 
     def generateShortDescription(self, description, dest=None):
         # Truncate the description, on word boundaries if necessary

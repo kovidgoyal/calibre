@@ -2,7 +2,7 @@
  * global.h
  * Copyright (C) 2012 Kovid Goyal <kovid at kovidgoyal.net>
  *
- * Distributed under terms of the MIT license.
+ * Distributed under terms of the GPL3 license.
  */
 
 #pragma once
@@ -33,6 +33,18 @@ typedef struct {
     unsigned int revision;
 } ClientInfo;
 extern ClientInfo client_info;
+
+// Device type
+typedef struct {
+    PyObject_HEAD
+    // Type-specific fields go here.
+    wchar_t *pnp_id;
+    IPortableDeviceValues *client_information;
+    IPortableDevice *device;
+    PyObject *device_information;
+
+} Device;
+extern PyTypeObject DeviceType;
 
 // Utility functions
 PyObject *hresult_set_exc(const char *msg, HRESULT hr);

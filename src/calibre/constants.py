@@ -28,7 +28,8 @@ isosx     = 'darwin' in _plat
 isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
 isfreebsd = 'freebsd' in _plat
 isnetbsd = 'netbsd' in _plat
-isbsd = isfreebsd or isnetbsd
+isdragonflybsd = 'dragonfly' in _plat
+isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
@@ -214,4 +215,14 @@ def get_windows_temp_path():
     ctypes.windll.kernel32.GetTempPathW(n, buf)
     ans = buf.value
     return ans if ans else None
+
+def get_windows_user_locale_name():
+    import ctypes
+    k32 = ctypes.windll.kernel32
+    n = 200
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    n = k32.GetUserDefaultLocaleName(buf, n)
+    if n == 0:
+        return None
+    return u'_'.join(buf.value.split(u'-')[:2])
 

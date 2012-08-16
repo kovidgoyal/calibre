@@ -1353,7 +1353,7 @@ class StoreEbookscomStore(StoreBase):
 
 class StoreEbooksGratuitsStore(StoreBase):
     name = 'EbooksGratuits.com'
-    description = u''
+    description = u'Ebooks Libres et Gratuits'
     actual_plugin = 'calibre.gui2.store.stores.ebooksgratuits_plugin:EbooksGratuitsStore'
 
     headquarters = 'FR'
