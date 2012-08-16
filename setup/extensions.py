@@ -172,13 +172,14 @@ if iswindows:
             [
                 'calibre/devices/mtp/windows/utils.cpp',
                 'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/content_enumeration.cpp',
                 'calibre/devices/mtp/windows/device.cpp',
                 'calibre/devices/mtp/windows/wpd.cpp',
             ],
             headers=[
                 'calibre/devices/mtp/windows/global.h',
             ],
-            libraries=['ole32', 'portabledeviceguids'],
+            libraries=['ole32', 'portabledeviceguids', 'user32'],
             # needs_ddk=True,
             cflags=['/X']
             ),
