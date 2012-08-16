@@ -1351,6 +1351,15 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
+# class StoreEbooksGratuitsStore(StoreBase):
+#     name = 'EbooksGratuits.com'
+#     description = u''
+#     actual_plugin = 'calibre.gui2.store.stores.ebooksgratuits_plugin:EbooksGratuitsStore'
+#
+#     headquarters = 'FR'
+#     formats = ['EPUB', 'MOBI', 'PDF', 'PDB']
+#     drm_free_only = True
+#
 # class StoreEBookShoppeUKStore(StoreBase):
 #     name = 'ebookShoppe UK'
 #     author = u'Charles Haley'
@@ -1645,6 +1654,7 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
+    # StoreEbooksGratuitsStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
     StoreEscapeMagazineStore,
