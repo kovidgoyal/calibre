@@ -1452,7 +1452,8 @@ class StoreLegimiStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.legimi_plugin:LegimiStore'
 
     headquarters = 'PL'
-    formats = ['EPUB']
+    formats = ['EPUB', 'PDF', 'MOBI']
+    affiliate = True
 
 class StoreLibreDEStore(StoreBase):
     name = 'Libri DE'
