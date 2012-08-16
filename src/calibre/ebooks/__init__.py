@@ -173,7 +173,7 @@ def check_ebook_format(stream, current_guess):
 def normalize(x):
     if isinstance(x, unicode):
         import unicodedata
-        x = unicodedata.normalize('NFKC', x)
+        x = unicodedata.normalize('NFC', x)
     return x
 
 def calibre_cover(title, author_string, series_string=None,
