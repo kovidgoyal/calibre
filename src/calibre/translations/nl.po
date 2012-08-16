@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-08-10 06:01+0000\n"
-"PO-Revision-Date: 2012-08-10 19:45+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2012-08-15 16:04+0000\n"
+"Last-Translator: Peter Eijlander <peter.eijlander@xs4all.nl>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-11 05:29+0000\n"
-"X-Generator: Launchpad (build 15780)\n"
+"X-Launchpad-Export-Date: 2012-08-16 04:39+0000\n"
+"X-Generator: Launchpad (build 15810)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -74,7 +74,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:523
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Stel metagegevens van %s bestanden in"
+msgstr "Stel metagegevens van %s-bestanden in"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -311,7 +311,7 @@ msgstr "Actie in de gebruikersinterface"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:311
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
 msgid "Preferences"
-msgstr "Voorkeuren"
+msgstr "Voorkeuren..."
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -344,7 +344,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Omslag uit stripboek bestanden extraheren"
+msgstr "Omslag uit stripboekbestanden extraheren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -389,7 +389,7 @@ msgstr "Metadata van e-book uit ZIP-archieven lezen"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:512
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Metadata van %s bestanden instellen"
+msgstr "Metadata van %s-bestanden instellen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 msgid "Add books to calibre or the connected device"
@@ -409,15 +409,15 @@ msgstr "Boeken naar verschillende e-book formaten converteren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Delete books from your calibre library or connected device"
-msgstr "Verwijder boeken uit uw calibre bibliotheek of verbonden apparaat"
+msgstr "Verwijder boeken uit uw calibrebibliotheek of verbonden apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid "Edit the metadata of books in your calibre library"
-msgstr "Bewerk de metadata van boeken in uw calibre bibliotheek"
+msgstr "Bewerk de metadata van boeken in uw calibrebibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Read books in your calibre library"
-msgstr "Gelezen boeken in uw calibre-bibliotheek"
+msgstr "Gelezen boeken in uw calibrebibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Download news from the internet in ebook form"
@@ -429,7 +429,7 @@ msgstr "Toon snel een lijst van gerelateerde boeken"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Export books from your calibre library to the hard disk"
-msgstr "Exporteer boeken van uw calibre bibliotheek naar de harde schijf"
+msgstr "Exporteer boeken van uw calibrebibliotheek naar de harde schijf"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid "Show book details in a separate popup"
@@ -442,7 +442,7 @@ msgstr "Herstart calibre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
-"Open de map waar de boek-bestanden in uw calibre bibliotheek zich bevinden"
+"Open de map waar de boekbestanden in uw calibre bibliotheek zich bevinden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Send books to the connected device"
@@ -474,7 +474,7 @@ msgstr ""
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
-"Wissel tussen verschillende calibre bibliotheken en voer er onderhoud op uit"
+"Wissel tussen verschillende calibrebibliotheken en voer er onderhoud op uit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:870
 msgid "Copy books from the devce to your calibre library"
