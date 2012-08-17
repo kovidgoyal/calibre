@@ -17,6 +17,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
 from calibre import prints
+from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
@@ -90,6 +91,8 @@ class Document(QWebPage): # {{{
 
         # Fonts
         load_builtin_fonts()
+        for pl in all_viewer_plugins():
+            pl.load_fonts()
         self.set_font_settings()
 
         # Security
@@ -169,8 +172,11 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
-        self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
-                self.current_language, self.hyphenate_default_lang)
+        evaljs = self.mainFrame().evaluateJavaScript
+        self.loaded_lang = self.js_loader(evaljs, self.current_language,
+                self.hyphenate_default_lang)
+        for pl in all_viewer_plugins():
+            pl.load_javascript(evaljs)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
