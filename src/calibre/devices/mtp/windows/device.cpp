@@ -9,7 +9,7 @@
 
 extern IPortableDevice* wpd::open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
 extern IPortableDeviceValues* wpd::get_client_information();
-extern PyObject* wpd::get_device_information(IPortableDevice *device);
+extern PyObject* wpd::get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **pb);
 
 using namespace wpd;
 // Device.__init__() {{{
@@ -18,6 +18,8 @@ dealloc(Device* self)
 {
     if (self->pnp_id != NULL) free(self->pnp_id);
     self->pnp_id = NULL;
+
+    if (self->bulk_properties != NULL) { self->bulk_properties->Release(); self->bulk_properties = NULL; }
 
     if (self->device != NULL) { 
         Py_BEGIN_ALLOW_THREADS;
@@ -44,12 +46,17 @@ init(Device *self, PyObject *args, PyObject *kwds)
     self->pnp_id = unicode_to_wchar(pnp_id);
     if (self->pnp_id == NULL) return -1;
 
+    self->bulk_properties = NULL;
+
     self->client_information = get_client_information();
     if (self->client_information != NULL) {
         self->device = open_device(self->pnp_id, self->client_information);
         if (self->device != NULL) {
-            self->device_information = get_device_information(self->device);
-            if (self->device_information != NULL) ret = 0;
+            self->device_information = get_device_information(self->device, &(self->bulk_properties));
+            if (self->device_information != NULL) {
+                ret = 0;
+            }
+
         }
     }
 
@@ -62,15 +69,32 @@ init(Device *self, PyObject *args, PyObject *kwds)
 static PyObject*
 update_data(Device *self, PyObject *args, PyObject *kwargs) {
     PyObject *di = NULL;
-    di = get_device_information(self->device);
+    di = get_device_information(self->device, NULL);
     if (di == NULL) return NULL;
     Py_XDECREF(self->device_information); self->device_information = di;
     Py_RETURN_NONE;
 } // }}}
  
+// get_filesystem() {{{
+static PyObject*
+py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *storage_id, *ans = NULL;
+    wchar_t *storage;
+
+    if (!PyArg_ParseTuple(args, "O", &storage_id)) return NULL;
+    storage = unicode_to_wchar(storage_id);
+    if (storage == NULL) return NULL;
+
+    return wpd::get_filesystem(self->device, storage, self->bulk_properties);
+} // }}}
+
 static PyMethodDef Device_methods[] = {
     {"update_data", (PyCFunction)update_data, METH_VARARGS,
      "update_data() -> Reread the basic device data from the device (total, space, free space, storage locations, etc.)"
+    },
+
+    {"get_filesystem", (PyCFunction)py_get_filesystem, METH_VARARGS,
+     "get_filesystem(storage_id) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible."
     },
 
     {NULL}

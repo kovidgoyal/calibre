@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-06-22 17:32+0000\n"
+"PO-Revision-Date: 2012-08-15 10:30+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-23 05:01+0000\n"
-"X-Generator: Launchpad (build 15461)\n"
+"X-Launchpad-Export-Date: 2012-08-16 04:40+0000\n"
+"X-Generator: Launchpad (build 15810)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -5540,7 +5540,7 @@ msgstr "Forro"
 
 #. name for crj
 msgid "Cree; Southern East"
-msgstr "Cree sudoriental"
+msgstr "Cree suroriental"
 
 #. name for crk
 msgid "Cree; Plains"
@@ -8336,15 +8336,15 @@ msgstr "Gimi (provincia West New Britain)"
 
 #. name for giq
 msgid "Gelao; Green"
-msgstr ""
+msgstr "Gelao verde"
 
 #. name for gir
 msgid "Gelao; Red"
-msgstr ""
+msgstr "Gelao rojo"
 
 #. name for gis
 msgid "Giziga; North"
-msgstr ""
+msgstr "Giziga septentrional"
 
 #. name for git
 msgid "Gitxsan"
@@ -8352,7 +8352,7 @@ msgstr "Gitxsan"
 
 #. name for giw
 msgid "Gelao; White"
-msgstr ""
+msgstr "Gelao blanco"
 
 #. name for gix
 msgid "Gilima"
@@ -8364,7 +8364,7 @@ msgstr "Giyug"
 
 #. name for giz
 msgid "Giziga; South"
-msgstr ""
+msgstr "Giziga meridional"
 
 #. name for gji
 msgid "Geji"
@@ -9236,7 +9236,7 @@ msgstr "Habu"
 
 #. name for hca
 msgid "Creole Hindi; Andaman"
-msgstr ""
+msgstr "Hindi criollo de Andamán"
 
 #. name for hch
 msgid "Huichol"
@@ -9256,7 +9256,7 @@ msgstr "Hadiyya"
 
 #. name for hea
 msgid "Miao; Northern Qiandong"
-msgstr ""
+msgstr "Miao de Qiandong septentrional"
 
 #. name for heb
 msgid "Hebrew"
@@ -9412,15 +9412,15 @@ msgstr "Nga la"
 
 #. name for hlu
 msgid "Luwian; Hieroglyphic"
-msgstr ""
+msgstr "Luvita jeroglífico"
 
 #. name for hma
 msgid "Miao; Southern Mashan"
-msgstr ""
+msgstr "Miao de Mashan meridional"
 
 #. name for hmb
 msgid "Songhay; Humburi Senni"
-msgstr ""
+msgstr "Songhay humburi senni"
 
 #. name for hmc
 msgid "Miao; Central Huishui"
@@ -9428,27 +9428,27 @@ msgstr "Miao de Huishui central"
 
 #. name for hmd
 msgid "Miao; Large Flowery"
-msgstr ""
+msgstr "Gran miao florido"
 
 #. name for hme
 msgid "Miao; Eastern Huishui"
-msgstr ""
+msgstr "Miao de Huishui oriental"
 
 #. name for hmf
 msgid "Hmong Don"
-msgstr ""
+msgstr "Hmong don"
 
 #. name for hmg
 msgid "Hmong; Southwestern Guiyang"
-msgstr ""
+msgstr "Hmong de Guiyang suroccidental"
 
 #. name for hmh
 msgid "Miao; Southwestern Huishui"
-msgstr ""
+msgstr "Miao de Huishui suroccidental"
 
 #. name for hmi
 msgid "Miao; Northern Huishui"
-msgstr ""
+msgstr "Miao de Huishui septentrional"
 
 #. name for hmj
 msgid "Ge"
@@ -9464,7 +9464,7 @@ msgstr "Miao del río Luobo"
 
 #. name for hmm
 msgid "Miao; Central Mashan"
-msgstr ""
+msgstr "Miao de Mashan central"
 
 #. name for hmn
 msgid "Hmong"
@@ -9476,11 +9476,11 @@ msgstr "Hiri motu"
 
 #. name for hmp
 msgid "Miao; Northern Mashan"
-msgstr ""
+msgstr "Miao de Mashan septentrional"
 
 #. name for hmq
 msgid "Miao; Eastern Qiandong"
-msgstr ""
+msgstr "Miao de Qiandong oriental"
 
 #. name for hmr
 msgid "Hmar"
@@ -9488,7 +9488,7 @@ msgstr "Hmar"
 
 #. name for hms
 msgid "Miao; Southern Qiandong"
-msgstr ""
+msgstr "Miao de Qiandong meridional"
 
 #. name for hmt
 msgid "Hamtai"
@@ -9504,15 +9504,15 @@ msgstr "Hmong dô"
 
 #. name for hmw
 msgid "Miao; Western Mashan"
-msgstr ""
+msgstr "Miao de Mashan occidental"
 
 #. name for hmy
 msgid "Miao; Southern Guiyang"
-msgstr ""
+msgstr "Miao de Guiyang meridional"
 
 #. name for hmz
 msgid "Miao; Sinicized"
-msgstr ""
+msgstr "Miao sinizado"
 
 #. name for hna
 msgid "Mina (Cameroon)"
@@ -21288,11 +21288,11 @@ msgstr "Lengua de signos de Penang"
 
 #. name for psh
 msgid "Pashayi; Southwest"
-msgstr "Pashai sudoccidental"
+msgstr "Pashai suroccidental"
 
 #. name for psi
 msgid "Pashayi; Southeast"
-msgstr "Pasai sudoriental"
+msgstr "Pasai suroriental"
 
 #. name for psl
 msgid "Puerto Rican Sign Language"
@@ -28676,7 +28676,7 @@ msgstr "Lusitano"
 
 #. name for xlu
 msgid "Luwian; Cuneiform"
-msgstr ""
+msgstr "Luvita cuneiforme"
 
 #. name for xly
 msgid "Elymian"
