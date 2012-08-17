@@ -2411,7 +2411,7 @@ Author '{0}':
         current_series = ""
         for idx, book in enumerate(title_list):
             sort_title = self.generateSortTitle(book['series'])
-            sort_title_equivalent = self.establish_equivalencies([sort_title])[0]
+            self.establish_equivalencies([sort_title])[0]
             if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
 
                 # Save the old list
