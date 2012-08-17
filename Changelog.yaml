@@ -24,7 +24,7 @@
 
   new features:
     - title: "A new wireless device driver. This allows connecting wirelessly to a device running a 'smart' calibre client"
-      description: "The wireless connection functions just as if the device was plugged into the computer by USB cable. Currently, Android devices are supported. See http://www.mobileread.com/forums/showthread.php?p=2181489#post2181489 for details."
+      description: "The wireless connection functions just as if the device was plugged into the computer by USB cable. Currently, Android devices are supported. See https://play.google.com/store/apps/details?id=com.multipie.calibreandroid"
       type: major
 
     - title: "MOBI Output: Add an option to control the type of MOBI file produced, to the MOBI Output conversion options. You can now generate an old MOBI6, a new KF8 or a joint MOBI6/KF8 file. By default, MOBI6 files are generated. This replaces the previous use of a tweak."
@@ -65,9 +65,6 @@
     - Slashdot
     - Various Canadian newspapers
     - Business Spectator
-
-  new recipes:
-    - title: 
 
 - version: 0.8.64
   date: 2012-08-09
