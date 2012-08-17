@@ -19,6 +19,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.65
+  date: 2012-08-17
+
+  new features:
+    - title: "A new wireless device driver. This allows connecting wirelessly to a device running a 'smart' calibre client"
+      description: "The wireless connection functions just as if the device was plugged into the computer by USB cable. Currently, Android devices are supported. See http://www.mobileread.com/forums/showthread.php?p=2181489#post2181489 for details."
+      type: major
+
+    - title: "MOBI Output: Add an option to control the type of MOBI file produced, to the MOBI Output conversion options. You can now generate an old MOBI6, a new KF8 or a joint MOBI6/KF8 file. By default, MOBI6 files are generated. This replaces the previous use of a tweak."
+
+    - title: "E-book viewer: Make paged mode the default. You can go back to the old flow mode by clicking the button with the yellow scroll in the top right corner of the viewer."
+
+    - title: "Driver for COBY kYROS MID7042 and Samsung Galaxy Ace S5839i"
+
+  bug fixes:
+    - title: "Update version of poppler bundled with calibre to fix reading covers from some PDF files"
+
+    - title: "Get Books: Fix clicking of results from Diesel books when there is only a single result not working"
+
+    - title: "Improve detection of system language on first run of calibre"
+      tickets: [1036354]
+
+    - title: "When finding the next series index and the last series index is a fractional number, use the next largest integer, instead of just adding 1"
+
+    - title: "Fix exception when saving a search/replace when no saved search/replace had been opened previously in the bulk search/replace dialog"
+      tickets: [1036464]
+
+    - title: "Fix restore database not restoring entries for the original_* formats"
+
+    - title: "Fix first run wizard not allowing empty email sending settings"
+      tickets: [1036358]
+
+    - title: "Do not error out when setting the cover for a book that has no folders in the library."
+      tickets: [1035935]
+
+    - title: "Conversion pipeline: Ignore unparseable values in the color attribute of font tags, instead of erroring out on them."
+      tickets: [1035633]
+
+    - title: "Catalogs: Fix regression that broke creation of catalogs while a device is connected"
+
+    - title: "Fix --with-library=/whatever not working for calibredb list"
+
+  improved recipes:
+    - Slashdot
+    - Various Canadian newspapers
+    - Business Spectator
+
+  new recipes:
+    - title: 
+
 - version: 0.8.64
   date: 2012-08-09
 
