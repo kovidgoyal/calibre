@@ -286,7 +286,7 @@ class Build(Command):
         ''')
 
     def add_options(self, parser):
-        choices = [e.name for e in extensions]+['all']
+        choices = [e.name for e in extensions]+['all', 'style']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
