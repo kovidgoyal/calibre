@@ -15,7 +15,8 @@ import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import DeviceError, FreeSpaceError
+from calibre.devices.errors import (DeviceError, FreeSpaceError,
+        WrongDestinationError)
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
@@ -976,9 +977,17 @@ class Device(DeviceConfig, DevicePlugin):
 
     def _sanity_check(self, on_card, files):
         if on_card == 'carda' and not self._card_a_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
+            raise WrongDestinationError(_(
+                'The reader has no storage card %s. You may have changed '
+                'the default send to device action. Right click on the send '
+                'to device button and reset the default action to be '
+                '"Send to main memory".')%'A')
         elif on_card == 'cardb' and not self._card_b_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
+            raise WrongDestinationError(_(
+                'The reader has no storage card %s. You may have changed '
+                'the default send to device action. Right click on the send '
+                'to device button and reset the default action to be '
+                '"Send to main memory".')%'B')
         elif on_card and on_card not in ('carda', 'cardb'):
             raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
 

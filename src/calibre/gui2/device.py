@@ -23,7 +23,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import FreeSpaceError
+from calibre.devices.errors import FreeSpaceError, WrongDestinationError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
@@ -1450,6 +1450,9 @@ class DeviceMixin(object): # {{{
                                  'is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()
+            elif isinstance(job.exception, WrongDestinationError):
+                error_dialog(self, _('Incorrect destination'),
+                        unicode(job.exception), show=True)
             else:
                 self.device_job_exception(job)
             return
