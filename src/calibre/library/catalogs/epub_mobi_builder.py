@@ -3879,7 +3879,7 @@ Author '{0}':
 
         def open_archive(mode='r'):
             try:
-                return ZipFile(self.__archive_path, mode=mode)
+                return ZipFile(self.__archive_path, mode=mode, allowZip64=True)
             except:
                 # Happens on windows if the file is opened by another
                 # process
