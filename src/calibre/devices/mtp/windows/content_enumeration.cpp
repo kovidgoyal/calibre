@@ -179,7 +179,7 @@ public:
 };
 
 static PyObject* bulk_get_filesystem(IPortableDevice *device, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *storage_id, IPortableDevicePropVariantCollection *object_ids) {
-    PyObject *folders = NULL, *ret = NULL;
+    PyObject *folders = NULL;
     GUID guid_context = GUID_NULL;
     HANDLE ev = NULL;
     IPortableDeviceKeyCollection *properties;
@@ -230,22 +230,16 @@ static PyObject* bulk_get_filesystem(IPortableDevice *device, IPortableDevicePro
     }
     PyEval_RestoreThread(callback->thread_state);
     if (!ok) {
-        // We deliberately leak the callback object to prevent any crashes in case COM tries to call methods on it during a future pump_waiting_messages()
-        PyDict_Clear(folders);
-        folders = NULL;
-        callback = NULL; 
-        ev = NULL;
+        bulk_properties->Cancel(guid_context);
+        pump_waiting_messages();
+        Py_DECREF(folders); folders = NULL;
     } 
 end:
-    if (folders != NULL) {
-        ret = PyDict_Values(folders);
-        Py_DECREF(folders);
-    }
     if (ev != NULL) CloseHandle(ev);
     if (properties != NULL) properties->Release();
     if (callback != NULL) callback->Release();
 
-    return ret;
+    return folders;
 }
 
 static BOOL find_all_objects_in(IPortableDeviceContent *content, IPortableDevicePropVariantCollection *object_ids, const wchar_t *parent_id) {
