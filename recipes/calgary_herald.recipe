@@ -5,14 +5,9 @@ __license__   = 'GPL v3'
 '''
 www.canada.com
 '''
-import string, re
-from calibre import strftime
-from calibre.web.feeds.news import BasicNewsRecipe
-
-import string, re
-from calibre import strftime
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag, BeautifulStoneSoup
 
 
 class CanWestPaper(BasicNewsRecipe):
@@ -90,7 +85,7 @@ class CanWestPaper(BasicNewsRecipe):
     # un-comment the following six lines for the Ottawa Citizen
 ##    title = u'Ottawa Citizen'
 ##    url_prefix = 'http://www.ottawacitizen.com'
-##    description = u'News from Ottawa, ON'   
+##    description = u'News from Ottawa, ON'
 ##    std_logo_url = 'http://www.ottawacitizen.com/images/logo_ottawacitizen.jpg'
 ##    logo_url = 'oclogo.jpg'
 ##    fp_tag = 'CAN_OC'
@@ -106,7 +101,7 @@ class CanWestPaper(BasicNewsRecipe):
     Kindle_Fire=False
     masthead_url = std_logo_url
 
-    url_list = []    
+    url_list = []
     language = 'en_CA'
     __author__ = 'Nick Redding'
     no_stylesheets = True
@@ -121,7 +116,7 @@ class CanWestPaper(BasicNewsRecipe):
                 #photocaption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 .photocaption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 #photocredit { font-size: xx-small; font-weight: normal; }'''
-    
+
     keep_only_tags = [dict(name='div', attrs={'id':'storyheader'}),dict(name='div', attrs={'id':'storycontent'}),dict(name='div', attrs={'id':'storyphoto'})]
 
     remove_tags = [{'class':'comments'},
@@ -135,7 +130,7 @@ class CanWestPaper(BasicNewsRecipe):
 
 
     def get_cover_url(self):
-        from datetime import timedelta, datetime, date
+        from datetime import timedelta, date
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.fp_tag+'.jpg'
         br = BasicNewsRecipe.get_browser()
         daysback=1
@@ -158,7 +153,6 @@ class CanWestPaper(BasicNewsRecipe):
 
     def prepare_masthead_image(self, path_to_image, out_path):
         if self.Kindle_Fire:
-            from calibre import fit_image
             from calibre.utils.magick import Image, create_canvas
             img = Image()
             img.open(path_to_image)
@@ -244,12 +238,12 @@ class CanWestPaper(BasicNewsRecipe):
                             div.insert(0,img)
                             allpics.append(div)
                 pgall.replaceWith(allpics)
-            
+
         for pg in soup.findAll('div',attrs={'id':'storyphoto'}):
             pg.extract()
         return self.strip_anchors(soup)
 
-                        
+
 
     def parse_index(self):
 
@@ -278,7 +272,7 @@ class CanWestPaper(BasicNewsRecipe):
                     if 'GALLERY' in title.upper():
                         return
                     if 'PHOTOS' in title.upper():
-                        return                  
+                        return
                     dtag = adiv.find('div','content')
                     description=''
                     print("URL "+url)
@@ -317,4 +311,4 @@ class CanWestPaper(BasicNewsRecipe):
             parse_web_index(k,url)
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
-                    
+

@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import mimetypes
 from contextlib import closing
 
 from lxml import etree
