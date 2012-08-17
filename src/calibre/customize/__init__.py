@@ -685,5 +685,13 @@ class ViewerPlugin(Plugin): # {{{
                 evaljs(js)
         '''
         pass
+
+    def run_javascript(self, evaljs):
+        '''
+        This method is called every time a document has finished laoding. Use
+        it in the same way as load_javascript().
+        '''
+        pass
+
 # }}}
 

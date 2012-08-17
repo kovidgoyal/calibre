@@ -91,7 +91,8 @@ class Document(QWebPage): # {{{
 
         # Fonts
         load_builtin_fonts()
-        for pl in all_viewer_plugins():
+        self.all_viewer_plugins = tuple(all_viewer_plugins())
+        for pl in self.all_viewer_plugins:
             pl.load_fonts()
         self.set_font_settings()
 
@@ -175,7 +176,7 @@ class Document(QWebPage): # {{{
         evaljs = self.mainFrame().evaluateJavaScript
         self.loaded_lang = self.js_loader(evaljs, self.current_language,
                 self.hyphenate_default_lang)
-        for pl in all_viewer_plugins():
+        for pl in self.all_viewer_plugins:
             pl.load_javascript(evaljs)
 
     @pyqtSignature("")
@@ -213,6 +214,9 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.switch_to_paged_mode()
         self.read_anchor_positions(use_cache=False)
+        evaljs = self.mainFrame().evaluateJavaScript
+        for pl in self.all_viewer_plugins:
+            pl.run_javascript(evaljs)
         self.first_load = False
 
     def colors(self):
