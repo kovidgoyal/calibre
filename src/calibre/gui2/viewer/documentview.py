@@ -24,7 +24,7 @@ from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
 from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.constants import isxp
+from calibre.constants import isxp, iswindows
 # }}}
 
 def load_builtin_fonts():
@@ -176,6 +176,11 @@ class Document(QWebPage): # {{{
         evaljs = self.mainFrame().evaluateJavaScript
         self.loaded_lang = self.js_loader(evaljs, self.current_language,
                 self.hyphenate_default_lang)
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        self.javascript(u'window.mathjax.base = %s'%(json.dumps(mjpath,
+            ensure_ascii=False)))
         for pl in self.all_viewer_plugins:
             pl.load_javascript(evaljs)
 
@@ -217,6 +222,7 @@ class Document(QWebPage): # {{{
         evaljs = self.mainFrame().evaluateJavaScript
         for pl in self.all_viewer_plugins:
             pl.run_javascript(evaljs)
+        self.javascript('window.mathjax.check_for_math()')
         self.first_load = False
 
     def colors(self):

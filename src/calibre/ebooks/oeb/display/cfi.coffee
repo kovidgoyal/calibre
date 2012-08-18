@@ -502,6 +502,9 @@ class CanonicalFragmentIdentifier
     # }}}
 
     scroll_to: (cfi, callback=false, doc=window?.document) -> # {{{
+        if window.mathjax?.math_present and not window.mathjax?.math_loaded
+            window.mathjax.pending_cfi = [cfi, callback]
+            return
         point = this.point(cfi, doc)
         if not point
             log("No point found for cfi: #{ cfi }")
