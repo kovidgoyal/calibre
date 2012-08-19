@@ -24,6 +24,9 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
       <widget class="TOCView" name="toc"/>
       <widget class="QFrame" name="frame">
        <property name="frameShape">
@@ -143,6 +146,7 @@
    </attribute>
    <addaction name="action_find_next"/>
    <addaction name="action_find_previous"/>
+   <addaction name="action_toggle_paged_mode"/>
   </widget>
   <action name="action_back">
    <property name="icon">
@@ -307,6 +311,18 @@
    </property>
    <property name="shortcut">
     <string>Shift+F3</string>
+   </property>
+  </action>
+  <action name="action_toggle_paged_mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/images.qrc">
+     <normaloff>:/images/scroll.png</normaloff>:/images/scroll.png</iconset>
+   </property>
+   <property name="text">
+    <string>Toggle Paged mode</string>
    </property>
   </action>
  </widget>

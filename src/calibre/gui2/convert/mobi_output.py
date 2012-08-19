@@ -25,7 +25,7 @@ class PluginWidget(Widget, Ui_Form):
                     'mobi_keep_original_images',
                     'mobi_ignore_margins', 'mobi_toc_at_start',
                 'dont_compress', 'no_inline_toc', 'share_not_sync',
-                'personal_doc']#, 'mobi_navpoints_only_deepest']
+                'personal_doc', 'mobi_file_type']
                 )
         self.db, self.book_id = db, book_id
 
@@ -48,6 +48,7 @@ class PluginWidget(Widget, Ui_Form):
         self.font_family_model = font_family_model
         self.opt_masthead_font.setModel(self.font_family_model)
         '''
+        self.opt_mobi_file_type.addItems(['old', 'both', 'new'])
 
         self.initialize_options(get_option, get_help, db, book_id)
 

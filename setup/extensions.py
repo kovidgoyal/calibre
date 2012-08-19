@@ -17,7 +17,7 @@ from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs)
+        icu_lib_dirs, win_ddk_lib_dirs)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -140,7 +140,7 @@ extensions = [
                     ['calibre/utils/podofo/podofo.cpp'],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
-                    inc_dirs=[podofo_inc],
+                    inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],
                     optional=True,
                     error=podofo_error),
 
@@ -162,17 +162,48 @@ extensions = [
 
 
 if iswindows:
-    extensions.append(Extension('winutil',
+    extensions.extend([
+        Extension('winutil',
                 ['calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi', 'wininet'],
                 cflags=['/X']
-                ))
+                ),
+        Extension('wpd',
+            [
+                'calibre/devices/mtp/windows/utils.cpp',
+                'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/content_enumeration.cpp',
+                'calibre/devices/mtp/windows/device.cpp',
+                'calibre/devices/mtp/windows/wpd.cpp',
+            ],
+            headers=[
+                'calibre/devices/mtp/windows/global.h',
+            ],
+            libraries=['ole32', 'portabledeviceguids', 'user32'],
+            # needs_ddk=True,
+            cflags=['/X']
+            ),
+        ])
 
 if isosx:
     extensions.append(Extension('usbobserver',
                 ['calibre/devices/usbobserver/usbobserver.c'],
                 ldflags=['-framework', 'IOKit'])
             )
+
+if islinux:
+    extensions.append(Extension('libmtp',
+        [
+        'calibre/devices/mtp/unix/devices.c',
+        'calibre/devices/mtp/unix/libmtp.c'
+        ],
+        headers=[
+        'calibre/devices/mtp/unix/devices.h',
+        'calibre/devices/mtp/unix/upstream/music-players.h',
+        'calibre/devices/mtp/unix/upstream/device-flags.h',
+        ],
+        libraries=['mtp']
+    ))
 
 if isunix:
     cc = os.environ.get('CC', 'gcc')
@@ -255,7 +286,7 @@ class Build(Command):
         ''')
 
     def add_options(self, parser):
-        choices = [e.name for e in extensions]+['all']
+        choices = [e.name for e in extensions]+['all', 'style']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
@@ -269,7 +300,8 @@ class Build(Command):
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
-        self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
+        if opts.only in {'all', 'style'}:
+            self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
@@ -311,8 +343,8 @@ class Build(Command):
         obj_dir = self.j(self.obj_dir, ext.name)
         if ext.needs_ddk:
             ddk_flags = ['-I'+x for x in win_ddk]
-            i = [i for i in range(len(cflags)) if 'VC\\INCLUDE' in cflags[i]][0]
-            cflags[i+1:i+2] = ddk_flags
+            cflags.extend(ddk_flags)
+            ldflags.extend(['/LIBPATH:'+x for x in win_ddk_lib_dirs])
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
         for src in ext.sources:

@@ -50,7 +50,8 @@ class PagePosition(object):
     def __exit__(self, *args):
         self.restore()
 
-    def save(self):
+    def save(self, overwrite=True):
+        if not overwrite and self._cpos is not None: return
         self._cpos = self.current_pos
 
     def restore(self):

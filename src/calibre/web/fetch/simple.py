@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback
+import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback, imghdr
 from urllib import url2pathname, quote
 from httplib import responses
 from PIL import Image
@@ -375,16 +375,25 @@ class RecursiveFetcher(object):
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
             imgpath = os.path.join(diskpath, fname+'.jpg')
-            try:
-                im = Image.open(StringIO(data)).convert('RGBA')
+            if (imghdr.what(None, data) is None and b'<svg' in data[:1024]):
+                # SVG image
+                imgpath = os.path.join(diskpath, fname+'.svg')
                 with self.imagemap_lock:
                     self.imagemap[iurl] = imgpath
                 with open(imgpath, 'wb') as x:
-                    im.save(x, 'JPEG')
+                    x.write(data)
                 tag['src'] = imgpath
-            except:
-                traceback.print_exc()
-                continue
+            else:
+                try:
+                    im = Image.open(StringIO(data)).convert('RGBA')
+                    with self.imagemap_lock:
+                        self.imagemap[iurl] = imgpath
+                    with open(imgpath, 'wb') as x:
+                        im.save(x, 'JPEG')
+                    tag['src'] = imgpath
+                except:
+                    traceback.print_exc()
+                    continue
 
     def absurl(self, baseurl, tag, key, filter=True):
         iurl = tag[key]

@@ -12,7 +12,7 @@ class cdnet(BasicNewsRecipe):
 
     title = 'zdnet'
     description = 'zdnet security'
-    __author__ = 'Oliver Niesner'
+    __author__ = 'Oliver Niesner, Krittika Goyal'
     language = 'en'
 
     use_embedded_content   = False
@@ -20,41 +20,42 @@ class cdnet(BasicNewsRecipe):
     max_articles_per_feed = 40
     no_stylesheets = True
     encoding = 'latin1'
+    auto_cleanup = True
 
 
 
-    remove_tags = [dict(id='eyebrows'),
-		   dict(id='header'),
-		   dict(id='search'),
-		   dict(id='nav'),
-		   dict(id='blog-author-info'),
-		   dict(id='post-tags'),
-		   dict(id='bio-naraine'),
-		   dict(id='bio-kennedy'),
-		   dict(id='author-short-disclosure-kennedy'),
-		   dict(id=''),
-		   dict(name='div', attrs={'class':'banner'}),
-		   dict(name='div', attrs={'class':'int'}),
-		   dict(name='div', attrs={'class':'talkback clear space-2'}),
-		   dict(name='div', attrs={'class':'content-1 clear'}),
-		   dict(name='div', attrs={'class':'space-2'}),
-		   dict(name='div', attrs={'class':'space-3'}),
-		   dict(name='div', attrs={'class':'thumb-2 left'}),
-		   dict(name='div', attrs={'class':'hotspot'}),
-		   dict(name='div', attrs={'class':'hed hed-1 space-1'}),
-		   dict(name='div', attrs={'class':'view-1 clear content-3 space-2'}),
-		   dict(name='div', attrs={'class':'hed hed-1 space-1'}),
-		   dict(name='div', attrs={'class':'hed hed-1'}),
-		   dict(name='div', attrs={'class':'post-header'}),
-		   dict(name='div', attrs={'class':'lvl-nav clear'}),
-		   dict(name='div', attrs={'class':'t-share-overlay overlay-pop contain-overlay-4'}),
-		   dict(name='p', attrs={'class':'tags'}),
-		   dict(name='span', attrs={'class':'follow'}),
-		   dict(name='span', attrs={'class':'int'}),
-		   dict(name='h4', attrs={'class':'h s-4'}),
-		   dict(name='a', attrs={'href':'http://www.twitter.com/ryanaraine'}),
-		   dict(name='div', attrs={'class':'special1'})]
-    remove_tags_after = [dict(name='div', attrs={'class':'clear'})]
+    #remove_tags = [dict(id='eyebrows'),
+           #dict(id='header'),
+           #dict(id='search'),
+           #dict(id='nav'),
+           #dict(id='blog-author-info'),
+           #dict(id='post-tags'),
+           #dict(id='bio-naraine'),
+           #dict(id='bio-kennedy'),
+           #dict(id='author-short-disclosure-kennedy'),
+           #dict(id=''),
+           #dict(name='div', attrs={'class':'banner'}),
+           #dict(name='div', attrs={'class':'int'}),
+           #dict(name='div', attrs={'class':'talkback clear space-2'}),
+           #dict(name='div', attrs={'class':'content-1 clear'}),
+           #dict(name='div', attrs={'class':'space-2'}),
+           #dict(name='div', attrs={'class':'space-3'}),
+           #dict(name='div', attrs={'class':'thumb-2 left'}),
+           #dict(name='div', attrs={'class':'hotspot'}),
+           #dict(name='div', attrs={'class':'hed hed-1 space-1'}),
+           #dict(name='div', attrs={'class':'view-1 clear content-3 space-2'}),
+           #dict(name='div', attrs={'class':'hed hed-1 space-1'}),
+           #dict(name='div', attrs={'class':'hed hed-1'}),
+           #dict(name='div', attrs={'class':'post-header'}),
+           #dict(name='div', attrs={'class':'lvl-nav clear'}),
+           #dict(name='div', attrs={'class':'t-share-overlay overlay-pop contain-overlay-4'}),
+           #dict(name='p', attrs={'class':'tags'}),
+           #dict(name='span', attrs={'class':'follow'}),
+           #dict(name='span', attrs={'class':'int'}),
+           #dict(name='h4', attrs={'class':'h s-4'}),
+           #dict(name='a', attrs={'href':'http://www.twitter.com/ryanaraine'}),
+           #dict(name='div', attrs={'class':'special1'})]
+    #remove_tags_after = [dict(name='div', attrs={'class':'clear'})]
 
     feeds =  [ ('zdnet', 'http://feeds.feedburner.com/zdnet/security') ]
 
@@ -63,6 +64,3 @@ class cdnet(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-
-
-

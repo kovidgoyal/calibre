@@ -1,0 +1,132 @@
+# -*- coding: utf-8 -*-
+__license__='GPL v3'
+__author__='grzegorz.maj@dziennik.krakow.pl>'
+
+'''
+http://dziennikpolski24.pl
+Author: grzegorz.maj@dziennik.krakow.pl
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DziennikPolski24(BasicNewsRecipe):
+
+    title=u'Dziennik Polski'
+    publisher=u'Grupa Polskapresse'
+
+    __author__='grzegorz.maj'
+    description=u'Wiadomości z wydania Dziennika Polskiego'
+    oldest_article=1
+    max_articles_per_feed=50
+    needs_subscription=True
+
+    remove_javascript=True
+    no_stylesheets=True
+    use_embedded_content=False
+    remove_empty_feeds=True
+    extra_css='.date{margin-top: 4em;} .logo_author{margin-left:0.5em;}'
+
+    publication_type='newspaper'
+    cover_url='http://www.dziennikpolski24.pl/_p/images/logoDP24-b.gif'
+    INDEX='http://dziennikpolski24.pl/'
+
+    encoding='utf-8'
+    language='pl'
+
+    keep_only_tags=[
+
+                                   dict(name = 'div', attrs = {'class':['toolbar']})
+                                   , dict(name = 'h1')
+                                   , dict(name = 'h2', attrs = {'class':['teaser']})
+                                   , dict(name = 'div', attrs = {'class':['picture']})
+                                   , dict(name = 'div', attrs = {'id':['showContent']})
+                                    , dict(name = 'div', attrs = {'class':['paging']})
+                                    , dict(name = 'div', attrs = {'class':['wykupTresc']})
+                                ]
+
+    remove_tags=[
+
+                          ]
+
+    feeds=[
+                      (u'Kraj', u'http://www.dziennikpolski24.pl/rss/feed/1151')
+                    , (u'Świat', u'http://www.dziennikpolski24.pl/rss/feed/1153')
+                    , (u'Gospodarka', u'http://www.dziennikpolski24.pl/rss/feed/1154')
+                    , (u'Małopolska', u'http://www.dziennikpolski24.pl/rss/feed/1155')
+                    , (u'Kultura', u'http://www.dziennikpolski24.pl/rss/feed/1156')
+                    , (u'Opinie', u'http://www.dziennikpolski24.pl/rss/feed/1158')
+                    , (u'Kronika Nowohucka', u'http://www.dziennikpolski24.pl/rss/feed/1656')
+                    , (u'Na bieżąco', u'http://www.dziennikpolski24.pl/rss/feed/1543')
+                    , (u'Londyn 2012', u'http://www.dziennikpolski24.pl/rss/feed/2545')
+                    , (u'Piłka nożna', u'http://www.dziennikpolski24.pl/rss/feed/2196')
+                    , (u'Siatkówka', u'http://www.dziennikpolski24.pl/rss/feed/2197')
+                    , (u'Koszykówka', u'http://www.dziennikpolski24.pl/rss/feed/2198')
+                    , (u'Tenis', u'http://www.dziennikpolski24.pl/rss/feed/2199')
+                    , (u'Formuła 1', u'http://www.dziennikpolski24.pl/rss/feed/2203')
+                    , (u'Lekkoatletyka', u'http://www.dziennikpolski24.pl/rss/feed/2204')
+                    , (u'Żużel', u'http://www.dziennikpolski24.pl/rss/feed/2200')
+                    , (u'Sporty motorowe', u'http://www.dziennikpolski24.pl/rss/feed/2206')
+                    , (u'Publicystyka sportowa', u'http://www.dziennikpolski24.pl/rss/feed/2201')
+                    , (u'Kolarstwo', u'http://www.dziennikpolski24.pl/rss/feed/2205')
+                    , (u'Inne', u'http://www.dziennikpolski24.pl/rss/feed/2202')
+                    , (u'Miasto Kraków', u'http://www.dziennikpolski24.pl/rss/feed/1784')
+                    , (u'Region nowosądecki', u'http://www.dziennikpolski24.pl/rss/feed/1795')
+                    , (u'Region Małopolski Zachodniej', u'http://www.dziennikpolski24.pl/rss/feed/1793')
+                    , (u'Region tarnowski', u'http://www.dziennikpolski24.pl/rss/feed/1797')
+                    , (u'Region podhalański', u'http://www.dziennikpolski24.pl/rss/feed/1789')
+                    , (u'Region olkuski', u'http://www.dziennikpolski24.pl/rss/feed/1670')
+                    , (u'Region miechowski', u'http://www.dziennikpolski24.pl/rss/feed/1806')
+                    , (u'Region podkrakowski', u'http://www.dziennikpolski24.pl/rss/feed/1787')
+                    , (u'Region proszowicki', u'http://www.dziennikpolski24.pl/rss/feed/1804')
+                    , (u'Region wielicki', u'http://www.dziennikpolski24.pl/rss/feed/1802')
+                    , (u'Region podbeskidzki', u'http://www.dziennikpolski24.pl/rss/feed/1791')
+                    , (u'Region myślenicki', u'http://www.dziennikpolski24.pl/rss/feed/1800')
+                    , (u'Autosalon', u'http://www.dziennikpolski24.pl/rss/feed/1294')
+                    , (u'Kariera', u'http://www.dziennikpolski24.pl/rss/feed/1289')
+                    , (u'Przegląd nieruchomości', u'http://www.dziennikpolski24.pl/rss/feed/1281')
+                    , (u'Magnes', u'http://www.dziennikpolski24.pl/rss/feed/1283')
+                    , (u'Magazyn Piątek', u'http://www.dziennikpolski24.pl/rss/feed/1293')
+                    , (u'Pejzaż rodzinny', u'http://www.dziennikpolski24.pl/rss/feed/1274')
+                    , (u'Podróże', u'http://www.dziennikpolski24.pl/rss/feed/1275')
+                    , (u'Konsument', u'http://www.dziennikpolski24.pl/rss/feed/1288')
+    ]
+
+    def append_page(self, soup, appendtag):
+        loop=False
+        tag=soup.find('div', attrs = {'class':'paging'})
+        if tag:
+            loop=True
+            li_nks=tag.findAll('li')
+            appendtag.find('div', attrs = {'class':'paging'}).extract()
+        if appendtag.find('ul', attrs = {'class':'menuf'}):
+            appendtag.find('ul', attrs = {'class':'menuf'}).extract()
+        while loop:
+            loop=False
+            for li_nk in li_nks:
+                link_tag=li_nk.contents[0].contents[0].string
+                if u'następna' in link_tag:
+                    soup2=self.index_to_soup(self.INDEX+li_nk.contents[0]['href'])
+                    if soup2.find('div', attrs = {'id':'showContent'}):
+                        pagetext=soup2.find('div', attrs = {'id':'showContent'})
+                        pos=len(appendtag.contents)
+                        appendtag.insert(pos, pagetext)
+                        if soup2.find('div', attrs = {'class':'rightbar'}):
+                            pagecont=soup2.find('div', attrs = {'class':'rightbar'})
+                            tag=pagecont.find('div', attrs = {'class':'paging'})
+                            li_nks=tag.findAll('li')
+                            loop=True
+
+    def get_browser(self):
+        br=BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.dziennikpolski24.pl/pl/moje-konto/950606-loguj.html')
+            br.select_form(nr = 1)
+            br["user_login[login]"]=self.username
+            br['user_login[pass]']=self.password
+            br.submit()
+        return br
+
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup
+

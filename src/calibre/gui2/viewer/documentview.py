@@ -11,19 +11,20 @@ from functools import partial
 from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QFontDatabase, QDialog, QColor, QPoint,
         QImage, QRegion, QIcon, pyqtSignature, QAction, QMenu, QString,
-        pyqtSignal, QSwipeGesture, QApplication)
+        pyqtSignal, QSwipeGesture, QApplication, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
 from calibre import prints
+from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
+from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.utils.config import tweaks
-from calibre.constants import isxp
+from calibre.constants import isxp, iswindows
 # }}}
 
 def load_builtin_fonts():
@@ -34,6 +35,8 @@ def load_builtin_fonts():
 
 
 class Document(QWebPage): # {{{
+
+    page_turn = pyqtSignal(object)
 
     def set_font_settings(self):
         opts = config().parse()
@@ -60,7 +63,7 @@ class Document(QWebPage): # {{{
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
-        self.in_paged_mode = tweaks.get('viewer_test_paged_mode', False)
+        self.in_paged_mode = False
         # Use this to pass arbitrary JSON encodable objects between python and
         # javascript. In python get/set the value as: self.bridge_value. In
         # javascript, get/set the value as: py_bridge.value
@@ -74,7 +77,6 @@ class Document(QWebPage): # {{{
         self.loaded_javascript = False
         self.js_loader = JavaScriptLoader(
                     dynamic_coffeescript=self.debug_javascript)
-        self.initial_left_margin = self.initial_right_margin = u''
         self.in_fullscreen_mode = False
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
@@ -89,6 +91,9 @@ class Document(QWebPage): # {{{
 
         # Fonts
         load_builtin_fonts()
+        self.all_viewer_plugins = tuple(all_viewer_plugins())
+        for pl in self.all_viewer_plugins:
+            pl.load_fonts()
         self.set_font_settings()
 
         # Security
@@ -115,8 +120,16 @@ class Document(QWebPage): # {{{
         mf.setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     def set_user_stylesheet(self):
-        raw = config().parse().user_css
-        raw = '::selection {background:#ffff00; color:#000;}\nbody {background-color: white;}\n'+raw
+        opts = config().parse()
+        bg = opts.background_color or 'white'
+        brules = ['background-color: %s !important'%bg]
+        if opts.text_color:
+            brules += ['color: %s !important'%opts.text_color]
+        prefix = '''
+            body { %s  }
+        '''%('; '.join(brules))
+        raw = prefix + opts.user_css
+        raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
         data += b64encode(raw.encode('utf-8'))
         self.settings().setUserStyleSheetUrl(QUrl(data))
@@ -135,6 +148,10 @@ class Document(QWebPage): # {{{
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
         self.fullscreen_clock = opts.fullscreen_clock
+        self.use_book_margins = opts.use_book_margins
+        self.cols_per_screen = opts.cols_per_screen
+        self.side_margin = opts.side_margin
+        self.top_margin, self.bottom_margin = opts.top_margin, opts.bottom_margin
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
@@ -156,8 +173,16 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
-        self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
-                self.current_language, self.hyphenate_default_lang)
+        evaljs = self.mainFrame().evaluateJavaScript
+        self.loaded_lang = self.js_loader(evaljs, self.current_language,
+                self.hyphenate_default_lang)
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        self.javascript(u'window.mathjax.base = %s'%(json.dumps(mjpath,
+            ensure_ascii=False)))
+        for pl in self.all_viewer_plugins:
+            pl.load_javascript(evaljs)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -168,6 +193,10 @@ class Document(QWebPage): # {{{
         # Qt fails to render soft hyphens correctly on windows xp
         if not isxp and self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
+
+    @pyqtSlot(int)
+    def page_turn_requested(self, backwards):
+        self.page_turn.emit(bool(backwards))
 
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
@@ -180,18 +209,20 @@ class Document(QWebPage): # {{{
             fset=_pass_json_value_setter)
 
     def after_load(self):
+        self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
         self.init_hyphenate()
-        self.initial_left_margin = unicode(self.javascript(
-                        'document.body.style.marginLeft').toString())
-        self.initial_right_margin = unicode(self.javascript(
-                        'document.body.style.marginRight').toString())
-        if self.in_paged_mode:
-            self.switch_to_paged_mode()
+        self.javascript('full_screen.save_margins()')
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
+        if self.in_paged_mode:
+            self.switch_to_paged_mode()
         self.read_anchor_positions(use_cache=False)
+        evaljs = self.mainFrame().evaluateJavaScript
+        for pl in self.all_viewer_plugins:
+            pl.run_javascript(evaljs)
+        self.javascript('window.mathjax.check_for_math()')
         self.first_load = False
 
     def colors(self):
@@ -216,6 +247,14 @@ class Document(QWebPage): # {{{
     def switch_to_paged_mode(self, onresize=False):
         if onresize and not self.loaded_javascript:
             return
+        self.javascript('''
+            window.paged_display.use_document_margins = %s;
+            window.paged_display.set_geometry(%d, %d, %d, %d);
+            '''%(
+            ('true' if self.use_book_margins else 'false'),
+            self.cols_per_screen, self.top_margin, self.side_margin,
+            self.bottom_margin
+            ))
         side_margin = self.javascript('window.paged_display.layout()', typ=int)
         # Setup the contents size to ensure that there is a right most margin.
         # Without this webkit renders the final column with no margin, as the
@@ -241,30 +280,17 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.setPreferredContentsSize(QSize())
             self.switch_to_paged_mode(onresize=True)
+        self.javascript('window.mathjax.after_resize()')
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
-        if self.in_paged_mode:
-            self.javascript('paged_display.max_col_width = %d'%self.max_fs_width)
-        else:
-            self.javascript('''
-                    var s = document.body.style;
-                    s.maxWidth = "%dpx";
-                    s.marginLeft = "auto";
-                    s.marginRight = "auto";
-                '''%self.max_fs_width)
+        self.javascript('full_screen.on(%d, %s)'%(self.max_fs_width,
+            'true' if self.in_paged_mode else 'false'))
 
     def switch_to_window_mode(self):
         self.in_fullscreen_mode = False
-        if self.in_paged_mode:
-            self.javascript('paged_display.max_col_width = %d'%-1)
-        else:
-            self.javascript('''
-                    var s = document.body.style;
-                    s.maxWidth = "none";
-                    s.marginLeft = "%s";
-                    s.marginRight = "%s";
-                '''%(self.initial_left_margin, self.initial_right_margin))
+        self.javascript('full_screen.off(%s)'%('true' if self.in_paged_mode
+            else 'false'))
 
     @pyqtSignature("QString")
     def debug(self, msg):
@@ -450,6 +476,7 @@ class DocumentView(QWebView): # {{{
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
+        self.document.page_turn.connect(self.page_turn_requested)
         copy_action = self.pageAction(self.document.Copy)
         copy_action.setIcon(QIcon(I('convert.png')))
         d = self.document
@@ -461,6 +488,9 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
+        self.image_popup = ImagePopup(self)
+        self.view_image_action = QAction(_('View &image...'), self)
+        self.view_image_action.triggered.connect(self.image_popup)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)
         self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
@@ -545,6 +575,11 @@ class DocumentView(QWebView): # {{{
             self.manager.selection_changed(unicode(self.document.selectedText()))
 
     def contextMenuEvent(self, ev):
+        mf = self.document.mainFrame()
+        r = mf.hitTestContent(ev.pos())
+        img = r.pixmap()
+        self.image_popup.current_img = img
+        self.image_popup.current_url = r.imageUrl()
         menu = self.document.createStandardContextMenu()
         for action in self.unimplemented_actions:
             menu.removeAction(action)
@@ -552,6 +587,8 @@ class DocumentView(QWebView): # {{{
         if text:
             menu.insertAction(list(menu.actions())[0], self.dictionary_action)
             menu.insertAction(list(menu.actions())[0], self.search_action)
+        if not img.isNull():
+            menu.addAction(self.view_image_action)
         menu.addSeparator()
         menu.addAction(self.goto_location_action)
         if self.document.in_fullscreen_mode and self.manager is not None:
@@ -647,6 +684,7 @@ class DocumentView(QWebView): # {{{
 
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
+        self.last_loaded_path = path
 
         def callback(lu):
             self.loading_url = lu
@@ -654,7 +692,7 @@ class DocumentView(QWebView): # {{{
                 self.manager.load_started()
 
         load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
-            'mime_type', None), pre_load_callback=callback)
+            'mime_type', 'text/html'), pre_load_callback=callback)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
             if ie.start_anchor:
@@ -882,6 +920,12 @@ class DocumentView(QWebView): # {{{
                 self.manager.scrolled(self.scroll_fraction)
             #print 'After all:', self.document.ypos
 
+    def page_turn_requested(self, backwards):
+        if backwards:
+            self.previous_page()
+        else:
+            self.next_page()
+
     def scroll_by(self, x=0, y=0, notify=True):
         old_pos = (self.document.xpos if self.document.in_paged_mode else
                 self.document.ypos)
@@ -1020,14 +1064,14 @@ class DocumentView(QWebView): # {{{
         if not self.handle_key_press(event):
             return QWebView.keyPressEvent(self, event)
 
-    def paged_col_scroll(self, forward=True):
+    def paged_col_scroll(self, forward=True, scroll_past_end=True):
         dir = 'next' if forward else 'previous'
         loc = self.document.javascript(
                 'paged_display.%s_col_location()'%dir, typ='int')
         if loc > -1:
             self.document.scroll_to(x=loc, y=0)
             self.manager.scrolled(self.document.scroll_fraction)
-        else:
+        elif scroll_past_end:
             (self.manager.next_document() if forward else
                     self.manager.previous_document())
 
@@ -1043,7 +1087,8 @@ class DocumentView(QWebView): # {{{
                 self.is_auto_repeat_event = False
         elif key == 'Down':
             if self.document.in_paged_mode:
-                self.paged_col_scroll()
+                self.paged_col_scroll(scroll_past_end=not
+                        self.document.line_scrolling_stops_on_pagebreaks)
             else:
                 if (not self.document.line_scrolling_stops_on_pagebreaks and
                         self.document.at_bottom):
@@ -1052,7 +1097,8 @@ class DocumentView(QWebView): # {{{
                     self.scroll_by(y=15)
         elif key == 'Up':
             if self.document.in_paged_mode:
-                self.paged_col_scroll(forward=False)
+                self.paged_col_scroll(forward=False, scroll_past_end=not
+                        self.document.line_scrolling_stops_on_pagebreaks)
             else:
                 if (not self.document.line_scrolling_stops_on_pagebreaks and
                         self.document.at_top):

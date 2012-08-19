@@ -11,6 +11,7 @@ from collections import defaultdict
 
 from lxml import etree
 import cssutils
+from cssutils.css import Property
 
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
@@ -276,10 +277,16 @@ class CSSFlattener(object):
                 cssdict['font-family'] = node.attrib['face']
                 del node.attrib['face']
         if 'color' in node.attrib:
-            cssdict['color'] = node.attrib['color']
+            try:
+                cssdict['color'] = Property('color', node.attrib['color']).value
+            except ValueError:
+                pass
             del node.attrib['color']
         if 'bgcolor' in node.attrib:
-            cssdict['background-color'] = node.attrib['bgcolor']
+            try:
+                cssdict['background-color'] = Property('background-color', node.attrib['bgcolor']).value
+            except ValueError:
+                pass
             del node.attrib['bgcolor']
         if cssdict.get('font-weight', '').lower() == 'medium':
             cssdict['font-weight'] = 'normal' # ADE chokes on font-weight medium

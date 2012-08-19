@@ -388,7 +388,8 @@ class EPUBOutput(OutputFormatPlugin):
                 if not tag.text:
                     tag.getparent().remove(tag)
             for tag in XPath('//h:script')(root):
-                if not tag.text and not tag.get('src', False):
+                if (not tag.text and not tag.get('src', False) and
+                        tag.get('type', None) != 'text/x-mathjax-config'):
                     tag.getparent().remove(tag)
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)

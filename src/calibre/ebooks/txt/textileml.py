@@ -241,6 +241,8 @@ class TextileMLizer(OEB2HTML):
         # Ignore anything that is set to not be displayed.
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
+            if hasattr(elem, 'tail') and elem.tail:
+                return [elem.tail]
             return ['']
 
         # Soft scene breaks.

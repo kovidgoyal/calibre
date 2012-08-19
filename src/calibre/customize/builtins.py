@@ -673,7 +673,7 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
-
+from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
 
 
 # Order here matters. The first matched device is the one used.
@@ -746,6 +746,7 @@ plugins += [
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
+    SMART_DEVICE_APP,
     USER_DEFINED,
 ]
 # }}}
@@ -1350,6 +1351,15 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
+class StoreEbooksGratuitsStore(StoreBase):
+    name = 'EbooksGratuits.com'
+    description = u'Ebooks Libres et Gratuits'
+    actual_plugin = 'calibre.gui2.store.stores.ebooksgratuits_plugin:EbooksGratuitsStore'
+
+    headquarters = 'FR'
+    formats = ['EPUB', 'MOBI', 'PDF', 'PDB']
+    drm_free_only = True
+
 # class StoreEBookShoppeUKStore(StoreBase):
 #     name = 'ebookShoppe UK'
 #     author = u'Charles Haley'
@@ -1644,6 +1654,7 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
+    StoreEbooksGratuitsStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
     StoreEscapeMagazineStore,

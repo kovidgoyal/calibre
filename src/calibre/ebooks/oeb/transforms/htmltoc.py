@@ -73,7 +73,10 @@ class HTMLTOCAdder(object):
                 if (hasattr(item.data, 'xpath') and
                     XPath('//h:a[@href]')(item.data)):
                     if oeb.spine.index(item) < 0:
-                        oeb.spine.add(item, linear=False)
+                        if self.position == 'end':
+                            oeb.spine.add(item, linear=False)
+                        else:
+                            oeb.spine.insert(0, item, linear=True)
                     return
                 elif has_toc:
                     oeb.guide.remove('toc')

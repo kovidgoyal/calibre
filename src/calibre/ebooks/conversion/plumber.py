@@ -326,7 +326,7 @@ OptionRecommendation(name='page_breaks_before',
             recommended_value="//*[name()='h1' or name()='h2']",
             level=OptionRecommendation.LOW,
             help=_('An XPath expression. Page breaks are inserted '
-            'before the specified elements.')
+                'before the specified elements. To disable use the expression: /')
         ),
 
 OptionRecommendation(name='remove_fake_margins',

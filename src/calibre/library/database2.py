@@ -11,7 +11,7 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
 from collections import defaultdict
 import threading, random
 from itertools import repeat
-from math import ceil
+from math import ceil, floor
 
 from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -31,7 +31,8 @@ from calibre.ptempfile import (PersistentTemporaryFile,
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
+from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
+        parse_only_date)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
@@ -639,12 +640,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if name and name != fname:
                 changed = True
                 break
-        if path == current_path and not changed:
-            return
-
         tpath = os.path.join(self.library_path, *path.split('/'))
         if not os.path.exists(tpath):
             os.makedirs(tpath)
+        if path == current_path and not changed:
+            return
+
         spath = os.path.join(self.library_path, *current_path.split('/'))
 
         if current_path and os.path.exists(spath): # Migrate existing files
@@ -1149,7 +1150,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         `data`: Can be either a QImage, QPixmap, file object or bytestring
         '''
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        base_path = os.path.join(self.library_path, self.path(id,
+            index_is_id=True))
+        if not os.path.exists(base_path):
+            self.set_path(id, index_is_id=True)
+            base_path = os.path.join(self.library_path, self.path(id,
+                index_is_id=True))
+            self.dirtied([id])
+
+        path = os.path.join(base_path, 'cover.jpg')
+
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
@@ -1424,6 +1434,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         size=stream.tell()
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
+        self.update_last_modified([id], commit=False)
         self.conn.commit()
         self.format_filename_cache[id][format.upper()] = name
         self.refresh_ids([id])
@@ -2078,7 +2089,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return 1.0
         series_indices = [x[0] for x in series_indices]
         if tweaks['series_index_auto_increment'] == 'next':
-            return series_indices[-1] + 1
+            return floor(series_indices[-1]) + 1
         if tweaks['series_index_auto_increment'] == 'first_free':
             for i in range(1, 10000):
                 if i not in series_indices:
@@ -2366,6 +2377,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)
         self._update_author_in_cache(id, ss, final_authors)
+        self.clean_standard_field('authors', commit=True)
         return books_to_refresh
 
     def set_authors(self, id, authors, notify=True, commit=True,
@@ -2478,6 +2490,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_pubdate(self, id, dt, notify=True, commit=True):
         if dt:
+            if isinstance(dt, basestring):
+                dt = parse_only_date(dt)
             self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
             self.dirtied([id], commit=False)

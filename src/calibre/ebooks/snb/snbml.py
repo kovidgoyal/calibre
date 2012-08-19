@@ -212,6 +212,10 @@ class SNBMLizer(object):
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
+            p = elem.getparent()
+            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+                    and elem.tail:
+                return [elem.tail]
             return ['']
 
 
@@ -225,6 +229,8 @@ class SNBMLizer(object):
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
+            if hasattr(elem, 'tail') and elem.tail:
+                return [elem.tail]
             return ['']
 
         tag = barename(elem.tag)

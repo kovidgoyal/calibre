@@ -1,0 +1,117 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+__license__   = 'GPL v3'
+__copyright__ = '2012, Andreas Zeiser <andreas.zeiser@web.de>'
+'''
+szmobil.sueddeutsche.de/
+'''
+
+from calibre import strftime
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+
+class SZmobil(BasicNewsRecipe):
+    title       = u'Süddeutsche Zeitung mobil'
+    __author__  = u'Andreas Zeiser'
+    description = u'Nachrichten aus Deutschland. Zugriff auf kostenpflichtiges Abo SZ mobil.'
+    publisher              = u'Sueddeutsche Zeitung'
+    language               = u'de'
+    publication_type       = u'newspaper'
+    category               = u'news, politics, Germany'
+
+    no_stylesheets         = True
+    oldest_article         = 2
+    encoding               = 'iso-8859-1'
+    needs_subscription     = True
+    remove_empty_feeds     = True
+    delay                  = 1
+    cover_source           = 'http://www.sueddeutsche.de/verlag'
+
+    timefmt = ' [%a, %d %b, %Y]'
+
+    root_url ='http://szmobil.sueddeutsche.de/'
+    keep_only_tags = [dict(name='div', attrs={'class':'article'})]
+
+    def get_cover_url(self):
+        src = self.index_to_soup(self.cover_source)
+        image_url = src.find(attrs={'class':'preview-image'})
+        return image_url.div.img['src']
+
+    def get_browser(self):
+        browser = BasicNewsRecipe.get_browser(self)
+
+        # Login via fetching of Streiflicht -> Fill out login request
+        url = self.root_url + 'show.php?id=streif'
+        browser.open(url)
+
+        browser.select_form(nr=0) # to select the first form
+        browser['username'] = self.username
+        browser['password'] = self.password
+        browser.submit()
+
+        return browser
+
+	def parse_index(self):
+        # find all sections
+        src = self.index_to_soup('http://szmobil.sueddeutsche.de')
+        feeds = []
+        for itt in src.findAll('a',href=True):
+            if itt['href'].startswith('show.php?section'):
+                feeds.append( (itt.string[0:-2],itt['href']) )
+
+        all_articles = []
+        for feed in feeds:
+            feed_url = self.root_url + feed[1]
+            feed_title = feed[0]
+
+            self.report_progress(0, ('Fetching feed')+' %s...'%(feed_title if feed_title else feed_url))
+
+            src = self.index_to_soup(feed_url)
+            articles = []
+            shorttitles = dict()
+            for itt in src.findAll('a', href=True):
+                if itt['href'].startswith('show.php?id='):
+                    article_url = itt['href']
+                    article_id = int(re.search("id=(\d*)&etag=", itt['href']).group(1))
+
+                    # first check if link is a special article in section "Meinungsseite"
+                    if itt.find('strong')!= None:
+                        article_name = itt.strong.string
+                        article_shorttitle = itt.contents[1]
+
+                        articles.append( (article_name, article_url, article_id) )
+                        shorttitles[article_id] = article_shorttitle
+                        continue
+
+
+                    # candidate for a general article
+                    if itt.string == None:
+                        article_name = ''
+                    else:
+                        article_name = itt.string
+
+                    if (article_name[0:10] == "&nbsp;mehr"):
+                        # just another link ("mehr") to an article
+                        continue
+
+                    if itt.has_key('id'):
+                        shorttitles[article_id] = article_name
+                    else:
+                        articles.append( (article_name, article_url, article_id) )
+
+            feed_articles = []
+            for article_name, article_url, article_id in articles:
+                url = self.root_url + article_url
+                title = article_name
+                pubdate = strftime('%a, %d %b')
+                description = ''
+                if shorttitles.has_key(article_id):
+                    description = shorttitles[article_id]
+                # we do not want the flag ("Impressum")
+                if "HERAUSGEGEBEN VOM" in description:
+                    continue
+                d = dict(title=title, url=url, date=pubdate, description=description, content='')
+                feed_articles.append(d)
+            all_articles.append( (feed_title, feed_articles) )
+
+        return all_articles
+

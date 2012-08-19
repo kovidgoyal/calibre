@@ -667,7 +667,7 @@ Future conversion of these books will use the default settings.</string>
               <string>Load searc&amp;h/replace:</string>
              </property>
              <property name="buddy">
-              <cstring>search_field</cstring>
+              <cstring>query_field</cstring>
              </property>
             </widget>
            </item>
@@ -1241,17 +1241,18 @@ not multiple and the destination field is multiple</string>
   <tabstop>search_mode</tabstop>
   <tabstop>s_r_src_ident</tabstop>
   <tabstop>s_r_template</tabstop>
+  <tabstop>search_for</tabstop>
+  <tabstop>case_sensitive</tabstop>
   <tabstop>replace_with</tabstop>
   <tabstop>replace_func</tabstop>
+  <tabstop>destination_field</tabstop>
   <tabstop>replace_mode</tabstop>
   <tabstop>comma_separated</tabstop>
   <tabstop>s_r_dst_ident</tabstop>
   <tabstop>results_count</tabstop>
-  <tabstop>scrollArea11</tabstop>
-  <tabstop>destination_field</tabstop>
-  <tabstop>search_for</tabstop>
-  <tabstop>case_sensitive</tabstop>
   <tabstop>starting_from</tabstop>
+  <tabstop>multiple_separator</tabstop>
+  <tabstop>scrollArea11</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>

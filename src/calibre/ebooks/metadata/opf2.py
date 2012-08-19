@@ -286,15 +286,17 @@ class Spine(ResourceCollection): # {{{
     @staticmethod
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
+        seen = set()
         for itemref in itemrefs:
             idref = itemref.get('idref', None)
             if idref is not None:
                 path = s.manifest.path_for_id(idref)
-                if path:
+                if path and path not in seen:
                     r = Spine.Item(lambda x:idref, path, is_path=True)
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
                     r.idref = idref
                     s.append(r)
+                    seen.add(path)
         return s
 
     @staticmethod

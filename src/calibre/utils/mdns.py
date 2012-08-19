@@ -47,18 +47,8 @@ def start_server():
 
     return _server
 
-def publish(desc, type, port, properties=None, add_hostname=True):
-    '''
-    Publish a service.
-
-    :param desc: Description of service
-    :param type: Name and type of service. For example _stanza._tcp
-    :param port: Port the service listens on
-    :param properties: An optional dictionary whose keys and values will be put
-                       into the TXT record.
-    '''
+def create_service(desc, type, port, properties, add_hostname):
     port = int(port)
-    server = start_server()
     try:
         hostname = socket.gethostname().partition('.')[0]
     except:
@@ -69,12 +59,38 @@ def publish(desc, type, port, properties=None, add_hostname=True):
     local_ip = get_external_ip()
     type = type+'.local.'
     from calibre.utils.Zeroconf import ServiceInfo
-    service = ServiceInfo(type, desc+'.'+type,
+    return ServiceInfo(type, desc+'.'+type,
                           address=socket.inet_aton(local_ip),
                           port=port,
                           properties=properties,
                           server=hostname+'.local.')
+
+
+def publish(desc, type, port, properties=None, add_hostname=True):
+    '''
+    Publish a service.
+
+    :param desc: Description of service
+    :param type: Name and type of service. For example _stanza._tcp
+    :param port: Port the service listens on
+    :param properties: An optional dictionary whose keys and values will be put
+                       into the TXT record.
+    '''
+    server = start_server()
+    service = create_service(desc, type, port, properties, add_hostname)
     server.registerService(service)
+
+def unpublish(desc, type, port, properties=None, add_hostname=True):
+    '''
+    Unpublish a service.
+
+    The parameters must be the same as used in the corresponding call to publish
+    '''
+    server = start_server()
+    service = create_service(desc, type, port, properties, add_hostname)
+    server.unregisterService(service)
+    if server.countRegisteredServices() == 0:
+        stop_server()
 
 def stop_server():
     global _server

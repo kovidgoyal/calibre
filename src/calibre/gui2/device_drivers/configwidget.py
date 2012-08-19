@@ -43,6 +43,9 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
         self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
 
+        if device.HIDE_FORMATS_CONFIG_BOX:
+            self.groupBox.hide()
+
         if supports_subdirs:
             self.opt_use_subdirs.setChecked(self.settings.use_subdirs)
         else:

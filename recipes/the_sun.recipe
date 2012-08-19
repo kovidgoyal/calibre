@@ -1,4 +1,4 @@
-import re, random
+import random
 
 from calibre import browser
 from calibre.web.feeds.recipes import BasicNewsRecipe
@@ -6,48 +6,45 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     title          = u'The Sun UK'
-    description = 'A Recipe for The Sun tabloid UK'
+    description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 29/4/12
+    # last updated 25/7/12
     language = 'en_GB'
     oldest_article = 1
-    max_articles_per_feed = 15
+    max_articles_per_feed = 12
     remove_empty_feeds = True
     no_stylesheets = True
-    #auto_cleanup = True
-    #articles_are_obfuscated = True
+
 
     masthead_url = 'http://www.thesun.co.uk/sol/img/global/Sun-logo.gif'
     encoding = 'UTF-8'
-
-    remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
 
+
+
+    #preprocess_regexps = [
+     #   (re.compile(r'<div class="foot-copyright".*?</div>', re.IGNORECASE | re.DOTALL), lambda match: '')]
+
+
     extra_css  = '''
     body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-                     '''
-
-    preprocess_regexps = [
-        (re.compile(r'<div class="foot-copyright".*?</div>', re.IGNORECASE | re.DOTALL), lambda match: '')]
-
-
-
+                '''
     keep_only_tags = [
-                               dict(name='h1'),dict(name='h2',attrs={'class' : 'medium centered'}),
-               dict(name='div',attrs={'class' : 'text-center'}),
-               dict(name='div',attrs={'id' : 'bodyText'})
-               # dict(name='p')
-               ]
-    remove_tags=[
-           #dict(name='head'),
-           dict(attrs={'class' : ['mystery-meat-link','ltbx-container','ltbx-var ltbx-hbxpn','ltbx-var ltbx-nav-loop','ltbx-var ltbx-url']}),
-                           dict(name='div',attrs={'class' : 'cf'}),
-           dict(attrs={'title' : 'download flash'}),
-                           dict(attrs={'style' : 'padding: 5px'})
+        dict(name='div',attrs={'class' : 'intro'}),
+                                dict(name='h3'),
+        dict(name='div',attrs={'id' : 'articlebody'}),
+           #dict(attrs={'class' : ['right_col_branding','related-stories','mystery-meat-link','ltbx-container','ltbx-var ltbx-hbxpn','ltbx-var ltbx-nav-loop','ltbx-var ltbx-url']}),
+           #                dict(name='div',attrs={'class' : 'cf'}),
+          # dict(attrs={'title' : 'download flash'}),
+          #                 dict(attrs={'style' : 'padding: 5px'})
 
            ]
-
+    remove_tags_after = [dict(id='bodyText')]
+    remove_tags=[
+                  dict(name='li'),
+                              dict(attrs={'class' : 'grid-4 right-hand-column'}),
+        ]
 
     feeds          = [
     (u'News', u'http://www.thesun.co.uk/sol/homepage/news/rss'),
@@ -72,22 +69,18 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         cov2 = str(cov)
         cov2=cov2[27:-18]
         #cov2 now is pic url, now  go back to original function
-
         br = browser()
         br.set_handle_redirect(False)
         try:
             br.open_novisit(cov2)
             cover_url = cov2
         except:
-            cover_url = random.choice((
+            cover_url = random.choice([
                 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'
-                ))
+                ])
 
         return cover_url
-
-
-

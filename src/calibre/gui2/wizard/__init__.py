@@ -440,8 +440,7 @@ class KindlePage(QWizardPage, KindleUI):
         x = unicode(self.to_address.text()).strip()
         parts = x.split('@')
 
-        if (self.send_email_widget.set_email_settings(True) and len(parts) >= 2
-                and parts[0]):
+        if (len(parts) >= 2 and parts[0] and self.send_email_widget.set_email_settings(True)):
             conf = smtp_prefs()
             accounts = conf.parse().accounts
             if not accounts: accounts = {}
@@ -676,8 +675,9 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.language.blockSignals(True)
         self.language.clear()
         from calibre.utils.localization import (available_translations,
-            get_language, get_lang)
+            get_language, get_lang, get_lc_messages_path)
         lang = get_lang()
+        lang = get_lc_messages_path(lang) if lang else lang
         if lang is None or lang not in available_translations():
             lang = 'en'
         def get_esc_lang(l):

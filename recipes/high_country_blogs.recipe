@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>, Armin Geller'
+
+'''
+Fetch High Country News - Blogs
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+class HighCountryNewsBlogs(BasicNewsRecipe):
+
+    title                 = u'High Country News - Blogs'
+    description           = u'High Country News - Blogs (RSS Version)'
+    __author__            = 'Armin Geller' # 2012-08-01
+    publisher             = 'High Country News'
+    category              = 'news, politics, Germany'
+    timefmt               = ' [%a, %d %b %Y]'
+    language              = 'en'
+    encoding              = 'UTF-8'
+    publication_type      = 'newspaper'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    auto_cleanup          = True
+    remove_javascript     = True
+    use_embedded_content  = False
+    masthead_url          = 'http://www.hcn.org/logo.jpg'
+    cover_source          = 'http://www.hcn.org'
+
+    def get_cover_url(self):
+       cover_source_soup = self.index_to_soup(self.cover_source)
+       preview_image_div = cover_source_soup.find(attrs={'class':' portaltype-Plone Site content--hcn template-homepage_view'})
+       return preview_image_div.div.img['src']
+
+    feeds = [
+              (u'From the Blogs', u'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'),
+
+              (u'Heard around the West', u'http://feeds.feedburner.com/hcn/heard?format=xml'),
+              (u'The GOAT Blog', u'http://feeds.feedburner.com/hcn/goat?format=xml'),
+              (u'The Range', u'http://feeds.feedburner.com/hcn/range?format=xml'),
+             ]
+
+    def print_version(self, url):
+          return url
+

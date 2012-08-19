@@ -26,33 +26,61 @@ class PagedDisplay
         this.current_margin_side = 0
         this.is_full_screen_layout = false
         this.max_col_width = -1
+        this.current_page_height = null
+        this.document_margins = null
+        this.use_document_margins = false
+
+    read_document_margins: () ->
+        # Read page margins from the document. First checks for an @page rule.
+        # If that is not found, side margins are set to the side margins of the
+        # body element.
+        if this.document_margins is null
+            this.document_margins = {left:null, top:null, right:null, bottom:null}
+            tmp = document.createElement('div')
+            tmp.style.visibility = 'hidden'
+            tmp.style.position = 'absolute'
+            document.body.appendChild(tmp)
+            for sheet in document.styleSheets
+                for rule in sheet.rules
+                    if rule.type == CSSRule.PAGE_RULE
+                        for prop in ['left', 'top', 'bottom', 'right']
+                            val = rule.style.getPropertyValue('margin-'+prop)
+                            if val
+                                tmp.style.height = val
+                                pxval = parseInt(window.getComputedStyle(tmp).height)
+                                if not isNaN(pxval)
+                                    this.document_margins[prop] = pxval
+            document.body.removeChild(tmp)
+            if this.document_margins.left is null
+                val = parseInt(window.getComputedStyle(document.body).marginLeft)
+                if not isNaN(val)
+                    this.document_margins.left = val
+            if this.document_margins.right is null
+                val = parseInt(window.getComputedStyle(document.body).marginRight)
+                if not isNaN(val)
+                    this.document_margins.right = val
 
     set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
-        this.margin_top = margin_top
-        this.margin_side = margin_side
-        this.margin_bottom = margin_bottom
         this.cols_per_screen = cols_per_screen
+        if this.use_document_margins and this.document_margins != null
+            this.margin_top = this.document_margins.top or margin_top
+            this.margin_bottom = this.document_margins.bottom or margin_bottom
+            this.margin_side = this.document_margins.left or this.document_margins.right or margin_side
+        else
+            this.margin_top = margin_top
+            this.margin_side = margin_side
+            this.margin_bottom = margin_bottom
 
     layout: () ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
-        # When laying body out in columns, webkit bleeds the top margin of the
-        # first block element out above the columns, leading to an extra top
-        # margin for the page. We compensate for that here. Computing the
-        # boundingrect of body is very expensive with column layout, so we do
-        # it before the column layout is applied.
+        bs = document.body.style
         first_layout = false
         if not this.in_paged_mode
-            document.body.style.marginTop = '0px'
-            extra_margin = document.body.getBoundingClientRect().top
-            margin_top = (this.margin_top - extra_margin) + 'px'
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
             single_screen = (document.body.scrollWidth < window.innerWidth + 25 and document.body.scrollHeight < window.innerHeight + 25)
             first_layout = true
-        else
-            # resize event
-            margin_top = body_style.marginTop
 
         ww = window.innerWidth
 
@@ -76,17 +104,23 @@ class PagedDisplay
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
+        this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
 
         fgcolor = body_style.getPropertyValue('color')
-        bs = document.body.style
 
         bs.setProperty('-webkit-column-gap', (2*sm)+'px')
         bs.setProperty('-webkit-column-width', col_width+'px')
         bs.setProperty('-webkit-column-rule-color', fgcolor)
+
+        # Without this, webkit bleeds the margin of the first block(s) of body
+        # above the columns, which causes them to effectively be added to the
+        # page margins (the margin collapse algorithm)
+        bs.setProperty('-webkit-margin-collapse', 'separate')
+
         bs.setProperty('overflow', 'visible')
         bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
         bs.setProperty('width', (window.innerWidth - 2*sm)+'px')
-        bs.setProperty('margin-top', margin_top)
+        bs.setProperty('margin-top', this.margin_top + 'px')
         bs.setProperty('margin-bottom', this.margin_bottom+'px')
         bs.setProperty('margin-left', sm+'px')
         bs.setProperty('margin-right', sm+'px')
@@ -101,7 +135,7 @@ class PagedDisplay
         # Convert page-breaks to column-breaks
         for sheet in document.styleSheets
             for rule in sheet.rules
-                if rule.type == 1 # CSSStyleRule
+                if rule.type == CSSRule.STYLE_RULE
                     for prop in ['page-break-before', 'page-break-after', 'page-break-inside']
                         val = rule.style.getPropertyValue(prop)
                         if val
@@ -128,9 +162,15 @@ class PagedDisplay
         # that this method use getBoundingClientRect() which means it will
         # force a relayout if the render tree is dirty.
         images = []
+        vimages = []
+        maxh = this.current_page_height
         for img in document.getElementsByTagName('img')
             previously_limited = calibre_utils.retrieve(img, 'width-limited', false)
+            data = calibre_utils.retrieve(img, 'img-data', null)
             br = img.getBoundingClientRect()
+            if data == null
+                data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
+                calibre_utils.store(img, 'img-data', data)
             left = calibre_utils.viewport_to_document(br.left, 0, doc=img.ownerDocument)[0]
             col = this.column_at(left) * this.page_width
             rleft = left - col - this.current_margin_side
@@ -139,10 +179,28 @@ class PagedDisplay
             col_width = this.page_width - 2*this.current_margin_side
             if previously_limited or rright > col_width
                 images.push([img, col_width - rleft])
+            previously_limited = calibre_utils.retrieve(img, 'height-limited', false)
+            if previously_limited or br.height > maxh
+                vimages.push(img)
+            if previously_limited
+                img.style.setProperty('-webkit-column-break-before', 'auto')
+                img.style.setProperty('display', data.display)
+            img.style.setProperty('-webkit-column-break-inside', 'avoid')
 
         for [img, max_width] in images
             img.style.setProperty('max-width', max_width+'px')
             calibre_utils.store(img, 'width-limited', true)
+
+        for img in vimages
+            data = calibre_utils.retrieve(img, 'img-data', null)
+            img.style.setProperty('-webkit-column-break-before', 'always')
+            img.style.setProperty('max-height', maxh+'px')
+            if data.height > maxh
+                # This is needed to force the image onto a new page, without
+                # it, the webkit algorithm may still decide to split the image
+                # by keeping it part of its parent block
+                img.style.setProperty('display', 'block')
+            calibre_utils.store(img, 'height-limited', true)
 
     scroll_to_pos: (frac) ->
         # Scroll to the position represented by frac (number between 0 and 1)
@@ -343,9 +401,20 @@ class PagedDisplay
             log('Viewport cfi:', ans)
         return ans
 
+    click_for_page_turn: (event) ->
+        # Check if the click event event should generate a apge turn. Returns
+        # null if it should not, true if it is a backwards page turn, false if
+        # it is a forward apge turn.
+        left_boundary = this.current_margin_side
+        right_bondary = this.screen_width - this.current_margin_side
+        if left_boundary > event.clientX
+            return true
+        if right_bondary < event.clientX
+            return false
+        return null
+
 if window?
     window.paged_display = new PagedDisplay()
 
 # TODO:
 # Highlight on jump_to_anchor
-# Handle document specified margins and allow them to be overridden

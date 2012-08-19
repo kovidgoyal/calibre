@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NaTemat(BasicNewsRecipe):
@@ -8,8 +9,9 @@ class NaTemat(BasicNewsRecipe):
     description   = u'informacje, komentarze, opinie'
     category       = 'news'
     language       = 'pl'
+    preprocess_regexps = [(re.compile(ur'Czytaj też\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(ur'Zobacz też\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(ur'Czytaj więcej\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(ur'Czytaj również\:.*?</a>', re.IGNORECASE), lambda m: '')]
     cover_url= 'http://blog.plona.pl/wp-content/uploads/2012/05/natemat.png'
     no_stylesheets = True
     keep_only_tags= [dict(id='main')]
-    remove_tags= [dict(attrs={'class':['button', 'block-inside style_default', 'article-related']})]
+    remove_tags= [dict(attrs={'class':['button', 'block-inside style_default', 'article-related', 'user-header', 'links']}), dict(name='img', attrs={'class':'indent'})]
     feeds          = [(u'Artyku\u0142y', u'http://natemat.pl/rss/wszystkie')]

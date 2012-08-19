@@ -174,6 +174,13 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
     output.close()
     return listing
 
+def shutdown_plugins():
+    for d in device_plugins():
+        try:
+            d.shutdown()
+        except:
+            pass
+
 def main():
     term = TerminalController()
     cols = term.COLS
@@ -201,6 +208,10 @@ def main():
     scanner.scan()
     connected_devices = []
     for d in device_plugins():
+        try:
+            d.startup()
+        except:
+            print ('Startup failed for device plugin: %s'%d)
         ok, det = scanner.is_device_connected(d)
         if ok:
             dev = d
@@ -209,6 +220,7 @@ def main():
 
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'
+        shutdown_plugins()
         return 1
 
     for det, d in connected_devices:
@@ -358,6 +370,9 @@ def main():
     except (ArgumentError, DeviceError) as e:
         print >>sys.stderr, e
         return 1
+    finally:
+        shutdown_plugins()
+
     return 0
 
 if __name__ == '__main__':

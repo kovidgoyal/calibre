@@ -52,7 +52,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice
-        d = DebugDevice(self)
+        d = DebugDevice(self.gui, self)
         d.exec_()
 
     def user_defined_device(self, *args):

@@ -18,14 +18,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-06-10 11:16+0000\n"
+"PO-Revision-Date: 2012-07-29 15:29+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-11 04:46+0000\n"
-"X-Generator: Launchpad (build 15376)\n"
+"X-Launchpad-Export-Date: 2012-07-30 04:54+0000\n"
+"X-Generator: Launchpad (build 15702)\n"
 "Language: de\n"
 
 #. name for aaa
@@ -114,11 +114,11 @@ msgstr "Solong"
 
 #. name for aax
 msgid "Mandobo Atas"
-msgstr ""
+msgstr "Mandobo Atas"
 
 #. name for aaz
 msgid "Amarasi"
-msgstr ""
+msgstr "Amarasi"
 
 # auch: Abbé, Abbey oder Abi
 #. name for aba
@@ -127,7 +127,7 @@ msgstr "Abé"
 
 #. name for abb
 msgid "Bankon"
-msgstr ""
+msgstr "Bankon"
 
 #. name for abc
 msgid "Ayta; Ambala"
@@ -135,7 +135,7 @@ msgstr ""
 
 #. name for abd
 msgid "Manide"
-msgstr ""
+msgstr "Manide"
 
 #. name for abe
 msgid "Abnaki; Western"
@@ -143,11 +143,11 @@ msgstr "Abnaki; Westlich"
 
 #. name for abf
 msgid "Abai Sungai"
-msgstr ""
+msgstr "Abai Sungai"
 
 #. name for abg
 msgid "Abaga"
-msgstr ""
+msgstr "Abaga"
 
 #. name for abh
 msgid "Arabic; Tajiki"
@@ -171,7 +171,7 @@ msgstr ""
 
 #. name for abm
 msgid "Abanyom"
-msgstr ""
+msgstr "Abanyom"
 
 #. name for abn
 msgid "Abua"
@@ -219,23 +219,23 @@ msgstr ""
 
 #. name for aby
 msgid "Aneme Wake"
-msgstr ""
+msgstr "Aneme Wake"
 
 #. name for abz
 msgid "Abui"
-msgstr ""
+msgstr "Abui"
 
 #. name for aca
 msgid "Achagua"
-msgstr ""
+msgstr "Achagua"
 
 #. name for acb
 msgid "Áncá"
-msgstr ""
+msgstr "Áncá"
 
 #. name for acd
 msgid "Gikyode"
-msgstr ""
+msgstr "Gikyode"
 
 #. name for ace
 msgid "Achinese"
@@ -267,7 +267,7 @@ msgstr ""
 
 #. name for acn
 msgid "Achang"
-msgstr ""
+msgstr "Achang"
 
 #. name for acp
 msgid "Acipa; Eastern"
@@ -7064,7 +7064,7 @@ msgstr ""
 
 #. name for egy
 msgid "Egyptian (Ancient)"
-msgstr "Ägyptisch"
+msgstr "Altägyptisch"
 
 #. name for ehu
 msgid "Ehueun"
@@ -9241,7 +9241,7 @@ msgstr ""
 
 #. name for hbo
 msgid "Hebrew; Ancient"
-msgstr ""
+msgstr "Althebräisch"
 
 #. name for hbs
 msgid "Serbo-Croatian"
@@ -28694,7 +28694,7 @@ msgstr ""
 
 #. name for xlg
 msgid "Ligurian (Ancient)"
-msgstr ""
+msgstr "Ligurisch"
 
 #. name for xli
 msgid "Liburnian"
@@ -28762,7 +28762,7 @@ msgstr ""
 
 #. name for xmk
 msgid "Macedonian; Ancient"
-msgstr ""
+msgstr "Altmazedonisch"
 
 #. name for xml
 msgid "Malaysian Sign Language"
@@ -28826,7 +28826,7 @@ msgstr ""
 
 #. name for xna
 msgid "North Arabian; Ancient"
-msgstr ""
+msgstr "Alt-Nordarabisch"
 
 #. name for xnb
 msgid "Kanakanabu"

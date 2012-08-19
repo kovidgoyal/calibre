@@ -352,6 +352,14 @@ class ResultCache(SearchQueryParser): # {{{
                             '<=':[2, relop_le]
                         }
 
+    local_today         = ('_today', icu_lower(_('today')))
+    local_yesterday     = ('_yesterday', icu_lower(_('yesterday')))
+    local_thismonth     = ('_thismonth', icu_lower(_('thismonth')))
+    local_daysago       = icu_lower(_('daysago'))
+    local_daysago_len   = len(local_daysago)
+    untrans_daysago     = '_daysago'
+    untrans_daysago_len = len('_daysago')
+
     def get_dates_matches(self, location, query, candidates):
         matches = set([])
         if len(query) < 2:
@@ -390,17 +398,24 @@ class ResultCache(SearchQueryParser): # {{{
         if relop is None:
                 (p, relop) = self.date_search_relops['=']
 
-        if query == _('today'):
+        if query in self.local_today:
             qd = now()
             field_count = 3
-        elif query == _('yesterday'):
+        elif query in self.local_yesterday:
             qd = now() - timedelta(1)
             field_count = 3
-        elif query == _('thismonth'):
+        elif query in self.local_thismonth:
             qd = now()
             field_count = 2
-        elif query.endswith(_('daysago')):
-            num = query[0:-len(_('daysago'))]
+        elif query.endswith(self.local_daysago):
+            num = query[0:-self.local_daysago_len]
+            try:
+                qd = now() - timedelta(int(num))
+            except:
+                raise ParseException(query, len(query), 'Number conversion error', self)
+            field_count = 3
+        elif query.endswith(self.untrans_daysago):
+            num = query[0:-self.untrans_daysago_len]
             try:
                 qd = now() - timedelta(int(num))
             except:
@@ -553,6 +568,7 @@ class ResultCache(SearchQueryParser): # {{{
                     matches.add(id_)
                 continue
 
+            add_if_nothing_matches = valq == 'false'
             pairs = [p.strip() for p in item[loc].split(split_char)]
             for pair in pairs:
                 parts = pair.split(':')
@@ -568,9 +584,13 @@ class ResultCache(SearchQueryParser): # {{{
                             continue
                     elif valq == 'false':
                         if v:
+                            add_if_nothing_matches = False
                             continue
                     elif not _match(valq, v, valq_mkind):
                         continue
+                matches.add(id_)
+
+            if add_if_nothing_matches:
                 matches.add(id_)
         return matches
 
@@ -591,14 +611,23 @@ class ResultCache(SearchQueryParser): # {{{
             query = icu_lower(query)
         return matchkind, query
 
+    local_no        = icu_lower(_('no'))
+    local_yes       = icu_lower(_('yes'))
+    local_unchecked = icu_lower(_('unchecked'))
+    local_checked   = icu_lower(_('checked'))
+    local_empty     = icu_lower(_('empty'))
+    local_blank     = icu_lower(_('blank'))
+    local_bool_values = (
+                    local_no, local_unchecked, '_no', 'false',
+                    local_yes, local_checked, '_yes', 'true',
+                    local_empty, local_blank, '_empty')
+
     def get_bool_matches(self, location, query, candidates):
         bools_are_tristate = self.db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
-        if query not in (_('no'), _('unchecked'), '_no', 'false',
-                         _('yes'), _('checked'), '_yes', 'true',
-                         _('empty'), _('blank'), '_empty'):
+        if query not in self.local_bool_values:
             raise ParseException(_('Invalid boolean query "{0}"').format(query))
         for id_ in candidates:
             item = self._data[id_]
@@ -608,20 +637,20 @@ class ResultCache(SearchQueryParser): # {{{
             val = force_to_bool(item[loc])
             if not bools_are_tristate:
                 if val is None or not val: # item is None or set to false
-                    if query in [_('no'), _('unchecked'), '_no', 'false']:
+                    if query in (self.local_no, self.local_unchecked, '_no', 'false'):
                         matches.add(item[0])
                 else: # item is explicitly set to true
-                    if query in [_('yes'), _('checked'), '_yes', 'true']:
+                    if query in (self.local_yes, self.local_checked, '_yes', 'true'):
                         matches.add(item[0])
             else:
                 if val is None:
-                    if query in [_('empty'), _('blank'), '_empty', 'false']:
+                    if query in (self.local_empty, self.local_blank, '_empty', 'false'):
                         matches.add(item[0])
                 elif not val: # is not None and false
-                    if query in [_('no'), _('unchecked'), '_no', 'true']:
+                    if query in (self.local_no, self.local_unchecked, '_no', 'true'):
                         matches.add(item[0])
                 else: # item is not None and true
-                    if query in [_('yes'), _('checked'), '_yes', 'true']:
+                    if query in (self.local_yes, self.local_checked, '_yes', 'true'):
                         matches.add(item[0])
         return matches
 

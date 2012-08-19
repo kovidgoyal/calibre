@@ -461,7 +461,7 @@ class KOBO(USBMS):
         self.report_progress(1.0, _('Removing books from device...'))
 
     def remove_books_from_metadata(self, paths, booklists):
-        if self.modify_datbase_check("remove_books_from_metatata") == False:
+        if self.modify_database_check("remove_books_from_metatata") == False:
             return
 
         for i, path in enumerate(paths):
@@ -602,16 +602,22 @@ class KOBO(USBMS):
             opts = self.settings()
             if not opts.extra_customization[self.OPT_SUPPORT_NEWER_FIRMWARE]:
                 debug_print('The database has been upgraded past supported version')
-                debug_print('The database has been upgraded past supported version')
                 self.report_progress(1.0, _('Removing books from device...'))
                 from calibre.devices.errors import UserFeedback
                 raise UserFeedback(_("Kobo database version unsupported - See details"),
-                    _('Your Kobo is running an updated firmware/database version. '
-                     'As Calibre has not been updated, database editing is disabled.  '
-                     'You can enable support for your Kobo in plugin preferences.  '
-                     'Doing so may require you to perform a factory reset.  '
-                     'Before selecting the "Attempt to support newer firmware" option '
-                     'you should be familiar with restoring your Kobo to factory defaults.'),
+                    _('Your Kobo is running an updated firmware/database version.'
+                    ' As calibre does not know about this updated firmware,'
+                    ' database editing is disabled, to prevent corruption.'
+                    ' You can still send books to your Kobo with calibre, '
+                    ' but deleting books and managing collections is disabled.'
+                    ' If you are willing to experiment and know how to reset'
+                    ' your Kobo to Factory defaults, you can override this'
+                    ' check by right clicking the device icon in calibre and'
+                    ' selecting "Configure this device" and then the '
+                    ' "Attempt to support newer firmware" option.'
+                    ' Doing so may require you to perform a factory reset of'
+                    ' your Kobo.'
+                     ),
                      UserFeedback.WARN)
 
                 return False

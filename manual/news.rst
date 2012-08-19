@@ -30,7 +30,7 @@ Lets pick a couple of feeds that look interesting:
     #. Business Travel: http://feeds.portfolio.com/portfolio/businesstravel
     #. Tech Observer: http://feeds.portfolio.com/portfolio/thetechobserver
 
-I got the URLs by clicking the little orange RSS icon next to each feed name. To make |app| download the feeds and convert them into an ebook, you should click the :guilabel:`Fetch news` button and then the :guilabel:`Add a custom news source` menu item. A dialog similar to that shown below should open up.
+I got the URLs by clicking the little orange RSS icon next to each feed name. To make |app| download the feeds and convert them into an ebook, you should right click the :guilabel:`Fetch news` button and then the :guilabel:`Add a custom news source` menu item. A dialog similar to that shown below should open up.
 
 .. image:: images/custom_news.png
     :align: center

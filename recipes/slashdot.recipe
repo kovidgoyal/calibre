@@ -19,23 +19,12 @@ class Slashdot(BasicNewsRecipe):
 
     __author__ = 'floweros edited by Huan T'
     no_stylesheets = True
+    use_embedded_content = False
     keep_only_tags = [
-        dict(name='div',attrs={'id':'article'}),
-        dict(name='div',attrs={'class':['postBody' 'details']}),
-        dict(name='footer',attrs={'class':['clearfix meta article-foot']}),
-        dict(name='article',attrs={'class':['fhitem fhitem-story article usermode thumbs grid_24']}),
-        dict(name='dl',attrs={'class':'relatedPosts'}),
-        dict(name='h2',attrs={'class':'story'}),
-        dict(name='span',attrs={'class':'comments'}),
-        ]
-
-
-    remove_tags    = [
-        dict(name='aside',attrs={'id':'slashboxes'}),
-        dict(name='div',attrs={'class':'paginate'}),
-        dict(name='section',attrs={'id':'comments'}),
-        dict(name='span',attrs={'class':'topic'}),
-        ]
+        dict(name='div',attrs={'class':'story'}),
+        dict(name='div',attrs={'class':'body'}),
+        dict(name='ul',attrs={'id':'commentlisting'}),
+    ]
 
     feeds          = [
                  (u'Slashdot',

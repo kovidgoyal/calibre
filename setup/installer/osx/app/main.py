@@ -243,9 +243,6 @@ class Py2App(object):
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
-            if x.startswith('libpodofo'):
-                yield x, x
-                continue
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
                     '/opt/local/lib/',
                     SW+'/python/Python.framework/', SW+'/freetype/lib/'):
@@ -330,10 +327,6 @@ class Py2App(object):
         for f in glob.glob('src/calibre/plugins/*.so'):
             shutil.copy2(f, dest)
             self.fix_dependencies_in_lib(join(dest, basename(f)))
-            if 'podofo' in f:
-                self.change_dep('libpodofo.0.8.4.dylib',
-                self.FID+'/'+'libpodofo.0.8.4.dylib', join(dest, basename(f)))
-
 
     @flush
     def create_plist(self):
@@ -380,13 +373,13 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.8.4.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.9.1.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.26.dylib',):
+        for x in ('libpoppler.27.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
@@ -624,8 +617,9 @@ class Py2App(object):
         if os.path.exists(dmg):
             os.unlink(dmg)
         tdir = tempfile.mkdtemp()
-        shutil.copytree(d, os.path.join(tdir, os.path.basename(d)),
-                symlinks=True)
+        appdir = os.path.join(tdir, os.path.basename(d))
+        shutil.copytree(d, appdir, symlinks=True)
+        subprocess.check_call(['/Users/kovid/sign.sh', appdir])
         os.symlink('/Applications', os.path.join(tdir, 'Applications'))
         subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', tdir,
                                '-volname', volname, '-format', format, dmg])

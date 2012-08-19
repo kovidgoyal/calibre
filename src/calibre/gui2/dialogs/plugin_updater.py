@@ -456,6 +456,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.gui = gui
         self.forum_link = None
         self.model = None
+        self.do_restart = False
         self._initialize_controls()
         self._create_context_menu()
 
@@ -720,6 +721,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             prints('Installing plugin: ', zip_path)
         self.gui.status_bar.showMessage(_('Installing plugin: %s') % zip_path)
 
+        do_restart = False
         try:
             try:
                 plugin = add_plugin(zip_path)
@@ -731,11 +733,21 @@ class PluginUpdaterDialog(SizePersistedDialog):
             widget.gui = self.gui
             widget.check_for_add_to_toolbars(plugin)
             self.gui.status_bar.showMessage(_('Plugin installed: %s') % display_plugin.name)
-            info_dialog(self.gui, _('Success'),
+            d = info_dialog(self.gui, _('Success'),
                     _('Plugin <b>{0}</b> successfully installed under <b>'
                         ' {1} plugins</b>. You may have to restart calibre '
                         'for the plugin to take effect.').format(plugin.name, plugin.type),
-                    show=True, show_copy_button=False)
+                    show_copy_button=False)
+            b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+            b.setIcon(QIcon(I('lt.png')))
+            d.do_restart = False
+            def rf():
+                d.do_restart = True
+            b.clicked.connect(rf)
+            d.set_details('')
+            d.exec_()
+            b.clicked.disconnect()
+            do_restart = d.do_restart
 
             display_plugin.plugin = plugin
             # We cannot read the 'actual' version information as the plugin will not be loaded yet
@@ -762,6 +774,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
         else:
             self.model.refresh_plugin(display_plugin)
             self._select_and_focus_view(change_selection=False)
+        if do_restart:
+            self.do_restart = True
+            self.accept()
 
     def _history_clicked(self):
         display_plugin = self._selected_display_plugin()

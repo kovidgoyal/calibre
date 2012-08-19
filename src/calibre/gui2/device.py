@@ -3,8 +3,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, cStringIO, re, sys
-from threading import Thread
+import os, traceback, Queue, time, cStringIO, re, sys, weakref
+from threading import Thread, Event
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
                      Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
@@ -13,7 +13,8 @@ from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins)
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback, OpenFeedback
+from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed,
+                                    InitialConnectionError)
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -22,7 +23,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import FreeSpaceError
+from calibre.devices.errors import FreeSpaceError, WrongDestinationError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
@@ -144,6 +145,9 @@ class DeviceManager(Thread): # {{{
         self.open_feedback_msg = open_feedback_msg
         self._device_information = None
         self.current_library_uuid = None
+        self.call_shutdown_on_disconnect = False
+        self.devices_initialized = Event()
+        self.dynamic_plugins = {}
 
     def report_progress(self, *args):
         pass
@@ -169,6 +173,8 @@ class DeviceManager(Thread): # {{{
                     self.open_feedback_msg(dev.get_gui_name(), e)
                     self.ejected_devices.add(dev)
                 continue
+            except OpenFailed:
+                raise
             except:
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
@@ -197,6 +203,13 @@ class DeviceManager(Thread): # {{{
             self.ejected_devices.remove(self.connected_device)
         else:
             self.connected_slot(False, self.connected_device_kind)
+        if self.call_shutdown_on_disconnect:
+            # The current device is an instance of a plugin class instantiated
+            # to handle this connection, probably as a mounted device. We are
+            # now abandoning the instance that we created, so we tell it that it
+            # is being shut down.
+            self.connected_device.shutdown()
+            self.call_shutdown_on_disconnect = False
         self.connected_device = None
         self._device_information = None
 
@@ -215,24 +228,32 @@ class DeviceManager(Thread): # {{{
                             only_presence=True, debug=True)
                 self.connected_device_removed()
         else:
-            possibly_connected_devices = []
-            for device in self.devices:
-                if device in self.ejected_devices:
-                    continue
-                possibly_connected, detected_device = \
-                        self.scanner.is_device_connected(device)
-                if possibly_connected:
-                    possibly_connected_devices.append((device, detected_device))
-            if possibly_connected_devices:
-                if not self.do_connect(possibly_connected_devices,
-                                       device_kind='device'):
-                    if DEBUG:
-                        prints('Connect to device failed, retrying in 5 seconds...')
-                    time.sleep(5)
+            try:
+                possibly_connected_devices = []
+                for device in self.devices:
+                    if device in self.ejected_devices:
+                        continue
+                    try:
+                        possibly_connected, detected_device = \
+                                self.scanner.is_device_connected(device)
+                    except InitialConnectionError as e:
+                        self.open_feedback_msg(device.get_gui_name(), e)
+                        continue
+                    if possibly_connected:
+                        possibly_connected_devices.append((device, detected_device))
+                if possibly_connected_devices:
                     if not self.do_connect(possibly_connected_devices,
-                                       device_kind='usb'):
+                                           device_kind='device'):
                         if DEBUG:
-                            prints('Device connect failed again, giving up')
+                            prints('Connect to device failed, retrying in 5 seconds...')
+                        time.sleep(5)
+                        if not self.do_connect(possibly_connected_devices,
+                                           device_kind='usb'):
+                            if DEBUG:
+                                prints('Device connect failed again, giving up')
+            except OpenFailed as e:
+                if e.show_me:
+                    traceback.print_exc()
 
     # Mount devices that don't use USB, such as the folder device and iTunes
     # This will be called on the GUI thread. Because of this, we must store
@@ -265,7 +286,24 @@ class DeviceManager(Thread): # {{{
             except Queue.Empty:
                 pass
 
+    def run_startup(self, dev):
+        name = 'unknown'
+        try:
+            name = dev.__class__.__name__
+            dev.startup()
+        except:
+            prints('Startup method for device %s threw exception'%name)
+            traceback.print_exc()
+
     def run(self):
+        # Do any device-specific startup processing.
+        for d in self.devices:
+            self.run_startup(d)
+            n = d.is_dynamically_controllable()
+            if n:
+                self.dynamic_plugins[n] = d
+        self.devices_initialized.set()
+
         while self.keep_going:
             kls = None
             while True:
@@ -277,15 +315,23 @@ class DeviceManager(Thread): # {{{
             if kls is not None:
                 try:
                     dev = kls(folder_path)
+                    # We just created a new device instance. Call its startup
+                    # method and set the flag to call the shutdown method when
+                    # it disconnects.
+                    self.run_startup(dev)
+                    self.call_shutdown_on_disconnect = True
                     self.do_connect([[dev, None],], device_kind=device_kind)
                 except:
                     prints('Unable to open %s as device (%s)'%(device_kind, folder_path))
                     traceback.print_exc()
             else:
                 self.detect_device()
+
+            do_sleep = True
             while True:
                 job = self.next()
                 if job is not None:
+                    do_sleep = False
                     self.current_job = job
                     if self.device is not None:
                         self.device.set_progress_reporter(job.report_progress)
@@ -293,7 +339,15 @@ class DeviceManager(Thread): # {{{
                     self.current_job = None
                 else:
                     break
-            time.sleep(self.sleep_time)
+            if do_sleep:
+                time.sleep(self.sleep_time)
+
+        # We are exiting. Call the shutdown method for each plugin
+        for p in self.devices:
+            try:
+                p.shutdown()
+            except:
+                pass
 
     def create_job_step(self, func, done, description, to_job, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
@@ -314,6 +368,18 @@ class DeviceManager(Thread): # {{{
             return bool(self.device.card_prefix())
         except:
             return False
+
+    def _debug_detection(self):
+        from calibre.devices import debug
+        raw = debug(plugins=self.devices)
+        return raw
+
+    def debug_detection(self, done):
+        if self.is_device_connected:
+            raise ValueError('Device is currently detected in calibre, cannot'
+                    ' debug device detection')
+        self.create_job(self._debug_detection, done,
+                _('Debug device detection'))
 
     def _get_device_information(self):
         info = self.device.get_device_information(end_session=False)
@@ -474,6 +540,44 @@ class DeviceManager(Thread): # {{{
     def set_driveinfo_name(self, location_code, name):
         if self.connected_device:
             self.connected_device.set_driveinfo_name(location_code, name)
+
+    # dynamic plugin interface
+
+    # This is a helper function that handles queueing with the device manager
+    def _call_request(self, name, method, *args, **kwargs):
+        d = self.dynamic_plugins.get(name, None)
+        if d:
+            return getattr(d, method)(*args, **kwargs)
+        return kwargs.get('default', None)
+
+    # The dynamic plugin methods below must be called on the GUI thread. They
+    # will switch to the device thread before calling the plugin.
+
+    def start_plugin(self, name):
+        self._call_request(name, 'start_plugin')
+
+    def stop_plugin(self, name):
+        self._call_request(name, 'stop_plugin')
+
+    def get_option(self, name, opt_string, default=None):
+        return self._call_request(name, 'get_option', opt_string, default=default)
+
+    def set_option(self, name, opt_string, opt_value):
+        self._call_request(name, 'set_option', opt_string, opt_value)
+
+    def is_running(self, name):
+        if self._call_request(name, 'is_running'):
+            return True
+        return False
+
+    def is_enabled(self, name):
+        try:
+            d = self.dynamic_plugins.get(name, None)
+            if d:
+                return True
+        except:
+            pass
+        return False
 
     # }}}
 
@@ -675,8 +779,18 @@ class DeviceMixin(object): # {{{
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback))
         self.device_manager.start()
+        self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def debug_detection(self, done):
+        self.debug_detection_callback = weakref.ref(done)
+        self.device_manager.debug_detection(FunctionDispatcher(self.debug_detection_done))
+
+    def debug_detection_done(self, job):
+        d = self.debug_detection_callback()
+        if d is not None:
+            d(job)
 
     def show_open_feedback(self, devname, e):
         try:
@@ -934,6 +1048,11 @@ class DeviceMixin(object): # {{{
 
         fmt = None
         if specific:
+            if (not self.device_connected or not self.device_manager or
+                    self.device_manager.device is None):
+                error_dialog(self, _('No device'),
+                        _('No device connected'), show=True)
+                return
             formats = []
             aval_out_formats = available_output_formats()
             format_count = {}
@@ -1331,6 +1450,9 @@ class DeviceMixin(object): # {{{
                                  'is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()
+            elif isinstance(job.exception, WrongDestinationError):
+                error_dialog(self, _('Incorrect destination'),
+                        unicode(job.exception), show=True)
             else:
                 self.device_job_exception(job)
             return

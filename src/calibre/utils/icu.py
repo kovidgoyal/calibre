@@ -75,6 +75,7 @@ def icu_sort_key(collator, obj):
     except AttributeError:
         return secondary_collator().sort_key(obj)
 
+
 def py_find(pattern, source):
     pos = source.find(pattern)
     if pos > -1:
@@ -125,6 +126,12 @@ def icu_contractions(collator):
         ans = frozenset(filter(None, ans)) if ans else {}
         _cmap[collator] = ans
     return ans
+
+def icu_collation_order(collator, a):
+    try:
+        return collator.collation_order(a)
+    except TypeError:
+        return collator.collation_order(unicode(a))
 
 load_icu()
 load_collator()
@@ -204,6 +211,14 @@ def primary_startswith(a, b):
         return icu_startswith(_primary_collator, a, b)
     except AttributeError:
         return icu_startswith(primary_collator(), a, b)
+
+def collation_order(a):
+    if _icu_not_ok:
+        return (ord(a[0]), 1) if a else (0, 0)
+    try:
+        return icu_collation_order(_secondary_collator, a)
+    except AttributeError:
+        return icu_collation_order(secondary_collator(), a)
 
 ################################################################################
 

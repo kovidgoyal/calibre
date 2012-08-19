@@ -1,0 +1,32 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class NetMagazineRecipe (BasicNewsRecipe):
+   __author__ = u'Marc Busqué <marc@lamarciana.com>'
+   __url__ = 'http://www.lamarciana.com'
+   __version__ = '1.0'
+   __license__   = 'GPL v3'
+   __copyright__ = u'2012, Marc Busqué <marc@lamarciana.com>'
+   title = u'.net magazine'
+   description = u'net is the world’s best-selling magazine for web designers and developers, featuring tutorials from leading agencies, interviews with the web’s biggest names, and agenda-setting features on the hottest issues affecting the internet today.'
+   language = 'en'
+   tags = 'web development, software'
+   oldest_article = 7
+   remove_empty_feeds = True
+   no_stylesheets = True
+   cover_url = u'http://media.netmagazine.futurecdn.net/sites/all/themes/netmag/logo.png'
+   keep_only_tags = [
+         dict(name='article', attrs={'class': re.compile('^node.*$', re.IGNORECASE)})
+         ]
+   remove_tags = [
+         dict(name='span', attrs={'class': 'comment-count'}),
+         dict(name='div', attrs={'class': 'item-list share-links'}),
+         dict(name='footer'),
+         ]
+   remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
+   extra_css = 'img {max-width: 100%; display: block; margin: auto;} .captioned-image div {text-align: center; font-style: italic;}'
+
+   feeds = [
+         (u'.net', u'http://feeds.feedburner.com/net/topstories'),
+         ]
