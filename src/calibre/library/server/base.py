@@ -78,7 +78,10 @@ class BonJour(SimplePlugin): # {{{
         SimplePlugin.__init__(self, engine)
         self.port = port
         self.prefix = prefix
-        self.mdns_services = [
+
+    @property
+    def mdns_services(self):
+        return [
             ('Books in calibre', '_stanza._tcp', self.port,
                 {'path':self.prefix+'/stanza'}),
             ('Books in calibre', '_calibre._tcp', self.port,
