@@ -13,6 +13,9 @@ AsciiMath. The |app| viewer uses the excellent `MathJax
 <http://www.mathjax.org>`_ library to do this. This is a brief tutorial on
 creating ebooks with math in them that work well with the |app| viewer.
 
+.. note::
+    This only applies to calibre version 0.8.66 and newer
+
 A simple HTML file with mathematics
 -------------------------------------
 
