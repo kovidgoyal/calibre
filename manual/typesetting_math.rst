@@ -7,7 +7,7 @@
 Typesetting Math in ebooks
 ============================
 
-The |app| ebook viewer has the ability to display math embedded in ebooks (ePuB
+The |app| ebook viewer has the ability to display math embedded in ebooks (ePub
 and HTML files). You can typeset the math directly with TeX or MathML or
 AsciiMath. The |app| viewer uses the excellent `MathJax
 <http://www.mathjax.org>`_ library to do this. This is a brief tutorial on
