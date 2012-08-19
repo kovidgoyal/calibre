@@ -6,7 +6,10 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
 <!-- This script tag is needed to make calibre's ebook-viewer recpgnize that this file needs math typesetting -->
-<script type="text/x-mathjax-config"></script>
+<script type="text/x-mathjax-config">
+    // This line adds numbers to all equations automatically, unless explicitly suppressed.
+    MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "all"} } });
+</script>
 
 <style>
 h1 {text-align:center}
@@ -24,13 +27,11 @@ h2 {
 
 <h1>Sample Equations</h1>
 
-<blockquote>
-
 <h2>The Lorenz Equations</h2>
 
 <p>
 \begin{align}
-\dot{x} &amp; = \sigma(y-x) \\
+\dot{x} &amp; = \sigma(y-x) \label{lorenz}\\
 \dot{y} &amp; = \rho x - y - xz \\
 \dot{z} &amp; = -\beta z + xy
 \end{align}
@@ -87,14 +88,15 @@ h2 {
 
 <h2>In-line Mathematics</h2>
 
-<p>Finally, while display equations look good for a page of samples, the
+<p>While display equations look good for a page of samples, the
 ability to mix math and text in a paragraph is also important.  This
 expression \(\sqrt{3x-1}+(1+x)^2\) is an example of an inline equation.  As
 you see, equations can be used this way as well, without unduly
 disturbing the spacing between lines.</p>
 
+<h2>References to equations</h2>
 
-</blockquote>
+<p>Here is a reference to the Lorenz Equations (\ref{lorenz}). Clicking on the equation number will take you back to the equation.</p>
 
 </body>
 </html>

@@ -53,5 +53,4 @@ HTML file to EPUB in |app|: `mathjax.epub <_static/mathjax.epub>`_.
 
 .. literalinclude:: mathjax.html
     :language: html
-    :emphasize-lines: 8,9,29-38
 
