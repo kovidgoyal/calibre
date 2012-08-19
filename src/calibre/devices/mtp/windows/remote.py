@@ -70,6 +70,7 @@ def main():
         print ('Connected to:', dev.get_gui_name())
         print ('Total space', dev.total_space())
         print ('Free space', dev.free_space())
+        pprint.pprint(dev.dev.get_filesystem(dev._main_id))
     finally:
         dev.shutdown()
 

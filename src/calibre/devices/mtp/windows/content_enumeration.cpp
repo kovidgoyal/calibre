@@ -209,9 +209,7 @@ static PyObject* bulk_get_filesystem(IPortableDevice *device, IPortableDevicePro
 
     callback->thread_state = PyEval_SaveThread();
     while (TRUE) {
-        Py_BEGIN_ALLOW_THREADS;
         wait_result = MsgWaitForMultipleObjects(1, &(callback->complete), FALSE, 60000, QS_ALLEVENTS);
-        Py_END_ALLOW_THREADS;
         if (wait_result == WAIT_OBJECT_0) {
             break; // Event was signalled, bulk operation complete
         } else if (wait_result == WAIT_OBJECT_0 + 1) { // Messages need to be dispatched
