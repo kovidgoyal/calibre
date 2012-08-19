@@ -402,8 +402,9 @@ License: other
 
 Liberation Fonts
 -----------------
-calibre includes a copy of the liberation fonts, available from
-https://calibre-ebook.com/downloads/liberation-fonts
+calibre includes a copy of the liberation fonts in TTF format, licensed under
+the SIL Open Font License, Version 1.1, and available from
+https://fedorahosted.org/liberation-fonts/
 
 BSD License (for all the BSD licensed code indicated above)
 -----------------------------------------------------------
