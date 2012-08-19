@@ -289,7 +289,7 @@ class _CompileParser(_Parser):
             if self.compile_text:
                 self.compile_text += (
                     "\targs[%d].append(self.__funcs__['%s']"
-                    ".evaluate(formatter, kwargs, book, locals, *args[%d]))\n")%(level, id, level+1)
+                    ".eval_(formatter, kwargs, book, locals, *args[%d]))\n")%(level, id, level+1)
             return cls.eval_(self.parent, self.parent_kwargs,
                             self.parent_book, self.parent_locals, *args)
         elif self.token_is_constant():
