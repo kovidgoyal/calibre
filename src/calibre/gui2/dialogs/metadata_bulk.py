@@ -529,6 +529,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.remove_button.clicked.connect(self.s_r_remove_query)
 
         self.queries = JSONConfig("search_replace_queries")
+        self.saved_search_name = ''
         self.query_field.addItem("")
         self.query_field_values = sorted([q for q in self.queries], key=sort_key)
         self.query_field.addItems(self.query_field_values)
@@ -1034,11 +1035,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.queries.commit()
 
     def s_r_save_query(self, *args):
-        dex = self.query_field_values.index(self.saved_search_name)
+        names = ['']
+        names.extend(self.query_field_values)
+        try:
+            dex = names.index(self.saved_search_name)
+        except:
+            dex = 0
         name = ''
         while not name:
             name, ok =  QInputDialog.getItem(self, _('Save search/replace'),
-                    _('Search/replace name:'), self.query_field_values, dex, True)
+                    _('Search/replace name:'), names, dex, True)
             if not ok:
                 return
             if not name:
@@ -1086,6 +1092,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def s_r_query_change(self, item_name):
         if not item_name:
             self.s_r_reset_query_fields()
+            self.saved_search_name = ''
             return
         item = self.queries.get(unicode(item_name), None)
         if item is None:

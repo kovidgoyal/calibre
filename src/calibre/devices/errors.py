@@ -92,6 +92,7 @@ class ControlError(ProtocolError):
     def __init__(self, query=None, response=None, desc=None):
         self.query = query
         self.response = response
+        self.desc = desc
         ProtocolError.__init__(self, desc)
 
     def __str__(self):
@@ -103,3 +104,9 @@ class ControlError(ProtocolError):
         if self.desc:
             return self.desc
         return "Unknown control error occurred"
+
+class WrongDestinationError(PathError):
+    ''' The user chose the wrong destination to send books to, for example by
+    trying to send books to a non existant storage card.'''
+    pass
+

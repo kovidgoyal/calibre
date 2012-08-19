@@ -17,12 +17,14 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
 from calibre import prints
+from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
+from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.constants import isxp
+from calibre.constants import isxp, iswindows
 # }}}
 
 def load_builtin_fonts():
@@ -89,6 +91,9 @@ class Document(QWebPage): # {{{
 
         # Fonts
         load_builtin_fonts()
+        self.all_viewer_plugins = tuple(all_viewer_plugins())
+        for pl in self.all_viewer_plugins:
+            pl.load_fonts()
         self.set_font_settings()
 
         # Security
@@ -168,8 +173,16 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
-        self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
-                self.current_language, self.hyphenate_default_lang)
+        evaljs = self.mainFrame().evaluateJavaScript
+        self.loaded_lang = self.js_loader(evaljs, self.current_language,
+                self.hyphenate_default_lang)
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        self.javascript(u'window.mathjax.base = %s'%(json.dumps(mjpath,
+            ensure_ascii=False)))
+        for pl in self.all_viewer_plugins:
+            pl.load_javascript(evaljs)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -206,6 +219,10 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.switch_to_paged_mode()
         self.read_anchor_positions(use_cache=False)
+        evaljs = self.mainFrame().evaluateJavaScript
+        for pl in self.all_viewer_plugins:
+            pl.run_javascript(evaljs)
+        self.javascript('window.mathjax.check_for_math()')
         self.first_load = False
 
     def colors(self):
@@ -263,6 +280,7 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.setPreferredContentsSize(QSize())
             self.switch_to_paged_mode(onresize=True)
+        self.javascript('window.mathjax.after_resize()')
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
@@ -470,6 +488,9 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
+        self.image_popup = ImagePopup(self)
+        self.view_image_action = QAction(_('View &image...'), self)
+        self.view_image_action.triggered.connect(self.image_popup)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)
         self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
@@ -554,6 +575,11 @@ class DocumentView(QWebView): # {{{
             self.manager.selection_changed(unicode(self.document.selectedText()))
 
     def contextMenuEvent(self, ev):
+        mf = self.document.mainFrame()
+        r = mf.hitTestContent(ev.pos())
+        img = r.pixmap()
+        self.image_popup.current_img = img
+        self.image_popup.current_url = r.imageUrl()
         menu = self.document.createStandardContextMenu()
         for action in self.unimplemented_actions:
             menu.removeAction(action)
@@ -561,6 +587,8 @@ class DocumentView(QWebView): # {{{
         if text:
             menu.insertAction(list(menu.actions())[0], self.dictionary_action)
             menu.insertAction(list(menu.actions())[0], self.search_action)
+        if not img.isNull():
+            menu.addAction(self.view_image_action)
         menu.addSeparator()
         menu.addAction(self.goto_location_action)
         if self.document.in_fullscreen_mode and self.manager is not None:
@@ -1036,14 +1064,14 @@ class DocumentView(QWebView): # {{{
         if not self.handle_key_press(event):
             return QWebView.keyPressEvent(self, event)
 
-    def paged_col_scroll(self, forward=True):
+    def paged_col_scroll(self, forward=True, scroll_past_end=True):
         dir = 'next' if forward else 'previous'
         loc = self.document.javascript(
                 'paged_display.%s_col_location()'%dir, typ='int')
         if loc > -1:
             self.document.scroll_to(x=loc, y=0)
             self.manager.scrolled(self.document.scroll_fraction)
-        else:
+        elif scroll_past_end:
             (self.manager.next_document() if forward else
                     self.manager.previous_document())
 
@@ -1059,7 +1087,8 @@ class DocumentView(QWebView): # {{{
                 self.is_auto_repeat_event = False
         elif key == 'Down':
             if self.document.in_paged_mode:
-                self.paged_col_scroll()
+                self.paged_col_scroll(scroll_past_end=not
+                        self.document.line_scrolling_stops_on_pagebreaks)
             else:
                 if (not self.document.line_scrolling_stops_on_pagebreaks and
                         self.document.at_bottom):
@@ -1068,7 +1097,8 @@ class DocumentView(QWebView): # {{{
                     self.scroll_by(y=15)
         elif key == 'Up':
             if self.document.in_paged_mode:
-                self.paged_col_scroll(forward=False)
+                self.paged_col_scroll(forward=False, scroll_past_end=not
+                        self.document.line_scrolling_stops_on_pagebreaks)
             else:
                 if (not self.document.line_scrolling_stops_on_pagebreaks and
                         self.document.at_top):

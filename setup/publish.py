@@ -80,8 +80,17 @@ class Manual(Command):
                                    '-d', '.build/doctrees', '.', '.build/html'])
             subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])
+            subprocess.check_call(['sphinx-build', '-b', 'mylatex', '-d',
+                                   '.build/doctrees', '.', '.build/latex'])
+            pwd = os.getcwdu()
+            os.chdir('.build/latex')
+            subprocess.check_call(['make', 'all-pdf'], stdout=open(os.devnull,
+                'wb'))
+            os.chdir(pwd)
             epub_dest = self.j('.build', 'html', 'calibre.epub')
+            pdf_dest = self.j('.build', 'html', 'calibre.pdf')
             shutil.copyfile(self.j('.build', 'epub', 'calibre.epub'), epub_dest)
+            shutil.copyfile(self.j('.build', 'latex', 'calibre.pdf'), pdf_dest)
             subprocess.check_call(['ebook-convert', epub_dest,
                 epub_dest.rpartition('.')[0] + '.azw3',
                 '--page-breaks-before=/', '--disable-font-rescaling',

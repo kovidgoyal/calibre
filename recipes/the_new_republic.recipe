@@ -44,6 +44,10 @@ class TNR(BasicNewsRecipe):
             em=post.find('em')
             b=post.find('b')
             a=post.find('a',href=True)
+            p=post.find('img', src=True)
+            #Find cover
+            if p is not None:
+                self.cover_url = p['src'].strip()
             if em is not None:
                 section_title = self.tag_to_string(em).strip()
                 subsection_title = ''

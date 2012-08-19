@@ -31,7 +31,7 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'epub', 'fb2', 'djv', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
                    'xps', 'oxps', 'azw4', 'book', 'zbf', 'pobi', 'docx', 'md',
-                   'textile', 'markdown', 'ibook', 'iba', 'azw3']
+                   'textile', 'markdown', 'ibook', 'iba', 'azw3', 'ps']
 
 class HTMLRenderer(object):
 
@@ -173,7 +173,7 @@ def check_ebook_format(stream, current_guess):
 def normalize(x):
     if isinstance(x, unicode):
         import unicodedata
-        x = unicodedata.normalize('NFKC', x)
+        x = unicodedata.normalize('NFC', x)
     return x
 
 def calibre_cover(title, author_string, series_string=None,

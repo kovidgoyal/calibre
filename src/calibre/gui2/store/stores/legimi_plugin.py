@@ -25,11 +25,12 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         
-        url = 'http://www.legimi.com/pl/ebooks/?price=any'
+        plain_url = 'http://www.legimi.com/pl/ebooks/?price=any'
+        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + plain_url + ')'
         detail_url = None
 
         if detail_item:
-            detail_url = detail_item
+            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + detail_item + ')'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))

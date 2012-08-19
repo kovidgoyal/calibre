@@ -24,6 +24,9 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
       <widget class="TOCView" name="toc"/>
       <widget class="QFrame" name="frame">
        <property name="frameShape">

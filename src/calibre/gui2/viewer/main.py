@@ -417,7 +417,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             vprefs.set('viewer_splitter_state',
                 bytearray(self.splitter.saveState()))
         vprefs['multiplier'] = self.view.multiplier
-        vprefs['in_paged_mode1'] = not self.action_toggle_paged_mode.isChecked()
+        vprefs['in_paged_mode'] = not self.action_toggle_paged_mode.isChecked()
 
     def restore_state(self):
         state = vprefs.get('viewer_toolbar_state', None)
@@ -434,8 +434,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         # specific location, ensure they are visible.
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
-        self.action_toggle_paged_mode.setChecked(not vprefs.get('in_paged_mode1',
-            False))
+        self.action_toggle_paged_mode.setChecked(not vprefs.get('in_paged_mode',
+            True))
         self.toggle_paged_mode(self.action_toggle_paged_mode.isChecked(),
                 at_start=True)
 
@@ -577,7 +577,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 if not os.path.exists(item.abspath):
                     return error_dialog(self, _('No such location'),
                             _('The location pointed to by this item'
-                                ' does not exist.'), show=True)
+                                ' does not exist.'), det_msg=item.abspath, show=True)
                 url = QUrl.fromLocalFile(item.abspath)
                 if item.fragment:
                     url.setFragment(item.fragment)

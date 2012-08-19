@@ -23,6 +23,8 @@ MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/bin/pdfinfo',
+                '/usr/lib/libusb-1.0.so.0',
+                '/usr/lib/libmtp.so.9',
                 '/usr/lib/libglib-2.0.so.0',
                 '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
@@ -36,7 +38,7 @@ binary_includes = [
                 '/lib/libz.so.1',
                 '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',
-                '/usr/lib/libpoppler.so.25',
+                '/usr/lib/libpoppler.so.27',
                 '/usr/lib/libxml2.so.2',
                 '/usr/lib/libopenjpeg.so.2',
                 '/usr/lib/libxslt.so.1',

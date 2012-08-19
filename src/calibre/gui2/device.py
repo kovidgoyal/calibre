@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, cStringIO, re, sys
+import os, traceback, Queue, time, cStringIO, re, sys, weakref
 from threading import Thread, Event
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
@@ -23,7 +23,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import FreeSpaceError
+from calibre.devices.errors import FreeSpaceError, WrongDestinationError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
@@ -368,6 +368,18 @@ class DeviceManager(Thread): # {{{
             return bool(self.device.card_prefix())
         except:
             return False
+
+    def _debug_detection(self):
+        from calibre.devices import debug
+        raw = debug(plugins=self.devices)
+        return raw
+
+    def debug_detection(self, done):
+        if self.is_device_connected:
+            raise ValueError('Device is currently detected in calibre, cannot'
+                    ' debug device detection')
+        self.create_job(self._debug_detection, done,
+                _('Debug device detection'))
 
     def _get_device_information(self):
         info = self.device.get_device_information(end_session=False)
@@ -770,6 +782,15 @@ class DeviceMixin(object): # {{{
         self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def debug_detection(self, done):
+        self.debug_detection_callback = weakref.ref(done)
+        self.device_manager.debug_detection(FunctionDispatcher(self.debug_detection_done))
+
+    def debug_detection_done(self, job):
+        d = self.debug_detection_callback()
+        if d is not None:
+            d(job)
 
     def show_open_feedback(self, devname, e):
         try:
@@ -1429,6 +1450,9 @@ class DeviceMixin(object): # {{{
                                  'is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()
+            elif isinstance(job.exception, WrongDestinationError):
+                error_dialog(self, _('Incorrect destination'),
+                        unicode(job.exception), show=True)
             else:
                 self.device_job_exception(job)
             return

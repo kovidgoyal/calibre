@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>650</width>
-    <height>596</height>
+    <height>603</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -35,7 +35,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Sections to include in catalog.</string>
+      <string>Enabled sections will be included in the generated catalog.</string>
      </property>
      <property name="title">
       <string>Included sections</string>
@@ -107,10 +107,8 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>&lt;p&gt;Default pattern 
-\[.+\]
-excludes tags of the form [tag], 
-e.g., [Project Gutenberg]&lt;/p&gt;</string>
+      <string>A regular expression describing genres to be excluded from the generated catalog. Genres are derived from the tags applied to your books.
+The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book], and '+', the default tag for a read book.</string>
      </property>
      <property name="title">
       <string>Excluded genres</string>
@@ -177,13 +175,23 @@ e.g., [Project Gutenberg]&lt;/p&gt;</string>
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QToolButton" name="reset_exclude_genres_tb">
+          <property name="toolTip">
+           <string>Reset to default</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="excludedBooks">
+    <widget class="QGroupBox" name="exclusion_rules_gb">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
@@ -197,224 +205,35 @@ e.g., [Project Gutenberg]&lt;/p&gt;</string>
       </size>
      </property>
      <property name="toolTip">
-      <string>Books matching either pattern will not be included in generated catalog. </string>
+      <string>Books matching any of the exclusion rules will be excluded from the generated catalog. </string>
      </property>
      <property name="title">
       <string>Excluded books</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Tags to &amp;exclude</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>exclude_tags</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="exclude_tags">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>&lt;p&gt;Comma-separated list of tags to exclude.
-Default: ~,Catalog</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="exclude_spec_hl">
-        <item>
-         <widget class="QLabel" name="label_7">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&amp;Column/value</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>exclude_source_field</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="exclude_source_field">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Column containing additional exclusion criteria</string>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-          </property>
-          <property name="minimumContentsLength">
-           <number>18</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="exclude_pattern">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Exclusion pattern</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="readBooks">
+    <widget class="QGroupBox" name="prefix_rules_gb">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
      <property name="toolTip">
-      <string>Matching books will be displayed with a check mark</string>
+      <string>The first matching prefix rule applies a prefix to book listings in the generated catalog.</string>
      </property>
      <property name="title">
-      <string>Read books</string>
+      <string>Prefixes</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="read_spec_hl">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
-        </property>
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&amp;Column/value</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>read_source_field</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="read_source_field">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Column containing 'read' status</string>
-          </property>
-          <property name="statusTip">
-           <string/>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-          </property>
-          <property name="minimumContentsLength">
-           <number>18</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="read_pattern">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>'read book' pattern</string>
-          </property>
-          <property name="statusTip">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6"/>
       </item>
      </layout>
     </widget>
@@ -440,52 +259,10 @@ Default: ~,Catalog</string>
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::FieldsStayAtSizeHint</enum>
       </property>
-      <item row="1" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item row="0" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
-         <widget class="QLabel" name="label_5">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>&amp;Wishlist tag</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>wishlist_tag</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="wishlist_tag">
-          <property name="toolTip">
-           <string>Books tagged as Wishlist items will be displayed with an X</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="label_10">
           <property name="minimumSize">
            <size>
             <width>175</width>
@@ -499,16 +276,13 @@ Default: ~,Catalog</string>
            </size>
           </property>
           <property name="text">
-           <string>&amp;Thumbnail width</string>
+           <string>&amp;Thumb width</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
           <property name="buddy">
-           <cstring>thumb_width</cstring>
+           <cstring>merge_source_field</cstring>
           </property>
          </widget>
         </item>
@@ -520,8 +294,14 @@ Default: ~,Catalog</string>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="maximumSize">
+           <size>
+            <width>137</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="toolTip">
-           <string>Size hint for Description cover thumbnails</string>
+           <string>Size hint for cover thumbnails included in Descriptions section.</string>
           </property>
           <property name="suffix">
            <string> inch</string>
@@ -540,38 +320,17 @@ Default: ~,Catalog</string>
           </property>
          </widget>
         </item>
-       </layout>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
-         <widget class="QLabel" name="label_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>&amp;Description note</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <string>&amp;Extra note</string>
           </property>
           <property name="buddy">
            <cstring>header_note_source_field</cstring>
@@ -592,14 +351,20 @@ Default: ~,Catalog</string>
             <height>0</height>
            </size>
           </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="toolTip">
-           <string>Custom column source for note to include in Description header area</string>
+           <string>Custom column source for text to include in Description section.</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QLabel" name="label_9">
@@ -635,7 +400,7 @@ Default: ~,Catalog</string>
            </size>
           </property>
           <property name="toolTip">
-           <string>Additional content merged with Comments during catalog generation</string>
+           <string>Custom column containing additional content to be merged with Comments metadata.</string>
           </property>
          </widget>
         </item>
@@ -649,7 +414,7 @@ Default: ~,Catalog</string>
         <item>
          <widget class="QRadioButton" name="merge_before">
           <property name="toolTip">
-           <string>Merge additional content before Comments</string>
+           <string>Merge additional content before Comments metadata.</string>
           </property>
           <property name="text">
            <string>&amp;Before</string>
@@ -659,7 +424,7 @@ Default: ~,Catalog</string>
         <item>
          <widget class="QRadioButton" name="merge_after">
           <property name="toolTip">
-           <string>Merge additional content after Comments</string>
+           <string>Merge additional content after Comments metadata.</string>
           </property>
           <property name="text">
            <string>&amp;After</string>
@@ -676,7 +441,7 @@ Default: ~,Catalog</string>
         <item>
          <widget class="QCheckBox" name="include_hr">
           <property name="toolTip">
-           <string>Separate Comments and additional content with horizontal rule</string>
+           <string>Separate Comments metadata and additional content with a horizontal rule.</string>
           </property>
           <property name="text">
            <string>&amp;Separator</string>

@@ -17,7 +17,7 @@ OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
 
-NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = None
+NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
 if iswindows:
     from distutils import msvc9compiler
     msvc = msvc9compiler.MSVCCompiler()
@@ -26,7 +26,8 @@ if iswindows:
     RC = msvc.find_exe('rc.exe')
     SDK = os.environ.get('WINSDK', r'C:\Program Files\Microsoft SDKs\Windows\v6.0A')
     DDK = os.environ.get('WINDDK', r'Q:\WinDDK\7600.16385.0')
-    win_ddk = [DDK+'\\inc\\'+x for x in ('api',)]
+    win_ddk = [DDK+'\\inc\\'+x for x in ('atl71',)]
+    win_ddk_lib_dirs = [DDK+'\\lib\\ATL\\i386']
     win_inc = os.environ['include'].split(';')
     win_lib = os.environ['lib'].split(';')
     for p in win_inc:

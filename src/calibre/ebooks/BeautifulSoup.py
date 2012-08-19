@@ -1454,7 +1454,9 @@ class BeautifulSoup(BeautifulStoneSoup):
     #According to the HTML standard, these block tags can contain
     #another tag of the same type. Furthermore, it's common
     #to actually use these tags this way.
-    NESTABLE_BLOCK_TAGS = ['blockquote', 'div', 'fieldset', 'ins', 'del']
+    # Changed by Kovid: Added HTML 5 block tags
+    NESTABLE_BLOCK_TAGS = ['blockquote', 'div', 'fieldset', 'ins', 'del',
+            'article', 'aside', 'header', 'footer', 'nav', 'figcaption', 'figure', 'section']
 
     #Lists can contain other lists, but there are restrictions.
     NESTABLE_LIST_TAGS = { 'ol' : [],

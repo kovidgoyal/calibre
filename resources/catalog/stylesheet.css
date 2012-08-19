@@ -1,35 +1,229 @@
 body { background-color: white; }
 
+/*
+**      The following rules apply principally to the line items shown in the
+**      Authors, Titles, Genres, Series, and Recently Added sections. Rules for the
+**      Descriptions section are grouped together later in the file.
+**      ------------------------------------------------------------------------
+*/
+
+
+/*
+**   <div> grouping an author's works together
+**   Used in Sections:
+**    Authors
+**
+**	 Minimize widows and orphans by logically grouping chunks
+**   Some reports of problems with Sony (ADE) ereaders
+**	   ADE: page-break-inside:avoid;
+**	iBooks: display:inline-block;
+**		    width:100%;
+*/
+div.author_logical_group {
+	page-break-inside:avoid;
+	}
+
+/*
+**   Force page break when starting new initial letter
+**   Used in Sections:
+**    Authors
+**    Titles
+*/
+div.initial_letter {
+	page-break-before:always;
+	}
+
+/*
+**   Author name
+**   Used in Sections:
+**    Authors
+**    Genres
+**    Recently Added
+*/
+p.author_index {
+    clear:both;
+	font-size:large;
+	font-weight:bold;
+	text-align:left;
+	margin-top:0.25px;
+	margin-bottom:-2px;
+	text-indent: 0em;
+	}
+
+/*
+**   Index letter
+**   Used in Sections:
+**    Authors
+**    Titles
+*/
+p.author_title_letter_index {
+    clear:both;
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:0px;
+	margin-bottom:0px;
+	}
+
+/*
+**   Index letter
+**   Used in Sections:
+**    Series
+*/
+p.series_letter_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
+
+
+/*
+**   Month-Year
+**   Used in Sections:
+**    Recently Added
+*/
+p.date_index {
+    clear:both;
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
+
+p.date_read {
+    clear:both;
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:6em;
+	text-indent:-6em;
+	}
+
+/*
+**   Series name
+**   Used in Sections:
+**    Authors
+**    Series
+**    Genres
+**    Recently Added
+**  Optimized for ePub
+*/
+p.series {
+    clear:both;
+	font-style:italic;
+	margin-top:0.10em;
+	margin-bottom:0em;
+	margin-left:1.5em;
+	text-align:left;
+	text-indent:-1.25em;
+	}
+
+/*
+**   Series name
+**   Used in Sections:
+**    Authors
+**    Series
+**    Genres
+**    Recently Added
+**  Optimized for mobi
+*/
+p.series_mobi {
+    clear:both;
+	font-style:italic;
+	margin-top:0em;
+	margin-bottom:0em;
+    margin-left:0em;
+	text-align:left;
+	text-indent:-30px;
+	}
+
+/*
+**   Section title
+**   Used in Sections:
+**    Authors
+**    Titles
+**    Series
+**    Genres
+**    Recently Added
+**    Descriptions
+*/
+p.title  {
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align:center;
+	font-style:italic;
+	font-size:xx-large;
+	}
+
+/*
+**   Line item book listing
+**   Used in Sections:
+**    Authors
+**    Titles
+**    Series
+**    Genres
+**    Recently Added
+*/
+p.line_item {
+    clear: both;
+    font-family:monospace;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-align:left;
+	text-indent:-2em;
+	}
+
+/*
+**   Prefix
+**   Used in Sections:
+**    Authors
+**    Titles
+**    Series
+**    Genres
+**    Recently Added
+*/
+span.prefix {
+    float:left;
+    margin-left: 0.25em;
+    text-align: left;
+    vertical-align: middle;
+    width: 1.5em;
+    }
+
+/*
+**   Book details entry
+**   Used in Sections:
+**    Authors
+**    Titles
+**    Series
+**    Genres
+**    Recently Added
+*/
+span.entry {
+    font-family: serif;
+    vertical-align:middle;
+    }
+
+/*
+**      The following rules apply to Descriptions
+**      -----------------------------------------
+*/
+
+/*
+**   Link to Series
+*/
 a.series_id {
 	font-style:normal;
 	font-size:large;
 	}
 
 /*
-* 	Minimize widows and orphans by logically grouping chunks
-*   Some reports of problems with Sony (ADE) ereaders
-*	   ADE: page-break-inside:avoid;
-*	iBooks: display:inline-block;
-*		    width:100%;
+**   Various dividers
 */
-div.author_logical_group {
-	page-break-inside:avoid;
-	}
-
-div.description > p:first-child {
-	margin: 0 0 0 0;
-	text-indent: 0em;
-	}
-
-div.description {
-	margin: 0 0 0 0;
-	text-indent: 1em;
-	}
-
-div.initial_letter {
-	page-break-before:always;
-	}
-
 hr.annotations_divider {
 	width:50%;
 	margin-left:1em;
@@ -63,47 +257,21 @@ hr.merged_comments_divider {
     border-left: solid white 0px;
 	}
 
-p.date_read {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:6em;
-	text-indent:-6em;
-	}
-
+/*
+**   Author name
+*/
 p.author {
+    clear:both;
 	font-size:large;
 	margin-top:0em;
-	margin-bottom:0em;
+	margin-bottom:0.1em;
 	text-align: center;
 	text-indent: 0em;
   	}
 
-p.author_index {
-	font-size:large;
-	font-weight:bold;
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:-2px;
-	text-indent: 0em;
-	}
-
-p.author_title_letter_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:0px;
-	margin-bottom:0px;
-	}
-
-p.date_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:1em;
-	margin-bottom:0px;
-	}
-
+/*
+**   Formats
+*/
 p.formats {
 	font-size:90%;
 	margin-top:0em;
@@ -112,6 +280,9 @@ p.formats {
 	text-indent: 0.0in;
 	}
 
+/*
+**   Genres
+*/
 p.genres {
 	font-style:normal;
 	margin-top:0.5em;
@@ -120,59 +291,55 @@ p.genres {
 	text-indent: 0.0in;
 	}
 
-p.series {
-	font-style:italic;
-	margin-top:0.25em;
-	margin-bottom:0em;
-	margin-left:2em;
-	text-align:left;
-	text-indent:-2em;
-	}
 
+/*
+**   Series name
+*/
 p.series_id {
 	margin-top:0em;
 	margin-bottom:0em;
 	text-align:center;
 	}
 
-p.series_letter_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:1em;
-	margin-bottom:0px;
-	}
-
-p.title  {
-	margin-top:0em;
-	margin-bottom:0em;
-	text-align:center;
-	font-style:italic;
-	font-size:xx-large;
-	}
-
-p.wishlist_item, p.unread_book, p.read_book {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
-
+/*
+**   Publisher, Publication Date
+*/
 td.publisher, td.date {
 	font-weight:bold;
 	text-align:center;
 	}
 
+/*
+**   Rating
+*/
 td.rating{
 	text-align:center;
 	}
 
+/*
+**   Additional notes
+*/
 td.notes {
 	font-size: 100%;
 	text-align:center;
 	}
 
+/*
+**   Thumbnail
+*/
 td.thumbnail img {
 	-webkit-box-shadow: 4px 4px 12px #999;
 	}
+
+/*
+**   Comments
+*/
+div.description {
+	margin: 0 0 0 0;
+	text-indent: 1em;
+	}
+div.description > p:first-child {
+	margin: 0 0 0 0;
+	text-indent: 0em;
+	}
+
