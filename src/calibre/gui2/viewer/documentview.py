@@ -280,6 +280,7 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.setPreferredContentsSize(QSize())
             self.switch_to_paged_mode(onresize=True)
+        self.javascript('window.mathjax.after_resize()')
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
