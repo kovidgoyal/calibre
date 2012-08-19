@@ -17,13 +17,14 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
 from calibre import prints
+from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog
 from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.constants import isxp
+from calibre.constants import isxp, iswindows
 # }}}
 
 def load_builtin_fonts():
@@ -90,6 +91,9 @@ class Document(QWebPage): # {{{
 
         # Fonts
         load_builtin_fonts()
+        self.all_viewer_plugins = tuple(all_viewer_plugins())
+        for pl in self.all_viewer_plugins:
+            pl.load_fonts()
         self.set_font_settings()
 
         # Security
@@ -169,8 +173,16 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
-        self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
-                self.current_language, self.hyphenate_default_lang)
+        evaljs = self.mainFrame().evaluateJavaScript
+        self.loaded_lang = self.js_loader(evaljs, self.current_language,
+                self.hyphenate_default_lang)
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        self.javascript(u'window.mathjax.base = %s'%(json.dumps(mjpath,
+            ensure_ascii=False)))
+        for pl in self.all_viewer_plugins:
+            pl.load_javascript(evaljs)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -207,6 +219,10 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.switch_to_paged_mode()
         self.read_anchor_positions(use_cache=False)
+        evaljs = self.mainFrame().evaluateJavaScript
+        for pl in self.all_viewer_plugins:
+            pl.run_javascript(evaljs)
+        self.javascript('window.mathjax.check_for_math()')
         self.first_load = False
 
     def colors(self):
@@ -264,6 +280,7 @@ class Document(QWebPage): # {{{
         if self.in_paged_mode:
             self.setPreferredContentsSize(QSize())
             self.switch_to_paged_mode(onresize=True)
+        self.javascript('window.mathjax.after_resize()')
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True

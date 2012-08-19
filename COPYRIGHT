@@ -41,6 +41,12 @@ License: Apache 2.0
   The full text of the Apache 2.0 license is available at:
   http://www.apache.org/licenses/LICENSE-2.0
 
+Files: resources/viewer/mathjax/*
+Copyright: Unknown
+License: Apache 2.0
+  The full text of the Apache 2.0 license is available at:
+  http://www.apache.org/licenses/LICENSE-2.0
+
 Files: /src/cherrypy/*
 Copyright: Copyright (c) 2004-2007, CherryPy Team (team@cherrypy.org)
 Copyright: Copyright (C) 2005, Tiago Cogumbreiro <cogumbreiro@users.sf.net>
@@ -396,8 +402,9 @@ License: other
 
 Liberation Fonts
 -----------------
-calibre includes a copy of the liberation fonts, available from
-https://calibre-ebook.com/downloads/liberation-fonts
+calibre includes a copy of the liberation fonts in TTF format, licensed under
+the SIL Open Font License, Version 1.1, and available from
+https://fedorahosted.org/liberation-fonts/
 
 BSD License (for all the BSD licensed code indicated above)
 -----------------------------------------------------------

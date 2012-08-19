@@ -172,12 +172,14 @@ if iswindows:
             [
                 'calibre/devices/mtp/windows/utils.cpp',
                 'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/content_enumeration.cpp',
+                'calibre/devices/mtp/windows/device.cpp',
                 'calibre/devices/mtp/windows/wpd.cpp',
             ],
             headers=[
                 'calibre/devices/mtp/windows/global.h',
             ],
-            libraries=['ole32', 'portabledeviceguids'],
+            libraries=['ole32', 'portabledeviceguids', 'user32'],
             # needs_ddk=True,
             cflags=['/X']
             ),
@@ -284,7 +286,7 @@ class Build(Command):
         ''')
 
     def add_options(self, parser):
-        choices = [e.name for e in extensions]+['all']
+        choices = [e.name for e in extensions]+['all', 'style']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
@@ -298,7 +300,7 @@ class Build(Command):
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
-        if not opts.only:
+        if opts.only in {'all', 'style'}:
             self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:

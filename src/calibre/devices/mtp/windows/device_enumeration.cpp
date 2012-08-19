@@ -171,8 +171,9 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
                         Py_DECREF(so);
                     }
                 }
-            }
-        }
+            } 
+            for (i = 0; i < fetched; i ++) { CoTaskMemFree(object_ids[i]); object_ids[i] = NULL;}
+        }// if(SUCCEEDED(hr))
     }
     ans = storage;
 
@@ -185,9 +186,10 @@ end:
     return ans;
 } // }}}
 
-PyObject* get_device_information(IPortableDevice *device) { // {{{
+PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **pb) { // {{{
     IPortableDeviceContent *content = NULL;
     IPortableDeviceProperties *properties = NULL;
+    IPortableDevicePropertiesBulk *properties_bulk = NULL;
     IPortableDeviceKeyCollection *keys = NULL;
     IPortableDeviceValues *values = NULL;
     IPortableDeviceCapabilities *capabilities = NULL;
@@ -336,10 +338,17 @@ PyObject* get_device_information(IPortableDevice *device) { // {{{
         
     }
 
+    Py_BEGIN_ALLOW_THREADS;
+    hr = properties->QueryInterface(IID_PPV_ARGS(&properties_bulk));
+    Py_END_ALLOW_THREADS;
+    PyDict_SetItemString(ans, "has_bulk_properties", (FAILED(hr)) ? Py_False: Py_True);
+    if (pb != NULL) *pb = (SUCCEEDED(hr)) ? properties_bulk : NULL;
+
 end:
     if (keys != NULL) keys->Release();
     if (values != NULL) values->Release();
     if (properties != NULL) properties->Release();
+    if (properties_bulk != NULL && pb == NULL) properties_bulk->Release();
     if (content != NULL) content->Release();
     if (capabilities != NULL) capabilities->Release();
     if (categories != NULL) categories->Release();

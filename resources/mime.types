@@ -822,7 +822,6 @@ application/x-lzh				lzh
 application/x-lzx				lzx
 application/x-maker				book fb fbdoc fm frame frm maker
 application/x-mif				mif
-application/x-mobipocket-ebook				mobi prc
 application/x-ms-application				application
 application/x-ms-wmd				wmd
 application/x-ms-wmz				wmz
@@ -1371,11 +1370,11 @@ application/x-sony-bbeb                    lrf lrx
 application/adobe-page-template+xml        xpgt
 application/x-font-opentype                otf
 application/x-font-truetype                ttf
-application/x-mobipocket-ebook             mobi prc azw
+application/x-mobipocket-ebook             mobi prc 
+application/vnd.amazon.ebook               azw3 azw azw2 azw4
 application/x-cbz                          cbz
 application/x-cbr                          cbr
 application/x-cb7                          cb7
 application/x-koboreader-ebook             kobo
 image/wmf                                  wmf
 application/ereader                        pdb
-

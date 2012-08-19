@@ -14,7 +14,7 @@ from collections import deque, OrderedDict
 from io import BytesIO
 
 from calibre import prints
-from calibre.devices.errors import OpenFailed
+from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 from calibre.devices.mtp.unix.detect import MTPDetect
 
@@ -103,11 +103,6 @@ class MTP_DEVICE(MTPDeviceBase):
             self.progress_reporter(p)
 
     @synchronous
-    def get_gui_name(self):
-        if self.dev is None or not self.dev.friendly_name: return self.name
-        return self.dev.friendly_name
-
-    @synchronous
     def is_usb_connected(self, devices_on_system, debug=False,
             only_presence=False):
 
@@ -134,7 +129,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def post_yank_cleanup(self):
-        self.dev = self.filesystem_cache = None
+        self.dev = self.filesystem_cache = self.current_friendly_name = None
 
     @synchronous
     def startup(self):
@@ -184,15 +179,18 @@ class MTP_DEVICE(MTPDeviceBase):
             self._carda_id = storage[1]['id']
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
+        self.current_friendly_name = self.dev.name
 
+    @synchronous
+    def read_filesystem_cache(self):
         try:
             files, errs = self.dev.get_filelist(self)
             if errs and not files:
-                raise OpenFailed('Failed to read files from device. Underlying errors:\n'
+                raise DeviceError('Failed to read files from device. Underlying errors:\n'
                         +self.format_errorstack(errs))
             folders, errs = self.dev.get_folderlist()
             if errs and not folders:
-                raise OpenFailed('Failed to read folders from device. Underlying errors:\n'
+                raise DeviceError('Failed to read folders from device. Underlying errors:\n'
                         +self.format_errorstack(errs))
             self.filesystem_cache = FilesystemCache(files, folders)
         except:
@@ -202,15 +200,15 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def get_device_information(self, end_session=True):
         d = self.dev
-        return (d.friendly_name, d.device_version, d.device_version, '')
+        return (self.current_friendly_name, d.device_version, d.device_version, '')
 
     @synchronous
     def card_prefix(self, end_session=True):
         ans = [None, None]
         if self._carda_id is not None:
-            ans[0] = 'mtp:%d:'%self._carda_id
+            ans[0] = 'mtp:::%d:::'%self._carda_id
         if self._cardb_id is not None:
-            ans[1] = 'mtp:%d:'%self._cardb_id
+            ans[1] = 'mtp:::%d:::'%self._cardb_id
         return tuple(ans)
 
     @synchronous
@@ -248,6 +246,7 @@ if __name__ == '__main__':
     devs = linux_scanner()
     mtp_devs = dev.detect(devs)
     dev.open(list(mtp_devs)[0], 'xxx')
+    dev.read_filesystem_cache()
     d = dev.dev
     print ("Opened device:", dev.get_gui_name())
     print ("Storage info:")

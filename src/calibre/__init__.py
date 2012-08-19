@@ -54,6 +54,16 @@ def guess_all_extensions(*args, **kwargs):
         _init_mimetypes()
     return mimetypes.guess_all_extensions(*args, **kwargs)
 
+
+def guess_extension(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    ext = mimetypes.guess_extension(*args, **kwargs)
+    if not ext and args and args[0] == 'application/x-palmreader':
+        ext = '.pdb'
+    return ext
+
 def get_types_map():
     import mimetypes
     if not _mt_inited:

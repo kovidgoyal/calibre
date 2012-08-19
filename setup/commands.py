@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639',
-        'build', 'server',
+        'build', 'server', 'mathjax',
         'gui',
         'develop', 'install',
         'kakasi', 'coffee', 'resources',
@@ -36,6 +36,9 @@ build = Build()
 
 from setup.server import Server
 server = Server()
+
+from setup.mathjax import MathJax
+mathjax = MathJax()
 
 from setup.install import Develop, Install, Sdist
 develop = Develop()

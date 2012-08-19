@@ -11,7 +11,7 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
 from collections import defaultdict
 import threading, random
 from itertools import repeat
-from math import ceil
+from math import ceil, floor
 
 from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -2089,7 +2089,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return 1.0
         series_indices = [x[0] for x in series_indices]
         if tweaks['series_index_auto_increment'] == 'next':
-            return series_indices[-1] + 1
+            return floor(series_indices[-1]) + 1
         if tweaks['series_index_auto_increment'] == 'first_free':
             for i in range(1, 10000):
                 if i not in series_indices:

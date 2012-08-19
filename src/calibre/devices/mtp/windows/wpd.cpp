@@ -22,7 +22,7 @@ wpd::ClientInfo wpd::client_info = {NULL, 0, 0, 0};
 
 extern IPortableDeviceValues* wpd::get_client_information();
 extern IPortableDevice* wpd::open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
-extern PyObject* wpd::get_device_information(IPortableDevice *device);
+extern PyObject* wpd::get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
 
 // Module startup/shutdown {{{
 static PyObject *
@@ -151,7 +151,7 @@ wpd_device_info(PyObject *self, PyObject *args) {
     if (client_information != NULL) {
         device = open_device(pnp_id, client_information);
         if (device != NULL) {
-            ans = get_device_information(device);
+            ans = get_device_information(device, NULL);
         }
     }
 
@@ -186,6 +186,10 @@ PyMODINIT_FUNC
 initwpd(void) {
     PyObject *m;
 
+    wpd::DeviceType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&wpd::DeviceType) < 0)
+        return;
+ 
     m = Py_InitModule3("wpd", wpd_methods, "Interface to the WPD windows service.");
     if (m == NULL) return;
 
@@ -194,6 +198,10 @@ initwpd(void) {
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) return;
+
+    Py_INCREF(&DeviceType);
+    PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);
+
 }
 
 

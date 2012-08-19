@@ -341,7 +341,8 @@ class EPUB_MOBI(CatalogPlugin):
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
             # >>> Use to debug generated catalog code before conversion <<<
-            #setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
+            if False:
+                setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:

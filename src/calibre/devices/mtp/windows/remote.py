@@ -65,6 +65,12 @@ def main():
         pnp_id = dev.detect_managed_devices(devices)
         # pprint.pprint(dev.detected_devices)
         print ('Trying to connect to:', pnp_id)
+        dev.open(pnp_id, '')
+        pprint.pprint(dev.dev.data)
+        print ('Connected to:', dev.get_gui_name())
+        print ('Total space', dev.total_space())
+        print ('Free space', dev.free_space())
+        pprint.pprint(dev.dev.get_filesystem(dev._main_id))
     finally:
         dev.shutdown()
 

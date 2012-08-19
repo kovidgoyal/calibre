@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 64)
+numeric_version = (0, 8, 65)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -215,4 +215,14 @@ def get_windows_temp_path():
     ctypes.windll.kernel32.GetTempPathW(n, buf)
     ans = buf.value
     return ans if ans else None
+
+def get_windows_user_locale_name():
+    import ctypes
+    k32 = ctypes.windll.kernel32
+    n = 200
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    n = k32.GetUserDefaultLocaleName(buf, n)
+    if n == 0:
+        return None
+    return u'_'.join(buf.value.split(u'-')[:2])
 
