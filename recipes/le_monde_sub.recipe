@@ -1,0 +1,135 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Rémi Vanicat <vanicat at debian.org>'
+'''
+Lemonde.fr: Version abonnée
+'''
+
+
+import os, zipfile, re, time
+
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ptempfile import PersistentTemporaryFile
+
+class LeMondeAbonne(BasicNewsRecipe):
+
+    title                 = u'Le Monde: Édition abonnés'
+    __author__            = u'Rémi Vanicat'
+    description           = u'Actualités'
+    category              = u'Actualités, France, Monde'
+    language              = 'fr'
+    needs_subscription    = True
+
+    no_stylesheets         = True
+
+    extra_css = u'''
+                    h1{font-size:130%;}
+                    .ariane{font-size:xx-small;}
+                    .source{font-size:xx-small;}
+                    .href{font-size:xx-small;}
+                    .LM_caption{color:#666666; font-size:x-small;}
+                    .main-article-info{font-family:Arial,Helvetica,sans-serif;}
+                    #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                    #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                '''
+
+    zipurl_format = 'http://medias.lemonde.fr/abonnes/editionelectronique/%Y%m%d/html/%y%m%d.zip'
+    coverurl_format = '/img/%y%m%d01.jpg'
+    path_format = "%y%m%d"
+    login_url = 'http://www.lemonde.fr/web/journal_electronique/identification/1,56-0,45-0,0.html'
+
+    keep_only_tags = [ dict(name="div", attrs={ 'class': 'po-prti' }),  dict(name=['h1']), dict(name='div', attrs={ 'class': 'photo' }), dict(name='div', attrs={ 'class': 'po-ti2' }), dict(name='div', attrs={ 'class': 'ar-txt' }), dict(name='div', attrs={ 'class': 'po_rtcol' }) ]
+
+    article_id_pattern = re.compile("[0-9]+\\.html")
+    article_url_format = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/html/'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open(self.login_url)
+            br.select_form(nr=0)
+            br['login']    = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    decalage = 24 * 60 * 60     # today Monde has tomorow date
+
+    def get_cover_url(self):
+        second = time.time()
+        second += self.decalage
+        ltime = time.localtime(second)
+        url = time.strftime(self.coverurl_format, ltime)
+        return self.articles_path + url
+
+    def parse_index(self):
+        browser = self.get_browser()
+
+        second = time.time()
+        second += self.decalage
+        ltime = time.localtime(second)
+        url = time.strftime(self.zipurl_format, ltime)
+
+        self.timefmt=strftime(" %A %d %B %Y", ltime)
+
+        response = browser.open(url)
+
+        tmp = PersistentTemporaryFile(suffix='.zip')
+        self.report_progress(0.1,_('downloading zip file'))
+        tmp.write(response.read())
+        tmp.close()
+
+        zfile = zipfile.ZipFile(tmp.name, 'r')
+        self.report_progress(0.1,_('extracting zip file'))
+
+        zfile.extractall(self.output_dir)
+        zfile.close()
+
+        path = os.path.join(self.output_dir, time.strftime(self.path_format, ltime), "data")
+
+        self.articles_path = path
+
+        files = os.listdir(path)
+
+        nb_index_files = len([ name for name in files if re.match("frame_gauche_[0-9]+.html", name) ])
+
+        flux = []
+
+        article_url = time.strftime(self.article_url_format, ltime)
+
+        for i in range(nb_index_files):
+            filename = os.path.join(path, "selection_%d.html" % (i + 1))
+            tmp = open(filename,'r')
+            soup=BeautifulSoup(tmp)
+            title=soup.find('span').contents[0]
+            tmp.close()
+
+            filename = os.path.join(path, "frame_gauche_%d.html" % (i + 1))
+            tmp = open(filename,'r')
+            soup = BeautifulSoup(tmp)
+            articles = []
+            for link in soup.findAll("a"):
+                article_file = link['href']
+                article_id=self.article_id_pattern.search(article_file).group()
+                article = {
+                    'title': link.contents[0],
+                    'url': article_url + article_id,
+                    'descripion': '',
+                    'content': ''
+                    }
+                articles.append(article)
+            tmp.close()
+
+            flux.append((title, articles))
+
+        return flux
+
+
+
+# Local Variables:
+# mode: python
+# End:
+
