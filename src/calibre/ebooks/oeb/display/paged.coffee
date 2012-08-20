@@ -378,7 +378,9 @@ class PagedDisplay
         # The Conformal Fragment Identifier at the current position, returns
         # null if it could not be calculated. Requires the cfi.coffee library.
         ans = null
-        if not window.cfi?
+        if not window.cfi? or (window.mathjax?.math_present and not window.mathjax?.math_loaded)
+            # If MathJax is loading, it is changing the DOM, so we cannot
+            # reliably generate a CFI
             return ans
         if this.in_paged_mode
             c = this.current_column_location()
@@ -412,9 +414,9 @@ class PagedDisplay
         return ans
 
     click_for_page_turn: (event) ->
-        # Check if the click event event should generate a apge turn. Returns
+        # Check if the click event should generate a page turn. Returns
         # null if it should not, true if it is a backwards page turn, false if
-        # it is a forward apge turn.
+        # it is a forward page turn.
         left_boundary = this.current_margin_side
         right_bondary = this.screen_width - this.current_margin_side
         if left_boundary > event.clientX
