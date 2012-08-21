@@ -59,10 +59,7 @@ class LeMondeAbonne(BasicNewsRecipe):
     decalage = 24 * 60 * 60     # today Monde has tomorow date
 
     def get_cover_url(self):
-        second = time.time()
-        second += self.decalage
-        ltime = time.localtime(second)
-        url = time.strftime(self.coverurl_format, ltime)
+        url = time.strftime(self.coverurl_format, self.ltime)
         return self.articles_path + url
 
     def parse_index(self):
@@ -70,7 +67,7 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         second = time.time()
         second += self.decalage
-        ltime = time.gmtime(second)
+        ltime = self.ltime = time.gmtime(second)
         url = time.strftime(self.zipurl_format, ltime)
 
         self.timefmt=strftime(" %A %d %B %Y", ltime)
