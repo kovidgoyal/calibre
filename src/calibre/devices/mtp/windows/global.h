@@ -50,7 +50,7 @@ extern PyTypeObject DeviceType;
 // Utility functions
 PyObject *hresult_set_exc(const char *msg, HRESULT hr);
 wchar_t *unicode_to_wchar(PyObject *o);
-PyObject *wchar_to_unicode(wchar_t *o);
+PyObject *wchar_to_unicode(const wchar_t *o);
 int pump_waiting_messages();
 
 extern IPortableDeviceValues* get_client_information();

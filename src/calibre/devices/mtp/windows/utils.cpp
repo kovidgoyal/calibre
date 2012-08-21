@@ -43,7 +43,7 @@ wchar_t *wpd::unicode_to_wchar(PyObject *o) {
     return buf;
 }
 
-PyObject *wpd::wchar_to_unicode(wchar_t *o) {
+PyObject *wpd::wchar_to_unicode(const wchar_t *o) {
     PyObject *ans;
     if (o == NULL) return NULL;
     ans = PyUnicode_FromWideChar(o, wcslen(o));
