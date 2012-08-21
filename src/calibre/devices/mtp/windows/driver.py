@@ -207,6 +207,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['free_space']
         return tuple(ans)
 
+    @same_thread
     def get_file(self, object_id, stream=None, callback=None):
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
