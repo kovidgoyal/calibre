@@ -70,7 +70,7 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         second = time.time()
         second += self.decalage
-        ltime = time.localtime(second)
+        ltime = time.gmtime(second)
         url = time.strftime(self.zipurl_format, ltime)
 
         self.timefmt=strftime(" %A %d %B %Y", ltime)
