@@ -34,26 +34,29 @@ class BNStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook' % (query.replace(' ', '-'), urllib.quote_plus(query))
+        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), urllib.quote_plus(query))
 
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            raw = f.read()
+            doc = html.fromstring(raw)
             for data in doc.xpath('//ul[contains(@class, "result-set")]/li[contains(@class, "result")]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[contains(@class, "image-bounding-box")]/a/@href'))
+                id = ''.join(data.xpath('.//div[contains(@class, "image-block")]/a/@href'))
                 if not id:
                     continue
 
                 cover_url = ''.join(data.xpath('.//img[contains(@class, "product-image")]/@src'))
 
-                title = ''.join(data.xpath('.//a[@class="title"]//text()'))
-                author = ', '.join(data.xpath('.//a[@class="contributor"]//text()'))
-                price = ''.join(data.xpath('.//div[@class="price-format"]//span[contains(@class, "price")]/text()'))
+                title = ''.join(data.xpath('descendant::p[@class="title"]//span[@class="name"]//text()')).strip()
+                if not title: continue
+
+                author = ', '.join(data.xpath('.//ul[@class="contributors"]//a[@class="subtle"]//text()')).strip()
+                price = ''.join(data.xpath('.//a[contains(@class, "bn-price")]//text()'))
 
                 counter -= 1
 
