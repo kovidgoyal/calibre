@@ -12,6 +12,7 @@ from threading import RLock
 
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
+from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 
@@ -196,5 +197,12 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['free_space']
         return tuple(ans)
 
-
+    def get_file(self, object_id, callback=None):
+        stream = SpooledTemporaryFile(5*1024*1024)
+        try:
+            self.dev.get_file(object_id, stream, callback)
+        except self.wpd.WPDFileBusy:
+            time.sleep(2)
+            self.dev.get_file(object_id, stream, callback)
+        return stream
 

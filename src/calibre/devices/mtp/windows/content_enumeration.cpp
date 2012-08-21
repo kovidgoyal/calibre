@@ -14,7 +14,7 @@
 namespace wpd {
 
 static IPortableDeviceKeyCollection* create_filesystem_properties_collection() { // {{{
-    IPortableDeviceKeyCollection *properties;
+    IPortableDeviceKeyCollection *properties = NULL;
     HRESULT hr;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -370,7 +370,7 @@ end:
 } 
 // }}}
 
-PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties) {
+PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties) { // {{{
     PyObject *folders = NULL;
     IPortableDevicePropVariantCollection *object_ids = NULL;
     IPortableDeviceContent *content = NULL;
@@ -399,6 +399,105 @@ end:
     if (object_ids != NULL) object_ids->Release();
 
     return folders;
-}
+} // }}}
+
+PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
+    IPortableDeviceContent *content = NULL;
+    IPortableDeviceResources *resources = NULL;
+    IPortableDeviceProperties *devprops = NULL;
+    IPortableDeviceValues *values = NULL;
+    IPortableDeviceKeyCollection *properties = NULL;
+    IStream *stream = NULL;
+    HRESULT hr;
+    DWORD bufsize = 4096;
+    char *buf = NULL;
+    ULONG bytes_read = 0, total_read = 0;
+    BOOL ok = FALSE;
+    PyObject *res = NULL;
+    ULONGLONG filesize = 0;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->Properties(&devprops);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&properties));
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create filesystem properties collection", hr); goto end; }
+    hr = properties->Add(WPD_OBJECT_SIZE);
+    if (FAILED(hr)) { hresult_set_exc("Failed to add filesize property to properties collection", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = devprops->GetValues(object_id, properties, &values);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize for object", hr); goto end; }
+    hr = values->GetUnsignedLargeIntegerValue(WPD_OBJECT_SIZE, &filesize);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize from values collection", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->Transfer(&resources);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create resources interface", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = resources->GetStream(object_id, WPD_RESOURCE_DEFAULT, STGM_READ, &bufsize, &stream);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { 
+        if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
+            PyErr_SetString(WPDFileBusy, "Object is in use");
+        } else hresult_set_exc("Failed to create stream interface to read from object", hr); 
+        goto end; 
+    }
+
+    buf = (char *)calloc(bufsize+10, 1);
+    if (buf == NULL) { PyErr_NoMemory(); goto end; }
+
+    while (TRUE) {
+        bytes_read = 0;
+        Py_BEGIN_ALLOW_THREADS;
+        hr = stream->Read(buf, bufsize, &bytes_read);
+        Py_END_ALLOW_THREADS;
+        total_read = total_read + bytes_read;
+        if (hr == STG_E_ACCESSDENIED) { 
+            PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break; 
+        } else if (hr == S_OK || hr == S_FALSE) {
+            if (bytes_read > 0) {
+                res = PyObject_CallMethod(dest, "write", "s#", buf, bytes_read);
+                if (res == NULL) break;
+                Py_DECREF(res); res = NULL;
+                if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_read, filesize));
+            }
+        } else { hresult_set_exc("Failed to read file from device", hr); break; }
+
+        if (hr == S_FALSE || bytes_read < bufsize) { 
+            ok = TRUE; 
+            Py_XDECREF(PyObject_CallMethod(dest, "flush", NULL));
+            break;
+        }
+    }
+
+    if (ok && total_read != filesize) {
+        ok = FALSE;
+        PyErr_SetString(WPDError, "Failed to read all data from file");
+    }
+
+end:
+    if (content != NULL) content->Release();
+    if (devprops != NULL) devprops->Release();
+    if (resources != NULL) resources->Release();
+    if (stream != NULL) stream->Release();
+    if (values != NULL) values->Release();
+    if (properties != NULL) properties->Release();
+    if (buf != NULL) free(buf);
+    if (!ok) return NULL;
+    Py_RETURN_NONE;
+} // }}}
 
 } // namespace wpd

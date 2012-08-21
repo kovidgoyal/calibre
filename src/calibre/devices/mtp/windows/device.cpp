@@ -78,7 +78,7 @@ update_data(Device *self, PyObject *args, PyObject *kwargs) {
 // get_filesystem() {{{
 static PyObject*
 py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
-    PyObject *storage_id, *ans = NULL;
+    PyObject *storage_id;
     wchar_t *storage;
 
     if (!PyArg_ParseTuple(args, "O", &storage_id)) return NULL;
@@ -88,6 +88,21 @@ py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
     return wpd::get_filesystem(self->device, storage, self->bulk_properties);
 } // }}}
 
+// get_file() {{{
+static PyObject*
+py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *object_id, *stream, *callback = NULL;
+    wchar_t *object;
+
+    if (!PyArg_ParseTuple(args, "OO|O", &object_id, &stream, &callback)) return NULL;
+    object = unicode_to_wchar(object_id);
+    if (object == NULL) return NULL;
+
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
+
+    return wpd::get_file(self->device, object, stream, callback);
+} // }}}
+
 static PyMethodDef Device_methods[] = {
     {"update_data", (PyCFunction)update_data, METH_VARARGS,
      "update_data() -> Reread the basic device data from the device (total, space, free space, storage locations, etc.)"
@@ -95,6 +110,10 @@ static PyMethodDef Device_methods[] = {
 
     {"get_filesystem", (PyCFunction)py_get_filesystem, METH_VARARGS,
      "get_filesystem(storage_id) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible."
+    },
+
+    {"get_file", (PyCFunction)py_get_file, METH_VARARGS,
+     "get_file(object_id, stream, callback=None) -> Get the file identified by object_id from the device. The file is written to the stream object, which must be a file like object. If callback is not None, it must be a callable that accepts two arguments: (bytes_read, total_size). It will be called after each chunk is read from the device. Note that it can be called multiple times with the same values."
     },
 
     {NULL}
