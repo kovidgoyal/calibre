@@ -7,14 +7,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
-from threading import RLock
+import time, threading
+from functools import wraps
 
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed
-from calibre.devices.mtp.base import MTPDeviceBase, synchronous
+from calibre.devices.mtp.base import MTPDeviceBase
+
+def same_thread(func):
+    @wraps(func)
+    def check_thread(self, *args, **kwargs):
+        if self.start_thread is not threading.current_thread():
+            raise Exception('You cannot use %s from a thread other than the '
+                ' thread in which startup() was called'%self.__class__.__name__)
+        return func(self, *args, **kwargs)
+    return check_thread
+
 
 class MTP_DEVICE(MTPDeviceBase):
 
@@ -23,7 +33,6 @@ class MTP_DEVICE(MTPDeviceBase):
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.dev = None
-        self.lock = RLock()
         self.blacklisted_devices = set()
         self.ejected_devices = set()
         self.currently_connected_pnp_id = None
@@ -32,9 +41,10 @@ class MTP_DEVICE(MTPDeviceBase):
         self.last_refresh_devices_time = time.time()
         self.wpd = self.wpd_error = None
         self._main_id = self._carda_id = self._cardb_id = None
+        self.start_thread = None
 
-    @synchronous
     def startup(self):
+        self.start_thread = threading.current_thread()
         self.wpd, self.wpd_error = plugins['wpd']
         if self.wpd is not None:
             try:
@@ -47,13 +57,13 @@ class MTP_DEVICE(MTPDeviceBase):
             except Exception as e:
                 self.wpd_error = as_unicode(e)
 
-    @synchronous
+    @same_thread
     def shutdown(self):
-        self.dev = self.filesystem_cache = None
+        self.dev = self.filesystem_cache = self.start_thread = None
         if self.wpd is not None:
             self.wpd.uninit()
 
-    @synchronous
+    @same_thread
     def detect_managed_devices(self, devices_on_system):
         if self.wpd is None: return None
 
@@ -120,13 +130,13 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return True
 
-    @synchronous
+    @same_thread
     def post_yank_cleanup(self):
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self.filesystem_cache = None
 
-    @synchronous
+    @same_thread
     def eject(self):
         if self.currently_connected_pnp_id is None: return
         self.ejected_devices.add(self.currently_connected_pnp_id)
@@ -134,7 +144,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self.filesystem_cache = None
 
-    @synchronous
+    @same_thread
     def open(self, connected_device, library_uuid):
         self.dev = self.filesystem_cache = None
         try:
@@ -159,13 +169,13 @@ class MTP_DEVICE(MTPDeviceBase):
             self._cardb_id = storage[2]['id']
         self.current_friendly_name = devdata.get('friendly_name', None)
 
-    @synchronous
+    @same_thread
     def get_device_information(self, end_session=True):
         d = self.dev.data
         dv = d.get('device_version', '')
         return (self.current_friendly_name, dv, dv, '')
 
-    @synchronous
+    @same_thread
     def card_prefix(self, end_session=True):
         ans = [None, None]
         if self._carda_id is not None:
@@ -174,7 +184,7 @@ class MTP_DEVICE(MTPDeviceBase):
             ans[1] = 'mtp:::%s:::'%self._cardb_id
         return tuple(ans)
 
-    @synchronous
+    @same_thread
     def total_space(self, end_session=True):
         ans = [0, 0, 0]
         dd = self.dev.data
@@ -185,7 +195,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['capacity']
         return tuple(ans)
 
-    @synchronous
+    @same_thread
     def free_space(self, end_session=True):
         self.dev.update_data()
         ans = [0, 0, 0]
