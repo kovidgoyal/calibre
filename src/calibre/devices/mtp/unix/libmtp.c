@@ -315,7 +315,7 @@ libmtp_Device_storage_info(libmtp_Device *self, void *closure) {
                 "capacity", storage->MaxCapacity,
                 "freespace_bytes", storage->FreeSpaceInBytes,
                 "freespace_objects", storage->FreeSpaceInObjects,
-                "storage_desc", storage->StorageDescription,
+                "name", storage->StorageDescription,
                 "volume_id", storage->VolumeIdentifier
         );
 
@@ -358,13 +358,14 @@ libmtp_Device_get_filelist(libmtp_Device *self, PyObject *args, PyObject *kwargs
     }
 
     for (f=tf; f != NULL; f=f->next) {
-        fo = Py_BuildValue("{s:k,s:k,s:k,s:s,s:K,s:k}",
+        fo = Py_BuildValue("{s:k,s:k,s:k,s:s,s:K,s:k,s:O}",
                 "id", f->item_id,
                 "parent_id", f->parent_id,
                 "storage_id", f->storage_id,
                 "name", f->filename,
                 "size", f->filesize,
-                "modtime", f->modificationdate
+                "modtime", f->modificationdate,
+                "is_folder", Py_False
         );
         if (fo == NULL || PyList_Append(ans, fo) != 0) break;
         Py_DECREF(fo);
@@ -393,11 +394,12 @@ int folderiter(LIBMTP_folder_t *f, PyObject *parent) {
     children = PyList_New(0);
     if (children == NULL) { PyErr_NoMemory(); return 1;}
 
-    folder = Py_BuildValue("{s:k,s:k,s:k,s:s,s:N}",
+    folder = Py_BuildValue("{s:k,s:k,s:k,s:s,s:O,s:N}",
             "id", f->folder_id,
             "parent_id", f->parent_id,
             "storage_id", f->storage_id,
             "name", f->name,
+            "is_folder", Py_True,
             "children", children);
     if (folder == NULL) return 1;
     PyList_Append(parent, folder);

@@ -28,7 +28,7 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_PARENT_ID);
     ADDPROP(WPD_OBJECT_PERSISTENT_UNIQUE_ID);
     ADDPROP(WPD_OBJECT_NAME);
-    ADDPROP(WPD_OBJECT_SYNC_ID);
+    // ADDPROP(WPD_OBJECT_SYNC_ID);
     ADDPROP(WPD_OBJECT_ISSYSTEM);
     ADDPROP(WPD_OBJECT_ISHIDDEN);
     ADDPROP(WPD_OBJECT_CAN_DELETE);
@@ -93,7 +93,7 @@ static void set_properties(PyObject *obj, IPortableDeviceValues *values) {
 
     set_string_property(obj, WPD_OBJECT_PARENT_ID, "parent_id", values);
     set_string_property(obj, WPD_OBJECT_NAME, "name", values);
-    set_string_property(obj, WPD_OBJECT_SYNC_ID, "sync_id", values);
+    // set_string_property(obj, WPD_OBJECT_SYNC_ID, "sync_id", values);
     set_string_property(obj, WPD_OBJECT_PERSISTENT_UNIQUE_ID, "persistent_id", values);
 
     set_bool_property(obj, WPD_OBJECT_ISHIDDEN, "is_hidden", values);

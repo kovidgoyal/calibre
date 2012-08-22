@@ -9,19 +9,27 @@ __docformat__ = 'restructuredtext en'
 
 import time, threading
 from functools import wraps
+from future_builtins import zip
+from itertools import chain
 
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase
+from calibre.devices.mtp.filesystem_cache import FilesystemCache
+
+class ThreadingViolation(Exception):
+
+    def __init__(self):
+        Exception.__init__('You cannot use the MTP driver from a thread other than the '
+                ' thread in which startup() was called')
 
 def same_thread(func):
     @wraps(func)
     def check_thread(self, *args, **kwargs):
         if self.start_thread is not threading.current_thread():
-            raise Exception('You cannot use %s from a thread other than the '
-                ' thread in which startup() was called'%self.__class__.__name__)
+            raise ThreadingViolation()
         return func(self, *args, **kwargs)
     return check_thread
 
@@ -42,6 +50,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.wpd = self.wpd_error = None
         self._main_id = self._carda_id = self._cardb_id = None
         self.start_thread = None
+        self._filesystem_cache = None
 
     def startup(self):
         self.start_thread = threading.current_thread()
@@ -59,7 +68,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @same_thread
     def shutdown(self):
-        self.dev = self.filesystem_cache = self.start_thread = None
+        self.dev = self._filesystem_cache = self.start_thread = None
         if self.wpd is not None:
             self.wpd.uninit()
 
@@ -130,11 +139,33 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return True
 
+    @property
+    def filesystem_cache(self):
+        if self._filesystem_cache is None:
+            ts = self.total_space()
+            all_storage = []
+            items = []
+            for storage_id, capacity in zip([self._main_id, self._carda_id,
+                self._cardb_id], ts):
+                if storage_id is None: continue
+                name = _('Unknown')
+                for s in self.dev.data['storage']:
+                    if s['id'] == storage_id:
+                        name = s['name']
+                        break
+                storage = {'id':storage_id, 'size':capacity, 'name':name,
+                        'is_folder':True}
+                id_map = self.dev.get_filesystem(storage_id)
+                all_storage.append(storage)
+                items.append(id_map.itervalues())
+            self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
+        return self._filesystem_cache
+
     @same_thread
     def post_yank_cleanup(self):
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = None
 
     @same_thread
     def eject(self):
@@ -142,11 +173,11 @@ class MTP_DEVICE(MTPDeviceBase):
         self.ejected_devices.add(self.currently_connected_pnp_id)
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = None
 
     @same_thread
     def open(self, connected_device, library_uuid):
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = None
         try:
             self.dev = self.wpd.Device(connected_device)
         except self.wpd.WPDError:
