@@ -204,6 +204,10 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_device_information(self, end_session=True):
         d = self.dev.data
         dv = d.get('device_version', '')
+        for sid, location_code in ( (self._main_id, 'main'), (self._carda_id,
+            'A'), (self._cardb_id, 'B')):
+            if sid is None: continue
+            # TODO: Implement the drive info dict
         return (self.current_friendly_name, dv, dv, '')
 
     @same_thread

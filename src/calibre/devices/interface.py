@@ -487,7 +487,8 @@ class DevicePlugin(Plugin):
         Set the device name in the driveinfo file to 'name'. This setting will
         persist until the file is re-created or the name is changed again.
 
-        Non-disk devices will ignore this request.
+        Non-disk devices should implement this method based on the location
+        codes returned by the get_device_information() method.
         '''
         pass
 
