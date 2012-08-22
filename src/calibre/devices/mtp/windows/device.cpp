@@ -103,6 +103,20 @@ py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
     return wpd::get_file(self->device, object, stream, callback);
 } // }}}
 
+// create_folder() {{{
+static PyObject*
+py_create_folder(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *pparent_id, *pname;
+    wchar_t *parent_id, *name;
+
+    if (!PyArg_ParseTuple(args, "OO", &pparent_id, &pname)) return NULL;
+    parent_id = unicode_to_wchar(pparent_id);
+    name = unicode_to_wchar(pname);
+    if (parent_id == NULL || name == NULL) return NULL;
+
+    return wpd::create_folder(self->device, parent_id, name);
+} // }}}
+
 static PyMethodDef Device_methods[] = {
     {"update_data", (PyCFunction)update_data, METH_VARARGS,
      "update_data() -> Reread the basic device data from the device (total, space, free space, storage locations, etc.)"
@@ -114,6 +128,10 @@ static PyMethodDef Device_methods[] = {
 
     {"get_file", (PyCFunction)py_get_file, METH_VARARGS,
      "get_file(object_id, stream, callback=None) -> Get the file identified by object_id from the device. The file is written to the stream object, which must be a file like object. If callback is not None, it must be a callable that accepts two arguments: (bytes_read, total_size). It will be called after each chunk is read from the device. Note that it can be called multiple times with the same values."
+    },
+
+    {"create_folder", (PyCFunction)py_create_folder, METH_VARARGS,
+     "create_folder(parent_id, name) -> Create a folder. Returns the folder metadata."
     },
 
     {NULL}

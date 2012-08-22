@@ -58,6 +58,7 @@ extern IPortableDevice* open_device(const wchar_t *pnp_id, IPortableDeviceValues
 extern PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
 extern PyObject* get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties);
 extern PyObject* get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback);
+extern PyObject* create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name);
 
 }
 

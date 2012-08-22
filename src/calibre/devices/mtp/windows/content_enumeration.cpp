@@ -28,6 +28,7 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_PARENT_ID);
     ADDPROP(WPD_OBJECT_PERSISTENT_UNIQUE_ID);
     ADDPROP(WPD_OBJECT_NAME);
+    ADDPROP(WPD_OBJECT_ORIGINAL_FILE_NAME);
     // ADDPROP(WPD_OBJECT_SYNC_ID);
     ADDPROP(WPD_OBJECT_ISSYSTEM);
     ADDPROP(WPD_OBJECT_ISHIDDEN);
@@ -92,8 +93,9 @@ static void set_properties(PyObject *obj, IPortableDeviceValues *values) {
     set_content_type_property(obj, values);
 
     set_string_property(obj, WPD_OBJECT_PARENT_ID, "parent_id", values);
-    set_string_property(obj, WPD_OBJECT_NAME, "name", values);
+    set_string_property(obj, WPD_OBJECT_NAME, "nominal_name", values);
     // set_string_property(obj, WPD_OBJECT_SYNC_ID, "sync_id", values);
+    set_string_property(obj, WPD_OBJECT_ORIGINAL_FILE_NAME, "name", values);
     set_string_property(obj, WPD_OBJECT_PERSISTENT_UNIQUE_ID, "persistent_id", values);
 
     set_bool_property(obj, WPD_OBJECT_ISHIDDEN, "is_hidden", values);
@@ -370,6 +372,37 @@ end:
 } 
 // }}}
 
+static IPortableDeviceValues* create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GUID content_type) { // {{{
+    IPortableDeviceValues *values = NULL;
+    HRESULT hr;
+    BOOL ok = FALSE;
+
+    hr = CoCreateInstance(CLSID_PortableDeviceValues, NULL,
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&values));
+    if (FAILED(hr)) { hresult_set_exc("Failed to create values interface", hr); goto end; }
+
+    hr = values->SetStringValue(WPD_OBJECT_PARENT_ID, parent_id);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set parent_id value", hr); goto end; }
+
+    hr = values->SetStringValue(WPD_OBJECT_NAME, name);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set name value", hr); goto end; }
+
+    hr = values->SetStringValue(WPD_OBJECT_ORIGINAL_FILE_NAME, name);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set original_file_name value", hr); goto end; }
+
+    hr = values->SetGuidValue(WPD_OBJECT_FORMAT, WPD_OBJECT_FORMAT_UNSPECIFIED);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set object_format value", hr); goto end; }
+
+    hr = values->SetGuidValue(WPD_OBJECT_CONTENT_TYPE, content_type);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set content_type value", hr); goto end; }
+
+    ok = TRUE;
+
+end:
+    if (!ok && values != NULL) { values->Release(); values = NULL; }
+    return values;
+} // }}}
+
 PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties) { // {{{
     PyObject *folders = NULL;
     IPortableDevicePropVariantCollection *object_ids = NULL;
@@ -498,6 +531,45 @@ end:
     if (buf != NULL) free(buf);
     if (!ok) return NULL;
     Py_RETURN_NONE;
+} // }}}
+
+PyObject* wpd::create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name) { // {{{
+    IPortableDeviceContent *content = NULL;
+    IPortableDeviceValues *values = NULL;
+    IPortableDeviceProperties *devprops = NULL;
+    IPortableDeviceKeyCollection *properties = NULL;
+    PyObject *ans = NULL;
+    HRESULT hr;
+    wchar_t *newid = NULL;
+
+    values = create_object_properties(parent_id, name, WPD_CONTENT_TYPE_FOLDER);
+    if (values == NULL) goto end;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+
+    properties = create_filesystem_properties_collection();
+    if (properties == NULL) goto end;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->CreateObjectWithPropertiesOnly(values, &newid);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr) || newid == NULL) { hresult_set_exc("Failed to create folder", hr); goto end; }
+
+    ans = get_object_properties(devprops, properties, newid);
+end:
+    if (content != NULL) content->Release();
+    if (values != NULL) values->Release();
+    if (devprops != NULL) devprops->Release();
+    if (properties != NULL) properties->Release();
+    if (newid != NULL) CoTaskMemFree(newid);
+    return ans;
+
 } // }}}
 
 } // namespace wpd
