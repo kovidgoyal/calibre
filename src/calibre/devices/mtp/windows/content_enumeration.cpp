@@ -500,7 +500,7 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
         total_read = total_read + bytes_read;
         if (hr == STG_E_ACCESSDENIED) { 
             PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break; 
-        } else if (hr == S_OK || hr == S_FALSE) {
+        } else if (SUCCEEDED(hr)) {
             if (bytes_read > 0) {
                 res = PyObject_CallMethod(dest, "write", "s#", buf, bytes_read);
                 if (res == NULL) break;
@@ -509,7 +509,7 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
             }
         } else { hresult_set_exc("Failed to read file from device", hr); break; }
 
-        if (hr == S_FALSE || bytes_read < bufsize) { 
+        if (bytes_read == 0) { 
             ok = TRUE; 
             Py_XDECREF(PyObject_CallMethod(dest, "flush", NULL));
             break;
