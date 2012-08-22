@@ -189,6 +189,8 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def create_folder(self, parent_id, name):
         parent = self.filesystem_cache.id_map[parent_id]
+        if not parent.is_folder:
+            raise ValueError('%s is not a folder'%parent.full_path)
         e = parent.folder_named(name)
         if e is not None:
             return e
