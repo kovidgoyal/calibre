@@ -15,7 +15,7 @@ from itertools import chain
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed
+from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase
 from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
@@ -245,13 +245,20 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @same_thread
     def get_file(self, object_id, stream=None, callback=None):
+        f = self.filesystem_cache.id_map[object_id]
+        if f.is_folder:
+            raise ValueError('%s is a folder on the device'%f.full_path)
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
         try:
-            self.dev.get_file(object_id, stream, callback)
-        except self.wpd.WPDFileBusy:
-            time.sleep(2)
-            self.dev.get_file(object_id, stream, callback)
+            try:
+                self.dev.get_file(object_id, stream, callback)
+            except self.wpd.WPDFileBusy:
+                time.sleep(2)
+                self.dev.get_file(object_id, stream, callback)
+        except Exception as e:
+            raise DeviceError('Failed to fetch the file %s with error: %s'%
+                    f.full_path, as_unicode(e))
         return stream
 
     @same_thread

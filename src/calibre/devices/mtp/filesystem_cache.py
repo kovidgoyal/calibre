@@ -8,6 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import weakref, sys
+from collections import deque
 from operator import attrgetter
 from future_builtins import map
 
@@ -49,6 +50,16 @@ class FileOrFolder(object):
     @property
     def parent(self):
         return None if self.parent_id is None else self.id_map[self.parent_id]
+
+    @property
+    def full_path(self):
+        parts = deque()
+        parts.append(self.name)
+        p = self.parent
+        while p is not None:
+            parts.appendleft(p.name)
+            p = p.parent
+        return tuple(parts)
 
     def __iter__(self):
         for e in self.folders:
