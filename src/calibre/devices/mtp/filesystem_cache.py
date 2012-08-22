@@ -20,12 +20,13 @@ class FileOrFolder(object):
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.name = force_unicode(entry.get('name', '___'), 'utf-8')
+        self.storage_id = entry.get('storage_id', None)
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
         # self.parent_id is None for storage objects
         self.parent_id = entry.get('parent_id', None)
         if self.parent_id == 0:
-            sid = entry['storage_id']
+            sid = self.storage_id
             if sid not in all_storage_ids:
                 sid = all_storage_ids[0]
             self.parent_id = sid
@@ -79,7 +80,17 @@ class FilesystemCache(object):
             FileOrFolder(entry, self, all_storage_ids)
 
         for item in self.id_map.itervalues():
-            p = item.parent
+            try:
+                p = item.parent
+            except KeyError:
+                # Parent does not exist, set the parent to be the storage
+                # object
+                sid = p.storage_id
+                if sid not in all_storage_ids:
+                    sid = all_storage_ids[0]
+                item.parent_id = sid
+                p = item.parent
+
             if p is not None:
                 t = p.folders if item.is_folder else p.files
                 t.append(item)

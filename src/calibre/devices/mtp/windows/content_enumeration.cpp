@@ -572,4 +572,44 @@ end:
 
 } // }}}
 
+PyObject* wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
+    IPortableDeviceContent *content = NULL;
+    HRESULT hr;
+    BOOL ok = FALSE;
+    PROPVARIANT pv;
+    IPortableDevicePropVariantCollection *object_ids = NULL;
+
+    PropVariantInit(&pv);
+    pv.vt      = VT_LPWSTR;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL,
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&object_ids));
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); goto end; }
+    pv.pwszVal = (wchar_t*)object_id;
+    hr = object_ids->Add(&pv); 
+    pv.pwszVal = NULL;
+    if (FAILED(hr)) { hresult_set_exc("Failed to add device id to propvariantcollection", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    hr = content->Delete(PORTABLE_DEVICE_DELETE_NO_RECURSION, object_ids, NULL);
+    if (hr == E_ACCESSDENIED) PyErr_SetString(WPDError, "Do not have permission to delete this object");
+    else if (hr == HRESULT_FROM_WIN32(ERROR_DIR_NOT_EMPTY) || hr == HRESULT_FROM_WIN32(ERROR_INVALID_OPERATION)) PyErr_SetString(WPDError, "Cannot delete object as it has children");
+    else if (hr == HRESULT_FROM_WIN32(ERROR_NOT_FOUND) || SUCCEEDED(hr)) ok = TRUE;
+    else hresult_set_exc("Cannot delete object", hr);
+
+end:
+    PropVariantClear(&pv);
+    if (content != NULL) content->Release();
+    if (object_ids != NULL) object_ids->Release();
+    if (!ok) return NULL;
+    Py_RETURN_NONE;
+
+} // }}}
+
 } // namespace wpd

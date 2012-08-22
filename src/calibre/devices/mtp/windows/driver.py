@@ -156,6 +156,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True}
                 id_map = self.dev.get_filesystem(storage_id)
+                for x in id_map.itervalues(): x['storage_id'] = storage_id
                 all_storage.append(storage)
                 items.append(id_map.itervalues())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))

@@ -78,20 +78,22 @@ update_data(Device *self, PyObject *args, PyObject *kwargs) {
 // get_filesystem() {{{
 static PyObject*
 py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
-    PyObject *storage_id;
+    PyObject *storage_id, *ret;
     wchar_t *storage;
 
     if (!PyArg_ParseTuple(args, "O", &storage_id)) return NULL;
     storage = unicode_to_wchar(storage_id);
     if (storage == NULL) return NULL;
 
-    return wpd::get_filesystem(self->device, storage, self->bulk_properties);
+    ret = wpd::get_filesystem(self->device, storage, self->bulk_properties);
+    free(storage);
+    return ret;
 } // }}}
 
 // get_file() {{{
 static PyObject*
 py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
-    PyObject *object_id, *stream, *callback = NULL;
+    PyObject *object_id, *stream, *callback = NULL, *ret;
     wchar_t *object;
 
     if (!PyArg_ParseTuple(args, "OO|O", &object_id, &stream, &callback)) return NULL;
@@ -100,13 +102,15 @@ py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
 
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
 
-    return wpd::get_file(self->device, object, stream, callback);
+    ret = wpd::get_file(self->device, object, stream, callback);
+    free(object);
+    return ret;
 } // }}}
 
 // create_folder() {{{
 static PyObject*
 py_create_folder(Device *self, PyObject *args, PyObject *kwargs) {
-    PyObject *pparent_id, *pname;
+    PyObject *pparent_id, *pname, *ret;
     wchar_t *parent_id, *name;
 
     if (!PyArg_ParseTuple(args, "OO", &pparent_id, &pname)) return NULL;
@@ -114,7 +118,24 @@ py_create_folder(Device *self, PyObject *args, PyObject *kwargs) {
     name = unicode_to_wchar(pname);
     if (parent_id == NULL || name == NULL) return NULL;
 
-    return wpd::create_folder(self->device, parent_id, name);
+    ret = wpd::create_folder(self->device, parent_id, name);
+    free(parent_id); free(name);
+    return ret;
+} // }}}
+
+// delete_object() {{{
+static PyObject*
+py_delete_object(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *pobject_id, *ret;
+    wchar_t *object_id;
+
+    if (!PyArg_ParseTuple(args, "O", &pobject_id)) return NULL;
+    object_id = unicode_to_wchar(pobject_id);
+    if (object_id == NULL) return NULL;
+
+    ret =  wpd::delete_object(self->device, object_id);
+    free(object_id);
+    return ret;
 } // }}}
 
 static PyMethodDef Device_methods[] = {
@@ -132,6 +153,10 @@ static PyMethodDef Device_methods[] = {
 
     {"create_folder", (PyCFunction)py_create_folder, METH_VARARGS,
      "create_folder(parent_id, name) -> Create a folder. Returns the folder metadata."
+    },
+
+    {"delete_object", (PyCFunction)py_delete_object, METH_VARARGS,
+     "delete_object(object_id) -> Delete the object identified by object_id. Note that trying to delete a non-empty folder will raise an error."
     },
 
     {NULL}
