@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, sys, os, pprint, signal, time, glob
-pprint
+import subprocess, sys, os, pprint, signal, time, glob, io
+pprint, io
 
 def build(mod='wpd'):
     master = subprocess.Popen('ssh -MN getafix'.split())
@@ -70,7 +70,10 @@ def main():
         print ('Connected to:', dev.get_gui_name())
         print ('Total space', dev.total_space())
         print ('Free space', dev.free_space())
-        pprint.pprint(dev.dev.get_filesystem(dev._main_id))
+        dev.filesystem_cache.dump()
+        # print ('Fetching file: oFF (198214 bytes)')
+        # stream = dev.get_file('oFF')
+        # print ("Fetched size: ", stream.tell())
     finally:
         dev.shutdown()
 

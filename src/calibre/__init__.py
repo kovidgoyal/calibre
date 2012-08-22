@@ -674,7 +674,7 @@ def get_download_filename(url, cookie_file=None):
 
     return filename
 
-def human_readable(size):
+def human_readable(size, sep=' '):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"
     for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
@@ -686,7 +686,7 @@ def human_readable(size):
         size = size[:size.find(".")+2]
     if size.endswith('.0'):
         size = size[:-2]
-    return size + " " + suffix
+    return size + sep + suffix
 
 def remove_bracketed_text(src,
         brackets={u'(':u')', u'[':u']', u'{':u'}'}):

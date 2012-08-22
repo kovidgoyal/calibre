@@ -185,6 +185,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos.setDecimals(1)
         self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
         self.pos.setMinimumWidth(150)
         self.tool_bar2.insertWidget(self.action_find_next, self.pos)
         self.reference = Reference()
@@ -1028,6 +1030,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         av = available_height() - 30
         if self.height() > av:
             self.resize(self.width(), av)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')

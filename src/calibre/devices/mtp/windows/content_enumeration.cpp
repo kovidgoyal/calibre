@@ -14,7 +14,7 @@
 namespace wpd {
 
 static IPortableDeviceKeyCollection* create_filesystem_properties_collection() { // {{{
-    IPortableDeviceKeyCollection *properties;
+    IPortableDeviceKeyCollection *properties = NULL;
     HRESULT hr;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -28,7 +28,7 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_PARENT_ID);
     ADDPROP(WPD_OBJECT_PERSISTENT_UNIQUE_ID);
     ADDPROP(WPD_OBJECT_NAME);
-    ADDPROP(WPD_OBJECT_SYNC_ID);
+    // ADDPROP(WPD_OBJECT_SYNC_ID);
     ADDPROP(WPD_OBJECT_ISSYSTEM);
     ADDPROP(WPD_OBJECT_ISHIDDEN);
     ADDPROP(WPD_OBJECT_CAN_DELETE);
@@ -87,8 +87,25 @@ static void set_content_type_property(PyObject *dict, IPortableDeviceValues *pro
     if (SUCCEEDED(properties->GetGuidValue(WPD_OBJECT_CONTENT_TYPE, &guid)) && IsEqualGUID(guid, WPD_CONTENT_TYPE_FOLDER)) is_folder = 1;
     PyDict_SetItemString(dict, "is_folder", (is_folder) ? Py_True : Py_False);
 }
+
+static void set_properties(PyObject *obj, IPortableDeviceValues *values) {
+    set_content_type_property(obj, values);
+
+    set_string_property(obj, WPD_OBJECT_PARENT_ID, "parent_id", values);
+    set_string_property(obj, WPD_OBJECT_NAME, "name", values);
+    // set_string_property(obj, WPD_OBJECT_SYNC_ID, "sync_id", values);
+    set_string_property(obj, WPD_OBJECT_PERSISTENT_UNIQUE_ID, "persistent_id", values);
+
+    set_bool_property(obj, WPD_OBJECT_ISHIDDEN, "is_hidden", values);
+    set_bool_property(obj, WPD_OBJECT_CAN_DELETE, "can_delete", values);
+    set_bool_property(obj, WPD_OBJECT_ISSYSTEM, "is_system", values);
+
+    set_size_property(obj, WPD_OBJECT_SIZE, "size", values);
+}
+
 // }}}
 
+// Bulk get filesystem {{{
 class GetBulkCallback : public IPortableDevicePropertiesBulkCallback {
 
 public:
@@ -154,19 +171,8 @@ public:
                     } 
                     Py_DECREF(temp);
 
-                    set_content_type_property(obj, properties);
+                    set_properties(obj, properties);
 
-                    set_string_property(obj, WPD_OBJECT_PARENT_ID, "parent_id", properties);
-                    set_string_property(obj, WPD_OBJECT_NAME, "name", properties);
-                    set_string_property(obj, WPD_OBJECT_SYNC_ID, "sync_id", properties);
-                    set_string_property(obj, WPD_OBJECT_PERSISTENT_UNIQUE_ID, "persistent_id", properties);
-
-                    set_bool_property(obj, WPD_OBJECT_ISHIDDEN, "is_hidden", properties);
-                    set_bool_property(obj, WPD_OBJECT_CAN_DELETE, "can_delete", properties);
-                    set_bool_property(obj, WPD_OBJECT_ISSYSTEM, "is_system", properties);
-
-                    set_size_property(obj, WPD_OBJECT_SIZE, "size", properties);
-                    
                     properties->Release(); properties = NULL;
                 }
             } // end for loop
@@ -240,6 +246,9 @@ end:
     return folders;
 }
 
+// }}}
+
+// find_all_objects_in() {{{
 static BOOL find_all_objects_in(IPortableDeviceContent *content, IPortableDevicePropVariantCollection *object_ids, const wchar_t *parent_id) {
     /*
      * Find all children of the object identified by parent_id, recursively.
@@ -286,9 +295,82 @@ end:
     if (children != NULL) children->Release();
     PropVariantClear(&pv);
     return ok;
+} // }}}
+
+// Single get filesystem {{{
+
+static PyObject* get_object_properties(IPortableDeviceProperties *devprops, IPortableDeviceKeyCollection *properties, const wchar_t *object_id) {
+    IPortableDeviceValues *values = NULL;
+    HRESULT hr;
+    PyObject *ans = NULL, *temp = NULL;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = devprops->GetValues(object_id, properties, &values);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get properties for object", hr); goto end; }
+    
+    temp = wchar_to_unicode(object_id);
+    if (temp == NULL) goto end;
+
+    ans = PyDict_New();
+    if (ans == NULL) { PyErr_NoMemory(); goto end; }
+    if (PyDict_SetItemString(ans, "id", temp) != 0) { Py_DECREF(ans); ans = NULL; PyErr_NoMemory(); goto end; }
+
+    set_properties(ans, values);
+     
+end:
+    Py_XDECREF(temp);
+    if (values != NULL) values->Release();
+    return ans;
 }
 
-PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties) {
+static PyObject* single_get_filesystem(IPortableDeviceContent *content, const wchar_t *storage_id, IPortableDevicePropVariantCollection *object_ids) {
+    DWORD num, i;
+    PROPVARIANT pv;
+    HRESULT hr;
+    BOOL ok = 1;
+    PyObject *ans = NULL, *item = NULL;
+    IPortableDeviceProperties *devprops = NULL;
+    IPortableDeviceKeyCollection *properties = NULL;
+
+    hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+
+    properties = create_filesystem_properties_collection();
+    if (properties == NULL) goto end;
+
+    hr = object_ids->GetCount(&num);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); goto end; }
+
+    ans = PyDict_New();
+    if (ans == NULL) goto end;
+
+    for (i = 0; i < num; i++) {
+        ok = 0;
+        PropVariantInit(&pv);
+        hr = object_ids->GetAt(i, &pv);
+        if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
+            item = get_object_properties(devprops, properties, pv.pwszVal);
+            if (item != NULL) {
+                PyDict_SetItem(ans, PyDict_GetItemString(item, "id"), item);
+                Py_DECREF(item); item = NULL;
+                ok = 1;
+            }
+        } else hresult_set_exc("Failed to get item from IPortableDevicePropVariantCollection", hr);
+            
+        PropVariantClear(&pv);
+        if (!ok) { Py_DECREF(ans); ans = NULL; break; }
+    }
+
+end:
+    if (devprops != NULL) devprops->Release();
+    if (properties != NULL) properties->Release();
+
+    return ans;
+} 
+// }}}
+
+PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties) { // {{{
     PyObject *folders = NULL;
     IPortableDevicePropVariantCollection *object_ids = NULL;
     IPortableDeviceContent *content = NULL;
@@ -310,12 +392,112 @@ PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id
     if (!ok) goto end;
 
     if (bulk_properties != NULL) folders = bulk_get_filesystem(device, bulk_properties, storage_id, object_ids);
+    else folders = single_get_filesystem(content, storage_id, object_ids);
 
 end:
     if (content != NULL) content->Release();
     if (object_ids != NULL) object_ids->Release();
 
     return folders;
-}
+} // }}}
+
+PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
+    IPortableDeviceContent *content = NULL;
+    IPortableDeviceResources *resources = NULL;
+    IPortableDeviceProperties *devprops = NULL;
+    IPortableDeviceValues *values = NULL;
+    IPortableDeviceKeyCollection *properties = NULL;
+    IStream *stream = NULL;
+    HRESULT hr;
+    DWORD bufsize = 4096;
+    char *buf = NULL;
+    ULONG bytes_read = 0, total_read = 0;
+    BOOL ok = FALSE;
+    PyObject *res = NULL;
+    ULONGLONG filesize = 0;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->Properties(&devprops);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&properties));
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create filesystem properties collection", hr); goto end; }
+    hr = properties->Add(WPD_OBJECT_SIZE);
+    if (FAILED(hr)) { hresult_set_exc("Failed to add filesize property to properties collection", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = devprops->GetValues(object_id, properties, &values);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize for object", hr); goto end; }
+    hr = values->GetUnsignedLargeIntegerValue(WPD_OBJECT_SIZE, &filesize);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize from values collection", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->Transfer(&resources);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create resources interface", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = resources->GetStream(object_id, WPD_RESOURCE_DEFAULT, STGM_READ, &bufsize, &stream);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { 
+        if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
+            PyErr_SetString(WPDFileBusy, "Object is in use");
+        } else hresult_set_exc("Failed to create stream interface to read from object", hr); 
+        goto end; 
+    }
+
+    buf = (char *)calloc(bufsize+10, 1);
+    if (buf == NULL) { PyErr_NoMemory(); goto end; }
+
+    while (TRUE) {
+        bytes_read = 0;
+        Py_BEGIN_ALLOW_THREADS;
+        hr = stream->Read(buf, bufsize, &bytes_read);
+        Py_END_ALLOW_THREADS;
+        total_read = total_read + bytes_read;
+        if (hr == STG_E_ACCESSDENIED) { 
+            PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break; 
+        } else if (hr == S_OK || hr == S_FALSE) {
+            if (bytes_read > 0) {
+                res = PyObject_CallMethod(dest, "write", "s#", buf, bytes_read);
+                if (res == NULL) break;
+                Py_DECREF(res); res = NULL;
+                if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_read, filesize));
+            }
+        } else { hresult_set_exc("Failed to read file from device", hr); break; }
+
+        if (hr == S_FALSE || bytes_read < bufsize) { 
+            ok = TRUE; 
+            Py_XDECREF(PyObject_CallMethod(dest, "flush", NULL));
+            break;
+        }
+    }
+
+    if (ok && total_read != filesize) {
+        ok = FALSE;
+        PyErr_SetString(WPDError, "Failed to read all data from file");
+    }
+
+end:
+    if (content != NULL) content->Release();
+    if (devprops != NULL) devprops->Release();
+    if (resources != NULL) resources->Release();
+    if (stream != NULL) stream->Release();
+    if (values != NULL) values->Release();
+    if (properties != NULL) properties->Release();
+    if (buf != NULL) free(buf);
+    if (!ok) return NULL;
+    Py_RETURN_NONE;
+} // }}}
 
 } // namespace wpd

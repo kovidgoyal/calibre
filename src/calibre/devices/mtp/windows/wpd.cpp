@@ -10,7 +10,7 @@
 using namespace wpd;
 
 // Module exception types
-PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL;
+PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL, *wpd::WPDFileBusy = NULL;
 
 // The global device manager
 IPortableDeviceManager *wpd::portable_device_manager = NULL;
@@ -198,6 +198,9 @@ initwpd(void) {
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) return;
+
+    WPDFileBusy = PyErr_NewException("wpd.WPDFileBusy", NULL, NULL);
+    if (WPDFileBusy == NULL) return;
 
     Py_INCREF(&DeviceType);
     PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);

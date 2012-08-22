@@ -20,7 +20,7 @@
 namespace wpd {
 
 // Module exception types
-extern PyObject *WPDError, *NoWPD;
+extern PyObject *WPDError, *NoWPD, *WPDFileBusy;
 
 // The global device manager
 extern IPortableDeviceManager *portable_device_manager;
@@ -50,13 +50,14 @@ extern PyTypeObject DeviceType;
 // Utility functions
 PyObject *hresult_set_exc(const char *msg, HRESULT hr);
 wchar_t *unicode_to_wchar(PyObject *o);
-PyObject *wchar_to_unicode(wchar_t *o);
+PyObject *wchar_to_unicode(const wchar_t *o);
 int pump_waiting_messages();
 
 extern IPortableDeviceValues* get_client_information();
 extern IPortableDevice* open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
 extern PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
 extern PyObject* get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties);
+extern PyObject* get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback);
 
 }
 
