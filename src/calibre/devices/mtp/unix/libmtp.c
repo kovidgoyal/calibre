@@ -55,7 +55,7 @@ static int report_progress(uint64_t const sent, uint64_t const total, void const
     cb = (ProgressCallback *)data;
     if (cb->obj != NULL) {
         PyEval_RestoreThread(cb->state);
-        res = PyObject_CallMethod(cb->obj, "report_progress", "KK", sent, total);
+        res = PyObject_CallFunction(cb->obj, "KK", sent, total);
         Py_XDECREF(res);
         cb->state = PyEval_SaveThread();
     }
@@ -339,6 +339,7 @@ libmtp_Device_get_filelist(libmtp_Device *self, PyObject *args, PyObject *kwargs
 
 
     if (!PyArg_ParseTuple(args, "|O", &callback)) return NULL;
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
     cb.obj = callback;
 
     ans = PyList_New(0);
@@ -377,7 +378,7 @@ libmtp_Device_get_filelist(libmtp_Device *self, PyObject *args, PyObject *kwargs
 
     if (callback != NULL) {
         // Bug in libmtp where it does not call callback with 100%
-        fo = PyObject_CallMethod(callback, "report_progress", "KK", PyList_Size(ans), PyList_Size(ans));
+        fo = PyObject_CallFunction(callback, "KK", PyList_Size(ans), PyList_Size(ans));
         Py_XDECREF(fo);
     }
 
@@ -454,6 +455,7 @@ libmtp_Device_get_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
     if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL; 
     errs = PyList_New(0);
     if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
 
     cb.obj = callback; cb.extra = stream;
     Py_XINCREF(callback); Py_INCREF(stream);
@@ -486,6 +488,7 @@ libmtp_Device_put_file(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
     if (!PyArg_ParseTuple(args, "kksOK|O", &storage_id, &parent_id, &name, &stream, &filesize, &callback)) return NULL; 
     errs = PyList_New(0);
     if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
 
     cb.obj = callback; cb.extra = stream;
     f.parent_id = parent_id; f.storage_id = storage_id; f.item_id = 0; f.filename = name; f.filetype = LIBMTP_FILETYPE_UNKNOWN; f.filesize = filesize;
@@ -599,7 +602,7 @@ static PyMethodDef libmtp_Device_methods[] = {
     },
 
     {"get_filelist", (PyCFunction)libmtp_Device_get_filelist, METH_VARARGS,
-     "get_filelist(callback=None) -> Get the list of files on the device. callback must be an object that has a method named 'report_progress(current, total)'. Returns files, errors."
+     "get_filelist(callback=None) -> Get the list of files on the device. callback must be callable accepts arguments (current, total)'. Returns files, errors."
     },
 
     {"get_folderlist", (PyCFunction)libmtp_Device_get_folderlist, METH_VARARGS,
