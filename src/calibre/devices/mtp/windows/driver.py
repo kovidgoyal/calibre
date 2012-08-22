@@ -254,3 +254,13 @@ class MTP_DEVICE(MTPDeviceBase):
             self.dev.get_file(object_id, stream, callback)
         return stream
 
+    @same_thread
+    def create_folder(self, parent_id, name):
+        parent = self.filesystem_cache.id_map[parent_id]
+        e = parent.folder_named(name)
+        if e is not None:
+            return e
+        ans = self.dev.create_folder(parent_id, name)
+        ans['storage_id'] = parent.storage_id
+        return parent.add_child(ans)
+

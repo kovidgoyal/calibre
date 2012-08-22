@@ -138,6 +138,25 @@ py_delete_object(Device *self, PyObject *args, PyObject *kwargs) {
     return ret;
 } // }}}
 
+// get_file() {{{
+static PyObject*
+py_put_file(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *pparent_id, *pname, *stream, *callback = NULL, *ret;
+    wchar_t *parent_id, *name;
+    unsigned PY_LONG_LONG size;
+
+    if (!PyArg_ParseTuple(args, "OOOK|O", &pparent_id, &pname, &stream, &size, &callback)) return NULL;
+    parent_id = unicode_to_wchar(pparent_id);
+    name = unicode_to_wchar(pname);
+    if (parent_id == NULL || name == NULL) return NULL;
+
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
+
+    ret = wpd::put_file(self->device, parent_id, name, stream, size, callback);
+    free(parent_id); free(name);
+    return ret;
+} // }}}
+
 static PyMethodDef Device_methods[] = {
     {"update_data", (PyCFunction)update_data, METH_VARARGS,
      "update_data() -> Reread the basic device data from the device (total, space, free space, storage locations, etc.)"
@@ -157,6 +176,10 @@ static PyMethodDef Device_methods[] = {
 
     {"delete_object", (PyCFunction)py_delete_object, METH_VARARGS,
      "delete_object(object_id) -> Delete the object identified by object_id. Note that trying to delete a non-empty folder will raise an error."
+    },
+
+    {"put_file", (PyCFunction)py_put_file, METH_VARARGS,
+     "put_file(parent_id, name, stream, size_in_bytes, callback=None) -> Copy a file from the stream object, creating a new file on the device with parent identified by parent_id. Returns the file metadata of the newly created file. callback should be a callable that accepts two argument: (bytes_written, total_size). It will be called after each chunk is written to the device. Note that it can be called multiple times with the same arguments."
     },
 
     {NULL}

@@ -186,6 +186,14 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['freespace_bytes']
         return tuple(ans)
 
+    @synchronous
+    def create_folder(self, parent_id, name):
+        parent = self.filesystem_cache.id_map[parent_id]
+        e = parent.folder_named(name)
+        if e is not None:
+            return e
+        ans = self.dev.create_folder(parent.storage_id, parent_id, name)
+        return parent.add_child(ans)
 
 if __name__ == '__main__':
     BytesIO

@@ -12,7 +12,7 @@ from operator import attrgetter
 from future_builtins import map
 
 from calibre import human_readable, prints, force_unicode
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, lower
 
 class FileOrFolder(object):
 
@@ -30,6 +30,9 @@ class FileOrFolder(object):
             if sid not in all_storage_ids:
                 sid = all_storage_ids[0]
             self.parent_id = sid
+        if self.parent_id is None and self.storage_id is None:
+            # A storage object
+            self.storage_id = self.object_id
         self.is_hidden = entry.get('is_hidden', False)
         self.is_system = entry.get('is_system', False)
         self.can_delete = entry.get('can_delete', True)
@@ -53,6 +56,12 @@ class FileOrFolder(object):
         for e in self.files:
             yield e
 
+    def add_child(self, entry):
+        ans = FileOrFolder(entry, self.id_map)
+        t = self.folders if ans.is_folder else self.files
+        t.append(ans)
+        return ans
+
     def dump(self, prefix='', out=sys.stdout):
         c = '+' if self.is_folder else '-'
         data = ('%s children'%(sum(map(len, (self.files, self.folders))))
@@ -62,6 +71,20 @@ class FileOrFolder(object):
         for c in (self.folders, self.files):
             for e in sorted(c, key=lambda x:sort_key(x.name)):
                 e.dump(prefix=prefix+'  ', out=out)
+
+    def folder_named(self, name):
+        name = lower(name)
+        for e in self.folders:
+            if e.name and lower(e.name) == name:
+                return e
+        return None
+
+    def file_named(self, name):
+        name = lower(name)
+        for e in self.files:
+            if e.name and lower(e.name) == name:
+                return e
+        return None
 
 class FilesystemCache(object):
 

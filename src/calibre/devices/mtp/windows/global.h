@@ -60,6 +60,7 @@ extern PyObject* get_filesystem(IPortableDevice *device, const wchar_t *storage_
 extern PyObject* get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback);
 extern PyObject* create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name);
 extern PyObject* delete_object(IPortableDevice *device, const wchar_t *object_id);
+extern PyObject* put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback);
 
 }
 
