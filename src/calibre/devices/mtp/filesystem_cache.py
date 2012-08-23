@@ -17,7 +17,7 @@ from calibre.utils.icu import sort_key, lower
 
 class FileOrFolder(object):
 
-    def __init__(self, entry, fs_cache, all_storage_ids):
+    def __init__(self, entry, fs_cache, all_storage_ids=()):
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.name = force_unicode(entry.get('name', '___'), 'utf-8')
@@ -28,7 +28,7 @@ class FileOrFolder(object):
         self.parent_id = entry.get('parent_id', None)
         if self.parent_id == 0:
             sid = self.storage_id
-            if sid not in all_storage_ids:
+            if all_storage_ids and sid not in all_storage_ids:
                 sid = all_storage_ids[0]
             self.parent_id = sid
         if self.parent_id is None and self.storage_id is None:
@@ -68,10 +68,18 @@ class FileOrFolder(object):
             yield e
 
     def add_child(self, entry):
-        ans = FileOrFolder(entry, self.id_map)
+        ans = FileOrFolder(entry, self.fs_cache())
         t = self.folders if ans.is_folder else self.files
         t.append(ans)
         return ans
+
+    def remove_child(self, entry):
+        for x in (self.files, self.folders):
+            try:
+                x.remove(entry)
+            except ValueError:
+                pass
+        self.id_map.pop(entry.object_id, None)
 
     def dump(self, prefix='', out=sys.stdout):
         c = '+' if self.is_folder else '-'

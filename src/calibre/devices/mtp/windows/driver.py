@@ -154,7 +154,7 @@ class MTP_DEVICE(MTPDeviceBase):
                         name = s['name']
                         break
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
-                        'is_folder':True}
+                        'is_folder':True, 'can_delete':False, 'is_system':True}
                 id_map = self.dev.get_filesystem(storage_id)
                 for x in id_map.itervalues(): x['storage_id'] = storage_id
                 all_storage.append(storage)
@@ -247,7 +247,7 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_file(self, object_id, stream=None, callback=None):
         f = self.filesystem_cache.id_map[object_id]
         if f.is_folder:
-            raise ValueError('%s is a folder on the device'%f.full_path)
+            raise ValueError('%s is a folder on the device'%(f.full_path,))
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
         try:
@@ -262,14 +262,28 @@ class MTP_DEVICE(MTPDeviceBase):
         return stream
 
     @same_thread
-    def create_folder(self, parent_id, name):
-        parent = self.filesystem_cache.id_map[parent_id]
+    def create_folder(self, parent, name):
         if not parent.is_folder:
-            raise ValueError('%s is not a folder'%parent.full_path)
+            raise ValueError('%s is not a folder'%(parent.full_path,))
         e = parent.folder_named(name)
         if e is not None:
             return e
-        ans = self.dev.create_folder(parent_id, name)
+        ans = self.dev.create_folder(parent.object_id, name)
         ans['storage_id'] = parent.storage_id
         return parent.add_child(ans)
+
+    @same_thread
+    def delete_file_or_folder(self, obj):
+        if not obj.can_delete:
+            raise ValueError('Cannot delete %s as deletion not allowed'%
+                    (obj.full_path,))
+        if obj.is_system:
+            raise ValueError('Cannot delete %s as it is a system object'%
+                    (obj.full_path,))
+        if obj.files or obj.folders:
+            raise ValueError('Cannot delete %s as it is not empty'%
+                    (obj.full_path,))
+        parent = obj.parent
+        self.dev.delete_object(obj.object_id)
+        parent.remove_child(obj)
 
