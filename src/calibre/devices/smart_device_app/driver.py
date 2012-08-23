@@ -60,34 +60,35 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     version = (0, 0, 1)
 
     # Invalid USB vendor information so the scanner will never match
-    VENDOR_ID = [0xffff]
-    PRODUCT_ID = [0xffff]
-    BCD = [0xffff]
+    VENDOR_ID                   = [0xffff]
+    PRODUCT_ID                  = [0xffff]
+    BCD                         = [0xffff]
 
-    FORMATS = list(BOOK_EXTENSIONS)
-    ALL_FORMATS = list(BOOK_EXTENSIONS)
-    HIDE_FORMATS_CONFIG_BOX = True
-    USER_CAN_ADD_NEW_FORMATS = False
-    DEVICE_PLUGBOARD_NAME = 'SMART_DEVICE_APP'
-    CAN_SET_METADATA = []
-    CAN_DO_DEVICE_DB_PLUGBOARD = False
-    SUPPORTS_SUB_DIRS = False
-    MUST_READ_METADATA = True
-    NEWS_IN_FOLDER = False
-    SUPPORTS_USE_AUTHOR_SORT = False
-    WANTS_UPDATED_THUMBNAILS = True
-    MAX_PATH_LEN = 100
-    THUMBNAIL_HEIGHT = 160
-    PREFIX = ''
+    FORMATS                     = list(BOOK_EXTENSIONS)
+    ALL_FORMATS                 = list(BOOK_EXTENSIONS)
+    HIDE_FORMATS_CONFIG_BOX     = True
+    USER_CAN_ADD_NEW_FORMATS    = False
+    DEVICE_PLUGBOARD_NAME       = 'SMART_DEVICE_APP'
+    CAN_SET_METADATA            = []
+    CAN_DO_DEVICE_DB_PLUGBOARD  = False
+    SUPPORTS_SUB_DIRS           = False
+    MUST_READ_METADATA          = True
+    NEWS_IN_FOLDER              = False
+    SUPPORTS_USE_AUTHOR_SORT    = False
+    WANTS_UPDATED_THUMBNAILS    = True
+    MAX_PATH_LEN                = 100
+    THUMBNAIL_HEIGHT            = 160
+    PREFIX                      = ''
 
     # Some network protocol constants
-    BASE_PACKET_LEN = 4096
-    PROTOCOL_VERSION = 1
-    MAX_CLIENT_COMM_TIMEOUT = 60.0 # Wait at most N seconds for an answer
-    MAX_UNSUCCESSFUL_CONNECTS = 5
+    BASE_PACKET_LEN             = 4096
+    PROTOCOL_VERSION            = 1
+    MAX_CLIENT_COMM_TIMEOUT     = 60.0 # Wait at most N seconds for an answer
+    MAX_UNSUCCESSFUL_CONNECTS   = 5
 
-    SEND_NOOP_EVERY_NTH_PROBE = 5
-    DISCONNECT_AFTER_N_SECONDS = 30 * 60 # 30 minutes
+    SEND_NOOP_EVERY_NTH_PROBE   = 5
+    DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
+
 
     opcodes = {
         'NOOP'                   : 12,
@@ -109,9 +110,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_CALIBRE_DEVICE_NAME': 2,
         'TOTAL_SPACE'            : 4,
     }
-    reverse_opcodes = dict([(v, k) for k, v in opcodes.iteritems()])
+    reverse_opcodes = dict([(v, k) for k,v in opcodes.iteritems()])
 
-    ALL_BY_TITLE = _('All by title')
+    ALL_BY_TITLE  = _('All by title')
     ALL_BY_AUTHOR = _('All by author')
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
@@ -130,18 +131,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             _('Check this box if requested when reporting problems') + '</p>',
         '',
         _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ') + \
-                    'series, tags, authors' + \
+            'to turn into collections on the device. Possibilities include: ')+\
+                    'series, tags, authors' +\
             _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
             'these values to the list to enable them. The collections will be '
-            'given the name provided after the ":" character.') % dict(
+            'given the name provided after the ":" character.')%dict(
                             abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
         '',
         _('Enable the no-activity timeout') + ':::<p>' +
             _('If this box is checked, calibre will automatically disconnect if '
               'a connected device does nothing for %d minutes. Unchecking this '
               ' box disables this timeout, so calibre will never automatically '
-              'disconnect.') % (DISCONNECT_AFTER_N_SECONDS / 60,) + '</p>',
+              'disconnect.')%(DISCONNECT_AFTER_N_SECONDS/60,) + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False,
@@ -155,13 +156,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 '',
                 True,
     ]
-    OPT_AUTOSTART = 0
-    OPT_PASSWORD = 2
-    OPT_USE_PORT = 4
-    OPT_PORT_NUMBER = 5
-    OPT_EXTRA_DEBUG = 6
-    OPT_COLLECTIONS = 8
-    OPT_AUTODISCONNECT = 10
+    OPT_AUTOSTART               = 0
+    OPT_PASSWORD                = 2
+    OPT_USE_PORT                = 4
+    OPT_PORT_NUMBER             = 5
+    OPT_EXTRA_DEBUG             = 6
+    OPT_COLLECTIONS             = 8
+    OPT_AUTODISCONNECT          = 10
+
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -175,13 +177,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return
         total_elapsed = time.time() - self.debug_start_time
         elapsed = time.time() - self.debug_time
-        print('SMART_DEV (%7.2f:%7.3f) %s' % (total_elapsed, elapsed,
+        print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
                                                inspect.stack()[1][3]), end='')
         for a in args:
             try:
                 if isinstance(a, dict):
                     printable = {}
-                    for k, v in a.iteritems():
+                    for k,v in a.iteritems():
                         if isinstance(v, (str, unicode)) and len(v) > 50:
                             printable[k] = 'too long'
                         else:
@@ -251,7 +253,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if mdata.tags and _('News') in mdata.tags:
             try:
                 p = mdata.pubdate
-                date = (p.year, p.month, p.day)
+                date  = (p.year, p.month, p.day)
             except:
                 today = time.localtime()
                 date = (today[0], today[1], today[2])
@@ -269,11 +271,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         app_id = str(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
         extra_components = get_components(template, mdata, id_,
-                timefmt=opts.send_timefmt, length=maxlen - len(app_id) - 1)
+                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
         if not extra_components:
             extra_components.append(sanitize(fname))
         else:
-            extra_components[-1] = sanitize(extra_components[-1] + ext)
+            extra_components[-1] = sanitize(extra_components[-1]+ext)
 
         if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
             extra_components[-1] = 'x' + extra_components[-1][1:]
@@ -320,7 +322,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # codec to first convert it to a string dict
     def _json_encode(self, op, arg):
         res = {}
-        for k, v in arg.iteritems():
+        for k,v in arg.iteritems():
             if isinstance(v, (Book, Metadata)):
                 res[k] = self.json_codec.encode_book_metadata(v)
                 series = v.get('series', None)
@@ -493,6 +495,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.OPT_PASSWORD
         elif opt_string == 'autostart':
             return self.OPT_AUTOSTART
+        elif opt_string == 'use_fixed_port':
+            return self.OPT_USE_PORT
+        elif opt_string == 'port_number':
+            return self.OPT_PORT_NUMBER
         else:
             return None
 
@@ -536,6 +542,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 pass
             self.device_socket = None
         self.is_connected = False
+
+    def _attach_to_port(self, port):
+        try:
+            self._debug('try port', port)
+            self.listen_socket.bind(('', port))
+        except socket.error:
+            self._debug('socket error on port', port)
+            port = 0
+        except:
+            self._debug('Unknown exception while allocating listen socket')
+            traceback.print_exc()
+            raise
+        return port
 
     # The public interface methods.
 
@@ -783,7 +802,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         coldict = {}
         if colattrs:
             collections = booklists[0].get_collections(colattrs)
-            for k, v in collections.iteritems():
+            for k,v in collections.iteritems():
                 lpaths = []
                 for book in v:
                     lpaths.append(book.lpath)
@@ -794,7 +813,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         # given back by "books", and one that has been plugboarded.
         self._call_client('SEND_BOOKLISTS', { 'count': len(booklists[0]),
                                               'collections': coldict})
-        for i, book in enumerate(booklists[0]):
+        for i,book in enumerate(booklists[0]):
             if not self._metadata_already_on_device(book):
                 self._set_known_metadata(book)
                 opcode, result = self._call_client('SEND_BOOK_METADATA',
@@ -937,57 +956,70 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.noop_counter = 0
         self.connection_attempts = {}
         self.client_can_stream_books = False
+
+        message = None
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except:
-            self._debug('creation of listen socket failed')
-            return
+            message = 'creation of listen socket failed'
+            self._debug(message)
+            return message
 
         i = 0
-        while i < 100: # try up to 100 random port numbers
-            if self.settings().extra_customization[self.OPT_USE_PORT]:
-                i = 100
-                try:
-                    port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
-                except:
-                    port = 0
-            else:
-                i += 1
-                port = random.randint(8192, 32000)
+
+        if self.settings().extra_customization[self.OPT_USE_PORT]:
             try:
-                self._debug('try port', port)
-                self.listen_socket.bind(('', port))
-                break
-            except socket.error:
-                port = 0
+                opt_port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
             except:
-                self._debug('Unknown exception while allocating listen socket')
-                traceback.print_exc()
-                raise
-        if port == 0:
-            self._debug('Failed to allocate a port');
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
-            return
+                message = _('Invalid port in options: %s')% \
+                            self.settings().extra_customization[self.OPT_PORT_NUMBER]
+                self.debug(message)
+                self.listen_socket.close()
+                self.listen_socket = None
+                self.is_connected = False
+                return message
+
+            port = self._attach_to_port(opt_port)
+            if port == 0:
+                message = 'Failed to connect to port %d'%opt_port
+                self._debug(message);
+                self.listen_socket.close()
+                self.listen_socket = None
+                self.is_connected = False
+                return message
+        else:
+            while i < 100: # try up to 100 random port numbers
+                i += 1
+                port = self._attach_to_port(random.randint(8192, 32000))
+                if port != 0:
+                    break;
+            if port == 0:
+                message = _('Failed to allocate a random port')
+                self._debug(message);
+                self.listen_socket.close()
+                self.listen_socket = None
+                self.is_connected = False
+                return message
 
         try:
             self.listen_socket.listen(0)
         except:
-            self._debug('listen on socket failed', port)
+            message = 'listen on port %d failed' % port
+            self._debug(message)
             self.listen_socket.close()
             self.listen_socket = None
             self.is_connected = False
-            return
+            return message
 
         try:
             do_zeroconf(publish_zeroconf, port)
         except:
-            self._debug('registration with bonjour failed')
+            message = 'registration with bonjour failed'
+            self._debug(message)
             self.listen_socket.close()
             self.listen_socket = None
             self.is_connected = False
-            return
+            return message
 
         self._debug('listening on port', port)
         self.port = port
@@ -1008,7 +1040,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def start_plugin(self):
-        self.startup_on_demand()
+        return self.startup_on_demand()
 
     @synchronous('sync_lock')
     def stop_plugin(self):
