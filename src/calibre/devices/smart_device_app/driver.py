@@ -976,7 +976,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 message = _('Invalid port in options: %s')% \
                             self.settings().extra_customization[self.OPT_PORT_NUMBER]
-                self.debug(message)
+                self._debug(message)
                 self.listen_socket.close()
                 self.listen_socket = None
                 self.is_connected = False
@@ -984,7 +984,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             port = self._attach_to_port(opt_port)
             if port == 0:
-                message = 'Failed to connect to port %d'%opt_port
+                message = _('Failed to connect to port %d. Try a different value.')%opt_port
                 self._debug(message)
                 self.listen_socket.close()
                 self.listen_socket = None

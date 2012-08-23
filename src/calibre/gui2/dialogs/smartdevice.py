@@ -33,13 +33,12 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             _('Check this box if you want calibre to use a fixed network '
               'port. Normally you will not need to do this. However, if '
               'your device consistently fails to connect to calibre, '
-              'try checking this box.') + '</p>')
+              'try checking this box and entering a number.') + '</p>')
 
         self.fixed_port.setToolTip('<p>' +
-            _('A port number must be a 4-digit integer less than 32,000. No '
-              'two network applications on the same computer can use '
-              'the same port number. If calibre says that it fails to connect '
-              'to the port, try a different number.') + '</p>')
+            _('Try 9090. If calibre says that it fails to connect '
+              'to the port, try another number. Yu can use any number between '
+              '8,000 and 32,000.') + '</p>')
 
         self.show_password.stateChanged[int].connect(self.toggle_password)
         self.use_fixed_port.stateChanged[int].connect(self.use_fixed_port_changed)
@@ -75,6 +74,23 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
                 Qt.Unchecked else QLineEdit.Normal)
 
     def accept(self):
+        port = unicode(self.fixed_port.text())
+        if not port:
+            error_dialog(self, _('Invalid port number'),
+                _('You must provide a port number.'), show=True)
+            return
+        try:
+            port = int(port)
+        except:
+            error_dialog(self, _('Invalid port number'),
+                _('The port must be a number between 8000 and 32000.'), show=True)
+            return
+
+        if port < 8000 or port > 32000:
+            error_dialog(self, _('Invalid port number'),
+                _('The port must be a number between 8000 and 32000.'), show=True)
+            return
+
         self.device_manager.set_option('smartdevice', 'password',
                                        unicode(self.password_box.text()))
         self.device_manager.set_option('smartdevice', 'autostart',
