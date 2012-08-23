@@ -554,7 +554,7 @@ class DeviceManager(Thread): # {{{
     # will switch to the device thread before calling the plugin.
 
     def start_plugin(self, name):
-        self._call_request(name, 'start_plugin')
+        return self._call_request(name, 'start_plugin')
 
     def stop_plugin(self, name):
         self._call_request(name, 'stop_plugin')

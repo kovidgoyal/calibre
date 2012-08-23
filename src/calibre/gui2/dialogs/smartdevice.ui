@@ -71,6 +71,36 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_21">
+     <property name="text">
+      <string>Optional &amp;fixed port:</string>
+     </property>
+     <property name="buddy">
+      <cstring>fixed_port</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="fixed_port">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>100</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="placeholderText">
+      <string>Optional port number</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QCheckBox" name="use_fixed_port">
+     <property name="text">
+      <string>&amp;Use a fixed port</string>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0" colspan="3">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
