@@ -97,7 +97,7 @@
    <item row="2" column="2">
     <widget class="QCheckBox" name="use_fixed_port">
      <property name="text">
-      <string>&amp;Use the fixed port</string>
+      <string>&amp;Use a fixed port</string>
      </property>
     </widget>
    </item>

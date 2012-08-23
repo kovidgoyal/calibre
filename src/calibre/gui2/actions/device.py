@@ -238,11 +238,20 @@ class ConnectShareAction(InterfaceAction):
 
     def set_smartdevice_action_state(self):
         from calibre.utils.mdns import get_external_ip
-        running = self.gui.device_manager.is_running('smartdevice')
+        dm = self.gui.device_manager
+
+        running = dm.is_running('smartdevice')
         if not running:
             text = self.share_conn_menu.DEVICE_MSGS[0]
         else:
-            text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s]'%get_external_ip()
+            use_fixed_port = dm.get_option('smartdevice', 'use_fixed_port')
+            port_number = dm.get_option('smartdevice', 'port_number')
+            if use_fixed_port:
+                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s port %s]'%(
+                                            get_external_ip(), port_number)
+            else:
+                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s]'%get_external_ip()
+
         icon = 'green' if running else 'red'
         ac = self.share_conn_menu.control_smartdevice_action
         ac.setIcon(QIcon(I('dot_%s.png'%icon)))
