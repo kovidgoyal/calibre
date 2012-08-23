@@ -37,7 +37,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
 
         self.fixed_port.setToolTip('<p>' +
             _('Try 9090. If calibre says that it fails to connect '
-              'to the port, try another number. Yu can use any number between '
+              'to the port, try another number. You can use any number between '
               '8,000 and 32,000.') + '</p>')
 
         self.show_password.stateChanged[int].connect(self.toggle_password)
