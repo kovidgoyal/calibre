@@ -373,18 +373,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'the file: %s<p>The '
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
-        smartdevice_action = self.iactions['Connect Share']
-        smartdevice_action.check_smartdevice_menus()
-        self.sd_timer = QTimer();
-        self.sd_timer.setSingleShot(True)
-        self.sd_timer.timeout.connect(self.start_smartdevice, type=Qt.QueuedConnection)
-        self.sd_timer.start(0)
+        self.iactions['Connect Share'].check_smartdevice_menus()
+        QTimer.singleShot(1, self.start_smartdevice)
 
     def esc(self, *args):
         self.clear_button.click()
 
     def start_smartdevice(self):
-        self.sd_timer = None
         message = None
         if self.device_manager.get_option('smartdevice', 'autostart'):
             try:
@@ -399,8 +394,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                     error_dialog(self, _('Problem starting the wireless device'),
                                  _('The wireless device driver did not start. '
                                    'It said "%s"')%message,  show=True)
-        smartdevice_action = self.iactions['Connect Share']
-        smartdevice_action.set_smartdevice_action_state()
+        self.iactions['Connect Share'].set_smartdevice_action_state()
 
     def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server
