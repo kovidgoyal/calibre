@@ -188,7 +188,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             printable[k] = 'too long'
                         else:
                             printable[k] = v
-                    prints('', printable, end='');
+                    prints('', printable, end='')
                 else:
                     prints('', a, end='')
             except:
@@ -368,7 +368,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if not isinstance(s, bytes):
             self._debug('given a non-byte string!')
             raise PacketError("Internal error: found a string that isn't bytes")
-        sent_len = 0;
+        sent_len = 0
         total_len = len(s)
         while sent_len < total_len:
             try:
@@ -377,7 +377,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 else:
                     amt_sent = self.device_socket.send(s[sent_len:])
                 if amt_sent <= 0:
-                    raise IOError('Bad write on device socket');
+                    raise IOError('Bad write on device socket')
                 sent_len += amt_sent
             except socket.error as e:
                 self._debug('socket error', e, e.errno)
@@ -473,7 +473,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 b = infile.read(self.max_book_packet_len)
                 blen = len(b)
                 if not b:
-                    break;
+                    break
                 b = b64encode(b)
                 opcode, result = self._call_client('BOOK_DATA',
                                 {'lpath': lpath, 'position': pos, 'data': b},
@@ -666,7 +666,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return False
             self._debug('CC version #:', result.get('ccVersionNumber', 'unknown'))
             self.client_can_stream_books = result.get('canStreamBooks', False)
-            self._debug('CC can stream', self.client_can_stream_books);
+            self._debug('CC can stream', self.client_can_stream_books)
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             exts = result.get('acceptedExtensions', None)
@@ -676,7 +676,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return False
             config = self._configProxy()
             config['format_map'] = exts
-            self._debug('selected formats', config['format_map']);
+            self._debug('selected formats', config['format_map'])
             if password:
                 returned_hash = result.get('passwordHash', None)
                 if result.get('passwordHash', None) is None:
@@ -777,7 +777,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
-            will_stream = 'willStream' in result;
+            will_stream = 'willStream' in result
             for i in range(0, count):
                 if will_stream:
                     opcode, result = self._receive_from_client(print_debug_info=False)
@@ -982,7 +982,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             port = self._attach_to_port(opt_port)
             if port == 0:
                 message = 'Failed to connect to port %d'%opt_port
-                self._debug(message);
+                self._debug(message)
                 self.listen_socket.close()
                 self.listen_socket = None
                 self.is_connected = False
@@ -992,10 +992,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 i += 1
                 port = self._attach_to_port(random.randint(8192, 32000))
                 if port != 0:
-                    break;
+                    break
             if port == 0:
                 message = _('Failed to allocate a random port')
-                self._debug(message);
+                self._debug(message)
                 self.listen_socket.close()
                 self.listen_socket = None
                 self.is_connected = False
