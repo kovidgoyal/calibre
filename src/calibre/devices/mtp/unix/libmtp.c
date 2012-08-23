@@ -777,8 +777,10 @@ initlibmtp(void) {
     
     m = Py_InitModule3("libmtp", libmtp_methods, "Interface to libmtp.");
     if (m == NULL) return;
+
     MTPError = PyErr_NewException("libmtp.MTPError", NULL, NULL);
     if (MTPError == NULL) return;
+    PyModule_AddObject(m, "MTPError", MTPError);
 
     LIBMTP_Init();
     LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);

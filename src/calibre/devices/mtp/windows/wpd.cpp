@@ -195,12 +195,15 @@ initwpd(void) {
 
     WPDError = PyErr_NewException("wpd.WPDError", NULL, NULL);
     if (WPDError == NULL) return;
+    PyModule_AddObject(m, "WPDError", MTPError);
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) return;
+    PyModule_AddObject(m, "NoWPD", MTPError);
 
     WPDFileBusy = PyErr_NewException("wpd.WPDFileBusy", NULL, NULL);
     if (WPDFileBusy == NULL) return;
+    PyModule_AddObject(m, "WPDFileBusy", MTPError);
 
     Py_INCREF(&DeviceType);
     PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);
