@@ -94,7 +94,6 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
                                            self.orig_fixed_port)
             self.device_manager.set_option('smartdevice', 'port_number',
                                            self.orig_port_number)
-
         else:
             QDialog.accept(self)
 
