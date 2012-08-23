@@ -244,8 +244,8 @@ if __name__ == '__main__':
     dev.startup()
     from calibre.devices.scanner import linux_scanner
     devs = linux_scanner()
-    mtp_devs = dev.detect(devs)
-    dev.open(list(mtp_devs)[0], 'xxx')
+    cd = dev.detect_managed_devices(devs)
+    dev.open(cd, 'xxx')
     d = dev.dev
     print ("Opened device:", dev.get_gui_name())
     print ("Storage info:")
