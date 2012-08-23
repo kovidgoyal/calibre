@@ -8,11 +8,12 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import weakref, sys
+from collections import deque
 from operator import attrgetter
 from future_builtins import map
 
 from calibre import human_readable, prints, force_unicode
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, lower
 
 class FileOrFolder(object):
 
@@ -20,15 +21,19 @@ class FileOrFolder(object):
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.name = force_unicode(entry.get('name', '___'), 'utf-8')
+        self.storage_id = entry.get('storage_id', None)
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
         # self.parent_id is None for storage objects
         self.parent_id = entry.get('parent_id', None)
         if self.parent_id == 0:
-            sid = entry['storage_id']
+            sid = self.storage_id
             if sid not in all_storage_ids:
                 sid = all_storage_ids[0]
             self.parent_id = sid
+        if self.parent_id is None and self.storage_id is None:
+            # A storage object
+            self.storage_id = self.object_id
         self.is_hidden = entry.get('is_hidden', False)
         self.is_system = entry.get('is_system', False)
         self.can_delete = entry.get('can_delete', True)
@@ -46,11 +51,27 @@ class FileOrFolder(object):
     def parent(self):
         return None if self.parent_id is None else self.id_map[self.parent_id]
 
+    @property
+    def full_path(self):
+        parts = deque()
+        parts.append(self.name)
+        p = self.parent
+        while p is not None:
+            parts.appendleft(p.name)
+            p = p.parent
+        return tuple(parts)
+
     def __iter__(self):
         for e in self.folders:
             yield e
         for e in self.files:
             yield e
+
+    def add_child(self, entry):
+        ans = FileOrFolder(entry, self.id_map)
+        t = self.folders if ans.is_folder else self.files
+        t.append(ans)
+        return ans
 
     def dump(self, prefix='', out=sys.stdout):
         c = '+' if self.is_folder else '-'
@@ -61,6 +82,20 @@ class FileOrFolder(object):
         for c in (self.folders, self.files):
             for e in sorted(c, key=lambda x:sort_key(x.name)):
                 e.dump(prefix=prefix+'  ', out=out)
+
+    def folder_named(self, name):
+        name = lower(name)
+        for e in self.folders:
+            if e.name and lower(e.name) == name:
+                return e
+        return None
+
+    def file_named(self, name):
+        name = lower(name)
+        for e in self.files:
+            if e.name and lower(e.name) == name:
+                return e
+        return None
 
 class FilesystemCache(object):
 
@@ -79,7 +114,17 @@ class FilesystemCache(object):
             FileOrFolder(entry, self, all_storage_ids)
 
         for item in self.id_map.itervalues():
-            p = item.parent
+            try:
+                p = item.parent
+            except KeyError:
+                # Parent does not exist, set the parent to be the storage
+                # object
+                sid = p.storage_id
+                if sid not in all_storage_ids:
+                    sid = all_storage_ids[0]
+                item.parent_id = sid
+                p = item.parent
+
             if p is not None:
                 t = p.folders if item.is_folder else p.files
                 t.append(item)

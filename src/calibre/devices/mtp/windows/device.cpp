@@ -78,20 +78,22 @@ update_data(Device *self, PyObject *args, PyObject *kwargs) {
 // get_filesystem() {{{
 static PyObject*
 py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
-    PyObject *storage_id;
+    PyObject *storage_id, *ret;
     wchar_t *storage;
 
     if (!PyArg_ParseTuple(args, "O", &storage_id)) return NULL;
     storage = unicode_to_wchar(storage_id);
     if (storage == NULL) return NULL;
 
-    return wpd::get_filesystem(self->device, storage, self->bulk_properties);
+    ret = wpd::get_filesystem(self->device, storage, self->bulk_properties);
+    free(storage);
+    return ret;
 } // }}}
 
 // get_file() {{{
 static PyObject*
 py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
-    PyObject *object_id, *stream, *callback = NULL;
+    PyObject *object_id, *stream, *callback = NULL, *ret;
     wchar_t *object;
 
     if (!PyArg_ParseTuple(args, "OO|O", &object_id, &stream, &callback)) return NULL;
@@ -100,7 +102,59 @@ py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
 
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
 
-    return wpd::get_file(self->device, object, stream, callback);
+    ret = wpd::get_file(self->device, object, stream, callback);
+    free(object);
+    return ret;
+} // }}}
+
+// create_folder() {{{
+static PyObject*
+py_create_folder(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *pparent_id, *pname, *ret;
+    wchar_t *parent_id, *name;
+
+    if (!PyArg_ParseTuple(args, "OO", &pparent_id, &pname)) return NULL;
+    parent_id = unicode_to_wchar(pparent_id);
+    name = unicode_to_wchar(pname);
+    if (parent_id == NULL || name == NULL) return NULL;
+
+    ret = wpd::create_folder(self->device, parent_id, name);
+    free(parent_id); free(name);
+    return ret;
+} // }}}
+
+// delete_object() {{{
+static PyObject*
+py_delete_object(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *pobject_id, *ret;
+    wchar_t *object_id;
+
+    if (!PyArg_ParseTuple(args, "O", &pobject_id)) return NULL;
+    object_id = unicode_to_wchar(pobject_id);
+    if (object_id == NULL) return NULL;
+
+    ret =  wpd::delete_object(self->device, object_id);
+    free(object_id);
+    return ret;
+} // }}}
+
+// get_file() {{{
+static PyObject*
+py_put_file(Device *self, PyObject *args, PyObject *kwargs) {
+    PyObject *pparent_id, *pname, *stream, *callback = NULL, *ret;
+    wchar_t *parent_id, *name;
+    unsigned PY_LONG_LONG size;
+
+    if (!PyArg_ParseTuple(args, "OOOK|O", &pparent_id, &pname, &stream, &size, &callback)) return NULL;
+    parent_id = unicode_to_wchar(pparent_id);
+    name = unicode_to_wchar(pname);
+    if (parent_id == NULL || name == NULL) return NULL;
+
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
+
+    ret = wpd::put_file(self->device, parent_id, name, stream, size, callback);
+    free(parent_id); free(name);
+    return ret;
 } // }}}
 
 static PyMethodDef Device_methods[] = {
@@ -114,6 +168,18 @@ static PyMethodDef Device_methods[] = {
 
     {"get_file", (PyCFunction)py_get_file, METH_VARARGS,
      "get_file(object_id, stream, callback=None) -> Get the file identified by object_id from the device. The file is written to the stream object, which must be a file like object. If callback is not None, it must be a callable that accepts two arguments: (bytes_read, total_size). It will be called after each chunk is read from the device. Note that it can be called multiple times with the same values."
+    },
+
+    {"create_folder", (PyCFunction)py_create_folder, METH_VARARGS,
+     "create_folder(parent_id, name) -> Create a folder. Returns the folder metadata."
+    },
+
+    {"delete_object", (PyCFunction)py_delete_object, METH_VARARGS,
+     "delete_object(object_id) -> Delete the object identified by object_id. Note that trying to delete a non-empty folder will raise an error."
+    },
+
+    {"put_file", (PyCFunction)py_put_file, METH_VARARGS,
+     "put_file(parent_id, name, stream, size_in_bytes, callback=None) -> Copy a file from the stream object, creating a new file on the device with parent identified by parent_id. Returns the file metadata of the newly created file. callback should be a callable that accepts two argument: (bytes_written, total_size). It will be called after each chunk is written to the device. Note that it can be called multiple times with the same arguments."
     },
 
     {NULL}

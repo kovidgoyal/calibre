@@ -28,6 +28,7 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_PARENT_ID);
     ADDPROP(WPD_OBJECT_PERSISTENT_UNIQUE_ID);
     ADDPROP(WPD_OBJECT_NAME);
+    ADDPROP(WPD_OBJECT_ORIGINAL_FILE_NAME);
     // ADDPROP(WPD_OBJECT_SYNC_ID);
     ADDPROP(WPD_OBJECT_ISSYSTEM);
     ADDPROP(WPD_OBJECT_ISHIDDEN);
@@ -92,8 +93,9 @@ static void set_properties(PyObject *obj, IPortableDeviceValues *values) {
     set_content_type_property(obj, values);
 
     set_string_property(obj, WPD_OBJECT_PARENT_ID, "parent_id", values);
-    set_string_property(obj, WPD_OBJECT_NAME, "name", values);
+    set_string_property(obj, WPD_OBJECT_NAME, "nominal_name", values);
     // set_string_property(obj, WPD_OBJECT_SYNC_ID, "sync_id", values);
+    set_string_property(obj, WPD_OBJECT_ORIGINAL_FILE_NAME, "name", values);
     set_string_property(obj, WPD_OBJECT_PERSISTENT_UNIQUE_ID, "persistent_id", values);
 
     set_bool_property(obj, WPD_OBJECT_ISHIDDEN, "is_hidden", values);
@@ -370,6 +372,42 @@ end:
 } 
 // }}}
 
+static IPortableDeviceValues* create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GUID content_type, unsigned PY_LONG_LONG size) { // {{{
+    IPortableDeviceValues *values = NULL;
+    HRESULT hr;
+    BOOL ok = FALSE;
+
+    hr = CoCreateInstance(CLSID_PortableDeviceValues, NULL,
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&values));
+    if (FAILED(hr)) { hresult_set_exc("Failed to create values interface", hr); goto end; }
+
+    hr = values->SetStringValue(WPD_OBJECT_PARENT_ID, parent_id);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set parent_id value", hr); goto end; }
+
+    hr = values->SetStringValue(WPD_OBJECT_NAME, name);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set name value", hr); goto end; }
+
+    hr = values->SetStringValue(WPD_OBJECT_ORIGINAL_FILE_NAME, name);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set original_file_name value", hr); goto end; }
+
+    hr = values->SetGuidValue(WPD_OBJECT_FORMAT, WPD_OBJECT_FORMAT_UNSPECIFIED);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set object_format value", hr); goto end; }
+
+    hr = values->SetGuidValue(WPD_OBJECT_CONTENT_TYPE, content_type);
+    if (FAILED(hr)) { hresult_set_exc("Failed to set content_type value", hr); goto end; }
+
+    if (!IsEqualGUID(WPD_CONTENT_TYPE_FOLDER, content_type)) {
+        hr = values->SetUnsignedLargeIntegerValue(WPD_OBJECT_SIZE, size);
+        if (FAILED(hr)) { hresult_set_exc("Failed to set size value", hr); goto end; }
+    }
+
+    ok = TRUE;
+
+end:
+    if (!ok && values != NULL) { values->Release(); values = NULL; }
+    return values;
+} // }}}
+
 PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties) { // {{{
     PyObject *folders = NULL;
     IPortableDevicePropVariantCollection *object_ids = NULL;
@@ -467,7 +505,7 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
         total_read = total_read + bytes_read;
         if (hr == STG_E_ACCESSDENIED) { 
             PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break; 
-        } else if (hr == S_OK || hr == S_FALSE) {
+        } else if (SUCCEEDED(hr)) {
             if (bytes_read > 0) {
                 res = PyObject_CallMethod(dest, "write", "s#", buf, bytes_read);
                 if (res == NULL) break;
@@ -476,7 +514,7 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
             }
         } else { hresult_set_exc("Failed to read file from device", hr); break; }
 
-        if (hr == S_FALSE || bytes_read < bufsize) { 
+        if (bytes_read == 0) { 
             ok = TRUE; 
             Py_XDECREF(PyObject_CallMethod(dest, "flush", NULL));
             break;
@@ -498,6 +536,172 @@ end:
     if (buf != NULL) free(buf);
     if (!ok) return NULL;
     Py_RETURN_NONE;
+} // }}}
+
+PyObject* wpd::create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name) { // {{{
+    IPortableDeviceContent *content = NULL;
+    IPortableDeviceValues *values = NULL;
+    IPortableDeviceProperties *devprops = NULL;
+    IPortableDeviceKeyCollection *properties = NULL;
+    wchar_t *newid = NULL;
+    PyObject *ans = NULL;
+    HRESULT hr;
+
+    values = create_object_properties(parent_id, name, WPD_CONTENT_TYPE_FOLDER, 0);
+    if (values == NULL) goto end;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+
+    properties = create_filesystem_properties_collection();
+    if (properties == NULL) goto end;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->CreateObjectWithPropertiesOnly(values, &newid);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr) || newid == NULL) { hresult_set_exc("Failed to create folder", hr); goto end; }
+
+    ans = get_object_properties(devprops, properties, newid);
+end:
+    if (content != NULL) content->Release();
+    if (values != NULL) values->Release();
+    if (devprops != NULL) devprops->Release();
+    if (properties != NULL) properties->Release();
+    if (newid != NULL) CoTaskMemFree(newid);
+    return ans;
+
+} // }}}
+
+PyObject* wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
+    IPortableDeviceContent *content = NULL;
+    HRESULT hr;
+    BOOL ok = FALSE;
+    PROPVARIANT pv;
+    IPortableDevicePropVariantCollection *object_ids = NULL;
+
+    PropVariantInit(&pv);
+    pv.vt      = VT_LPWSTR;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL,
+            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&object_ids));
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); goto end; }
+    pv.pwszVal = (wchar_t*)object_id;
+    hr = object_ids->Add(&pv); 
+    pv.pwszVal = NULL;
+    if (FAILED(hr)) { hresult_set_exc("Failed to add device id to propvariantcollection", hr); goto end; }
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    hr = content->Delete(PORTABLE_DEVICE_DELETE_NO_RECURSION, object_ids, NULL);
+    if (hr == E_ACCESSDENIED) PyErr_SetString(WPDError, "Do not have permission to delete this object");
+    else if (hr == HRESULT_FROM_WIN32(ERROR_DIR_NOT_EMPTY) || hr == HRESULT_FROM_WIN32(ERROR_INVALID_OPERATION)) PyErr_SetString(WPDError, "Cannot delete object as it has children");
+    else if (hr == HRESULT_FROM_WIN32(ERROR_NOT_FOUND) || SUCCEEDED(hr)) ok = TRUE;
+    else hresult_set_exc("Cannot delete object", hr);
+
+end:
+    PropVariantClear(&pv);
+    if (content != NULL) content->Release();
+    if (object_ids != NULL) object_ids->Release();
+    if (!ok) return NULL;
+    Py_RETURN_NONE;
+
+} // }}}
+
+PyObject* wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback) { // {{{
+    IPortableDeviceContent *content = NULL;
+    IPortableDeviceValues *values = NULL;
+    IPortableDeviceProperties *devprops = NULL;
+    IPortableDeviceKeyCollection *properties = NULL;
+    IStream *temp = NULL;
+    IPortableDeviceDataStream *dest = NULL;
+    char *buf = NULL;
+    wchar_t *newid = NULL;
+    PyObject *ans = NULL, *raw;
+    HRESULT hr;
+    DWORD bufsize = 0;
+    BOOL ok = FALSE;
+    Py_ssize_t bytes_read = 0;
+    ULONG bytes_written = 0, total_written = 0;
+
+    values = create_object_properties(parent_id, name, WPD_CONTENT_TYPE_GENERIC_FILE, size);
+    if (values == NULL) goto end;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+
+    hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+
+    properties = create_filesystem_properties_collection();
+    if (properties == NULL) goto end;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = content->CreateObjectWithPropertiesAndData(values, &temp, &bufsize, NULL);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { 
+        if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
+            PyErr_SetString(WPDFileBusy, "Object is in use");
+        } else hresult_set_exc("Failed to create stream interface to write to object", hr); 
+        goto end; 
+    }
+
+    hr = temp->QueryInterface(IID_PPV_ARGS(&dest));
+    if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDeviceStream", hr); goto end; }
+
+    while(TRUE) {
+        raw = PyObject_CallMethod(src, "read", "k", bufsize);
+        if (raw == NULL) break;
+        PyBytes_AsStringAndSize(raw, &buf, &bytes_read);
+        if (bytes_read > 0) {
+            Py_BEGIN_ALLOW_THREADS;
+            hr = dest->Write(buf, bytes_read, &bytes_written);
+            Py_END_ALLOW_THREADS;
+            Py_DECREF(raw);
+            if (hr == STG_E_MEDIUMFULL) { PyErr_SetString(WPDError, "Cannot write to device as it is full"); break; }
+            if (hr == STG_E_ACCESSDENIED) { PyErr_SetString(WPDError, "Cannot write to file as access is denied"); break; }
+            if (hr == STG_E_WRITEFAULT) { PyErr_SetString(WPDError, "Cannot write to file as there was a disk I/O error"); break; }
+            if (FAILED(hr)) { hresult_set_exc("Cannot write to file", hr); break; }
+            if (bytes_written != bytes_read) { PyErr_SetString(WPDError, "Writing to file failed, not all bytes were written"); break; }
+            total_written += bytes_written;
+            if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_written, size));
+        } else Py_DECREF(raw);
+        if (bytes_read == 0) { ok = TRUE; break; }
+    }
+    if (!ok) {dest->Revert(); goto end;}
+    Py_BEGIN_ALLOW_THREADS;
+    hr = dest->Commit(STGC_DEFAULT);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to write data to file, commit failed", hr); goto end; }
+    if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_written, size));
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = dest->GetObjectID(&newid);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get id of newly created file", hr); goto end; }
+
+    ans = get_object_properties(devprops, properties, newid);
+end:
+    if (content != NULL) content->Release();
+    if (values != NULL) values->Release();
+    if (devprops != NULL) devprops->Release();
+    if (properties != NULL) properties->Release();
+    if (temp != NULL) temp->Release();
+    if (dest != NULL) dest->Release();
+    if (newid != NULL) CoTaskMemFree(newid);
+    return ans;
+
 } // }}}
 
 } // namespace wpd

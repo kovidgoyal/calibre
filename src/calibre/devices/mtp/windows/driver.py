@@ -15,7 +15,7 @@ from itertools import chain
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed
+from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase
 from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
@@ -156,6 +156,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True}
                 id_map = self.dev.get_filesystem(storage_id)
+                for x in id_map.itervalues(): x['storage_id'] = storage_id
                 all_storage.append(storage)
                 items.append(id_map.itervalues())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
@@ -204,6 +205,10 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_device_information(self, end_session=True):
         d = self.dev.data
         dv = d.get('device_version', '')
+        for sid, location_code in ( (self._main_id, 'main'), (self._carda_id,
+            'A'), (self._cardb_id, 'B')):
+            if sid is None: continue
+            # TODO: Implement the drive info dict
         return (self.current_friendly_name, dv, dv, '')
 
     @same_thread
@@ -240,12 +245,31 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @same_thread
     def get_file(self, object_id, stream=None, callback=None):
+        f = self.filesystem_cache.id_map[object_id]
+        if f.is_folder:
+            raise ValueError('%s is a folder on the device'%f.full_path)
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
         try:
-            self.dev.get_file(object_id, stream, callback)
-        except self.wpd.WPDFileBusy:
-            time.sleep(2)
-            self.dev.get_file(object_id, stream, callback)
+            try:
+                self.dev.get_file(object_id, stream, callback)
+            except self.wpd.WPDFileBusy:
+                time.sleep(2)
+                self.dev.get_file(object_id, stream, callback)
+        except Exception as e:
+            raise DeviceError('Failed to fetch the file %s with error: %s'%
+                    f.full_path, as_unicode(e))
         return stream
+
+    @same_thread
+    def create_folder(self, parent_id, name):
+        parent = self.filesystem_cache.id_map[parent_id]
+        if not parent.is_folder:
+            raise ValueError('%s is not a folder'%parent.full_path)
+        e = parent.folder_named(name)
+        if e is not None:
+            return e
+        ans = self.dev.create_folder(parent_id, name)
+        ans['storage_id'] = parent.storage_id
+        return parent.add_child(ans)
 

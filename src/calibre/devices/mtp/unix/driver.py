@@ -10,11 +10,19 @@ __docformat__ = 'restructuredtext en'
 import time, operator
 from threading import RLock
 from io import BytesIO
+from collections import namedtuple
 
+from calibre.constants import plugins
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 from calibre.devices.mtp.filesystem_cache import FilesystemCache
-from calibre.devices.mtp.unix.detect import MTPDetect
+
+MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
+        'bcd serial manufacturer product')
+
+def fingerprint(d):
+    return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
+            d.serial, d.manufacturer, d.product)
 
 class MTP_DEVICE(MTPDeviceBase):
 
@@ -22,13 +30,18 @@ class MTP_DEVICE(MTPDeviceBase):
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
+        self.libmtp = None
+        self.detect_cache = {}
+
         self.dev = None
         self._filesystem_cache = None
         self.lock = RLock()
         self.blacklisted_devices = set()
+        self.ejected_devices = set()
+        self.currently_connected_dev = None
 
     def set_debug_level(self, lvl):
-        self.detect.libmtp.set_debug_level(lvl)
+        self.libmtp.set_debug_level(lvl)
 
     def report_progress(self, sent, total):
         try:
@@ -39,40 +52,67 @@ class MTP_DEVICE(MTPDeviceBase):
             self.progress_reporter(p)
 
     @synchronous
-    def is_usb_connected(self, devices_on_system, debug=False,
-            only_presence=False):
-
+    def detect_managed_devices(self, devices_on_system):
+        if self.libmtp is None: return None
         # First remove blacklisted devices.
-        devs = []
+        devs = set()
         for d in devices_on_system:
-            if (d.busnum, d.devnum, d.vendor_id,
-                d.product_id, d.bcd, d.serial) not in self.blacklisted_devices:
-                devs.append(d)
+            fp = fingerprint(d)
+            if fp not in self.blacklisted_devices:
+                devs.add(fp)
 
-        devs = self.detect(devs)
-        if self.dev is not None:
-            # Check if the currently opened device is still connected
-            ids = self.dev.ids
-            found = False
-            for d in devs:
-                if ( (d.busnum, d.devnum, d.vendor_id, d.product_id, d.serial)
-                        == ids ):
-                    found = True
-                    break
-            return found
-        # Check if any MTP capable device is present
-        return len(devs) > 0
+        # Clean up ejected devices
+        self.ejected_devices = devs.intersection(self.ejected_devices)
+
+        # Check if the currently connected device is still present
+        if self.currently_connected_dev is not None:
+            return (self.currently_connected_dev if
+                    self.currently_connected_dev in devs else None)
+
+        # Remove ejected devices
+        devs = devs - self.ejected_devices
+
+        # Now check for MTP devices
+        cache = self.detect_cache
+        for d in devs:
+            ans = cache.get(d, None)
+            if ans is None:
+                ans = self.libmtp.is_mtp_device(d.busnum, d.devnum,
+                        d.vendor_id, d.product_id)
+                cache[d] = ans
+            if ans:
+                return d
+
+        return None
+
+    @synchronous
+    def create_device(self, connected_device):
+        d = connected_device
+        return self.libmtp.Device(d.busnum, d.devnum, d.vendor_id,
+                d.product_id, d.manufacturer, d.product, d.serial)
+
+    @synchronous
+    def eject(self):
+        if self.currently_connected_dev is None: return
+        self.ejected_devices.add(self.currently_connected_dev)
+        self.post_yank_cleanup()
 
     @synchronous
     def post_yank_cleanup(self):
         self.dev = self._filesystem_cache = self.current_friendly_name = None
+        self.currently_connected_dev = None
 
     @synchronous
     def startup(self):
-        self.detect = MTPDetect()
-        for x in vars(self.detect.libmtp):
+        p = plugins['libmtp']
+        self.libmtp = p[0]
+        if self.libmtp is None:
+            print ('Failed to load libmtp, MTP device detection disabled')
+            print (p[1])
+
+        for x in vars(self.libmtp):
             if x.startswith('LIBMTP'):
-                setattr(self, x, getattr(self.detect.libmtp, x))
+                setattr(self, x, getattr(self.libmtp, x))
 
     @synchronous
     def shutdown(self):
@@ -85,29 +125,25 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def open(self, connected_device, library_uuid):
         self.dev = self._filesystem_cache = None
-        def blacklist_device():
-            d = connected_device
-            self.blacklisted_devices.add((d.busnum, d.devnum, d.vendor_id,
-                    d.product_id, d.bcd, d.serial))
         try:
-            self.dev = self.detect.create_device(connected_device)
-        except ValueError:
+            self.dev = self.create_device(connected_device)
+        except self.libmtp.MTPError:
             # Give the device some time to settle
             time.sleep(2)
             try:
-                self.dev = self.detect.create_device(connected_device)
-            except ValueError:
+                self.dev = self.create_device(connected_device)
+            except self.libmtp.MTPError:
                 # Black list this device so that it is ignored for the
                 # remainder of this session.
-                blacklist_device()
+                self.blacklisted_devices.add(connected_device)
                 raise OpenFailed('%s is not a MTP device'%(connected_device,))
         except TypeError:
-            blacklist_device()
+            self.blacklisted_devices.add(connected_device)
             raise OpenFailed('')
 
         storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
         if not storage:
-            blacklist_device()
+            self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
         self._main_id = storage[0]['id']
         self._carda_id = self._cardb_id = None
@@ -186,6 +222,16 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['freespace_bytes']
         return tuple(ans)
 
+    @synchronous
+    def create_folder(self, parent_id, name):
+        parent = self.filesystem_cache.id_map[parent_id]
+        if not parent.is_folder:
+            raise ValueError('%s is not a folder'%parent.full_path)
+        e = parent.folder_named(name)
+        if e is not None:
+            return e
+        ans = self.dev.create_folder(parent.storage_id, parent_id, name)
+        return parent.add_child(ans)
 
 if __name__ == '__main__':
     BytesIO
@@ -198,8 +244,8 @@ if __name__ == '__main__':
     dev.startup()
     from calibre.devices.scanner import linux_scanner
     devs = linux_scanner()
-    mtp_devs = dev.detect(devs)
-    dev.open(list(mtp_devs)[0], 'xxx')
+    cd = dev.detect_managed_devices(devs)
+    dev.open(cd, 'xxx')
     d = dev.dev
     print ("Opened device:", dev.get_gui_name())
     print ("Storage info:")

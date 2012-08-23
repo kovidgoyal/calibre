@@ -27,6 +27,10 @@ def get_newest_version():
             'win' if iswindows else 'osx' if isosx else 'oth')
     req.add_header('CALIBRE_INSTALL_UUID', prefs['installation_uuid'])
     version = br.open(req).read().strip()
+    try:
+        version = version.decode('utf-8')
+    except UnicodeDecodeError:
+        version = u''
     return version
 
 class CheckForUpdates(QThread):

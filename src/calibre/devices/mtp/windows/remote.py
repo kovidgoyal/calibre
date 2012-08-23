@@ -71,11 +71,15 @@ def main():
         print ('Total space', dev.total_space())
         print ('Free space', dev.free_space())
         dev.filesystem_cache.dump()
+        # pprint.pprint(dev.dev.create_folder(dev.filesystem_cache.entries[0].object_id,
+        #     'zzz'))
         # print ('Fetching file: oFF (198214 bytes)')
         # stream = dev.get_file('oFF')
         # print ("Fetched size: ", stream.tell())
     finally:
         dev.shutdown()
+
+    print ('Device connection shutdown')
 
 if __name__ == '__main__':
     main()
