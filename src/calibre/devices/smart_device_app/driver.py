@@ -503,25 +503,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         else:
             return None
 
-#    def _compare_metadata(self, mi1, mi2):
-#        for key in SERIALIZABLE_FIELDS:
-#            if key in ['cover', 'mime']:
-#                continue
-#            if key == 'user_metadata':
-#                meta1 = mi1.get_all_user_metadata(make_copy=False)
-#                meta2 = mi1.get_all_user_metadata(make_copy=False)
-#                if meta1 != meta2:
-#                    self._debug('custom metadata different')
-#                    return False
-#                for ckey in meta1:
-#                    if mi1.get(ckey) != mi2.get(ckey):
-#                        self._debug(ckey, mi1.get(ckey), mi2.get(ckey))
-#                        return False
-#            elif mi1.get(key, None) != mi2.get(key, None):
-#                self._debug(key, mi1.get(key), mi2.get(key))
-#                return False
-#        return True
-
     def _metadata_already_on_device(self, book):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
