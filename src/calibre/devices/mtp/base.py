@@ -26,11 +26,6 @@ class MTPDeviceBase(DevicePlugin):
     author = 'Kovid Goyal'
     version = (1, 0, 0)
 
-    # Invalid USB vendor information so the scanner will never match
-    VENDOR_ID                   = [0xffff]
-    PRODUCT_ID                  = [0xffff]
-    BCD                         = [0xffff]
-
     THUMBNAIL_HEIGHT = 128
     CAN_SET_METADATA = []
 
@@ -50,5 +45,11 @@ class MTPDeviceBase(DevicePlugin):
 
     def get_gui_name(self):
         return self.current_friendly_name or self.name
+
+    def is_usb_connected(self, devices_on_system, debug=False,
+            only_presence=False):
+        # We manage device presence ourselves, so this method should always
+        # return False
+        return False
 
 
