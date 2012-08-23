@@ -339,14 +339,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
-        smartdevice_action = self.iactions['Connect Share']
-        smartdevice_action.check_smartdevice_menus()
-        if self.device_manager.get_option('smartdevice', 'autostart'):
-            try:
-                self.device_manager.start_plugin('smartdevice')
-            except:
-                pass
-        smartdevice_action.set_smartdevice_action_state()
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
@@ -381,8 +373,34 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'the file: %s<p>The '
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
+        smartdevice_action = self.iactions['Connect Share']
+        smartdevice_action.check_smartdevice_menus()
+        self.sd_timer = QTimer();
+        self.sd_timer.setSingleShot(True)
+        self.sd_timer.timeout.connect(self.start_smartdevice, type=Qt.QueuedConnection)
+        self.sd_timer.start(0)
+
     def esc(self, *args):
         self.clear_button.click()
+
+    def start_smartdevice(self):
+        self.sd_timer = None
+        message = None
+        if self.device_manager.get_option('smartdevice', 'autostart'):
+            try:
+                message = self.device_manager.start_plugin('smartdevice')
+            except:
+                message = 'start smartdevice unknown exception'
+                prints(message)
+                import traceback
+                traceback.print_exc()
+        if message:
+            if not self.device_manager.is_running('Wireless Devices'):
+                    error_dialog(self, _('Problem starting the wireless device'),
+                                 _('The wireless device driver did not start. '
+                                   'It said "%s"')%message,  show=True)
+        smartdevice_action = self.iactions['Connect Share']
+        smartdevice_action.set_smartdevice_action_state()
 
     def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server

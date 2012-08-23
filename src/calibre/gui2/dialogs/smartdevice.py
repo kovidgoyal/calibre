@@ -53,11 +53,13 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         if pw:
             self.password_box.setText(pw)
 
-        use_fixed_port = self.device_manager.get_option('smartdevice', 'use_fixed_port')
-        port_number = self.device_manager.get_option('smartdevice', 'port_number')
-        self.fixed_port.setText(port_number)
-        self.use_fixed_port.setChecked(use_fixed_port);
-        if not use_fixed_port:
+        self.orig_fixed_port = self.device_manager.get_option('smartdevice',
+                                                             'use_fixed_port')
+        self.orig_port_number = self.device_manager.get_option('smartdevice',
+                                                          'port_number')
+        self.fixed_port.setText(self.orig_port_number)
+        self.use_fixed_port.setChecked(self.orig_fixed_port);
+        if not self.orig_fixed_port:
             self.fixed_port.setEnabled(False);
 
         if pw:
@@ -85,8 +87,14 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         message = self.device_manager.start_plugin('smartdevice')
 
         if not self.device_manager.is_running('smartdevice'):
-            error_dialog(self, _('Problem starting smartdevice'),
-                _('The snart device driver did not start. It said "%s"')%message, show=True)
+            error_dialog(self, _('Problem starting the wireless device'),
+                _('The wireless device driver did not start. It said "%s"')%message,
+                show=True)
+            self.device_manager.set_option('smartdevice', 'use_fixed_port',
+                                           self.orig_fixed_port)
+            self.device_manager.set_option('smartdevice', 'port_number',
+                                           self.orig_port_number)
+
         else:
             QDialog.accept(self)
 
