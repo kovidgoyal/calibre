@@ -151,16 +151,22 @@ class PDFWriter(QObject): # {{{
         self.combine_queue = []
         self.out_stream = out_stream
 
+        self.render_succeeded = False
         QMetaObject.invokeMethod(self, "_render_book", Qt.QueuedConnection)
         self.loop.exec_()
-
+        if not self.render_succeeded:
+            raise Exception('Rendering HTML to PDF failed')
 
     @QtCore.pyqtSignature('_render_book()')
     def _render_book(self):
-        if len(self.render_queue) == 0:
-            self._write()
-        else:
-            self._render_next()
+        try:
+            if len(self.render_queue) == 0:
+                self._write()
+            else:
+                self._render_next()
+        except:
+            self.logger.exception('Rendering failed')
+            self.loop.exit(1)
 
     def _render_next(self):
         item = unicode(self.render_queue.pop(0))
@@ -252,6 +258,7 @@ class PDFWriter(QObject): # {{{
                 for page in inputPDF.pages:
                     outPDF.addPage(page)
             outPDF.write(self.out_stream)
+            self.render_succeeded = True
         finally:
             self._delete_tmpdir()
             self.loop.exit(0)
