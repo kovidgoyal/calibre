@@ -70,12 +70,18 @@ def main():
         print ('Connected to:', dev.get_gui_name())
         print ('Total space', dev.total_space())
         print ('Free space', dev.free_space())
-        dev.filesystem_cache.dump()
         # pprint.pprint(dev.dev.create_folder(dev.filesystem_cache.entries[0].object_id,
         #     'zzz'))
         # print ('Fetching file: oFF (198214 bytes)')
         # stream = dev.get_file('oFF')
         # print ("Fetched size: ", stream.tell())
+        size = 4
+        stream = io.BytesIO(b'a'*size)
+        name = 'zzz-test-file.txt'
+        stream.seek(0)
+        f = dev.put_file(dev.filesystem_cache.entries[0], name, stream, size)
+        print ('Put file:', f)
+        # dev.filesystem_cache.dump()
     finally:
         dev.shutdown()
 

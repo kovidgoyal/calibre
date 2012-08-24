@@ -14,6 +14,7 @@ from collections import namedtuple
 
 from calibre import prints
 from calibre.constants import plugins
+from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 from calibre.devices.mtp.filesystem_cache import FilesystemCache
@@ -264,13 +265,17 @@ class MTP_DEVICE(MTPDeviceBase):
         return parent.add_child(ans)
 
     @synchronous
-    def get_file(self, f, stream, callback=None):
+    def get_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
+        if stream is None:
+            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+            stream.name = f.name
         ok, errs = self.dev.get_file(f.object_id, stream, callback)
         if not ok:
             raise DeviceError('Failed to get file: %s with errors: %s'%(
                 f.full_path, self.format_errorstack(errs)))
+        return stream
 
     @synchronous
     def delete_file_or_folder(self, obj):
@@ -315,13 +320,17 @@ if __name__ == '__main__':
     # fname = b'moose.txt'
     # src = BytesIO(raw)
     # print (d.put_file(dev._main_id, 0, fname, src, len(raw), PR()))
-    dev.filesystem_cache.dump()
     # with open('/tmp/flint.epub', 'wb') as f:
     #     print(d.get_file(786, f, PR()))
     # print()
     # with open('/tmp/bleak.epub', 'wb') as f:
     #     print(d.get_file(601, f, PR()))
     # print()
+
+    dev.filesystem_cache.dump()
+
+    # print (dev.filesystem_cache.entries[0].files[0])
+    # print (dev.filesystem_cache.entries[0].folders[0])
     dev.set_debug_level(dev.LIBMTP_DEBUG_ALL)
     del d
     dev.shutdown()

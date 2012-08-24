@@ -51,6 +51,21 @@ class FileOrFolder(object):
         self.fs_cache = weakref.ref(fs_cache)
         self.deleted = False
 
+    def __repr__(self):
+        name = 'Folder' if self.is_folder else 'File'
+        try:
+            path = unicode(self.full_path)
+        except:
+            path = ''
+        datum = 'size=%s'%(self.size)
+        if self.is_folder:
+            datum = 'children=%s'%(len(self.files) + len(self.folders))
+        return '%s(id=%s, storage_id=%s, %s, path=%s)'%(name, self.object_id,
+                self.storage_id, datum, path)
+
+    __str__ = __repr__
+    __unicode__ = __repr__
+
     @property
     def id_map(self):
         return self.fs_cache().id_map

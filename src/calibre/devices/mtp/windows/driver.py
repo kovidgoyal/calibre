@@ -245,18 +245,18 @@ class MTP_DEVICE(MTPDeviceBase):
         return tuple(ans)
 
     @same_thread
-    def get_file(self, object_id, stream=None, callback=None):
-        f = self.filesystem_cache.id_map[object_id]
+    def get_file(self, f, stream=None, callback=None):
         if f.is_folder:
-            raise ValueError('%s is a folder on the device'%(f.full_path,))
+            raise ValueError('%s if a folder'%(f.full_path,))
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+            stream.name = f.name
         try:
             try:
-                self.dev.get_file(object_id, stream, callback)
+                self.dev.get_file(f.object_id, stream, callback)
             except self.wpd.WPDFileBusy:
                 time.sleep(2)
-                self.dev.get_file(object_id, stream, callback)
+                self.dev.get_file(f.object_id, stream, callback)
         except Exception as e:
             raise DeviceError('Failed to fetch the file %s with error: %s'%
                     f.full_path, as_unicode(e))
@@ -289,4 +289,22 @@ class MTP_DEVICE(MTPDeviceBase):
         parent = obj.parent
         self.dev.delete_object(obj.object_id)
         parent.remove_child(obj)
+
+    @same_thread
+    def put_file(self, parent, name, stream, size, callback=None, replace=True):
+        e = parent.folder_named(name)
+        if e is not None:
+            raise ValueError('Cannot upload file, %s already has a folder named: %s'%(
+                parent.full_path, e.name))
+        e = parent.file_named(name)
+        if e is not None:
+            if not replace:
+                raise ValueError('Cannot upload file %s, it already exists'%(
+                    e.full_path,))
+            self.delete_file_or_folder(e)
+        sid, pid = parent.storage_id, parent.object_id
+        ans = self.dev.put_file(sid, pid, name, stream, size, callback)
+        ans['storage_id'] = parent.storage_id
+        return parent.add_child(ans)
+
 
