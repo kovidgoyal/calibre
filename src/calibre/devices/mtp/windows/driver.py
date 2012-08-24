@@ -275,6 +275,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @same_thread
     def delete_file_or_folder(self, obj):
+        if obj.deleted:
+            return
         if not obj.can_delete:
             raise ValueError('Cannot delete %s as deletion not allowed'%
                     (obj.full_path,))

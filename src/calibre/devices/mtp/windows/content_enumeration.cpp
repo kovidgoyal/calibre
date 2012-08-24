@@ -73,7 +73,7 @@ static void set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *py
     hr = properties->GetUnsignedLargeIntegerValue(key, &val);
 
     if (SUCCEEDED(hr)) {
-        pval = PyInt_FromSsize_t((Py_ssize_t)val);
+        pval = PyLong_FromUnsignedLongLong(val);
         if (pval != NULL) {
             PyDict_SetItemString(dict, pykey, pval);
             Py_DECREF(pval);

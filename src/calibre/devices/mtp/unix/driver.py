@@ -238,11 +238,44 @@ class MTP_DEVICE(MTPDeviceBase):
             raise DeviceError(
                     'Failed to create folder named %s in %s with error: %s'%
                     (name, parent.full_path, self.format_errorstack(errs)))
-        ans['storage_id'] = sid
         return parent.add_child(ans)
 
     @synchronous
+    def put_file(self, parent, name, stream, size, callback=None, replace=True):
+        e = parent.folder_named(name)
+        if e is not None:
+            raise ValueError('Cannot upload file, %s already has a folder named: %s'%(
+                parent.full_path, e.name))
+        e = parent.file_named(name)
+        if e is not None:
+            if not replace:
+                raise ValueError('Cannot upload file %s, it already exists'%(
+                    e.full_path,))
+            self.delete_file_or_folder(e)
+        ename = name.encode('utf-8') if isinstance(name, unicode) else name
+        sid, pid = parent.storage_id, parent.object_id
+        if pid == sid:
+            pid = 0
+
+        ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
+        if ans is None:
+            raise DeviceError('Failed to upload file named: %s to %s: %s'
+                    %(name, parent.full_path, self.format_errorstack(errs)))
+        return parent.add_child(ans)
+
+    @synchronous
+    def get_file(self, f, stream, callback=None):
+        if f.is_folder:
+            raise ValueError('%s if a folder'%(f.full_path,))
+        ok, errs = self.dev.get_file(f.object_id, stream, callback)
+        if not ok:
+            raise DeviceError('Failed to get file: %s with errors: %s'%(
+                f.full_path, self.format_errorstack(errs)))
+
+    @synchronous
     def delete_file_or_folder(self, obj):
+        if obj.deleted:
+            return
         if not obj.can_delete:
             raise ValueError('Cannot delete %s as deletion not allowed'%
                     (obj.full_path,))
@@ -255,7 +288,7 @@ class MTP_DEVICE(MTPDeviceBase):
         parent = obj.parent
         ok, errs = self.dev.delete_object(obj.object_id)
         if not ok:
-            raise DeviceError('Failed to delete %s with error: '%
+            raise DeviceError('Failed to delete %s with error: %s'%
                 (obj.full_path, self.format_errorstack(errs)))
         parent.remove_child(obj)
 

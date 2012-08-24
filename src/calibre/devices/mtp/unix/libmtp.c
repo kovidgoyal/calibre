@@ -67,7 +67,7 @@ static void dump_errorstack(LIBMTP_mtpdevice_t *dev, PyObject *list) {
     PyObject *err;
 
     for(stack = LIBMTP_Get_Errorstack(dev); stack != NULL; stack=stack->next) {
-        err = Py_BuildValue("Is", stack->errornumber, stack->error_text);
+        err = Py_BuildValue("is", stack->errornumber, stack->error_text);
         if (err == NULL) break;
         PyList_Append(list, err);
         Py_DECREF(err);
@@ -119,17 +119,43 @@ static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, uns
 }
 
 static PyObject* build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
-    char *filename = nf->filename;
-    if (filename == NULL) filename = "";
+    PyObject *ans = NULL, *l = NULL;
 
-    return Py_BuildValue("{s:k,s:k,s:k,s:s,s:K,s:O}",
-                "id", nf->item_id,
-                "parent_id", nf->parent_id,
-                "storage_id", storage_id,
-                "name", filename,
-                "size", nf->filesize,
-                "is_folder", (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False
-    );
+    ans = Py_BuildValue("{s:s}", "name", nf->filename);
+    if (ans == NULL) return PyErr_NoMemory();
+
+    // We explicitly populate the dictionary instead of using Py_BuildValue to
+    // handle the numeric variables properly. Without this, for some reason the
+    // dict sometimes has incorrect values
+    l = PyLong_FromUnsignedLong(nf->item_id);
+    if (l == NULL) goto error;
+    if (PyDict_SetItemString(ans, "id", l) != 0) goto error;
+    Py_DECREF(l); l = NULL;
+
+    l = PyLong_FromUnsignedLong(nf->parent_id);
+    if (l == NULL) goto error;
+    if (PyDict_SetItemString(ans, "parent_id", l) != 0) goto error;
+    Py_DECREF(l); l = NULL;
+
+    l = PyLong_FromUnsignedLong(storage_id);
+    if (l == NULL) goto error;
+    if (PyDict_SetItemString(ans, "storage_id", l) != 0) goto error;
+    Py_DECREF(l); l = NULL;
+
+    l = PyLong_FromUnsignedLongLong(nf->filesize);
+    if (l == NULL) goto error;
+    if (PyDict_SetItemString(ans, "size", l) != 0) goto error;
+    Py_DECREF(l); l = NULL;
+
+    if (PyDict_SetItemString(ans, "is_folder",
+        (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False) != 0) 
+        goto error;
+
+    return ans;
+
+error:
+    Py_XDECREF(ans); Py_XDECREF(l);
+    return PyErr_NoMemory();
 }
 
 static PyObject* file_metadata(LIBMTP_mtpdevice_t *device, PyObject *errs, uint32_t item_id, uint32_t storage_id) {
@@ -507,9 +533,8 @@ libmtp_Device_delete_object(libmtp_Device *self, PyObject *args, PyObject *kwarg
 static PyObject *
 libmtp_Device_create_folder(libmtp_Device *self, PyObject *args, PyObject *kwargs) {
     PyObject *errs, *fo = NULL;
-    uint32_t parent_id, storage_id;
+    uint32_t storage_id, parent_id, folder_id;
     char *name;
-    uint32_t folder_id;
 
     ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
