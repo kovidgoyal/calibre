@@ -14,7 +14,7 @@
 
 #include "devices.h"
 
-// Macros and utilities
+// Macros and utilities {{{
 static PyObject *MTPError = NULL;
 
 #define ENSURE_DEV(rval) \
