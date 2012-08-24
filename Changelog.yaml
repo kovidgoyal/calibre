@@ -19,6 +19,42 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.66
+  date: 2012-08-24
+
+  new features:
+    - title: "E-book viewer: Support the display of mathematics in e-books. Supports both embedded TeX and MathML"
+      description: "The calibre ebook viewer can now display embedded mathematics (symbols, equations, fractions, matrices, etc.) in EPUB and HTML ebooks. For details, see: http://manual.calibre-ebook.com/typesetting_math.html"
+      type: major
+
+    - title: "Drivers for SONY PRS-T2, Freelander PD10 and Coolreader Tablet"
+      tickets: [1039103]
+
+    - title: "Wireless device connections: Use a streamed mode for improved networking performance leading to much less time spent sending metadata to/from the device. Also make it easier to specify a fixed port directly in the dialog used to start the connection."
+
+    - title: "Get books: Add ebooksgratuitis.com"
+ 
+  bug fixes:
+    - title: "PDF Output: Handle input epub documents with filenames starting with a dot. Also do not hang if there is an unhandled error."
+      tickets: [1040603]
+
+    - title: "Get Books: Update B&N plugin to handle changes to the B&N website"
+
+    - title: "Content server: Fix regression that caused the port being advertised via BonJour to be incorrect if the user changed the port for the server."
+      tickets: [1037912]
+
+
+  improved recipes:
+    - Variety
+    - The Times UK
+
+  new recipes:
+    - title: Le Monde subscription version 
+      author: Remi Vanicat
+
+    - title: Brecha Digital 
+      author: Darko Miletic
+
 - version: 0.8.65
   date: 2012-08-17
 
