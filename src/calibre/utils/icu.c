@@ -7,7 +7,25 @@
 #include <unicode/ucoleitr.h>
 #include <unicode/ustring.h>
 #include <unicode/usearch.h>
+#include <unicode/utrans.h>
 
+static PyObject* uchar_to_unicode(const UChar *src, int32_t len) {
+    wchar_t *buf = NULL;
+    PyObject *ans = NULL;
+    UErrorCode status = U_ZERO_ERROR;
+
+    if (len < 0) { len = u_strlen(src); }
+    buf = (wchar_t *)calloc(4*len, sizeof(wchar_t));
+    if (buf == NULL) return PyErr_NoMemory();
+    u_strToWCS(buf, 4*len, NULL, src, len, &status);
+    if (U_SUCCESS(status)) {
+        ans = PyUnicode_FromWideChar(buf, wcslen(buf));
+        if (ans == NULL) PyErr_NoMemory();
+    } else PyErr_SetString(PyExc_TypeError, "Failed to convert UChar* to wchar_t*");
+
+    free(buf);
+    return ans;
+}
 
 // Collator object definition {{{
 typedef struct {
@@ -610,7 +628,6 @@ icu_title(PyObject *self, PyObject *args) {
     return ret;
 } // }}}
 
-
 // set_default_encoding {{{
 static PyObject *
 icu_set_default_encoding(PyObject *self, PyObject *args) {
@@ -625,6 +642,35 @@ icu_set_default_encoding(PyObject *self, PyObject *args) {
 }
 // }}}
 
+// set_default_encoding {{{
+static PyObject *
+icu_get_available_transliterators(PyObject *self, PyObject *args) {
+    PyObject *ans, *l;
+    UErrorCode status = U_ZERO_ERROR;
+    const UChar *id = NULL;
+    UEnumeration *i;
+
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+
+    i = utrans_openIDs(&status);
+    if (i == NULL || U_FAILURE(status)) {Py_DECREF(ans); PyErr_SetString(PyExc_RuntimeError, "Failed to create enumerator"); return NULL; }
+
+    do {
+        id = uenum_unext(i, NULL, &status);
+        if (U_SUCCESS(status) && id != NULL) {
+            l = uchar_to_unicode(id, -1);
+            if (l == NULL) break;
+            PyList_Append(ans, l);
+            Py_DECREF(l);
+        }
+    } while(id != NULL);
+    uenum_close(i);
+
+    return ans;
+}
+
+// }}}
 static PyMethodDef icu_methods[] = {
     {"upper", icu_upper, METH_VARARGS,
         "upper(locale, unicode object) -> upper cased unicode object using locale rules."
@@ -640,6 +686,10 @@ static PyMethodDef icu_methods[] = {
 
     {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
         "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation."
+    },
+
+    {"get_available_transliterators", icu_get_available_transliterators, METH_VARARGS,
+        "get_available_transliterators() -> Return list of available transliterators. This list is rather limited on OS X."
     },
 
     {NULL}  /* Sentinel */
