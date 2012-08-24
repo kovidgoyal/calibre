@@ -54,6 +54,10 @@ def main():
     plugins._plugins['wpd'] = (wpd, '')
     sys.path.pop(0)
 
+    from calibre.devices.mtp.test import run
+    run()
+    return
+
     from calibre.devices.scanner import win_scanner
     from calibre.devices.mtp.windows.driver import MTP_DEVICE
     dev = MTP_DEVICE(None)
