@@ -12,6 +12,7 @@ from threading import RLock
 from io import BytesIO
 from collections import namedtuple
 
+from calibre import prints
 from calibre.constants import plugins
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
@@ -52,7 +53,7 @@ class MTP_DEVICE(MTPDeviceBase):
             self.progress_reporter(p)
 
     @synchronous
-    def detect_managed_devices(self, devices_on_system):
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.libmtp is None: return None
         # First remove blacklisted devices.
         devs = set()
@@ -73,6 +74,8 @@ class MTP_DEVICE(MTPDeviceBase):
         devs = devs - self.ejected_devices
 
         # Now check for MTP devices
+        if force_refresh:
+            self.detect_cache = {}
         cache = self.detect_cache
         for d in devs:
             ans = cache.get(d, None)
@@ -157,34 +160,31 @@ class MTP_DEVICE(MTPDeviceBase):
     def filesystem_cache(self):
         if self._filesystem_cache is None:
             with self.lock:
-                files, errs = self.dev.get_filelist(self)
-                if errs and not files:
-                    raise DeviceError('Failed to read files from device. Underlying errors:\n'
-                            +self.format_errorstack(errs))
-                folders, errs = self.dev.get_folderlist()
-                if errs and not folders:
-                    raise DeviceError('Failed to read folders from device. Underlying errors:\n'
-                            +self.format_errorstack(errs))
-                storage = []
+                storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
                     self._cardb_id], self.total_space()):
-                    if sid is not None:
-                        name = _('Unknown')
-                        for x in self.dev.storage_info:
-                            if x['id'] == sid:
-                                name = x['name']
-                                break
-                        storage.append({'id':sid, 'size':capacity,
-                            'is_folder':True, 'name':name})
-                all_folders = []
-                def recurse(f):
-                    all_folders.append(f)
-                    for c in f['children']:
-                        recurse(c)
-
-                for f in folders: recurse(f)
-                self._filesystem_cache = FilesystemCache(storage,
-                        all_folders+files)
+                    if sid is None: continue
+                    name = _('Unknown')
+                    for x in self.dev.storage_info:
+                        if x['id'] == sid:
+                            name = x['name']
+                            break
+                    storage.append({'id':sid, 'size':capacity,
+                        'is_folder':True, 'name':name, 'can_delete':False,
+                        'is_system':True})
+                    items, errs = self.dev.get_filesystem(sid)
+                    all_items.extend(items), all_errs.extend(errs)
+                if not all_items and all_errs:
+                    raise DeviceError(
+                            'Failed to read filesystem from %s with errors: %s'
+                            %(self.current_friendly_name,
+                                self.format_errorstack(all_errs)))
+                if all_errs:
+                    prints('There were some errors while getting the '
+                            ' filesystem from %s: %s'%(
+                                self.current_friendly_name,
+                                self.format_errorstack(all_errs)))
+                self._filesystem_cache = FilesystemCache(storage, all_items)
         return self._filesystem_cache
 
     @synchronous
@@ -223,15 +223,41 @@ class MTP_DEVICE(MTPDeviceBase):
         return tuple(ans)
 
     @synchronous
-    def create_folder(self, parent_id, name):
-        parent = self.filesystem_cache.id_map[parent_id]
+    def create_folder(self, parent, name):
         if not parent.is_folder:
-            raise ValueError('%s is not a folder'%parent.full_path)
+            raise ValueError('%s is not a folder'%(parent.full_path,))
         e = parent.folder_named(name)
         if e is not None:
             return e
-        ans = self.dev.create_folder(parent.storage_id, parent_id, name)
+        ename = name.encode('utf-8') if isinstance(name, unicode) else name
+        sid, pid = parent.storage_id, parent.object_id
+        if pid == sid:
+            pid = 0
+        ans, errs = self.dev.create_folder(sid, pid, ename)
+        if ans is None:
+            raise DeviceError(
+                    'Failed to create folder named %s in %s with error: %s'%
+                    (name, parent.full_path, self.format_errorstack(errs)))
+        ans['storage_id'] = sid
         return parent.add_child(ans)
+
+    @synchronous
+    def delete_file_or_folder(self, obj):
+        if not obj.can_delete:
+            raise ValueError('Cannot delete %s as deletion not allowed'%
+                    (obj.full_path,))
+        if obj.is_system:
+            raise ValueError('Cannot delete %s as it is a system object'%
+                    (obj.full_path,))
+        if obj.files or obj.folders:
+            raise ValueError('Cannot delete %s as it is not empty'%
+                    (obj.full_path,))
+        parent = obj.parent
+        ok, errs = self.dev.delete_object(obj.object_id)
+        if not ok:
+            raise DeviceError('Failed to delete %s with error: '%
+                (obj.full_path, self.format_errorstack(errs)))
+        parent.remove_child(obj)
 
 if __name__ == '__main__':
     BytesIO
