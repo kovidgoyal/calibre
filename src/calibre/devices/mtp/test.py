@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import unittest
 
+from calibre.constants import iswindows, islinux
 from calibre.utils.icu import lower
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
@@ -76,6 +77,11 @@ class TestDeviceInteraction(unittest.TestCase):
         if root_file:
             with self.assertRaises(ValueError):
                 self.dev.create_folder(root_file[0], 'sub-folder')
+
+    def test_memory_leaks(self):
+        if not (iswindows or islinux):
+            self.skipTest('Can only test for leaks on windows and linux')
+        from calibre.utils.mem import memory
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(TestDeviceInteraction)

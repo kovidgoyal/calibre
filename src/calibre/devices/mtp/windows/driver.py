@@ -73,12 +73,13 @@ class MTP_DEVICE(MTPDeviceBase):
             self.wpd.uninit()
 
     @same_thread
-    def detect_managed_devices(self, devices_on_system):
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.wpd is None: return None
 
         devices_on_system = frozenset(devices_on_system)
-        if (devices_on_system != self.previous_devices_on_system or time.time()
-                - self.last_refresh_devices_time > 10):
+        if (force_refresh or
+                devices_on_system != self.previous_devices_on_system or
+                time.time() - self.last_refresh_devices_time > 10):
             self.previous_devices_on_system = devices_on_system
             self.last_refresh_devices_time = time.time()
             try:

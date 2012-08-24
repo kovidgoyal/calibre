@@ -53,7 +53,7 @@ class MTP_DEVICE(MTPDeviceBase):
             self.progress_reporter(p)
 
     @synchronous
-    def detect_managed_devices(self, devices_on_system):
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.libmtp is None: return None
         # First remove blacklisted devices.
         devs = set()
@@ -74,6 +74,8 @@ class MTP_DEVICE(MTPDeviceBase):
         devs = devs - self.ejected_devices
 
         # Now check for MTP devices
+        if force_refresh:
+            self.detect_cache = {}
         cache = self.detect_cache
         for d in devs:
             ans = cache.get(d, None)
