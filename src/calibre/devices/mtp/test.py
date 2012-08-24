@@ -180,7 +180,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
     @unittest.skipUnless(iswindows or islinux, 'Can only test for leaks on windows and linux')
     def test_memory_leaks(self):
-        ''' Test for memory leaks in the C modules '''
+        ''' Test for memory leaks in the C module '''
         self.check_setup()
 
         # Test device scanning
@@ -188,13 +188,49 @@ class TestDeviceInteraction(unittest.TestCase):
                 self.dev.detect_managed_devices, self.scanner.devices,
                 force_refresh=True)
 
-        used_by_many = self.measure_memory_usage(1000,
+        used_by_many = self.measure_memory_usage(100,
                 self.dev.detect_managed_devices, self.scanner.devices,
                 force_refresh=True)
 
         self.assertTrue(used_by_many <= used_by_one,
                 msg='Memory consumption during device scan: for one: %g for many:%g'%
                 (used_by_one, used_by_many))
+
+        # Test file transfer
+        size = 1024*100
+        raw = io.BytesIO(b'a'*size)
+        raw.seek(0)
+        name = 'zzz-test-file.txt'
+
+        def send_file(storage, name, raw, size):
+            raw.seek(0)
+            pc = ProgressCallback()
+            f = self.dev.put_file(storage, name, raw, size, callback=pc)
+            self.cleanup.append(f)
+            del pc
+
+        used_once = self.measure_memory_usage(1, send_file, self.storage, name,
+                raw, size)
+        used_many = self.measure_memory_usage(10, send_file, self.storage, name,
+                raw, size)
+
+        self.assertTrue(used_many <= used_once,
+                msg='Memory consumption during put_file: for one: %g for many:%g'%
+                (used_once, used_many))
+
+        def get_file(f):
+            raw = io.BytesIO()
+            pc = ProgressCallback()
+            self.dev.get_file(f, raw, callback=pc)
+            del raw
+            del pc
+
+        f = self.storage.file_named(name)
+        used_once = self.measure_memory_usage(1, get_file, f)
+        used_many = self.measure_memory_usage(10, get_file, f)
+        self.assertTrue(used_many <= used_once,
+                msg='Memory consumption during get_file: for one: %g for many:%g'%
+                (used_once, used_many))
 
         # Test get_filesystem
         used_by_one = self.measure_memory_usage(1,
@@ -207,9 +243,10 @@ class TestDeviceInteraction(unittest.TestCase):
                 msg='Memory consumption during get_filesystem: for one: %g for many:%g'%
                 (used_by_one, used_by_many))
 
+
 def tests():
     tl = unittest.TestLoader()
-    # return tl.loadTestsFromName('test.TestDeviceInteraction.test_file_transfer')
+    # return tl.loadTestsFromName('test.TestDeviceInteraction.test_memory_leaks')
     return tl.loadTestsFromTestCase(TestDeviceInteraction)
 
 def run():
