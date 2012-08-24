@@ -63,6 +63,8 @@ def main():
     try:
         devices = win_scanner()
         pnp_id = dev.detect_managed_devices(devices)
+        if not pnp_id:
+            raise ValueError('Failed to detect device')
         # pprint.pprint(dev.detected_devices)
         print ('Trying to connect to:', pnp_id)
         dev.open(pnp_id, '')

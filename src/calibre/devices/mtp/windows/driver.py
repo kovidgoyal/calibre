@@ -303,8 +303,8 @@ class MTP_DEVICE(MTPDeviceBase):
                     e.full_path,))
             self.delete_file_or_folder(e)
         sid, pid = parent.storage_id, parent.object_id
-        ans = self.dev.put_file(sid, pid, name, stream, size, callback)
-        ans['storage_id'] = parent.storage_id
+        ans = self.dev.put_file(pid, name, stream, size, callback)
+        ans['storage_id'] = sid
         return parent.add_child(ans)
 
 
