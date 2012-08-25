@@ -347,28 +347,26 @@ static PyObject *
 libmtp_Device_storage_info(libmtp_Device *self, void *closure) {
     PyObject *ans, *loc;
     LIBMTP_devicestorage_t *storage;
+    int ro = 0;
     ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
     ans = PyList_New(0);
     if (ans == NULL) { PyErr_NoMemory(); return NULL; }
 
     for (storage = self->device->storage; storage != NULL; storage = storage->next) {
-        // Ignore read only storage
-        if (storage->StorageType == ST_FixedROM || storage->StorageType == ST_RemovableROM) continue;
-        // Storage IDs with the lower 16 bits 0x0000 are not supposed to be
-        // writeable.
-        if ((storage->id & 0x0000FFFFU) == 0x00000000U) continue;
-        // Also check the access capability to avoid e.g. deletable only storages
-        if (storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion) continue;
+        ro = 0;
+        // Check if read only storage
+        if (storage->StorageType == ST_FixedROM || storage->StorageType == ST_RemovableROM || (storage->id & 0x0000FFFFU) == 0x00000000U || storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion) ro = 1;
 
-        loc = Py_BuildValue("{s:k,s:O,s:K,s:K,s:K,s:s,s:s}", 
+        loc = Py_BuildValue("{s:k,s:O,s:K,s:K,s:K,s:s,s:s,s:O}", 
                 "id", storage->id, 
                 "removable", ((storage->StorageType == ST_RemovableRAM) ? Py_True : Py_False),
                 "capacity", storage->MaxCapacity,
                 "freespace_bytes", storage->FreeSpaceInBytes,
                 "freespace_objects", storage->FreeSpaceInObjects,
                 "name", storage->StorageDescription,
-                "volume_id", storage->VolumeIdentifier
+                "volume_id", storage->VolumeIdentifier,
+                "rw", (ro) ? Py_False : Py_True
         );
 
         if (loc == NULL) return NULL; 

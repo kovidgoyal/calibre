@@ -146,6 +146,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise OpenFailed('')
 
         storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
+        storage = [x for x in storage if x.get('rw', False)]
         if not storage:
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
