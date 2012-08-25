@@ -33,6 +33,7 @@ class MTP_DEVICE(MTPDeviceBase):
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.libmtp = None
+        self.known_devices = None
         self.detect_cache = {}
 
         self.dev = None
@@ -56,6 +57,8 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.libmtp is None: return None
+        if self.known_devices is None:
+            self.known_devices = frozenset(self.libmtp.known_devices())
         # First remove blacklisted devices.
         devs = set()
         for d in devices_on_system:
@@ -81,8 +84,7 @@ class MTP_DEVICE(MTPDeviceBase):
         for d in devs:
             ans = cache.get(d, None)
             if ans is None:
-                ans = self.libmtp.is_mtp_device(d.busnum, d.devnum,
-                        d.vendor_id, d.product_id)
+                ans = (d.vendor_id, d.product_id) in self.known_devices
                 cache[d] = ans
             if ans:
                 return d

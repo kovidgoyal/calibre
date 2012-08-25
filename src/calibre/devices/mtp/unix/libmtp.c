@@ -703,6 +703,25 @@ libmtp_is_mtp_device(PyObject *self, PyObject *args) {
 
 }
 
+static PyObject*
+known_devices(PyObject *self, PyObject *args) {
+    PyObject *ans, *d;
+    size_t i;
+
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+
+    for (i = 0; ; i++) {
+        if (calibre_mtp_device_table[i].vendor == NULL && calibre_mtp_device_table[i].product == NULL && calibre_mtp_device_table[i].vendor_id == 0xffff) break;
+        d = Py_BuildValue("(HH)", calibre_mtp_device_table[i].vendor_id, calibre_mtp_device_table[i].product_id);
+        if (d == NULL) { Py_DECREF(ans); ans = NULL; break; }
+        if (PyList_Append(ans, d) != 0) { Py_DECREF(d); Py_DECREF(ans); ans = NULL; PyErr_NoMemory(); break; }
+        Py_DECREF(d);
+    }
+
+    return ans;
+}
+
 static PyMethodDef libmtp_methods[] = {
     {"set_debug_level", libmtp_set_debug_level, METH_VARARGS,
         "set_debug_level(level)\n\nSet the debug level bit mask, see LIBMTP_DEBUG_* constants."
@@ -710,6 +729,10 @@ static PyMethodDef libmtp_methods[] = {
 
     {"is_mtp_device", libmtp_is_mtp_device, METH_VARARGS,
         "is_mtp_device(busnum, devnum, vendor_id, prod_id)\n\nReturn True if the device is recognized as an MTP device by its vendor/product ids. If it is not recognized a probe is done and True returned if the probe succeeds. Note that probing can cause some devices to malfunction, and it is not very reliable, which is why we prefer to use the device database."
+    },
+
+    {"known_devices", known_devices, METH_VARARGS,
+        "known_devices() -> Return the list of known (vendor_id, product_id) combinations."
     },
 
     {NULL, NULL, 0, NULL}
