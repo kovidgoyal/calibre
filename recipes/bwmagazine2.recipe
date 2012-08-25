@@ -26,7 +26,6 @@ class BusinessWeekMagazine(BasicNewsRecipe):
 
         #Find date
         mag=soup.find('h2',text='Magazine')
-        self.log(mag)
         dates=self.tag_to_string(mag.findNext('h3'))
         self.timefmt = u' [%s]'%dates
 
@@ -34,9 +33,10 @@ class BusinessWeekMagazine(BasicNewsRecipe):
         div0 = soup.find ('div', attrs={'class':'column left'})
         section_title = ''
         feeds = OrderedDict()
+        articles = []
         for div in div0.findAll('a'):
-            articles = []
             section_title = self.tag_to_string(div.findPrevious('h3')).strip()
+            self.log('Processing section:', section_title)
             title=self.tag_to_string(div).strip()
             url=div['href']
             soup0 = self.index_to_soup(url)
@@ -50,10 +50,11 @@ class BusinessWeekMagazine(BasicNewsRecipe):
             feeds[section_title] += articles
         div1 = soup.find ('div', attrs={'class':'column center'})
         section_title = ''
+        articles = []
         for div in div1.findAll('a'):
-            articles = []
             desc=self.tag_to_string(div.findNext('p')).strip()
             section_title = self.tag_to_string(div.findPrevious('h3')).strip()
+            self.log('Processing section:', section_title)
             title=self.tag_to_string(div).strip()
             url=div['href']
             soup0 = self.index_to_soup(url)
