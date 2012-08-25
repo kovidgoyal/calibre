@@ -19,7 +19,7 @@ class Time(BasicNewsRecipe):
     no_stylesheets        = True
     language = 'en'
     remove_javascript     = True
-    needs_subscription = 'optional'
+    needs_subscription = True
 
     keep_only_tags = [
             {
@@ -40,7 +40,7 @@ class Time(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         # This site uses javascript in its login process
-        if False and self.username is not None and self.password is not None:
+        if self.username is not None and self.password is not None:
             br.open('http://www.time.com/time/magazine')
             br.select_form(predicate=lambda f: 'action' in f.attrs and f.attrs['action'] == 'https://auth.time.com/login.php')
             br['username']   = self.username
@@ -52,7 +52,10 @@ class Time(BasicNewsRecipe):
             br['rurl'] = 'http://www.time.com/time/magazine'
             br['remember'] = False
             raw = br.submit().read()
-            if '>Log Out<' not in raw:
+            if False and '>Log Out<' not in raw:
+                # This check is disabled as it does not work (there is probably
+                # some cookie missing) however, the login is "sufficient" for
+                # the actual article downloads to work.
                 raise ValueError('Failed to login to time.com, check'
                     ' your username and password')
         return br
@@ -101,8 +104,7 @@ class Time(BasicNewsRecipe):
                         method='text').strip()
             if not title: continue
             url = a[0].get('href')
-            # url = re.sub('/magazine/article/0,9171','/subscriber/printout/0,8816',
-            #         url)
+            url = re.sub('/magazine/article/0,9171','/subscriber/printout/0,8816', url)
             if url.startswith('/'):
                 url = 'http://www.time.com'+url
             desc = ''
