@@ -188,10 +188,15 @@ if iswindows:
 if isosx:
     extensions.append(Extension('usbobserver',
                 ['calibre/devices/usbobserver/usbobserver.c'],
-                ldflags=['-framework', 'IOKit'])
+                ldflags=['-framework', 'CoreServices', '-framework', 'IOKit'])
             )
 
-if islinux:
+if islinux or isosx:
+    extensions.append(Extension('libusb',
+        ['calibre/devices/libusb/libusb.c'],
+        libraries=['usb-1.0']
+    ))
+
     extensions.append(Extension('libmtp',
         [
         'calibre/devices/mtp/unix/devices.c',
