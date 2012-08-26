@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, operator
+import operator
 from threading import RLock
 from io import BytesIO
 from collections import namedtuple
@@ -133,20 +133,9 @@ class MTP_DEVICE(MTPDeviceBase):
         self.dev = self._filesystem_cache = None
         try:
             self.dev = self.create_device(connected_device)
-        except self.libmtp.MTPError:
-            # Give the device some time to settle
-            time.sleep(2)
-            try:
-                self.dev = self.create_device(connected_device)
-            except self.libmtp.MTPError as e:
-                # Black list this device so that it is ignored for the
-                # remainder of this session.
-                self.blacklisted_devices.add(connected_device)
-                raise OpenFailed('Failed to open %s: Error: %s'%(
+        except Exception as e:
+            raise OpenFailed('Failed to open %s: Error: %s'%(
                     connected_device, as_unicode(e)))
-        except TypeError:
-            self.blacklisted_devices.add(connected_device)
-            raise OpenFailed('')
 
         storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
         storage = [x for x in storage if x.get('rw', False)]

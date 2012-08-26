@@ -224,8 +224,6 @@ libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTuple(args, "IBHHssO", &busnum, &devnum, &vendor_id, &product_id, &vendor, &product, &usb_serialnum)) return -1;
 
-    if (devnum < 0 || devnum > 255 || busnum < 0) { PyErr_SetString(PyExc_TypeError, "Invalid busnum/devnum"); return -1; }
-
     // We have to build and search the rawdevice list instead of creating a
     // rawdevice directly as otherwise, dynamic bug flag assignment in libmtp
     // does not work
