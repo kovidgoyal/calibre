@@ -10,22 +10,18 @@ Write content to PDF.
 
 import os
 import shutil
+from future_builtins import map
 
-from calibre import isosx
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
-    orientation
-from calibre.ebooks.metadata import authors_to_string
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre import __appname__, __version__, fit_image
-from calibre.ebooks.oeb.display.webview import load_html
-
-from PyQt4 import QtCore
-from PyQt4.Qt import (QEventLoop, QObject,
-    QPrinter, QMetaObject, QSizeF, Qt, QPainter, QPixmap)
+from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
+        QPixmap, QTimer)
 from PyQt4.QtWebKit import QWebView
 
-from pyPdf import PdfFileWriter, PdfFileReader
+from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ebooks.pdf.pageoptions import (unit, paper_size, orientation)
+from calibre.ebooks.metadata import authors_to_string
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre import __appname__, __version__, fit_image, isosx, force_unicode
+from calibre.ebooks.oeb.display.webview import load_html
 
 def get_custom_size(opts):
     custom_size = None
@@ -108,24 +104,33 @@ def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
 
 class PDFMetadata(object):
     def __init__(self, oeb_metadata=None):
-        self.title = _('Unknown')
-        self.author = _('Unknown')
+        self.title = _(u'Unknown')
+        self.author = _(u'Unknown')
+        self.tags = u''
 
         if oeb_metadata != None:
             if len(oeb_metadata.title) >= 1:
                 self.title = oeb_metadata.title[0].value
             if len(oeb_metadata.creator) >= 1:
                 self.author = authors_to_string([x.value for x in oeb_metadata.creator])
+            if oeb_metadata.subject:
+                self.tags = u', '.join(map(unicode, oeb_metadata.subject))
+
+        self.title = force_unicode(self.title)
+        self.author = force_unicode(self.author)
 
 class PDFWriter(QObject): # {{{
 
     def __init__(self, opts, log, cover_data=None):
         from calibre.gui2 import is_ok_to_use_qt
+        from calibre.utils.podofo import get_podofo
         if not is_ok_to_use_qt():
             raise Exception('Not OK to use Qt')
         QObject.__init__(self)
 
-        self.logger = log
+        self.logger = self.log = log
+        self.podofo = get_podofo()
+        self.doc = self.podofo.PDFDoc()
 
         self.loop = QEventLoop()
         self.view = QWebView()
@@ -150,14 +155,14 @@ class PDFWriter(QObject): # {{{
         self.render_queue = items
         self.combine_queue = []
         self.out_stream = out_stream
+        self.insert_cover()
 
         self.render_succeeded = False
-        QMetaObject.invokeMethod(self, "_render_book", Qt.QueuedConnection)
+        QTimer.singleShot(0, self._render_book)
         self.loop.exec_()
         if not self.render_succeeded:
             raise Exception('Rendering HTML to PDF failed')
 
-    @QtCore.pyqtSignature('_render_book()')
     def _render_book(self):
         try:
             if len(self.render_queue) == 0:
@@ -182,8 +187,9 @@ class PDFWriter(QObject): # {{{
             self.do_paged_render(item_path)
         else:
             # The document is so corrupt that we can't render the page.
+            self.logger.error('Document cannot be rendered.')
             self.loop.exit(0)
-            raise Exception('Document cannot be rendered.')
+            return
         self._render_book()
 
     def do_paged_render(self, outpath):
@@ -219,6 +225,14 @@ class PDFWriter(QObject): # {{{
 
         painter.end()
         printer.abort()
+        self.append_doc(outpath)
+
+    def append_doc(self, outpath):
+        doc = self.podofo.PDFDoc()
+        with open(outpath, 'rb') as f:
+            raw = f.read()
+        doc.load(raw)
+        self.doc.append(doc)
 
     def _delete_tmpdir(self):
         if os.path.exists(self.tmp_path):
@@ -239,25 +253,21 @@ class PDFWriter(QObject): # {{{
             draw_image_page(printer, painter, p,
                     preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
             painter.end()
+            self.append_doc(item_path)
         printer.abort()
-
 
     def _write(self):
         self.logger.debug('Combining individual PDF parts...')
 
-        self.insert_cover()
-
         try:
-            outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
-            for item in self.combine_queue:
-                # The input PDF stream must remain open until the final PDF
-                # is written to disk. PyPDF references pages added to the
-                # final PDF from the input PDF on disk. It does not store
-                # the pages in memory so we can't close the input PDF.
-                inputPDF = PdfFileReader(open(item, 'rb'))
-                for page in inputPDF.pages:
-                    outPDF.addPage(page)
-            outPDF.write(self.out_stream)
+            self.doc.creator = u'%s %s [http://calibre-ebook.com]'%(
+                    __appname__, __version__)
+            self.doc.title = self.metadata.title
+            self.doc.author = self.metadata.author
+            if self.metadata.tags:
+                self.doc.keywords = self.metadata.tags
+            raw = self.doc.write()
+            self.out_stream.write(raw)
             self.render_succeeded = True
         finally:
             self._delete_tmpdir()
@@ -272,21 +282,34 @@ class ImagePDFWriter(object):
         self.log = log
 
     def dump(self, items, out_stream, pdf_metadata):
+        from calibre.utils.podofo import get_podofo
         f = PersistentTemporaryFile('_comic2pdf.pdf')
         f.close()
+        self.metadata = pdf_metadata
         try:
             self.render_images(f.name, pdf_metadata, items)
             with open(f.name, 'rb') as x:
-                shutil.copyfileobj(x, out_stream)
+                raw = x.read()
+            doc = get_podofo().PDFDoc()
+            doc.load(raw)
+            doc.creator = u'%s %s [http://calibre-ebook.com]'%(
+                    __appname__, __version__)
+            doc.title = self.metadata.title
+            doc.author = self.metadata.author
+            if self.metadata.tags:
+                doc.keywords = self.metadata.tags
+            raw = doc.write()
+            out_stream.write(raw)
         finally:
-            os.remove(f.name)
+            try:
+                os.remove(f.name)
+            except:
+                pass
 
     def render_images(self, outpath, mi, items):
         printer = get_pdf_printer(self.opts, for_comic=True,
                 output_file_name=outpath)
         printer.setDocName(mi.title)
-        printer.setCreator(u'%s [%s]'%(__appname__, __version__))
-        # Seems to be no way to set author
 
         painter = QPainter(printer)
         painter.setRenderHints(QPainter.Antialiasing|QPainter.SmoothPixmapTransform)
@@ -302,5 +325,7 @@ class ImagePDFWriter(object):
             else:
                 self.log.warn('Failed to load image', i)
         painter.end()
+
+
 
 

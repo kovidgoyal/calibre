@@ -151,6 +151,22 @@ PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 // append() {{{
 static PyObject *
 PDFDoc_append(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    PyObject *doc;
+    int typ;
+
+    if (!PyArg_ParseTuple(args, "O", &doc)) return NULL;
+
+    typ = PyObject_IsInstance(doc, (PyObject*)&PDFDocType);
+    if (typ == -1) return NULL;
+    if (typ == 0) { PyErr_SetString(PyExc_TypeError, "You must pass a PDFDoc instance to this method"); return NULL; }
+
+    try {
+        self->doc->Append(*((PDFDoc*)doc)->doc, true);
+    } catch (const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+
     Py_RETURN_NONE;
 } // }}}
 
