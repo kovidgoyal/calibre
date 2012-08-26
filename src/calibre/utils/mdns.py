@@ -4,8 +4,21 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import socket, time, atexit
+from collections import defaultdict
 
 _server = None
+
+def get_all_ips():
+    ''' Return a mapping of interface names to the configuration of the
+    interface, which includes the ip address, netmask and broadcast addresses
+    '''
+    import netifaces
+    all_ips = defaultdict(list)
+    if hasattr(netifaces, 'AF_INET'):
+        for x in netifaces.interfaces():
+            for c in netifaces.ifaddresses(x).get(netifaces.AF_INET, []):
+                all_ips[x].append(c)
+    return dict(all_ips)
 
 def _get_external_ip():
     'Get IP address of interface used to connect to the outside world'
