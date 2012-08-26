@@ -217,42 +217,40 @@ libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
     uint16_t vendor_id, product_id;
     PyObject *usb_serialnum;
     char *vendor, *product, *friendly_name, *manufacturer_name, *model_name, *serial_number, *device_version;
-    LIBMTP_raw_device_t rawdev;
-    LIBMTP_mtpdevice_t *dev;
-    size_t i;
+    LIBMTP_raw_device_t *rawdevs = NULL, rdev;
+    int numdevs, c;
+    LIBMTP_mtpdevice_t *dev = NULL;
+    LIBMTP_error_number_t err;
 
     if (!PyArg_ParseTuple(args, "IBHHssO", &busnum, &devnum, &vendor_id, &product_id, &vendor, &product, &usb_serialnum)) return -1;
 
     if (devnum < 0 || devnum > 255 || busnum < 0) { PyErr_SetString(PyExc_TypeError, "Invalid busnum/devnum"); return -1; }
 
-    self->ids = Py_BuildValue("IBHHO", busnum, devnum, vendor_id, product_id, usb_serialnum);
-    if (self->ids == NULL) return -1;
-
-    rawdev.bus_location = busnum;
-    rawdev.devnum = devnum;
-    rawdev.device_entry.vendor = vendor;
-    rawdev.device_entry.product = product;
-    rawdev.device_entry.vendor_id = vendor_id;
-    rawdev.device_entry.product_id = product_id;
-    rawdev.device_entry.device_flags = 0x00000000U;
-
+    // We have to build and search the rawdevice list instead of creating a
+    // rawdevice directly as otherwise, dynamic bug flag assignment in libmtp
+    // does not work
     Py_BEGIN_ALLOW_THREADS;
-    for (i = 0; ; i++) {
-        if (calibre_mtp_device_table[i].vendor == NULL && calibre_mtp_device_table[i].product == NULL && calibre_mtp_device_table[i].vendor_id == 0xffff) break;
-        if (calibre_mtp_device_table[i].vendor_id == vendor_id && calibre_mtp_device_table[i].product_id == product_id) {
-            rawdev.device_entry.device_flags = calibre_mtp_device_table[i].device_flags;
+    err = LIBMTP_Detect_Raw_Devices(&rawdevs, &numdevs);
+    Py_END_ALLOW_THREADS;
+    if (err != 0) { PyErr_SetString(MTPError, "Failed to detect raw MTP devices"); return -1; }
+
+    for (c = 0; c < numdevs; c++) {
+        rdev = rawdevs[c];
+        if (rdev.bus_location == busnum && rdev.devnum == devnum) {
+            Py_BEGIN_ALLOW_THREADS;
+            dev = LIBMTP_Open_Raw_Device_Uncached(&rdev);
+            Py_END_ALLOW_THREADS;
+            if (dev == NULL) { free(rawdevs); PyErr_SetString(MTPError, "Unable to open raw device."); return -1; }
+            break;
         }
     }
 
-    dev = LIBMTP_Open_Raw_Device_Uncached(&rawdev);
-    Py_END_ALLOW_THREADS;
-
-    if (dev == NULL) { 
-        PyErr_SetString(MTPError, "Unable to open raw device."); 
-        return -1;
-    }
+    if (rawdevs != NULL) free(rawdevs);
+    if (dev == NULL) { PyErr_Format(MTPError, "No device with busnum=%lu and devnum=%u found", (long unsigned int)busnum, devnum); return -1; }
 
     self->device = dev;
+    self->ids = Py_BuildValue("IBHHO", busnum, devnum, vendor_id, product_id, usb_serialnum);
+    if (self->ids == NULL) return -1;
 
     Py_BEGIN_ALLOW_THREADS;
     friendly_name = LIBMTP_Get_Friendlyname(self->device);
