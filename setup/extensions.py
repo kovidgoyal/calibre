@@ -137,7 +137,14 @@ extensions = [
         ['calibre/ebooks/compression/palmdoc.c']),
 
     Extension('podofo',
-                    ['calibre/utils/podofo/podofo.cpp'],
+                    [
+                        'calibre/utils/podofo/utils.cpp',
+                        'calibre/utils/podofo/doc.cpp',
+                        'calibre/utils/podofo/podofo.cpp',
+                    ],
+                    headers=[
+                        'calibre/utils/podofo/global.h',
+                    ],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
                     inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],

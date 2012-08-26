@@ -3,6 +3,7 @@ let $PYFLAKES_BUILTINS = "_,dynamic_property,__,P,I,lopen,icu_lower,icu_upper,ic
 
 " Include directories for C++ modules
 let g:syntastic_cpp_include_dirs = [ 
+            \'/usr/include/python2.7',
             \'/usr/include/podofo', 
             \'/usr/include/qt4/QtCore', 
             \'/usr/include/qt4/QtGui', 
