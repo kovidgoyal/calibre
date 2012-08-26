@@ -9,6 +9,7 @@
 
 using namespace pdf;
 
+// Constructor/desctructor {{{
 static void
 PDFDoc_dealloc(PDFDoc* self)
 {
@@ -29,7 +30,9 @@ PDFDoc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     return (PyObject *)self;
 }
+// }}}
 
+// Loading/Opening of PDF files {{{
 static PyObject *
 PDFDoc_load(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     char *buffer; Py_ssize_t size;
@@ -63,7 +66,9 @@ PDFDoc_open(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 
     Py_RETURN_NONE;
 }
+// }}}
 
+// Saving/writing of PDF files {{{
 static PyObject *
 PDFDoc_save(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     char *buffer;
@@ -97,7 +102,9 @@ PDFDoc_write(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     if (ans == NULL) PyErr_NoMemory();
     return ans;
 }
+// }}}
 
+// extract_first_page() {{{
 static PyObject *
 PDFDoc_extract_first_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     try {
@@ -108,7 +115,9 @@ PDFDoc_extract_first_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     }
     Py_RETURN_NONE;
 }
+// }}}
 
+// page_count() {{{
 static PyObject *
 PDFDoc_page_count(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     int count;
@@ -119,8 +128,9 @@ PDFDoc_page_count(PDFDoc *self, PyObject *args, PyObject *kwargs) {
         return NULL;
     }
     return Py_BuildValue("i", count);
-}
+} // }}}
 
+// delete_page {{{
 static PyObject *
 PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     int num = 0;
@@ -134,12 +144,13 @@ PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     } else return NULL;
 
     Py_RETURN_NONE;
-}
+} // }}}
 
+// append() {{{
 static PyObject *
 PDFDoc_append(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     Py_RETURN_NONE;
-}
+} // }}}
 
 // Properties {{{
 
@@ -379,6 +390,7 @@ static PyMethodDef PDFDoc_methods[] = {
     {NULL}  /* Sentinel */
 };
 
+// Type definition {{{
 PyTypeObject pdf::PDFDocType = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
@@ -421,5 +433,5 @@ PyTypeObject pdf::PDFDocType = {
     PDFDoc_new,                 /* tp_new */
 
 };
-
+// }}}
 
