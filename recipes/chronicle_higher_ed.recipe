@@ -41,6 +41,10 @@ class Chronicle(BasicNewsRecipe):
         dates = self.tag_to_string(issue.a).split(': ')[-1]
         self.timefmt = u' [%s]'%dates
 
+        #Find cover
+        cover=soup0.find('div',attrs={'class':'promo'}).findNext('div')
+        self.cover_url="http://chronicle.com"+cover.find('img')['src']
+
         #Go to the main body
         soup = self.index_to_soup(issueurl)
         div0 = soup.find ('div', attrs={'id':'article-body'})
