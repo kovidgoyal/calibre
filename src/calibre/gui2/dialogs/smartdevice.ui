@@ -101,20 +101,27 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QCheckBox" name="autostart_box">
+     <property name="text">
+      <string>&amp;Automatically allow connections at calibre startup</string>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0" colspan="3">
+    <widget class="QCheckBox" name="enable_auto_management_box">
+     <property name="text">
+      <string>&amp;Enable automatic sending of book metadata when your device connects</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="3">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="3">
-    <widget class="QCheckBox" name="autostart_box">
-     <property name="text">
-      <string>&amp;Automatically allow connections at calibre startup</string>
      </property>
     </widget>
    </item>

@@ -9,6 +9,7 @@ from PyQt4.Qt import (QDialog, QLineEdit, Qt)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
+from calibre.utils.config import prefs
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 
@@ -40,6 +41,14 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
               'to the port, try another number. You can use any number between '
               '8,000 and 32,000.') + '</p>')
 
+        self.enable_auto_management_box.setToolTip('<p>' +
+            _('If this box is checked, calibre will send any changes you made '
+              "to book's metadata when your device is connected. If it is not "
+              'checked, changes are sent only when you send the book. You can '
+              'get more information or change the preference to some other '
+              'choice at Preferences -> Send to device -> Metadata management')
+                                                    + '</p>')
+
         self.show_password.stateChanged[int].connect(self.toggle_password)
         self.use_fixed_port.stateChanged[int].connect(self.use_fixed_port_changed)
 
@@ -57,12 +66,18 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         self.orig_port_number = self.device_manager.get_option('smartdevice',
                                                           'port_number')
         self.fixed_port.setText(self.orig_port_number)
-        self.use_fixed_port.setChecked(self.orig_fixed_port);
+        self.use_fixed_port.setChecked(self.orig_fixed_port)
         if not self.orig_fixed_port:
-            self.fixed_port.setEnabled(False);
+            self.fixed_port.setEnabled(False)
 
         if pw:
             self.password_box.setText(pw)
+
+        self.auto_management_is_set = False
+        if prefs['manage_device_metadata'] == 'on_connect':
+            self.enable_auto_management_box.setChecked(True)
+            self.enable_auto_management_box.setEnabled(False)
+            self.auto_management_is_set = True
 
         self.resize(self.sizeHint())
 
@@ -111,5 +126,8 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             self.device_manager.set_option('smartdevice', 'port_number',
                                            self.orig_port_number)
         else:
+            if not self.auto_management_is_set and \
+                        self.enable_auto_management_box.isChecked():
+                prefs.set('manage_device_metadata', 'on_connect')
             QDialog.accept(self)
 
