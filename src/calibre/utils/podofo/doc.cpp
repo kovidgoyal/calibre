@@ -88,18 +88,20 @@ PDFDoc_save(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 PDFDoc_write(PDFDoc *self, PyObject *args, PyObject *kwargs) {
     PyObject *ans;
-    PdfRefCountedBuffer buffer(1*1024*1024);
-    PdfOutputDevice out(&buffer);
     
     try {
+        PdfRefCountedBuffer buffer(1*1024*1024);
+        PdfOutputDevice out(&buffer);
         self->doc->Write(&out);
+        ans = PyBytes_FromStringAndSize(buffer.GetBuffer(), out.Tell());
+        if (ans == NULL) PyErr_NoMemory();
     } catch(const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
+    } catch (...) {
+        return PyErr_NoMemory();
     }
 
-    ans = PyBytes_FromStringAndSize(buffer.GetBuffer(), out.Tell());
-    if (ans == NULL) PyErr_NoMemory();
     return ans;
 }
 // }}}

@@ -13,6 +13,12 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
+def get_podofo():
+    podofo, podofo_err = plugins['podofo']
+    if podofo is None:
+        raise RuntimeError('Failed to load podofo: %s'%podofo_err)
+    return podofo
+
 def prep(val):
     if not val:
         return u''
@@ -41,10 +47,7 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def set_metadata_(tdir, title, authors, bkp, tags):
-    podofo, podofo_err = plugins['podofo']
-    if podofo is None:
-        raise RuntimeError('Failed to load podofo: %s'%podofo_err)
-
+    podofo = get_podofo()
     os.chdir(tdir)
     p = podofo.PDFDoc()
     p.open(u'input.pdf')
@@ -80,10 +83,7 @@ def set_metadata_(tdir, title, authors, bkp, tags):
 def delete_all_but(path, pages):
     ''' Delete all the pages in the pdf except for the specified ones. Negative
     numbers are counted from the end of the PDF. '''
-    podofo, podofo_err = plugins['podofo']
-    if podofo is None:
-        raise RuntimeError('Failed to load podofo: %s'%podofo_err)
-
+    podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(path, 'rb') as f:
         raw = f.read()

@@ -13,8 +13,9 @@ import os, sys
 
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
-from calibre.constants import preferred_encoding, plugins
+from calibre.constants import preferred_encoding
 from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted
+from calibre.utils.podofo import get_podofo
 from calibre import prints
 
 USAGE = '\n%prog %%name ' + _('''\
@@ -32,9 +33,7 @@ def option_parser(name):
     return OptionParser(usage=usage)
 
 def print_info(pdf_path):
-    podofo, podofo_err = plugins['podofo']
-    if not podofo:
-        raise RuntimeError('Failed to load PoDoFo with error:'+podofo_err)
+    podofo = get_podofo()
     p = podofo.PDFDoc()
     p.open(pdf_path)
 
