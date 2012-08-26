@@ -187,7 +187,11 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
         os.fsync(ans.fileno())
 
         cl = fname.lower()
-        candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+        try:
+            candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+        except EnvironmentError:
+            # The containing directory, somehow disappeared?
+            candidates = []
         if len(candidates) == 1:
             fpath = os.path.join(cpath, candidates[0])
         else:
