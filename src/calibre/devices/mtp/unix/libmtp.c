@@ -232,7 +232,10 @@ libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
     Py_BEGIN_ALLOW_THREADS;
     err = LIBMTP_Detect_Raw_Devices(&rawdevs, &numdevs);
     Py_END_ALLOW_THREADS;
-    if (err != 0) { PyErr_SetString(MTPError, "Failed to detect raw MTP devices"); return -1; }
+    if (err == LIBMTP_ERROR_NO_DEVICE_ATTACHED) { PyErr_SetString(MTPError, "No raw devices found"); return -1; }
+    if (err == LIBMTP_ERROR_CONNECTING) { PyErr_SetString(MTPError, "There has been an error connecting"); return -1; }
+    if (err == LIBMTP_ERROR_MEMORY_ALLOCATION) { PyErr_NoMemory(); return -1; }
+    if (err != LIBMTP_ERROR_NONE) { PyErr_SetString(MTPError, "Failed to detect raw MTP devices"); return -1; }
 
     for (c = 0; c < numdevs; c++) {
         rdev = rawdevs[c];
