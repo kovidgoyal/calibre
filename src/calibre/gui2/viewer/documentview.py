@@ -123,11 +123,11 @@ class Document(QWebPage): # {{{
         opts = config().parse()
         bg = opts.background_color or 'white'
         brules = ['background-color: %s !important'%bg]
-        if opts.text_color:
-            brules += ['color: %s !important'%opts.text_color]
         prefix = '''
             body { %s  }
         '''%('; '.join(brules))
+        if opts.text_color:
+            prefix += '\n\nbody, p, div { color: %s !important }'%opts.text_color
         raw = prefix + opts.user_css
         raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
