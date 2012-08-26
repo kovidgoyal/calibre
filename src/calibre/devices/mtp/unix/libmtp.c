@@ -212,22 +212,24 @@ libmtp_Device_dealloc(libmtp_Device* self)
 static int
 libmtp_Device_init(libmtp_Device *self, PyObject *args, PyObject *kwds)
 {
-    int busnum, devnum, vendor_id, product_id;
+    uint32_t busnum;
+    uint8_t devnum;
+    uint16_t vendor_id, product_id;
     PyObject *usb_serialnum;
     char *vendor, *product, *friendly_name, *manufacturer_name, *model_name, *serial_number, *device_version;
     LIBMTP_raw_device_t rawdev;
     LIBMTP_mtpdevice_t *dev;
     size_t i;
 
-    if (!PyArg_ParseTuple(args, "iiiissO", &busnum, &devnum, &vendor_id, &product_id, &vendor, &product, &usb_serialnum)) return -1;
+    if (!PyArg_ParseTuple(args, "IBHHssO", &busnum, &devnum, &vendor_id, &product_id, &vendor, &product, &usb_serialnum)) return -1;
 
     if (devnum < 0 || devnum > 255 || busnum < 0) { PyErr_SetString(PyExc_TypeError, "Invalid busnum/devnum"); return -1; }
 
-    self->ids = Py_BuildValue("iiiiO", busnum, devnum, vendor_id, product_id, usb_serialnum);
+    self->ids = Py_BuildValue("IBHHO", busnum, devnum, vendor_id, product_id, usb_serialnum);
     if (self->ids == NULL) return -1;
 
-    rawdev.bus_location = (uint32_t)busnum;
-    rawdev.devnum = (uint8_t)devnum;
+    rawdev.bus_location = busnum;
+    rawdev.devnum = devnum;
     rawdev.device_entry.vendor = vendor;
     rawdev.device_entry.product = product;
     rawdev.device_entry.vendor_id = vendor_id;

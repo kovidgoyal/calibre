@@ -12,7 +12,7 @@ from threading import RLock
 from io import BytesIO
 from collections import namedtuple
 
-from calibre import prints
+from calibre import prints, as_unicode
 from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
@@ -28,7 +28,7 @@ def fingerprint(d):
 
 class MTP_DEVICE(MTPDeviceBase):
 
-    supported_platforms = ['linux']
+    supported_platforms = ['linux', 'osx']
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
@@ -138,11 +138,12 @@ class MTP_DEVICE(MTPDeviceBase):
             time.sleep(2)
             try:
                 self.dev = self.create_device(connected_device)
-            except self.libmtp.MTPError:
+            except self.libmtp.MTPError as e:
                 # Black list this device so that it is ignored for the
                 # remainder of this session.
                 self.blacklisted_devices.add(connected_device)
-                raise OpenFailed('%s is not a MTP device'%(connected_device,))
+                raise OpenFailed('Failed to open %s: Error: %s'%(
+                    connected_device, as_unicode(e)))
         except TypeError:
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed('')
@@ -309,9 +310,13 @@ if __name__ == '__main__':
     from pprint import pprint
     dev = MTP_DEVICE(None)
     dev.startup()
-    from calibre.devices.scanner import linux_scanner
-    devs = linux_scanner()
+    from calibre.devices.scanner import DeviceScanner
+    scanner = DeviceScanner()
+    scanner.scan()
+    devs = scanner.devices
     cd = dev.detect_managed_devices(devs)
+    if cd is None:
+        raise Exception('No MTP device found')
     dev.open(cd, 'xxx')
     d = dev.dev
     print ("Opened device:", dev.get_gui_name())
