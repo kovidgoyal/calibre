@@ -43,12 +43,6 @@ PARALLEL_FUNCS = {
       'read_metadata' :
       ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
 
-      'read_pdf_metadata' :
-      ('calibre.utils.podofo.__init__', 'get_metadata_', None),
-
-      'write_pdf_metadata' :
-      ('calibre.utils.podofo.__init__', 'set_metadata_', None),
-
       'save_book' :
       ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
 

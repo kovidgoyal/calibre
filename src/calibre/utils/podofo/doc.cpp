@@ -57,8 +57,8 @@ PDFDoc_open(PDFDoc *self, PyObject *args, PyObject *kwargs) {
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
-    }
-} else return NULL;
+        }
+    } else return NULL;
 
 
     Py_RETURN_NONE;
@@ -77,10 +77,71 @@ PDFDoc_save(PDFDoc *self, PyObject *args, PyObject *kwargs) {
         }
     } else return NULL;
 
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
+
+static PyObject *
+PDFDoc_write(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    PyObject *ans;
+    PdfRefCountedBuffer buffer(1*1024*1024);
+    PdfOutputDevice out(&buffer);
+    
+    try {
+        self->doc->Write(&out);
+    } catch(const PdfError &err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+
+    ans = PyBytes_FromStringAndSize(buffer.GetBuffer(), out.Tell());
+    if (ans == NULL) PyErr_NoMemory();
+    return ans;
+}
+
+static PyObject *
+PDFDoc_extract_first_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    try {
+        while (self->doc->GetPageCount() > 1) self->doc->GetPagesTree()->DeletePage(1);
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PDFDoc_page_count(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    int count;
+    try {
+        count = self->doc->GetPageCount();
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    return Py_BuildValue("i", count);
+}
+
+static PyObject *
+PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    int num = 0;
+    if (PyArg_ParseTuple(args, "i", &num)) {
+        try {
+            self->doc->DeletePages(num, 1);
+        } catch(const PdfError & err) {
+            podofo_set_exception(err);
+            return NULL;
+        }
+    } else return NULL;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+PDFDoc_append(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    Py_RETURN_NONE;
+}
+
+// Properties {{{
 
 static PyObject *
 PDFDoc_pages_getter(PDFDoc *self, void *closure) {
@@ -120,46 +181,6 @@ PDFDoc_version_getter(PDFDoc *self, void *closure) {
             return Py_BuildValue("");
     }
     return Py_BuildValue("");
-}
-
-
- 
-static PyObject *
-PDFDoc_extract_first_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
-    try {
-        while (self->doc->GetPageCount() > 1) self->doc->GetPagesTree()->DeletePage(1);
-    } catch(const PdfError & err) {
-        podofo_set_exception(err);
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-PDFDoc_page_count(PDFDoc *self, PyObject *args, PyObject *kwargs) {
-    int count;
-    try {
-        count = self->doc->GetPageCount();
-    } catch(const PdfError & err) {
-        podofo_set_exception(err);
-        return NULL;
-    }
-    return Py_BuildValue("i", count);
-}
-
-static PyObject *
-PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
-    int num = 0;
-    if (PyArg_ParseTuple(args, "i", &num)) {
-        try {
-            self->doc->DeletePages(num, 1);
-        } catch(const PdfError & err) {
-            podofo_set_exception(err);
-            return NULL;
-        }
-    } else return NULL;
-
-    Py_RETURN_NONE;
 }
 
 
@@ -288,31 +309,6 @@ PDFDoc_producer_setter(PDFDoc *self, PyObject *val, void *closure) {
     return  PDFDoc_setter(self, val, 5);
 }
 
-
-static PyMethodDef PDFDoc_methods[] = {
-    {"load", (PyCFunction)PDFDoc_load, METH_VARARGS,
-     "Load a PDF document from a byte buffer (string)"
-    },
-    {"open", (PyCFunction)PDFDoc_open, METH_VARARGS,
-     "Load a PDF document from a file path (string)"
-    },
-    {"save", (PyCFunction)PDFDoc_save, METH_VARARGS,
-     "Save the PDF document to a path on disk"
-    },
-    {"extract_first_page", (PyCFunction)PDFDoc_extract_first_page, METH_VARARGS,
-     "extract_first_page() -> Remove all but the first page."
-    },
-    {"page_count", (PyCFunction)PDFDoc_page_count, METH_VARARGS,
-     "page_count() -> Number of pages in the PDF."
-    },
-    {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
-     "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
-    },
-
-
-    {NULL}  /* Sentinel */
-};
-
 static PyGetSetDef PDFDoc_getsetters[] = {
     {(char *)"title", 
      (getter)PDFDoc_title_getter, (setter)PDFDoc_title_setter,
@@ -346,6 +342,39 @@ static PyGetSetDef PDFDoc_getsetters[] = {
      (getter)PDFDoc_version_getter, NULL,
      (char *)"The PDF version (read only)",
      NULL},
+
+    {NULL}  /* Sentinel */
+};
+
+
+// }}}
+
+static PyMethodDef PDFDoc_methods[] = {
+    {"load", (PyCFunction)PDFDoc_load, METH_VARARGS,
+     "Load a PDF document from a byte buffer (string)"
+    },
+    {"open", (PyCFunction)PDFDoc_open, METH_VARARGS,
+     "Load a PDF document from a file path (string)"
+    },
+    {"save", (PyCFunction)PDFDoc_save, METH_VARARGS,
+     "Save the PDF document to a path on disk"
+    },
+    {"write", (PyCFunction)PDFDoc_write, METH_VARARGS,
+     "Return the PDF document as a bytestring."
+    },
+    {"extract_first_page", (PyCFunction)PDFDoc_extract_first_page, METH_VARARGS,
+     "extract_first_page() -> Remove all but the first page."
+    },
+    {"page_count", (PyCFunction)PDFDoc_page_count, METH_VARARGS,
+     "page_count() -> Number of pages in the PDF."
+    },
+    {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
+     "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
+    },
+    {"append", (PyCFunction)PDFDoc_append, METH_VARARGS,
+     "append(doc) -> Append doc (which must be a PDFDoc) to this document."
+    },
+
 
     {NULL}  /* Sentinel */
 };
