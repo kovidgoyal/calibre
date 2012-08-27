@@ -5,11 +5,46 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import netifaces, socket
+
 from PyQt4.Qt import (QDialog, QLineEdit, Qt)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.config import prefs
+
+def _cmp_ipaddr(l, r):
+    lparts = ['%3s'%x for x in l.split('.')]
+    rparts = ['%3s'%x for x in r.split('.')]
+
+    if lparts[0] in ['192', '170', ' 10']:
+        if rparts[0] not in ['192', '170', '10']:
+            return -1
+        return cmp(rparts, lparts)
+
+    if rparts[0] in ['192', '170', ' 10']:
+        return 1
+
+    return cmp(lparts, rparts)
+
+def get_all_ip_addresses():
+        ip_info = [netifaces.ifaddresses(x).get(netifaces.AF_INET, None)
+                   for x in netifaces.interfaces()]
+
+        all_ipaddrs = list()
+        for iface in ip_info:
+            if iface is not None:
+                for addrs in iface:
+                    if 'netmask' in addrs and addrs['addr'] != '127.0.0.1':
+                        # We get VPN interfaces that were connected and then
+                        # disconnected. Oh well. At least the 'right' IP addr
+                        # is there.
+                        all_ipaddrs.append(addrs['addr'])
+
+        all_ipaddrs.sort(cmp=_cmp_ipaddr)
+        print(all_ipaddrs)
+        return all_ipaddrs
+
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 
@@ -49,6 +84,15 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
               'choice at Preferences -> Send to device -> Metadata management')
                                                     + '</p>')
 
+        self.ip_addresses.setToolTip('<p>' +
+            _('These are the IP addresses detected by calibre for the computer '
+              'running calibre. If you decide to have your device connect to '
+              'calibre using a fixed IP address, one of these addresses should '
+              'be the one you use. It is unlikely but possible that the correct '
+              'IP address is not listed here, in which case you will need to go '
+              "to your computer's control panel to get a complete list of "
+              "your computer's network interfaces and IP addresses.") + '</p>')
+
         self.show_password.stateChanged[int].connect(self.toggle_password)
         self.use_fixed_port.stateChanged[int].connect(self.use_fixed_port_changed)
 
@@ -78,6 +122,8 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             self.enable_auto_management_box.setChecked(True)
             self.enable_auto_management_box.setEnabled(False)
             self.auto_management_is_set = True
+
+        self.ip_addresses.setText(', '.join(get_all_ip_addresses()))
 
         self.resize(self.sizeHint())
 
