@@ -217,7 +217,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
         used_once = self.measure_memory_usage(1, send_file, self.storage, name,
                 raw, size)
-        used_many = self.measure_memory_usage(10, send_file, self.storage, name,
+        used_many = self.measure_memory_usage(20, send_file, self.storage, name,
                 raw, size)
 
         self.check_memory(used_once, used_many,
@@ -227,12 +227,13 @@ class TestDeviceInteraction(unittest.TestCase):
             raw = io.BytesIO()
             pc = ProgressCallback()
             self.dev.get_file(f, raw, callback=pc)
+            raw.truncate(0)
             del raw
             del pc
 
         f = self.storage.file_named(name)
         used_once = self.measure_memory_usage(1, get_file, f)
-        used_many = self.measure_memory_usage(10, get_file, f)
+        used_many = self.measure_memory_usage(20, get_file, f)
         self.check_memory(used_once, used_many,
                 'Memory consumption during get_file:')
 
