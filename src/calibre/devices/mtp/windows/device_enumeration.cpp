@@ -149,7 +149,7 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
                         if (SUCCEEDED(values->GetUnsignedIntegerValue(WPD_STORAGE_ACCESS_CAPABILITY, &access)) && access == WPD_STORAGE_ACCESS_CAPABILITY_READWRITE) desc = Py_True;
                         soid = PyUnicode_FromWideChar(object_ids[i], wcslen(object_ids[i]));
                         if (soid == NULL) { PyErr_NoMemory(); goto end; }
-                        so = Py_BuildValue("{s:K,s:K,s:K,s:K,s:O,s:N}", 
+                        so = Py_BuildValue("{s:K, s:K, s:K, s:K, s:O, s:N}", 
                                 "capacity", capacity, "capacity_objects", capacity_objects, "free_space", free_space, "free_objects", free_objects, "rw", desc, "id", soid);
                         if (so == NULL) { PyErr_NoMemory(); goto end; }
                         if (SUCCEEDED(values->GetStringValue(WPD_STORAGE_DESCRIPTION, &storage_desc))) {

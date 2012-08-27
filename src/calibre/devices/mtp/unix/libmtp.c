@@ -119,43 +119,18 @@ static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, uns
 }
 
 static PyObject* build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
-    PyObject *ans = NULL, *l = NULL;
+    PyObject *ans = NULL;
 
-    ans = Py_BuildValue("{s:s}", "name", nf->filename);
-    if (ans == NULL) return PyErr_NoMemory();
-
-    // We explicitly populate the dictionary instead of using Py_BuildValue to
-    // handle the numeric variables properly. Without this, for some reason the
-    // dict sometimes has incorrect values
-    l = PyLong_FromUnsignedLong(nf->item_id);
-    if (l == NULL) goto error;
-    if (PyDict_SetItemString(ans, "id", l) != 0) goto error;
-    Py_DECREF(l); l = NULL;
-
-    l = PyLong_FromUnsignedLong(nf->parent_id);
-    if (l == NULL) goto error;
-    if (PyDict_SetItemString(ans, "parent_id", l) != 0) goto error;
-    Py_DECREF(l); l = NULL;
-
-    l = PyLong_FromUnsignedLong(storage_id);
-    if (l == NULL) goto error;
-    if (PyDict_SetItemString(ans, "storage_id", l) != 0) goto error;
-    Py_DECREF(l); l = NULL;
-
-    l = PyLong_FromUnsignedLongLong(nf->filesize);
-    if (l == NULL) goto error;
-    if (PyDict_SetItemString(ans, "size", l) != 0) goto error;
-    Py_DECREF(l); l = NULL;
-
-    if (PyDict_SetItemString(ans, "is_folder",
-        (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False) != 0) 
-        goto error;
+    ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:O}", 
+            "name", nf->filename,
+            "id", nf->item_id,
+            "parent_id", nf->parent_id,
+            "storage_id", storage_id,
+            "size", nf->filesize,
+            "is_folder", (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False
+    );
 
     return ans;
-
-error:
-    Py_XDECREF(ans); Py_XDECREF(l);
-    return PyErr_NoMemory();
 }
 
 static PyObject* file_metadata(LIBMTP_mtpdevice_t *device, PyObject *errs, uint32_t item_id, uint32_t storage_id) {
@@ -396,8 +371,8 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
         entry = build_file_metadata(f, storage_id);
         if (entry == NULL) { ok = 0; }
         else {
-            PyList_Append(ans, entry);
-            Py_DECREF(entry);
+            if (PyList_Append(ans, entry) != 0) { ok = 0; }
+            Py_DECREF(entry); 
         }
 
         if (ok && f->filetype == LIBMTP_FILETYPE_FOLDER) {

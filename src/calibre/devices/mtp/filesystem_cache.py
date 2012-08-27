@@ -31,8 +31,8 @@ class FileOrFolder(object):
         self.all_storage_ids = fs_cache.all_storage_ids
 
         if self.storage_id not in self.all_storage_ids:
-            raise ValueError('Storage id %s not valid for %s'%(self.storage_id,
-                entry))
+            raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
+                entry, self.all_storage_ids))
 
         if self.parent_id == 0:
             self.parent_id = self.storage_id
@@ -138,7 +138,7 @@ class FilesystemCache(object):
             self.entries.append(e)
 
         self.entries.sort(key=attrgetter('object_id'))
-        all_storage_ids = [x.object_id for x in self.entries]
+        all_storage_ids = [x.storage_id for x in self.entries]
         self.all_storage_ids = tuple(all_storage_ids)
 
         for entry in entries:

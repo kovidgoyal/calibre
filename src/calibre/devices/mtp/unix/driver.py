@@ -320,11 +320,22 @@ class MTP_DEVICE(MTPDeviceBase):
                 (obj.full_path, self.format_errorstack(errs)))
         parent.remove_child(obj)
 
-if __name__ == '__main__':
-    class PR:
-        def report_progress(self, sent, total):
-            print (sent, total, end=', ')
+def develop():
+    from calibre.devices.scanner import DeviceScanner
+    scanner = DeviceScanner()
+    scanner.scan()
+    dev = MTP_DEVICE(None)
+    dev.startup()
+    try:
+        cd = dev.detect_managed_devices(scanner.devices)
+        if cd is None: raise RuntimeError('No MTP device found')
+        dev.open(cd, 'develop')
+        pprint.pprint(dev.dev.storage_info)
+        dev.filesystem_cache
+    finally:
+        dev.shutdown()
 
+if __name__ == '__main__':
     dev = MTP_DEVICE(None)
     dev.startup()
     from calibre.devices.scanner import DeviceScanner
