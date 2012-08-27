@@ -80,9 +80,9 @@ static PyObject* get_devices(PyObject *self, PyObject *args) {
         if (err != 0) { format_err(err); break; }
         if (desc.bDeviceClass == LIBUSB_CLASS_HUB) continue;
 
-        d = Py_BuildValue("(HHHHH)", libusb_get_bus_number(dev),
-                libusb_get_device_address(dev), desc.idVendor, desc.idProduct,
-                desc.bcdDevice);
+        d = Py_BuildValue("(BBHHH)", (unsigned char)libusb_get_bus_number(dev),
+                (unsigned char)libusb_get_device_address(dev), (unsigned short)desc.idVendor, (unsigned short)desc.idProduct,
+                (unsigned short)desc.bcdDevice);
         if (d == NULL) break;
 
         t = PyDict_GetItem(cache, d);

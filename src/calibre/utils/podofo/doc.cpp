@@ -34,7 +34,7 @@ PDFDoc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 // Loading/Opening of PDF files {{{
 static PyObject *
-PDFDoc_load(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_load(PDFDoc *self, PyObject *args) {
     char *buffer; Py_ssize_t size;
 
     if (PyArg_ParseTuple(args, "s#", &buffer, &size)) {
@@ -51,7 +51,7 @@ PDFDoc_load(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 }
 
 static PyObject *
-PDFDoc_open(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_open(PDFDoc *self, PyObject *args) {
     char *fname;
 
     if (PyArg_ParseTuple(args, "s", &fname)) {
@@ -70,7 +70,7 @@ PDFDoc_open(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 
 // Saving/writing of PDF files {{{
 static PyObject *
-PDFDoc_save(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_save(PDFDoc *self, PyObject *args) {
     char *buffer;
 
     if (PyArg_ParseTuple(args, "s", &buffer)) {
@@ -86,7 +86,7 @@ PDFDoc_save(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 }
 
 static PyObject *
-PDFDoc_write(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_write(PDFDoc *self, PyObject *args) {
     PyObject *ans;
     
     try {
@@ -108,7 +108,7 @@ PDFDoc_write(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 
 // extract_first_page() {{{
 static PyObject *
-PDFDoc_extract_first_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_extract_first_page(PDFDoc *self, PyObject *args) {
     try {
         while (self->doc->GetPageCount() > 1) self->doc->GetPagesTree()->DeletePage(1);
     } catch(const PdfError & err) {
@@ -121,7 +121,7 @@ PDFDoc_extract_first_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 
 // page_count() {{{
 static PyObject *
-PDFDoc_page_count(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_page_count(PDFDoc *self, PyObject *args) {
     int count;
     try {
         count = self->doc->GetPageCount();
@@ -134,7 +134,7 @@ PDFDoc_page_count(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 
 // delete_page {{{
 static PyObject *
-PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_delete_page(PDFDoc *self, PyObject *args) {
     int num = 0;
     if (PyArg_ParseTuple(args, "i", &num)) {
         try {
@@ -150,7 +150,7 @@ PDFDoc_delete_page(PDFDoc *self, PyObject *args, PyObject *kwargs) {
 
 // append() {{{
 static PyObject *
-PDFDoc_append(PDFDoc *self, PyObject *args, PyObject *kwargs) {
+PDFDoc_append(PDFDoc *self, PyObject *args) {
     PyObject *doc;
     int typ;
 

@@ -67,7 +67,7 @@ init(Device *self, PyObject *args, PyObject *kwds)
 
 // update_device_data() {{{
 static PyObject*
-update_data(Device *self, PyObject *args, PyObject *kwargs) {
+update_data(Device *self, PyObject *args) {
     PyObject *di = NULL;
     di = get_device_information(self->device, NULL);
     if (di == NULL) return NULL;
@@ -77,7 +77,7 @@ update_data(Device *self, PyObject *args, PyObject *kwargs) {
  
 // get_filesystem() {{{
 static PyObject*
-py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
+py_get_filesystem(Device *self, PyObject *args) {
     PyObject *storage_id, *ret;
     wchar_t *storage;
 
@@ -92,7 +92,7 @@ py_get_filesystem(Device *self, PyObject *args, PyObject *kwargs) {
 
 // get_file() {{{
 static PyObject*
-py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
+py_get_file(Device *self, PyObject *args) {
     PyObject *object_id, *stream, *callback = NULL, *ret;
     wchar_t *object;
 
@@ -109,7 +109,7 @@ py_get_file(Device *self, PyObject *args, PyObject *kwargs) {
 
 // create_folder() {{{
 static PyObject*
-py_create_folder(Device *self, PyObject *args, PyObject *kwargs) {
+py_create_folder(Device *self, PyObject *args) {
     PyObject *pparent_id, *pname, *ret;
     wchar_t *parent_id, *name;
 
@@ -125,7 +125,7 @@ py_create_folder(Device *self, PyObject *args, PyObject *kwargs) {
 
 // delete_object() {{{
 static PyObject*
-py_delete_object(Device *self, PyObject *args, PyObject *kwargs) {
+py_delete_object(Device *self, PyObject *args) {
     PyObject *pobject_id, *ret;
     wchar_t *object_id;
 
@@ -140,10 +140,10 @@ py_delete_object(Device *self, PyObject *args, PyObject *kwargs) {
 
 // get_file() {{{
 static PyObject*
-py_put_file(Device *self, PyObject *args, PyObject *kwargs) {
+py_put_file(Device *self, PyObject *args) {
     PyObject *pparent_id, *pname, *stream, *callback = NULL, *ret;
     wchar_t *parent_id, *name;
-    unsigned PY_LONG_LONG size;
+    unsigned long long size;
 
     if (!PyArg_ParseTuple(args, "OOOK|O", &pparent_id, &pname, &stream, &size, &callback)) return NULL;
     parent_id = unicode_to_wchar(pparent_id);
