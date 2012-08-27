@@ -20,19 +20,15 @@ class FileOrFolder(object):
     def __init__(self, entry, fs_cache):
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
+        self.storage_id = entry['storage_id']
+        # self.parent_id is None for storage objects
+        self.parent_id = entry.get('parent_id', None)
         n = entry.get('name', None)
         if not n: n = '___'
         self.name = force_unicode(n, 'utf-8')
-        self.storage_id = entry.get('storage_id', None)
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
-        # self.parent_id is None for storage objects
-        self.parent_id = entry.get('parent_id', None)
         self.all_storage_ids = fs_cache.all_storage_ids
-
-        if self.parent_id is None and self.storage_id is None:
-            # A storage object
-            self.storage_id = self.object_id
 
         if self.storage_id not in self.all_storage_ids:
             raise ValueError('Storage id %s not valid for %s'%(self.storage_id,
@@ -137,6 +133,7 @@ class FilesystemCache(object):
         self.all_storage_ids = tuple(x['id'] for x in all_storage)
 
         for storage in all_storage:
+            storage['storage_id'] = storage['id']
             e = FileOrFolder(storage, self)
             self.entries.append(e)
 
