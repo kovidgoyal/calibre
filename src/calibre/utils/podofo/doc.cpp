@@ -170,6 +170,30 @@ PDFDoc_append(PDFDoc *self, PyObject *args) {
     Py_RETURN_NONE;
 } // }}}
 
+// set_box() {{{
+static PyObject *
+PDFDoc_set_box(PDFDoc *self, PyObject *args) {
+    int num = 0;
+    double left, bottom, width, height;
+    char *box;
+    if (!PyArg_ParseTuple(args, "isdddd", &num, &box, &left, &bottom, &width, &height)) return NULL;
+
+    try {
+        PdfRect r(left, bottom, width, height);
+        PdfObject o;
+        r.ToVariant(o);
+        self->doc->GetPage(num)->GetObject()->GetDictionary().AddKey(PdfName(box), o);
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the box");
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+} // }}}
+
 // Properties {{{
 
 static PyObject *
@@ -402,6 +426,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"append", (PyCFunction)PDFDoc_append, METH_VARARGS,
      "append(doc) -> Append doc (which must be a PDFDoc) to this document."
+    },
+    {"set_box", (PyCFunction)PDFDoc_set_box, METH_VARARGS,
+     "set_box(page_num, box, left, bottom, width, height) -> Set the PDF bounding box for the page numbered nu, box must be one of: MediaBox, CropBox, TrimBox, BleedBox, ArtBox. The numbers are interpreted as pts."
     },
 
 
