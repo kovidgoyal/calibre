@@ -89,7 +89,7 @@ magick_PixelWand_color_setter(magick_PixelWand *self, PyObject *val, void *closu
 // PixelWand.destroy {{{
 
 static PyObject *
-magick_PixelWand_destroy(magick_PixelWand *self, PyObject *args, PyObject *kwargs) {
+magick_PixelWand_destroy(magick_PixelWand *self, PyObject *args) {
     NULL_CHECK(NULL)
     self->wand = DestroyPixelWand(self->wand);
     Py_RETURN_NONE;
@@ -197,7 +197,7 @@ magick_DrawingWand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 // DrawingWand.destroy {{{
 
 static PyObject *
-magick_DrawingWand_destroy(magick_DrawingWand *self, PyObject *args, PyObject *kwargs) {
+magick_DrawingWand_destroy(magick_DrawingWand *self, PyObject *args) {
     NULL_CHECK(NULL)
     self->wand = DestroyDrawingWand(self->wand);
     Py_RETURN_NONE;
@@ -493,9 +493,9 @@ typedef struct {
 } magick_Image;
 
 // Method declarations {{{
-static PyObject* magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs);
-static PyObject* magick_Image_copy(magick_Image *self, PyObject *args, PyObject *kwargs);
-static PyObject* magick_Image_texture(magick_Image *self, PyObject *args, PyObject *kwargs);
+static PyObject* magick_Image_compose(magick_Image *self, PyObject *args);
+static PyObject* magick_Image_copy(magick_Image *self, PyObject *args);
+static PyObject* magick_Image_texture(magick_Image *self, PyObject *args);
 // }}}
 
 static void
@@ -527,7 +527,7 @@ magick_Image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 // Image.load {{{
 static PyObject *
-magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_load(magick_Image *self, PyObject *args) {
     const char *data;
 	Py_ssize_t dlen;
     MagickBooleanType res;
@@ -547,7 +547,7 @@ magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 // Image.identify {{{
 static PyObject *
-magick_Image_identify(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_identify(magick_Image *self, PyObject *args) {
     const char *data;
 	Py_ssize_t dlen;
     MagickBooleanType res;
@@ -567,7 +567,7 @@ magick_Image_identify(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 // Image.open {{{
 static PyObject *
-magick_Image_read(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_read(magick_Image *self, PyObject *args) {
     const char *data;
     MagickBooleanType res;
     
@@ -586,7 +586,7 @@ magick_Image_read(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 // Image.create_canvas {{{
 static PyObject *
-magick_Image_create_canvas(magick_Image *self, PyObject *args, PyObject *kwargs)
+magick_Image_create_canvas(magick_Image *self, PyObject *args)
 {
     Py_ssize_t width, height;
     char *bgcolor;
@@ -611,7 +611,7 @@ magick_Image_create_canvas(magick_Image *self, PyObject *args, PyObject *kwargs)
 // Image.font_metrics {{{
 
 static PyObject *
-magick_Image_font_metrics(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_font_metrics(magick_Image *self, PyObject *args) {
     char *text;
     PyObject *dw_, *ans, *m;
     Py_ssize_t i;
@@ -641,7 +641,7 @@ magick_Image_font_metrics(magick_Image *self, PyObject *args, PyObject *kwargs) 
 // Image.annotate {{{
 
 static PyObject *
-magick_Image_annotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_annotate(magick_Image *self, PyObject *args) {
     char *text;
     PyObject *dw_;
     DrawingWand *dw;
@@ -662,7 +662,7 @@ magick_Image_annotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.export {{{
 
 static PyObject *
-magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_export(magick_Image *self, PyObject *args) {
     char *fmt;
     unsigned char *data;
     PyObject *ans;
@@ -790,7 +790,7 @@ magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
 // Image.distort {{{
 
 static PyObject *
-magick_Image_distort(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_distort(magick_Image *self, PyObject *args) {
     int method;
     Py_ssize_t i, number;
     PyObject *bestfit, *argv, *t;
@@ -826,7 +826,7 @@ magick_Image_distort(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.trim {{{
 
 static PyObject *
-magick_Image_trim(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_trim(magick_Image *self, PyObject *args) {
     double fuzz;
     
     NULL_CHECK(NULL)
@@ -842,7 +842,7 @@ magick_Image_trim(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.thumbnail {{{
 
 static PyObject *
-magick_Image_thumbnail(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_thumbnail(magick_Image *self, PyObject *args) {
     Py_ssize_t width, height;
     
     NULL_CHECK(NULL)
@@ -858,7 +858,7 @@ magick_Image_thumbnail(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.crop {{{
 
 static PyObject *
-magick_Image_crop(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_crop(magick_Image *self, PyObject *args) {
     Py_ssize_t width, height, x, y;
     
     NULL_CHECK(NULL)
@@ -874,7 +874,7 @@ magick_Image_crop(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.set_border_color {{{
 
 static PyObject *
-magick_Image_set_border_color(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_set_border_color(magick_Image *self, PyObject *args) {
     PyObject *obj;
     magick_PixelWand *pw;
     
@@ -893,7 +893,7 @@ magick_Image_set_border_color(magick_Image *self, PyObject *args, PyObject *kwar
 // Image.rotate {{{
 
 static PyObject *
-magick_Image_rotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_rotate(magick_Image *self, PyObject *args) {
     PyObject *obj;
     magick_PixelWand *pw;
     double degrees;
@@ -913,7 +913,7 @@ magick_Image_rotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.rotate {{{
 
 static PyObject *
-magick_Image_flip(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_flip(magick_Image *self, PyObject *args) {
     PyObject *obj = NULL;
     MagickBooleanType ret = 0;
     
@@ -930,7 +930,7 @@ magick_Image_flip(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.set_page {{{
 
 static PyObject *
-magick_Image_set_page(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_set_page(magick_Image *self, PyObject *args) {
     Py_ssize_t width, height, x, y;
     
     NULL_CHECK(NULL)
@@ -946,7 +946,7 @@ magick_Image_set_page(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.set_compression_quality {{{
 
 static PyObject *
-magick_Image_set_compression_quality(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_set_compression_quality(magick_Image *self, PyObject *args) {
     Py_ssize_t quality;
     
     NULL_CHECK(NULL)
@@ -962,7 +962,7 @@ magick_Image_set_compression_quality(magick_Image *self, PyObject *args, PyObjec
 // Image.has_transparent_pixels {{{
 
 static PyObject *
-magick_Image_has_transparent_pixels(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_has_transparent_pixels(magick_Image *self, PyObject *args) {
     PixelIterator *pi = NULL;
     PixelWand **pixels = NULL;
     int found = 0;
@@ -993,7 +993,7 @@ magick_Image_has_transparent_pixels(magick_Image *self, PyObject *args, PyObject
 // Image.normalize {{{
 
 static PyObject *
-magick_Image_normalize(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_normalize(magick_Image *self, PyObject *args) {
     NULL_CHECK(NULL)
 
     if (!MagickNormalizeImage(self->wand)) return magick_set_exception(self->wand);
@@ -1005,7 +1005,7 @@ magick_Image_normalize(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.add_border {{{
 
 static PyObject *
-magick_Image_add_border(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_add_border(magick_Image *self, PyObject *args) {
     Py_ssize_t dx, dy;
     PyObject *obj;
     magick_PixelWand *pw;
@@ -1025,7 +1025,7 @@ magick_Image_add_border(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.sharpen {{{
 
 static PyObject *
-magick_Image_sharpen(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_sharpen(magick_Image *self, PyObject *args) {
     double radius, sigma;
    
     NULL_CHECK(NULL)
@@ -1041,7 +1041,7 @@ magick_Image_sharpen(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.quantize {{{
 
 static PyObject *
-magick_Image_quantize(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_quantize(magick_Image *self, PyObject *args) {
     Py_ssize_t number_colors, treedepth;
     int colorspace;
     PyObject *dither, *measure_error;
@@ -1060,7 +1060,7 @@ magick_Image_quantize(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.despeckle {{{
 
 static PyObject *
-magick_Image_despeckle(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_despeckle(magick_Image *self, PyObject *args) {
     NULL_CHECK(NULL)
 
     if (!MagickDespeckleImage(self->wand)) return magick_set_exception(self->wand);
@@ -1107,7 +1107,7 @@ magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
 // Image.destroy {{{
 
 static PyObject *
-magick_Image_destroy(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_destroy(magick_Image *self, PyObject *args) {
     NULL_CHECK(NULL)
     self->wand = DestroyMagickWand(self->wand);
     Py_RETURN_NONE;
@@ -1117,7 +1117,7 @@ magick_Image_destroy(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.set_opacity {{{
 
 static PyObject *
-magick_Image_set_opacity(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_set_opacity(magick_Image *self, PyObject *args) {
     double opacity;
     NULL_CHECK(NULL)
 
@@ -1310,7 +1310,7 @@ static PyTypeObject magick_ImageType = { // {{{
 
 // Image.compose {{{
 static PyObject *
-magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs)
+magick_Image_compose(magick_Image *self, PyObject *args)
 {
     PyObject *img, *op_;
     ssize_t left, top;
@@ -1341,7 +1341,7 @@ magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs)
 
 // Image.clone {{{
 static PyObject *
-magick_Image_copy(magick_Image *self, PyObject *args, PyObject *kwargs)
+magick_Image_copy(magick_Image *self, PyObject *args)
 {
     PyObject *img;
     magick_Image *src;
@@ -1361,7 +1361,7 @@ magick_Image_copy(magick_Image *self, PyObject *args, PyObject *kwargs)
 
 // Image.texture {{{
 static PyObject *
-magick_Image_texture(magick_Image *self, PyObject *args, PyObject *kwargs) {
+magick_Image_texture(magick_Image *self, PyObject *args) {
     PyObject *img;
     magick_Image *texture;
 
