@@ -130,6 +130,10 @@ def data_as_string(f, md):
             pass
     return raw
 
+def path_from_qurl(qurl):
+    raw = bytes(bytearray(qurl.encodedPath()))
+    return urllib.unquote(raw).decode('utf-8')
+
 def dnd_has_extension(md, extensions):
     if DEBUG:
         prints('Debugging DND event')
@@ -143,7 +147,7 @@ def dnd_has_extension(md, extensions):
     if md.hasUrls():
         urls = [unicode(u.toString()) for u in
                 md.urls()]
-        paths = [urlparse(u).path for u in urls]
+        paths = [path_from_qurl(u) for u in md.urls()]
         exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
             paths if u])
         if DEBUG:
