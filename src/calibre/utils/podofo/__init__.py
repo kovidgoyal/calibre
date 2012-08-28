@@ -98,7 +98,23 @@ def delete_all_but(path, pages):
     with open(path, 'wb') as f:
         f.write(raw)
 
+def test_outline(src):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    with open(src, 'rb') as f:
+        raw = f.read()
+    p.load(raw)
+    total = p.page_count()
+    root = p.create_outline(u'Table of Contents')
+    for i in xrange(0, total):
+        root.create(u'Page %d'%i, i, True)
+    raw = p.write()
+    out = '/tmp/outlined.pdf'
+    with open(out, 'wb') as f:
+        f.write(raw)
+    print 'Outlined PDF:', out
+
 if __name__ == '__main__':
-    f = u'/tmp/t.pdf'
-    delete_all_but(f, [0, 1, -2, -1])
+    import sys
+    test_outline(sys.argv[-1])
 

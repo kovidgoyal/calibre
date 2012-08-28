@@ -140,6 +140,7 @@ extensions = [
                     [
                         'calibre/utils/podofo/utils.cpp',
                         'calibre/utils/podofo/doc.cpp',
+                        'calibre/utils/podofo/outline.cpp',
                         'calibre/utils/podofo/podofo.cpp',
                     ],
                     headers=[

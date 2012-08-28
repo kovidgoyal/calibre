@@ -46,6 +46,9 @@ initpodofo(void)
     if (PyType_Ready(&pdf::PDFDocType) < 0)
         return;
 
+    if (PyType_Ready(&pdf::PDFOutlineItemType) < 0)
+        return;
+
     pdf::Error = PyErr_NewException((char*)"podofo.Error", NULL, NULL);
     if (pdf::Error == NULL) return;
 

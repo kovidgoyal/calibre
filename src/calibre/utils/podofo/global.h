@@ -26,7 +26,14 @@ typedef struct {
 
 } PDFDoc;
 
+typedef struct {
+    PyObject_HEAD
+    PdfMemDocument *doc;
+    PdfOutlineItem *item;
+} PDFOutlineItem;
+
 extern PyTypeObject PDFDocType;
+extern PyTypeObject PDFOutlineItemType;
 extern PyObject *Error;
 
 // Utilities

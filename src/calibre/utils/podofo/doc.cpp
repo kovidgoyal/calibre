@@ -194,6 +194,41 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
     Py_RETURN_NONE;
 } // }}}
 
+// create_outline() {{{
+static PyObject *
+PDFDoc_create_outline(PDFDoc *self, PyObject *args) {
+    PyObject *p;
+    PDFOutlineItem *ans;
+    PdfString *title;
+
+    if (!PyArg_ParseTuple(args, "U", &p)) return NULL;
+    title = podofo_convert_pystring(p);
+    if (title == NULL) return NULL;
+
+    ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
+    if (ans == NULL) goto error;
+
+    try {
+        PdfOutlines *outlines = self->doc->GetOutlines();
+        if (outlines == NULL) {PyErr_NoMemory(); goto error;}
+        ans->item = outlines->CreateRoot(*title);
+        if (ans->item == NULL) {PyErr_NoMemory(); goto error;}
+        ans->doc = self->doc;
+    } catch(const PdfError & err) {
+        podofo_set_exception(err); goto error;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to create the outline");
+        goto error;
+    }
+
+    delete title;
+    return (PyObject*)ans;
+error:
+    Py_XDECREF(ans); delete title;
+    return NULL;
+
+} // }}}
+
 // Properties {{{
 
 static PyObject *
@@ -430,7 +465,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"set_box", (PyCFunction)PDFDoc_set_box, METH_VARARGS,
      "set_box(page_num, box, left, bottom, width, height) -> Set the PDF bounding box for the page numbered nu, box must be one of: MediaBox, CropBox, TrimBox, BleedBox, ArtBox. The numbers are interpreted as pts."
     },
-
+    {"create_outline", (PyCFunction)PDFDoc_create_outline, METH_VARARGS,
+     "create_outline(title) -> Create an outline, return the root outline item."
+    },
 
     {NULL}  /* Sentinel */
 };
