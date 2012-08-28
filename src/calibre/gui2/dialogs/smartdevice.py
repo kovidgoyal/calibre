@@ -120,10 +120,11 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         auto_mgmt_button.setToolTip('<p>' +
             _('Enabling automatic metadata management tells calibre to send any '
               'changes you made to books\' metadata when your device is '
-              'connected. If it is not enabled, changes are sent only when '
-              'you send a book. You can get more information or change this '
-              'preference to some other choice at Preferences -> '
-              'Send to device -> Metadata management')
+              'connected, which is the most useful setting when using the wireless '
+              'device interface. If automatic metadata management is not '
+              'enabled, changes are sent only when you send a book. You can '
+              'get more information or change this preference to some other '
+              'choice at Preferences -> Send to device -> Metadata management')
                                                     + '</p>')
         self.buttonBox.addButton(auto_mgmt_button, QDialogButtonBox.ActionRole)
         self.set_auto_management = False
