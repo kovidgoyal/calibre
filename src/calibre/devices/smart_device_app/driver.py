@@ -89,6 +89,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
 
     ZEROCONF_CLIENT_STRING      = b'calibre smart device client'
+
+    # A few "random" port numbers to use for detecting clients using broadcast
+    # The clients are expected to broadcast a UDP 'hi there' on all of these
+    # ports when they attempt to connect. Calibre will respond with the port
+    # number the client should use. This scheme backs up mdns. And yes, we
+    # must hope that no other application on the machine is using one of these
+    # ports in datagram mode.
+    # If you change the ports here, all clients will also need to change.
     BROADCAST_PORTS             = [54982, 48123, 39001, 44044, 59678]
 
     opcodes = {
