@@ -8,6 +8,7 @@ Created on 29 Jun 2012
 @author: charles
 '''
 import socket, select, json, inspect, os, traceback, time, sys, random
+import posixpath
 import hashlib, threading
 from base64 import b64encode, b64decode
 from functools import wraps
@@ -26,6 +27,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
 from calibre.utils.date import isoformat, now
@@ -70,14 +72,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     DEVICE_PLUGBOARD_NAME       = 'SMART_DEVICE_APP'
     CAN_SET_METADATA            = []
     CAN_DO_DEVICE_DB_PLUGBOARD  = False
-    SUPPORTS_SUB_DIRS           = False
+    SUPPORTS_SUB_DIRS           = True
     MUST_READ_METADATA          = True
     NEWS_IN_FOLDER              = False
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
-    MAX_PATH_LEN                = 100
+    MAX_PATH_LEN                = 250
     THUMBNAIL_HEIGHT            = 160
     PREFIX                      = ''
+    BACKLOADING_ERROR_MESSAGE   = None
 
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
@@ -206,25 +209,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         print()
         self.debug_time = time.time()
 
-    # Various methods required by the plugin architecture
-    @classmethod
-    def _default_save_template(cls):
-        from calibre.library.save_to_disk import config
-        st = cls.SAVE_TEMPLATE if cls.SAVE_TEMPLATE else \
-            config().parse().send_template
-        if st:
-            st = os.path.basename(st)
-        return st
-
-    @classmethod
-    def save_template(cls):
-        st = cls.settings().save_template
-        if st:
-            st = os.path.basename(st)
-        else:
-            st = cls._default_save_template()
-        return st
-
     # local utilities
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
@@ -286,6 +270,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             extra_components.append(sanitize(fname))
         else:
             extra_components[-1] = sanitize(extra_components[-1]+ext)
+        self._debug('1', extra_components)
 
         if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
             extra_components[-1] = 'x' + extra_components[-1][1:]
@@ -318,7 +303,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(maxlen, extra_components)
-        filepath = os.path.join(*components)
+        filepath = posixpath.join(*components)
         return filepath
 
     def _strip_prefix(self, path):
@@ -963,6 +948,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     eof = True
             else:
                 raise ControlError(desc='request for book data failed')
+
+    @synchronous('sync_lock')
+    def prepare_addable_books(self, paths):
+        for idx, path in enumerate(paths):
+            (ign, ext) = os.path.splitext(path)
+            tf = PersistentTemporaryFile(suffix=ext)
+            self.get_file(path, tf)
+            paths[idx] = tf.name
+        return paths
 
     @synchronous('sync_lock')
     def set_plugboards(self, plugboards, pb_func):
