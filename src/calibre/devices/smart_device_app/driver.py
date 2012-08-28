@@ -51,6 +51,12 @@ def do_zeroconf(f, port):
         '_calibresmartdeviceapp._tcp', port, {})
 
 
+class SDBook(Book):
+    def __init__(self, prefix, lpath, size=None, other=None):
+        Book.__init__(self, prefix, lpath, size=size, other=other)
+        path = getattr(self, 'path', lpath)
+        self.path = path.replace('\\', '/')
+
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
     gui_name = _('SmartDevice')
@@ -795,7 +801,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if opcode == 'OK':
                     if '_series_sort_' in result:
                         del result['_series_sort_']
-                    book = self.json_codec.raw_to_book(result, Book, self.PREFIX)
+                    book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
                     self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
                 else:
@@ -867,7 +873,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             lpath = self._create_upload_path(mdata, fname, create_dirs=False)
             if not hasattr(infile, 'read'):
                 infile = USBMS.normalize_path(infile)
-            book = Book(self.PREFIX, lpath, other=mdata)
+            book = SDBook(self.PREFIX, lpath, other=mdata)
             length = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
                 raise ControlError(desc='Sending book %s to device failed' % lpath)
@@ -892,7 +898,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             lpath = location[0]
             length = location[1]
             lpath = self._strip_prefix(lpath)
-            book = Book(self.PREFIX, lpath, other=info)
+            book = SDBook(self.PREFIX, lpath, other=info)
             if book.size is None:
                 book.size = length
             b = booklists[0].add_book(book, replace_metadata=True)
