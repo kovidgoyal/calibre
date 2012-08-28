@@ -88,6 +88,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
 
+    ZEROCONF_CLIENT_STRING      = b'calibre smart device client'
     BROADCAST_PORTS             = [54982, 48123, 39001, 44044, 59678]
 
     opcodes = {
@@ -585,9 +586,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     try:
                         packet = self.broadcast_socket.recvfrom(100)
                         remote = packet[1]
-                        message = str(b'calibre smart device client on ' +
+                        message = str(self.ZEROCONF_CLIENT_STRING + b' (on ' +
                                         str(socket.gethostname().partition('.')[0]) +
-                                        b',' + str(self.port))
+                                        b'),' + str(self.port))
                         self._debug('received broadcast', packet, message)
                         self.broadcast_socket.sendto(message, remote)
                     except:
