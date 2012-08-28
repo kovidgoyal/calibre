@@ -585,8 +585,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     try:
                         packet = self.broadcast_socket.recvfrom(100)
                         remote = packet[1]
-                        message = str(socket.gethostname().partition('.')[0]
-                                        + '|') + str(self.port)
+                        message = str(b'calibre smart device client on ' +
+                                        str(socket.gethostname().partition('.')[0]) +
+                                        b',' + str(self.port))
                         self._debug('received broadcast', packet, message)
                         self.broadcast_socket.sendto(message, remote)
                     except:
