@@ -88,6 +88,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
 
+    BROADCAST_PORTS             = [54982, 48123, 39001, 44044, 59678]
 
     opcodes = {
         'NOOP'                   : 12,
@@ -525,18 +526,26 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.device_socket = None
         self.is_connected = False
 
-    def _attach_to_port(self, port):
+    def _attach_to_port(self, sock, port):
         try:
             self._debug('try port', port)
-            self.listen_socket.bind(('', port))
+            sock.bind(('', port))
         except socket.error:
             self._debug('socket error on port', port)
             port = 0
         except:
-            self._debug('Unknown exception while allocating listen socket')
+            self._debug('Unknown exception while attaching port to socket')
             traceback.print_exc()
             raise
         return port
+
+    def _close_listen_socket(self):
+        self.listen_socket.close()
+        self.listen_socket = None
+        self.is_connected = False
+        if getattr(self, 'broadcast_socket', None) is not None:
+            self.broadcast_socket.close()
+            self.broadcast_socket = None
 
     # The public interface methods.
 
@@ -569,6 +578,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except:
                     self._close_device_socket()
             return (self.is_connected, self)
+        if getattr(self, 'broadcast_socket', None) is not None:
+            ans = select.select((self.broadcast_socket,), (), (), 0)
+            if len(ans[0]) > 0:
+                try:
+                    packet = self.broadcast_socket.recvfrom(100)
+                    remote = packet[1]
+                    message = str(socket.gethostname().partition('.')[0] + '|') + str(self.port)
+                    self._debug('received broadcast', packet, message)
+                    self.broadcast_socket.sendto(message, remote)
+                except:
+                    traceback.print_exc()
+
         if getattr(self, 'listen_socket', None) is not None:
             ans = select.select((self.listen_socket,), (), (), 0)
             if len(ans[0]) > 0:
@@ -976,31 +997,26 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 message = _('Invalid port in options: %s')% \
                             self.settings().extra_customization[self.OPT_PORT_NUMBER]
                 self._debug(message)
-                self.listen_socket.close()
-                self.listen_socket = None
-                self.is_connected = False
+                self._close_listen_socket()
                 return message
 
-            port = self._attach_to_port(opt_port)
+            port = self._attach_to_port(self.listen_socket, opt_port)
             if port == 0:
                 message = _('Failed to connect to port %d. Try a different value.')%opt_port
                 self._debug(message)
-                self.listen_socket.close()
-                self.listen_socket = None
-                self.is_connected = False
+                self._close_listen_socket()
                 return message
         else:
             while i < 100: # try up to 100 random port numbers
                 i += 1
-                port = self._attach_to_port(random.randint(8192, 32000))
+                port = self._attach_to_port(self.listen_socket,
+                                            random.randint(8192, 32000))
                 if port != 0:
                     break
             if port == 0:
                 message = _('Failed to allocate a random port')
                 self._debug(message)
-                self.listen_socket.close()
-                self.listen_socket = None
-                self.is_connected = False
+                self._close_listen_socket()
                 return message
 
         try:
@@ -1008,9 +1024,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             message = 'listen on port %d failed' % port
             self._debug(message)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
             return message
 
         try:
@@ -1018,21 +1032,40 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             message = 'registration with bonjour failed'
             self._debug(message)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
             return message
 
         self._debug('listening on port', port)
         self.port = port
 
+        # Now try to open a UDP socket to receive broadcasts on
+
+        try:
+            self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        except:
+            message = 'creation of broadcast socket failed. This is not fatal.'
+            self._debug(message)
+            return message
+
+        for p in self.BROADCAST_PORTS:
+            port = self._attach_to_port(self.broadcast_socket, p)
+            if port != 0:
+                self._debug('broadcast socket listening on port', port)
+                break
+
+        if port == 0:
+            self.broadcast_socket.close()
+            self.broadcast_socket = None
+            message = 'attaching port to broadcast socket failed. This is not fatal.'
+            self._debug(message)
+            return message
+
+
     @synchronous('sync_lock')
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
             do_zeroconf(unpublish_zeroconf, self.port)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
 
     # Methods for dynamic control
 

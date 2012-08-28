@@ -27,7 +27,7 @@ def _cmp_ipaddr(l, r):
 
     return cmp(lparts, rparts)
 
-def get_all_ip_addresses():
+def _get_all_ip_addresses():
         ip_info = [netifaces.ifaddresses(x).get(netifaces.AF_INET, None)
                    for x in netifaces.interfaces()]
 
@@ -42,9 +42,14 @@ def get_all_ip_addresses():
                         all_ipaddrs.append(addrs['addr'])
 
         all_ipaddrs.sort(cmp=_cmp_ipaddr)
-        print(all_ipaddrs)
         return all_ipaddrs
 
+_all_ip_addresses = []
+def get_all_ip_addresses():
+    global _all_ip_addresses
+    if not _all_ip_addresses:
+        _all_ip_addresses = _get_all_ip_addresses()
+    return _all_ip_addresses
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 

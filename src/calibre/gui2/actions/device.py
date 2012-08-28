@@ -255,7 +255,7 @@ class ConnectShareAction(InterfaceAction):
             use_fixed_port = dm.get_option('smartdevice', 'use_fixed_port')
             port_number = dm.get_option('smartdevice', 'port_number')
             if show_port and use_fixed_port:
-                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s port %s]'%(
+                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s, port %s]'%(
                                             formatted_addresses, port_number)
             else:
                 text = self.share_conn_menu.DEVICE_MSGS[1] + ' [' + formatted_addresses + ']'
