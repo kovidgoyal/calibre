@@ -12,6 +12,7 @@ from PyQt4.Qt import (QDialog, QLineEdit, Qt, QPushButton, QDialogButtonBox)
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.config import prefs
+from calibre.utils.mdns import get_all_ips
 
 def _cmp_ipaddr(l, r):
     lparts = ['%3s'%x for x in l.split('.')]
@@ -27,29 +28,14 @@ def _cmp_ipaddr(l, r):
 
     return cmp(lparts, rparts)
 
-def _get_all_ip_addresses():
-        ip_info = [netifaces.ifaddresses(x).get(netifaces.AF_INET, None)
-                   for x in netifaces.interfaces()]
-
-        all_ipaddrs = list()
-        for iface in ip_info:
-            if iface is not None:
-                for addrs in iface:
-                    if 'netmask' in addrs and addrs['addr'] != '127.0.0.1':
-                        # We get VPN interfaces that were connected and then
-                        # disconnected. Oh well. At least the 'right' IP addr
-                        # is there.
-                        all_ipaddrs.append(addrs['addr'])
-
-        all_ipaddrs.sort(cmp=_cmp_ipaddr)
-        return all_ipaddrs
-
-_all_ip_addresses = []
 def get_all_ip_addresses():
-    global _all_ip_addresses
-    if not _all_ip_addresses:
-        _all_ip_addresses = _get_all_ip_addresses()
-    return _all_ip_addresses
+    ipaddrs = list()
+    for iface in get_all_ips().itervalues():
+        for addrs in iface:
+            if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':
+                ipaddrs.append(addrs['addr'])
+    ipaddrs.sort(cmp=_cmp_ipaddr)
+    return ipaddrs
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 
