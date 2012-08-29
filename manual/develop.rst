@@ -30,6 +30,8 @@ a device driver plugin. You can browse the
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for
 fetching news. For more examples of plugins designed to add features to |app|, see the `plugin index <http://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
 
+.. _code_layout:
+
 Code layout
 ^^^^^^^^^^^^^^
 

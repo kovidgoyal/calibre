@@ -16,7 +16,7 @@ from calibre import CurrentDir
 
 entry_points = {
         'console_scripts': [ \
-             'ebook-device       = calibre.devices.prs500.cli.main:main',
+             'ebook-device       = calibre.devices.cli:main',
              'ebook-meta         = calibre.ebooks.metadata.cli:main',
              'ebook-convert      = calibre.ebooks.conversion.cli:main',
              'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
@@ -29,7 +29,6 @@ entry_points = {
              'calibre-parallel   = calibre.utils.ipc.worker:main',
              'calibre-customize  = calibre.customize.ui:main',
              'calibre-complete   = calibre.utils.complete:main',
-             'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
              'epub-fix           = calibre.ebooks.epub.fix.main:main',
              'calibre-smtp = calibre.utils.smtp:main',
@@ -299,7 +298,7 @@ class PostInstall:
                         return 0
                         ;;
                     cp )
-                        if [[ ${cur} == prs500:* ]]; then
+                        if [[ ${cur} == dev:* ]]; then
                         COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
                         return 0
                         else
@@ -307,20 +306,20 @@ class PostInstall:
                         return 0
                         fi
                         ;;
-                    prs500 )
+                    dev )
                         COMPREPLY=( $(compgen -W "cp ls rm mkdir touch cat info books df" "${cur}") )
                         return 0
                         ;;
                     * )
-                        if [[ ${cur} == prs500:* ]]; then
+                        if [[ ${cur} == dev:* ]]; then
                         COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
                         return 0
                         else
-                        if [[ ${prev} == prs500:* ]]; then
+                        if [[ ${prev} == dev:* ]]; then
                             _filedir
                             return 0
                         else
-                            COMPREPLY=( $(compgen -W "prs500:" "${cur}") )
+                            COMPREPLY=( $(compgen -W "dev:" "${cur}") )
                             return 0
                         fi
                         return 0

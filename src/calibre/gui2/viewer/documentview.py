@@ -4,19 +4,19 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, glob, json
+import os, math, json
 from base64 import b64encode
 from functools import partial
 
 from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
-        QPainter, QPalette, QBrush, QFontDatabase, QDialog, QColor, QPoint,
-        QImage, QRegion, QIcon, pyqtSignature, QAction, QMenu, QString,
-        pyqtSignal, QSwipeGesture, QApplication, pyqtSlot)
+        QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
+        QIcon, pyqtSignature, QAction, QMenu, QString, pyqtSignal,
+        QSwipeGesture, QApplication, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
-from calibre import prints
+from calibre import prints, load_builtin_fonts
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
@@ -26,13 +26,6 @@ from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
 # }}}
-
-def load_builtin_fonts():
-    base = P('fonts/liberation/*.ttf')
-    for f in glob.glob(base):
-        QFontDatabase.addApplicationFont(f)
-    return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
-
 
 class Document(QWebPage): # {{{
 
@@ -123,11 +116,11 @@ class Document(QWebPage): # {{{
         opts = config().parse()
         bg = opts.background_color or 'white'
         brules = ['background-color: %s !important'%bg]
-        if opts.text_color:
-            brules += ['color: %s !important'%opts.text_color]
         prefix = '''
             body { %s  }
         '''%('; '.join(brules))
+        if opts.text_color:
+            prefix += '\n\nbody, p, div { color: %s !important }'%opts.text_color
         raw = prefix + opts.user_css
         raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'

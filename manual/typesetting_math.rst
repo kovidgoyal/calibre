@@ -48,7 +48,7 @@ This snippet looks like the following screen shot in the |app| viewer.
 .. figure:: images/lorentz.png
     :align: center
 
-    :guilabel:`The Lorentz Equations`
+    :guilabel:`The Lorenz Equations`
 
 The complete HTML file, with more equations and inline mathematics is
 reproduced below. You can convert this HTML file to EPUB in |app| to end up

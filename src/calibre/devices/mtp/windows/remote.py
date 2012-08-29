@@ -54,6 +54,10 @@ def main():
     plugins._plugins['wpd'] = (wpd, '')
     sys.path.pop(0)
 
+    from calibre.devices.mtp.test import run
+    run()
+    return
+
     from calibre.devices.scanner import win_scanner
     from calibre.devices.mtp.windows.driver import MTP_DEVICE
     dev = MTP_DEVICE(None)
@@ -63,6 +67,8 @@ def main():
     try:
         devices = win_scanner()
         pnp_id = dev.detect_managed_devices(devices)
+        if not pnp_id:
+            raise ValueError('Failed to detect device')
         # pprint.pprint(dev.detected_devices)
         print ('Trying to connect to:', pnp_id)
         dev.open(pnp_id, '')
@@ -70,12 +76,18 @@ def main():
         print ('Connected to:', dev.get_gui_name())
         print ('Total space', dev.total_space())
         print ('Free space', dev.free_space())
-        dev.filesystem_cache.dump()
         # pprint.pprint(dev.dev.create_folder(dev.filesystem_cache.entries[0].object_id,
         #     'zzz'))
         # print ('Fetching file: oFF (198214 bytes)')
         # stream = dev.get_file('oFF')
         # print ("Fetched size: ", stream.tell())
+        size = 4
+        stream = io.BytesIO(b'a'*size)
+        name = 'zzz-test-file.txt'
+        stream.seek(0)
+        f = dev.put_file(dev.filesystem_cache.entries[0], name, stream, size)
+        print ('Put file:', f)
+        # dev.filesystem_cache.dump()
     finally:
         dev.shutdown()
 

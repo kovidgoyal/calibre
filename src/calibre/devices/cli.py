@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
-Provides a command-line and optional graphical interface to the SONY Reader PRS-500.
+Provides a command-line interface to ebook devices.
 
 For usage information run the script.
 """
@@ -275,7 +275,7 @@ def main():
         elif command == "cp":
             usage="usage: %prog cp [options] source destination\nCopy files to/from the device\n\n"+\
             "One of source or destination must be a path on the device. \n\nDevice paths have the form\n"+\
-            "prs500:mountpoint/my/path\n"+\
+            "dev:mountpoint/my/path\n"+\
             "where mountpoint is one of / or card:/\n\n"+\
             "source must point to a file for which you have read permissions\n"+\
             "destination must point to a file or directory for which you have write permissions"
@@ -286,7 +286,7 @@ def main():
             if len(args) != 2:
                 parser.print_help()
                 return 1
-            if args[0].startswith("prs500:"):
+            if args[0].startswith("dev:"):
                 outfile = args[1]
                 path = args[0][7:]
                 if path.endswith("/"): path = path[:-1]
@@ -300,7 +300,7 @@ def main():
                     return 1
                 dev.get_file(path, outfile)
                 outfile.close()
-            elif args[1].startswith("prs500:"):
+            elif args[1].startswith("dev:"):
                 try:
                     infile = open(args[0], "rb")
                 except IOError as e:

@@ -30,6 +30,7 @@ class CompleteModel(QAbstractListModel): # {{{
         items = [x for x in items if x]
         items = tuple(sorted(items, key=sort_key))
         self.all_items = self.current_items = items
+        self.current_prefix = ''
         self.reset()
 
     def set_completion_prefix(self, prefix):

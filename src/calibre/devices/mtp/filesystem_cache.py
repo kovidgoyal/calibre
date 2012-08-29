@@ -17,23 +17,26 @@ from calibre.utils.icu import sort_key, lower
 
 class FileOrFolder(object):
 
-    def __init__(self, entry, fs_cache, all_storage_ids=()):
+    def __init__(self, entry, fs_cache):
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
-        self.name = force_unicode(entry.get('name', '___'), 'utf-8')
-        self.storage_id = entry.get('storage_id', None)
-        self.persistent_id = entry.get('persistent_id', self.object_id)
-        self.size = entry.get('size', 0)
+        self.storage_id = entry['storage_id']
         # self.parent_id is None for storage objects
         self.parent_id = entry.get('parent_id', None)
+        n = entry.get('name', None)
+        if not n: n = '___'
+        self.name = force_unicode(n, 'utf-8')
+        self.persistent_id = entry.get('persistent_id', self.object_id)
+        self.size = entry.get('size', 0)
+        self.all_storage_ids = fs_cache.all_storage_ids
+
+        if self.storage_id not in self.all_storage_ids:
+            raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
+                entry, self.all_storage_ids))
+
         if self.parent_id == 0:
-            sid = self.storage_id
-            if all_storage_ids and sid not in all_storage_ids:
-                sid = all_storage_ids[0]
-            self.parent_id = sid
-        if self.parent_id is None and self.storage_id is None:
-            # A storage object
-            self.storage_id = self.object_id
+            self.parent_id = self.storage_id
+
         self.is_hidden = entry.get('is_hidden', False)
         self.is_system = entry.get('is_system', False)
         self.can_delete = entry.get('can_delete', True)
@@ -42,6 +45,22 @@ class FileOrFolder(object):
         self.folders = []
         fs_cache.id_map[self.object_id] = self
         self.fs_cache = weakref.ref(fs_cache)
+        self.deleted = False
+
+    def __repr__(self):
+        name = 'Folder' if self.is_folder else 'File'
+        try:
+            path = unicode(self.full_path)
+        except:
+            path = ''
+        datum = 'size=%s'%(self.size)
+        if self.is_folder:
+            datum = 'children=%s'%(len(self.files) + len(self.folders))
+        return '%s(id=%s, storage_id=%s, %s, path=%s)'%(name, self.object_id,
+                self.storage_id, datum, path)
+
+    __str__ = __repr__
+    __unicode__ = __repr__
 
     @property
     def id_map(self):
@@ -80,6 +99,7 @@ class FileOrFolder(object):
             except ValueError:
                 pass
         self.id_map.pop(entry.object_id, None)
+        entry.deleted = True
 
     def dump(self, prefix='', out=sys.stdout):
         c = '+' if self.is_folder else '-'
@@ -110,16 +130,19 @@ class FilesystemCache(object):
     def __init__(self, all_storage, entries):
         self.entries = []
         self.id_map = {}
+        self.all_storage_ids = tuple(x['id'] for x in all_storage)
 
         for storage in all_storage:
-            e = FileOrFolder(storage, self, [])
+            storage['storage_id'] = storage['id']
+            e = FileOrFolder(storage, self)
             self.entries.append(e)
 
         self.entries.sort(key=attrgetter('object_id'))
-        all_storage_ids = [x.object_id for x in self.entries]
+        all_storage_ids = [x.storage_id for x in self.entries]
+        self.all_storage_ids = tuple(all_storage_ids)
 
         for entry in entries:
-            FileOrFolder(entry, self, all_storage_ids)
+            FileOrFolder(entry, self)
 
         for item in self.id_map.itervalues():
             try:

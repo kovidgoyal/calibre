@@ -2,6 +2,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
+
 '''
 time.com
 '''
@@ -11,28 +12,23 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from lxml import html
 
 class Time(BasicNewsRecipe):
-    #recipe_disabled = ('This recipe has been disabled as TIME no longer'
-    #        ' publish complete articles on the web.')
     title                 = u'Time'
-    __author__            = 'Kovid Goyal'
+    __author__            = 'Kovid Goyal, Rick Shang'
     description           = ('Weekly US magazine.')
     encoding = 'utf-8'
     no_stylesheets        = True
     language = 'en'
     remove_javascript     = True
-    #needs_subscription = 'optional'
+    needs_subscription = True
 
     keep_only_tags = [
             {
-                'class':['artHd', 'articleContent',
-                            'entry-title','entry-meta', 'entry-content', 'thumbnail']
+                'class':['tout1', 'entry-content', 'external-gallery-img', 'image-meta']
             },
         ]
     remove_tags = [
-            {'class':['content-tools', 'quigo', 'see',
-                'first-tier-social-tools', 'navigation', 'enlarge lightbox']},
-            {'id':['share-tools']},
-            {'rel':'lightbox'},
+            {'class':['thumbnail', 'button']},
+
             ]
 
     recursions = 10
@@ -43,17 +39,25 @@ class Time(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        if False and self.username and self.password:
-            # This site uses javascript in its login process
-            res = br.open('http://www.time.com/time/magazine')
-            br.select_form(nr=1)
-            br['username'] = self.username
+        # This site uses javascript in its login process
+        if self.username is not None and self.password is not None:
+            br.open('http://www.time.com/time/magazine')
+            br.select_form(predicate=lambda f: 'action' in f.attrs and f.attrs['action'] == 'https://auth.time.com/login.php')
+            br['username']   = self.username
             br['password'] = self.password
-            res = br.submit()
-            raw = res.read()
-            if '>Log Out<' not in raw:
+            br['magcode'] = ['TD']
+            br.find_control('turl').readonly = False
+            br['turl'] = 'http://www.time.com/time/magazine'
+            br.find_control('rurl').readonly = False
+            br['rurl'] = 'http://www.time.com/time/magazine'
+            br['remember'] = False
+            raw = br.submit().read()
+            if False and '>Log Out<' not in raw:
+                # This check is disabled as it does not work (there is probably
+                # some cookie missing) however, the login is "sufficient" for
+                # the actual article downloads to work.
                 raise ValueError('Failed to login to time.com, check'
-                        ' your username and password')
+                    ' your username and password')
         return br
 
     def parse_index(self):
@@ -70,6 +74,9 @@ class Time(BasicNewsRecipe):
             except:
                 self.log.exception('Failed to fetch cover')
 
+        dates = ''.join(root.xpath('//time[@class="updated"]/text()'))
+        if dates:
+            self.timefmt = ' [%s]'%dates
 
         feeds = []
         parent = root.xpath('//div[@class="content-main-aside"]')[0]
@@ -96,7 +103,8 @@ class Time(BasicNewsRecipe):
             title = html.tostring(a[0], encoding=unicode,
                         method='text').strip()
             if not title: continue
-            url =  a[0].get('href')
+            url = a[0].get('href')
+            url = re.sub('/magazine/article/0,9171','/subscriber/printout/0,8816', url)
             if url.startswith('/'):
                 url = 'http://www.time.com'+url
             desc = ''
@@ -111,9 +119,3 @@ class Time(BasicNewsRecipe):
                     'date'  : '',
                     'description' : desc
                     }
-
-    def postprocess_html(self,soup,first):
-        for tag in soup.findAll(attrs ={'class':['artPag','pagination']}):
-            tag.extract()
-        return soup
-

@@ -39,7 +39,7 @@ class TheAtlantic(BasicNewsRecipe):
 
         cover = soup.find('img', src=True, attrs={'class':'cover'})
         if cover is not None:
-            self.cover_url = cover['src']
+            self.cover_url = cover['src'].replace(' ', '%20')
 
         feeds = []
         seen_titles = set([])

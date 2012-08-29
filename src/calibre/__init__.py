@@ -444,23 +444,6 @@ class CurrentDir(object):
             pass
 
 
-class StreamReadWrapper(object):
-    '''
-    Used primarily with pyPdf to ensure the stream is properly closed.
-    '''
-
-    def __init__(self, stream):
-        for x in ('read', 'seek', 'tell'):
-            setattr(self, x, getattr(stream, x))
-
-    def __exit__(self, *args):
-        for x in ('read', 'seek', 'tell'):
-            setattr(self, x, None)
-
-    def __enter__(self):
-        return self
-
-
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
     import multiprocessing
@@ -719,6 +702,15 @@ if isosx:
     except:
         import traceback
         traceback.print_exc()
+
+def load_builtin_fonts():
+    import glob
+    from PyQt4.Qt import QFontDatabase
+    base = P('fonts/liberation/*.ttf')
+    for f in glob.glob(base):
+        QFontDatabase.addApplicationFont(f)
+    return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
+
 
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython
