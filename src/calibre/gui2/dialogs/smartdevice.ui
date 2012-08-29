@@ -41,7 +41,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_23">
      <property name="text">
-      <string>Calibre's IP addresses:</string>
+      <string>Calibre IP addresses:</string>
      </property>
     </widget>
    </item>

@@ -5,8 +5,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import netifaces
-
 from PyQt4.Qt import (QDialog, QLineEdit, Qt, QPushButton, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog
@@ -69,8 +67,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
 
 
         self.ip_addresses.setToolTip('<p>' +
-            _('These are the IP addresses detected by calibre for the computer '
-              'running calibre. If you decide to have your device connect to '
+            _('These are the IP addresses for this computer. If you decide to have your device connect to '
               'calibre using a fixed IP address, one of these addresses should '
               'be the one you use. It is unlikely but possible that the correct '
               'IP address is not listed here, in which case you will need to go '
