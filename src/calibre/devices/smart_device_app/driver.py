@@ -276,7 +276,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             extra_components.append(sanitize(fname))
         else:
             extra_components[-1] = sanitize(extra_components[-1]+ext)
-        self._debug('1', extra_components)
 
         if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
             extra_components[-1] = 'x' + extra_components[-1][1:]
@@ -675,12 +674,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('Protocol error - bogus book packet length')
                 self._close_device_socket()
                 return False
-            self._debug('CC version #:', result.get('ccVersionNumber', 'unknown'))
+            self._debug('App version #:', result.get('ccVersionNumber', 'unknown'))
 
             self.client_can_stream_books = result.get('canStreamBooks', False)
-            self._debug('CC can stream books', self.client_can_stream_books)
+            self._debug('Device can stream books', self.client_can_stream_books)
             self.client_can_stream_metadata = result.get('canStreamMetadata', False)
-            self._debug('CC can stream metadata', self.client_can_stream_metadata)
+            self._debug('Device can stream metadata', self.client_can_stream_metadata)
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
