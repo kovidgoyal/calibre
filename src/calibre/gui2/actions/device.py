@@ -237,8 +237,16 @@ class ConnectShareAction(InterfaceAction):
             self.share_conn_menu.hide_smartdevice_menus()
 
     def set_smartdevice_action_state(self):
-        from calibre.utils.mdns import get_external_ip
+        from calibre.gui2.dialogs.smartdevice import get_all_ip_addresses
         dm = self.gui.device_manager
+
+        all_ips = get_all_ip_addresses()
+        if len(all_ips) > 3:
+            formatted_addresses = _('Many IP addresses. See Start/Stop dialog.')
+            show_port = False
+        else:
+            formatted_addresses = ' or '.join(get_all_ip_addresses())
+            show_port = True
 
         running = dm.is_running('smartdevice')
         if not running:
@@ -246,11 +254,11 @@ class ConnectShareAction(InterfaceAction):
         else:
             use_fixed_port = dm.get_option('smartdevice', 'use_fixed_port')
             port_number = dm.get_option('smartdevice', 'port_number')
-            if use_fixed_port:
-                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s port %s]'%(
-                                            get_external_ip(), port_number)
+            if show_port and use_fixed_port:
+                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s, port %s]'%(
+                                            formatted_addresses, port_number)
             else:
-                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s]'%get_external_ip()
+                text = self.share_conn_menu.DEVICE_MSGS[1] + ' [' + formatted_addresses + ']'
 
         icon = 'green' if running else 'red'
         ac = self.share_conn_menu.control_smartdevice_action

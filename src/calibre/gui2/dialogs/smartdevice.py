@@ -5,10 +5,35 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import (QDialog, QLineEdit, Qt)
+from PyQt4.Qt import (QDialog, QLineEdit, Qt, QPushButton, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
+from calibre.utils.config import prefs
+from calibre.utils.mdns import get_all_ips
+
+def _cmp_ipaddr(l, r):
+    lparts = ['%3s'%x for x in l.split('.')]
+    rparts = ['%3s'%x for x in r.split('.')]
+
+    if lparts[0] in ['192', '170', ' 10']:
+        if rparts[0] not in ['192', '170', '10']:
+            return -1
+        return cmp(rparts, lparts)
+
+    if rparts[0] in ['192', '170', ' 10']:
+        return 1
+
+    return cmp(lparts, rparts)
+
+def get_all_ip_addresses():
+    ipaddrs = list()
+    for iface in get_all_ips().itervalues():
+        for addrs in iface:
+            if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':
+                ipaddrs.append(addrs['addr'])
+    ipaddrs.sort(cmp=_cmp_ipaddr)
+    return ipaddrs
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 
@@ -40,6 +65,15 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
               'to the port, try another number. You can use any number between '
               '8,000 and 32,000.') + '</p>')
 
+
+        self.ip_addresses.setToolTip('<p>' +
+            _('These are the IP addresses for this computer. If you decide to have your device connect to '
+              'calibre using a fixed IP address, one of these addresses should '
+              'be the one you use. It is unlikely but possible that the correct '
+              'IP address is not listed here, in which case you will need to go '
+              "to your computer's control panel to get a complete list of "
+              "your computer's network interfaces and IP addresses.") + '</p>')
+
         self.show_password.stateChanged[int].connect(self.toggle_password)
         self.use_fixed_port.stateChanged[int].connect(self.use_fixed_port_changed)
 
@@ -57,14 +91,38 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         self.orig_port_number = self.device_manager.get_option('smartdevice',
                                                           'port_number')
         self.fixed_port.setText(self.orig_port_number)
-        self.use_fixed_port.setChecked(self.orig_fixed_port);
+        self.use_fixed_port.setChecked(self.orig_fixed_port)
         if not self.orig_fixed_port:
-            self.fixed_port.setEnabled(False);
+            self.fixed_port.setEnabled(False)
 
         if pw:
             self.password_box.setText(pw)
 
+        self.auto_mgmt_button = QPushButton(_('Enable automatic metadata management'))
+        self.auto_mgmt_button.clicked.connect(self.auto_mgmt_button_clicked)
+        self.auto_mgmt_button.setToolTip('<p>' +
+            _('Enabling automatic metadata management tells calibre to send any '
+              'changes you made to books\' metadata when your device is '
+              'connected, which is the most useful setting when using the wireless '
+              'device interface. If automatic metadata management is not '
+              'enabled, changes are sent only when you re-send the book. You can '
+              'get more information or change this preference to some other '
+              'choice at Preferences -> Sending books to devices -> '
+              'Metadata management')
+                                                    + '</p>')
+        self.buttonBox.addButton(self.auto_mgmt_button, QDialogButtonBox.ActionRole)
+        if prefs['manage_device_metadata'] == 'on_connect':
+            self.auto_mgmt_button.setText(_('Automatic metadata management is enabled'))
+            self.auto_mgmt_button.setEnabled(False)
+
+        self.ip_addresses.setText(', '.join(get_all_ip_addresses()))
+
         self.resize(self.sizeHint())
+
+    def auto_mgmt_button_clicked(self):
+        self.auto_mgmt_button.setText(_('Automatic metadata management is enabled'))
+        self.auto_mgmt_button.setEnabled(False)
+        prefs.set('manage_device_metadata', 'on_connect')
 
     def use_fixed_port_changed(self, state):
         self.fixed_port.setEnabled(state == Qt.Checked)

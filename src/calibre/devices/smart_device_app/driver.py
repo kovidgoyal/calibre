@@ -8,6 +8,7 @@ Created on 29 Jun 2012
 @author: charles
 '''
 import socket, select, json, inspect, os, traceback, time, sys, random
+import posixpath
 import hashlib, threading
 from base64 import b64encode, b64decode
 from functools import wraps
@@ -26,6 +27,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
 from calibre.utils.date import isoformat, now
@@ -49,6 +51,12 @@ def do_zeroconf(f, port):
         '_calibresmartdeviceapp._tcp', port, {})
 
 
+class SDBook(Book):
+    def __init__(self, prefix, lpath, size=None, other=None):
+        Book.__init__(self, prefix, lpath, size=size, other=other)
+        path = getattr(self, 'path', lpath)
+        self.path = path.replace('\\', '/')
+
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
     gui_name = _('SmartDevice')
@@ -70,14 +78,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     DEVICE_PLUGBOARD_NAME       = 'SMART_DEVICE_APP'
     CAN_SET_METADATA            = []
     CAN_DO_DEVICE_DB_PLUGBOARD  = False
-    SUPPORTS_SUB_DIRS           = False
+    SUPPORTS_SUB_DIRS           = True
     MUST_READ_METADATA          = True
     NEWS_IN_FOLDER              = False
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
-    MAX_PATH_LEN                = 100
+    MAX_PATH_LEN                = 250
     THUMBNAIL_HEIGHT            = 160
     PREFIX                      = ''
+    BACKLOADING_ERROR_MESSAGE   = None
 
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
@@ -88,6 +97,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
 
+    ZEROCONF_CLIENT_STRING      = b'calibre smart device client'
+
+    # A few "random" port numbers to use for detecting clients using broadcast
+    # The clients are expected to broadcast a UDP 'hi there' on all of these
+    # ports when they attempt to connect. Calibre will respond with the port
+    # number the client should use. This scheme backs up mdns. And yes, we
+    # must hope that no other application on the machine is using one of these
+    # ports in datagram mode.
+    # If you change the ports here, all clients will also need to change.
+    BROADCAST_PORTS             = [54982, 48123, 39001, 44044, 59678]
 
     opcodes = {
         'NOOP'                   : 12,
@@ -196,25 +215,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         print()
         self.debug_time = time.time()
 
-    # Various methods required by the plugin architecture
-    @classmethod
-    def _default_save_template(cls):
-        from calibre.library.save_to_disk import config
-        st = cls.SAVE_TEMPLATE if cls.SAVE_TEMPLATE else \
-            config().parse().send_template
-        if st:
-            st = os.path.basename(st)
-        return st
-
-    @classmethod
-    def save_template(cls):
-        st = cls.settings().save_template
-        if st:
-            st = os.path.basename(st)
-        else:
-            st = cls._default_save_template()
-        return st
-
     # local utilities
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
@@ -276,6 +276,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             extra_components.append(sanitize(fname))
         else:
             extra_components[-1] = sanitize(extra_components[-1]+ext)
+        self._debug('1', extra_components)
 
         if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
             extra_components[-1] = 'x' + extra_components[-1][1:]
@@ -308,7 +309,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(maxlen, extra_components)
-        filepath = os.path.join(*components)
+        filepath = posixpath.join(*components)
         return filepath
 
     def _strip_prefix(self, path):
@@ -525,18 +526,26 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.device_socket = None
         self.is_connected = False
 
-    def _attach_to_port(self, port):
+    def _attach_to_port(self, sock, port):
         try:
             self._debug('try port', port)
-            self.listen_socket.bind(('', port))
+            sock.bind(('', port))
         except socket.error:
             self._debug('socket error on port', port)
             port = 0
         except:
-            self._debug('Unknown exception while allocating listen socket')
+            self._debug('Unknown exception while attaching port to socket')
             traceback.print_exc()
             raise
         return port
+
+    def _close_listen_socket(self):
+        self.listen_socket.close()
+        self.listen_socket = None
+        self.is_connected = False
+        if getattr(self, 'broadcast_socket', None) is not None:
+            self.broadcast_socket.close()
+            self.broadcast_socket = None
 
     # The public interface methods.
 
@@ -569,6 +578,23 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except:
                     self._close_device_socket()
             return (self.is_connected, self)
+        if getattr(self, 'broadcast_socket', None) is not None:
+            while True:
+                ans = select.select((self.broadcast_socket,), (), (), 0)
+                if len(ans[0]) > 0:
+                    try:
+                        packet = self.broadcast_socket.recvfrom(100)
+                        remote = packet[1]
+                        message = str(self.ZEROCONF_CLIENT_STRING + b' (on ' +
+                                        str(socket.gethostname().partition('.')[0]) +
+                                        b'),' + str(self.port))
+                        self._debug('received broadcast', packet, message)
+                        self.broadcast_socket.sendto(message, remote)
+                    except:
+                        pass
+                else:
+                    break
+
         if getattr(self, 'listen_socket', None) is not None:
             ans = select.select((self.listen_socket,), (), (), 0)
             if len(ans[0]) > 0:
@@ -625,11 +651,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 challenge = ''
                 hash_digest = ''
             opcode, result = self._call_client('GET_INITIALIZATION_INFO',
-                                {'serverProtocolVersion': self.PROTOCOL_VERSION,
-                                'validExtensions': self.ALL_FORMATS,
-                                'passwordChallenge': challenge,
-                                'currentLibraryName': self.current_library_name,
-                                'currentLibraryUUID': library_uuid})
+                    {'serverProtocolVersion': self.PROTOCOL_VERSION,
+                    'validExtensions': self.ALL_FORMATS,
+                    'passwordChallenge': challenge,
+                    'currentLibraryName': self.current_library_name,
+                    'currentLibraryUUID': library_uuid,
+                    'pubdateFormat': tweaks['gui_pubdate_display_format'],
+                    'timestampFormat': tweaks['gui_timestamp_display_format'],
+                    'lastModifiedFormat': tweaks['gui_last_modified_display_format']})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
@@ -775,7 +804,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if opcode == 'OK':
                     if '_series_sort_' in result:
                         del result['_series_sort_']
-                    book = self.json_codec.raw_to_book(result, Book, self.PREFIX)
+                    book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
                     self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
                 else:
@@ -847,7 +876,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             lpath = self._create_upload_path(mdata, fname, create_dirs=False)
             if not hasattr(infile, 'read'):
                 infile = USBMS.normalize_path(infile)
-            book = Book(self.PREFIX, lpath, other=mdata)
+            book = SDBook(self.PREFIX, lpath, other=mdata)
             length = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
                 raise ControlError(desc='Sending book %s to device failed' % lpath)
@@ -872,7 +901,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             lpath = location[0]
             length = location[1]
             lpath = self._strip_prefix(lpath)
-            book = Book(self.PREFIX, lpath, other=info)
+            book = SDBook(self.PREFIX, lpath, other=info)
             if book.size is None:
                 book.size = length
             b = booklists[0].add_book(book, replace_metadata=True)
@@ -930,6 +959,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 raise ControlError(desc='request for book data failed')
 
     @synchronous('sync_lock')
+    def prepare_addable_books(self, paths):
+        for idx, path in enumerate(paths):
+            (ign, ext) = os.path.splitext(path)
+            tf = PersistentTemporaryFile(suffix=ext)
+            self.get_file(path, tf)
+            paths[idx] = tf.name
+        return paths
+
+    @synchronous('sync_lock')
     def set_plugboards(self, plugboards, pb_func):
         self._debug()
         self.plugboards = plugboards
@@ -976,31 +1014,26 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 message = _('Invalid port in options: %s')% \
                             self.settings().extra_customization[self.OPT_PORT_NUMBER]
                 self._debug(message)
-                self.listen_socket.close()
-                self.listen_socket = None
-                self.is_connected = False
+                self._close_listen_socket()
                 return message
 
-            port = self._attach_to_port(opt_port)
+            port = self._attach_to_port(self.listen_socket, opt_port)
             if port == 0:
                 message = _('Failed to connect to port %d. Try a different value.')%opt_port
                 self._debug(message)
-                self.listen_socket.close()
-                self.listen_socket = None
-                self.is_connected = False
+                self._close_listen_socket()
                 return message
         else:
             while i < 100: # try up to 100 random port numbers
                 i += 1
-                port = self._attach_to_port(random.randint(8192, 32000))
+                port = self._attach_to_port(self.listen_socket,
+                                            random.randint(8192, 32000))
                 if port != 0:
                     break
             if port == 0:
                 message = _('Failed to allocate a random port')
                 self._debug(message)
-                self.listen_socket.close()
-                self.listen_socket = None
-                self.is_connected = False
+                self._close_listen_socket()
                 return message
 
         try:
@@ -1008,9 +1041,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             message = 'listen on port %d failed' % port
             self._debug(message)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
             return message
 
         try:
@@ -1018,21 +1049,40 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             message = 'registration with bonjour failed'
             self._debug(message)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
             return message
 
         self._debug('listening on port', port)
         self.port = port
 
+        # Now try to open a UDP socket to receive broadcasts on
+
+        try:
+            self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        except:
+            message = 'creation of broadcast socket failed. This is not fatal.'
+            self._debug(message)
+            return message
+
+        for p in self.BROADCAST_PORTS:
+            port = self._attach_to_port(self.broadcast_socket, p)
+            if port != 0:
+                self._debug('broadcast socket listening on port', port)
+                break
+
+        if port == 0:
+            self.broadcast_socket.close()
+            self.broadcast_socket = None
+            message = 'attaching port to broadcast socket failed. This is not fatal.'
+            self._debug(message)
+            return message
+
+
     @synchronous('sync_lock')
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
             do_zeroconf(unpublish_zeroconf, self.port)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
 
     # Methods for dynamic control
 
