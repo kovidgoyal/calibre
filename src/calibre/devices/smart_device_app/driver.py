@@ -651,11 +651,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 challenge = ''
                 hash_digest = ''
             opcode, result = self._call_client('GET_INITIALIZATION_INFO',
-                                {'serverProtocolVersion': self.PROTOCOL_VERSION,
-                                'validExtensions': self.ALL_FORMATS,
-                                'passwordChallenge': challenge,
-                                'currentLibraryName': self.current_library_name,
-                                'currentLibraryUUID': library_uuid})
+                    {'serverProtocolVersion': self.PROTOCOL_VERSION,
+                    'validExtensions': self.ALL_FORMATS,
+                    'passwordChallenge': challenge,
+                    'currentLibraryName': self.current_library_name,
+                    'currentLibraryUUID': library_uuid,
+                    'pubdateFormat': tweaks['gui_pubdate_display_format'],
+                    'timestampFormat': tweaks['gui_timestamp_display_format'],
+                    'lastModifiedFormat': tweaks['gui_last_modified_display_format']})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
