@@ -115,29 +115,31 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         if pw:
             self.password_box.setText(pw)
 
-        auto_mgmt_button = QPushButton(_('Enable automatic metadata management'))
-        auto_mgmt_button.clicked.connect(self.auto_mgmt_button_clicked)
-        auto_mgmt_button.setToolTip('<p>' +
+        self.auto_mgmt_button = QPushButton(_('Enable automatic metadata management'))
+        self.auto_mgmt_button.clicked.connect(self.auto_mgmt_button_clicked)
+        self.auto_mgmt_button.setToolTip('<p>' +
             _('Enabling automatic metadata management tells calibre to send any '
               'changes you made to books\' metadata when your device is '
               'connected, which is the most useful setting when using the wireless '
               'device interface. If automatic metadata management is not '
-              'enabled, changes are sent only when you send a book. You can '
+              'enabled, changes are sent only when you re-send the book. You can '
               'get more information or change this preference to some other '
-              'choice at Preferences -> Send to device -> Metadata management')
+              'choice at Preferences -> Sending books to devices -> '
+              'Metadata management')
                                                     + '</p>')
-        self.buttonBox.addButton(auto_mgmt_button, QDialogButtonBox.ActionRole)
-        self.set_auto_management = False
+        self.buttonBox.addButton(self.auto_mgmt_button, QDialogButtonBox.ActionRole)
         if prefs['manage_device_metadata'] == 'on_connect':
-            auto_mgmt_button.setText(_('Automatic metadata management is enabled'))
-            auto_mgmt_button.setEnabled(False)
+            self.auto_mgmt_button.setText(_('Automatic metadata management is enabled'))
+            self.auto_mgmt_button.setEnabled(False)
 
         self.ip_addresses.setText(', '.join(get_all_ip_addresses()))
 
         self.resize(self.sizeHint())
 
     def auto_mgmt_button_clicked(self):
-        self.set_auto_management = True
+        self.auto_mgmt_button.setText(_('Automatic metadata management is enabled'))
+        self.auto_mgmt_button.setEnabled(False)
+        prefs.set('manage_device_metadata', 'on_connect')
 
     def use_fixed_port_changed(self, state):
         self.fixed_port.setEnabled(state == Qt.Checked)
@@ -184,7 +186,5 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             self.device_manager.set_option('smartdevice', 'port_number',
                                            self.orig_port_number)
         else:
-            if self.set_auto_management:
-                prefs.set('manage_device_metadata', 'on_connect')
             QDialog.accept(self)
 
