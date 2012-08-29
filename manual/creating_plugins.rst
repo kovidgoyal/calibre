@@ -182,6 +182,10 @@ The plugin API
 As you may have noticed above, a plugin in |app| is a class. There are different classes for the different types of plugins in |app|.
 Details on each class, including the base class of all plugins can be found in :ref:`plugins`.
 
+Your plugin is almost certainly going to use code from |app|. To learn 
+how to find various bits of functionality in the
+|app| code base, read the section on the |app| :ref:`code_layout`.
+
 Debugging plugins
 -------------------
 
