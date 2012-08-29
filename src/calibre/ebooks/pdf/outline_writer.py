@@ -52,14 +52,10 @@ class Outline(object):
 
     def __call__(self, doc):
         self.pos_map = dict(self.pos_map)
-        first = None
         for child in self.toc:
             page, ypos = self.get_pos(child)
             text = child.text or _('Page %d')%page
-            if first is None:
-                first = node = doc.create_outline(text, page)
-            else:
-                node = first.create(text, page, False)
+            node = doc.create_outline(text, page)
             self.add_children(child, node)
 
 
