@@ -13,14 +13,14 @@ from future_builtins import map
 
 from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
         QPixmap, QTimer, pyqtProperty, QString)
-from PyQt4.QtWebKit import QWebView, QWebPage
+from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import (unit, paper_size, orientation)
 from calibre.ebooks.pdf.outline_writer import Outline
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import __appname__, __version__, fit_image, isosx, force_unicode
+from calibre import (__appname__, __version__, fit_image, isosx, force_unicode)
 from calibre.ebooks.oeb.display.webview import load_html
 
 def get_custom_size(opts):
@@ -123,10 +123,25 @@ class PDFMetadata(object): # {{{
 
 class Page(QWebPage):
 
-    def __init__(self, log):
+    def __init__(self, opts, log):
         self.log = log
         QWebPage.__init__(self)
+        settings = self.settings()
+        settings.setFontSize(QWebSettings.DefaultFontSize,
+                opts.pdf_default_font_size)
+        settings.setFontSize(QWebSettings.DefaultFixedFontSize,
+                opts.pdf_mono_font_size)
+        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, 8)
+        settings.setFontSize(QWebSettings.MinimumFontSize, 8)
 
+        std = {'serif':opts.pdf_serif_family, 'sans':opts.pdf_sans_family,
+                'mono':opts.pdf_mono_family}.get(opts.pdf_standard_font,
+                        opts.pdf_serif_family)
+        settings.setFontFamily(QWebSettings.StandardFont, std)
+        settings.setFontFamily(QWebSettings.SerifFont, opts.pdf_serif_family)
+        settings.setFontFamily(QWebSettings.SansSerifFont,
+                opts.pdf_sans_family)
+        settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log.debug(u'JS:', unicode(msg))
@@ -149,7 +164,7 @@ class PDFWriter(QObject): # {{{
 
         self.loop = QEventLoop()
         self.view = QWebView()
-        self.page = Page(self.log)
+        self.page = Page(opts, self.log)
         self.view.setPage(self.page)
         self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.view.loadFinished.connect(self._render_html,

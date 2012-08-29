@@ -703,6 +703,15 @@ if isosx:
         import traceback
         traceback.print_exc()
 
+def load_builtin_fonts():
+    import glob
+    from PyQt4.Qt import QFontDatabase
+    base = P('fonts/liberation/*.ttf')
+    for f in glob.glob(base):
+        QFontDatabase.addApplicationFont(f)
+    return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
+
+
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython
     ipython(user_ns=user_ns)

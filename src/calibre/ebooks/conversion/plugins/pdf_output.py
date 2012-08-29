@@ -88,6 +88,25 @@ class PDFOutput(OutputFormatPlugin):
             help=_('Preserve the aspect ratio of the cover, instead'
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
+        OptionRecommendation(name='pdf_serif_family',
+            recommended_value='Times New Roman', help=_(
+                'The font family used to render serif fonts')),
+        OptionRecommendation(name='pdf_sans_family',
+            recommended_value='Helvetica', help=_(
+                'The font family used to render sans-serif fonts')),
+        OptionRecommendation(name='pdf_mono_family',
+            recommended_value='Courier New', help=_(
+                'The font family used to render monospaced fonts')),
+        OptionRecommendation(name='pdf_standard_font', choices=['serif',
+            'sans', 'mono'],
+            recommended_value='serif', help=_(
+                'The font family used to render monospaced fonts')),
+        OptionRecommendation(name='pdf_default_font_size',
+            recommended_value=20, help=_(
+                'The default font size')),
+        OptionRecommendation(name='pdf_mono_font_size',
+            recommended_value=16, help=_(
+                'The default font size for monospaced text')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
