@@ -8,16 +8,16 @@ __docformat__ = 'restructuredtext en'
 Write content to PDF.
 '''
 
-import os
-import shutil
+import os, shutil, json
 from future_builtins import map
 
 from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
-        QPixmap, QTimer)
-from PyQt4.QtWebKit import QWebView
+        QPixmap, QTimer, pyqtProperty, QString)
+from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import (unit, paper_size, orientation)
+from calibre.ebooks.pdf.outline_writer import Outline
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import __appname__, __version__, fit_image, isosx, force_unicode
@@ -36,7 +36,7 @@ def get_custom_size(opts):
                 custom_size = None
     return custom_size
 
-def get_pdf_printer(opts, for_comic=False, output_file_name=None):
+def get_pdf_printer(opts, for_comic=False, output_file_name=None): # {{{
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt():
         raise Exception('Not OK to use Qt')
@@ -82,6 +82,7 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None):
         printer.setOutputFormat(QPrinter.NativeFormat)
 
     return printer
+# }}}
 
 def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
     page_rect = printer.pageRect()
@@ -102,7 +103,7 @@ def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
     painter.drawPixmap(page_rect, p, p.rect())
 
 
-class PDFMetadata(object):
+class PDFMetadata(object): # {{{
     def __init__(self, oeb_metadata=None):
         self.title = _(u'Unknown')
         self.author = _(u'Unknown')
@@ -118,10 +119,24 @@ class PDFMetadata(object):
 
         self.title = force_unicode(self.title)
         self.author = force_unicode(self.author)
+# }}}
+
+class Page(QWebPage):
+
+    def __init__(self, log):
+        self.log = log
+        QWebPage.__init__(self)
+
+
+    def javaScriptConsoleMessage(self, msg, lineno, msgid):
+        self.log.debug(u'JS:', unicode(msg))
+
+    def javaScriptAlert(self, frame, msg):
+        self.log(unicode(msg))
 
 class PDFWriter(QObject): # {{{
 
-    def __init__(self, opts, log, cover_data=None):
+    def __init__(self, opts, log, cover_data=None, toc=None):
         from calibre.gui2 import is_ok_to_use_qt
         from calibre.utils.podofo import get_podofo
         if not is_ok_to_use_qt():
@@ -134,6 +149,8 @@ class PDFWriter(QObject): # {{{
 
         self.loop = QEventLoop()
         self.view = QWebView()
+        self.page = Page(self.log)
+        self.view.setPage(self.page)
         self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.view.loadFinished.connect(self._render_html,
                 type=Qt.QueuedConnection)
@@ -147,10 +164,12 @@ class PDFWriter(QObject): # {{{
         self.opts = opts
         self.cover_data = cover_data
         self.paged_js = None
+        self.toc = toc
 
     def dump(self, items, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
         self._delete_tmpdir()
+        self.outline = Outline(self.toc, items)
 
         self.render_queue = items
         self.combine_queue = []
@@ -178,6 +197,7 @@ class PDFWriter(QObject): # {{{
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)
+        self.current_item = item
         load_html(item, self.view)
 
     def _render_html(self, ok):
@@ -192,11 +212,22 @@ class PDFWriter(QObject): # {{{
             return
         self._render_book()
 
+    def _pass_json_value_getter(self):
+        val = json.dumps(self.bridge_value)
+        return QString(val)
+
+    def _pass_json_value_setter(self, value):
+        self.bridge_value = json.loads(unicode(value))
+
+    _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
+            fset=_pass_json_value_setter)
+
     def do_paged_render(self, outpath):
         from PyQt4.Qt import QSize, QPainter
         if self.paged_js is None:
             from calibre.utils.resources import compiled_coffeescript
             self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
+            self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
             self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
         printer = get_pdf_printer(self.opts, output_file_name=outpath)
         painter = QPainter(printer)
@@ -204,12 +235,20 @@ class PDFWriter(QObject): # {{{
         zoomy = printer.logicalDpiY()/self.view.logicalDpiY()
         painter.scale(zoomx, zoomy)
 
+        self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         pr = printer.pageRect()
         evaljs = self.view.page().mainFrame().evaluateJavaScript
         evaljs(self.paged_js)
         self.view.page().setViewportSize(QSize(pr.width()/zoomx,
             pr.height()/zoomy))
         evaljs('''
+        py_bridge.__defineGetter__('value', function() {
+            return JSON.parse(this._pass_json_value);
+        });
+        py_bridge.__defineSetter__('value', function(val) {
+            this._pass_json_value = JSON.stringify(val);
+        });
+
         document.body.style.backgroundColor = "white";
         paged_display.set_geometry(1, 0, 0, 0);
         paged_display.layout();
@@ -222,6 +261,17 @@ class PDFWriter(QObject): # {{{
             if not nsl[1] or nsl[0] <= 0: break
             evaljs('window.scrollTo(%d, 0)'%nsl[0])
             printer.newPage()
+
+        self.bridge_value = tuple(self.outline.anchor_map[self.current_item])
+        evaljs('py_bridge.value = book_indexing.anchor_positions(py_bridge.value)')
+        amap = self.bridge_value
+        if not isinstance(amap, dict):
+            amap = {} # Some javascript error occurred
+        pages = self.doc.page_count()
+        self.outline.set_pos(self.current_item, None, pages, 0)
+        for anchor, x in amap.iteritems():
+            pagenum, ypos = x
+            self.outline.set_pos(self.current_item, anchor, pages + pagenum, ypos)
 
         painter.end()
         printer.abort()
@@ -266,6 +316,7 @@ class PDFWriter(QObject): # {{{
             self.doc.author = self.metadata.author
             if self.metadata.tags:
                 self.doc.keywords = self.metadata.tags
+            self.outline(self.doc)
             raw = self.doc.write()
             self.out_stream.write(raw)
             self.render_succeeded = True
@@ -275,9 +326,9 @@ class PDFWriter(QObject): # {{{
 
 # }}}
 
-class ImagePDFWriter(object):
+class ImagePDFWriter(object): # {{{
 
-    def __init__(self, opts, log, cover_data=None):
+    def __init__(self, opts, log, cover_data=None, toc=None):
         self.opts = opts
         self.log = log
 
@@ -326,6 +377,6 @@ class ImagePDFWriter(object):
                 self.log.warn('Failed to load image', i)
         painter.end()
 
-
+# }}}
 
 

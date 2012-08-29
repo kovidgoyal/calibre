@@ -107,7 +107,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_images(self, images):
         from calibre.ebooks.pdf.writer import ImagePDFWriter
-        self.write(ImagePDFWriter, images)
+        self.write(ImagePDFWriter, images, None)
 
     def get_cover_data(self):
         oeb = self.oeb
@@ -132,11 +132,13 @@ class PDFOutput(OutputFormatPlugin):
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             opf = OPF(opfpath, os.path.dirname(opfpath))
 
-            self.write(PDFWriter, [s.path for s in opf.spine])
+            self.write(PDFWriter, [s.path for s in opf.spine], getattr(opf,
+                'toc', None))
 
-    def write(self, Writer, items):
+    def write(self, Writer, items, toc):
         from calibre.ebooks.pdf.writer import PDFMetadata
-        writer = Writer(self.opts, self.log, cover_data=self.cover_data)
+        writer = Writer(self.opts, self.log, cover_data=self.cover_data,
+                toc=toc)
 
         close = False
         if not hasattr(self.output_path, 'write'):

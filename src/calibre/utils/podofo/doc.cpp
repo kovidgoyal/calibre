@@ -200,8 +200,9 @@ PDFDoc_create_outline(PDFDoc *self, PyObject *args) {
     PyObject *p;
     PDFOutlineItem *ans;
     PdfString *title;
+    int pagenum;
 
-    if (!PyArg_ParseTuple(args, "U", &p)) return NULL;
+    if (!PyArg_ParseTuple(args, "Ui", &p, &pagenum)) return NULL;
     title = podofo_convert_pystring(p);
     if (title == NULL) return NULL;
 
@@ -214,6 +215,8 @@ PDFDoc_create_outline(PDFDoc *self, PyObject *args) {
         ans->item = outlines->CreateRoot(*title);
         if (ans->item == NULL) {PyErr_NoMemory(); goto error;}
         ans->doc = self->doc;
+        PdfDestination dest(self->doc->GetPage(pagenum));
+        ans->item->SetDestination(dest);
     } catch(const PdfError & err) {
         podofo_set_exception(err); goto error;
     } catch (...) {
@@ -466,7 +469,7 @@ static PyMethodDef PDFDoc_methods[] = {
      "set_box(page_num, box, left, bottom, width, height) -> Set the PDF bounding box for the page numbered nu, box must be one of: MediaBox, CropBox, TrimBox, BleedBox, ArtBox. The numbers are interpreted as pts."
     },
     {"create_outline", (PyCFunction)PDFDoc_create_outline, METH_VARARGS,
-     "create_outline(title) -> Create an outline, return the root outline item."
+     "create_outline(title, pagenum) -> Create an outline, return the first outline item."
     },
 
     {NULL}  /* Sentinel */
