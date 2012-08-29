@@ -12,7 +12,7 @@ import os, shutil, json
 from future_builtins import map
 
 from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
-        QPixmap, QTimer, pyqtProperty, QString)
+        QPixmap, QTimer, pyqtProperty, QString, QSize)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -192,8 +192,17 @@ class PDFWriter(QObject): # {{{
         self.insert_cover()
 
         self.render_succeeded = False
+        self.combine_queue.append(os.path.join(self.tmp_path,
+            'qprinter_out.pdf'))
+        self.first_page = True
+        self.setup_printer(self.combine_queue[-1])
         QTimer.singleShot(0, self._render_book)
         self.loop.exec_()
+        if self.painter is not None:
+            self.painter.end()
+        if self.printer is not None:
+            self.printer.abort()
+
         if not self.render_succeeded:
             raise Exception('Rendering HTML to PDF failed')
 
@@ -209,7 +218,6 @@ class PDFWriter(QObject): # {{{
 
     def _render_next(self):
         item = unicode(self.render_queue.pop(0))
-        self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)
         self.current_item = item
@@ -217,9 +225,7 @@ class PDFWriter(QObject): # {{{
 
     def _render_html(self, ok):
         if ok:
-            item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
-            self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-            self.do_paged_render(item_path)
+            self.do_paged_render()
         else:
             # The document is so corrupt that we can't render the page.
             self.logger.error('Document cannot be rendered.')
@@ -237,25 +243,28 @@ class PDFWriter(QObject): # {{{
     _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
-    def do_paged_render(self, outpath):
-        from PyQt4.Qt import QSize, QPainter
-        if self.paged_js is None:
-            from calibre.utils.resources import compiled_coffeescript
-            self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
+    def setup_printer(self, outpath):
+        self.printer = self.painter = None
         printer = get_pdf_printer(self.opts, output_file_name=outpath)
         painter = QPainter(printer)
         zoomx = printer.logicalDpiX()/self.view.logicalDpiX()
         zoomy = printer.logicalDpiY()/self.view.logicalDpiY()
         painter.scale(zoomx, zoomy)
+        pr = printer.pageRect()
+        self.printer, self.painter = printer, painter
+        self.viewport_size = QSize(pr.width()/zoomx, pr.height()/zoomy)
+        self.page.setViewportSize(self.viewport_size)
+
+    def do_paged_render(self):
+        if self.paged_js is None:
+            from calibre.utils.resources import compiled_coffeescript
+            self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
+            self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
+            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
-        pr = printer.pageRect()
         evaljs = self.view.page().mainFrame().evaluateJavaScript
         evaljs(self.paged_js)
-        self.view.page().setViewportSize(QSize(pr.width()/zoomx,
-            pr.height()/zoomy))
         evaljs('''
         py_bridge.__defineGetter__('value', function() {
             return JSON.parse(this._pass_json_value);
@@ -271,11 +280,13 @@ class PDFWriter(QObject): # {{{
         ''')
         mf = self.view.page().mainFrame()
         while True:
-            mf.render(painter)
+            if not self.first_page:
+                self.printer.newPage()
+            self.first_page = False
+            mf.render(self.painter)
             nsl = evaljs('paged_display.next_screen_location()').toInt()
             if not nsl[1] or nsl[0] <= 0: break
             evaljs('window.scrollTo(%d, 0)'%nsl[0])
-            printer.newPage()
 
         self.bridge_value = tuple(self.outline.anchor_map[self.current_item])
         evaljs('py_bridge.value = book_indexing.anchor_positions(py_bridge.value)')
@@ -287,10 +298,6 @@ class PDFWriter(QObject): # {{{
         for anchor, x in amap.iteritems():
             pagenum, ypos = x
             self.outline.set_pos(self.current_item, anchor, pages + pagenum, ypos)
-
-        painter.end()
-        printer.abort()
-        self.append_doc(outpath)
 
     def append_doc(self, outpath):
         doc = self.podofo.PDFDoc()
@@ -322,7 +329,10 @@ class PDFWriter(QObject): # {{{
         printer.abort()
 
     def _write(self):
-        self.logger.debug('Combining individual PDF parts...')
+        self.painter.end()
+        self.printer.abort()
+        self.painter = self.printer = None
+        self.append_doc(self.combine_queue[-1])
 
         try:
             self.doc.creator = u'%s %s [http://calibre-ebook.com]'%(
