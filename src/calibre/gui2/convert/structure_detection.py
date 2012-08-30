@@ -20,7 +20,7 @@ class StructureDetectionWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
-                ['chapter', 'chapter_mark',
+                ['chapter', 'chapter_mark', 'start_reading_at',
                 'remove_first_image', 'remove_fake_margins',
                 'insert_metadata', 'page_breaks_before']
                 )
@@ -31,15 +31,18 @@ class StructureDetectionWidget(Widget, Ui_Form):
         self.opt_chapter.set_msg(_('Detect chapters at (XPath expression):'))
         self.opt_page_breaks_before.set_msg(_('Insert page breaks before '
             '(XPath expression):'))
+        self.opt_start_reading_at.set_msg(
+                _('Start reading at (XPath expression):'))
 
     def break_cycles(self):
         Widget.break_cycles(self)
 
     def pre_commit_check(self):
-        for x in ('chapter', 'page_breaks_before'):
+        for x in ('chapter', 'page_breaks_before', 'start_reading_at'):
             x = getattr(self, 'opt_'+x)
             if not x.check():
                 error_dialog(self, _('Invalid XPath'),
                 _('The XPath expression %s is invalid.')%x.text).exec_()
                 return False
         return True
+
