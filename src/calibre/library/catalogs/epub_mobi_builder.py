@@ -3228,9 +3228,9 @@ Author '{0}':
         # Hack to force the cataloged leading letter to be
         # an unadorned character if the accented version sorts before the unaccented
         exceptions = {
-                        u'??':u'A',
-                        u'??':u'O',
-                        u'??':u'U'
+                        u'Ä':u'A',
+                        u'Ö':u'O',
+                        u'Ü':u'U'
                      }
 
         if key is not None:
