@@ -30,7 +30,7 @@ from calibre.ptempfile import (PersistentTemporaryFile,
         base_dir, SpooledTemporaryFile)
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
-from calibre.utils.filenames import ascii_filename
+from calibre.utils.filenames import ascii_filename, samefile
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
         parse_only_date)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
@@ -618,7 +618,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def normpath(self, path):
         path = os.path.abspath(os.path.realpath(path))
         if not self.is_case_sensitive:
-            path = path.lower()
+            path = os.path.normcase(path).lower()
         return path
 
     def set_path(self, index, index_is_id=False):
@@ -654,21 +654,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
-                with SpooledTemporaryFile(SPOOL_SIZE) as stream:
-                    try:
-                        self.copy_format_to(id, format, stream, index_is_id=True)
-                        stream.seek(0)
-                    except NoSuchFormat:
-                        continue
-                    self.add_format(id, format, stream, index_is_id=True,
-                        path=tpath, notify=False)
+                copy_function = functools.partial(self.copy_format_to, id,
+                        format, index_is_id=True)
+                try:
+                    self.add_format(id, format, None, index_is_id=True,
+                        path=tpath, notify=False, copy_function=copy_function)
+                except NoSuchFormat:
+                    continue
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.dirtied([id], commit=False)
         self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
-            if self.normpath(spath) != self.normpath(tpath):
+            if not samefile(spath, tpath):
                 self.rmtree(spath, permanent=True)
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
@@ -1343,15 +1342,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
+        dest can also be a path, in which case the format is copied to it, iff
+        the path is different from the current path (taking case sensitivity
+        into account).
         '''
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
-        with lopen(path, 'rb') as f:
-            shutil.copyfileobj(f, dest)
-        if hasattr(dest, 'flush'):
-            dest.flush()
+        if hasattr(dest, 'write'):
+            with lopen(path, 'rb') as f:
+                shutil.copyfileobj(f, dest)
+            if hasattr(dest, 'flush'):
+                dest.flush()
+        elif dest and not samefile(dest, path):
+            with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                shutil.copyfileobj(f, d)
 
     def format(self, index, format, index_is_id=False, as_file=False,
             mode='r+b', as_path=False, preserve_filename=False):
@@ -1411,7 +1417,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                index_is_id=index_is_id, path=path, notify=notify)
 
     def add_format(self, index, format, stream, index_is_id=False, path=None,
-            notify=True, replace=True):
+            notify=True, replace=True, copy_function=None):
         id = index if index_is_id else self.id(index)
         if not format: format = ''
         self.format_metadata_cache[id].pop(format.upper(), None)
@@ -1426,12 +1432,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        if not getattr(stream, 'name', False) or \
-                os.path.abspath(dest) != os.path.abspath(stream.name):
-            with lopen(dest, 'wb') as f:
-                shutil.copyfileobj(stream, f)
-        stream.seek(0, 2)
-        size=stream.tell()
+        if copy_function is not None:
+            copy_function(dest)
+            size = os.path.getsize(dest)
+        else:
+            if (not getattr(stream, 'name', False) or not samefile(dest,
+                stream.name)):
+                with lopen(dest, 'wb') as f:
+                    shutil.copyfileobj(stream, f)
+                    size = f.tell()
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.update_last_modified([id], commit=False)
