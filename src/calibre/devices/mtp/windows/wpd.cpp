@@ -10,7 +10,7 @@
 using namespace wpd;
 
 // Module exception types
-PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL;
+PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL, *wpd::WPDFileBusy = NULL;
 
 // The global device manager
 IPortableDeviceManager *wpd::portable_device_manager = NULL;
@@ -22,7 +22,7 @@ wpd::ClientInfo wpd::client_info = {NULL, 0, 0, 0};
 
 extern IPortableDeviceValues* wpd::get_client_information();
 extern IPortableDevice* wpd::open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
-extern PyObject* wpd::get_device_information(IPortableDevice *device);
+extern PyObject* wpd::get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
 
 // Module startup/shutdown {{{
 static PyObject *
@@ -151,7 +151,7 @@ wpd_device_info(PyObject *self, PyObject *args) {
     if (client_information != NULL) {
         device = open_device(pnp_id, client_information);
         if (device != NULL) {
-            ans = get_device_information(device);
+            ans = get_device_information(device, NULL);
         }
     }
 
@@ -195,9 +195,15 @@ initwpd(void) {
 
     WPDError = PyErr_NewException("wpd.WPDError", NULL, NULL);
     if (WPDError == NULL) return;
+    PyModule_AddObject(m, "WPDError", WPDError);
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) return;
+    PyModule_AddObject(m, "NoWPD", NoWPD);
+
+    WPDFileBusy = PyErr_NewException("wpd.WPDFileBusy", NULL, NULL);
+    if (WPDFileBusy == NULL) return;
+    PyModule_AddObject(m, "WPDFileBusy", WPDFileBusy);
 
     Py_INCREF(&DeviceType);
     PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);

@@ -235,7 +235,7 @@ class Serializer(object):
                     itemhref = re.sub(r'article_\d+/', '', itemhref)
                 self.href_offsets[itemhref].append(buf.tell())
                 buf.write('0000000000')
-                buf.write(' ><font size="+1" color="blue"><b><u>')
+                buf.write(' ><font size="+1"><b><u>')
                 t = tocitem.title
                 if isinstance(t, unicode):
                     t = t.encode('utf-8')

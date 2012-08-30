@@ -1,0 +1,58 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+ciperchile.cl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CiperChile(BasicNewsRecipe):
+    title                 = 'CIPER Chile'
+    __author__            = 'Darko Miletic'
+    description           = 'El Centro de Investigacion e Informacion Periodistica (CIPER) es una institucion independiente que desarrolla reportajes de investigacion de acuerdo a principios de maxima calidad e integridad profesional. Para lograr dicho objetivo, los profesionales de CIPER incorporan a las tecnicas propias del reporteo el uso sistematico de las leyes chilenas que norman el libre acceso a la informacion, de manera que los documentos que se obtengan por esta via esten puestos a disposicion del publico sin restricciones.'
+    publisher             = 'CIPER'
+    category              = 'news, politics, Chile'
+    oldest_article        = 15
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'es_CL'
+    auto_cleanup          = False
+    remove_empty_feeds    = True
+    publication_type      = 'blog'
+    masthead_url          = 'http://ciperchile.cl/wp-content/themes/cipertheme/css/ui/ciper-logo.png'
+    extra_css             = """
+                               body{font-family: Arial,sans-serif}
+                               .excerpt{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: 1.25em}
+                               .author{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: small}
+                               .date{font-family: Georgia,"Times New Roman",Times,serif; font-size: small; color: grey}
+                               .epigrafe{font-size: small; color: grey}
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                     dict(name=['meta','link']),
+                     dict(attrs={'class':['articleSharingTools','articleNav']})
+                  ]
+    remove_attributes=['lang']
+    remove_tags_before=dict(name='p', attrs={'class':'epigrafe'})
+    remove_tags_after=dict(name='div', attrs={'class':'articleBody'})
+    keep_only_tags = [dict(name='div', attrs={'class':'articleElements'})]
+
+    feeds = [
+              (u'Opinion del lector', u'http://ciperchile.cl/category/opinion-del-lector/feed/')
+             ,(u'Reportajes de investigacion', u'http://ciperchile.cl/category/reportajes-de-investigacion/feed/')
+             ,(u'Actualidad y Entrevistas', u'http://ciperchile.cl/category/actualidad-y-entrevistas/feed/')
+             ,(u'Opinion', u'http://ciperchile.cl/category/opinion/feed/')
+             ,(u'Accesso a la informacion', u'http://ciperchile.cl/category/acceso-a-la-informacion/feed/')
+             ,(u'Libros', u'http://ciperchile.cl/category/libros/feed/')
+             ,(u'Blog', u'http://ciperchile.cl/category/blog/feed/')
+            ]

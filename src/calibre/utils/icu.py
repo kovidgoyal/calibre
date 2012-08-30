@@ -71,10 +71,16 @@ def icu_sort_key(collator, obj):
     if not obj:
         return _none2
     try:
+        try:
+            return _secondary_collator.sort_key(obj)
+        except AttributeError:
+            return secondary_collator().sort_key(obj)
+    except TypeError:
+        if isinstance(obj, unicode):
+            obj = obj.replace(u'\0', u'')
+        else:
+            obj = obj.replace(b'\0', b'')
         return _secondary_collator.sort_key(obj)
-    except AttributeError:
-        return secondary_collator().sort_key(obj)
-
 
 def py_find(pattern, source):
     pos = source.find(pattern)

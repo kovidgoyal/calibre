@@ -54,6 +54,16 @@ def guess_all_extensions(*args, **kwargs):
         _init_mimetypes()
     return mimetypes.guess_all_extensions(*args, **kwargs)
 
+
+def guess_extension(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    ext = mimetypes.guess_extension(*args, **kwargs)
+    if not ext and args and args[0] == 'application/x-palmreader':
+        ext = '.pdb'
+    return ext
+
 def get_types_map():
     import mimetypes
     if not _mt_inited:
@@ -434,23 +444,6 @@ class CurrentDir(object):
             pass
 
 
-class StreamReadWrapper(object):
-    '''
-    Used primarily with pyPdf to ensure the stream is properly closed.
-    '''
-
-    def __init__(self, stream):
-        for x in ('read', 'seek', 'tell'):
-            setattr(self, x, getattr(stream, x))
-
-    def __exit__(self, *args):
-        for x in ('read', 'seek', 'tell'):
-            setattr(self, x, None)
-
-    def __enter__(self):
-        return self
-
-
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
     import multiprocessing
@@ -664,7 +657,7 @@ def get_download_filename(url, cookie_file=None):
 
     return filename
 
-def human_readable(size):
+def human_readable(size, sep=' '):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"
     for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
@@ -676,7 +669,7 @@ def human_readable(size):
         size = size[:size.find(".")+2]
     if size.endswith('.0'):
         size = size[:-2]
-    return size + " " + suffix
+    return size + sep + suffix
 
 def remove_bracketed_text(src,
         brackets={u'(':u')', u'[':u']', u'{':u'}'}):
@@ -709,6 +702,15 @@ if isosx:
     except:
         import traceback
         traceback.print_exc()
+
+def load_builtin_fonts():
+    import glob
+    from PyQt4.Qt import QFontDatabase
+    base = P('fonts/liberation/*.ttf')
+    for f in glob.glob(base):
+        QFontDatabase.addApplicationFont(f)
+    return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
+
 
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython

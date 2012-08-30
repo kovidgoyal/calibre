@@ -8,7 +8,7 @@ from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store)
+                              StoreBase as Store, ViewerPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -478,6 +478,13 @@ def metadata_plugins(capabilities):
 def all_metadata_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, Source):
+            yield plugin
+# }}}
+
+# Viewer plugins {{{
+def all_viewer_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, ViewerPlugin):
             yield plugin
 # }}}
 

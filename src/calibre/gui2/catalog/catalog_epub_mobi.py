@@ -123,7 +123,7 @@ class PluginWidget(QWidget,Ui_Form):
                     # Look up custom column friendly name
                     rule['field'] = self.eligible_custom_fields[rule['field']]['field']
                     if rule['pattern'] in [_('any value'),_('any date')]:
-                        rule_pattern = '.*'
+                        rule['pattern'] = '.*'
                     elif rule['pattern'] == _('unspecified'):
                         rule['pattern'] = 'None'
             if 'prefix' in rule:

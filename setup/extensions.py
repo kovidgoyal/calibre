@@ -137,11 +137,18 @@ extensions = [
         ['calibre/ebooks/compression/palmdoc.c']),
 
     Extension('podofo',
-                    ['calibre/utils/podofo/podofo.cpp'],
+                    [
+                        'calibre/utils/podofo/utils.cpp',
+                        'calibre/utils/podofo/doc.cpp',
+                        'calibre/utils/podofo/outline.cpp',
+                        'calibre/utils/podofo/podofo.cpp',
+                    ],
+                    headers=[
+                        'calibre/utils/podofo/global.h',
+                    ],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
                     inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],
-                    optional=True,
                     error=podofo_error),
 
     Extension('pictureflow',
@@ -172,13 +179,14 @@ if iswindows:
             [
                 'calibre/devices/mtp/windows/utils.cpp',
                 'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/content_enumeration.cpp',
                 'calibre/devices/mtp/windows/device.cpp',
                 'calibre/devices/mtp/windows/wpd.cpp',
             ],
             headers=[
                 'calibre/devices/mtp/windows/global.h',
             ],
-            libraries=['ole32', 'portabledeviceguids'],
+            libraries=['ole32', 'portabledeviceguids', 'user32'],
             # needs_ddk=True,
             cflags=['/X']
             ),
@@ -187,10 +195,15 @@ if iswindows:
 if isosx:
     extensions.append(Extension('usbobserver',
                 ['calibre/devices/usbobserver/usbobserver.c'],
-                ldflags=['-framework', 'IOKit'])
+                ldflags=['-framework', 'CoreServices', '-framework', 'IOKit'])
             )
 
-if islinux:
+if islinux or isosx:
+    extensions.append(Extension('libusb',
+        ['calibre/devices/libusb/libusb.c'],
+        libraries=['usb-1.0']
+    ))
+
     extensions.append(Extension('libmtp',
         [
         'calibre/devices/mtp/unix/devices.c',
@@ -285,7 +298,7 @@ class Build(Command):
         ''')
 
     def add_options(self, parser):
-        choices = [e.name for e in extensions]+['all']
+        choices = [e.name for e in extensions]+['all', 'style']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
@@ -299,7 +312,7 @@ class Build(Command):
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
-        if not opts.only:
+        if opts.only in {'all', 'style'}:
             self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:

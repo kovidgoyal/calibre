@@ -8,6 +8,7 @@ Created on 29 Jun 2012
 @author: charles
 '''
 import socket, select, json, inspect, os, traceback, time, sys, random
+import posixpath
 import hashlib, threading
 from base64 import b64encode, b64decode
 from functools import wraps
@@ -23,10 +24,10 @@ from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import title_sort
-from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
 from calibre.utils.date import isoformat, now
@@ -50,6 +51,12 @@ def do_zeroconf(f, port):
         '_calibresmartdeviceapp._tcp', port, {})
 
 
+class SDBook(Book):
+    def __init__(self, prefix, lpath, size=None, other=None):
+        Book.__init__(self, prefix, lpath, size=size, other=other)
+        path = getattr(self, 'path', lpath)
+        self.path = path.replace('\\', '/')
+
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
     gui_name = _('SmartDevice')
@@ -71,14 +78,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     DEVICE_PLUGBOARD_NAME       = 'SMART_DEVICE_APP'
     CAN_SET_METADATA            = []
     CAN_DO_DEVICE_DB_PLUGBOARD  = False
-    SUPPORTS_SUB_DIRS           = False
+    SUPPORTS_SUB_DIRS           = True
     MUST_READ_METADATA          = True
     NEWS_IN_FOLDER              = False
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
-    MAX_PATH_LEN                = 100
+    MAX_PATH_LEN                = 250
     THUMBNAIL_HEIGHT            = 160
     PREFIX                      = ''
+    BACKLOADING_ERROR_MESSAGE   = None
 
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
@@ -88,6 +96,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
+
+    ZEROCONF_CLIENT_STRING      = b'calibre smart device client'
+
+    # A few "random" port numbers to use for detecting clients using broadcast
+    # The clients are expected to broadcast a UDP 'hi there' on all of these
+    # ports when they attempt to connect. Calibre will respond with the port
+    # number the client should use. This scheme backs up mdns. And yes, we
+    # must hope that no other application on the machine is using one of these
+    # ports in datagram mode.
+    # If you change the ports here, all clients will also need to change.
+    BROADCAST_PORTS             = [54982, 48123, 39001, 44044, 59678]
 
     opcodes = {
         'NOOP'                   : 12,
@@ -163,11 +182,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_COLLECTIONS             = 8
     OPT_AUTODISCONNECT          = 10
 
+
     def __init__(self, path):
         self.sync_lock = threading.RLock()
         self.noop_counter = 0
         self.debug_start_time = time.time()
         self.debug_time = time.time()
+        self.client_can_stream_books = False
+        self.client_can_stream_metadata = False
 
     def _debug(self, *args):
         if not DEBUG:
@@ -185,32 +207,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             printable[k] = 'too long'
                         else:
                             printable[k] = v
-                    prints('', printable, end='');
+                    prints('', printable, end='')
                 else:
                     prints('', a, end='')
             except:
                 prints('', 'value too long', end='')
         print()
         self.debug_time = time.time()
-
-    # Various methods required by the plugin architecture
-    @classmethod
-    def _default_save_template(cls):
-        from calibre.library.save_to_disk import config
-        st = cls.SAVE_TEMPLATE if cls.SAVE_TEMPLATE else \
-            config().parse().send_template
-        if st:
-            st = os.path.basename(st)
-        return st
-
-    @classmethod
-    def save_template(cls):
-        st = cls.settings().save_template
-        if st:
-            st = os.path.basename(st)
-        else:
-            st = cls._default_save_template()
-        return st
 
     # local utilities
 
@@ -305,7 +308,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(maxlen, extra_components)
-        filepath = os.path.join(*components)
+        filepath = posixpath.join(*components)
         return filepath
 
     def _strip_prefix(self, path):
@@ -343,7 +346,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # recv seems to return a pointer into some internal buffer.
             # Things get trashed if we don't make a copy of the data.
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = self.device_socket.recv(self.BASE_PACKET_LEN)
+            v = self.device_socket.recv(2)
             self.device_socket.settimeout(None)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
@@ -365,7 +368,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if not isinstance(s, bytes):
             self._debug('given a non-byte string!')
             raise PacketError("Internal error: found a string that isn't bytes")
-        sent_len = 0;
+        sent_len = 0
         total_len = len(s)
         while sent_len < total_len:
             try:
@@ -374,7 +377,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 else:
                     amt_sent = self.device_socket.send(s[sent_len:])
                 if amt_sent <= 0:
-                    raise IOError('Bad write on device socket');
+                    raise IOError('Bad write on device socket')
                 sent_len += amt_sent
             except socket.error as e:
                 self._debug('socket error', e, e.errno)
@@ -382,15 +385,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     raise
                 time.sleep(0.1) # lets not hammer the OS too hard
 
-    def _call_client(self, op, arg, print_debug_info=True):
+    def _call_client(self, op, arg, print_debug_info=True, wait_for_response=True):
         if op != 'NOOP':
             self.noop_counter = 0
         extra_debug = self.settings().extra_customization[self.OPT_EXTRA_DEBUG]
         if print_debug_info or extra_debug:
             if extra_debug:
-                self._debug(op, arg)
+                self._debug(op, 'wfr', wait_for_response, arg)
             else:
-                self._debug(op)
+                self._debug(op, 'wfr', wait_for_response)
         if self.device_socket is None:
             return None, None
         try:
@@ -398,7 +401,28 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            self._send_byte_string((b'%d' % len(s))+s)
+            self._send_byte_string((b'%d' % len(s)) + s)
+            if not wait_for_response:
+                return None, None
+            return self._receive_from_client(print_debug_info=print_debug_info)
+        except socket.timeout:
+            self._debug('timeout communicating with device')
+            self._close_device_socket()
+            raise TimeoutError('Device did not respond in reasonable time')
+        except socket.error:
+            self._debug('device went away')
+            self._close_device_socket()
+            raise ControlError(desc='Device closed the network connection')
+        except:
+            self._debug('other exception')
+            traceback.print_exc()
+            self._close_device_socket()
+            raise
+        raise ControlError(desc='Device responded with incorrect information')
+
+    def _receive_from_client(self, print_debug_info=True):
+        extra_debug = self.settings().extra_customization[self.OPT_EXTRA_DEBUG]
+        try:
             v = self._read_string_from_net()
             self.device_socket.settimeout(None)
             if print_debug_info and extra_debug:
@@ -434,9 +458,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         book_metadata.size = length
         infile.seek(0)
         self._debug(lpath, length)
-        self._call_client('SEND_BOOK', {'lpath': lpath, 'length': length,
+        opcode, result = self._call_client('SEND_BOOK', {'lpath': lpath, 'length': length,
                                'metadata': book_metadata, 'thisBook': this_book,
-                               'totalBooks': total_books}, print_debug_info=False)
+                               'totalBooks': total_books,
+                               'willStreamBooks': self.client_can_stream_books},
+                          print_debug_info=False,
+                          wait_for_response=(not self.client_can_stream_books))
+
         self._set_known_metadata(book_metadata)
         pos = 0
         failed = False
@@ -445,13 +473,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 b = infile.read(self.max_book_packet_len)
                 blen = len(b)
                 if not b:
-                    break;
+                    break
                 b = b64encode(b)
                 opcode, result = self._call_client('BOOK_DATA',
                                 {'lpath': lpath, 'position': pos, 'data': b},
-                                print_debug_info=False)
+                                print_debug_info=False,
+                                wait_for_response=(not self.client_can_stream_books))
                 pos += blen
-                if opcode != 'OK':
+                if not self.client_can_stream_books and opcode != 'OK':
                     self._debug('protocol error', opcode)
                     failed = True
                     break
@@ -466,32 +495,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.OPT_PASSWORD
         elif opt_string == 'autostart':
             return self.OPT_AUTOSTART
+        elif opt_string == 'use_fixed_port':
+            return self.OPT_USE_PORT
+        elif opt_string == 'port_number':
+            return self.OPT_PORT_NUMBER
         else:
             return None
-
-    def _compare_metadata(self, mi1, mi2):
-        for key in SERIALIZABLE_FIELDS:
-            if key in ['cover', 'mime']:
-                continue
-            if key == 'user_metadata':
-                meta1 = mi1.get_all_user_metadata(make_copy=False)
-                meta2 = mi1.get_all_user_metadata(make_copy=False)
-                if meta1 != meta2:
-                    self._debug('custom metadata different')
-                    return False
-                for ckey in meta1:
-                    if mi1.get(ckey) != mi2.get(ckey):
-                        self._debug(ckey, mi1.get(ckey), mi2.get(ckey))
-                        return False
-            elif mi1.get(key, None) != mi2.get(key, None):
-                self._debug(key, mi1.get(key), mi2.get(key))
-                return False
-        return True
 
     def _metadata_already_on_device(self, book):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
-            return self._compare_metadata(book, v)
+            return (v.get('uuid', None) == book.get('uuid', None) and
+                    v.get('last_modified', None) == book.get('last_modified', None))
         return False
 
     def _set_known_metadata(self, book, remove=False):
@@ -509,6 +524,27 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 pass
             self.device_socket = None
         self.is_connected = False
+
+    def _attach_to_port(self, sock, port):
+        try:
+            self._debug('try port', port)
+            sock.bind(('', port))
+        except socket.error:
+            self._debug('socket error on port', port)
+            port = 0
+        except:
+            self._debug('Unknown exception while attaching port to socket')
+            traceback.print_exc()
+            raise
+        return port
+
+    def _close_listen_socket(self):
+        self.listen_socket.close()
+        self.listen_socket = None
+        self.is_connected = False
+        if getattr(self, 'broadcast_socket', None) is not None:
+            self.broadcast_socket.close()
+            self.broadcast_socket = None
 
     # The public interface methods.
 
@@ -541,6 +577,23 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except:
                     self._close_device_socket()
             return (self.is_connected, self)
+        if getattr(self, 'broadcast_socket', None) is not None:
+            while True:
+                ans = select.select((self.broadcast_socket,), (), (), 0)
+                if len(ans[0]) > 0:
+                    try:
+                        packet = self.broadcast_socket.recvfrom(100)
+                        remote = packet[1]
+                        message = str(self.ZEROCONF_CLIENT_STRING + b' (on ' +
+                                        str(socket.gethostname().partition('.')[0]) +
+                                        b'),' + str(self.port))
+                        self._debug('received broadcast', packet, message)
+                        self.broadcast_socket.sendto(message, remote)
+                    except:
+                        pass
+                else:
+                    break
+
         if getattr(self, 'listen_socket', None) is not None:
             ans = select.select((self.listen_socket,), (), (), 0)
             if len(ans[0]) > 0:
@@ -560,7 +613,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
                             self._debug('too many connection attempts from', peer)
                             self._close_device_socket()
-                            raise InitialConnectionError(_('Too many connection attempts from %s')%peer)
+                            raise InitialConnectionError(_('Too many connection attempts from %s') % peer)
                         else:
                             self.connection_attempts[peer] = attempts + 1
                     except InitialConnectionError:
@@ -597,11 +650,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 challenge = ''
                 hash_digest = ''
             opcode, result = self._call_client('GET_INITIALIZATION_INFO',
-                                {'serverProtocolVersion': self.PROTOCOL_VERSION,
-                                'validExtensions': self.ALL_FORMATS,
-                                'passwordChallenge': challenge,
-                                'currentLibraryName': self.current_library_name,
-                                'currentLibraryUUID': library_uuid})
+                    {'serverProtocolVersion': self.PROTOCOL_VERSION,
+                    'validExtensions': self.ALL_FORMATS,
+                    'passwordChallenge': challenge,
+                    'currentLibraryName': self.current_library_name,
+                    'currentLibraryUUID': library_uuid,
+                    'pubdateFormat': tweaks['gui_pubdate_display_format'],
+                    'timestampFormat': tweaks['gui_timestamp_display_format'],
+                    'lastModifiedFormat': tweaks['gui_last_modified_display_format']})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
@@ -618,7 +674,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('Protocol error - bogus book packet length')
                 self._close_device_socket()
                 return False
-            self._debug('CC version #:', result.get('ccVersionNumber', 'unknown'))
+            self._debug('App version #:', result.get('ccVersionNumber', 'unknown'))
+
+            self.client_can_stream_books = result.get('canStreamBooks', False)
+            self._debug('Device can stream books', self.client_can_stream_books)
+            self.client_can_stream_metadata = result.get('canStreamMetadata', False)
+            self._debug('Device can stream metadata', self.client_can_stream_metadata)
+
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             exts = result.get('acceptedExtensions', None)
@@ -628,7 +690,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return False
             config = self._configProxy()
             config['format_map'] = exts
-            self._debug('selected formats', config['format_map']);
+            self._debug('selected formats', config['format_map'])
             if password:
                 returned_hash = result.get('passwordHash', None)
                 if result.get('passwordHash', None) is None:
@@ -725,21 +787,28 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug(oncard)
         if oncard is not None:
             return CollectionsBookList(None, None, None)
-        opcode, result = self._call_client('GET_BOOK_COUNT', {})
+        opcode, result = self._call_client('GET_BOOK_COUNT', {'canStream':True})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
+            will_stream = 'willStream' in result
             for i in range(0, count):
-                opcode, result = self._call_client('GET_BOOK_METADATA', {'index': i},
+                if (i % 100) == 0:
+                    self._debug('getting book metadata. Done', i, 'of', count)
+                if will_stream:
+                    opcode, result = self._receive_from_client(print_debug_info=False)
+                else:
+                    opcode, result = self._call_client('GET_BOOK_METADATA', {'index': i},
                                                   print_debug_info=False)
                 if opcode == 'OK':
                     if '_series_sort_' in result:
                         del result['_series_sort_']
-                    book = self.json_codec.raw_to_book(result, Book, self.PREFIX)
+                    book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
                     self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
                 else:
                     raise ControlError(desc='book metadata not returned')
+        self._debug('finished getting book metadata')
         return bl
 
     @synchronous('sync_lock')
@@ -759,16 +828,27 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         # If we ever do device_db plugboards, this is where it will go. We will
         # probably need to send two booklists, one with calibre's data that is
         # given back by "books", and one that has been plugboarded.
-        self._call_client('SEND_BOOKLISTS', { 'count': len(booklists[0]),
-                                              'collections': coldict} )
-        for i,book in enumerate(booklists[0]):
+        books_to_send = []
+        for book in booklists[0]:
             if not self._metadata_already_on_device(book):
+                books_to_send.append(book)
+
+        count = len(books_to_send)
+        self._call_client('SEND_BOOKLISTS', { 'count': count,
+                     'collections': coldict,
+                     'willStreamMetadata': self.client_can_stream_metadata},
+                     wait_for_response=not self.client_can_stream_metadata)
+
+        if count:
+            for i,book in enumerate(books_to_send):
+                self._debug('sending metadata for book', book.lpath)
                 self._set_known_metadata(book)
-                self._debug('syncing book', book.lpath)
-                opcode, result = self._call_client('SEND_BOOK_METADATA',
-                                                  {'index': i, 'data': book},
-                                                  print_debug_info=False)
-                if opcode != 'OK':
+                opcode, result = self._call_client(
+                        'SEND_BOOK_METADATA',
+                        {'index': i, 'count': count, 'data': book},
+                        print_debug_info=False,
+                        wait_for_response=not self.client_can_stream_metadata)
+                if not self.client_can_stream_metadata and opcode != 'OK':
                     self._debug('protocol error', opcode, i)
                     raise ControlError(desc='sync_booklists')
 
@@ -795,32 +875,32 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             lpath = self._create_upload_path(mdata, fname, create_dirs=False)
             if not hasattr(infile, 'read'):
                 infile = USBMS.normalize_path(infile)
-            book = Book(self.PREFIX, lpath, other=mdata)
+            book = SDBook(self.PREFIX, lpath, other=mdata)
             length = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
                 raise ControlError(desc='Sending book %s to device failed' % lpath)
             paths.append((lpath, length))
             # No need to deal with covers. The client will get the thumbnails
             # in the mi structure
-            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
+            self.report_progress((i + 1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
-        self._debug('finished uploading %d books'%(len(files)))
+        self._debug('finished uploading %d books' % (len(files)))
         return paths
 
     @synchronous('sync_lock')
     def add_books_to_metadata(self, locations, metadata, booklists):
-        self._debug('adding metadata for %d books'%(len(metadata)))
+        self._debug('adding metadata for %d books' % (len(metadata)))
 
         metadata = iter(metadata)
         for i, location in enumerate(locations):
-            self.report_progress((i+1) / float(len(locations)),
+            self.report_progress((i + 1) / float(len(locations)),
                                  _('Adding books to device metadata listing...'))
             info = metadata.next()
             lpath = location[0]
             length = location[1]
             lpath = self._strip_prefix(lpath)
-            book = Book(self.PREFIX, lpath, other=info)
+            book = SDBook(self.PREFIX, lpath, other=info)
             if book.size is None:
                 book.size = length
             b = booklists[0].add_book(book, replace_metadata=True)
@@ -846,14 +926,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug(paths)
         for i, path in enumerate(paths):
             path = self._strip_prefix(path)
-            self.report_progress((i+1) / float(len(paths)), _('Removing books from device metadata listing...'))
+            self.report_progress((i + 1) / float(len(paths)), _('Removing books from device metadata listing...'))
             for bl in booklists:
                 for book in bl:
                     if path == book.path:
                         bl.remove_book(book)
                         self._set_known_metadata(book, remove=True)
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
-        self._debug('finished removing metadata for %d books'%(len(paths)))
+        self._debug('finished removing metadata for %d books' % (len(paths)))
 
 
     @synchronous('sync_lock')
@@ -864,7 +944,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         while not eof:
             opcode, result = self._call_client('GET_BOOK_FILE_SEGMENT',
                                     {'lpath' : path, 'position': position},
-                                    print_debug_info=False )
+                                    print_debug_info=False)
             if opcode == 'OK':
                 if not result['eof']:
                     data = b64decode(result['data'])
@@ -876,6 +956,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     eof = True
             else:
                 raise ControlError(desc='request for book data failed')
+
+    @synchronous('sync_lock')
+    def prepare_addable_books(self, paths):
+        for idx, path in enumerate(paths):
+            (ign, ext) = os.path.splitext(path)
+            tf = PersistentTemporaryFile(suffix=ext)
+            self.get_file(path, tf)
+            paths[idx] = tf.name
+        return paths
 
     @synchronous('sync_lock')
     def set_plugboards(self, plugboards, pb_func):
@@ -904,68 +993,95 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.max_book_packet_len = 0
         self.noop_counter = 0
         self.connection_attempts = {}
+        self.client_can_stream_books = False
+        self.client_can_stream_metadata = False
+
+        message = None
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except:
-            self._debug('creation of listen socket failed')
-            return
+            message = 'creation of listen socket failed'
+            self._debug(message)
+            return message
 
         i = 0
-        while i < 100: # try up to 100 random port numbers
-            if self.settings().extra_customization[self.OPT_USE_PORT]:
-                i = 100
-                try:
-                    port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
-                except:
-                    port = 0
-            else:
-                i += 1
-                port = random.randint(8192, 32000)
+
+        if self.settings().extra_customization[self.OPT_USE_PORT]:
             try:
-                self._debug('try port', port)
-                self.listen_socket.bind(('', port))
-                break
-            except socket.error:
-                port = 0
+                opt_port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
             except:
-                self._debug('Unknown exception while allocating listen socket')
-                traceback.print_exc()
-                raise
-        if port == 0:
-            self._debug('Failed to allocate a port');
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
-            return
+                message = _('Invalid port in options: %s')% \
+                            self.settings().extra_customization[self.OPT_PORT_NUMBER]
+                self._debug(message)
+                self._close_listen_socket()
+                return message
+
+            port = self._attach_to_port(self.listen_socket, opt_port)
+            if port == 0:
+                message = _('Failed to connect to port %d. Try a different value.')%opt_port
+                self._debug(message)
+                self._close_listen_socket()
+                return message
+        else:
+            while i < 100: # try up to 100 random port numbers
+                i += 1
+                port = self._attach_to_port(self.listen_socket,
+                                            random.randint(8192, 32000))
+                if port != 0:
+                    break
+            if port == 0:
+                message = _('Failed to allocate a random port')
+                self._debug(message)
+                self._close_listen_socket()
+                return message
 
         try:
             self.listen_socket.listen(0)
         except:
-            self._debug('listen on socket failed', port)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
-            return
+            message = 'listen on port %d failed' % port
+            self._debug(message)
+            self._close_listen_socket()
+            return message
 
         try:
             do_zeroconf(publish_zeroconf, port)
         except:
-            self._debug('registration with bonjour failed')
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
-            return
+            message = 'registration with bonjour failed'
+            self._debug(message)
+            self._close_listen_socket()
+            return message
 
         self._debug('listening on port', port)
         self.port = port
+
+        # Now try to open a UDP socket to receive broadcasts on
+
+        try:
+            self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        except:
+            message = 'creation of broadcast socket failed. This is not fatal.'
+            self._debug(message)
+            return message
+
+        for p in self.BROADCAST_PORTS:
+            port = self._attach_to_port(self.broadcast_socket, p)
+            if port != 0:
+                self._debug('broadcast socket listening on port', port)
+                break
+
+        if port == 0:
+            self.broadcast_socket.close()
+            self.broadcast_socket = None
+            message = 'attaching port to broadcast socket failed. This is not fatal.'
+            self._debug(message)
+            return message
+
 
     @synchronous('sync_lock')
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
             do_zeroconf(unpublish_zeroconf, self.port)
-            self.listen_socket.close()
-            self.listen_socket = None
-            self.is_connected = False
+            self._close_listen_socket()
 
     # Methods for dynamic control
 
@@ -975,7 +1091,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def start_plugin(self):
-        self.startup_on_demand()
+        return self.startup_on_demand()
 
     @synchronous('sync_lock')
     def stop_plugin(self):

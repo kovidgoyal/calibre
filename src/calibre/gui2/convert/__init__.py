@@ -9,8 +9,9 @@ __docformat__ = 'restructuredtext en'
 import textwrap, codecs, importlib
 from functools import partial
 
-from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
-    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel
+from PyQt4.Qt import (QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit,
+    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel, QFontComboBox, QFont,
+    QFontInfo)
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import load_defaults, \
@@ -34,8 +35,6 @@ def bulk_defaults_for_input_format(fmt):
         if w is not None:
             return load_defaults(w.COMMIT_NAME)
     return {}
-
-
 
 class Widget(QWidget):
 
@@ -143,6 +142,8 @@ class Widget(QWidget):
             if not ans:
                 ans = None
             return ans
+        elif isinstance(g, QFontComboBox):
+            ans = unicode(QFontInfo(g.currentFont().family()))
         elif isinstance(g, EncodingComboBox):
             ans = unicode(g.currentText()).strip()
             try:
@@ -205,6 +206,8 @@ class Widget(QWidget):
             if not val: val = ''
             getattr(g, 'setPlainText', g.setText)(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
+        elif isinstance(g, QFontComboBox):
+            g.setCurrentFont(QFont(val or ''))
         elif isinstance(g, EncodingComboBox):
             if val:
                 g.setEditText(val)

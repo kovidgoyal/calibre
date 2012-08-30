@@ -23,7 +23,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import FreeSpaceError
+from calibre.devices.errors import FreeSpaceError, WrongDestinationError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
@@ -554,7 +554,7 @@ class DeviceManager(Thread): # {{{
     # will switch to the device thread before calling the plugin.
 
     def start_plugin(self, name):
-        self._call_request(name, 'start_plugin')
+        return self._call_request(name, 'start_plugin')
 
     def stop_plugin(self, name):
         self._call_request(name, 'stop_plugin')
@@ -1450,6 +1450,9 @@ class DeviceMixin(object): # {{{
                                  'is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()
+            elif isinstance(job.exception, WrongDestinationError):
+                error_dialog(self, _('Incorrect destination'),
+                        unicode(job.exception), show=True)
             else:
                 self.device_job_exception(job)
             return
@@ -1605,7 +1608,10 @@ class DeviceMixin(object): # {{{
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     id_ = db_book_uuid_cache[book.uuid]
                     if update_metadata:
-                        book.smart_update(db.get_metadata(id_,
+                        mi = db.get_metadata(id_, index_is_id=True,
+                                             get_cover=get_covers)
+                        if book.get('last_modified', None) != mi.last_modified:
+                            book.smart_update(db.get_metadata(id_,
                                                           index_is_id=True,
                                                           get_cover=get_covers),
                                           replace_metadata=True)
