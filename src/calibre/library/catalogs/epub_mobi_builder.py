@@ -1294,7 +1294,7 @@ Author '{0}':
         def add_books_to_HTML_by_month(this_months_list, dtc):
             if len(this_months_list):
 
-                this_months_list = sorted(this_months_list, key=self.booksByAuthorSorter_author_sort)
+                this_months_list = sorted(this_months_list, key=lambda x: sort_key(self.booksByAuthorSorter_author_sort(x)))
 
                 # Create a new month anchor
                 date_string = strftime(u'%B %Y', current_date.timetuple())
@@ -3091,14 +3091,14 @@ Author '{0}':
         Sort non-series books before series books
         '''
         if not book['series']:
-            key = '%s %s' % (capitalize(book['author_sort']),
+            key = '%s ~%s' % (capitalize(book['author_sort']),
                                 capitalize(book['title_sort']))
         else:
             index = book['series_index']
             integer = int(index)
             fraction = index-integer
             series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-            key = '%s ~%s %s' % (capitalize(book['author_sort']),
+            key = '%s %s %s' % (capitalize(book['author_sort']),
                                     self.generateSortTitle(book['series']),
                                     series_index)
         return key
@@ -3228,9 +3228,9 @@ Author '{0}':
         # Hack to force the cataloged leading letter to be
         # an unadorned character if the accented version sorts before the unaccented
         exceptions = {
-                        u'Ä':u'A',
-                        u'Ö':u'O',
-                        u'Ü':u'U'
+                        u'??':u'A',
+                        u'??':u'O',
+                        u'??':u'U'
                      }
 
         if key is not None:
