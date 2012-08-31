@@ -19,7 +19,7 @@ from calibre.devices.errors import (DeviceError, FreeSpaceError,
         WrongDestinationError)
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
-from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
+from calibre.utils.filenames import ascii_filename as sanitize
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -1052,78 +1052,16 @@ class Device(DeviceConfig, DevicePlugin):
         pass
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        path = os.path.abspath(path)
-        maxlen = self.MAX_PATH_LEN
-
-        special_tag = None
-        if mdata.tags:
-            for t in mdata.tags:
-                if t.startswith(_('News')) or t.startswith('/'):
-                    special_tag = t
-                    break
-
+        from calibre.devices import create_upload_path
         settings = self.settings()
-        template = self.save_template()
-        if mdata.tags and _('News') in mdata.tags:
-            try:
-                p = mdata.pubdate
-                date  = (p.year, p.month, p.day)
-            except:
-                today = time.localtime()
-                date = (today[0], today[1], today[2])
-            template = "{title}_%d-%d-%d" % date
-        use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
-
-        fname = sanitize(fname)
-        ext = os.path.splitext(fname)[1]
-
-        from calibre.library.save_to_disk import get_components
-        from calibre.library.save_to_disk import config
-        opts = config().parse()
-        if not isinstance(template, unicode):
-            template = template.decode('utf-8')
-        app_id = str(getattr(mdata, 'application_id', ''))
-        id_ = mdata.get('id', fname)
-        extra_components = get_components(template, mdata, id_,
-                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
-        if not extra_components:
-            extra_components.append(sanitize(self.filename_callback(fname,
-                mdata)))
-        else:
-            extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
-
-        if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
-            extra_components[-1] = 'x' + extra_components[-1][1:]
-
-        if special_tag is not None:
-            name = extra_components[-1]
-            extra_components = []
-            tag = special_tag
-            if tag.startswith(_('News')):
-                if self.NEWS_IN_FOLDER:
-                    extra_components.append('News')
-            else:
-                for c in tag.split('/'):
-                    c = sanitize(c)
-                    if not c: continue
-                    extra_components.append(c)
-            extra_components.append(name)
-
-        if not use_subdirs:
-            extra_components = extra_components[-1:]
-
-        def remove_trailing_periods(x):
-            ans = x
-            while ans.endswith('.'):
-                ans = ans[:-1].strip()
-            if not ans:
-                ans = 'x'
-            return ans
-
-        extra_components = list(map(remove_trailing_periods, extra_components))
-        components = shorten_components_to(maxlen - len(path), extra_components)
-        components = self.sanitize_path_components(components)
-        filepath = os.path.join(path, *components)
+        filepath = create_upload_path(mdata, fname, self.save_template(), sanitize,
+                prefix_path=os.path.abspath(path),
+                maxlen=self.MAX_PATH_LEN,
+                use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs,
+                news_in_folder = self.NEWS_IN_FOLDER,
+                filename_callback=self.filename_callback,
+                sanitize_path_components=self.sanitize_path_components
+                )
         filedir = os.path.dirname(filepath)
 
         if create_dirs and not os.path.exists(filedir):

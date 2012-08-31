@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Device drivers.
 '''
 
-import sys, time, pprint, operator, re
+import sys, time, pprint, operator, re, os
 from functools import partial
 from StringIO import StringIO
 
@@ -49,6 +49,91 @@ def build_template_regexp(template):
         prints(u'Failed to parse template: %r'%template)
         template = u'{title} - {authors}'
         return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+
+def create_upload_path(mdata, fname, template, sanitize,
+        prefix_path='',
+        path_type=os.path,
+        maxlen=250,
+        use_subdirs=True,
+        news_in_folder=True,
+        filename_callback=lambda x, y:x,
+        sanitize_path_components=lambda x: x
+        ):
+    from calibre.library.save_to_disk import get_components, config
+    from calibre.utils.filenames import shorten_components_to
+
+    special_tag = None
+    if mdata.tags:
+        for t in mdata.tags:
+            if t.startswith(_('News')) or t.startswith('/'):
+                special_tag = t
+                break
+
+    if mdata.tags and _('News') in mdata.tags:
+        try:
+            p = mdata.pubdate
+            date  = (p.year, p.month, p.day)
+        except:
+            today = time.localtime()
+            date = (today[0], today[1], today[2])
+        template = u"{title}_%d-%d-%d" % date
+
+    fname = sanitize(fname)
+    ext = path_type.splitext(fname)[1]
+
+    opts = config().parse()
+    if not isinstance(template, unicode):
+        template = template.decode('utf-8')
+    app_id = str(getattr(mdata, 'application_id', ''))
+    id_ = mdata.get('id', fname)
+    extra_components = get_components(template, mdata, id_,
+            timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
+    if not extra_components:
+        extra_components.append(sanitize(filename_callback(fname,
+            mdata)))
+    else:
+        extra_components[-1] = sanitize(filename_callback(extra_components[-1]+ext, mdata))
+
+    if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
+        extra_components[-1] = 'x' + extra_components[-1][1:]
+
+    if special_tag is not None:
+        name = extra_components[-1]
+        extra_components = []
+        tag = special_tag
+        if tag.startswith(_('News')):
+            if news_in_folder:
+                extra_components.append('News')
+        else:
+            for c in tag.split('/'):
+                c = sanitize(c)
+                if not c: continue
+                extra_components.append(c)
+        extra_components.append(name)
+
+    if not use_subdirs:
+        extra_components = extra_components[-1:]
+
+    def remove_trailing_periods(x):
+        ans = x
+        while ans.endswith('.'):
+            ans = ans[:-1].strip()
+        if not ans:
+            ans = 'x'
+        return ans
+
+    extra_components = list(map(remove_trailing_periods, extra_components))
+    if prefix_path:
+        prefix_path = path_type.abspath(prefix_path)
+    components = shorten_components_to(maxlen - len(prefix_path), extra_components)
+    components = sanitize_path_components(components)
+    if prefix_path:
+        filepath = path_type.join(prefix_path, *components)
+    else:
+        filepath = path_type.join(*components)
+
+    return filepath
+
 
 def get_connected_device():
     from calibre.customize.ui import device_plugins
