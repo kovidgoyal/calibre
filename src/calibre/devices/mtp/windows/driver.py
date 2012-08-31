@@ -203,23 +203,10 @@ class MTP_DEVICE(MTPDeviceBase):
         self.current_friendly_name = devdata.get('friendly_name', None)
 
     @same_thread
-    def get_device_information(self, end_session=True):
+    def get_basic_device_information(self):
         d = self.dev.data
         dv = d.get('device_version', '')
-        for sid, location_code in ( (self._main_id, 'main'), (self._carda_id,
-            'A'), (self._cardb_id, 'B')):
-            if sid is None: continue
-            # TODO: Implement the drive info dict
         return (self.current_friendly_name, dv, dv, '')
-
-    @same_thread
-    def card_prefix(self, end_session=True):
-        ans = [None, None]
-        if self._carda_id is not None:
-            ans[0] = 'mtp:::%s:::'%self._carda_id
-        if self._cardb_id is not None:
-            ans[1] = 'mtp:::%s:::'%self._cardb_id
-        return tuple(ans)
 
     @same_thread
     def total_space(self, end_session=True):
@@ -260,6 +247,7 @@ class MTP_DEVICE(MTPDeviceBase):
         except Exception as e:
             raise DeviceError('Failed to fetch the file %s with error: %s'%
                     f.full_path, as_unicode(e))
+        stream.seek(0)
         return stream
 
     @same_thread

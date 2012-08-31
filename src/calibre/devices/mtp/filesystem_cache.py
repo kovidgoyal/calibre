@@ -47,6 +47,9 @@ class FileOrFolder(object):
         self.fs_cache = weakref.ref(fs_cache)
         self.deleted = False
 
+        if self.storage_id == self.object_id:
+            self.storage_prefix = 'mtp:::%s:::'%self.persistent_id
+
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
         try:
@@ -125,6 +128,26 @@ class FileOrFolder(object):
                 return e
         return None
 
+    def find_path(self, path):
+        '''
+        Find a path in this folder, where path is a
+        tuple of folder and file names like ('eBooks', 'newest',
+        'calibre.epub'). Finding is case-insensitive.
+        '''
+        parent = self
+        components = list(path)
+        while components:
+            child = components[0]
+            components = components[1:]
+            c = parent.folder_named(child)
+            if c is None:
+                c = parent.file_named(child)
+            if c is None:
+                return None
+            parent = c
+        return parent
+
+
 class FilesystemCache(object):
 
     def __init__(self, all_storage, entries):
@@ -163,5 +186,10 @@ class FilesystemCache(object):
     def dump(self, out=sys.stdout):
         for e in self.entries:
             e.dump(out=out)
+
+    def storage(self, storage_id):
+        for e in self.entries:
+            if e.storage_id == storage_id:
+                return e
 
 

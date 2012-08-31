@@ -203,6 +203,11 @@ def samefile_windows(src, dst):
     import win32file
     from pywintypes import error
 
+    samestring = (os.path.normcase(os.path.abspath(src)) ==
+            os.path.normcase(os.path.abspath(dst)))
+    if samestring:
+        return True
+
     def get_fileid(x):
         if isbytestring(x): x = x.decode(filesystem_encoding)
         try:

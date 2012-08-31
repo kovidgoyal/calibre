@@ -304,6 +304,16 @@ OptionRecommendation(name='chapter_mark',
                     'to mark chapters.')
         ),
 
+OptionRecommendation(name='start_reading_at',
+        recommended_value=None, level=OptionRecommendation.LOW,
+        help=_('An XPath expression to detect the location in the document'
+            ' at which to start reading. Some ebook reading programs'
+            ' (most prominently the Kindle) use this location as the'
+            ' position at which to open the book. See the XPath tutorial'
+            ' in the calibre User Manual for further help using this'
+            ' feature.')
+        ),
+
 OptionRecommendation(name='extra_css',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('Either the path to a CSS stylesheet or raw CSS. '
