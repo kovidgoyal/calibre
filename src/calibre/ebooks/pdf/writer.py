@@ -137,11 +137,15 @@ class Page(QWebPage):
         std = {'serif':opts.pdf_serif_family, 'sans':opts.pdf_sans_family,
                 'mono':opts.pdf_mono_family}.get(opts.pdf_standard_font,
                         opts.pdf_serif_family)
-        settings.setFontFamily(QWebSettings.StandardFont, std)
-        settings.setFontFamily(QWebSettings.SerifFont, opts.pdf_serif_family)
-        settings.setFontFamily(QWebSettings.SansSerifFont,
-                opts.pdf_sans_family)
-        settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
+        if std:
+            settings.setFontFamily(QWebSettings.StandardFont, std)
+        if opts.pdf_serif_family:
+            settings.setFontFamily(QWebSettings.SerifFont, opts.pdf_serif_family)
+        if opts.pdf_sans_family:
+            settings.setFontFamily(QWebSettings.SansSerifFont,
+                    opts.pdf_sans_family)
+        if opts.pdf_mono_family:
+            settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log.debug(u'JS:', unicode(msg))

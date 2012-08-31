@@ -143,7 +143,7 @@ class Widget(QWidget):
                 ans = None
             return ans
         elif isinstance(g, QFontComboBox):
-            ans = unicode(QFontInfo(g.currentFont().family()))
+            return unicode(QFontInfo(g.currentFont()).family())
         elif isinstance(g, EncodingComboBox):
             ans = unicode(g.currentText()).strip()
             try:
