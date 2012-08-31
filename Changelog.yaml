@@ -19,6 +19,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.67
+  date: 2012-08-31
+
+  new features:
+    - title: "PDF Output: Generate a PDF Outline based on the Table of Contents of the input document"
+
+    - title: "Conversion: Add an option under Structure Detection to set the 'Start reading at' metadata with an XPath expression."
+      tickets: [1043233]
+
+    - title: "Speed up changing the title and author of files with books larger than 3MB by avoiding an unnecessary extra copy."
+
+    - title: "Wireless device driver: Make detecting and connecting to devices easier on networks where mdns is disabled"
+
+    - title: "PDF Output: Allow choosing the default font family and size when generating PDF files (under PDF Options) in the conversion dialog"
+
+    - title: "Metadata dialog: Comments editor: Allow specifying the name of a link when using the insert link button."
+      tickets: [1042683]
+
+    - title: "Remove the unmaintained pdfmanipulate command line utility. There are many other tools that provide similar functionality, for example, pdftk and podofo"
+ 
+  bug fixes:
+    - title: "Catalogs: Fix regression that broke sorting of non series titles before series titles"
+
+    - title: "PDF Output: Do not create duplicate embedded fonts in the PDF for every individual HTML file in the input document"
+
+    - title: "Fix regression that broke DnD of files having a # character in their names to the book details panel"
+
+    - title: "PDF Output: Allow generating PDF files with more than 512 pages on windows."
+      tickets: [1041614]
+
+    - title: "Fix minor bug in handling of the completion popups when using the next/previous buttons in the edit metadata dialog"
+      ticket: [1041389]
+
+  improved recipes:
+    - Coding Horror
+    - TIME Magazine
+
+  new recipes:
+    - title: Cumhuriyet Yzarlar 
+      author: Sethi Eksi
+
+    - title: Arcadia 
+      author: Masahiro Hasegawa
+
+    - title: Business Week Magazine and Chronicle of Higher Education 
+      author: Rick Shang
+
+    - title: CIPER Chile 
+      author: Darko Miletic
+
 - version: 0.8.66
   date: 2012-08-24
 
