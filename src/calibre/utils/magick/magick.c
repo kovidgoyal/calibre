@@ -1104,6 +1104,40 @@ magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
 
 // }}}
 
+// Image.depth {{{
+static PyObject *
+magick_Image_depth_getter(magick_Image *self, void *closure) {
+   NULL_CHECK(NULL)
+
+    return Py_BuildValue("n", MagickGetImageDepth(self->wand));
+}
+
+static int
+magick_Image_depth_setter(magick_Image *self, PyObject *val, void *closure) {
+    size_t depth;
+
+    NULL_CHECK(-1)
+
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete image depth");
+        return -1;
+    }
+
+    if (!PyInt_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "Depth must be an integer");
+        return -1;
+    }
+
+    depth = (size_t)PyInt_AsSsize_t(val);
+    if (!MagickSetImageDepth(self->wand, depth)) {
+        PyErr_Format(PyExc_ValueError, "Could not set image depth to %lu", depth);
+        return -1;
+    }
+
+    return 0;
+}
+
+// }}}
 // Image.destroy {{{
 
 static PyObject *
@@ -1259,6 +1293,12 @@ static PyGetSetDef  magick_Image_getsetters[] = {
      (getter)magick_Image_type_getter, (setter)magick_Image_type_setter,
      (char *)"the image type: UndefinedType, BilevelType, GrayscaleType, GrayscaleMatteType, PaletteType, PaletteMatteType, TrueColorType, TrueColorMatteType, ColorSeparationType, ColorSeparationMatteType, or OptimizeType.",
      NULL},
+
+    {(char *)"depth",
+     (getter)magick_Image_depth_getter, (setter)magick_Image_depth_setter,
+     (char *)"the image depth.",
+     NULL},
+
 
     {NULL}  /* Sentinel */
 };
