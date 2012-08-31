@@ -1238,7 +1238,7 @@ static PyMethodDef magick_Image_methods[] = {
     },
 
     {"quantize", (PyCFunction)magick_Image_quantize, METH_VARARGS,
-     "quantize(number_colors, colorspace, treedepth, dither, measure_error) \n\n nalyzes the colors within a reference image and chooses a fixed number of colors to represent the image. The goal of the algorithm is to minimize the color difference between the input and output image while minimizing the processing time." 
+     "quantize(number_colors, colorspace, treedepth, dither, measure_error) \n\n analyzes the colors within a reference image and chooses a fixed number of colors to represent the image. The goal of the algorithm is to minimize the color difference between the input and output image while minimizing the processing time." 
     },
 
     {NULL}  /* Sentinel */
