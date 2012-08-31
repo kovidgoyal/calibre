@@ -7,10 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, pprint
+import json, pprint, traceback
 from io import BytesIO
 
+from calibre import prints
 from calibre.constants import iswindows, numeric_version
+from calibre.devices.mtp.base import debug
+from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.config import from_json, to_json
 from calibre.utils.date import now, isoformat
 
@@ -25,6 +28,7 @@ class MTP_DEVICE(BASE):
 
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
+    CAN_SET_METADATA = []
 
     def _update_drive_info(self, storage, location_code, name=None):
         import uuid
@@ -81,6 +85,98 @@ class MTP_DEVICE(BASE):
         self._update_drive_info(self.filesystem_cache.storage(sid),
                 location_code, name=name)
 
+    def books(self, oncard=None, end_session=True):
+        from calibre.devices.mtp.books import JSONCodec
+        from calibre.devices.mtp.books import BookList, Book
+        sid = {'carda':self._carda_id, 'cardb':self._cardb_id}.get(oncard,
+                self._main_id)
+        if sid is None:
+            return BookList(None)
+
+        bl = BookList(sid)
+        # If True then there is a mismatch between the ebooks on the device and
+        # the metadata cache
+        need_sync = False
+        all_books = list(self.filesystem_cache.iterebooks(sid))
+        steps = len(all_books) + 2
+        count = 0
+
+        self.report_progress(0, _('Reading metadata from device'))
+        # Read the cache if it exists
+        storage = self.filesystem_cache.storage(sid)
+        cache = storage.find_path((self.METADATA_CACHE,))
+        if cache is not None:
+            json_codec = JSONCodec()
+            try:
+                stream = self.get_file(cache)
+                json_codec.decode_from_file(stream, bl, Book, sid)
+            except:
+                need_sync = True
+
+        relpath_cache = {b.mtp_relpath:i for i, b in enumerate(bl)}
+
+        for mtp_file in all_books:
+            count += 1
+            relpath = mtp_file.mtp_relpath
+            idx = relpath_cache.get(relpath, None)
+            if idx is not None:
+                cached_metadata = bl[idx]
+                del relpath_cache[relpath]
+                if cached_metadata.size == mtp_file.size:
+                    debug('Using cached metadata for',
+                            '/'.join(mtp_file.full_path))
+                    continue # No need to update metadata
+                book = cached_metadata
+            else:
+                book = Book(sid, '/'.join(relpath))
+                bl.append(book)
+
+            need_sync = True
+            self.report_progress(count/steps, _('Reading metadata from %s')%
+                    ('/'.join(relpath)))
+            try:
+                book.smart_update(self.read_file_metadata(mtp_file))
+                debug('Read metadata for', '/'.join(mtp_file.full_path))
+            except:
+                prints('Failed to read metadata from',
+                        '/'.join(mtp_file.full_path))
+                traceback.print_exc()
+            book.size = mtp_file.size
+
+        # Remove books in the cache that no longer exist
+        for idx in sorted(relpath_cache.itervalues(), reverse=True):
+            del bl[idx]
+            need_sync = True
+
+        if need_sync:
+            self.report_progress(count/steps, _('Updating metadata cache on device'))
+            self.write_metadata_cache(storage, bl)
+        self.report_progress(1, _('Finished reading metadata from device'))
+
+    def read_file_metadata(self, mtp_file):
+        from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.customize.ui import quick_metadata
+        ext = mtp_file.name.rpartition('.')[-1].lower()
+        stream = self.get_file(mtp_file)
+        with quick_metadata:
+            return get_metadata(stream, stream_type=ext,
+                    force_read_metadata=True,
+                    pattern=self.build_template_regexp())
+
+    def write_metadata_cache(self, storage, bl):
+        from calibre.devices.mtp.books import JSONCodec
+
+        if bl.storage_id != storage.storage_id:
+            # Just a sanity check, should never happen
+            return
+
+        json_codec = JSONCodec()
+        stream = SpooledTemporaryFile(10*(1024**2))
+        json_codec.encode_to_file(stream, bl)
+        size = stream.tell()
+        stream.seek(0)
+        self.put_file(storage, self.METADATA_CACHE, stream, size)
+
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)
     dev.startup()
@@ -92,8 +188,9 @@ if __name__ == '__main__':
         cd = dev.detect_managed_devices(devs)
         if cd is None:
             raise ValueError('Failed to detect MTP device')
+        dev.set_progress_reporter(prints)
         dev.open(cd, None)
-        pprint.pprint(dev.get_device_information())
+        dev.books()
     finally:
         dev.shutdown()
 

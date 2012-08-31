@@ -17,7 +17,6 @@ from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase
-from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
 class ThreadingViolation(Exception):
 
@@ -143,6 +142,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
             ts = self.total_space()
             all_storage = []
             items = []

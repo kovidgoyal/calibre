@@ -14,6 +14,9 @@ from future_builtins import map
 
 from calibre import human_readable, prints, force_unicode
 from calibre.utils.icu import sort_key, lower
+from calibre.ebooks import BOOK_EXTENSIONS
+
+bexts = frozenset(BOOK_EXTENSIONS)
 
 class FileOrFolder(object):
 
@@ -49,6 +52,9 @@ class FileOrFolder(object):
 
         if self.storage_id == self.object_id:
             self.storage_prefix = 'mtp:::%s:::'%self.persistent_id
+
+        self.is_ebook = (not self.is_folder and
+                self.name.rpartition('.')[-1].lower() in bexts)
 
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
@@ -147,6 +153,9 @@ class FileOrFolder(object):
             parent = c
         return parent
 
+    @property
+    def mtp_relpath(self):
+        return tuple(x.lower() for x in self.full_path[1:])
 
 class FilesystemCache(object):
 
@@ -191,5 +200,10 @@ class FilesystemCache(object):
         for e in self.entries:
             if e.storage_id == storage_id:
                 return e
+
+    def iterebooks(self, storage_id):
+        for x in self.id_map.itervalues():
+            if x.storage_id == storage_id and x.is_ebook:
+                yield x
 
 

@@ -17,7 +17,6 @@ from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
-from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -175,6 +174,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
             with self.lock:
                 storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
