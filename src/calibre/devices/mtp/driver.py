@@ -73,6 +73,14 @@ class MTP_DEVICE(BASE):
             ans[1] = self.filesystem_cache.storage(self._cardb_id).storage_prefix
         return tuple(ans)
 
+    def set_driveinfo_name(self, location_code, name):
+        sid = {'main':self._main_id, 'A':self._carda_id,
+                'B':self._cardb_id}.get(location_code, None)
+        if sid is None:
+            return
+        self._update_drive_info(self.filesystem_cache.storage(sid),
+                location_code, name=name)
+
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)
     dev.startup()
