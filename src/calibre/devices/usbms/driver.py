@@ -63,7 +63,7 @@ class USBMS(CLI, Device):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
             dinfo['device_store_uuid'] = unicode(uuid.uuid4())
-        if dinfo.get('device_name') is None:
+        if dinfo.get('device_name', None) is None:
             dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name

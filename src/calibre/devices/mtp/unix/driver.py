@@ -46,14 +46,6 @@ class MTP_DEVICE(MTPDeviceBase):
     def set_debug_level(self, lvl):
         self.libmtp.set_debug_level(lvl)
 
-    def report_progress(self, sent, total):
-        try:
-            p = int(sent/total * 100)
-        except ZeroDivisionError:
-            p = 100
-        if self.progress_reporter is not None:
-            self.progress_reporter(p)
-
     @synchronous
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.libmtp is None: return None
@@ -212,18 +204,9 @@ class MTP_DEVICE(MTPDeviceBase):
         return self._filesystem_cache
 
     @synchronous
-    def get_device_information(self, end_session=True):
+    def get_basic_device_information(self):
         d = self.dev
         return (self.current_friendly_name, d.device_version, d.device_version, '')
-
-    @synchronous
-    def card_prefix(self, end_session=True):
-        ans = [None, None]
-        if self._carda_id is not None:
-            ans[0] = 'mtp:::%d:::'%self._carda_id
-        if self._cardb_id is not None:
-            ans[1] = 'mtp:::%d:::'%self._cardb_id
-        return tuple(ans)
 
     @synchronous
     def total_space(self, end_session=True):
@@ -298,6 +281,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if not ok:
             raise DeviceError('Failed to get file: %s with errors: %s'%(
                 f.full_path, self.format_errorstack(errs)))
+        stream.seek(0)
         return stream
 
     @synchronous
