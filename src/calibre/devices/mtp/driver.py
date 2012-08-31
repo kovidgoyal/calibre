@@ -30,6 +30,11 @@ class MTP_DEVICE(BASE):
     DRIVEINFO = 'driveinfo.calibre'
     CAN_SET_METADATA = []
 
+    def open(self, devices, library_uuid):
+        self.current_library_uuid = library_uuid
+        BASE.open(self, devices, library_uuid)
+
+    # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
         import uuid
         f = storage.find_path((self.DRIVEINFO,))
@@ -54,10 +59,6 @@ class MTP_DEVICE(BASE):
         raw = json.dumps(dinfo, default=to_json)
         self.put_file(storage, self.DRIVEINFO, BytesIO(raw), len(raw))
         self.driveinfo = dinfo
-
-    def open(self, devices, library_uuid):
-        self.current_library_uuid = library_uuid
-        BASE.open(self, devices, library_uuid)
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
@@ -84,7 +85,9 @@ class MTP_DEVICE(BASE):
             return
         self._update_drive_info(self.filesystem_cache.storage(sid),
                 location_code, name=name)
+    # }}}
 
+    # Get list of books from device, with metadata {{{
     def books(self, oncard=None, end_session=True):
         from calibre.devices.mtp.books import JSONCodec
         from calibre.devices.mtp.books import BookList, Book
@@ -176,6 +179,7 @@ class MTP_DEVICE(BASE):
         size = stream.tell()
         stream.seek(0)
         self.put_file(storage, self.METADATA_CACHE, stream, size)
+    # }}}
 
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)
