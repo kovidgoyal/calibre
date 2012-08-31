@@ -510,6 +510,7 @@ class OPF(object): # {{{
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
+    pubdate_path    = XPath('descendant::*[re:match(name(), "date", "i")]')
     raster_cover_path = XPath('descendant::*[re:match(name(), "meta", "i") and ' +
             're:match(@name, "cover", "i") and @content]')
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
@@ -538,8 +539,6 @@ class OPF(object): # {{{
                                         formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
     rating          = MetadataField('rating', is_dc=False, formatter=float)
-    pubdate         = MetadataField('date', formatter=parse_date,
-                                    renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False,
                                     formatter=parse_date, renderer=isoformat)
@@ -849,6 +848,44 @@ class OPF(object): # {{{
             for tag in val:
                 elem = self.create_metadata_element('subject')
                 self.set_text(elem, unicode(tag))
+
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def pubdate(self):
+
+        def fget(self):
+            ans = None
+            for match in self.pubdate_path(self.metadata):
+                try:
+                    val = parse_date(etree.tostring(match, encoding=unicode,
+                        method='text', with_tail=False).strip())
+                except:
+                    continue
+                if ans is None or val < ans:
+                    ans = val
+            return ans
+
+        def fset(self, val):
+            least_val = least_elem = None
+            for match in self.pubdate_path(self.metadata):
+                try:
+                    cval = parse_date(etree.tostring(match, encoding=unicode,
+                        method='text', with_tail=False).strip())
+                except:
+                    match.getparent().remove(match)
+                else:
+                    if not val:
+                        match.getparent().remove(match)
+                    if least_val is None or cval < least_val:
+                        least_val, least_elem = cval, match
+
+            if val:
+                if least_val is None:
+                    least_elem = self.create_metadata_element('date')
+
+                least_elem.attrib.clear()
+                least_elem.text = isoformat(val)
 
         return property(fget=fget, fset=fset)
 
