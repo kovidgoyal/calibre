@@ -1138,6 +1138,7 @@ magick_Image_depth_setter(magick_Image *self, PyObject *val, void *closure) {
 }
 
 // }}}
+
 // Image.destroy {{{
 
 static PyObject *
