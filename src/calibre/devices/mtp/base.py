@@ -7,8 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
-from functools import wraps, partial
+from functools import wraps
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -61,27 +60,12 @@ class MTPDeviceBase(DevicePlugin):
         return False
 
     def build_template_regexp(self):
-        return None
-        # TODO: Implement this
-        def replfunc(match, seen=None):
-            v = match.group(1)
-            if v in ['authors', 'author_sort']:
-                v = 'author'
-            if v in ('title', 'series', 'series_index', 'isbn', 'author'):
-                if v not in seen:
-                    seen.add(v)
-                    return '(?P<' + v + '>.+?)'
-            return '(.+?)'
-        s = set()
-        f = partial(replfunc, seen=s)
-        template = None
-        try:
-            template = self.save_template().rpartition('/')[2]
-            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
-        except:
-            prints(u'Failed to parse template: %r'%template)
-            template = u'{title} - {authors}'
-            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        from calibre.devices import build_template_regexp
+        # TODO: Use the device specific template here
+        return build_template_regexp(self.default_save_template)
 
-
+    @property
+    def default_save_template(cls):
+        from calibre.library.save_to_disk import config
+        return config().parse().send_template
 

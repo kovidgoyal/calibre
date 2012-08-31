@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Device drivers.
 '''
 
-import sys, time, pprint, operator
+import sys, time, pprint, operator, re
 from functools import partial
 from StringIO import StringIO
 
@@ -26,6 +26,29 @@ def strftime(epoch, zone=time.gmtime):
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
+
+def build_template_regexp(template):
+    from calibre import prints
+
+    def replfunc(match, seen=None):
+        v = match.group(1)
+        if v in ['authors', 'author_sort']:
+            v = 'author'
+        if v in ('title', 'series', 'series_index', 'isbn', 'author'):
+            if v not in seen:
+                seen.add(v)
+                return '(?P<' + v + '>.+?)'
+        return '(.+?)'
+    s = set()
+    f = partial(replfunc, seen=s)
+
+    try:
+        template = template.rpartition('/')[2]
+        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+    except:
+        prints(u'Failed to parse template: %r'%template)
+        template = u'{title} - {authors}'
+        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
 def get_connected_device():
     from calibre.customize.ui import device_plugins
