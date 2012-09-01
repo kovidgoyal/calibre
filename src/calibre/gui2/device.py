@@ -564,9 +564,8 @@ class DeviceManager(Thread): # {{{
                         to_job=add_as_step_to_job)
 
     def _view_book(self, path, target):
-        f = open(target, 'wb')
-        self.device.get_file(path, f)
-        f.close()
+        with open(target, 'wb') as f:
+            self.device.get_file(path, f)
         return target
 
     def view_book(self, done, path, target, add_as_step_to_job=None):
