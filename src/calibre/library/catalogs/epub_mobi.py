@@ -120,9 +120,9 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Custom field containing note text to insert in Description header.\n"
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
-                   Option('--merge-comments',
+                   Option('--merge-comments-rule',
                           default='::',
-                          dest='merge_comments',
+                          dest='merge_comments_rule',
                           action = None,
                           help=_("#<custom field>:[before|after]:[True|False] specifying:\n"
                           " <custom field> Custom field containing notes to merge with Comments\n"
@@ -182,8 +182,8 @@ class EPUB_MOBI(CatalogPlugin):
             else:
                 op = "kindle"
 
-        opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 100
-        opts.authorClip = 100 if op.endswith('dx') or 'kindle' not in op else 60
+        opts.description_clip = 380 if op.endswith('dx') or 'kindle' not in op else 100
+        opts.author_clip = 100 if op.endswith('dx') or 'kindle' not in op else 60
         opts.output_profile = op
 
         opts.basename = "Catalog"
@@ -198,11 +198,12 @@ class EPUB_MOBI(CatalogPlugin):
             (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
              'CLI' if opts.cli_environment else 'GUI'))
 
-        # If exclude_genre is blank, assume user wants all genre tags included
+        # If exclude_genre is blank, assume user wants all tags as genres
         if opts.exclude_genre.strip() == '':
-            opts.exclude_genre = '\[^.\]'
-            build_log.append(" converting empty exclude_genre to '\[^.\]'")
-
+            #opts.exclude_genre = '\[^.\]'
+            #build_log.append(" converting empty exclude_genre to '\[^.\]'")
+            opts.exclude_genre = 'a^'
+            build_log.append(" converting empty exclude_genre to 'a^'")
         if opts.connected_device['is_device_connected'] and \
            opts.connected_device['kind'] == 'device':
             if opts.connected_device['serial']:
@@ -304,10 +305,10 @@ class EPUB_MOBI(CatalogPlugin):
         keys.sort()
         build_log.append(" opts:")
         for key in keys:
-            if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
+            if key in ['catalog_title','author_clip','connected_kindle','description_clip',
                        'exclude_book_marker','exclude_genre','exclude_tags',
-                       'exclusion_rules',
-                       'header_note_source_field','merge_comments',
+                       'exclusion_rules', 'fmt',
+                       'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                        'thumb_width','wishlist_tag']:
@@ -323,10 +324,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             log.info(" Begin catalog source generation")
-        catalog.createDirectoryStructure()
-        catalog.copyResources()
-        catalog.calculateThumbnailSize()
-        catalog_source_built = catalog.buildSources()
+        catalog_source_built = catalog.build_sources()
 
         if opts.verbose:
             if catalog_source_built:
@@ -388,7 +386,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber
-            plumber = Plumber(os.path.join(catalog.catalogPath,
+            plumber = Plumber(os.path.join(catalog.catalog_path,
                             opts.basename + '.opf'), path_to_output, log, report_progress=notification,
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)

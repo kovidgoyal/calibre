@@ -11,7 +11,7 @@ import re, sys
 from functools import partial
 
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs, question_dialog
+from calibre.gui2 import gprefs, info_dialog, question_dialog
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
@@ -75,7 +75,6 @@ class PluginWidget(QWidget,Ui_Form):
 
         # LineEditControls
         option_fields += zip(['exclude_genre'],['\[.+\]|\+'],['line_edit'])
-        #option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['line_edit'])
 
         # TextEditControls
         #option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
@@ -172,7 +171,7 @@ class PluginWidget(QWidget,Ui_Form):
                 if hit:
                     excluded_tags.append(hit.string)
             if excluded_tags:
-                results = ', '.join(excluded_tags)
+                results = ', '.join(sorted(excluded_tags))
         finally:
             if self.DEBUG:
                 print(results)
@@ -334,16 +333,21 @@ class PluginWidget(QWidget,Ui_Form):
         elif self.merge_after.isChecked():
             checked = 'after'
         include_hr = self.include_hr.isChecked()
-        opts_dict['merge_comments'] = "%s:%s:%s" % \
+        opts_dict['merge_comments_rule'] = "%s:%s:%s" % \
             (self.merge_source_field_name, checked, include_hr)
 
         opts_dict['header_note_source_field'] = self.header_note_source_field_name
+
+        # Fix up exclude_genre regex if blank. Assume blank = no exclusions
+        if opts_dict['exclude_genre'] == '':
+            opts_dict['exclude_genre'] = 'a^'
 
         # Append the output profile
         try:
             opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
         except:
             opts_dict['output_profile'] = ['default']
+
         if self.DEBUG:
             print "opts_dict"
             for opt in sorted(opts_dict.keys(), key=sort_key):
