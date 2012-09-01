@@ -129,6 +129,7 @@ class MTP_DEVICE(BASE):
                 cached_metadata = bl[idx]
                 del relpath_cache[relpath]
                 if cached_metadata.size == mtp_file.size:
+                    cached_metadata.datetime = mtp_file.last_modified.timetuple()
                     debug('Using cached metadata for',
                             '/'.join(mtp_file.full_path))
                     continue # No need to update metadata
@@ -148,6 +149,7 @@ class MTP_DEVICE(BASE):
                         '/'.join(mtp_file.full_path))
                 traceback.print_exc()
             book.size = mtp_file.size
+            book.datetime = mtp_file.last_modified.timetuple()
 
         # Remove books in the cache that no longer exist
         for idx in sorted(relpath_cache.itervalues(), reverse=True):

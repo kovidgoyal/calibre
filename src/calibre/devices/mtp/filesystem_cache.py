@@ -14,7 +14,7 @@ from future_builtins import map
 from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
-from calibre.utils.date import local_tz
+from calibre.utils.date import local_tz, as_utc
 from calibre.utils.icu import sort_key, lower
 from calibre.ebooks import BOOK_EXTENSIONS
 
@@ -40,6 +40,7 @@ class FileOrFolder(object):
             self.last_modified = datetime.fromtimestamp(md, local_tz)
         except:
             self.last_modified = datetime.fromtimestamp(0, local_tz)
+        self.last_modified = as_utc(self.last_modified)
 
         if self.storage_id not in self.all_storage_ids:
             raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
