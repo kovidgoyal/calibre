@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, pprint, traceback
+import json, pprint, traceback, posixpath
 from io import BytesIO
 
 from calibre import prints
@@ -29,6 +29,8 @@ class MTP_DEVICE(BASE):
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
     CAN_SET_METADATA = []
+    NEWS_IN_FOLDER = True
+    MAX_PATH_LEN = 230
 
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
@@ -180,6 +182,18 @@ class MTP_DEVICE(BASE):
         stream.seek(0)
         self.put_file(storage, self.METADATA_CACHE, stream, size)
     # }}}
+
+    def create_upload_path(self, path, mdata, fname):
+        from calibre.devices import create_upload_path
+        from calibre.utils.filenames import ascii_filename as sanitize
+        filepath = create_upload_path(mdata, fname, self.save_template, sanitize,
+                prefix_path=path,
+                path_type=posixpath,
+                maxlen=self.MAX_PATH_LEN,
+                use_subdirs = True,
+                news_in_folder = self.NEWS_IN_FOLDER,
+                )
+        return tuple(x.lower() for x in filepath.split('/'))
 
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)

@@ -123,8 +123,6 @@ def create_upload_path(mdata, fname, template, sanitize,
         return ans
 
     extra_components = list(map(remove_trailing_periods, extra_components))
-    if prefix_path:
-        prefix_path = path_type.abspath(prefix_path)
     components = shorten_components_to(maxlen - len(prefix_path), extra_components)
     components = sanitize_path_components(components)
     if prefix_path:

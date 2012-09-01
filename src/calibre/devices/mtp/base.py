@@ -61,11 +61,15 @@ class MTPDeviceBase(DevicePlugin):
 
     def build_template_regexp(self):
         from calibre.devices import build_template_regexp
-        # TODO: Use the device specific template here
-        return build_template_regexp(self.default_save_template)
+        return build_template_regexp(self.save_template)
 
     @property
     def default_save_template(cls):
         from calibre.library.save_to_disk import config
         return config().parse().send_template
+
+    @property
+    def save_template(self):
+        # TODO: Use the device specific template here
+        return self.default_save_template
 
