@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, pprint, traceback, posixpath
+import json, traceback, posixpath, importlib
 from io import BytesIO
 
 from calibre import prints
@@ -17,12 +17,8 @@ from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.config import from_json, to_json
 from calibre.utils.date import now, isoformat
 
-if iswindows:
-    from calibre.devices.mtp.windows.driver import MTP_DEVICE as BASE
-    BASE
-else:
-    from calibre.devices.mtp.unix.driver import MTP_DEVICE as BASE
-pprint
+BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
+    'windows' if iswindows else 'unix')).MTP_DEVICE
 
 class MTP_DEVICE(BASE):
 
@@ -31,6 +27,11 @@ class MTP_DEVICE(BASE):
     CAN_SET_METADATA = []
     NEWS_IN_FOLDER = True
     MAX_PATH_LEN = 230
+    THUMBNAIL_HEIGHT = 160
+    THUMBNAIL_WIDTH = 120
+    CAN_SET_METADATA = []
+    BACKLOADING_ERROR_MESSAGE = None
+    MANAGES_DEVICE_PRESENCE = True
 
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
@@ -157,6 +158,7 @@ class MTP_DEVICE(BASE):
             self.report_progress(count/steps, _('Updating metadata cache on device'))
             self.write_metadata_cache(storage, bl)
         self.report_progress(1, _('Finished reading metadata from device'))
+        return bl
 
     def read_file_metadata(self, mtp_file):
         from calibre.ebooks.metadata.meta import get_metadata

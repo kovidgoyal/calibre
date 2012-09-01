@@ -32,11 +32,6 @@ class MTPDeviceBase(DevicePlugin):
     author = 'Kovid Goyal'
     version = (1, 0, 0)
 
-    THUMBNAIL_HEIGHT = 128
-    CAN_SET_METADATA = []
-
-    BACKLOADING_ERROR_MESSAGE = None
-
     def __init__(self, *args, **kwargs):
         DevicePlugin.__init__(self, *args, **kwargs)
         self.progress_reporter = None
