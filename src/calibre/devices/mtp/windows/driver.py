@@ -293,7 +293,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return tuple(ans)
 
     @same_thread
-    def get_file(self, f, stream=None, callback=None):
+    def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
         if stream is None:

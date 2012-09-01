@@ -43,7 +43,7 @@ class MTP_DEVICE(BASE):
         f = storage.find_path((self.DRIVEINFO,))
         dinfo = {}
         if f is not None:
-            stream = self.get_file(f)
+            stream = self.get_mtp_file(f)
             try:
                 dinfo = json.load(stream, object_hook=from_json)
             except:
@@ -114,7 +114,7 @@ class MTP_DEVICE(BASE):
         if cache is not None:
             json_codec = JSONCodec()
             try:
-                stream = self.get_file(cache)
+                stream = self.get_mtp_file(cache)
                 json_codec.decode_from_file(stream, bl, Book, sid)
             except:
                 need_sync = True
@@ -166,7 +166,7 @@ class MTP_DEVICE(BASE):
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.customize.ui import quick_metadata
         ext = mtp_file.name.rpartition('.')[-1].lower()
-        stream = self.get_file(mtp_file)
+        stream = self.get_mtp_file(mtp_file)
         with quick_metadata:
             return get_metadata(stream, stream_type=ext,
                     force_read_metadata=True,

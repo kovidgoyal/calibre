@@ -273,7 +273,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return parent.add_child(ans)
 
     @synchronous
-    def get_file(self, f, stream=None, callback=None):
+    def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
         if stream is None:

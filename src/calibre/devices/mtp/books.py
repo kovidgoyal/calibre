@@ -30,6 +30,7 @@ class Book(Metadata):
         self.lpath = self.path = self.lpath.replace(os.sep, '/')
         self.mtp_relpath = tuple([icu_lower(x) for x in self.lpath.split('/')])
         self.datetime = utcnow().timetuple()
+        self.thumbail = None
 
     def matches_file(self, mtp_file):
         return (self.storage_id == mtp_file.storage_id and

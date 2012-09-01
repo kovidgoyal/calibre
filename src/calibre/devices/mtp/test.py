@@ -128,7 +128,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
         raw2 = io.BytesIO()
         pc = ProgressCallback()
-        self.dev.get_file(f, raw2, callback=pc)
+        self.dev.get_mtp_file(f, raw2, callback=pc)
         self.assertEqual(raw.getvalue(), raw2.getvalue())
         self.assertTrue(pc.end_called,
                 msg='Progress callback not called with equal values (get_file)')
@@ -162,7 +162,7 @@ class TestDeviceInteraction(unittest.TestCase):
         self.assertEqual(f.storage_id, self.storage.storage_id)
 
         raw2 = io.BytesIO()
-        self.dev.get_file(f, raw2)
+        self.dev.get_mtp_file(f, raw2)
         self.assertEqual(raw.getvalue(), raw2.getvalue())
 
     def measure_memory_usage(self, repetitions, func, *args, **kwargs):
@@ -226,7 +226,7 @@ class TestDeviceInteraction(unittest.TestCase):
         def get_file(f):
             raw = io.BytesIO()
             pc = ProgressCallback()
-            self.dev.get_file(f, raw, callback=pc)
+            self.dev.get_mtp_file(f, raw, callback=pc)
             raw.truncate(0)
             del raw
             del pc
