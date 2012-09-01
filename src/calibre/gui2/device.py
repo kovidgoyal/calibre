@@ -443,6 +443,14 @@ class DeviceManager(Thread): # {{{
         return self.create_job_step(self._books, done,
                 description=_('Get list of books on device'), to_job=add_as_step_to_job)
 
+    def _prepare_addable_books(self, paths):
+        return self.device.prepare_addable_books(paths)
+
+    def prepare_addable_books(self, done, paths, add_as_step_to_job=None):
+        return self.create_job_step(self._prepare_addable_books, done, args=[paths],
+                description=_('Prepare files for transfer from device'),
+                to_job=add_as_step_to_job)
+
     def _annotations(self, path_map):
         return self.device.get_annotations(path_map)
 

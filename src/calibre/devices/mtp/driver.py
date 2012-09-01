@@ -7,13 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, traceback, posixpath, importlib
+import json, traceback, posixpath, importlib, os
 from io import BytesIO
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
 from calibre.devices.mtp.base import debug
-from calibre.ptempfile import SpooledTemporaryFile
+from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.config import from_json, to_json
 from calibre.utils.date import now, isoformat
 
@@ -199,9 +199,31 @@ class MTP_DEVICE(BASE):
 
     # }}}
 
+    # Get files from the device {{{
     def get_file(self, path, outfile, end_session=True):
         f = self.filesystem_cache.resolve_mtp_id_path(path)
         self.get_mtp_file(f, outfile)
+
+    def prepare_addable_books(self, paths):
+        tdir = PersistentTemporaryDirectory('_prepare_mtp')
+        ans = []
+        for path in paths:
+            try:
+                f = self.filesystem_cache.resolve_mtp_id_path(path)
+            except Exception as e:
+                ans.append((path, e, traceback.format_exc()))
+                continue
+            base = os.path.join(tdir, '%s'%f.object_id)
+            os.mkdir(base)
+            with open(os.path.join(base, f.name), 'wb') as out:
+                try:
+                    self.get_mtp_file(f, out)
+                except Exception as e:
+                    ans.append((path, e, traceback.format_exc()))
+                else:
+                    ans.append(out.name)
+        return ans
+    # }}}
 
     def create_upload_path(self, path, mdata, fname):
         from calibre.devices import create_upload_path
