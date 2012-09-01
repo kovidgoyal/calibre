@@ -297,7 +297,8 @@ class CoverView(QWidget): # {{{
             self.pixmap = self.default_pixmap
         self.do_layout()
         self.update()
-        if not same_item and not config['disable_animations']:
+        if (not same_item and not config['disable_animations'] and
+                self.isVisible()):
             self.animation.start()
 
     def paintEvent(self, event):
@@ -512,6 +513,7 @@ class DetailsLayout(QLayout): # {{{
         self.do_layout(r)
 
     def cover_height(self, r):
+        if not self._children[0].widget().isVisible(): return 0
         mh = min(int(r.height()/2.), int(4/3. * r.width())+1)
         try:
             ph = self._children[0].widget().pixmap.height()
@@ -522,6 +524,7 @@ class DetailsLayout(QLayout): # {{{
         return mh
 
     def cover_width(self, r):
+        if not self._children[0].widget().isVisible(): return 0
         mw = 1 + int(3/4. * r.height())
         try:
             pw = self._children[0].widget().pixmap.width()
@@ -660,6 +663,7 @@ class BookDetails(QWidget): # {{{
         self.update_layout()
 
     def update_layout(self):
+        self.cover_view.setVisible(gprefs['bd_show_cover'])
         self._layout.do_layout(self.rect())
         self.cover_view.update_tooltip(self.current_path)
 
