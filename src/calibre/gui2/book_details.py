@@ -19,8 +19,8 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
-from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
-        gprefs, rating_font)
+from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs,
+        rating_font)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
@@ -569,6 +569,7 @@ class BookDetails(QWidget): # {{{
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
     cover_removed = pyqtSignal(object)
+    view_device_book = pyqtSignal(object)
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
@@ -643,7 +644,7 @@ class BookDetails(QWidget): # {{{
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
-            open_local_file(val)
+            self.view_device_book.emit(val)
         else:
             try:
                 open_url(QUrl(link, QUrl.TolerantMode))
