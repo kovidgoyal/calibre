@@ -81,6 +81,19 @@ class DevicePlugin(Plugin):
     #: by.
     NUKE_COMMENTS = None
 
+    #: If True indicates that  this driver completely manages device detection,
+    #: ejecting and so forth. If you set this to True, you *must* implement the
+    #: detect_managed_devices and debug_managed_device_detection methods.
+    #: A driver with this set to true is responsible for detection of devices,
+    #: managing a blacklist of devices, a list of ejected devices and so forth.
+    #: calibre will periodically call the detect_managed_devices() method and
+    #: is it returns a detected device, calibre will call open(). open() will
+    #: be called every time a device is returned even is previous calls to open()
+    #: failed, therefore the driver must maintain its own blacklist of failed
+    #: devices. Similarly, when ejecting, calibre will call eject() and then
+    #: assuming the next call to detect_managed_devices() returns None, it will
+    #: call post_yank_cleanup().
+    MANAGES_DEVICE_PRESENCE = False
 
     @classmethod
     def get_gui_name(cls):
@@ -195,6 +208,34 @@ class DevicePlugin(Plugin):
                                 if self.can_handle(dev, debug=debug):
                                     return True, dev
         return False, None
+
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
+        '''
+        Called only if MANAGES_DEVICE_PRESENCE is True.
+
+        Scan for devices that this driver can handle. Should return a device
+        object if a device is found. This object will be passed to the open()
+        method as the connected_device. If no device is found, return None.
+
+        This method is called periodically by the GUI, so make sure it is not
+        too resource intensive. Use a cache to avoid repeatedly scanning the
+        system.
+
+        :param devices_on_system: Set of USB devices found on the system.
+
+        :param force_refresh: If True and the driver uses a cache to prevent
+        repeated scanning, the cache must be flushed.
+        '''
+        raise NotImplementedError()
+
+    def debug_managed_device_detection(self, devices_on_system, output):
+        '''
+        Called only if MANAGES_DEVICE_PRESENCE is True.
+
+        Should write information about the devices detected on the system to
+        output, which is a file like object.
+        '''
+        raise NotImplementedError()
 
     # }}}
 
