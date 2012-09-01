@@ -543,6 +543,10 @@ class DevicePlugin(Plugin):
         '''
         Given a list of paths, returns another list of paths. These paths
         point to addable versions of the books.
+
+        If there is an error preparing a book, then instead of a path, the
+        position in the returned list for that book should be a three tuple:
+            (original_path, the exception instance, traceback)
         '''
         return paths
 
