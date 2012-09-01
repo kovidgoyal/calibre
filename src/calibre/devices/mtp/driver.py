@@ -183,6 +183,16 @@ class MTP_DEVICE(BASE):
         size = stream.tell()
         stream.seek(0)
         self.put_file(storage, self.METADATA_CACHE, stream, size)
+
+    def sync_booklists(self, booklists, end_session=True):
+        for bl in booklists:
+            if getattr(bl, 'storage_id', None) is None:
+                continue
+            storage = self.filesystem_cache.storage(bl.storage_id)
+            if storage is None:
+                continue
+            self.write_metadata_cache(storage, bl)
+
     # }}}
 
     def create_upload_path(self, path, mdata, fname):

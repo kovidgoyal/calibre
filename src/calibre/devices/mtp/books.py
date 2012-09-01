@@ -12,6 +12,7 @@ import os
 from calibre.devices.interface import BookList as BL
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from calibre.utils.date import utcnow
 
 class BookList(BL):
 
@@ -26,8 +27,9 @@ class Book(Metadata):
     def __init__(self, storage_id, lpath, other=None):
         Metadata.__init__(self, _('Unknown'), other=other)
         self.storage_id, self.lpath = storage_id, lpath
-        self.lpath = self.lpath.replace(os.sep, '/')
+        self.lpath = self.path = self.lpath.replace(os.sep, '/')
         self.mtp_relpath = tuple([icu_lower(x) for x in self.lpath.split('/')])
+        self.datetime = utcnow().timetuple()
 
     def matches_file(self, mtp_file):
         return (self.storage_id == mtp_file.storage_id and
