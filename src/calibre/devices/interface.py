@@ -314,6 +314,9 @@ class DevicePlugin(Plugin):
         '''
         Un-mount / eject the device from the OS. This does not check if there
         are pending GUI jobs that need to communicate with the device.
+
+        NOTE: That this method may not be called on the same thread as the rest
+        of the device methods.
         '''
         raise NotImplementedError()
 

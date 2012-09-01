@@ -51,6 +51,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self._main_id = self._carda_id = self._cardb_id = None
         self.start_thread = None
         self._filesystem_cache = None
+        self.eject_dev_on_next_scan = False
 
     def startup(self):
         self.start_thread = threading.current_thread()
@@ -75,6 +76,10 @@ class MTP_DEVICE(MTPDeviceBase):
     @same_thread
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.wpd is None: return None
+        if self.eject_dev_on_next_scan:
+            self.eject_dev_on_next_scan = False
+            if self.currently_connected_pnp_id is not None:
+                self.do_eject()
 
         devices_on_system = frozenset(devices_on_system)
         if (force_refresh or
@@ -213,18 +218,23 @@ class MTP_DEVICE(MTPDeviceBase):
         return self._filesystem_cache
 
     @same_thread
-    def post_yank_cleanup(self):
-        self.currently_connected_pnp_id = self.current_friendly_name = None
-        self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = self._filesystem_cache = None
-
-    @same_thread
-    def eject(self):
+    def do_eject(self):
         if self.currently_connected_pnp_id is None: return
         self.ejected_devices.add(self.currently_connected_pnp_id)
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self._filesystem_cache = None
+
+
+    @same_thread
+    def post_yank_cleanup(self):
+        self.currently_connected_pnp_id = self.current_friendly_name = None
+        self._main_id = self._carda_id = self._cardb_id = None
+        self.dev = self._filesystem_cache = None
+
+    def eject(self):
+        if self.currently_connected_pnp_id is None: return
+        self.eject_dev_on_next_scan = True
 
     @same_thread
     def open(self, connected_device, library_uuid):
