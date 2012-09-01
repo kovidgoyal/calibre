@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-31 04:42+0000\n"
-"X-Generator: Launchpad (build 15887)\n"
+"X-Launchpad-Export-Date: 2012-09-01 04:42+0000\n"
+"X-Generator: Launchpad (build 15890)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -20833,6 +20833,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Communicate with the Sony PRS-500 eBook reader."
-#~ msgstr "תקשר עם קורא הספרים סוני PRS-500"

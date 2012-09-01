@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-31 03:51+0000\n"
-"PO-Revision-Date: 2012-08-26 16:23+0000\n"
+"PO-Revision-Date: 2012-08-31 21:14+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-31 04:44+0000\n"
-"X-Generator: Launchpad (build 15887)\n"
+"X-Launchpad-Export-Date: 2012-09-01 04:43+0000\n"
+"X-Generator: Launchpad (build 15890)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3168,23 +3168,28 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
 msgid "The font family used to render serif fonts"
 msgstr ""
+"La famiglia di caratteri utilizzata per la resa dei caratteri con grazie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:96
 msgid "The font family used to render sans-serif fonts"
 msgstr ""
+"La famiglia di caratteri utilizzata per la resa dei caratteri senza grazie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid "The font family used to render monospaced fonts"
 msgstr ""
+"La famiglia di caratteri utilizzata per la resa dei caratteri a spaziatura "
+"fissa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:106
 msgid "The default font size"
-msgstr ""
+msgstr "La dimensione predefinita dei caratteri"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:109
 msgid "The default font size for monospaced text"
 msgstr ""
+"La dimensione predefinita dei caratteri per il testo a spaziatura fissa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3680,6 +3685,11 @@ msgid ""
 "location as the position at which to open the book. See the XPath tutorial "
 "in the calibre User Manual for further help using this feature."
 msgstr ""
+"Un'espressione XPath per rilevare la posizione del documento dalla quale "
+"iniziare la lettura. Alcuni lettori di ebook (tra cui il Kindle) utilizzano "
+"tale posizione come posizione di apertura del libro. Vedi la guida di XPath "
+"del manuale utente di calibre per ulteriori informazioni circa l'uso di "
+"questa funzionalità."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:319
 msgid ""
@@ -5004,7 +5014,7 @@ msgstr "Barra laterale"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:57
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "Pagina %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -6100,7 +6110,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:245
 msgid "Many IP addresses. See Start/Stop dialog."
-msgstr ""
+msgstr "Troppi indirizzi IP. Vedi la finestra Avvia/Ferma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7707,11 +7717,11 @@ msgstr "Crea collegamento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:215
 msgid "Enter &URL:"
-msgstr ""
+msgstr "Digita l'&URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:216
 msgid "Enter name (optional):"
-msgstr ""
+msgstr "Digita il nome (opzionale):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:577
 msgid "Normal view"
@@ -8674,7 +8684,7 @@ msgstr "Carattere sta&ndard:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:105
 msgid "Default font si&ze:"
-msgstr ""
+msgstr "Dimensione prede&finita dei caratteri:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:108
@@ -9013,7 +9023,7 @@ msgstr "Inserisci interruzioni di pagina prima di (espressione XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Start reading at (XPath expression):"
-msgstr ""
+msgstr "Inizia la lettura da (espressione XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
@@ -9616,7 +9626,7 @@ msgstr "Invio delle notizie al dispositivo in corso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1335
 msgid "Sending books to device."
-msgstr "Invio dei libri al dispositivo in corso."
+msgstr "Invio dei libri al dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1375
 msgid ""
@@ -12203,10 +12213,16 @@ msgid ""
 "computer's control panel to get a complete list of your computer's network "
 "interfaces and IP addresses."
 msgstr ""
+"Questi sono gli indirizzi IP di questo computer. Se decidi di collegare il "
+"tuo dispositivo a calibre utilizzando un indirizzo IP fisso, deve essere "
+"utilizzato uno di questi indirizzi. È improbabile, ma possibile che "
+"l'indirizzo IP non sia elencato qui, in tal caso dovrai ottenere l'elenco "
+"completo delle interfacce e degli indirizzi IP dal pannello di controllo del "
+"tuo computer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:101
 msgid "Enable automatic metadata management"
-msgstr ""
+msgstr "Abilita la gestione automatica dei metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:104
 msgid ""
@@ -12218,11 +12234,19 @@ msgid ""
 "other choice at Preferences -> Sending books to devices -> Metadata "
 "management"
 msgstr ""
+"L'abilitazione della gestione automatica dei metadati dice a calibre di "
+"inviare qualsiasi modifica apportata ai metadati dei libri quando il tuo "
+"dispositivo è collegato, che è l'impostazione più utile quando utilizzi "
+"l'interfaccia wireless del dispositivo. Se la gestione automatica dei "
+"metadati non è abilitata le modifiche sono inviate solo quando invii "
+"nuovamente il libro. Pui ottenere ulteriori informazioni o scegliere altre "
+"opzioni da Preferenze -> Invio dei libri a dispositivi -> Gestione dei "
+"metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:123
 msgid "Automatic metadata management is enabled"
-msgstr ""
+msgstr "La gestione automatica dei metadati è abilitata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:143
@@ -12269,11 +12293,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:88
 msgid "Calibre IP addresses:"
-msgstr ""
+msgstr "Indirizzi IP di calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:89
 msgid "Possibe IP addresses:"
-msgstr ""
+msgstr "Possibili indirizzi IP:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Optional &password:"
@@ -14637,6 +14661,9 @@ msgid ""
 "eng for English. You can also use the full language name, in which case "
 "calibre will try to automatically convert it to the language code."
 msgstr ""
+"Digita un codice ISO di 3 lettere della lingua, come ita per italiano o deu "
+"per tedesco. Puoi utilizzare anche il nome completo della lingua, in tal "
+"caso calibre proverà a convertirlo automaticamente nel codice della lingua."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:225
 msgid "Enter a number"
@@ -19579,6 +19606,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Includi la sezione 'Autori' nel catalogo.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:85
 #, python-format
@@ -19587,6 +19617,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Includi la sezione 'Descrizioni' nel catalogo.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:92
 #, python-format
@@ -19595,6 +19628,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Includi la sezione 'Generi' nel catalogo.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:99
 #, python-format
@@ -19603,6 +19639,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Includi la sezione 'Titoli' nel catalogo.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:106
 #, python-format
@@ -19611,6 +19650,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Includi la sezione 'Serie' nel catalogo.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:113
 #, python-format
@@ -19619,6 +19661,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Includi la sezione 'Aggiunti di recente' nel catalogo.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:120
 #, python-format
@@ -19627,6 +19672,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Campo personalizzato che contiene il testo delle note da inserire "
+"nell'intestazione Descrizione.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:127
 #, python-format
@@ -20769,6 +20818,9 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"La determinazione del percorso di salvataggio su disco non è riuscita. "
+"Modello: %(templ)s\n"
+"Errore: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:310
 #, python-format
@@ -21185,7 +21237,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "scansione del programma non riuscita. Input non valido {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:39
 msgid " near "
@@ -23229,194 +23281,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Path to output file. By default a file is created in the current directory."
-#~ msgstr ""
-#~ "Percorso del file in uscita. Per impostazione predefinita viene creato nella "
-#~ "cartella corrente."
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Crop a PDF file.\n"
-#~ msgstr ""
-#~ "[options] documento.pdf\n"
-#~ "\n"
-#~ "Sagoma un documento PDF.\n"
-
-#~ msgid "Options to control the transformation of pdf"
-#~ msgstr "Opzioni per controllare la trasformazione di PDF"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Decrypt a PDF.\n"
-#~ msgstr ""
-#~ "[options] documento.pdf password\n"
-#~ "\n"
-#~ "Decifra il PDF.\n"
-
-#~ msgid "Decrypt Options:"
-#~ msgstr "Opzioni di decifrazione"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Encrypt a PDF.\n"
-#~ msgstr ""
-#~ "[options] documento.pdf password\n"
-#~ "\n"
-#~ "Cifra il PDF.\n"
-
-#~ msgid ""
-#~ "file.pdf ...\n"
-#~ "\n"
-#~ "Get info about a PDF.\n"
-#~ msgstr ""
-#~ "documento.pdf ...\n"
-#~ "\n"
-#~ "Ottieni i dettagli del PDF.\n"
-
-#~ msgid "Creator"
-#~ msgstr "Creatore"
-
-#~ msgid "Pages"
-#~ msgstr "Pagine"
-
-#~ msgid "File Size"
-#~ msgstr "Grandezza del file"
-
-#~ msgid "PDF Version"
-#~ msgstr "Versione PDF"
-
-#~ msgid ""
-#~ "[options] file1.pdf file2.pdf ...\n"
-#~ "\n"
-#~ "Metadata will be used from the first PDF specified.\n"
-#~ "\n"
-#~ "Merges individual PDFs.\n"
-#~ msgstr ""
-#~ "[options] documento1.pdf documento2.pdf ...\n"
-#~ "\n"
-#~ "Verranno usati i metadati dal primo PDF indicato.\n"
-#~ "\n"
-#~ " Unisce i diversi documenti PDF.\n"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Reverse a PDF.\n"
-#~ msgstr ""
-#~ "[options] documento.pdf\n"
-#~ "\n"
-#~ "Inverte il PDF.\n"
-
-#~ msgid ""
-#~ "file.pdf degrees\n"
-#~ "\n"
-#~ "Rotate pages of a PDF clockwise.\n"
-#~ msgstr ""
-#~ "documento.pdf gradi\n"
-#~ "\n"
-#~ "Ruotare le pagine del PDF in senso orario.\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog %%name [options] file.pdf page_to_split_on ...\n"
-#~ "%prog %%name [options] file.pdf page_range_to_split_on ...\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name file.pdf 6\n"
-#~ "%prog %%name file.pdf 6-12\n"
-#~ "%prog %%name file.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Split a PDF.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog %%name [options] documento.pdf pagina_da_dividere ...\n"
-#~ "%prog %%name [options] documento.pdf intervallo_di_pagine_da_dividere ...\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name documento.pdf 6\n"
-#~ "%prog %%name documento.pdf 6-12\n"
-#~ "%prog %%name documento.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Dividi il PDF.\n"
-
-#~ msgid "Communicate with the Sony PRS-500 eBook reader."
-#~ msgstr "Comunica con il lettore Sony PRS-500."
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most x (default is %s)"
-#~ msgstr ""
-#~ "Numero di pixel per sagomare dal punto x più a destra (il valore predefinito "
-#~ "è %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most y (default is %s)"
-#~ msgstr ""
-#~ "Numero di pixel per sagomare dal punto y più a destra (il valore predefinito "
-#~ "è %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most x (default is %s)"
-#~ msgstr ""
-#~ "Numero di pixel per sagomare dal punto x più a sinistra (il valore "
-#~ "predefinito è %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most y (default is %s)"
-#~ msgstr ""
-#~ "Numero di pixel per sagomare dal punto y più a sinistra (il valore "
-#~ "predefinito è %s)"
-
-#~ msgid "Enter URL"
-#~ msgstr "Inserire l'indirizzo URL"
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
-#~ msgstr ""
-#~ "Un documento generato da ghostscript che permette di sagomare pagine "
-#~ "individuali con il comando `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox "
-#~ "file.pdf 2> bounding`"
-
-#~ msgid "Encrypt Options:"
-#~ msgstr "Opzioni di cifratura:"
-
-#~ msgid "Merge Options:"
-#~ msgstr "Opzioni di unione:"
-
-#~ msgid "Reverse Options:"
-#~ msgstr "Opzioni di rovesciamento:"
-
-#~ msgid "Rotate Options:"
-#~ msgstr "Opzioni di rotazione:"
-
-#~ msgid "Split Options:"
-#~ msgstr "Opzioni di divisione:"
-
-#~ msgid ""
-#~ "command ...\n"
-#~ "\n"
-#~ "command can be one of the following:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Use %prog command --help to get more information about a specific command\n"
-#~ "\n"
-#~ "Manipulate a PDF.\n"
-#~ msgstr ""
-#~ "comando ...\n"
-#~ "\n"
-#~ "comando può essere uno dei seguenti:\n"
-#~ "[%%comandi]\n"
-#~ "\n"
-#~ "Usa %prog comando --help per ottenere maggiori informazioni sul comando\n"
-#~ "\n"
-#~ "Manipolare un PDF.\n"
-
-#~ msgid "Crop Options:"
-#~ msgstr "Opzioni di rifilamento:"

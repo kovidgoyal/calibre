@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2012-08-31 04:37+0000\n"
-"X-Generator: Launchpad (build 15887)\n"
+"X-Launchpad-Export-Date: 2012-09-01 04:36+0000\n"
+"X-Generator: Launchpad (build 15890)\n"
 "X-Poedit-Country: SAUDI ARABIA\n"
 "Language: ar\n"
 "X-Poedit-Language: Arabic\n"
@@ -21137,43 +21137,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Path to output file. By default a file is created in the current directory."
-#~ msgstr "مسار إلى ملف الخرج. الإفتراضي أن يكون الملف منشئ في الدليل الحالي."
-
-#~ msgid "Communicate with the Sony PRS-500 eBook reader."
-#~ msgstr "التواصل مع قارئ الكتاب الاليكتروني سوني PRS-500 ."
-
-#~ msgid "Crop Options:"
-#~ msgstr "المحاصيل الخيارات :"
-
-#~ msgid "Encrypt Options:"
-#~ msgstr "خيارات تشفير :"
-
-#~ msgid "Decrypt Options:"
-#~ msgstr "فك الخيارات :"
-
-#~ msgid "Pages"
-#~ msgstr "الصفحات"
-
-#~ msgid "Creator"
-#~ msgstr "المُنشئ"
-
-#~ msgid "PDF Version"
-#~ msgstr "نسخة PDF"
-
-#~ msgid "Merge Options:"
-#~ msgstr "دمج الخيارات :"
-
-#~ msgid "Reverse Options:"
-#~ msgstr "عكس الخيارات :"
-
-#~ msgid "Split Options:"
-#~ msgstr "تقسيم الخيارات :"
-
-#~ msgid "Rotate Options:"
-#~ msgstr "تدوير خيارات :"
-
-#~ msgid "File Size"
-#~ msgstr "حجم الملف"

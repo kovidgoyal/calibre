@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-08-31 03:51+0000\n"
-"PO-Revision-Date: 2012-08-24 14:11+0000\n"
+"PO-Revision-Date: 2012-08-31 05:27+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-08-31 04:52+0000\n"
-"X-Generator: Launchpad (build 15887)\n"
+"X-Launchpad-Export-Date: 2012-09-01 04:51+0000\n"
+"X-Generator: Launchpad (build 15890)\n"
 "Language: uk\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3156,24 +3156,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
 msgid "The font family used to render serif fonts"
-msgstr ""
+msgstr "Сімейство шрифтів для показу символів у форматі з засічками"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:96
 msgid "The font family used to render sans-serif fonts"
-msgstr ""
+msgstr "Сімейство шрифтів для показу символів у форматі без засічок"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid "The font family used to render monospaced fonts"
-msgstr ""
+msgstr "Сімейство шрифтів для показу символів у моноширинному форматі"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:106
 msgid "The default font size"
-msgstr ""
+msgstr "Типовий розмір символів шрифту"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:109
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "Типовий розмір символів для моноширинного шрифту"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3665,6 +3665,12 @@ msgid ""
 "location as the position at which to open the book. See the XPath tutorial "
 "in the calibre User Manual for further help using this feature."
 msgstr ""
+"Вираз XPath для визначення місця у документі, з якого слід розпочати "
+"читання. У деяких програмах для читання (найвідомішою з яких є програма для "
+"читання Kindle) це місце використовується як місце, з якого слід відкривати "
+"книгу. З докладнішими довідковими даними щодо користування цією можливістю "
+"можна ознайомитися у настановах щодо XPath у «Підручнику користувача» "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:319
 msgid ""
@@ -4999,7 +5005,7 @@ msgstr "Бічна панель"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:57
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "Сторінка %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -6093,7 +6099,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:245
 msgid "Many IP addresses. See Start/Stop dialog."
-msgstr ""
+msgstr "Декілька IP-адрес. Див. вікно «Запустити/Зупинити»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7735,11 +7741,11 @@ msgstr "Створити посилання"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:215
 msgid "Enter &URL:"
-msgstr ""
+msgstr "&Адреса:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:216
 msgid "Enter name (optional):"
-msgstr ""
+msgstr "Назва (необов’язкова):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:577
 msgid "Normal view"
@@ -8696,7 +8702,7 @@ msgstr "&Типовий шрифт:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:105
 msgid "Default font si&ze:"
-msgstr ""
+msgstr "Типовий розм&ір символів:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:108
@@ -9035,7 +9041,7 @@ msgstr "Вставляти розриви сторінок перед (вира�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Start reading at (XPath expression):"
-msgstr ""
+msgstr "Почати читання з (вираз XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
@@ -12251,10 +12257,16 @@ msgid ""
 "computer's control panel to get a complete list of your computer's network "
 "interfaces and IP addresses."
 msgstr ""
+"IP-адреси цього комп’ютера. Якщо вам потрібно буде з’єднати пристрій з "
+"calibre з використанням фіксованої IP-адреси, ви зможете скористатися однією "
+"з вказаних тут адрес. Малоймовірно, але все ж можливо, що правильною буде IP-"
+"адреса, якої немає у цьому списку. Щоб визначити таку адресу, вам доведеться "
+"відкрити центр керування вашою системою і ознайомитися з повним списком "
+"інтерфейсів мережі та IP-адрес системи."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:101
 msgid "Enable automatic metadata management"
-msgstr ""
+msgstr "Увімкнути автоматичне керування метаданими"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:104
 msgid ""
@@ -12266,11 +12278,19 @@ msgid ""
 "other choice at Preferences -> Sending books to devices -> Metadata "
 "management"
 msgstr ""
+"Вмикання автоматичного керування метаданими надасть calibre змогу надсилати "
+"всі внесені вами зміни до файлів книг на пристрої, якщо його з’єднано. Таким "
+"керуванням зручно користуватися, якщо обмін даними з пристроєм здійснюється "
+"за допомогою бездротового зв’язку. Якщо автоматичне керування метаданими не "
+"увімкнено, зміни буде надіслано на пристрій лише під час повторного "
+"надсилання на нього файла книги. Дізнатися більше про керування метаданими "
+"та змінити його параметри можна за допомогою сторінки «Налаштування -> "
+"Надсилання книг на пристрої -> Керування метаданими»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:123
 msgid "Automatic metadata management is enabled"
-msgstr ""
+msgstr "Автоматичне керування метаданими увімкнено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:143
@@ -12318,11 +12338,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:88
 msgid "Calibre IP addresses:"
-msgstr ""
+msgstr "IP-адреси Calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:89
 msgid "Possibe IP addresses:"
-msgstr ""
+msgstr "Можливі IP-адреси:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Optional &password:"
@@ -24204,186 +24224,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid "Crop Options:"
-#~ msgstr "Параметри обрізки:"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Decrypt a PDF.\n"
-#~ msgstr ""
-#~ "[options] file.pdf пароль\n"
-#~ "\n"
-#~ "Дешифрувати PDF.\n"
-
-#~ msgid "Decrypt Options:"
-#~ msgstr "Параметри дешифрування:"
-
-#~ msgid "Creator"
-#~ msgstr "Автор"
-
-#~ msgid "Pages"
-#~ msgstr "Сторінки"
-
-#~ msgid "PDF Version"
-#~ msgstr "PDF версія"
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
-#~ msgstr ""
-#~ "Файл, створений ghostscript, який дозволяє унікально обрізати кожну сторінку "
-#~ "`gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Encrypt a PDF.\n"
-#~ msgstr ""
-#~ "[options] file.pdf пароль\n"
-#~ "\n"
-#~ "Шифрувати a PDF.\n"
-
-#~ msgid "Encrypt Options:"
-#~ msgstr "Параметри шифрування:"
-
-#~ msgid "Merge Options:"
-#~ msgstr "Параметри об’єднання:"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Reverse a PDF.\n"
-#~ msgstr ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Перевернути PDF.\n"
-
-#~ msgid "Reverse Options:"
-#~ msgstr "Параметри перевертання:"
-
-#~ msgid ""
-#~ "file.pdf degrees\n"
-#~ "\n"
-#~ "Rotate pages of a PDF clockwise.\n"
-#~ msgstr ""
-#~ "file.pdf градус\n"
-#~ "\n"
-#~ "Повернути сторінки PDF за годинникової стрілкою.\n"
-
-#~ msgid "Rotate Options:"
-#~ msgstr "Параметри обертання:"
-
-#~ msgid "Split Options:"
-#~ msgstr "Параметри розділення:"
-
-#~ msgid "Communicate with the Sony PRS-500 eBook reader."
-#~ msgstr "Встановлює зв’язок з пристроєм для читання книжок Sony PRS-500."
-
-#~ msgid "Options to control the transformation of pdf"
-#~ msgstr "Параметри керування перетворенням pdf"
-
-#~ msgid ""
-#~ "file.pdf ...\n"
-#~ "\n"
-#~ "Get info about a PDF.\n"
-#~ msgstr ""
-#~ "file.pdf …\n"
-#~ "\n"
-#~ "Отримати інфо про PDF.\n"
-
-#~ msgid ""
-#~ "[options] file1.pdf file2.pdf ...\n"
-#~ "\n"
-#~ "Metadata will be used from the first PDF specified.\n"
-#~ "\n"
-#~ "Merges individual PDFs.\n"
-#~ msgstr ""
-#~ "[options] file1.pdf file2.pdf …\n"
-#~ "\n"
-#~ "Буде використано метадані першого вказаного PDF.\n"
-#~ "\n"
-#~ "Об’єднання окремих PDF файлів.\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog %%name [options] file.pdf page_to_split_on ...\n"
-#~ "%prog %%name [options] file.pdf page_range_to_split_on ...\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name file.pdf 6\n"
-#~ "%prog %%name file.pdf 6-12\n"
-#~ "%prog %%name file.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Split a PDF.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog %%name [options] file.pdf сторінка_за_якою_розбити …\n"
-#~ "%prog %%name [options] file.pdf діапазон_сторінок_за_якими_розбити …\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name file.pdf 6\n"
-#~ "%prog %%name file.pdf 6-12\n"
-#~ "%prog %%name file.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Розділити PDF.\n"
-
-#~ msgid "Enter URL"
-#~ msgstr "Вкажіть адресу"
-
-#~ msgid ""
-#~ "command ...\n"
-#~ "\n"
-#~ "command can be one of the following:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Use %prog command --help to get more information about a specific command\n"
-#~ "\n"
-#~ "Manipulate a PDF.\n"
-#~ msgstr ""
-#~ "команда …\n"
-#~ "\n"
-#~ "можна використовувати такі команди:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Скористайтеся командою «%prog команда --help», щоб дізнатися більше про "
-#~ "певну команду\n"
-#~ "\n"
-#~ "Обробка PDF.\n"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Crop a PDF file.\n"
-#~ msgstr ""
-#~ "[параметри] файл.pdf\n"
-#~ "\n"
-#~ "Обрізати файл PDF.\n"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most x (default is %s)"
-#~ msgstr ""
-#~ "Кількість пікселів для обрізування від найлівішого значення за x (типово %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most y (default is %s)"
-#~ msgstr "Кількість пікселів для обрізування від найлівішого y (типово %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most x (default is %s)"
-#~ msgstr "Кількість пікселів для обрізування від найправішого x (типово %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most y (default is %s)"
-#~ msgstr "Кількість пікселів для обрізування від найправішого y (типово %s)"
-
-#~ msgid ""
-#~ "Path to output file. By default a file is created in the current directory."
-#~ msgstr ""
-#~ "Шлях до вихідного файла. Типово файл створюється у поточному каталозі."
-
-#~ msgid "File Size"
-#~ msgstr "Розмір файла"

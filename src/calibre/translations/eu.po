@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-08-31 03:51+0000\n"
-"PO-Revision-Date: 2012-07-06 14:17+0000\n"
-"Last-Translator: Asier Iturralde Sarasola <Unknown>\n"
+"PO-Revision-Date: 2012-08-31 18:00+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-31 04:37+0000\n"
-"X-Generator: Launchpad (build 15887)\n"
+"X-Launchpad-Export-Date: 2012-09-01 04:37+0000\n"
+"X-Generator: Launchpad (build 15890)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -947,6 +947,9 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"Gehigarrien programatzaileentzako oharra: Gehigarria garatzen ari den "
+"direktoriorako bidea.  Agindu honek garatutako gehigarria modu automatikoan "
+"konprimituko du eta calibre programan eguneratuko du."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:595
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1019,6 +1022,9 @@ msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"calibre programaren edozein saio edo azpi-atal martxan baldin balego, honek "
+"geldituko luke. Ibili kontuz honekin zeren eta calibre programaren atal "
+"batzuk martxan egongo balira bertan behera geratuko lirateke oharkabean."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:167
 msgid "Debug log"
@@ -1128,6 +1134,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Sostengurik gabeko konexio zuzen modua. Ikus "
+"http://www.mobileread.com/forums/showthread.php?t=118559 argibide "
+"gehiagorako; ikus hortxe:  'Connect to iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1135,6 +1144,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>Ezin izan da iTunes-ekin komunikatu.</p><p>Bidali txostena <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"forum post</a>horretara ea informazio gehiago lortzen duzun.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:380
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:383
@@ -1372,7 +1384,7 @@ msgstr "Kontaktatu PocketBook 602/603/902/903 reader horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Komunikatu  harremanetan PocketBook 622 irakurgailuarekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1384,7 +1396,7 @@ msgstr "Komunikatu \"PocketBook 701\" horrekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:311
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Komunikatu  harremanetan  Infibeam Pi2 irakurgailuarekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1502,7 +1514,7 @@ msgstr "Komunikatu \"JetBook Mini reader\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Komunikatu harremanetan  JetBook Colo irakurgailuarekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1547,7 +1559,7 @@ msgstr "<b>Kokapena %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Komunikatu harremanetan  Kindle 2/3/4/Touch eBook irakurgailuarekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:298
 msgid "Send page number information when sending books"
@@ -1642,7 +1654,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid "Show Previews"
-msgstr ""
+msgstr "Erakutsi aurrebistak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid ""
@@ -1653,7 +1665,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Erakutsi gomendioak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid ""
@@ -1664,7 +1676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Saiatu Firmware berriena sostengatzen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
 msgid ""
@@ -1676,7 +1688,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:607
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "Kobo datu-base bertsioak ez du sostengurik - Ikus zehaztasunak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:608
 msgid ""
@@ -1803,11 +1815,11 @@ msgstr "Komunikatu Ex124G horrekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:23
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP Gailua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:25
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "Komunikatu MTP gailuekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:63
 msgid ""
@@ -1997,31 +2009,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:62
 msgid "SmartDevice"
-msgstr ""
+msgstr "Smart Gailua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:64
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Komunikatu honekin:  Smart Device apps"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:137
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Gaitu konexioak abiarazte unean"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:138
 msgid "Check this box to allow connections when calibre starts"
 msgstr ""
+"Begira ezazu leihatilatxo honetan  konexioak onartzeko calibre abiarazten "
+"den unean"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:140
 msgid "Security password"
-msgstr ""
+msgstr "Segurtasun-pasahitza"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:141
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
+"Sar ezazu pasahitz bat. Gailuaren aplikazioak calibre-rekin konektatzeko "
+"erabili beharko du pasahitz hori."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:143
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Erabili sareko portu finkoa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:144
 msgid ""
@@ -2031,7 +2047,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:146
 msgid "Port number: "
-msgstr ""
+msgstr "Portuaren zenbakia: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:147
 msgid ""
@@ -22202,186 +22218,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Communicate with the Sony PRS-500 eBook reader."
-#~ msgstr "Komunikatu Sony PRS-500 eBook irakurgailuarekin."
-
-#~ msgid ""
-#~ "Path to output file. By default a file is created in the current directory."
-#~ msgstr ""
-#~ "Bidea helburu fitxategira. Lehenetsita hauxe: direktorio honetan fitxategi "
-#~ "bat sortuko da."
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
-#~ msgstr ""
-#~ "ghostscript-en bidez sortutako fitxategia, baimentzen du orrialdeak banan-"
-#~ "banan ebakitzea `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> "
-#~ "bounding`"
-
-#~ msgid "Crop Options:"
-#~ msgstr "Ebakitzeko aukerak:"
-
-#~ msgid "Options to control the transformation of pdf"
-#~ msgstr "Aukerak PDFaren aldaketak kontrolatzeko"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Decrypt a PDF.\n"
-#~ msgstr ""
-#~ "[aukerak] fitxategi.pdf pasahitza\n"
-#~ "PDF bat dezifratu.\n"
-
-#~ msgid "Decrypt Options:"
-#~ msgstr "Dezifratzeko aukerak:"
-
-#~ msgid "Encrypt Options:"
-#~ msgstr "Enkriptatzeko aukerak:"
-
-#~ msgid "Creator"
-#~ msgstr "Sortzailea"
-
-#~ msgid "Pages"
-#~ msgstr "Orrialdeak"
-
-#~ msgid "PDF Version"
-#~ msgstr "PDF bertsioa"
-
-#~ msgid ""
-#~ "[options] file1.pdf file2.pdf ...\n"
-#~ "\n"
-#~ "Metadata will be used from the first PDF specified.\n"
-#~ "\n"
-#~ "Merges individual PDFs.\n"
-#~ msgstr ""
-#~ "[aukerak] fitxategi1.pdf fitxategi2.pdf...\n"
-#~ "\n"
-#~ "Metadatuak erabiliko dira zehaztutako lehen PDF horretatik.\n"
-#~ "\n"
-#~ "Bateratuko ditu bereizita dauden PDFak.\n"
-
-#~ msgid "Merge Options:"
-#~ msgstr "Bateratzeko aukerak:"
-
-#~ msgid "Reverse Options:"
-#~ msgstr "Alderantziz jartzeko aukerak:"
-
-#~ msgid "Rotate Options:"
-#~ msgstr "Biratzeko aukerak:"
-
-#~ msgid ""
-#~ "command ...\n"
-#~ "\n"
-#~ "command can be one of the following:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Use %prog command --help to get more information about a specific command\n"
-#~ "\n"
-#~ "Manipulate a PDF.\n"
-#~ msgstr ""
-#~ "agintea...\n"
-#~ "\n"
-#~ "Agintea hauetako bat izan daiteke:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Erabil ezazu %prog command --help laguntza eta informazio gehiago lortzeko "
-#~ "aginte jakin bati buruz\n"
-#~ "\n"
-#~ "Eraldatu PDF fitxategi bat.\n"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Crop a PDF file.\n"
-#~ msgstr ""
-#~ "[aukerak] fitxategia.pdf\n"
-#~ "\n"
-#~ "Ebaki PDF fitxategi bat.\n"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Encrypt a PDF.\n"
-#~ msgstr ""
-#~ "[aukerak] fitxategi.pdf pasahitza\n"
-#~ "\n"
-#~ "Enkriptatu edo zifratu PDF bat.\n"
-
-#~ msgid ""
-#~ "file.pdf ...\n"
-#~ "\n"
-#~ "Get info about a PDF.\n"
-#~ msgstr ""
-#~ "fitxategia.pdf...\n"
-#~ "\n"
-#~ "PDF bati buruz informazioa lortu.\n"
-
-#~ msgid "File Size"
-#~ msgstr "Fitxategiaren tamaina"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Reverse a PDF.\n"
-#~ msgstr ""
-#~ "[aukerak] fitxategia.pdf\n"
-#~ "\n"
-#~ "PDF bat alderantziz jarri.\n"
-
-#~ msgid "Split Options:"
-#~ msgstr "Zatitzeko eta bereizteko aukerak:"
-
-#~ msgid ""
-#~ "file.pdf degrees\n"
-#~ "\n"
-#~ "Rotate pages of a PDF clockwise.\n"
-#~ msgstr ""
-#~ "fitxategia.pdf graduak\n"
-#~ "\n"
-#~ "Biratu egiten du PDFa erlojuaren orratzen norabidean.\n"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most x (default is %s)"
-#~ msgstr "Mozteko pixel kopurua ezkerreko x gehien (lehenetsita hauxe: %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most y (default is %s)"
-#~ msgstr "Mozteko pixel kopurua ezkerreko y gehien (lehenetsita hauxe: %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most x (default is %s)"
-#~ msgstr "Mozteko pixel kopurua eskuineko x gehien (lehenetsita hauxe: %s)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most y (default is %s)"
-#~ msgstr "Mozteko pixel kopurua eskuineko y gehien (lehenetsita hauxe: %s)"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog %%name [options] file.pdf page_to_split_on ...\n"
-#~ "%prog %%name [options] file.pdf page_range_to_split_on ...\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name file.pdf 6\n"
-#~ "%prog %%name file.pdf 6-12\n"
-#~ "%prog %%name file.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Split a PDF.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog %%name [aukerak] filtxategia.pdf page_to_split_on ...\n"
-#~ "%prog %%name [aukerak] filtxategia.pdf page_range_to_split_on ...\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name filtxategia.pdf 6\n"
-#~ "%prog %%name filtxategia.pdf 6-12\n"
-#~ "%prog %%name filtxategia.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Zatitu eta bereizi PDF bat.\n"
-
-#~ msgid "Enter URL"
-#~ msgstr "Sartu URL"

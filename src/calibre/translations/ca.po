@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-31 03:51+0000\n"
-"PO-Revision-Date: 2012-08-30 17:02+0000\n"
+"PO-Revision-Date: 2012-08-31 12:21+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-08-31 04:39+0000\n"
-"X-Generator: Launchpad (build 15887)\n"
+"X-Launchpad-Export-Date: 2012-09-01 04:38+0000\n"
+"X-Generator: Launchpad (build 15890)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2083,25 +2083,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:146
 msgid "Port number: "
-msgstr ""
+msgstr "Nombre de port: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:147
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
 msgstr ""
+"Introduïu el nombre de port que utilitzarà el controlador si està marcat el "
+"quadre de \"port fix\""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:148
 msgid "Print extra debug information"
-msgstr ""
+msgstr "Mostra informació de depuració adicional"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:149
 msgid "Check this box if requested when reporting problems"
-msgstr ""
+msgstr "Marqueu aquest quadre si se us demana en comunicar algun problema"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:159
 msgid "Enable the no-activity timeout"
-msgstr ""
+msgstr "Habilita el temps d'espera sense activitat"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:160
 #, python-format
@@ -2110,11 +2112,15 @@ msgid ""
 "device does nothing for %d minutes. Unchecking this  box disables this "
 "timeout, so calibre will never automatically disconnect."
 msgstr ""
+"Si marqueu el quadre el calibre es desconnectarà automàticament si un "
+"dispositiu connectat no fa res durant %d minuts. Si desmarqueu el quadre "
+"s'inhabilita el temps d'espera i el calibre mai no es desconnectarà "
+"automàticament d'un dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:616
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Massa intents de connexió des de %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:733
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
@@ -2124,16 +2130,16 @@ msgstr "Obté informació del dispositiu..."
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1013
 #, python-format
 msgid "Invalid port in options: %s"
-msgstr ""
+msgstr "Port no vàlid a les opcions: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1021
 #, python-format
 msgid "Failed to connect to port %d. Try a different value."
-msgstr ""
+msgstr "No s'ha pogut connectar al port %d. Intenteu un valor diferent."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1033
 msgid "Failed to allocate a random port"
-msgstr ""
+msgstr "No s'ha pogut assignar un port a l'atzar"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2228,6 +2234,9 @@ msgid ""
 "device action. Right click on the send to device button and reset the "
 "default action to be \"Send to main memory\"."
 msgstr ""
+"El lector no té una tarja %s d'emmagatzematge. Potser heu canviat l'acció "
+"d'enviar al dispositiu per defecte. Feu clic dret al botó d'enviar al "
+"dispositiu i restabliu l'acció per defecte a «Envia a la memòria interna»."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:992
 #, python-format
@@ -3049,6 +3058,11 @@ msgid ""
 "6 and the new KF8 format, or only the new KF8 format. KF8 has more features "
 "than MOBI 6, but only works with newer Kindles."
 msgstr ""
+"El calibre genera per defecte fitxers MOBI que contenen el format MOBI 6 "
+"antic. Aquest format és compatible amb tots els dispositius. Si canvieu "
+"aquest paràmetre podeu fer que el calibre generi fitxer amb els dos formats "
+"MOBI 6 i el nou KF8. El KF8 té més capacitats que el MOBI 6 però només "
+"funciona als Kindle més moderns."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -3134,23 +3148,28 @@ msgstr "Conserva la relació d'aspecte de la portada"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
 msgid "The font family used to render serif fonts"
 msgstr ""
+"La família de tipus de lletra que s'utilitzarà per mostrar les lletres serif"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:96
 msgid "The font family used to render sans-serif fonts"
 msgstr ""
+"La família de tipus de lletra que s'utilitzarà per mostrar les lletres sans-"
+"serif"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid "The font family used to render monospaced fonts"
 msgstr ""
+"La família de tipus de lletra que s'utilitzarà per mostrar les lletres "
+"monospaiades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:106
 msgid "The default font size"
-msgstr ""
+msgstr "Mida de lletra per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:109
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "Mida de lletra per defecte per al text monoespaiat"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -4972,7 +4991,7 @@ msgstr "Barra lateral"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:57
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "Pàgina %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -5902,6 +5921,7 @@ msgid ""
 "The %(fmt)s format will be <b>permanently deleted</b> from %(title)s. Are "
 "you sure?"
 msgstr ""
+"Se <b>suprimirà permanentement</b> el format %(fmt)s  de %(title)s. Segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid "Choose formats to be deleted"
@@ -5986,11 +6006,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Inicia la connexió sense fils amb el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Atura la connexió sense fils amb el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to folder"
@@ -6058,17 +6078,19 @@ msgstr "S'està aturant el servidor, pot trigar fins a un minut, espereu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:226
 msgid "Disable autostart"
-msgstr ""
+msgstr "Inhabilita l'inici automàtic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:227
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Voleu que les connexions sense fils s'iniciïn automàticament a l'inici del "
+"calibre?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:245
 msgid "Many IP addresses. See Start/Stop dialog."
-msgstr ""
+msgstr "Moltes adreces IP. Vegeu el quadre Inicia/Atura."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7171,12 +7193,12 @@ msgstr "Mida de la portada: %(width)d×%(height)d"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:460
 #, python-format
 msgid "Delete the %s format"
-msgstr ""
+msgstr "Suprimeix el format %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:461
 #, python-format
 msgid "Save the %s format to disk"
-msgstr ""
+msgstr "Desa el format %s al disc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -7345,41 +7367,41 @@ msgstr "Opcions dels llibres"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:686
 msgid "any date"
-msgstr ""
+msgstr "qualsevol data"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:684
 msgid "any value"
-msgstr ""
+msgstr "qualsevol valor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:682
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:684
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:686
 msgid "unspecified"
-msgstr ""
+msgstr "sense especificar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:530
 #, python-format
 msgid "Are you sure you want to delete '%s'?"
-msgstr ""
+msgstr "Segur que voleu suprimir «%s»?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:532
 #, python-format
 msgid "Are you sure you want to delete rules #%d-%d?"
-msgstr ""
+msgstr "Segur que voleu suprimir les regles %d-%d?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:533
 msgid "Delete Rule"
-msgstr ""
+msgstr "Suprimeix la regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:682
 msgid "False"
-msgstr ""
+msgstr "Fals"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:682
 msgid "True"
-msgstr ""
+msgstr "Cert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:707
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:798
@@ -7393,20 +7415,20 @@ msgstr "Nom"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:708
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:800
 msgid "Field"
-msgstr ""
+msgstr "Camp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:709
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:801
 msgid "Value"
-msgstr ""
+msgstr "Valor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:799
 msgid "Prefix"
-msgstr ""
+msgstr "Prefix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:218
 msgid "Enabled sections will be included in the generated catalog."
-msgstr ""
+msgstr "Les seccions habilitades s'inclouran al catàleg generat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:219
 msgid "Included sections"
@@ -7454,13 +7476,15 @@ msgstr "Etiquetes que s'&exclouran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:230
 msgid "Reset to default"
-msgstr ""
+msgstr "Restaura als valors per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:232
 msgid ""
 "Books matching any of the exclusion rules will be excluded from the "
 "generated catalog. "
 msgstr ""
+"Els llibre que compleixin alguna de les regles d'exclusió no sortiran al "
+"catàleg generat. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:233
 msgid "Excluded books"
@@ -7471,10 +7495,12 @@ msgid ""
 "The first matching prefix rule applies a prefix to book listings in the "
 "generated catalog."
 msgstr ""
+"La primera regla de prefix aplica un prefix a les llistes de llibres al "
+"catàleg generat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:235
 msgid "Prefixes"
-msgstr ""
+msgstr "Prefixs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:236
 msgid "Other options"
@@ -7482,11 +7508,13 @@ msgstr "Altres opcions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:237
 msgid "&Thumb width"
-msgstr ""
+msgstr "Amplada de la minia&tura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:238
 msgid "Size hint for cover thumbnails included in Descriptions section."
 msgstr ""
+"Mesures suggerides per a les miniatures de portada incloses a la secció "
+"«Descripció»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:239
 msgid " inch"
@@ -7494,11 +7522,12 @@ msgstr " polsada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:240
 msgid "&Extra note"
-msgstr ""
+msgstr "&Nota adicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:241
 msgid "Custom column source for text to include in Description section."
 msgstr ""
+"Columna personalitzada origen del text a incloure a la secció «Descripció»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:242
 msgid "&Merge with Comments"
@@ -7509,10 +7538,13 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata."
 msgstr ""
+"Columna personalitzada amb contingut addicional que es fusionarà amb les "
+"metadades de «Comentaris»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:244
 msgid "Merge additional content before Comments metadata."
 msgstr ""
+"Fusiona el contingut addicional abans de les metadades de «Comentaris»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:245
 msgid "&Before"
@@ -7521,6 +7553,7 @@ msgstr "A&bans"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:246
 msgid "Merge additional content after Comments metadata."
 msgstr ""
+"Fusiona el contingut addicional després de les metadades de «Comentaris»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:247
 msgid "&After"
@@ -7530,6 +7563,8 @@ msgstr "&Després"
 msgid ""
 "Separate Comments metadata and additional content with a horizontal rule."
 msgstr ""
+"Separa les metadades de «Comentaris» i el contingut addicional amb una línia "
+"horitzontal."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:249
 msgid "&Separator"
@@ -7694,11 +7729,11 @@ msgstr "Crea un enllaç"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:215
 msgid "Enter &URL:"
-msgstr ""
+msgstr "Introduïu l'%URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:216
 msgid "Enter name (optional):"
-msgstr ""
+msgstr "Introduïu el nom (opcional):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:577
 msgid "Normal view"
@@ -8520,7 +8555,7 @@ msgstr "Opcions del Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:84
 msgid "MOBI file &type:"
-msgstr ""
+msgstr "&Tipus de fitxer MOBI:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:85
 msgid "Personal Doc tag:"
@@ -8656,7 +8691,7 @@ msgstr "Tipus de lletra es&tàndard:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:105
 msgid "Default font si&ze:"
-msgstr ""
+msgstr "Mida de lletra per de&fecte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:108
@@ -8997,7 +9032,7 @@ msgstr "Insereix salts de pàgina abans de (expressió XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Start reading at (XPath expression):"
-msgstr ""
+msgstr "Comença a llegir a (espressió XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
@@ -9620,7 +9655,7 @@ msgstr "<p>No es pot desar llibres al dispositiu perquè no hi ha prou espai "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1454
 msgid "Incorrect destination"
-msgstr ""
+msgstr "Destinació incorrecta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:140
 msgid "Unknown formats"
@@ -10570,7 +10605,7 @@ msgstr "Mostra el registre"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr ""
+msgstr "Oculta els %d missatges d'error que queden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"
@@ -12168,6 +12203,10 @@ msgid ""
 "example, if you run calibre on a laptop, use that laptop in an airport, and "
 "want to connect your smart device to calibre, you should use a password."
 msgstr ""
+"Utilitzeu una contrasenya si el calibre s'executa a una xarxa no segura. Per "
+"exemple, si executeu calibre en un portàtil, utilitzeu el calibre a un "
+"aeroport i voleu connectar un dispositiu intel·ligent al calibre, cal que "
+"utilitzeu una contrasenya."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:52
 msgid ""
@@ -12175,6 +12214,9 @@ msgid ""
 "interface when calibre starts. You should not do this if you are using a "
 "network that is not secure and you are not setting a password."
 msgstr ""
+"Marqueu aquest quadre si voleu que el calibre iniciï automàticament la "
+"interfície del dispositiu intel·ligent en iniciar-se. No ho feu si utilitzeu "
+"una xarxa no segura i no establiu una contrasenya."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:58
 msgid ""
@@ -12182,12 +12224,18 @@ msgid ""
 "will not need to do this. However, if your device consistently fails to "
 "connect to calibre, try checking this box and entering a number."
 msgstr ""
+"Marqueu aquest quadre si voleu que el calibre utilitzi un port de xarxa fix. "
+"Normalment no és necessari; tot i això, si el vostre dispositiu no es pot "
+"connectar al calibre repetidament, intenteu marcar aquest quadre i introduïu-"
+"hi un nombre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:64
 msgid ""
 "Try 9090. If calibre says that it fails to connect to the port, try another "
 "number. You can use any number between 8,000 and 32,000."
 msgstr ""
+"Intenteu 9090. Si el calibre diu que no pot connectar-se al port, intenteu "
+"un altre nombre. Podeu utilitzar qualsevol valor entre 8000 i 32000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:70
 msgid ""
@@ -12198,10 +12246,16 @@ msgid ""
 "computer's control panel to get a complete list of your computer's network "
 "interfaces and IP addresses."
 msgstr ""
+"Adreces IP per a aquest ordinador. Si decidiu que el vostre dispositiu "
+"connectarà al calibre amb una adreça IP fixa, hauríeu d'utilitzar una "
+"d'aquestes. És poc probable però possible que l'adreça IP correcta no "
+"estigui a la llista. En aquest cas haureu d'anar al tauler de control de "
+"l'ordinador per aconseguir una llista completa de les interfícies de xarxa i "
+"les adreces IP de l'ordinador."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:101
 msgid "Enable automatic metadata management"
-msgstr ""
+msgstr "Habilita la gestió automàtica de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:104
 msgid ""
@@ -12217,37 +12271,37 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:123
 msgid "Automatic metadata management is enabled"
-msgstr ""
+msgstr "S'ha habilitat la gestió automàtica de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:148
 msgid "Invalid port number"
-msgstr ""
+msgstr "Nombre de port no vàlid"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:138
 msgid "You must provide a port number."
-msgstr ""
+msgstr "Heu de donar un nombre de port."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:144
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:149
 msgid "The port must be a number between 8000 and 32000."
-msgstr ""
+msgstr "El port ha de ser un nombre entre 8000 i 32000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:394
 msgid "Problem starting the wireless device"
-msgstr ""
+msgstr "Hi ha hagut un problema en iniciar el dispositiu sense fils"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:395
 #, python-format
 msgid "The wireless device driver did not start. It said \"%s\""
-msgstr ""
+msgstr "No s'ha iniciat el dispositiu sense fils. El missatge és «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:85
 msgid "Smart device control"
-msgstr ""
+msgstr "Control de dispositiu intel·ligent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:86
 msgid ""
@@ -12259,35 +12313,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:88
 msgid "Calibre IP addresses:"
-msgstr ""
+msgstr "Adreces IP del calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:89
 msgid "Possibe IP addresses:"
-msgstr ""
+msgstr "Adreces IP possibles:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Optional &password:"
-msgstr ""
+msgstr "Contrasenya o&pcional:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:91
 msgid "Optional password for security"
-msgstr ""
+msgstr "Contrasenya de seguretat opcional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:93
 msgid "Optional &fixed port:"
-msgstr ""
+msgstr "Port &fix opcional:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:94
 msgid "Optional port number"
-msgstr ""
+msgstr "Nombre de port fix opcional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:95
 msgid "&Use a fixed port"
-msgstr ""
+msgstr "&Utilitza un port fix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:96
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "Permet connexions &automàticament a l'inici del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -15290,7 +15344,7 @@ msgstr "Colors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr ""
+msgstr "S'està aconseguint la informació de depuració, espereu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -15299,7 +15353,7 @@ msgstr "&Copia al porta-retalls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:43
 msgid "Device already detected"
-msgstr ""
+msgstr "Dispositiu ja detectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:44
 #, python-format
@@ -15310,13 +15364,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
-msgstr ""
+msgstr "La depuració ha fallat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:58
 msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
 msgstr ""
+"Ha fallat la depuració de la detecció del dispositiu. Feu clic a «Mostra "
+"detalls» per a més informació."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -18394,30 +18450,30 @@ msgstr "Tipus de lletra estàndard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:130
 msgid "Theme name"
-msgstr ""
+msgstr "Nom del tema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:131
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Trieu un nom per a aquest tema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:140
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "S'han desat els paràmetres amb el nom de tema: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:156
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "S'han carregat els paràmetres del tema %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:163
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "S'ha suprimit el tema: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:219
 msgid "Choose text color"
-msgstr ""
+msgstr "Trieu el color del text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Still editing"
@@ -18480,7 +18536,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:379
 msgid "The number of &pages of text to show on screen "
-msgstr ""
+msgstr "El nombre de &pàgines que es mostraran a la pantalla "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:380
 msgid " page(s)"
@@ -18489,22 +18545,23 @@ msgstr " pàgina/-es"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:381
 msgid "&Override the page margin settings specified in the book"
 msgstr ""
+"Substitueix els paràmetres de &marge de pàgina especificats al llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:382
 msgid "&Top margin"
-msgstr ""
+msgstr "Marge &superior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:384
 msgid "&Side margin"
-msgstr ""
+msgstr "Marge &lateral"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:386
 msgid "&Bottom margin"
-msgstr ""
+msgstr "Marge &inferior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:388
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "Disposició del text en mode de &pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:389
 msgid "Maximum text width in &fullscreen:"
@@ -18516,29 +18573,29 @@ msgstr "Mostra un &rellotge al mode de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:393
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "Opcions de pantalla &completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Color de fons:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Mostra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Canvia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Color del text:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Colors i fons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -18564,7 +18621,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "Opc&ions de pas de pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "H&yphenate (break line in the middle of large words)"
@@ -18592,7 +18649,7 @@ msgstr "Recorda la pàgina a&ctual en sortir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:415
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "Opcions &miscel·lànies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:416
 msgid "&General"
@@ -18622,23 +18679,23 @@ msgstr "&Full d'estils de l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "You can save and load the viewer settings as <i>themes</i>"
-msgstr ""
+msgstr "Podeu desar i carregar els paràmetres del visor com a <i>temes</i>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "Desa els paràmetres actuals com a un tema:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "Carrega un tema desat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Suprimeix un tema desat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:428
 msgid "&Theming"
-msgstr ""
+msgstr "&Temes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -18650,7 +18707,7 @@ msgstr "&Cerca al diccionari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
 msgid "View &image..."
-msgstr ""
+msgstr "Visualitza una &imatge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:488
 msgid "&Search for next occurrence"
@@ -18687,24 +18744,24 @@ msgstr "Final de la secció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:37
 msgid "Zoom &in"
-msgstr ""
+msgstr "A&tansa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 msgid "Zoom &out"
-msgstr ""
+msgstr "A&llunya"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
 msgid "&Save as"
-msgstr ""
+msgstr "&Desa com a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:63
 msgid "Choose a file to save to"
-msgstr ""
+msgstr "Trieu en quin fitxer es desarà"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:88
 #, python-format
 msgid "View Image: %s"
-msgstr ""
+msgstr "Visualitza la imatge: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -18784,10 +18841,12 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"Canvia a mode de pàgina, amb el text que es divideix en pàgines com a un "
+"llibre de paper"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:157
 msgid "Switch to flow mode - where the text is not broken up into pages"
-msgstr ""
+msgstr "Canvia a mode continu, amb el text que no es divideix en pàgines"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
 msgid "Search for text in book"
@@ -18808,7 +18867,7 @@ msgstr "Feu clic dret per mostrar els controls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:281
 msgid "Tap in the left or right page margin to turn pages"
-msgstr ""
+msgstr "Toqueu al marge dret o esquerre per passar pàgines"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:282
 msgid "Press Esc to quit"
@@ -19006,7 +19065,7 @@ msgstr "Troba la coincidència anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:223
 msgid "Toggle Paged mode"
-msgstr ""
+msgstr "Commuta el mode de pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
@@ -19831,25 +19890,25 @@ msgstr "No es disposa de cap llibre per catalogar"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:522
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:964
 msgid "Titles"
-msgstr ""
+msgstr "Títols"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:526
 msgid "Genres"
-msgstr ""
+msgstr "Gèneres"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:528
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1443
 msgid "Recently Added"
-msgstr ""
+msgstr "Afegits recentment"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:530
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1536
 msgid "Recently Read"
-msgstr ""
+msgstr "Llegits recentment"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:532
 msgid "Descriptions"
-msgstr ""
+msgstr "Descripcions"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:584
 msgid ""
@@ -19894,23 +19953,23 @@ msgstr "No es disposa de cap llibre per incloure al catàleg."
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2443
 #, python-format
 msgid "Series beginning with %s"
-msgstr ""
+msgstr "Sèries que comencen per %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2550
 #, python-format
 msgid "Titles beginning with %s"
-msgstr ""
+msgstr "Títols que comencen per %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2647
 #, python-format
 msgid "Authors beginning with '%s'"
-msgstr ""
+msgstr "Autors que comencen per «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3555
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3557
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3559
 msgid "by "
-msgstr ""
+msgstr "per "
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -23958,6 +24017,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:508
 msgid "Do not preselect a completion when editing authors/tags/series/etc."
 msgstr ""
+"No preseleccionis una compleció en editar autors, etiquetes, sèries..."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:509
 msgid ""
@@ -23968,191 +24028,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "File Size"
-#~ msgstr "Mida del fitxer"
-
-#~ msgid "Pages"
-#~ msgstr "Pàgines"
-
-#~ msgid "Creator"
-#~ msgstr "Creador"
-
-#~ msgid "Rotate Options:"
-#~ msgstr "Opcions de rotació:"
-
-#~ msgid "Reverse Options:"
-#~ msgstr "Opcions d'inversió:"
-
-#~ msgid "Options to control the transformation of pdf"
-#~ msgstr "Opcions per controlar la transformació de pdf"
-
-#~ msgid "Crop Options:"
-#~ msgstr "Opcions de retallar:"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog %%name [options] file.pdf page_to_split_on ...\n"
-#~ "%prog %%name [options] file.pdf page_range_to_split_on ...\n"
-#~ "\t\n"
-#~ "Ex.\n"
-#~ "\t\n"
-#~ "%prog %%name file.pdf 6\n"
-#~ "%prog %%name file.pdf 6-12\n"
-#~ "%prog %%name file.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Split a PDF.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog %%name [opcions] fitxer.pdf pàgina_a_dividir_en ...\n"
-#~ "%prog %%name [opcions] fitxer.pdf interval_de_pàgines_a_dividir_en ...\n"
-#~ "\n"
-#~ "Ex.\n"
-#~ "\n"
-#~ "%prog %%nom fitxer.pdf 6\n"
-#~ "%prog %%nom fitxer.pdf 6-12\n"
-#~ "%prog %%nom fitxer.pdf 6-12 8 10 9-20\n"
-#~ "\n"
-#~ "Dividir un PDF.\n"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most x (default is %s)"
-#~ msgstr ""
-#~ "Nombre de píxels que s'ha de retallar de l'extrem esquerre de la x (%s per "
-#~ "defecte)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most x (default is %s)"
-#~ msgstr ""
-#~ "Nombre de píxels que s'ha de retallar de l'extrem dret de la x (%s per "
-#~ "defecte)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the left most y (default is %s)"
-#~ msgstr ""
-#~ "Nombre de píxels que s'ha de retallar de l'extrem esquerre de la y (%s per "
-#~ "defecte)"
-
-#, python-format
-#~ msgid "Number of pixels to crop from the right most y (default is %s)"
-#~ msgstr ""
-#~ "Nombre de píxels que s'ha de retallar de l'extrem dret de la y (%s per "
-#~ "defecte)"
-
-#~ msgid ""
-#~ "file.pdf ...\n"
-#~ "\n"
-#~ "Get info about a PDF.\n"
-#~ msgstr ""
-#~ "fitxer.pdf ...\n"
-#~ "\n"
-#~ "Obté informació sobre un PDF.\n"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Encrypt a PDF.\n"
-#~ msgstr ""
-#~ "[opcions] fitxer.pdf password\n"
-#~ "\n"
-#~ "Encripta un PDF.\n"
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
-#~ msgstr ""
-#~ "Un fitxer generat per ghostscript que permet retallar cada pàgina per "
-#~ "separat «gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox arxiu.pdf 2> bounding»"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Crop a PDF file.\n"
-#~ msgstr ""
-#~ "[options] arxiu.pdf\n"
-#~ "\n"
-#~ "Talla un fitxer PDF.\n"
-#~ "representa un salt de línia. Comença una nova línia en la posició equivalent "
-#~ "de la traducció.\n"
-
-#~ msgid ""
-#~ "[options] file.pdf password\n"
-#~ "\n"
-#~ "Decrypt a PDF.\n"
-#~ msgstr ""
-#~ "[opcions] fitxer.pdf password\n"
-#~ "\n"
-#~ "Desencripta un PDF.\n"
-
-#~ msgid ""
-#~ "Path to output file. By default a file is created in the current directory."
-#~ msgstr ""
-#~ "Camí al fitxer de sortida. Per defecte el fitxer es crea a la carpeta actual."
-
-#~ msgid ""
-#~ "file.pdf degrees\n"
-#~ "\n"
-#~ "Rotate pages of a PDF clockwise.\n"
-#~ msgstr ""
-#~ "fitxer.pdf graus\n"
-#~ "\n"
-#~ "Rota les pàgines d'un PDF en sentit horari\n"
-
-#~ msgid ""
-#~ "[options] file.pdf\n"
-#~ "\n"
-#~ "Reverse a PDF.\n"
-#~ msgstr ""
-#~ "[opcions] fitxer.pdf\n"
-#~ "\n"
-#~ "Inverteix un PDF.\n"
-
-#~ msgid "Communicate with the Sony PRS-500 eBook reader."
-#~ msgstr "Comunica't amb un lector Sony PRS-500."
-
-#~ msgid "Encrypt Options:"
-#~ msgstr "Opcions d'encriptatge:"
-
-#~ msgid "Decrypt Options:"
-#~ msgstr "Opcions de desencriptatge:"
-
-#~ msgid "PDF Version"
-#~ msgstr "Versió del PDF"
-
-#~ msgid "Merge Options:"
-#~ msgstr "Opcions de fusió:"
-
-#~ msgid "Split Options:"
-#~ msgstr "Opcions de divisió:"
-
-#~ msgid ""
-#~ "[options] file1.pdf file2.pdf ...\n"
-#~ "\n"
-#~ "Metadata will be used from the first PDF specified.\n"
-#~ "\n"
-#~ "Merges individual PDFs.\n"
-#~ msgstr ""
-#~ "[opcions] fitxer1.pdf fitxer2.pdf ...\n"
-#~ "\n"
-#~ "S'utilitzaran les metadades del primer PDF indicat.\n"
-#~ "\n"
-#~ "Fusiona PDFs individuals.\n"
-
-#~ msgid "Enter URL"
-#~ msgstr "Introduïu la URL"
-
-#~ msgid ""
-#~ "command ...\n"
-#~ "\n"
-#~ "command can be one of the following:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Use %prog command --help to get more information about a specific command\n"
-#~ "\n"
-#~ "Manipulate a PDF.\n"
-#~ msgstr ""
-#~ "ordre...\n"
-#~ "l'ordre pot ser una d'aquestes:\n"
-#~ "[%%commands]\n"
-#~ "\n"
-#~ "Utilitzeu %prog ordre --help per a més informació d'una ordre específica\n"
