@@ -196,6 +196,7 @@ class PDFWriter(QObject): # {{{
         self.insert_cover()
 
         self.render_succeeded = False
+        self.current_page_num = self.doc.page_count()
         self.combine_queue.append(os.path.join(self.tmp_path,
             'qprinter_out.pdf'))
         self.first_page = True
@@ -283,9 +284,13 @@ class PDFWriter(QObject): # {{{
         paged_display.fit_images();
         ''')
         mf = self.view.page().mainFrame()
+        start_page = self.current_page_num
+        if not self.first_page:
+            start_page += 1
         while True:
             if not self.first_page:
-                self.printer.newPage()
+                if self.printer.newPage():
+                    self.current_page_num += 1
             self.first_page = False
             mf.render(self.painter)
             nsl = evaljs('paged_display.next_screen_location()').toInt()
@@ -297,11 +302,10 @@ class PDFWriter(QObject): # {{{
         amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {} # Some javascript error occurred
-        pages = self.doc.page_count()
-        self.outline.set_pos(self.current_item, None, pages, 0)
+        self.outline.set_pos(self.current_item, None, start_page, 0)
         for anchor, x in amap.iteritems():
             pagenum, ypos = x
-            self.outline.set_pos(self.current_item, anchor, pages + pagenum, ypos)
+            self.outline.set_pos(self.current_item, anchor, start_page + pagenum, ypos)
 
     def append_doc(self, outpath):
         doc = self.podofo.PDFDoc()

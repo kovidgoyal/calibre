@@ -35,12 +35,12 @@ class Outline(object):
         page, ypos = 0, 0
         item = getattr(toc, 'outline_item_', None)
         if item is not None:
+            # First use the item URL without fragment
+            page, ypos = self.pos_map.get(item, {}).get(None, (0, 0))
             if toc.fragment:
                 amap = self.pos_map.get(item, None)
                 if amap is not None:
-                    page, ypos = amap.get(toc.fragment, (0, 0))
-            else:
-                page, ypos = self.pos_map.get(item, {}).get(None, (0, 0))
+                    page, ypos = amap.get(toc.fragment, (page, ypos))
         return page, ypos
 
     def add_children(self, toc, parent):
