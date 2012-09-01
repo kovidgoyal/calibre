@@ -248,7 +248,9 @@ class MTP_DEVICE(MTPDeviceBase):
             self._carda_id = storage[1]['id']
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
-        self.current_friendly_name = devdata.get('friendly_name', None)
+        self.current_friendly_name = devdata.get('friendly_name',
+                _('Unknown MTP device'))
+        self.currently_connected_pnp_id = connected_device
 
     @same_thread
     def get_basic_device_information(self):

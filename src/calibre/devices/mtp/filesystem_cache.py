@@ -11,8 +11,10 @@ import weakref, sys
 from collections import deque
 from operator import attrgetter
 from future_builtins import map
+from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
+from calibre.utils.date import local_tz
 from calibre.utils.icu import sort_key, lower
 from calibre.ebooks import BOOK_EXTENSIONS
 
@@ -21,6 +23,8 @@ bexts = frozenset(BOOK_EXTENSIONS)
 class FileOrFolder(object):
 
     def __init__(self, entry, fs_cache):
+        self.all_storage_ids = fs_cache.all_storage_ids
+
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.storage_id = entry['storage_id']
@@ -31,7 +35,11 @@ class FileOrFolder(object):
         self.name = force_unicode(n, 'utf-8')
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
-        self.all_storage_ids = fs_cache.all_storage_ids
+        md = entry.get('modified', 0)
+        try:
+            self.last_modified = datetime.fromtimestamp(md, local_tz)
+        except:
+            self.last_modified = datetime.fromtimestamp(0, local_tz)
 
         if self.storage_id not in self.all_storage_ids:
             raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,

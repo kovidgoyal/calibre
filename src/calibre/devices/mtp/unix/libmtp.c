@@ -121,12 +121,13 @@ static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, uns
 static PyObject* build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
     PyObject *ans = NULL;
 
-    ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:O}", 
+    ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:L, s:O}", 
             "name", (unsigned long)nf->filename,
             "id", (unsigned long)nf->item_id,
             "parent_id", (unsigned long)nf->parent_id,
             "storage_id", (unsigned long)storage_id,
             "size", nf->filesize,
+            "modified", (PY_LONG_LONG)nf->modificationdate,
             "is_folder", (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False
     );
 
