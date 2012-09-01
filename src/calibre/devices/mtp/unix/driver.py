@@ -82,6 +82,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def debug_managed_device_detection(self, devices_on_system, output):
+        if self.currently_connected_dev is not None:
+            return True
         p = partial(prints, file=output)
         if self.libmtp is None:
             err = plugins['libmtp'][1]

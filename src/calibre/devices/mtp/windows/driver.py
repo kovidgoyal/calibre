@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, threading
-from functools import wraps
+import time, threading, traceback
+from functools import wraps, partial
 from future_builtins import zip
 from itertools import chain
 
@@ -122,6 +122,54 @@ class MTP_DEVICE(MTPDeviceBase):
                 return dev
 
         return None
+
+    @same_thread
+    def debug_managed_device_detection(self, devices_on_system, output):
+        import pprint
+        p = partial(prints, file=output)
+        if self.currently_connected_pnp_id is not None:
+            return True
+        if self.wpd_error:
+            p('Cannot detect MTP devices')
+            p(self.wpd_error)
+            return False
+        try:
+            pnp_ids = frozenset(self.wpd.enumerate_devices())
+        except:
+            p("Failed to get list of PNP ids on system")
+            p(traceback.format_exc())
+            return False
+
+        for pnp_id in pnp_ids:
+            try:
+                data = self.wpd.device_info(pnp_id)
+            except:
+                p('Failed to get data for device:', pnp_id)
+                p(traceback.format_exc())
+                continue
+            protocol = data.get('protocol', '').lower()
+            if not protocol.startswith('mtp:'): continue
+            p('MTP device:', pnp_id)
+            p(pprint.pformat(data))
+            if not self.is_suitable_wpd_device(data):
+                p('Not a suitable MTP device, ignoring\n')
+                continue
+            p('\nTrying to open:', pnp_id)
+            try:
+                self.open(pnp_id, 'debug-detection')
+            except:
+                p('Open failed:')
+                p(traceback.format_exc())
+                continue
+            break
+        if self.currently_connected_pnp_id:
+            p('Opened', self.current_friendly_name, 'successfully')
+            p('Device info:')
+            p(pprint.pformat(self.dev.data))
+            self.eject()
+            return True
+        p('No suitable MTP devices found')
+        return False
 
     def is_suitable_wpd_device(self, devdata):
         # Check that protocol is MTP
