@@ -234,6 +234,9 @@ class DevicePlugin(Plugin):
 
         Should write information about the devices detected on the system to
         output, which is a file like object.
+
+        Should return True if a device was detected and successfully opened,
+        otherwise False.
         '''
         raise NotImplementedError()
 
