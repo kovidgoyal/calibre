@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, sys
+import weakref, sys, json
 from collections import deque
 from operator import attrgetter
 from future_builtins import map
@@ -166,6 +166,10 @@ class FileOrFolder(object):
     def mtp_relpath(self):
         return tuple(x.lower() for x in self.full_path[1:])
 
+    @property
+    def mtp_id_path(self):
+        return 'mtp:::' + json.dumps(self.object_id) + ':::' + '/'.join(self.full_path)
+
 class FilesystemCache(object):
 
     def __init__(self, all_storage, entries):
@@ -214,5 +218,20 @@ class FilesystemCache(object):
         for x in self.id_map.itervalues():
             if x.storage_id == storage_id and x.is_ebook:
                 yield x
+
+    def resolve_mtp_id_path(self, path):
+        if not path.startswith('mtp:::'):
+            raise ValueError('%s is not a valid MTP path'%path)
+        parts = path.split(':::')
+        if len(parts) < 3:
+            raise ValueError('%s is not a valid MTP path'%path)
+        try:
+            object_id = json.loads(parts[1])
+        except:
+            raise ValueError('%s is not a valid MTP path'%path)
+        try:
+            return self.id_map[object_id]
+        except KeyError:
+            raise ValueError('No object found with MTP path: %s'%path)
 
 

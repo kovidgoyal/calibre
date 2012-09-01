@@ -130,6 +130,7 @@ class MTP_DEVICE(BASE):
                 del relpath_cache[relpath]
                 if cached_metadata.size == mtp_file.size:
                     cached_metadata.datetime = mtp_file.last_modified.timetuple()
+                    cached_metadata.path = mtp_file.mtp_id_path
                     debug('Using cached metadata for',
                             '/'.join(mtp_file.full_path))
                     continue # No need to update metadata
@@ -150,6 +151,7 @@ class MTP_DEVICE(BASE):
                 traceback.print_exc()
             book.size = mtp_file.size
             book.datetime = mtp_file.last_modified.timetuple()
+            book.path = mtp_file.mtp_id_path
 
         # Remove books in the cache that no longer exist
         for idx in sorted(relpath_cache.itervalues(), reverse=True):
@@ -196,6 +198,10 @@ class MTP_DEVICE(BASE):
             self.write_metadata_cache(storage, bl)
 
     # }}}
+
+    def get_file(self, path, outfile, end_session=True):
+        f = self.filesystem_cache.resolve_mtp_id_path(path)
+        self.get_mtp_file(f, outfile)
 
     def create_upload_path(self, path, mdata, fname):
         from calibre.devices import create_upload_path
