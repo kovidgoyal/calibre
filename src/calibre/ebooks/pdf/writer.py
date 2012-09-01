@@ -15,11 +15,12 @@ from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
         QPixmap, QTimer, pyqtProperty, QString, QSize)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
+from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import (unit, paper_size, orientation)
 from calibre.ebooks.pdf.outline_writer import Outline
 from calibre.ebooks.metadata import authors_to_string
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre import (__appname__, __version__, fit_image, isosx, force_unicode)
 from calibre.ebooks.oeb.display.webview import load_html
 
@@ -350,8 +351,12 @@ class PDFWriter(QObject): # {{{
             if self.metadata.tags:
                 self.doc.keywords = self.metadata.tags
             self.outline(self.doc)
-            raw = self.doc.write()
-            self.out_stream.write(raw)
+            with TemporaryFile(u'pdf_out.pdf') as tf:
+                if isinstance(tf, unicode):
+                    tf = tf.encode(filesystem_encoding)
+                self.doc.save(tf)
+                with open(tf, 'rb') as src:
+                    shutil.copyfileobj(src, self.out_stream)
             self.render_succeeded = True
         finally:
             self._delete_tmpdir()
