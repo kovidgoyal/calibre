@@ -1645,9 +1645,9 @@ class ITUNES(DriverBase):
             asl = [i.author_sort for i in booklist]
             las = max(asl, key=len)
             if isosx:
-                fs = '{!s}{:<%d} {:<%d} {:<%d} {:<10} {!s}' % (' ' * indent, len(lt),
+                fs = '{!s}{:<%d} {:<%d} {:<%d} {:<10} {!s}' % (len(lt),
                                                                len(la), len(las))
-                logger.info(fs.format(book.title, book.author, book.author_sort,
+                logger().info(fs.format(book.title, book.author, book.author_sort,
                                       str(book.library_id)[-9:], book.uuid))
                 #logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
                 # (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))

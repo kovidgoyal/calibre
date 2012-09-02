@@ -172,7 +172,10 @@ class PluginWidget(QWidget,Ui_Form):
                 if hit:
                     excluded_tags.append(hit.string)
             if excluded_tags:
-                results = ', '.join(sorted(excluded_tags))
+                if set(excluded_tags) == set(self.all_tags):
+                    results = _("All genres will be excluded")
+                else:
+                    results = ', '.join(sorted(excluded_tags))
         finally:
             if self.DEBUG:
                 print(results)

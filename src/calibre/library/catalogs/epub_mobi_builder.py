@@ -883,7 +883,7 @@ class CatalogBuilder(object):
 
         self.update_progress_full_step(_("Sorting database"))
 
-        # First pass: Sort by author, test for author_sort mismatches
+        # Test for author_sort mismatches
         self.books_by_author = sorted(list(self.books_by_title), key=self._kf_books_by_author_sorter_author)
 
         authors = [(record['author'], record['author_sort']) for record in self.books_by_author]
