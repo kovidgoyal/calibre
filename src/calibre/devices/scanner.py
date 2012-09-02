@@ -292,7 +292,15 @@ if islinux:
 
 libusb_scanner = LibUSBScanner()
 if isosx:
-    osx_scanner = libusb_scanner
+    # Apparently libusb causes mem leaks on some Macs and hangs on others and
+    # works on a few. OS X users will just have to live without MTP support.
+    # See https://bugs.launchpad.net/calibre/+bug/1044706
+    # See https://bugs.launchpad.net/calibre/+bug/1044758
+    # osx_scanner = libusb_scanner
+    usbobserver, usbobserver_err = plugins['usbobserver']
+    if usbobserver is None:
+        raise RuntimeError('Failed to load usbobserver: %s'%usbobserver_err)
+    osx_scanner = usbobserver.get_usb_devices
 
 if isfreebsd:
     freebsd_scanner = FreeBSDScanner()
