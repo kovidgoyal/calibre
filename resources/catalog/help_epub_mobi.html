@@ -29,6 +29,16 @@ h3 {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 90%;
 }
+.code_header {
+	text-indent: 2em;
+}
+.code_body {
+	font-family: "Lucida Console", Monaco, monospace;
+	background-color: #EEE;
+	font-size: .9em;
+	margin-left: 2em;
+	margin-top: 0px;
+}
 </style>
 </head>
 
@@ -157,25 +167,45 @@ h3 {
   </li>
 </ul>
 <p>Example: Changing year of publication in Description header<br />
-  Default: &lt;td class=&quot;date&quot;&gt;{pubyear}&lt;/td&gt;<br />
-  Removed: &lt;td class=&quot;date&quot;&gt;&lt;/td&gt;<br />
-  Augmented: &lt;td class=&quot;date&quot;&gt;Year of publication: {pubyear}&lt;/td&gt;<br />
-Modified: &lt;td class=&quot;date&quot;&gt;{pubmonth} {pubyear}&lt;/td&gt;</p>
+</p>
+<ul>
+  <li>Default: &lt;td class=&quot;date&quot;&gt;{pubyear}&lt;/td&gt;<br />
+  </li>
+  <li>Removed: &lt;td class=&quot;date&quot;&gt;&lt;/td&gt;<br />
+  </li>
+  <li>Augmented: &lt;td class=&quot;date&quot;&gt;Year of publication: {pubyear}&lt;/td&gt;<br />
+  </li>
+  <li>Modified: &lt;td class=&quot;date&quot;&gt;{pubmonth} {pubyear}&lt;/td&gt;</li>
+</ul>
 <p>Customizing the Section lists. Templates controlling the display of book titles in the various Section lists (Books by Author, Books by Title, etc) may be edited to taste. <br />
-  Available fields in section_list_templates.py:<br />
-  {title} - Title of the book<br />
-  {series} - Series name<br />
-  {series_index} - Number of the book in the series<br />
-  {rating} - 0-5 stars<br />
-  {rating_parens} - (0-5 stars)<br />
-  {pubyear} - Year the book was published<br />
-  {pubyear_parens} - (Year the book was published)<br />
-  Example: Changing Books by Author to remove year of publication:<br />
-Default:</p>
-<p>Code:<br />
-  by_authors_normal_title_template = '{title} {pubyear_parens}'<br />
-  by_authors_series_title_template = '[{series_index}] {title} {pubyear_parens}'<br />
-  Year of publication removed:</p>
+  Available fields in <span class="user-input">section_list_templates.py</span>:<br />
+</p>
+<ul>
+  <li>{title} - Title of the book<br />
+  </li>
+  <li>{series} - Series name<br />
+  </li>
+  <li>{series_index} - Number of the book in the series<br />
+  </li>
+  <li>{rating} - 0-5 stars<br />
+  </li>
+  <li>{rating_parens} - (0-5 stars)<br />
+  </li>
+  <li>{pubyear} - Year the book was published<br />
+  </li>
+  <li>{pubyear_parens} - (Year the book was published)<br />
+  </li>
+</ul>
+<p>Example: Changing Books by Author to remove year of publication:<br />
+  Default:</p>
+<p>&lt;img&gt;	</p>
+<p class="code_header">Code:<br />
+</p>
+<p class="code_body">by_authors_normal_title_template = '{title} {pubyear_parens}'<br />
+</p>
+<p class="code_body">by_authors_series_title_template = '[{series_index}] {title} {pubyear_parens}'<br />
+  </p>
+<p>Year of publication removed:</p>
 <p>Code:<br />
   by_authors_normal_title_template = '{title}'<br />
   by_authors_series_title_template = '[{series_index}] {title}'<br />
