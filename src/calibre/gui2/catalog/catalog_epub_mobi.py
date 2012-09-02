@@ -11,13 +11,14 @@ import re, sys
 from functools import partial
 
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs, info_dialog, question_dialog
+from calibre.gui2 import gprefs, info_dialog, open_url, question_dialog
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QLineEdit, QObject, QRadioButton, QSize, QSizePolicy,
-        QTableWidget, QTableWidgetItem, QTextEdit, QToolButton, QVBoxLayout, QWidget,
+        QTableWidget, QTableWidgetItem, QTextEdit, QToolButton, QUrl,
+        QVBoxLayout, QWidget,
         SIGNAL)
 
 class PluginWidget(QWidget,Ui_Form):
@@ -439,6 +440,13 @@ class PluginWidget(QWidget,Ui_Form):
             self.merge_before.setEnabled(False)
             self.merge_after.setEnabled(False)
             self.include_hr.setEnabled(False)
+
+    def show_help(self):
+        '''
+        Display help file
+        '''
+        url = 'file:///' + P('catalog/help_epub_mobi.html')
+        open_url(QUrl(url))
 
 class CheckableTableWidgetItem(QTableWidgetItem):
     '''

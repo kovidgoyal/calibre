@@ -268,7 +268,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
          </size>
         </property>
         <property name="toolTip">
-         <string>List of tags that will be excluded as genres</string>
+         <string>Tags that will be excluded as genres</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -379,7 +379,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>&amp;Extra note</string>
+           <string>E&amp;xtra note</string>
           </property>
           <property name="buddy">
            <cstring>header_note_source_field</cstring>

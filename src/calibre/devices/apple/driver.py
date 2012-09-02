@@ -13,7 +13,8 @@ from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
-from calibre.ebooks.metadata import authors_to_string, MetaInformation, title_sort
+from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
+    MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
@@ -405,9 +406,9 @@ class ITUNES(DriverBase):
         @return: A BookList.
 
         Implementation notes:
-        iTunes does not sync purchased books, they are only on the device.  They are visible, but
-        they are not backed up to iTunes.  Since calibre can't manage them, don't show them in the
-        list of device books.
+        iTunes does not sync purchased books, they are only on the device.  They are
+        visible, but they are not backed up to iTunes.  Since calibre can't manage them,
+        don't show them in the list of device books.
 
         """
         if not oncard:
@@ -1637,9 +1638,19 @@ class ITUNES(DriverBase):
             logger().info('%s%s' % (' '*indent,'-' * len(msg)))
 
         for book in booklist:
+            tl = [i.title for i in booklist]
+            lt = max(tl, key=len)
+            al = [i.author for i in booklist]
+            la = max(al, key=len)
+            asl = [i.author_sort for i in booklist]
+            las = max(asl, key=len)
             if isosx:
-                logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
-                 (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))
+                fs = '{!s}{:<%d} {:<%d} {:<%d} {:<10} {!s}' % (' ' * indent, len(lt),
+                                                               len(la), len(las))
+                logger.info(fs.format(book.title, book.author, book.author_sort,
+                                      str(book.library_id)[-9:], book.uuid))
+                #logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
+                # (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))
             elif iswindows:
                 logger().info("%s%-40.40s %-30.30s" %
                  (' '*indent,book.title, book.author))
@@ -3478,6 +3489,7 @@ class Book(Metadata):
     '''
     def __init__(self,title,author):
         Metadata.__init__(self, title, authors=author.split(' & '))
+        self.author_sort = author_to_author_sort(author)
 
     @property
     def title_sorter(self):
