@@ -47,14 +47,19 @@ class Outline(object):
         for child in toc:
             page, ypos = self.get_pos(child)
             text = child.text or _('Page %d')%page
+            if page >= self.page_count:
+                page = self.page_count - 1
             cn = parent.create(text, page, True)
             self.add_children(child, cn)
 
     def __call__(self, doc):
         self.pos_map = dict(self.pos_map)
+        self.page_count = doc.page_count()
         for child in self.toc:
             page, ypos = self.get_pos(child)
             text = child.text or _('Page %d')%page
+            if page >= self.page_count:
+                page = self.page_count - 1
             node = doc.create_outline(text, page)
             self.add_children(child, node)
 
