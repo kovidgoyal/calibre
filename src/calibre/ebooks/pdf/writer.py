@@ -122,7 +122,7 @@ class PDFMetadata(object): # {{{
         self.author = force_unicode(self.author)
 # }}}
 
-class Page(QWebPage):
+class Page(QWebPage): # {{{
 
     def __init__(self, opts, log):
         self.log = log
@@ -153,6 +153,7 @@ class Page(QWebPage):
 
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
+# }}}
 
 class PDFWriter(QObject): # {{{
 
