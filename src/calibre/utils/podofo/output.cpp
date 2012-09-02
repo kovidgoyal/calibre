@@ -31,17 +31,21 @@ class OutputDevice : public PdfOutputDevice {
         size_t GetLength() const { return written; }
 
         long PrintVLen(const char* pszFormat, va_list args) {
-            char buf[10];
-            int res;
 
             if( !pszFormat ) { PODOFO_RAISE_ERROR( ePdfError_InvalidHandle ); }
 
-            res = PyOS_vsnprintf(buf, 1, pszFormat, args);
+#ifdef _MSC_VER
+            return _vscprintf(pszFormat, args);
+#else
+            char buf[10];
+            int res;
+            res = vsnprintf(buf, 1, pszFormat, args);
             if (res < 0) {
-                PyErr_SetString(PyExc_Exception, "Something bad happend while calling PyOS_vsnprintf");
+                PyErr_SetString(PyExc_Exception, "Something bad happened while calling vsnprintf to get buffer length");
                 throw pyerr();
             }
             return static_cast<long>(res+1);
+#endif
         }
 
         void PrintV( const char* pszFormat, long lBytes, va_list args ) {
@@ -53,10 +57,11 @@ class OutputDevice : public PdfOutputDevice {
             buf = new (std::nothrow) char[lBytes+1];
             if (buf == NULL) { PyErr_NoMemory(); throw pyerr(); }
             
-            res = PyOS_vsnprintf(buf, lBytes, pszFormat, args);
+            // Note: PyOS_vsnprintf produces broken output on windows
+            res = vsnprintf(buf, lBytes, pszFormat, args);
 
             if (res < 0) {
-                PyErr_SetString(PyExc_Exception, "Something bad happend while calling PyOS_vsnprintf");
+                PyErr_SetString(PyExc_Exception, "Something bad happened while calling vsnprintf");
                 delete[] buf;
                 throw pyerr();
             }
