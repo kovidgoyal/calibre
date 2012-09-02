@@ -121,7 +121,7 @@ class PDFMetadata(object): # {{{
         self.author = force_unicode(self.author)
 # }}}
 
-class Page(QWebPage):
+class Page(QWebPage): # {{{
 
     def __init__(self, opts, log):
         self.log = log
@@ -137,17 +137,22 @@ class Page(QWebPage):
         std = {'serif':opts.pdf_serif_family, 'sans':opts.pdf_sans_family,
                 'mono':opts.pdf_mono_family}.get(opts.pdf_standard_font,
                         opts.pdf_serif_family)
-        settings.setFontFamily(QWebSettings.StandardFont, std)
-        settings.setFontFamily(QWebSettings.SerifFont, opts.pdf_serif_family)
-        settings.setFontFamily(QWebSettings.SansSerifFont,
-                opts.pdf_sans_family)
-        settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
+        if std:
+            settings.setFontFamily(QWebSettings.StandardFont, std)
+        if opts.pdf_serif_family:
+            settings.setFontFamily(QWebSettings.SerifFont, opts.pdf_serif_family)
+        if opts.pdf_sans_family:
+            settings.setFontFamily(QWebSettings.SansSerifFont,
+                    opts.pdf_sans_family)
+        if opts.pdf_mono_family:
+            settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log.debug(u'JS:', unicode(msg))
 
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
+# }}}
 
 class PDFWriter(QObject): # {{{
 
@@ -192,6 +197,7 @@ class PDFWriter(QObject): # {{{
         self.insert_cover()
 
         self.render_succeeded = False
+        self.current_page_num = self.doc.page_count()
         self.combine_queue.append(os.path.join(self.tmp_path,
             'qprinter_out.pdf'))
         self.first_page = True
@@ -279,9 +285,13 @@ class PDFWriter(QObject): # {{{
         paged_display.fit_images();
         ''')
         mf = self.view.page().mainFrame()
+        start_page = self.current_page_num
+        if not self.first_page:
+            start_page += 1
         while True:
             if not self.first_page:
-                self.printer.newPage()
+                if self.printer.newPage():
+                    self.current_page_num += 1
             self.first_page = False
             mf.render(self.painter)
             nsl = evaljs('paged_display.next_screen_location()').toInt()
@@ -293,11 +303,10 @@ class PDFWriter(QObject): # {{{
         amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {} # Some javascript error occurred
-        pages = self.doc.page_count()
-        self.outline.set_pos(self.current_item, None, pages, 0)
+        self.outline.set_pos(self.current_item, None, start_page, 0)
         for anchor, x in amap.iteritems():
             pagenum, ypos = x
-            self.outline.set_pos(self.current_item, anchor, pages + pagenum, ypos)
+            self.outline.set_pos(self.current_item, anchor, start_page + pagenum, ypos)
 
     def append_doc(self, outpath):
         doc = self.podofo.PDFDoc()
@@ -342,8 +351,7 @@ class PDFWriter(QObject): # {{{
             if self.metadata.tags:
                 self.doc.keywords = self.metadata.tags
             self.outline(self.doc)
-            raw = self.doc.write()
-            self.out_stream.write(raw)
+            self.doc.save_to_fileobj(self.out_stream)
             self.render_succeeded = True
         finally:
             self._delete_tmpdir()

@@ -7,17 +7,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, sys
+import weakref, sys, json
 from collections import deque
 from operator import attrgetter
 from future_builtins import map
+from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
+from calibre.utils.date import local_tz, as_utc
 from calibre.utils.icu import sort_key, lower
+from calibre.ebooks import BOOK_EXTENSIONS
+
+bexts = frozenset(BOOK_EXTENSIONS)
 
 class FileOrFolder(object):
 
     def __init__(self, entry, fs_cache):
+        self.all_storage_ids = fs_cache.all_storage_ids
+
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.storage_id = entry['storage_id']
@@ -28,7 +35,12 @@ class FileOrFolder(object):
         self.name = force_unicode(n, 'utf-8')
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
-        self.all_storage_ids = fs_cache.all_storage_ids
+        md = entry.get('modified', 0)
+        try:
+            self.last_modified = datetime.fromtimestamp(md, local_tz)
+        except:
+            self.last_modified = datetime.fromtimestamp(0, local_tz)
+        self.last_modified = as_utc(self.last_modified)
 
         if self.storage_id not in self.all_storage_ids:
             raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
@@ -49,6 +61,9 @@ class FileOrFolder(object):
 
         if self.storage_id == self.object_id:
             self.storage_prefix = 'mtp:::%s:::'%self.persistent_id
+
+        self.is_ebook = (not self.is_folder and
+                self.name.rpartition('.')[-1].lower() in bexts)
 
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
@@ -147,6 +162,13 @@ class FileOrFolder(object):
             parent = c
         return parent
 
+    @property
+    def mtp_relpath(self):
+        return tuple(x.lower() for x in self.full_path[1:])
+
+    @property
+    def mtp_id_path(self):
+        return 'mtp:::' + json.dumps(self.object_id) + ':::' + '/'.join(self.full_path)
 
 class FilesystemCache(object):
 
@@ -191,5 +213,25 @@ class FilesystemCache(object):
         for e in self.entries:
             if e.storage_id == storage_id:
                 return e
+
+    def iterebooks(self, storage_id):
+        for x in self.id_map.itervalues():
+            if x.storage_id == storage_id and x.is_ebook:
+                yield x
+
+    def resolve_mtp_id_path(self, path):
+        if not path.startswith('mtp:::'):
+            raise ValueError('%s is not a valid MTP path'%path)
+        parts = path.split(':::')
+        if len(parts) < 3:
+            raise ValueError('%s is not a valid MTP path'%path)
+        try:
+            object_id = json.loads(parts[1])
+        except:
+            raise ValueError('%s is not a valid MTP path'%path)
+        try:
+            return self.id_map[object_id]
+        except KeyError:
+            raise ValueError('No object found with MTP path: %s'%path)
 
 

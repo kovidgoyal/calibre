@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, threading
-from functools import wraps
+import time, threading, traceback
+from functools import wraps, partial
 from future_builtins import zip
 from itertools import chain
 
@@ -17,12 +17,12 @@ from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase
-from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
 class ThreadingViolation(Exception):
 
     def __init__(self):
-        Exception.__init__('You cannot use the MTP driver from a thread other than the '
+        Exception.__init__(self,
+                'You cannot use the MTP driver from a thread other than the '
                 ' thread in which startup() was called')
 
 def same_thread(func):
@@ -51,6 +51,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self._main_id = self._carda_id = self._cardb_id = None
         self.start_thread = None
         self._filesystem_cache = None
+        self.eject_dev_on_next_scan = False
 
     def startup(self):
         self.start_thread = threading.current_thread()
@@ -75,6 +76,10 @@ class MTP_DEVICE(MTPDeviceBase):
     @same_thread
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.wpd is None: return None
+        if self.eject_dev_on_next_scan:
+            self.eject_dev_on_next_scan = False
+            if self.currently_connected_pnp_id is not None:
+                self.do_eject()
 
         devices_on_system = frozenset(devices_on_system)
         if (force_refresh or
@@ -124,6 +129,54 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return None
 
+    @same_thread
+    def debug_managed_device_detection(self, devices_on_system, output):
+        import pprint
+        p = partial(prints, file=output)
+        if self.currently_connected_pnp_id is not None:
+            return True
+        if self.wpd_error:
+            p('Cannot detect MTP devices')
+            p(self.wpd_error)
+            return False
+        try:
+            pnp_ids = frozenset(self.wpd.enumerate_devices())
+        except:
+            p("Failed to get list of PNP ids on system")
+            p(traceback.format_exc())
+            return False
+
+        for pnp_id in pnp_ids:
+            try:
+                data = self.wpd.device_info(pnp_id)
+            except:
+                p('Failed to get data for device:', pnp_id)
+                p(traceback.format_exc())
+                continue
+            protocol = data.get('protocol', '').lower()
+            if not protocol.startswith('mtp:'): continue
+            p('MTP device:', pnp_id)
+            p(pprint.pformat(data))
+            if not self.is_suitable_wpd_device(data):
+                p('Not a suitable MTP device, ignoring\n')
+                continue
+            p('\nTrying to open:', pnp_id)
+            try:
+                self.open(pnp_id, 'debug-detection')
+            except:
+                p('Open failed:')
+                p(traceback.format_exc())
+                continue
+            break
+        if self.currently_connected_pnp_id:
+            p('Opened', self.current_friendly_name, 'successfully')
+            p('Device info:')
+            p(pprint.pformat(self.dev.data))
+            self.eject()
+            return True
+        p('No suitable MTP devices found')
+        return False
+
     def is_suitable_wpd_device(self, devdata):
         # Check that protocol is MTP
         protocol = devdata.get('protocol', '').lower()
@@ -143,6 +196,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
             ts = self.total_space()
             all_storage = []
             items = []
@@ -164,18 +218,23 @@ class MTP_DEVICE(MTPDeviceBase):
         return self._filesystem_cache
 
     @same_thread
-    def post_yank_cleanup(self):
-        self.currently_connected_pnp_id = self.current_friendly_name = None
-        self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = self._filesystem_cache = None
-
-    @same_thread
-    def eject(self):
+    def do_eject(self):
         if self.currently_connected_pnp_id is None: return
         self.ejected_devices.add(self.currently_connected_pnp_id)
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self._filesystem_cache = None
+
+
+    @same_thread
+    def post_yank_cleanup(self):
+        self.currently_connected_pnp_id = self.current_friendly_name = None
+        self._main_id = self._carda_id = self._cardb_id = None
+        self.dev = self._filesystem_cache = None
+
+    def eject(self):
+        if self.currently_connected_pnp_id is None: return
+        self.eject_dev_on_next_scan = True
 
     @same_thread
     def open(self, connected_device, library_uuid):
@@ -200,7 +259,9 @@ class MTP_DEVICE(MTPDeviceBase):
             self._carda_id = storage[1]['id']
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
-        self.current_friendly_name = devdata.get('friendly_name', None)
+        self.current_friendly_name = devdata.get('friendly_name',
+                _('Unknown MTP device'))
+        self.currently_connected_pnp_id = connected_device
 
     @same_thread
     def get_basic_device_information(self):
@@ -232,7 +293,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return tuple(ans)
 
     @same_thread
-    def get_file(self, f, stream=None, callback=None):
+    def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
         if stream is None:

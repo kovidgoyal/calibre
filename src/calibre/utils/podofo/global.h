@@ -41,6 +41,7 @@ extern void podofo_set_exception(const PdfError &err);
 extern PyObject * podofo_convert_pdfstring(const PdfString &s);
 extern PdfString * podofo_convert_pystring(PyObject *py);
 extern PdfString * podofo_convert_pystring_single_byte(PyObject *py);
+extern PyObject* write_doc(PdfMemDocument *doc, PyObject *f);
 
 }
 

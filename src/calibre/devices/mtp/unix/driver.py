@@ -17,7 +17,6 @@ from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
-from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -83,6 +82,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def debug_managed_device_detection(self, devices_on_system, output):
+        if self.currently_connected_dev is not None:
+            return True
         p = partial(prints, file=output)
         if self.libmtp is None:
             err = plugins['libmtp'][1]
@@ -175,6 +176,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
             with self.lock:
                 storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
@@ -271,7 +273,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return parent.add_child(ans)
 
     @synchronous
-    def get_file(self, f, stream=None, callback=None):
+    def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
         if stream is None:

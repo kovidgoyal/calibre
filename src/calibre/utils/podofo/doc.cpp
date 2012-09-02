@@ -104,6 +104,15 @@ PDFDoc_write(PDFDoc *self, PyObject *args) {
 
     return ans;
 }
+
+static PyObject *
+PDFDoc_save_to_fileobj(PDFDoc *self, PyObject *args) {
+    PyObject *f;
+
+    if (!PyArg_ParseTuple(args, "O", &f)) return NULL;
+    return write_doc(self->doc, f);
+}
+
 // }}}
 
 // extract_first_page() {{{
@@ -452,6 +461,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"write", (PyCFunction)PDFDoc_write, METH_VARARGS,
      "Return the PDF document as a bytestring."
+    },
+    {"save_to_fileobj", (PyCFunction)PDFDoc_save_to_fileobj, METH_VARARGS,
+     "Write the PDF document to the soecified file-like object."
     },
     {"extract_first_page", (PyCFunction)PDFDoc_extract_first_page, METH_VARARGS,
      "extract_first_page() -> Remove all but the first page."

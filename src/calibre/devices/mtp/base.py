@@ -9,7 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 from functools import wraps
 
+from calibre import prints
+from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
+
+def debug(*args, **kwargs):
+    if DEBUG:
+        prints('MTP:', *args, **kwargs)
 
 def synchronous(func):
     @wraps(func)
@@ -25,11 +31,6 @@ class MTPDeviceBase(DevicePlugin):
     description = _('Communicate with MTP devices')
     author = 'Kovid Goyal'
     version = (1, 0, 0)
-
-    THUMBNAIL_HEIGHT = 128
-    CAN_SET_METADATA = []
-
-    BACKLOADING_ERROR_MESSAGE = None
 
     def __init__(self, *args, **kwargs):
         DevicePlugin.__init__(self, *args, **kwargs)
@@ -53,4 +54,17 @@ class MTPDeviceBase(DevicePlugin):
         # return False
         return False
 
+    def build_template_regexp(self):
+        from calibre.devices import build_template_regexp
+        return build_template_regexp(self.save_template)
+
+    @property
+    def default_save_template(cls):
+        from calibre.library.save_to_disk import config
+        return config().parse().send_template
+
+    @property
+    def save_template(self):
+        # TODO: Use the device specific template here
+        return self.default_save_template
 

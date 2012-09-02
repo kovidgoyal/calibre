@@ -94,9 +94,8 @@ def delete_all_but(path, pages):
         if page not in pages:
             p.delete_page(page)
 
-    raw = p.write()
     with open(path, 'wb') as f:
-        f.write(raw)
+        f.save_to_fileobj(path)
 
 def test_outline(src):
     podofo = get_podofo()
@@ -114,7 +113,17 @@ def test_outline(src):
         f.write(raw)
     print 'Outlined PDF:', out
 
+def test_save_to(src, dest):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    with open(src, 'rb') as f:
+        raw = f.read()
+    p.load(raw)
+    with open(dest, 'wb') as out:
+        p.save_to_fileobj(out)
+        print ('Wrote PDF of size:', out.tell())
+
 if __name__ == '__main__':
     import sys
-    test_outline(sys.argv[-1])
+    test_save_to(sys.argv[-2], sys.argv[-1])
 
