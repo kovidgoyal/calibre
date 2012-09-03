@@ -977,7 +977,7 @@ class DeviceMixin(object): # {{{
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
             self.status_bar.show_message(_('Device: ')+\
-                self.device_manager.device.__class__.get_gui_name()+\
+                self.device_manager.device.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
             self.library_view.set_device_connected(self.device_connected)
