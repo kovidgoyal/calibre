@@ -89,6 +89,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         l.setBuddy(self.opt_extra_customization[i])
                         l.setWordWrap(True)
                         self.opt_extra_customization[i].setText(settings.extra_customization[i])
+                        self.opt_extra_customization[i].setCursorPosition(0)
                         self.extra_layout.addWidget(l, row_func(i, 0), col_func(i))
                     self.extra_layout.addWidget(self.opt_extra_customization[i],
                                                 row_func(i, 1), col_func(i))
@@ -101,6 +102,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 l.setWordWrap(True)
                 if settings.extra_customization:
                     self.opt_extra_customization.setText(settings.extra_customization)
+                    self.opt_extra_customization.setCursorPosition(0)
                 self.opt_extra_customization.setCursorPosition(0)
                 self.extra_layout.addWidget(l, 0, 0)
                 self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
