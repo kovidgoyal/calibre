@@ -77,12 +77,7 @@ class MTP_DEVICE(BASE):
         return tuple( list(dinfo) + [self.driveinfo] )
 
     def card_prefix(self, end_session=True):
-        ans = [None, None]
-        if self._carda_id is not None:
-            ans[0] = self.filesystem_cache.storage(self._carda_id).storage_prefix
-        if self._cardb_id is not None:
-            ans[1] = self.filesystem_cache.storage(self._cardb_id).storage_prefix
-        return tuple(ans)
+        return (self._carda_id, self._cardb_id)
 
     def set_driveinfo_name(self, location_code, name):
         sid = {'main':self._main_id, 'A':self._carda_id,
