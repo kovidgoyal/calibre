@@ -404,7 +404,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def build_template_regexp(cls):
-        from calibre.devices import build_template_regexp
+        from calibre.devices.utils import build_template_regexp
         return build_template_regexp(cls.save_template())
 
     @classmethod

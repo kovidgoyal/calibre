@@ -15,8 +15,7 @@ import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import (DeviceError, FreeSpaceError,
-        WrongDestinationError)
+from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize
@@ -976,20 +975,8 @@ class Device(DeviceConfig, DevicePlugin):
         return self.EBOOK_DIR_CARD_A
 
     def _sanity_check(self, on_card, files):
-        if on_card == 'carda' and not self._card_a_prefix:
-            raise WrongDestinationError(_(
-                'The reader has no storage card %s. You may have changed '
-                'the default send to device action. Right click on the send '
-                'to device button and reset the default action to be '
-                '"Send to main memory".')%'A')
-        elif on_card == 'cardb' and not self._card_b_prefix:
-            raise WrongDestinationError(_(
-                'The reader has no storage card %s. You may have changed '
-                'the default send to device action. Right click on the send '
-                'to device button and reset the default action to be '
-                '"Send to main memory".')%'B')
-        elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
+        from calibre.devices.utils import sanity_check
+        sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
             if isinstance(candidates, basestring):
@@ -1014,19 +1001,6 @@ class Device(DeviceConfig, DevicePlugin):
             candidates = self.get_main_ebook_dir(for_upload=True)
             path = get_dest_dir(self._main_prefix, candidates)
 
-        def get_size(obj):
-            path = getattr(obj, 'name', obj)
-            return os.path.getsize(path)
-
-        sizes = [get_size(f) for f in files]
-        size = sum(sizes)
-
-        if not on_card and size > self.free_space()[0] - 2*1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space in main memory"))
-        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
     def filename_callback(self, default, mi):
@@ -1056,7 +1030,7 @@ class Device(DeviceConfig, DevicePlugin):
         pass
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        from calibre.devices import create_upload_path
+        from calibre.devices.utils import create_upload_path
         settings = self.settings()
         filepath = create_upload_path(mdata, fname, self.save_template(), sanitize,
                 prefix_path=os.path.abspath(path),

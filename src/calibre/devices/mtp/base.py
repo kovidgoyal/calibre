@@ -55,7 +55,7 @@ class MTPDeviceBase(DevicePlugin):
         return False
 
     def build_template_regexp(self):
-        from calibre.devices import build_template_regexp
+        from calibre.devices.utils import build_template_regexp
         return build_template_regexp(self.save_template)
 
     @property

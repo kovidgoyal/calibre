@@ -33,9 +33,11 @@ class MTP_DEVICE(BASE):
     BACKLOADING_ERROR_MESSAGE = None
     MANAGES_DEVICE_PRESENCE = True
     FORMATS = ['epub', 'azw3', 'mobi', 'pdf']
+    DEVICE_PLUGBOARD_NAME = 'MTP_DEVICE'
 
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
+        self.plugboards = self.plugboard_func = None
         BASE.open(self, devices, library_uuid)
 
     # Device information {{{
@@ -228,8 +230,12 @@ class MTP_DEVICE(BASE):
 
     # Sending files to the device {{{
 
+    def set_plugboards(self, plugboards, pb_func):
+        self.plugboards = plugboards
+        self.plugboard_func = pb_func
+
     def create_upload_path(self, path, mdata, fname):
-        from calibre.devices import create_upload_path
+        from calibre.devices.utils import create_upload_path
         from calibre.utils.filenames import ascii_filename as sanitize
         filepath = create_upload_path(mdata, fname, self.save_template, sanitize,
                 prefix_path=path,
@@ -239,6 +245,12 @@ class MTP_DEVICE(BASE):
                 news_in_folder = self.NEWS_IN_FOLDER,
                 )
         return tuple(x.lower() for x in filepath.split('/'))
+
+    def upload_books(self, files, names, on_card=None, end_session=True,
+                     metadata=None):
+        from calibre.devices.utils import sanity_check
+        sanity_check(on_card, files, self.card_prefix(), self.free_space())
+        raise NotImplementedError()
 
     # }}}
 
