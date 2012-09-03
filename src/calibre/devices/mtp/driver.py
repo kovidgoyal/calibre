@@ -243,7 +243,7 @@ class MTP_DEVICE(BASE):
                 use_subdirs = True,
                 news_in_folder = self.NEWS_IN_FOLDER,
                 )
-        return tuple(x.lower() for x in filepath.split('/'))
+        return tuple(x for x in filepath.split('/'))
 
     def prefix_for_location(self, on_card):
         # TODO: Implement this
