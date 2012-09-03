@@ -37,7 +37,10 @@ class FileOrFolder(object):
         self.size = entry.get('size', 0)
         md = entry.get('modified', 0)
         try:
-            self.last_modified = datetime.fromtimestamp(md, local_tz)
+            if isinstance(md, tuple):
+                self.last_modified = datetime(*(list(md)+[local_tz]))
+            else:
+                self.last_modified = datetime.fromtimestamp(md, local_tz)
         except:
             self.last_modified = datetime.fromtimestamp(0, local_tz)
         self.last_mod_string = self.last_modified.strftime('%Y/%m/%d %H:%M')

@@ -84,11 +84,19 @@ static void set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *py
 
 static void set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, IPortableDeviceValues *properties) {
     FLOAT val = 0;
+    SYSTEMTIME st;
+    unsigned int microseconds;
     PyObject *t;
 
     if (SUCCEEDED(properties->GetFloatValue(key, &val))) {
-        t = Py_BuildValue("d", (double)val);
-        if (t != NULL) { PyDict_SetItemString(dict, pykey, t); Py_DECREF(t); }
+        if (VariantTimeToSystemTime(val, &st)) {
+            microseconds = 1000 * st.wMilliseconds;
+            t = Py_BuildValue("H H H H H H I", (unsigned short)st.wYear,
+                    (unsigned short)st.wMonth, (unsigned short)st.wDay,
+                    (unsigned short)st.wHour, (unsigned short)st.wMinute,
+                    (unsigned short)st.wSecond, microseconds);
+            if (t != NULL) { PyDict_SetItemString(dict, pykey, t); Py_DECREF(t); }
+        }
     }
 }
 
