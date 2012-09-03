@@ -81,6 +81,10 @@ class FileOrFolder(object):
     __unicode__ = __repr__
 
     @property
+    def empty(self):
+        return not self.files and not self.folders
+
+    @property
     def id_map(self):
         return self.fs_cache().id_map
 
@@ -217,6 +221,8 @@ class FilesystemCache(object):
     def iterebooks(self, storage_id):
         for x in self.id_map.itervalues():
             if x.storage_id == storage_id and x.is_ebook:
+                if x.parent_id == storage_id and x.name.lower().endswith('.txt'):
+                    continue # Ignore .txt files in the root
                 yield x
 
     def resolve_mtp_id_path(self, path):
