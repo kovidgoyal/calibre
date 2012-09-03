@@ -991,24 +991,28 @@ class Device(DeviceConfig, DevicePlugin):
         elif on_card and on_card not in ('carda', 'cardb'):
             raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
 
-        if on_card == 'carda':
-            path = os.path.join(self._card_a_prefix,
-                    *(self.get_carda_ebook_dir(for_upload=True).split('/')))
-        elif on_card == 'cardb':
-            path = os.path.join(self._card_b_prefix,
-                    *(self.EBOOK_DIR_CARD_B.split('/')))
-        else:
-            candidates = self.get_main_ebook_dir(for_upload=True)
+        def get_dest_dir(prefix, candidates):
             if isinstance(candidates, basestring):
                 candidates = [candidates]
+            if not candidates:
+                candidates = ['']
             candidates = [
-                    ((os.path.join(self._main_prefix, *(x.split('/')))) if x else
-                    self._main_prefix) for x
-                    in candidates]
+                ((os.path.join(prefix, *(x.split('/')))) if x else prefix)
+                for x in candidates]
             existing = [x for x in candidates if os.path.exists(x)]
             if not existing:
-                existing = candidates[:1]
-            path = existing[0]
+                existing = candidates
+            return existing[0]
+
+        if on_card == 'carda':
+            candidates = self.get_carda_ebook_dir(for_upload=True)
+            path = get_dest_dir(self._carda_prefix, candidates)
+        elif on_card == 'cardb':
+            candidates = self.get_cardb_ebook_dir(for_upload=True)
+            path = get_dest_dir(self._cardb_prefix, candidates)
+        else:
+            candidates = self.get_main_ebook_dir(for_upload=True)
+            path = get_dest_dir(self._main_prefix, candidates)
 
         def get_size(obj):
             path = getattr(obj, 'name', obj)
