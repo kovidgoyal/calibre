@@ -25,7 +25,7 @@ def synchronous(func):
     return synchronizer
 
 class MTPDeviceBase(DevicePlugin):
-    name = 'SmartDevice App Interface'
+    name = 'MTP Device Interface'
     gui_name = _('MTP Device')
     icon = I('devices/galaxy_s3.png')
     description = _('Communicate with MTP devices')
