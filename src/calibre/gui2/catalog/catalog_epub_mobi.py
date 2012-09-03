@@ -204,14 +204,14 @@ class PluginWidget(QWidget,Ui_Form):
 
         CheckBoxControls (c_type: check_box):
             ['generate_titles','generate_series','generate_genres',
-                            'generate_recently_added','generate_descriptions','include_hr']
+             'generate_recently_added','generate_descriptions','include_hr']
         ComboBoxControls (c_type: combo_box):
             ['exclude_source_field','header_note_source_field',
-                            'merge_source_field']
+             'merge_source_field']
         LineEditControls (c_type: line_edit):
             ['exclude_genre']
         RadioButtonControls (c_type: radio_button):
-            ['merge_before','merge_after']
+            ['merge_before','merge_after','generate_new_cover', 'use_existing_cover']
         SpinBoxControls (c_type: spin_box):
             ['thumb_width']
         TableWidgetControls (c_type: table_widget):

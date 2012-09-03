@@ -43,14 +43,14 @@ h3 {
 </head>
 
 <body>
-<h1><a name="toc" id="toc"></a>AZW3 • EPUB • MOBI Catalogs </h1>
+<h1><a name="toc" id="toc"></a>Creating AZW3 • EPUB • MOBI Catalogs </h1>
 <h2><a href="#selecting_books_to_catalog">Selecting books to catalog</a></h2>
 <h2><a href="#included_sections">Included sections: Selecting which sections to include in the catalog</a></h2>
 <h2><a href="#prefixes">Prefixes: Adding a prefix indicating book status</a></h2>
 <h2><a href="#excluded_books">Excluded books: Ignoring certain books when generating the catalog</a></h2>
 <h2><a href="#excluded_genres">Excluded genres: Ignoring certain tags as genres when generating the catalog</a></h2>
 <h2><a href="#other_options">Other options: Specifying thumb size, adding extra information to Descriptions</a></h2>
-<h2><a href="#customizing_catalog_appearance">Customizing the appearance of the generated catalog</a></h2>
+<h2><a href="#additional_help_resources">Additional help resources</a></h2>
 <hr />
 <h3><a name="selecting_books_to_catalog" id="selecting_books_to_catalog"></a><a href="#toc">Selecting books to catalog</a></h3>
 <p>If you want all of your library cataloged, remove any search or filtering criteria by clearing the <span class="ui_element">Search:</span> field in the main window. With a single book selected, all books in your library will be candidates for inclusion in the generated catalog. Individual books may be excluded by various criteria; see the <a href="#excluded_genres">Excluded genres</a> section below for more information.</p>
@@ -107,117 +107,8 @@ h3 {
 <p><span class="ui_element">Extra note</span> specifies a custom column's contents to be inserted into the Description, opposite the cover. For example, you might want to display the date you last read a book using a <span class="user-input">Last Read</span> custom column. For advanced use of the Description note feature, see <a href="http://www.mobileread.com/forums/showpost.php?p=1335767&postcount=395" target="new">this post in the calibre forum</a>.</p>
 <p><span class="ui_element">Merge with Comments</span> specifies a custom column whose content will be non-destructively merged with the Comments metadata during catalog generation. For example, you might have a custom column <span class="user-input">Author Bio</span> that you'd like to append to the Comments metadata. You can choose to insert the custom column contents before or after the Comments section, and optionally separate the appended content with a horizontal rule. Eligible custom column types include <span class="user-input">text</span>, <span class="user-input">comments</span>, and <span class="user-input">composite</span>.</p>
 <hr />
-<h3><a name="customizing_catalog_appearance" id="customizing_catalog_appearance"></a><a href="#toc">Customizing catalog appearance</a></h3>
-<p>If you wish to change the default appearance of the Description pages or Section lists, you can do so by modifying a local copy of the catalog's template and CSS files, overriding the default layout. This requires familiarity with HTML and CSS.<br />
-</p>
-<ul>
-  <li>Open your calibre configuration directory - <span class="ui_element">Preferences|Advanced|Miscellaneous|Open calibre configuration directory</span>.<br />
-  </li>
-  <li>Within this directory, create a subdirectory <span class="user-input">resources</span> (if it doesn't already exist).<br />
-  </li>
-  <li>Within the <span class="user-input">resources</span> directory, create a subdirectory <span class="user-input">catalog</span>.<br />
-  </li>
-  <li>Open a new file system window, navigate to the default catalog resources folder:<br />
-    <ul>
-      <li>OSX: <span class="user-input">Applications/calibre/Contents/Resources/resources/catalog</span><br />
-      </li>
-      <li>Windows: <span class="user-input">Program Files\Calibre2\resources\catalog</span><br />
-      </li>
-    </ul>
-  </li>
-  <li>Copy all of the files from the default catalog resources folder to the newly created <span class="user-input">resources/catalog</span> directory within your calibre configuration directory.<br />
-  </li>
-  <li>Edit <span class="user-input">template.xhtml</span> and <span class="user-input">stylesheet.css</span> to your preferences. If you want to start over, copy from the default template and CSS files again. If you want to discard your customizations, delete the <span class="user-input">catalog</span> subfolder from your calibre configuration resources directory.<br />
-  </li>
-</ul>
-<p>Customizing the Description page. Available fields in <span class="user-input">template.xhtml</span>:<br />
-</p>
-<ul>
-  <li>{author} - Book author(s)<br />
-  </li>
-  <li>{author_prefix} - Checkmark if read, 'X' if wishlist, else blank<br />
-  </li>
-  <li>{comments} - Contents of the book's Comments field<br />
-  </li>
-  <li>{formats} - List of installed formats<br />
-  </li>
-  <li>{genres} - List of genres<br />
-  </li>
-  <li>{note_content} - Note content as specified in options<br />
-  </li>
-  <li>{note_source} - Note source field as specified in options<br />
-  </li>
-  <li>{pubdate} - Month/Year published<br />
-  </li>
-  <li>{publisher} - Publisher<br />
-  </li>
-  <li>{pubmonth} - Month published<br />
-  </li>
-  <li>{pubyear} - Year published<br />
-  </li>
-  <li>{rating} - Graphical rating<br />
-  </li>
-  <li>{series} - Series name<br />
-  </li>
-  <li>{series_index} - Series index<br />
-  </li>
-  <li>{thumb} - Cover thumb url<br />
-  </li>
-  <li>{title} - Book title<br />
-  </li>
-</ul>
-<p>Example: Changing year of publication in Description header<br />
-</p>
-<ul>
-  <li>Default: &lt;td class=&quot;date&quot;&gt;{pubyear}&lt;/td&gt;<br />
-  </li>
-  <li>Removed: &lt;td class=&quot;date&quot;&gt;&lt;/td&gt;<br />
-  </li>
-  <li>Augmented: &lt;td class=&quot;date&quot;&gt;Year of publication: {pubyear}&lt;/td&gt;<br />
-  </li>
-  <li>Modified: &lt;td class=&quot;date&quot;&gt;{pubmonth} {pubyear}&lt;/td&gt;</li>
-</ul>
-<p>Customizing the Section lists. Templates controlling the display of book titles in the various Section lists (Books by Author, Books by Title, etc) may be edited to taste. <br />
-  Available fields in <span class="user-input">section_list_templates.py</span>:<br />
-</p>
-<ul>
-  <li>{title} - Title of the book<br />
-  </li>
-  <li>{series} - Series name<br />
-  </li>
-  <li>{series_index} - Number of the book in the series<br />
-  </li>
-  <li>{rating} - 0-5 stars<br />
-  </li>
-  <li>{rating_parens} - (0-5 stars)<br />
-  </li>
-  <li>{pubyear} - Year the book was published<br />
-  </li>
-  <li>{pubyear_parens} - (Year the book was published)<br />
-  </li>
-</ul>
-<p>Example: Changing Books by Author to remove year of publication:<br />
-  Default:</p>
-<p>&lt;img&gt;	</p>
-<p class="code_header">Code:<br />
-</p>
-<p class="code_body">by_authors_normal_title_template = '{title} {pubyear_parens}'<br />
-</p>
-<p class="code_body">by_authors_series_title_template = '[{series_index}] {title} {pubyear_parens}'<br />
-  </p>
-<p>Year of publication removed:</p>
-<p>Code:<br />
-  by_authors_normal_title_template = '{title}'<br />
-  by_authors_series_title_template = '[{series_index}] {title}'<br />
-  Rating added:</p>
-<p>Code:<br />
-  by_authors_normal_title_template = '{title} {rating}'<br />
-  by_authors_series_title_template = '[{series_index}] {title} {rating}'</p>
-<p>Tips for experimenting with customization:<br />
-  Work with a small subset of your catalog, 5-10 books<br />
-  If you are experimenting with Section list templates, disable Descriptions in E-book options - catalog generation will be much faster.<br />
-  If you are experimenting with CSS, build an EPUB version of your catalog, explode it with the Tweak EPUB feature to find the class of the element you want to change.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+<h3><a name="additional_help_resources" id="additional_help_resources"></a>Additional help resources</h3>
+<p>For more information on calibre's Catalog feature, see the MobileRead forum sticky <a href="http://www.mobileread.com/forums/showthread.php?t=118556">Creating Catalogs - Start here</a>, where you can also find information on how to submit a bug report.</p>
+<p>To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum <a href="http://www.mobileread.com/forums/forumdisplay.php?f=238">Calibre Catalogs</a>.</p>
 </body>
 </html>

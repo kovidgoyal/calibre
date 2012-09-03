@@ -27,7 +27,8 @@ def fingerprint(d):
 
 class MTP_DEVICE(MTPDeviceBase):
 
-    supported_platforms = ['linux', 'osx']
+    # libusb(x) does not work on OS X. So no MTP support for OS X
+    supported_platforms = ['linux']
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil, time
 from collections import namedtuple
 
 from calibre import strftime
@@ -324,6 +324,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             log.info(" Begin catalog source generation")
+
+        # Returns False if nothing to catalog or author_sort mismatches while building MOBI
         catalog_source_built = catalog.build_sources()
 
         if opts.verbose:
@@ -338,9 +340,13 @@ class EPUB_MOBI(CatalogPlugin):
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
-            # >>> Use to debug generated catalog code before conversion <<<
-            if False:
-                setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
+            """
+            >>> Use to debug generated catalog code before pipeline conversion <<<
+            """
+            GENERATE_DEBUG_EPUB = False
+            if GENERATE_DEBUG_EPUB:
+                catalog_debug_path = os.path.join(os.path.expanduser('~'),'Desktop','Catalog debug')
+                setattr(opts,'debug_pipeline',os.path.expanduser(catalog_debug_path))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
@@ -355,9 +361,9 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('book_producer',opts.output_profile,
                     OptionRecommendation.HIGH))
 
-            # If cover exists, use it
+            # Use existing cover or generate new cover
             cpath = None
-            generate_new_cover = False
+            existing_cover = False
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
@@ -365,19 +371,18 @@ class EPUB_MOBI(CatalogPlugin):
                 if matches:
                     cpath = db.cover(matches[0], index_is_id=True, as_path=True)
                     if cpath and os.path.exists(cpath):
-                        recommendations.append(('cover', cpath,
-                            OptionRecommendation.HIGH))
-                        log.info("using existing cover")
-                    else:
-                        log.info("no existing cover, generating new cover")
-                        generate_new_cover = True
-                else:
-                    log.info("no existing cover, generating new cover")
-                    generate_new_cover = True
+                        existing_cover = True
             except:
                 pass
 
-            if generate_new_cover:
+            if self.opts.use_existing_cover and not existing_cover:
+                log.warning("no existing catalog cover found")
+
+            if self.opts.use_existing_cover and existing_cover:
+                recommendations.append(('cover', cpath, OptionRecommendation.HIGH))
+                log.info("using existing catalog cover")
+            else:
+                log.info("generating new catalog cover")
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
                 new_cover = calibre_cover(opts.catalog_title.replace('"', '\\"'), 'calibre')
                 new_cover_path.write(new_cover)
@@ -396,6 +401,13 @@ class EPUB_MOBI(CatalogPlugin):
                 os.remove(cpath)
             except:
                 pass
+
+            if GENERATE_DEBUG_EPUB:
+                from calibre.ebooks.tweak import zip_rebuilder
+                input_path = os.path.join(catalog_debug_path,'input')
+                shutil.copy(P('catalog/mimetype'),input_path)
+                shutil.copytree(P('catalog/META-INF'),os.path.join(input_path,'META-INF'))
+                zip_rebuilder(input_path, os.path.join(catalog_debug_path,'input.epub'))
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error

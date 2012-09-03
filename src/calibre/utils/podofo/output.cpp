@@ -37,14 +37,16 @@ class OutputDevice : public PdfOutputDevice {
 #ifdef _MSC_VER
             return _vscprintf(pszFormat, args);
 #else
-            char buf[10];
-            int res;
-            res = vsnprintf(buf, 1, pszFormat, args);
-            if (res < 0) {
-                PyErr_SetString(PyExc_Exception, "Something bad happened while calling vsnprintf to get buffer length");
-                throw pyerr();
+            char *buf;
+            int res, len=1024;
+            while(true) {
+                buf = new (std::nothrow) char[len+1];
+                if (buf == NULL) { PyErr_NoMemory(); throw pyerr(); }
+                res = vsnprintf(buf, len, pszFormat, args);
+                delete[] buf;
+                if (res >= 0) return res + 1;
+                len *= 2;
             }
-            return static_cast<long>(res+1);
 #endif
         }
 

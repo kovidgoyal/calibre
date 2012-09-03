@@ -406,9 +406,9 @@ class ITUNES(DriverBase):
         @return: A BookList.
 
         Implementation notes:
-        iTunes does not sync purchased books, they are only on the device.  They are
-        visible, but they are not backed up to iTunes.  Since calibre can't manage them,
-        don't show them in the list of device books.
+        iTunes does not sync purchased books, they are only on the device.  They are visible, but
+        they are not backed up to iTunes.  Since calibre can't manage them, don't show them in the
+        list of device books.
 
         """
         if not oncard:
@@ -1638,20 +1638,9 @@ class ITUNES(DriverBase):
             logger().info('%s%s' % (' '*indent,'-' * len(msg)))
 
         for book in booklist:
-            tl = [i.title for i in booklist]
-            lt = max(tl, key=len)
-            al = [i.author for i in booklist]
-            la = max(al, key=len)
-            asl = [i.author_sort for i in booklist]
-            las = max(asl, key=len)
             if isosx:
-                fs = '{!s}{:<%d} {:<%d} {:<%d} {:<10} {!s}' % (len(lt),
-                                                               len(la), len(las))
-                logger().info(fs.format(' '*indent, book.title, book.author,
-                                        book.author_sort, str(book.library_id)[-9:],
-                                        book.uuid))
-                #logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
-                # (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))
+                logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
+                 (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))
             elif iswindows:
                 logger().info("%s%-40.40s %-30.30s" %
                  (' '*indent,book.title, book.author))

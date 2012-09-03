@@ -67,7 +67,7 @@ class GenerateCatalogAction(InterfaceAction):
             # jobs.results is a list - the first entry is the intended title for the dialog
             # Subsequent strings are error messages
             dialog_title = job.result.pop(0)
-            if re.match('warning:', job.result[0].lower()):
+            if re.search('warning', job.result[0].lower()):
                 msg = _("Catalog generation complete, with warnings.")
                 warning_dialog(self.gui, dialog_title, msg, det_msg='\n'.join(job.result), show=True)
             else:

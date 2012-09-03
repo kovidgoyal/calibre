@@ -177,7 +177,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
          </size>
         </property>
         <property name="text">
-         <string>Tags to &amp;exclude (regex)</string>
+         <string>Tags to &amp;exclude (regex):</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -237,7 +237,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
          </size>
         </property>
         <property name="text">
-         <string>Results of regex</string>
+         <string>Results of regex:</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -325,7 +325,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
            </size>
           </property>
           <property name="text">
-           <string>&amp;Thumb width</string>
+           <string>&amp;Thumb width:</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -379,7 +379,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>E&amp;xtra note</string>
+           <string>E&amp;xtra note:</string>
           </property>
           <property name="buddy">
            <cstring>header_note_source_field</cstring>
@@ -430,7 +430,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
            </size>
           </property>
           <property name="text">
-           <string>&amp;Merge with Comments</string>
+           <string>&amp;Merge with Comments:</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -494,6 +494,43 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
           </property>
           <property name="text">
            <string>&amp;Separator</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="replace_cover_hl">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="minimumSize">
+           <size>
+            <width>175</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Catalog cover:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="generate_new_cover">
+          <property name="text">
+           <string>Generate new cover</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="use_existing_cover">
+          <property name="text">
+           <string>Use existing cover</string>
           </property>
          </widget>
         </item>

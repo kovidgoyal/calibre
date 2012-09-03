@@ -20,6 +20,9 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile
 
+class AuthorSortMismatchException(Exception): pass
+class EmptyCatalogException(Exception): pass
+
 class CatalogBuilder(object):
     '''
     Generates catalog source files from calibre database
@@ -506,11 +509,16 @@ class CatalogBuilder(object):
                  False: failed to build
         """
 
-        if self.books_by_title is None:
-            if not self.fetch_books_by_title():
-                return False
-        if not self.fetch_books_by_author():
+        try:
+            self.fetch_books_by_title()
+        except EmptyCatalogException:
             return False
+
+        try:
+            self.fetch_books_by_author()
+        except AuthorSortMismatchException:
+            return False
+
         self.fetch_bookmarks()
         if self.opts.generate_descriptions:
             self.generate_thumbnails()
@@ -525,9 +533,9 @@ class CatalogBuilder(object):
             self.generate_html_by_genres()
             # If this is the only Section, and there are no genres, bail
             if self.opts.section_list == ['Genres'] and not self.genres:
-                error_msg = _("No enabled genres found to catalog.\n")
+                error_msg = _("No genres to catalog.\n")
                 if not self.opts.cli_environment:
-                    error_msg += "Check 'Excluded genres'\nin E-book options.\n"
+                    error_msg += "Check 'Excluded genres' regex in E-book options.\n"
                 self.opts.log.error(error_msg)
                 self.error.append(_('No books available to catalog'))
                 self.error.append(error_msg)
@@ -755,6 +763,56 @@ class CatalogBuilder(object):
         if not os.path.isdir(images_path):
             os.makedirs(images_path)
 
+    def detect_author_sort_mismatches(self):
+        """ Detect author_sort mismatches.
+
+        Sort by author, look for inconsistencies in author_sort among
+        similarly-named authors. Fatal for MOBI generation, a mere
+        annoyance for EPUB.
+
+        Inputs:
+         self.books_by_title (list): list of books to catalog
+
+        Output:
+         self.books_by_author (list): sorted by author
+
+        Exceptions:
+         AuthorSortMismatchException: author_sort mismatch detected
+        """
+
+        self.books_by_author = sorted(list(self.books_by_title), key=self._kf_books_by_author_sorter_author)
+        authors = [(record['author'], record['author_sort']) for record in self.books_by_author]
+        current_author = authors[0]
+        for (i,author) in enumerate(authors):
+            if author != current_author and i:
+                if author[0] == current_author[0]:
+                    if self.opts.fmt == 'mobi':
+                        # Exit if building MOBI
+                        error_msg = _("<p>Inconsistent Author Sort values for Author<br/>" +
+                                      "'{!s}':</p>".format(author[0]) +
+                                      "<p><center><b>{!s}</b> != <b>{!s}</b></center></p>".format(author[1],current_author[1]) +
+                                      "<p>Unable to build MOBI catalog.<br/>" +
+                                      "Select all books by '{!s}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n<p>".format(author[0]))
+
+                        self.opts.log.warn('\n*** Metadata error ***')
+                        self.opts.log.warn(error_msg)
+
+                        self.error.append('Author Sort mismatch')
+                        self.error.append(error_msg)
+                        raise AuthorSortMismatchException
+                    else:
+                        # Warning if building non-MOBI
+                        if not self.error:
+                            self.error.append('Author Sort mismatch')
+
+                        error_msg = _("Warning: Inconsistent Author Sort values for Author '{!s}':\n".format(author[0]) +
+                                      " {!s} != {!s}\n".format(author[1],current_author[1]))
+                        self.opts.log.warn('\n*** Metadata warning ***')
+                        self.opts.log.warn(error_msg)
+                        self.error.append(error_msg)
+
+                current_author = author
+
     def discover_prefix(self, record):
         """ Return a prefix for record.
 
@@ -883,44 +941,9 @@ class CatalogBuilder(object):
 
         self.update_progress_full_step(_("Sorting database"))
 
-        # Test for author_sort mismatches
-        self.books_by_author = sorted(list(self.books_by_title), key=self._kf_books_by_author_sorter_author)
+        self.detect_author_sort_mismatches()
 
-        authors = [(record['author'], record['author_sort']) for record in self.books_by_author]
-        current_author = authors[0]
-        for (i,author) in enumerate(authors):
-            if author != current_author and i:
-                if author[0] == current_author[0]:
-                    if self.opts.fmt == 'mobi':
-                        # Exit if building MOBI
-                        error_msg = _(
-'''Inconsistent Author Sort values for
-Author '{0}':
-'{1}' <> '{2}'
-Unable to build MOBI catalog.\n
-Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
-                        self.opts.log.warn('\n*** Metadata error ***')
-                        self.opts.log.warn(error_msg)
-
-                        self.error.append('Author Sort mismatch')
-                        self.error.append(error_msg)
-                        return False
-                    else:
-                        # Warning if building non-MOBI
-                        if not self.error:
-                            self.error.append('Author Sort mismatch')
-
-                        error_msg = _(
-'''Warning: inconsistent Author Sort values for
-Author '{0}':
-'{1}' <> '{2}'\n''').format(author[0],author[1],current_author[1])
-                        self.opts.log.warn('\n*** Metadata warning ***')
-                        self.opts.log.warn(error_msg)
-                        self.error.append(error_msg)
-
-                current_author = author
-
-        # Second pass: Sort using sort_key to normalize accented letters
+        # Sort authors using sort_key to normalize accented letters
         # Determine the longest author_sort length before sorting
         asl = [i['author_sort'] for i in self.books_by_author]
         las = max(asl, key=len)
@@ -1156,13 +1179,12 @@ Author '{0}':
                 for title in self.books_by_title:
                     self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
                                                             title['title_sort'][0:40])).encode('utf-8'))
-            return True
         else:
-            error_msg = _("No books found to catalog.\nCheck 'Excluded books' criteria in E-book options.\n")
+            error_msg = _("No books to catalog.\nCheck 'Excluded books' rules in E-book options.\n")
             self.opts.log.error('*** ' + error_msg + ' ***')
             self.error.append(_('No books available to include in catalog'))
             self.error.append(error_msg)
-            return False
+            raise EmptyCatalogException
 
     def fetch_bookmarks(self):
         """ Interrogate connected Kindle for bookmarks.
