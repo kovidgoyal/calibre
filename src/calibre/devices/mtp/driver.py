@@ -389,7 +389,7 @@ if __name__ == '__main__':
             raise ValueError('Failed to detect MTP device')
         dev.set_progress_reporter(prints)
         dev.open(cd, None)
-        dev.books()
+        dev.filesystem_cache.dump()
     finally:
         dev.shutdown()
 

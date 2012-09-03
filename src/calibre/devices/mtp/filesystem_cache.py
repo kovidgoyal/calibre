@@ -40,6 +40,7 @@ class FileOrFolder(object):
             self.last_modified = datetime.fromtimestamp(md, local_tz)
         except:
             self.last_modified = datetime.fromtimestamp(0, local_tz)
+        self.last_mod_string = self.last_modified.strftime('%Y/%m/%d %H:%M')
         self.last_modified = as_utc(self.last_modified)
 
         if self.storage_id not in self.all_storage_ids:
@@ -74,8 +75,8 @@ class FileOrFolder(object):
         datum = 'size=%s'%(self.size)
         if self.is_folder:
             datum = 'children=%s'%(len(self.files) + len(self.folders))
-        return '%s(id=%s, storage_id=%s, %s, path=%s)'%(name, self.object_id,
-                self.storage_id, datum, path)
+        return '%s(id=%s, storage_id=%s, %s, path=%s, modified=%s)'%(name, self.object_id,
+                self.storage_id, datum, path, self.last_mod_string)
 
     __str__ = __repr__
     __unicode__ = __repr__
@@ -127,6 +128,7 @@ class FileOrFolder(object):
         c = '+' if self.is_folder else '-'
         data = ('%s children'%(sum(map(len, (self.files, self.folders))))
             if self.is_folder else human_readable(self.size))
+        data += ' modified=%s'%self.last_mod_string
         line = '%s%s %s [id:%s %s]'%(prefix, c, self.name, self.object_id, data)
         prints(line, file=out)
         for c in (self.folders, self.files):
