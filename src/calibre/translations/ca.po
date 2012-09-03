@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-08-31 03:51+0000\n"
-"PO-Revision-Date: 2012-08-31 12:21+0000\n"
+"PO-Revision-Date: 2012-09-02 18:13+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-01 04:38+0000\n"
+"X-Launchpad-Export-Date: 2012-09-03 05:20+0000\n"
 "X-Generator: Launchpad (build 15890)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -958,11 +958,11 @@ msgstr "Mostra una llista dels connectors instal·lats"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:601
 msgid "Enable the named plugin"
-msgstr "Habilita el connector anomenat"
+msgstr "Habilita el connector especificat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:603
 msgid "Disable the named plugin"
-msgstr "Inhabilita el connector anomenat"
+msgstr "Inhabilita el connector especificat"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:322
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:331
@@ -1313,7 +1313,7 @@ msgstr "S'està afegint llibres al llistat de metadades del dispositiu..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:338
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:359
 msgid "Removing books from device..."
-msgstr "S'estan suprimint  els llibres del dispositiu..."
+msgstr "S'està suprimint els llibres del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
@@ -3692,6 +3692,8 @@ msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
 msgstr ""
+"Una expressió XPath. S'insereixen  salts de pàgina abans dels elements "
+"especificats. Per inhabilitar-ho utilitzeu l'expressió: /"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:344
 msgid ""
@@ -15361,6 +15363,8 @@ msgid ""
 "A device (%s) is already detected by calibre. If you wish to debug the "
 "detection of another device, first disconnect this device."
 msgstr ""
+"El calibre ja ha detectat un dispositiu (%s). Si voleu depurar la detecció "
+"d'un altre dispositiu desconnecteu abans aquest."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
