@@ -35,9 +35,12 @@ class MTP_DEVICE(BASE):
     FORMATS = ['epub', 'azw3', 'mobi', 'pdf']
     DEVICE_PLUGBOARD_NAME = 'MTP_DEVICE'
 
+    def __init__(self, *args, **kwargs):
+        BASE.__init__(self, *args, **kwargs)
+        self.plugboards = self.plugboard_func = None
+
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
-        self.plugboards = self.plugboard_func = None
         BASE.open(self, devices, library_uuid)
 
     # Device information {{{
