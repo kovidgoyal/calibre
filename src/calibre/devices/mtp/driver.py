@@ -32,6 +32,7 @@ class MTP_DEVICE(BASE):
     CAN_SET_METADATA = []
     BACKLOADING_ERROR_MESSAGE = None
     MANAGES_DEVICE_PRESENCE = True
+    FORMATS = ['epub', 'azw3', 'mobi', 'pdf']
 
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
@@ -225,6 +226,8 @@ class MTP_DEVICE(BASE):
         return ans
     # }}}
 
+    # Sending files to the device {{{
+
     def create_upload_path(self, path, mdata, fname):
         from calibre.devices import create_upload_path
         from calibre.utils.filenames import ascii_filename as sanitize
@@ -236,6 +239,19 @@ class MTP_DEVICE(BASE):
                 news_in_folder = self.NEWS_IN_FOLDER,
                 )
         return tuple(x.lower() for x in filepath.split('/'))
+
+    # }}}
+
+    # Settings {{{
+    @classmethod
+    def settings(self):
+        # TODO: Implement this
+        class Opts(object):
+            def __init__(s):
+                s.format_map = self.FORMATS
+        return Opts()
+
+    # }}}
 
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)
