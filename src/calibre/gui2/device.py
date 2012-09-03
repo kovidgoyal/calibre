@@ -1495,8 +1495,12 @@ class DeviceMixin(object): # {{{
                 self.device_job_exception(job)
             return
 
-        self.device_manager.add_books_to_metadata(job.result,
-                metadata, self.booklists())
+        try:
+            self.device_manager.add_books_to_metadata(job.result,
+                    metadata, self.booklists())
+        except:
+            traceback.print_exc()
+            raise
 
         books_to_be_deleted = []
         if memory and memory[1]:

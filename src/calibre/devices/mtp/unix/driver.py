@@ -306,6 +306,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise DeviceError('Failed to delete %s with error: %s'%
                 (obj.full_path, self.format_errorstack(errs)))
         parent.remove_child(obj)
+        return parent
 
 def develop():
     from calibre.devices.scanner import DeviceScanner

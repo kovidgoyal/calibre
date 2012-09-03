@@ -338,6 +338,7 @@ class MTP_DEVICE(MTPDeviceBase):
         parent = obj.parent
         self.dev.delete_object(obj.object_id)
         parent.remove_child(obj)
+        return parent
 
     @same_thread
     def put_file(self, parent, name, stream, size, callback=None, replace=True):

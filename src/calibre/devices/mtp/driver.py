@@ -191,6 +191,7 @@ class MTP_DEVICE(BASE):
         self.put_file(storage, self.METADATA_CACHE, stream, size)
 
     def sync_booklists(self, booklists, end_session=True):
+        debug('sync_booklists() called')
         for bl in booklists:
             if getattr(bl, 'storage_id', None) is None:
                 continue
@@ -198,6 +199,7 @@ class MTP_DEVICE(BASE):
             if storage is None:
                 continue
             self.write_metadata_cache(storage, bl)
+        debug('sync_booklists() ended')
 
     # }}}
 
@@ -249,15 +251,117 @@ class MTP_DEVICE(BASE):
         # TODO: Implement this
         return 'calibre'
 
+    def ensure_parent(self, storage, path):
+        parent = storage
+        pos = list(path)[:-1]
+        while pos:
+            name = pos[0]
+            pos = pos[1:]
+            parent = self.create_folder(parent, name)
+        return parent
+
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
+        debug('upload_books() called')
         from calibre.devices.utils import sanity_check
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
         prefix = self.prefix_for_location(on_card)
+        sid = {'carda':self._carda_id, 'cardb':self._cardb_id}.get(on_card,
+                self._main_id)
+        bl_idx = {'carda':1, 'cardb':2}.get(on_card, 0)
+        storage = self.filesystem_cache.storage(sid)
+
+        ans = []
+        self.report_progress(0, _('Transferring books to device...'))
+        i, total = 0, len(files)
+
         for infile, fname, mi in izip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname)
-            print (1111111, path)
-        raise NotImplementedError()
+            parent = self.ensure_parent(storage, path)
+            if hasattr(infile, 'read'):
+                pos = infile.tell()
+                infile.seek(0, 2)
+                sz = infile.tell()
+                infile.seek(pos)
+                stream = infile
+                close = False
+            else:
+                sz = os.path.getsize(infile)
+                stream = lopen(infile, 'rb')
+                close = True
+            try:
+                mtp_file = self.put_file(parent, path[-1], stream, sz)
+            finally:
+                if close:
+                    stream.close()
+            ans.append((mtp_file, bl_idx))
+            i += 1
+            self.report_progress(i/total, _('Transferred %s to device')%mi.title)
+
+        self.report_progress(1, _('Transfer to device finished...'))
+        debug('upload_books() ended')
+        return ans
+
+    def add_books_to_metadata(self, mtp_files, metadata, booklists):
+        debug('add_books_to_metadata() called')
+        from calibre.devices.mtp.books import Book
+
+        i, total = 0, len(mtp_files)
+        self.report_progress(0, _('Adding books to device metadata listing...'))
+        for x, mi in izip(mtp_files, metadata):
+            mtp_file, bl_idx = x
+            bl = booklists[bl_idx]
+            book = Book(mtp_file.storage_id, '/'.join(mtp_file.mtp_relpath),
+                    other=mi)
+            book = bl.add_book(book, replace_metadata=True)
+            if book is not None:
+                book.size = mtp_file.size
+                book.datetime = mtp_file.last_modified.timetuple()
+                book.path = mtp_file.mtp_id_path
+            i += 1
+            self.report_progress(i/total, _('Added %s')%mi.title)
+
+        self.report_progress(1, _('Adding complete'))
+        debug('add_books_to_metadata() ended')
+
+    # }}}
+
+    # Removing books from the device {{{
+    def recursive_delete(self, obj):
+        parent = self.delete_file_or_folder(obj)
+        if parent.empty and parent.can_delete and not parent.is_system:
+            try:
+                self.recursive_delete(parent)
+            except:
+                prints('Failed to delete parent: %s, ignoring'%(
+                    '/'.join(parent.full_path)))
+
+    def delete_books(self, paths, end_session=True):
+        self.report_progress(0, _('Deleting books from device...'))
+
+        for i, path in enumerate(paths):
+            f = self.filesystem_cache.resolve_mtp_id_path(path)
+            self.recursive_delete(f)
+            self.report_progress((i+1) / float(len(paths)),
+                    _('Deleted %s')%path)
+        self.report_progress(1, _('All books deleted'))
+
+    def remove_books_from_metadata(self, paths, booklists):
+        self.report_progress(0, _('Removing books from metadata'))
+        class NextPath(Exception): pass
+
+        for i, path in enumerate(paths):
+            try:
+                for bl in booklists:
+                    for book in bl:
+                        if book.path == path:
+                            bl.remove_book(book)
+                            raise NextPath('')
+            except NextPath:
+                pass
+            self.report_progress((i+1)/len(paths), _('Removed %s')%path)
+
+        self.report_progress(1, _('All books removed'))
 
     # }}}
 
