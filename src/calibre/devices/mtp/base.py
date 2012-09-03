@@ -45,8 +45,9 @@ class MTPDeviceBase(DevicePlugin):
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
 
-    def get_gui_name(self):
-        return self.current_friendly_name or self.name
+    @classmethod
+    def get_gui_name(cls):
+        return getattr(cls, 'current_friendly_name', cls.gui_name)
 
     def is_usb_connected(self, devices_on_system, debug=False,
             only_presence=False):

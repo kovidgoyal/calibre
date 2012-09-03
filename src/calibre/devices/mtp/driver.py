@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback, posixpath, importlib, os
 from io import BytesIO
+from itertools import izip
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
@@ -244,10 +245,18 @@ class MTP_DEVICE(BASE):
                 )
         return tuple(x.lower() for x in filepath.split('/'))
 
+    def prefix_for_location(self, on_card):
+        # TODO: Implement this
+        return 'calibre'
+
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         from calibre.devices.utils import sanity_check
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
+        prefix = self.prefix_for_location(on_card)
+        for infile, fname, mi in izip(files, names, metadata):
+            path = self.create_upload_path(prefix, mi, fname)
+            print (1111111, path)
         raise NotImplementedError()
 
     # }}}
