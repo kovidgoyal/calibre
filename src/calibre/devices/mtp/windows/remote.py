@@ -54,9 +54,9 @@ def main():
     plugins._plugins['wpd'] = (wpd, '')
     sys.path.pop(0)
 
-    from calibre.devices.mtp.test import run
-    run()
-    return
+    # from calibre.devices.mtp.test import run
+    # run()
+    # return
 
     from calibre.devices.scanner import win_scanner
     from calibre.devices.mtp.windows.driver import MTP_DEVICE
@@ -81,13 +81,13 @@ def main():
         # print ('Fetching file: oFF (198214 bytes)')
         # stream = dev.get_file('oFF')
         # print ("Fetched size: ", stream.tell())
-        size = 4
-        stream = io.BytesIO(b'a'*size)
-        name = 'zzz-test-file.txt'
-        stream.seek(0)
-        f = dev.put_file(dev.filesystem_cache.entries[0], name, stream, size)
-        print ('Put file:', f)
-        # dev.filesystem_cache.dump()
+        # size = 4
+        # stream = io.BytesIO(b'a'*size)
+        # name = 'zzz-test-file.txt'
+        # stream.seek(0)
+        # f = dev.put_file(dev.filesystem_cache.entries[0], name, stream, size)
+        # print ('Put file:', f)
+        dev.filesystem_cache.dump()
     finally:
         dev.shutdown()
 

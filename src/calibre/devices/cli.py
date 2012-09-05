@@ -9,7 +9,7 @@ For usage information run the script.
 import StringIO, sys, time, os
 from optparse import OptionParser
 
-from calibre import __version__, __appname__
+from calibre import __version__, __appname__, human_readable
 from calibre.devices.errors import PathError
 from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
@@ -17,16 +17,6 @@ from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
-
-def human_readable(size):
-    """ Convert a size in bytes into a human readle form """
-    if size < 1024: divisor, suffix = 1, ""
-    elif size < 1024*1024: divisor, suffix = 1024., "K"
-    elif size < 1024*1024*1024: divisor, suffix = 1024*1024, "M"
-    elif size < 1024*1024*1024*1024: divisor, suffix = 1024*1024, "G"
-    size = str(size/divisor)
-    if size.find(".") > -1: size = size[:size.find(".")+2]
-    return size + suffix
 
 class FileFormatter(object):
     def __init__(self, file, term):
@@ -207,11 +197,19 @@ def main():
     scanner = DeviceScanner()
     scanner.scan()
     connected_devices = []
+
     for d in device_plugins():
         try:
             d.startup()
         except:
             print ('Startup failed for device plugin: %s'%d)
+        if d.MANAGES_DEVICE_PRESENCE:
+            cd = d.detect_managed_devices(scanner.devices)
+            if cd is not None:
+                connected_devices.append((cd, d))
+                dev = d
+                break
+            continue
         ok, det = scanner.is_device_connected(d)
         if ok:
             dev = d

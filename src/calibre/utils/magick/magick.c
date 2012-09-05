@@ -1104,6 +1104,41 @@ magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
 
 // }}}
 
+// Image.depth {{{
+static PyObject *
+magick_Image_depth_getter(magick_Image *self, void *closure) {
+   NULL_CHECK(NULL)
+
+    return Py_BuildValue("n", MagickGetImageDepth(self->wand));
+}
+
+static int
+magick_Image_depth_setter(magick_Image *self, PyObject *val, void *closure) {
+    size_t depth;
+
+    NULL_CHECK(-1)
+
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete image depth");
+        return -1;
+    }
+
+    if (!PyInt_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "Depth must be an integer");
+        return -1;
+    }
+
+    depth = (size_t)PyInt_AsSsize_t(val);
+    if (!MagickSetImageDepth(self->wand, depth)) {
+        PyErr_Format(PyExc_ValueError, "Could not set image depth to %lu", depth);
+        return -1;
+    }
+
+    return 0;
+}
+
+// }}}
+
 // Image.destroy {{{
 
 static PyObject *
@@ -1238,7 +1273,7 @@ static PyMethodDef magick_Image_methods[] = {
     },
 
     {"quantize", (PyCFunction)magick_Image_quantize, METH_VARARGS,
-     "quantize(number_colors, colorspace, treedepth, dither, measure_error) \n\n nalyzes the colors within a reference image and chooses a fixed number of colors to represent the image. The goal of the algorithm is to minimize the color difference between the input and output image while minimizing the processing time." 
+     "quantize(number_colors, colorspace, treedepth, dither, measure_error) \n\n analyzes the colors within a reference image and chooses a fixed number of colors to represent the image. The goal of the algorithm is to minimize the color difference between the input and output image while minimizing the processing time." 
     },
 
     {NULL}  /* Sentinel */
@@ -1259,6 +1294,12 @@ static PyGetSetDef  magick_Image_getsetters[] = {
      (getter)magick_Image_type_getter, (setter)magick_Image_type_setter,
      (char *)"the image type: UndefinedType, BilevelType, GrayscaleType, GrayscaleMatteType, PaletteType, PaletteMatteType, TrueColorType, TrueColorMatteType, ColorSeparationType, ColorSeparationMatteType, or OptimizeType.",
      NULL},
+
+    {(char *)"depth",
+     (getter)magick_Image_depth_getter, (setter)magick_Image_depth_setter,
+     (char *)"the image depth.",
+     NULL},
+
 
     {NULL}  /* Sentinel */
 };

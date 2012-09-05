@@ -128,6 +128,10 @@ class DeviceManager(Thread): # {{{
         self.setDaemon(True)
         # [Device driver, Showing in GUI, Ejected]
         self.devices        = list(device_plugins())
+        self.managed_devices = [x for x in self.devices if
+                not x.MANAGES_DEVICE_PRESENCE]
+        self.unmanaged_devices = [x for x in self.devices if
+                x.MANAGES_DEVICE_PRESENCE]
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
         self.jobs           = Queue.Queue(0)
@@ -182,11 +186,14 @@ class DeviceManager(Thread): # {{{
                     prints('Unable to open device', str(dev))
                     prints(tb)
                 continue
-            self.connected_device = dev
-            self.connected_device_kind = device_kind
-            self.connected_slot(True, device_kind)
+            self.after_device_connect(dev, device_kind)
             return True
         return False
+
+    def after_device_connect(self, dev, device_kind):
+        self.connected_device = dev
+        self.connected_device_kind = device_kind
+        self.connected_slot(True, device_kind)
 
     def connected_device_removed(self):
         while True:
@@ -215,22 +222,45 @@ class DeviceManager(Thread): # {{{
 
     def detect_device(self):
         self.scanner.scan()
+
         if self.is_device_connected:
-            connected, detected_device = \
-                self.scanner.is_device_connected(self.connected_device,
-                        only_presence=True)
-            if not connected:
-                if DEBUG:
-                    # Allow the device subsystem to output debugging info about
-                    # why it thinks the device is not connected. Used, for e.g.
-                    # in the can_handle() method of the T1 driver
+            if self.connected_device.MANAGES_DEVICE_PRESENCE:
+                cd = self.connected_device.detect_managed_devices(self.scanner.devices)
+                if cd is None:
+                    self.connected_device_removed()
+            else:
+                connected, detected_device = \
                     self.scanner.is_device_connected(self.connected_device,
-                            only_presence=True, debug=True)
-                self.connected_device_removed()
+                            only_presence=True)
+                if not connected:
+                    if DEBUG:
+                        # Allow the device subsystem to output debugging info about
+                        # why it thinks the device is not connected. Used, for e.g.
+                        # in the can_handle() method of the T1 driver
+                        self.scanner.is_device_connected(self.connected_device,
+                                only_presence=True, debug=True)
+                    self.connected_device_removed()
         else:
+            for dev in self.unmanaged_devices:
+                try:
+                    cd = dev.detect_managed_devices(self.scanner.devices)
+                except:
+                    prints('Error during device detection for %s:'%dev)
+                    traceback.print_exc()
+                else:
+                    if cd is not None:
+                        try:
+                            dev.open(cd, self.current_library_uuid)
+                        except:
+                            prints('Error while trying to open %s (Driver: %s)'%
+                                    (cd, dev))
+                            traceback.print_exc()
+                        else:
+                            self.after_device_connect(dev, 'unmanaged-device')
+                            return
             try:
                 possibly_connected_devices = []
-                for device in self.devices:
+                for device in self.managed_devices:
                     if device in self.ejected_devices:
                         continue
                     try:
@@ -248,7 +278,7 @@ class DeviceManager(Thread): # {{{
                             prints('Connect to device failed, retrying in 5 seconds...')
                         time.sleep(5)
                         if not self.do_connect(possibly_connected_devices,
-                                           device_kind='usb'):
+                                           device_kind='device'):
                             if DEBUG:
                                 prints('Device connect failed again, giving up')
             except OpenFailed as e:
@@ -264,9 +294,10 @@ class DeviceManager(Thread): # {{{
     # disconnect a device
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
-            if self.connected_device_kind == 'device':
+            if self.connected_device_kind in {'unmanaged-device', 'device'}:
                 self.connected_device.eject()
-                self.ejected_devices.add(self.connected_device)
+                if self.connected_device_kind != 'unmanaged-device':
+                    self.ejected_devices.add(self.connected_device)
                 self.connected_slot(False, self.connected_device_kind)
             elif hasattr(self.connected_device, 'unmount_device'):
                 # As we are on the wrong thread, this call must *not* do
@@ -412,6 +443,14 @@ class DeviceManager(Thread): # {{{
         return self.create_job_step(self._books, done,
                 description=_('Get list of books on device'), to_job=add_as_step_to_job)
 
+    def _prepare_addable_books(self, paths):
+        return self.device.prepare_addable_books(paths)
+
+    def prepare_addable_books(self, done, paths, add_as_step_to_job=None):
+        return self.create_job_step(self._prepare_addable_books, done, args=[paths],
+                description=_('Prepare files for transfer from device'),
+                to_job=add_as_step_to_job)
+
     def _annotations(self, path_map):
         return self.device.get_annotations(path_map)
 
@@ -525,9 +564,8 @@ class DeviceManager(Thread): # {{{
                         to_job=add_as_step_to_job)
 
     def _view_book(self, path, target):
-        f = open(target, 'wb')
-        self.device.get_file(path, f)
-        f.close()
+        with open(target, 'wb') as f:
+            self.device.get_file(path, f)
         return target
 
     def view_book(self, done, path, target, add_as_step_to_job=None):
@@ -939,7 +977,7 @@ class DeviceMixin(object): # {{{
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
             self.status_bar.show_message(_('Device: ')+\
-                self.device_manager.device.__class__.get_gui_name()+\
+                self.device_manager.device.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
             self.library_view.set_device_connected(self.device_connected)
@@ -1457,8 +1495,12 @@ class DeviceMixin(object): # {{{
                 self.device_job_exception(job)
             return
 
-        self.device_manager.add_books_to_metadata(job.result,
-                metadata, self.booklists())
+        try:
+            self.device_manager.add_books_to_metadata(job.result,
+                    metadata, self.booklists())
+        except:
+            traceback.print_exc()
+            raise
 
         books_to_be_deleted = []
         if memory and memory[1]:

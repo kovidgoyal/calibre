@@ -7,18 +7,19 @@ class HoustonChronicle(BasicNewsRecipe):
 
     title          = u'The Houston Chronicle'
     description    = 'News from Houston, Texas'
-    __author__	   = 'Kovid Goyal'
+    __author__     = 'Kovid Goyal'
     language       = 'en'
     timefmt        = ' [%a, %d %b, %Y]'
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style']
+    auto_cleanup = True
 
     oldest_article = 2.0
 
-    keep_only_tags = {'class':lambda x: x and ('hst-articletitle' in x or
-        'hst-articletext' in x or 'hst-galleryitem' in x)}
-    remove_attributes = ['xmlns']
+    #keep_only_tags = {'class':lambda x: x and ('hst-articletitle' in x or
+        #'hst-articletext' in x or 'hst-galleryitem' in x)}
+    #remove_attributes = ['xmlns']
 
     feeds = [
             ('News', "http://www.chron.com/rss/feed/News-270.php"),
@@ -37,3 +38,4 @@ class HoustonChronicle(BasicNewsRecipe):
         ]
 
 
+ 

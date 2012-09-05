@@ -34,6 +34,7 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_ISHIDDEN);
     ADDPROP(WPD_OBJECT_CAN_DELETE);
     ADDPROP(WPD_OBJECT_SIZE);
+    ADDPROP(WPD_OBJECT_DATE_MODIFIED);
 
     return properties;
 
@@ -81,6 +82,24 @@ static void set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *py
     }
 }
 
+static void set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, IPortableDeviceValues *properties) {
+    FLOAT val = 0;
+    SYSTEMTIME st;
+    unsigned int microseconds;
+    PyObject *t;
+
+    if (SUCCEEDED(properties->GetFloatValue(key, &val))) {
+        if (VariantTimeToSystemTime(val, &st)) {
+            microseconds = 1000 * st.wMilliseconds;
+            t = Py_BuildValue("H H H H H H I", (unsigned short)st.wYear,
+                    (unsigned short)st.wMonth, (unsigned short)st.wDay,
+                    (unsigned short)st.wHour, (unsigned short)st.wMinute,
+                    (unsigned short)st.wSecond, microseconds);
+            if (t != NULL) { PyDict_SetItemString(dict, pykey, t); Py_DECREF(t); }
+        }
+    }
+}
+
 static void set_content_type_property(PyObject *dict, IPortableDeviceValues *properties) {
     GUID guid = GUID_NULL;
     BOOL is_folder = 0;
@@ -103,6 +122,8 @@ static void set_properties(PyObject *obj, IPortableDeviceValues *values) {
     set_bool_property(obj, WPD_OBJECT_ISSYSTEM, "is_system", values);
 
     set_size_property(obj, WPD_OBJECT_SIZE, "size", values);
+    set_date_property(obj, WPD_OBJECT_DATE_MODIFIED, "modified", values);
+
 }
 
 // }}}

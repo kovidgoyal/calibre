@@ -186,10 +186,15 @@ class ANDROID(USBMS):
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
-            'send e-books to on the device. The first one that exists will '
+    EXTRA_CUSTOMIZATION_MESSAGE = [_('Comma separated list of directories to '
+            'send e-books to on the device\'s <b>main memory</b>. The first one that exists will '
+            'be used'),
+            _('Comma separated list of directories to '
+            'send e-books to on the device\'s <b>storage cards</b>. The first one that exists will '
             'be used')
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
+            ]
+
+    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(EBOOK_DIR_MAIN), '']
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
@@ -197,7 +202,8 @@ class ANDROID(USBMS):
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
             'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
             'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
-            'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0']
+            'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
+            'COBY_MID']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -216,7 +222,7 @@ class ANDROID(USBMS):
             'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
             'THINKPAD_TABLET', 'SGH-T989', 'YP-G70', 'STORAGE_DEVICE',
             'ADVANCED', 'SGH-I727', 'USB_FLASH_DRIVER', 'ANDROID',
-            'S5830I_CARD', 'MID7042', 'LINK-CREATE']
+            'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -226,7 +232,7 @@ class ANDROID(USBMS):
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0', 'XT875',
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
-            'USB_FLASH_DRIVER', 'ANDROID', 'MID7042']
+            'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -236,22 +242,34 @@ class ANDROID(USBMS):
 
     def post_open_callback(self):
         opts = self.settings()
-        dirs = opts.extra_customization
-        if not dirs:
-            dirs = self.EBOOK_DIR_MAIN
-        else:
-            dirs = [x.strip() for x in dirs.split(',')]
-        self.EBOOK_DIR_MAIN = dirs
+        opts = opts.extra_customization
+        if not opts:
+            opts = [self.EBOOK_DIR_MAIN, '']
+
+        def strtolist(x):
+            if isinstance(x, basestring):
+                x = [y.strip() for y in x.split(',')]
+            return x or []
+
+        opts = [strtolist(x) for x in opts]
+        self._android_main_ebook_dir = opts[0]
+        self._android_card_ebook_dir = opts[1]
 
     def get_main_ebook_dir(self, for_upload=False):
-        dirs = self.EBOOK_DIR_MAIN
+        dirs = self._android_main_ebook_dir
         if not for_upload:
             def aldiko_tweak(x):
                 return 'eBooks' if x == 'eBooks/import' else x
-            if isinstance(dirs, basestring):
-                dirs = [dirs]
             dirs = list(map(aldiko_tweak, dirs))
         return dirs
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if not for_upload:
+            return ''
+        return self._android_card_ebook_dir
+
+    def get_cardb_ebook_dir(self, for_upload=False):
+        return self.get_carda_ebook_dir()
 
     def windows_sort_drives(self, drives):
         try:
@@ -270,7 +288,8 @@ class ANDROID(USBMS):
         proxy = cls._configProxy()
         proxy['format_map'] = ['mobi', 'azw', 'azw1', 'azw4', 'pdf']
         proxy['use_subdirs'] = False
-        proxy['extra_customization'] = ','.join(['kindle']+cls.EBOOK_DIR_MAIN)
+        proxy['extra_customization'] = [
+                ','.join(['kindle']+cls.EBOOK_DIR_MAIN), '']
 
     @classmethod
     def configure_for_generic_epub_app(cls):

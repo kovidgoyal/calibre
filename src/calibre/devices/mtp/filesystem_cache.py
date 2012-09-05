@@ -7,17 +7,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, sys
+import weakref, sys, json
 from collections import deque
 from operator import attrgetter
 from future_builtins import map
+from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
+from calibre.utils.date import local_tz, as_utc
 from calibre.utils.icu import sort_key, lower
+from calibre.ebooks import BOOK_EXTENSIONS
+
+bexts = frozenset(BOOK_EXTENSIONS)
 
 class FileOrFolder(object):
 
     def __init__(self, entry, fs_cache):
+        self.all_storage_ids = fs_cache.all_storage_ids
+
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.storage_id = entry['storage_id']
@@ -28,7 +35,16 @@ class FileOrFolder(object):
         self.name = force_unicode(n, 'utf-8')
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
-        self.all_storage_ids = fs_cache.all_storage_ids
+        md = entry.get('modified', 0)
+        try:
+            if isinstance(md, tuple):
+                self.last_modified = datetime(*(list(md)+[local_tz]))
+            else:
+                self.last_modified = datetime.fromtimestamp(md, local_tz)
+        except:
+            self.last_modified = datetime.fromtimestamp(0, local_tz)
+        self.last_mod_string = self.last_modified.strftime('%Y/%m/%d %H:%M')
+        self.last_modified = as_utc(self.last_modified)
 
         if self.storage_id not in self.all_storage_ids:
             raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
@@ -47,6 +63,12 @@ class FileOrFolder(object):
         self.fs_cache = weakref.ref(fs_cache)
         self.deleted = False
 
+        if self.storage_id == self.object_id:
+            self.storage_prefix = 'mtp:::%s:::'%self.persistent_id
+
+        self.is_ebook = (not self.is_folder and
+                self.name.rpartition('.')[-1].lower() in bexts)
+
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
         try:
@@ -56,11 +78,15 @@ class FileOrFolder(object):
         datum = 'size=%s'%(self.size)
         if self.is_folder:
             datum = 'children=%s'%(len(self.files) + len(self.folders))
-        return '%s(id=%s, storage_id=%s, %s, path=%s)'%(name, self.object_id,
-                self.storage_id, datum, path)
+        return '%s(id=%s, storage_id=%s, %s, path=%s, modified=%s)'%(name, self.object_id,
+                self.storage_id, datum, path, self.last_mod_string)
 
     __str__ = __repr__
     __unicode__ = __repr__
+
+    @property
+    def empty(self):
+        return not self.files and not self.folders
 
     @property
     def id_map(self):
@@ -105,6 +131,7 @@ class FileOrFolder(object):
         c = '+' if self.is_folder else '-'
         data = ('%s children'%(sum(map(len, (self.files, self.folders))))
             if self.is_folder else human_readable(self.size))
+        data += ' modified=%s'%self.last_mod_string
         line = '%s%s %s [id:%s %s]'%(prefix, c, self.name, self.object_id, data)
         prints(line, file=out)
         for c in (self.folders, self.files):
@@ -124,6 +151,33 @@ class FileOrFolder(object):
             if e.name and lower(e.name) == name:
                 return e
         return None
+
+    def find_path(self, path):
+        '''
+        Find a path in this folder, where path is a
+        tuple of folder and file names like ('eBooks', 'newest',
+        'calibre.epub'). Finding is case-insensitive.
+        '''
+        parent = self
+        components = list(path)
+        while components:
+            child = components[0]
+            components = components[1:]
+            c = parent.folder_named(child)
+            if c is None:
+                c = parent.file_named(child)
+            if c is None:
+                return None
+            parent = c
+        return parent
+
+    @property
+    def mtp_relpath(self):
+        return tuple(x.lower() for x in self.full_path[1:])
+
+    @property
+    def mtp_id_path(self):
+        return 'mtp:::' + json.dumps(self.object_id) + ':::' + '/'.join(self.full_path)
 
 class FilesystemCache(object):
 
@@ -163,5 +217,32 @@ class FilesystemCache(object):
     def dump(self, out=sys.stdout):
         for e in self.entries:
             e.dump(out=out)
+
+    def storage(self, storage_id):
+        for e in self.entries:
+            if e.storage_id == storage_id:
+                return e
+
+    def iterebooks(self, storage_id):
+        for x in self.id_map.itervalues():
+            if x.storage_id == storage_id and x.is_ebook:
+                if x.parent_id == storage_id and x.name.lower().endswith('.txt'):
+                    continue # Ignore .txt files in the root
+                yield x
+
+    def resolve_mtp_id_path(self, path):
+        if not path.startswith('mtp:::'):
+            raise ValueError('%s is not a valid MTP path'%path)
+        parts = path.split(':::')
+        if len(parts) < 3:
+            raise ValueError('%s is not a valid MTP path'%path)
+        try:
+            object_id = json.loads(parts[1])
+        except:
+            raise ValueError('%s is not a valid MTP path'%path)
+        try:
+            return self.id_map[object_id]
+        except KeyError:
+            raise ValueError('No object found with MTP path: %s'%path)
 
 

@@ -203,6 +203,11 @@ def samefile_windows(src, dst):
     import win32file
     from pywintypes import error
 
+    samestring = (os.path.normcase(os.path.abspath(src)) ==
+            os.path.normcase(os.path.abspath(dst)))
+    if samestring:
+        return True
+
     def get_fileid(x):
         if isbytestring(x): x = x.decode(filesystem_encoding)
         try:
@@ -224,6 +229,10 @@ def samefile(src, dst):
     symlinks, case insensitivity, mapped drives, etc.
 
     Returns True iff both paths exist and point to the same file on disk.
+
+    Note: On windows will return True if the two string are identical (upto
+    case) even if the file does not exist. This is because I have no way of
+    knowing how reliable the GetFileInformationByHandle method is.
     '''
     if iswindows:
         return samefile_windows(src, dst)

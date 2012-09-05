@@ -139,6 +139,7 @@ extensions = [
     Extension('podofo',
                     [
                         'calibre/utils/podofo/utils.cpp',
+                        'calibre/utils/podofo/output.cpp',
                         'calibre/utils/podofo/doc.cpp',
                         'calibre/utils/podofo/outline.cpp',
                         'calibre/utils/podofo/podofo.cpp',
@@ -186,7 +187,7 @@ if iswindows:
             headers=[
                 'calibre/devices/mtp/windows/global.h',
             ],
-            libraries=['ole32', 'portabledeviceguids', 'user32'],
+            libraries=['ole32', 'oleaut32', 'portabledeviceguids', 'user32'],
             # needs_ddk=True,
             cflags=['/X']
             ),

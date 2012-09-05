@@ -115,54 +115,65 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
         out('Available plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
             devplugins])))
         out(' ')
-        out('Looking for devices...')
+        found_dev = False
         for dev in devplugins:
-            connected, det = s.is_device_connected(dev, debug=True)
-            if connected:
-                out('\t\tDetected possible device', dev.__class__.__name__)
-                connected_devices.append((dev, det))
-
-        out(' ')
-        errors = {}
-        success = False
-        out('Devices possibly connected:', end=' ')
-        for dev, det in connected_devices:
-            out(dev.name, end=', ')
-        if not connected_devices:
-            out('None', end='')
-        out(' ')
-        for dev, det in connected_devices:
-            out('Trying to open', dev.name, '...', end=' ')
-            try:
-                dev.reset(detected_device=det)
-                dev.open(det, None)
-                out('OK')
-            except:
-                import traceback
-                errors[dev] = traceback.format_exc()
-                out('failed')
-                continue
-            success = True
-            if hasattr(dev, '_main_prefix'):
-                out('Main memory:', repr(dev._main_prefix))
-            out('Total space:', dev.total_space())
-            break
-        if not success and errors:
-            out('Opening of the following devices failed')
-            for dev,msg in errors.items():
-                out(dev)
-                out(msg)
-                out(' ')
-
-        if ioreg is not None:
-            ioreg = 'IOREG Output\n'+ioreg
+            if not dev.MANAGES_DEVICE_PRESENCE: continue
+            out('Looking for devices of type:', dev.__class__.__name__)
+            if dev.debug_managed_device_detection(s.devices, buf):
+                found_dev = True
+                break
             out(' ')
-            if ioreg_to_tmp:
-                open('/tmp/ioreg.txt', 'wb').write(ioreg)
-                out('Dont forget to send the contents of /tmp/ioreg.txt')
-                out('You can open it with the command: open /tmp/ioreg.txt')
-            else:
-                out(ioreg)
+
+        if not found_dev:
+            out('Looking for devices...')
+            for dev in devplugins:
+                if dev.MANAGES_DEVICE_PRESENCE: continue
+                connected, det = s.is_device_connected(dev, debug=True)
+                if connected:
+                    out('\t\tDetected possible device', dev.__class__.__name__)
+                    connected_devices.append((dev, det))
+
+            out(' ')
+            errors = {}
+            success = False
+            out('Devices possibly connected:', end=' ')
+            for dev, det in connected_devices:
+                out(dev.name, end=', ')
+            if not connected_devices:
+                out('None', end='')
+            out(' ')
+            for dev, det in connected_devices:
+                out('Trying to open', dev.name, '...', end=' ')
+                try:
+                    dev.reset(detected_device=det)
+                    dev.open(det, None)
+                    out('OK')
+                except:
+                    import traceback
+                    errors[dev] = traceback.format_exc()
+                    out('failed')
+                    continue
+                success = True
+                if hasattr(dev, '_main_prefix'):
+                    out('Main memory:', repr(dev._main_prefix))
+                out('Total space:', dev.total_space())
+                break
+            if not success and errors:
+                out('Opening of the following devices failed')
+                for dev,msg in errors.items():
+                    out(dev)
+                    out(msg)
+                    out(' ')
+
+            if ioreg is not None:
+                ioreg = 'IOREG Output\n'+ioreg
+                out(' ')
+                if ioreg_to_tmp:
+                    open('/tmp/ioreg.txt', 'wb').write(ioreg)
+                    out('Dont forget to send the contents of /tmp/ioreg.txt')
+                    out('You can open it with the command: open /tmp/ioreg.txt')
+                else:
+                    out(ioreg)
 
         if hasattr(buf, 'getvalue'):
             return buf.getvalue().decode('utf-8')

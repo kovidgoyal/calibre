@@ -17,7 +17,6 @@ from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
-from calibre.devices.mtp.filesystem_cache import FilesystemCache
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -28,7 +27,8 @@ def fingerprint(d):
 
 class MTP_DEVICE(MTPDeviceBase):
 
-    supported_platforms = ['linux', 'osx']
+    # libusb(x) does not work on OS X. So no MTP support for OS X
+    supported_platforms = ['linux']
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
@@ -45,14 +45,6 @@ class MTP_DEVICE(MTPDeviceBase):
 
     def set_debug_level(self, lvl):
         self.libmtp.set_debug_level(lvl)
-
-    def report_progress(self, sent, total):
-        try:
-            p = int(sent/total * 100)
-        except ZeroDivisionError:
-            p = 100
-        if self.progress_reporter is not None:
-            self.progress_reporter(p)
 
     @synchronous
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
@@ -91,6 +83,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def debug_managed_device_detection(self, devices_on_system, output):
+        if self.currently_connected_dev is not None:
+            return True
         p = partial(prints, file=output)
         if self.libmtp is None:
             err = plugins['libmtp'][1]
@@ -183,6 +177,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
             with self.lock:
                 storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
@@ -212,18 +207,9 @@ class MTP_DEVICE(MTPDeviceBase):
         return self._filesystem_cache
 
     @synchronous
-    def get_device_information(self, end_session=True):
+    def get_basic_device_information(self):
         d = self.dev
         return (self.current_friendly_name, d.device_version, d.device_version, '')
-
-    @synchronous
-    def card_prefix(self, end_session=True):
-        ans = [None, None]
-        if self._carda_id is not None:
-            ans[0] = 'mtp:::%d:::'%self._carda_id
-        if self._cardb_id is not None:
-            ans[1] = 'mtp:::%d:::'%self._cardb_id
-        return tuple(ans)
 
     @synchronous
     def total_space(self, end_session=True):
@@ -288,7 +274,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return parent.add_child(ans)
 
     @synchronous
-    def get_file(self, f, stream=None, callback=None):
+    def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
         if stream is None:
@@ -298,6 +284,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if not ok:
             raise DeviceError('Failed to get file: %s with errors: %s'%(
                 f.full_path, self.format_errorstack(errs)))
+        stream.seek(0)
         return stream
 
     @synchronous
@@ -319,6 +306,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise DeviceError('Failed to delete %s with error: %s'%
                 (obj.full_path, self.format_errorstack(errs)))
         parent.remove_child(obj)
+        return parent
 
 def develop():
     from calibre.devices.scanner import DeviceScanner

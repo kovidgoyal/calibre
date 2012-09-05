@@ -360,6 +360,15 @@ Run
 python setup.py build
 cp build/lib.win32-2.7/netifaces.pyd /cygdrive/c/Python27/Lib/site-packages/
 
+psutil
+--------
+
+Download the source tarball
+
+Run
+
+Python setup.py build
+cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
 
 calibre
 ---------

@@ -32,7 +32,7 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename, samefile
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
-        parse_only_date)
+        parse_only_date, UNDEFINED_DATE)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
@@ -2498,16 +2498,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.notify('metadata', [id])
 
     def set_pubdate(self, id, dt, notify=True, commit=True):
-        if dt:
-            if isinstance(dt, basestring):
-                dt = parse_only_date(dt)
-            self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
-            self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
-            self.dirtied([id], commit=False)
-            if commit:
-                self.conn.commit()
-            if notify:
-                self.notify('metadata', [id])
+        if not dt:
+            dt = UNDEFINED_DATE
+        if isinstance(dt, basestring):
+            dt = parse_only_date(dt)
+        self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
+        self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
+        self.dirtied([id], commit=False)
+        if commit:
+            self.conn.commit()
+        if notify:
+            self.notify('metadata', [id])
 
 
     def set_publisher(self, id, publisher, notify=True, commit=True,
@@ -3344,7 +3345,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.timestamp is None:
             mi.timestamp = utcnow()
         if mi.pubdate is None:
-            mi.pubdate = utcnow()
+            mi.pubdate = UNDEFINED_DATE
         self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if cover is not None:
             try:
@@ -3386,7 +3387,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if mi.timestamp is None:
                 mi.timestamp = utcnow()
             if mi.pubdate is None:
-                mi.pubdate = utcnow()
+                mi.pubdate = UNDEFINED_DATE
             self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
@@ -3426,7 +3427,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.timestamp is None:
             mi.timestamp = utcnow()
         if mi.pubdate is None:
-            mi.pubdate = utcnow()
+            mi.pubdate = UNDEFINED_DATE
         self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if preserve_uuid and mi.uuid:
             self.set_uuid(id, mi.uuid, commit=False)
