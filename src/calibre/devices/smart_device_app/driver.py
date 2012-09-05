@@ -33,7 +33,7 @@ from calibre.utils.config import from_json, tweaks
 from calibre.utils.date import isoformat, now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
-        unpublish_zeroconf)
+        unpublish_zeroconf, get_all_ips)
 
 def synchronous(tlockname):
     """A decorator to place an instance based lock around a method """
@@ -45,10 +45,6 @@ def synchronous(tlockname):
                 return func(self, *args, **kwargs)
         return _synchronizer
     return _synched
-
-def do_zeroconf(f, port):
-    f('calibre smart device client',
-        '_calibresmartdeviceapp._tcp', port, {})
 
 
 class SDBook(Book):
@@ -80,7 +76,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     CAN_DO_DEVICE_DB_PLUGBOARD  = False
     SUPPORTS_SUB_DIRS           = True
     MUST_READ_METADATA          = True
-    NEWS_IN_FOLDER              = False
+    NEWS_IN_FOLDER              = True
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
     MAX_PATH_LEN                = 250
@@ -97,7 +93,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
 
-    ZEROCONF_CLIENT_STRING      = b'calibre smart device client'
+    ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
     # A few "random" port numbers to use for detecting clients using broadcast
     # The clients are expected to broadcast a UDP 'hi there' on all of these
@@ -130,8 +126,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     }
     reverse_opcodes = dict([(v, k) for k,v in opcodes.iteritems()])
 
-    ALL_BY_TITLE  = _('All by title')
-    ALL_BY_AUTHOR = _('All by author')
+    ALL_BY_TITLE     = _('All by title')
+    ALL_BY_AUTHOR    = _('All by author')
+    ALL_BY_SOMETHING = _('All by something')
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Enable connections at startup') + ':::<p>' +
@@ -149,18 +146,25 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             _('Check this box if requested when reporting problems') + '</p>',
         '',
         _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ')+\
-                    'series, tags, authors' +\
-            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
-            'these values to the list to enable them. The collections will be '
-            'given the name provided after the ":" character.')%dict(
-                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
+            'to turn into collections on the device.') + ':::<p>' +
+            _('Possibilities include: series, tags, authors, etc' +
+              '. Three special collections are available: %(abt)s:%(abtv)s, '
+              '%(aba)s:%(abav)s, and %(abs)s:%(absv)s. Add  '
+              'these values to the list to enable them. The collections will be '
+              'given the name provided after the ":" character.')%dict(
+                    abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR,
+                    abs='abs', absv=ALL_BY_SOMETHING),
         '',
         _('Enable the no-activity timeout') + ':::<p>' +
             _('If this box is checked, calibre will automatically disconnect if '
               'a connected device does nothing for %d minutes. Unchecking this '
               ' box disables this timeout, so calibre will never automatically '
               'disconnect.')%(DISCONNECT_AFTER_N_SECONDS/60,) + '</p>',
+        _('Use this IP address') + ':::<p>' +
+            _('Use this option if you want to force the driver to listen on a '
+              'particular IP address. The driver will listen only on the '
+              'entered address, and this address will be the one advertized '
+              'over mDNS (bonjour).') + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False,
@@ -173,6 +177,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 '',
                 '',
                 True,
+                ''
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -181,6 +186,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_EXTRA_DEBUG             = 6
     OPT_COLLECTIONS             = 8
     OPT_AUTODISCONNECT          = 10
+    OPT_FORCE_IP_ADDRESS        = 11
 
 
     def __init__(self, path):
@@ -527,8 +533,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _attach_to_port(self, sock, port):
         try:
-            self._debug('try port', port)
-            sock.bind(('', port))
+            ip_addr = self.settings().extra_customization[self.OPT_FORCE_IP_ADDRESS]
+            self._debug('try ip address "'+ ip_addr + '"', 'on port', port)
+            if ip_addr:
+                sock.bind((ip_addr, port))
+            else:
+                sock.bind(('', port))
         except socket.error:
             self._debug('socket error on port', port)
             port = 0
@@ -996,6 +1006,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_can_stream_books = False
         self.client_can_stream_metadata = False
 
+        self._debug("All IP addresses", get_all_ips())
+
         message = None
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -1044,7 +1056,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return message
 
         try:
-            do_zeroconf(publish_zeroconf, port)
+            ip_addr = self.settings().extra_customization[self.OPT_FORCE_IP_ADDRESS]
+            publish_zeroconf('calibre smart device client',
+                             '_calibresmartdeviceapp._tcp', port, {},
+                             use_ip_address=ip_addr)
         except:
             message = 'registration with bonjour failed'
             self._debug(message)
@@ -1080,7 +1095,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
-            do_zeroconf(unpublish_zeroconf, self.port)
+            unpublish_zeroconf('calibre smart device client',
+                             '_calibresmartdeviceapp._tcp', self.port, {})
             self._close_listen_socket()
 
     # Methods for dynamic control
