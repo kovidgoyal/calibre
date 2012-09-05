@@ -129,6 +129,7 @@ class MTP_DEVICE(MTPDeviceBase):
     def post_yank_cleanup(self):
         self.dev = self._filesystem_cache = self.current_friendly_name = None
         self.currently_connected_dev = None
+        self.current_serial_num = None
 
     @synchronous
     def startup(self):
@@ -173,6 +174,9 @@ class MTP_DEVICE(MTPDeviceBase):
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
         self.current_friendly_name = self.dev.friendly_name
+        if not self.current_friendly_name:
+            self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
+        self.current_serial_num = self.dev.serial_number
 
     @property
     def filesystem_cache(self):
