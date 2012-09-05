@@ -187,7 +187,7 @@ if iswindows:
             headers=[
                 'calibre/devices/mtp/windows/global.h',
             ],
-            libraries=['ole32', 'portabledeviceguids', 'user32'],
+            libraries=['ole32', 'oleaut32', 'portabledeviceguids', 'user32'],
             # needs_ddk=True,
             cflags=['/X']
             ),

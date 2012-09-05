@@ -161,7 +161,9 @@ class JsonCodec(object):
         try:
             js = json.load(file_, encoding='utf-8')
             for item in js:
-                booklist.append(self.raw_to_book(item, book_class, prefix))
+                entry = self.raw_to_book(item, book_class, prefix)
+                if entry is not None:
+                    booklist.append(entry)
         except:
             print 'exception during JSON decode_from_file'
             traceback.print_exc()

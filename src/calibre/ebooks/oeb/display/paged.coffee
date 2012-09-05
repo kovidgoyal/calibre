@@ -79,7 +79,7 @@ class PagedDisplay
         if not this.in_paged_mode
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
-            single_screen = (document.body.scrollWidth < window.innerWidth + 25 and document.body.scrollHeight < window.innerHeight + 25)
+            single_screen = (document.body.scrollHeight < window.innerHeight + 75)
             first_layout = true
 
         ww = window.innerWidth
@@ -149,7 +149,7 @@ class PagedDisplay
             # current page (when cols_per_screen == 1). Similarly img elements
             # with height=100% overflow the first column
             has_svg = document.getElementsByTagName('svg').length > 0
-            only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 2 and document.getElementsByTagName('p').length < 2
+            only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
             this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
 
         this.in_paged_mode = true

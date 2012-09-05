@@ -22,6 +22,22 @@ class BookList(BL):
     def supports_collections(self):
         return False
 
+    def add_book(self, book, replace_metadata=True):
+        try:
+            b = self.index(book)
+        except (ValueError, IndexError):
+            b = None
+        if b is None:
+            self.append(book)
+            return book
+        if replace_metadata:
+            self[b].smart_update(book, replace_metadata=True)
+            return self[b]
+        return None
+
+    def remove_book(self, book):
+        self.remove(book)
+
 class Book(Metadata):
 
     def __init__(self, storage_id, lpath, other=None):
@@ -35,6 +51,17 @@ class Book(Metadata):
     def matches_file(self, mtp_file):
         return (self.storage_id == mtp_file.storage_id and
                 self.mtp_relpath == mtp_file.mtp_relpath)
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__) and (self.storage_id ==
+            other.storage_id and self.mtp_relpath == other.mtp_relpath))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash((self.storage_id, self.mtp_relpath))
+
 
 class JSONCodec(JsonCodec):
     pass

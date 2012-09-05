@@ -166,7 +166,7 @@ class USBMS(CLI, Device):
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
-        for idx,b in enumerate(bl):
+        for idx, b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
         all_formats = self.formats_to_scan_for()
@@ -404,7 +404,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def build_template_regexp(cls):
-        from calibre.devices import build_template_regexp
+        from calibre.devices.utils import build_template_regexp
         return build_template_regexp(cls.save_template())
 
     @classmethod

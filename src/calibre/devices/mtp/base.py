@@ -25,7 +25,7 @@ def synchronous(func):
     return synchronizer
 
 class MTPDeviceBase(DevicePlugin):
-    name = 'SmartDevice App Interface'
+    name = 'MTP Device Interface'
     gui_name = _('MTP Device')
     icon = I('devices/galaxy_s3.png')
     description = _('Communicate with MTP devices')
@@ -37,6 +37,7 @@ class MTPDeviceBase(DevicePlugin):
         self.progress_reporter = None
         self.current_friendly_name = None
         self.report_progress = lambda x, y: None
+        self.current_serial_num = None
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
@@ -45,8 +46,9 @@ class MTPDeviceBase(DevicePlugin):
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
 
-    def get_gui_name(self):
-        return self.current_friendly_name or self.name
+    @classmethod
+    def get_gui_name(cls):
+        return getattr(cls, 'current_friendly_name', cls.gui_name)
 
     def is_usb_connected(self, devices_on_system, debug=False,
             only_presence=False):
@@ -55,7 +57,7 @@ class MTPDeviceBase(DevicePlugin):
         return False
 
     def build_template_regexp(self):
-        from calibre.devices import build_template_regexp
+        from calibre.devices.utils import build_template_regexp
         return build_template_regexp(self.save_template)
 
     @property

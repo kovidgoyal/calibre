@@ -231,10 +231,12 @@ class MTP_DEVICE(MTPDeviceBase):
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self._filesystem_cache = None
+        self.current_serial_num = None
 
     def eject(self):
         if self.currently_connected_pnp_id is None: return
         self.eject_dev_on_next_scan = True
+        self.current_serial_num = None
 
     @same_thread
     def open(self, connected_device, library_uuid):
@@ -259,9 +261,12 @@ class MTP_DEVICE(MTPDeviceBase):
             self._carda_id = storage[1]['id']
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
-        self.current_friendly_name = devdata.get('friendly_name',
+        self.current_friendly_name = devdata.get('friendly_name', '')
+        if not self.current_friendly_name:
+            self.current_friendly_name = devdata.get('model_name',
                 _('Unknown MTP device'))
         self.currently_connected_pnp_id = connected_device
+        self.current_serial_num = devdata.get('serial_number', None)
 
     @same_thread
     def get_basic_device_information(self):
@@ -338,6 +343,7 @@ class MTP_DEVICE(MTPDeviceBase):
         parent = obj.parent
         self.dev.delete_object(obj.object_id)
         parent.remove_child(obj)
+        return parent
 
     @same_thread
     def put_file(self, parent, name, stream, size, callback=None, replace=True):

@@ -60,7 +60,7 @@ def start_server():
 
     return _server
 
-def create_service(desc, type, port, properties, add_hostname):
+def create_service(desc, type, port, properties, add_hostname, use_ip_address=None):
     port = int(port)
     try:
         hostname = socket.gethostname().partition('.')[0]
@@ -69,7 +69,10 @@ def create_service(desc, type, port, properties, add_hostname):
 
     if add_hostname:
         desc += ' (on %s)'%hostname
-    local_ip = get_external_ip()
+    if use_ip_address:
+        local_ip = use_ip_address
+    else:
+        local_ip = get_external_ip()
     type = type+'.local.'
     from calibre.utils.Zeroconf import ServiceInfo
     return ServiceInfo(type, desc+'.'+type,
@@ -79,7 +82,7 @@ def create_service(desc, type, port, properties, add_hostname):
                           server=hostname+'.local.')
 
 
-def publish(desc, type, port, properties=None, add_hostname=True):
+def publish(desc, type, port, properties=None, add_hostname=True, use_ip_address=None):
     '''
     Publish a service.
 
