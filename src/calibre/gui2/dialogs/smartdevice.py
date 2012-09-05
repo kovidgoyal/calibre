@@ -115,7 +115,11 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             self.auto_mgmt_button.setText(_('Automatic metadata management is enabled'))
             self.auto_mgmt_button.setEnabled(False)
 
-        self.ip_addresses.setText(', '.join(get_all_ip_addresses()))
+        forced_ip = self.device_manager.get_option('smartdevice', 'force_ip_address')
+        if forced_ip:
+            self.ip_addresses.setText(forced_ip)
+        else:
+            self.ip_addresses.setText(', '.join(get_all_ip_addresses()))
 
         self.resize(self.sizeHint())
 

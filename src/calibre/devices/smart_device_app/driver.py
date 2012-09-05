@@ -505,6 +505,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.OPT_USE_PORT
         elif opt_string == 'port_number':
             return self.OPT_PORT_NUMBER
+        elif opt_string == 'force_ip_address':
+            return self.OPT_FORCE_IP_ADDRESS
         else:
             return None
 

@@ -240,13 +240,18 @@ class ConnectShareAction(InterfaceAction):
         from calibre.gui2.dialogs.smartdevice import get_all_ip_addresses
         dm = self.gui.device_manager
 
-        all_ips = get_all_ip_addresses()
-        if len(all_ips) > 3:
-            formatted_addresses = _('Many IP addresses. See Start/Stop dialog.')
-            show_port = False
-        else:
-            formatted_addresses = ' or '.join(get_all_ip_addresses())
+        forced_ip = dm.get_option('smartdevice', 'force_ip_address')
+        if forced_ip:
+            formatted_addresses = forced_ip
             show_port = True
+        else:
+            all_ips = get_all_ip_addresses()
+            if len(all_ips) > 3:
+                formatted_addresses = _('Many IP addresses. See Start/Stop dialog.')
+                show_port = False
+            else:
+                formatted_addresses = ' or '.join(get_all_ip_addresses())
+                show_port = True
 
         running = dm.is_running('smartdevice')
         if not running:
