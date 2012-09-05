@@ -166,7 +166,7 @@ class USBMS(CLI, Device):
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
-        for idx,b in enumerate(bl):
+        for idx, b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
         all_formats = self.formats_to_scan_for()
