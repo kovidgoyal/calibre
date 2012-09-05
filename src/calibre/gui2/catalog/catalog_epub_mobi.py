@@ -131,13 +131,14 @@ class PluginWidget(QWidget,Ui_Form):
                     # Look up custom column friendly name
                     rule['field'] = self.eligible_custom_fields[rule['field']]['field']
                     if rule['pattern'] in [_('any value'),_('any date')]:
-                        rule_pattern = '.*'
+                        rule['pattern'] = '.*'
                     elif rule['pattern'] == _('unspecified'):
                         rule['pattern'] = 'None'
             if 'prefix' in rule:
                 pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
             else:
                 pr = (rule['name'],rule['field'],rule['pattern'])
+
             rule_set.append(pr)
         opt_value = tuple(rule_set)
         # Strip off the trailing '_tw'
@@ -155,12 +156,12 @@ class PluginWidget(QWidget,Ui_Form):
         Output:
          self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
         """
+        results = _('No genres will be excluded')
         if not regex:
             self.exclude_genre_results.clear()
-            self.exclude_genre_results.setText(_('No genres will be excluded'))
+            self.exclude_genre_results.setText(results)
             return
 
-        results = _('Regex does not match any tags in database')
         try:
             pattern = re.compile((str(regex)))
         except:
@@ -188,7 +189,7 @@ class PluginWidget(QWidget,Ui_Form):
                 self.exclude_genre.setText(default[1])
                 break
 
-    def fetchEligibleCustomFields(self):
+    def fetch_eligible_custom_fields(self):
         self.all_custom_fields = self.db.custom_field_keys()
         custom_fields = {}
         custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
@@ -198,6 +199,17 @@ class PluginWidget(QWidget,Ui_Form):
                 custom_fields[field_md['name']] = {'field':custom_field,
                                                    'datatype':field_md['datatype']}
         self.eligible_custom_fields = custom_fields
+
+    def generate_descriptions_changed(self, enabled):
+        '''
+        Toggle Description-related controls
+        '''
+        self.header_note_source_field.setEnabled(enabled)
+        self.thumb_width.setEnabled(enabled)
+        self.merge_source_field.setEnabled(enabled)
+        self.merge_before.setEnabled(enabled)
+        self.merge_after.setEnabled(enabled)
+        self.include_hr.setEnabled(enabled)
 
     def initialize(self, name, db):
         '''
@@ -223,7 +235,7 @@ class PluginWidget(QWidget,Ui_Form):
         self.name = name
         self.db = db
         self.all_tags = db.all_tags()
-        self.fetchEligibleCustomFields()
+        self.fetch_eligible_custom_fields()
         self.populate_combo_boxes()
 
         # Update dialog fields from stored options
@@ -262,6 +274,10 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Hook textChanged event for exclude_genre QLineEdit
         self.exclude_genre.textChanged.connect(self.exclude_genre_changed)
+
+        # Hook Descriptions checkbox for related options, init
+        self.generate_descriptions.clicked.connect(self.generate_descriptions_changed)
+        self.generate_descriptions_changed(self.generate_descriptions.isChecked())
 
         # Init self.merge_source_field_name
         self.merge_source_field_name = ''
@@ -448,7 +464,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Display help file
         '''
-        url = 'file:///' + P('catalog/help_epub_mobi.html')
+        url = 'file:///' + P('catalog/help/epub_mobi/help.html')
         open_url(QUrl(url))
 
 class CheckableTableWidgetItem(QTableWidgetItem):

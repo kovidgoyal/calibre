@@ -12,6 +12,7 @@ from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
+from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, is_date_undefined, now as nowf
@@ -19,9 +20,6 @@ from calibre.utils.filenames import ascii_text
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile
-
-class AuthorSortMismatchException(Exception): pass
-class EmptyCatalogException(Exception): pass
 
 class CatalogBuilder(object):
     '''
@@ -499,26 +497,18 @@ class CatalogBuilder(object):
         Called from gui2.convert.gui_conversion:gui_catalog()
 
         Args:
-         (none)
 
-        Touches:
+        Exceptions:
+            AuthorSortMismatchException
+            EmptyCatalogException
+
+        Results:
          error: problems reported during build
 
-        Return:
-         (bool): True: successful build, possibly with warnings
-                 False: failed to build
         """
 
-        try:
-            self.fetch_books_by_title()
-        except EmptyCatalogException:
-            return False
-
-        try:
-            self.fetch_books_by_author()
-        except AuthorSortMismatchException:
-            return False
-
+        self.fetch_books_by_title()
+        self.fetch_books_by_author()
         self.fetch_bookmarks()
         if self.opts.generate_descriptions:
             self.generate_thumbnails()
@@ -535,11 +525,11 @@ class CatalogBuilder(object):
             if self.opts.section_list == ['Genres'] and not self.genres:
                 error_msg = _("No genres to catalog.\n")
                 if not self.opts.cli_environment:
-                    error_msg += "Check 'Excluded genres' regex in E-book options.\n"
+                    error_msg += _("Check 'Excluded genres' regex in E-book options.\n")
                 self.opts.log.error(error_msg)
                 self.error.append(_('No books available to catalog'))
                 self.error.append(error_msg)
-                return False
+                raise EmptyCatalogException, "No genres to catalog"
         if self.opts.generate_recently_added:
             self.generate_html_by_date_added()
             if self.generate_recently_read:
@@ -561,9 +551,7 @@ class CatalogBuilder(object):
                 self.generate_ncx_by_date_read(_("Recently Read"))
         if self.opts.generate_descriptions:
             self.generate_ncx_descriptions(_("Descriptions"))
-
         self.write_ncx()
-        return True
 
     def calculate_thumbnail_dimensions(self):
         """ Calculate thumb dimensions based on device DPI.
@@ -799,7 +787,7 @@ class CatalogBuilder(object):
 
                         self.error.append('Author Sort mismatch')
                         self.error.append(error_msg)
-                        raise AuthorSortMismatchException
+                        raise AuthorSortMismatchException, "author_sort mismatch while building MOBI"
                     else:
                         # Warning if building non-MOBI
                         if not self.error:
@@ -810,6 +798,7 @@ class CatalogBuilder(object):
                         self.opts.log.warn('\n*** Metadata warning ***')
                         self.opts.log.warn(error_msg)
                         self.error.append(error_msg)
+                        continue
 
                 current_author = author
 
@@ -827,10 +816,9 @@ class CatalogBuilder(object):
          None: no match
         """
         def _log_prefix_rule_match_info(rule, record):
-            self.opts.log.info("     %s %s by %s (Prefix rule '%s': %s:%s)" %
+            self.opts.log.info("     %s '%s' by %s (Prefix rule '%s')" %
                                (rule['prefix'],record['title'],
-                                record['authors'][0], rule['name'],
-                                rule['field'],rule['pattern']))
+                                record['authors'][0], rule['name']))
 
         # Compare the record to each rule looking for a match
         for rule in self.prefix_rules:
@@ -1168,9 +1156,6 @@ class CatalogBuilder(object):
 
         # Re-sort based on title_sort
         if len(titles):
-            #self.books_by_title = sorted(titles,
-            #                        key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
-
             self.books_by_title = sorted(titles, key=lambda x: sort_key(x['title_sort'].upper()))
 
             if self.DEBUG and self.opts.verbose:
@@ -1184,7 +1169,7 @@ class CatalogBuilder(object):
             self.opts.log.error('*** ' + error_msg + ' ***')
             self.error.append(_('No books available to include in catalog'))
             self.error.append(error_msg)
-            raise EmptyCatalogException
+            raise EmptyCatalogException, error_msg
 
     def fetch_bookmarks(self):
         """ Interrogate connected Kindle for bookmarks.
@@ -2385,6 +2370,9 @@ class CatalogBuilder(object):
 
         Output:
          content/BySeries.html (file)
+
+        To do:
+         self.books_by_series = [i for i in self.books_by_title if i['series']]
         """
         friendly_name = _("Series")
         self.update_progress_full_step("%s HTML" % friendly_name)
@@ -2414,7 +2402,7 @@ class CatalogBuilder(object):
         data = self.plugin.search_sort_db(self.db, self.opts)
 
         # Remove exclusions
-        self.books_by_series = self.process_exclusions(data)
+        self.books_by_series = self.process_exclusions(data, log_exclusion=False)
 
         if not self.books_by_series:
             self.opts.generate_series = False
@@ -4496,13 +4484,16 @@ class CatalogBuilder(object):
 
         # Report excluded books
         if self.opts.verbose and excluded_tags:
-            self.opts.log.info(" Excluded books:")
+            self.opts.log.info(" Excluded books by Tags:")
             data = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
                 matched = list(set(record['tags']) & set(excluded_tags))
-                if matched :
-                    self.opts.log.info("  - '%s' by %s (Exclusion rule Tags: '%s')" %
-                        (record['title'], record['authors'][0], str(matched[0])))
+                if matched:
+                    for rule in self.opts.exclusion_rules:
+                        if rule[1] == 'Tags' and rule[2] == str(matched[0]):
+                            self.opts.log.info("  - '%s' by %s (Exclusion rule '%s')" %
+                                (record['title'], record['authors'][0], rule[0]))
+
         return excluded_tags
 
     def get_friendly_genre_tag(self, genre):
@@ -4786,7 +4777,7 @@ class CatalogBuilder(object):
                     normalized += c
         return normalized
 
-    def process_exclusions(self, data_set):
+    def process_exclusions(self, data_set, log_exclusion=True):
         """ Filter data_set based on exclusion_rules.
 
         Compare each book in data_set to each exclusion_rule. Remove
@@ -4817,12 +4808,15 @@ class CatalogBuilder(object):
                                                 field,
                                                 index_is_id=True)
                     if field_contents:
-                        if re.search(pat, unicode(field_contents),
-                                re.IGNORECASE) is not None:
-                            if self.opts.verbose:
+                        matched = re.search(pat, unicode(field_contents),
+                                re.IGNORECASE)
+                        if matched is not None:
+                            if self.opts.verbose and log_exclusion:
                                 field_md = self.db.metadata_for_field(field)
-                                self.opts.log.info("      - %s (Exclusion rule '%s': %s:%s)" %
-                                                   (record['title'], field_md['name'], field,pat))
+                                for rule in self.opts.exclusion_rules:
+                                    if rule[1] == '#%s' % field_md['label']:
+                                        self.opts.log.info("     - '%s' by %s (Exclusion rule '%s')" %
+                                            (record['title'], record['authors'][0], rule[0]))
                             exclusion_set.append(record)
                             if record in filtered_data_set:
                                 filtered_data_set.remove(record)

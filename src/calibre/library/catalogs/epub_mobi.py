@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, time
+import os, shutil, sys, time
 from collections import namedtuple
 
 from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks import calibre_cover
+from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -146,6 +147,13 @@ class EPUB_MOBI(CatalogPlugin):
                           "When multiple rules are defined, the first matching rule will be used.\n"
                           "Default:\n" + '"' + '%default' + '"' + "\n"
                           "Applies to AZW3, ePub, MOBI output formats")),
+                   Option('--use-existing-cover',
+                          default=False,
+                          dest='use_existing_cover',
+                          action = 'store_true',
+                          help=_("Replace existing cover when generating the catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--thumb-width',
                           default='1.0',
                           dest='thumb_width',
@@ -311,7 +319,7 @@ class EPUB_MOBI(CatalogPlugin):
                        'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
-                       'thumb_width','wishlist_tag']:
+                       'thumb_width','use_existing_cover','wishlist_tag']:
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
 
         if opts.verbose:
@@ -325,16 +333,17 @@ class EPUB_MOBI(CatalogPlugin):
         if opts.verbose:
             log.info(" Begin catalog source generation")
 
-        # Returns False if nothing to catalog or author_sort mismatches while building MOBI
-        catalog_source_built = catalog.build_sources()
-
-        if opts.verbose:
-            if catalog_source_built:
+        try:
+            catalog_source_built = catalog.build_sources()
+            if opts.verbose:
                 log.info(" Completed catalog source generation\n")
-            else:
-                log.error(" *** Terminated catalog generation, check log for details ***")
+        except (AuthorSortMismatchException, EmptyCatalogException), e:
+            log.error(" *** Terminated catalog generation: %s ***" % e)
+        except:
+            log.error(" unhandled exception in catalog generator")
+            raise
 
-        if catalog_source_built:
+        else:
             recommendations = []
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
@@ -382,7 +391,7 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('cover', cpath, OptionRecommendation.HIGH))
                 log.info("using existing catalog cover")
             else:
-                log.info("generating new catalog cover")
+                log.info("replacing catalog cover")
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
                 new_cover = calibre_cover(opts.catalog_title.replace('"', '\\"'), 'calibre')
                 new_cover_path.write(new_cover)

@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Creating AZW3 • EPUB • MOBI Catalogs</title>
+<style type="text/css">
+h1 {
+	font-size: 1.5em;
+	text-align: center;
+}
+h2 {
+	font-size: 1.0em;
+	font-weight: normal;
+	margin-bottom: 0.25em;
+	margin-top: 0px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+h3 {
+	text-align: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: normal;
+}
+.ui_element {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 95%;
+}
+.user-input {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 95%;
+	font-weight: bold;
+}
+.code_header {
+	text-indent: 2em;
+}
+.code_body {
+	font-family: "Lucida Console", Monaco, monospace;
+	background-color: #EEE;
+	font-size: .9em;
+	margin-left: 2em;
+	margin-top: 0px;
+}
+.ui_image {
+	text-align: center;
+}
+.help_topic {
+	display: block;
+}
+.image_left  {
+	float: left;
+	margin-right: 1em;
+	margin-top: -1em;
+}
+hr {
+	clear: both;
+}
+</style>
+</head>
+
+<body>
+<h1><a name="toc" id="toc"></a>Creating AZW3 • EPUB • MOBI Catalogs </h1>
+<h2><a href="#selecting_books_to_catalog">Selecting books to catalog</a></h2>
+<h2><a href="#included_sections">Included sections: Selecting which sections to include in the catalog</a></h2>
+<h2><a href="#prefixes">Prefixes: Adding a prefix indicating book status</a></h2>
+<h2><a href="#excluded_books">Excluded books: Ignoring certain books when generating the catalog</a></h2>
+<h2><a href="#excluded_genres">Excluded genres: Ignoring certain tags as genres when generating the catalog</a></h2>
+<h2><a href="#other_options">Other options: Specifying thumb size, adding extra information to Descriptions</a></h2>
+<h2><a href="#custom_catalog_covers">Custom catalog covers</a></h2>
+<h2><a href="#additional_help_resources">Additional help resources</a></h2>
+<p>Calibre's Create catalog feature enables you to create a catalog of your library in a variety of formats. This help file describes cataloging options when generating a catalog in <span class="user-input">AZW3</span>, <span class="user-input">EPUB</span> and <span class="user-input">MOBI</span> formats.</p>
+<hr />
+<h3><a name="selecting_books_to_catalog" id="selecting_books_to_catalog"></a><a href="#toc">Selecting books to catalog</a></h3>
+<p><div class="help_topic">If you want <em>all</em> of your library cataloged, remove any search or filtering criteria in the main window. With a single book selected, all books in your library will be candidates for inclusion in the generated catalog. Individual books may be excluded by various criteria; see the <a href="#excluded_genres">Excluded genres</a> section below for more information.</p>
+<p>If you want only <em>some</em> of your library cataloged, you have two options:</p>
+<ol>
+  <li>Create a multiple selection of  the books you want cataloged. With more than one book selected in calibre's main window, only the selected books will be cataloged.</li>
+  <li>Use the <span class="ui_element">Search</span> field or the <span class="ui_element">Tag Browser</span> to filter the displayed books. Only the displayed books will be cataloged.</li>
+</ol>
+<p>To begin catalog generation, select the menu item <span class="ui_element">Convert books|Create a catalog of the books in your calibre library</span>. You may also add a <span class="ui_element">Create Catalog</span> button to a toolbar in <span class="ui_element">Preferences|Interface|Toolbar</span> for easier access to the <span class="ui_element">Generate catalog</span> dialog.</p>
+<p class="ui_image"><img src="images/catalog_options.png" width="656" height="154" /></p>
+<p>In <span class="ui_element">Catalog options</span>, select <span class="user-input">AZW3</span>, <span class="user-input">EPUB</span> or <span class="user-input">MOBI</span> as the Catalog format. In the <span class="ui_element">Catalog title</span> field, provide a name that will be used for the generated catalog. If a catalog of the same name and format already exists, it will be replaced with the newly-generated catalog.</p>
+<p class="ui_image"><img src="images/send_to_device.png" width="342" height="81" /></p>
+<p>Enabling  <span class="ui_element">Send catalog to device automatically</span>  will download the generated catalog to a connected device upon completion.</div></p>
+<hr />
+<h3><a name="included_sections" id="included_sections"></a><a href="#toc">Included sections</a></h3>
+<div class="help_topic"><p class="ui_image"><img src="images/included_sections.png" width="641" height="106" /></p>
+<p>Sections enabled by a checkmark will be included in the generated catalog:</p>
+<ul>
+  <li> <span class="ui_element">Authors</span> - all books, sorted by author, presented in a list format. Non-series books are listed before series books.</li>
+  <li><strong class="ui_element">Titles</strong> - all books, sorted by title, presented in a list format.</li>
+  <li><strong class="ui_element">Series</strong> - all books that are part of a series, sorted by series, presented in a list format.</li>
+  <li><strong class="ui_element">Genres</strong> - individual genres presented in a list, sorted by Author and Series.</li>
+  <li><strong class="ui_element">Recently Added</strong> - all books, sorted in reverse chronological order. List includes books added in the last 30 days, then a month-by-month listing of added books.</li>
+  <li><strong class="ui_element">Descriptions</strong> - detailed description page for each book, including a cover thumbnail and comments. Sorted by author, with non-series books listed before series books.</li>
+</ul>
+</div>
+<hr />
+<h3><a name="prefixes" id="prefixes"></a><a href="#toc">Prefixes</a></h3>
+<div class="help_topic"><p class="ui_image"><img src="images/prefix_rules.png" width="641" height="178" /></p>
+<p>Prefix rules allow you to add a prefix to book listings when certain criteria are met. For example, you might want to mark books you've read with a checkmark, or books on your wishlist with an X.</p>
+<p>The checkbox in the first column enables the rule. <span class="ui_element">Name</span> is a rule name that you provide. <span class="ui_element">Field</span> is either <span class="ui_element">Tags</span> or a custom column from your library. <span class="ui_element">Value</span> is the content of <span class="ui_element">Field</span> to match. When a prefix rule is satisfied, the book will be marked with the selected  <span class="ui_element">Prefix</span>.</p>
+<p>Three prefix rules have been specified in the example above:</p>
+<ol>
+  <li><span class="user-input">Read book</span> specifies that a book with any date in a custom column named <span class="user-input">Last read</span> will be prefixed with a checkmark symbol.</li>
+  <li><span class="user-input">Wishlist item</span> specifies that any book with a <span class="user-input">Wishlist</span> tag will be prefixed with an X symbol.</li>
+  <li> <span class="user-input">Library books</span> specifies that any book with a value of True (or Yes) in a custom column <span class="user-input">Available in Library</span> will be prefixed with a double arrow symbol.</li>
+</ol>
+<p>The first matching rule supplies the prefix. Disabled or incomplete rules are ignored.</p>
+</div>
+<hr />
+<h3><a name="excluded_books" id="excluded_books"></a><a href="#toc">Excluded books</a></h3>
+<div class="help_topic"><p class="ui_image"><img src="images/excluded_books.png" width="641" height="178" /></p>
+<p>Exclusion rules allow you to specify books that will not be cataloged.</p>
+<p>The checkbox in the first column enables the rule.  <span class="ui_element">Name</span> is a rule name that you provide. <span class="ui_element">Field</span> is either <span class="ui_element">Tags</span> or a custom column in your library. <span class="ui_element">Value</span> is the content of <span class="ui_element">Field</span> to match. When an exclusion rule is satisfied, the book will be excluded from the generated catalog.</p>
+<p>Two exclusion rules have been specified in the example above:</p>
+<ol>
+  <li>The <span class="user-input">Catalogs</span> rule specifies that any book with a <span class="user-input">Catalog</span> tag will be excluded from the generated catalog.</li>
+  <li>The <span class="user-input">Archived Books</span> rule specifies that any book with a value of <span class="user-input">Archived</span> in the custom column <span class="user-input">Status</span> will be excluded from the generated catalog.</li>
+</ol>
+<p>All  rules are evaluated for every book. Disabled or incomplete rules are ignored.</p>
+</div>
+<hr />
+<h3><a name="excluded_genres" id="excluded_genres"></a><a href="#toc">Excluded genres</a></h3>
+<div class="help_topic"><p class="ui_image"><img src="images/excluded_genres.png" width="641" height="120" /></p>
+<p>When the catalog is generated, tags in your database are used as genres. For example, you may use the tags <span class="user-input">Fiction</span> and <span class="user-input">Nonfiction</span>. These tags become genres in the generated catalog, with books listed under their respective genre lists based on their assigned tags. A book will be listed in every genre section for which it has a corresponding tag.</p>
+<p>You may be using certain tags for other purposes, perhaps a <span class="user-input">+</span> to indicate a read book, or a bracketed tag like <span class="user-input">[Amazon Freebie]</span> to indicate a book's source. The <span class="ui_element">Excluded genres</span> regex allows you to specify tags that you don't want used as genres in the generated catalog. The default exclusion regex pattern <span class="user-input">\[.+\]\+</span> excludes any tags of the form <span class="user-input">[tag]</span>, as well as excluding +, the default tag for read books, from being used as genres in the generated catalog.</p>
+<p>You can also use an exact tag name in a regex. For example, <span class="user-input">[Amazon Freebie]</span> or <span class="user-input">[Project Gutenberg]</span>. If you want to list multiple exact tags for exclusion, put a pipe (vertical bar) character between them: <span class="user-input">[Amazon Freebie]|[Project Gutenberg]</span>.</p>
+<p><span class="ui_element"> Results of regex</span> shows you which tags will be excluded when the catalog is built, based on the tags in your database and the regex pattern you enter. The results are updated as you modify the regex pattern.</p>
+</div>
+<hr />
+<h3><a name="other_options" id="other_options"></a><a href="#toc">Other options</a></h3>
+<div class="help_topic"><p class="ui_image"><img src="images/other_options.png" width="641" height="137" /></p>
+<p><span class="ui_element">Catalog cover</span> specifies whether to generate a new cover or use an existing cover. It is possible to create a custom cover for your catalogs - see <a href="#custom_catalog_covers">Custom catalog covers</a> for more information. If you have created a custom cover that you want to reuse, select <span class="ui_element">Use existing cover</span>. Otherwise, select <span class="ui_element">Generate new cover</span>.</p>
+<p><span class="ui_element">Extra Description note</span> specifies a custom column's contents to be inserted into  the Description page, next to the cover thumbnail. For example, you might want to display the date you last read a book using a <span class="user-input">Last Read</span> custom column. For advanced use of the Description note feature, see <a href="http://www.mobileread.com/forums/showpost.php?p=1335767&postcount=395" target="new">this post in the calibre forum</a>.</p>
+<p><span class="ui_element">Thumb width</span> specifies a width preference for cover thumbnails included with  Descriptions pages. Thumbnails are cached to improve performance.To experiment with different widths, try generating a catalog with just a few books until you've determined your preferred width, then generate your full catalog. The first time a catalog is generated with a new thumbnail width, performance will be slower, but subsequent builds of the catalog will take advantage of the thumbnail cache.</p>
+<p><span class="ui_element">Merge with Comments</span> specifies a custom column whose content will be non-destructively merged with the Comments metadata during catalog generation. For example, you might have a custom column <span class="user-input">Author Bio</span> that you'd like to append to the Comments metadata. You can choose to insert the custom column contents <span class="ui_element">before</span> or <span class="ui_element">after</span> the Comments section, and optionally separate the appended content with a horizontal rule separator. Eligible custom column types include <span class="user-input">text</span>, <span class="user-input">comments</span>, and <span class="user-input">composite</span>.</p>
+</div>
+<hr />
+<h3><a name="custom_catalog_covers" id="custom_catalog_covers"></a><a href="#toc">Custom catalog covers</a></h3>
+<div class="help_topic">
+  <p><img src="images/custom_cover.png" width="208" height="251" class="image_left" />With the <a href="http://www.mobileread.com/forums/showthread.php?t=124219" target="_blank">Generate Cover plugin</a> installed, you can create custom covers for your catalog.</p>
+<p>To install the plugin, go to <span class="ui_element">Preferences|Advanced|Plugins|Get new plugins</span>.</p>
+</div>
+<hr />
+<h3><a name="additional_help_resources" id="additional_help_resources"></a><a href="#toc">Additional help resources</a></h3>
+<div class="help_topic"><p>For more information on calibre's Catalog feature, see the MobileRead forum sticky <a href="http://www.mobileread.com/forums/showthread.php?t=118556" target="_blank">Creating Catalogs - Start here</a>, where you can  find information on how to customize the catalog templates, and how to submit a bug report.</p>
+<p>To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum <a href="http://www.mobileread.com/forums/forumdisplay.php?f=238" target="_blank">Calibre Catalogs</a>.</p>
+<p>Calibre's online user manual can be found <a href="http://manual.calibre-ebook.com/index.html" target="_blank">here</a>.</p>
+</div>
+</body>
+</html>
