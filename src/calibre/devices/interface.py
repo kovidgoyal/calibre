@@ -215,7 +215,9 @@ class DevicePlugin(Plugin):
 
         Scan for devices that this driver can handle. Should return a device
         object if a device is found. This object will be passed to the open()
-        method as the connected_device. If no device is found, return None.
+        method as the connected_device. If no device is found, return None. The
+        returned object can be anything, calibre does not use it, it is only
+        passed to open().
 
         This method is called periodically by the GUI, so make sure it is not
         too resource intensive. Use a cache to avoid repeatedly scanning the
