@@ -889,6 +889,10 @@ class DeviceMixin(object): # {{{
         bb.rejected.connect(d.reject)
         l.addWidget(cw)
         l.addWidget(bb)
+        def validate():
+            if cw.validate():
+                QDialog.accept(d)
+        d.accept = validate
         if d.exec_() == d.Accepted:
             dev.save_settings(cw)
             warning_dialog(self, _('Disconnect device'),
