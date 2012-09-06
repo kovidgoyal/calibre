@@ -31,8 +31,8 @@
      </property>
      <property name="text">
       <string>&lt;p&gt;Start wireless device connections. Currently used only
-         by &lt;a href="https://play.google.com/store/apps/details?id=com.multipie.calibreandroid"&gt;Calibre Companion&lt;/a&gt;
-        &lt;p&gt;You may see some messages from your computer's firewall or anti-virus manager asking you if it is OK for calibre to connect to the network. &lt;b&gt;Please answer yes&lt;/b&gt;. If you do not, wireless connections will not work.</string>
+       by &lt;a href="http://www.multipie.co.uk/calibre-companion/"&gt;Calibre Companion&lt;/a&gt;
+       &lt;p&gt;You may see some messages from your computer's firewall or anti-virus manager asking you if it is OK for calibre to connect to the network. &lt;b&gt;Please answer yes&lt;/b&gt;. If you do not, wireless connections will not work.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
