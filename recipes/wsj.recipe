@@ -8,6 +8,12 @@ import copy
 
 # http://online.wsj.com/page/us_in_todays_paper.html
 
+def filter_classes(x):
+    if not x: return False
+    bad_classes = {'sTools', 'printSummary', 'mostPopular', 'relatedCollection'}
+    classes = frozenset(x.split())
+    return len(bad_classes.intersection(classes)) > 0
+
 class WallStreetJournal(BasicNewsRecipe):
 
     title = 'The Wall Street Journal'
@@ -35,10 +41,17 @@ class WallStreetJournal(BasicNewsRecipe):
 
     remove_tags_before = dict(name='h1')
     remove_tags = [
-                    dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow","articleTabs_tab_quotes","articleTabs_tab_document"]),
+                    dict(id=["articleTabs_tab_article",
+                        "articleTabs_tab_comments",
+                        'articleTabs_panel_comments', 'footer',
+                        "articleTabs_tab_interactive", "articleTabs_tab_video",
+                        "articleTabs_tab_map", "articleTabs_tab_slideshow",
+                        "articleTabs_tab_quotes", "articleTabs_tab_document",
+                        "printModeAd", "aFbLikeAuth", "videoModule",
+                        "mostRecommendations", "topDiscussions"]),
                     {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                     dict(rel='shortcut icon'),
-                    {'class':lambda x: x and 'sTools' in x},
+                    {'class':filter_classes},
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 
@@ -52,7 +65,7 @@ class WallStreetJournal(BasicNewsRecipe):
             br['password'] = self.password
             res = br.submit()
             raw = res.read()
-            if 'Welcome,' not in raw and '>Logout<' not in raw:
+            if '>Log Out<' not in raw:
                 raise ValueError('Failed to log in to wsj.com, check your '
                         'username and password')
         return br

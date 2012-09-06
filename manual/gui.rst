@@ -103,10 +103,9 @@ The :guilabel:`Convert books` action has three variations, accessed by doing a r
     3. **Create a catalog of the books in your calibre library**: Allows you to generate a complete listing of the books in your library, including all metadata,
        in several formats such as XML, CSV, BiBTeX, EPUB and MOBI. The catalog will contain all the books currently showing in the library view.
        This allows you to use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse,
-       only those books will be added to the catalog. If you generate the catalog in an ebook format such as EPUB or MOBI,
+       only those books will be added to the catalog. If you generate the catalog in an ebook format such as EPUB, MOBI or AZW3,
        the next time you connect your ebook reader the catalog will be automatically sent to the device.
-       For more information on how catalogs work, read the `catalog creation tutorial <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`_
-       at MobileRead.
+       For more information on how catalogs work, read the :ref:`catalog_tut`.
 
 .. _view:
 

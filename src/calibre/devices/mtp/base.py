@@ -37,6 +37,7 @@ class MTPDeviceBase(DevicePlugin):
         self.progress_reporter = None
         self.current_friendly_name = None
         self.report_progress = lambda x, y: None
+        self.current_serial_num = None
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
