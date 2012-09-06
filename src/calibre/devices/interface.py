@@ -226,7 +226,8 @@ class DevicePlugin(Plugin):
         :param devices_on_system: Set of USB devices found on the system.
 
         :param force_refresh: If True and the driver uses a cache to prevent
-        repeated scanning, the cache must be flushed.
+                              repeated scanning, the cache must be flushed.
+
         '''
         raise NotImplementedError()
 
@@ -548,7 +549,7 @@ class DevicePlugin(Plugin):
 
         If there is an error preparing a book, then instead of a path, the
         position in the returned list for that book should be a three tuple:
-            (original_path, the exception instance, traceback)
+        (original_path, the exception instance, traceback)
         '''
         return paths
 
