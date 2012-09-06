@@ -412,10 +412,15 @@ class EPUB_MOBI(CatalogPlugin):
                 pass
 
             if GENERATE_DEBUG_EPUB:
+                from calibre.ebooks.epub import initialize_container
                 from calibre.ebooks.tweak import zip_rebuilder
+                from calibre.utils.zipfile import ZipFile
                 input_path = os.path.join(catalog_debug_path,'input')
-                shutil.copy(P('catalog/mimetype'),input_path)
-                shutil.copytree(P('catalog/META-INF'),os.path.join(input_path,'META-INF'))
+                epub_shell = os.path.join(catalog_debug_path,'epub_shell.zip')
+                initialize_container(epub_shell, opf_name='content.opf')
+                with ZipFile(epub_shell, 'r') as zf:
+                    zf.extractall(path=input_path)
+                os.remove(epub_shell)
                 zip_rebuilder(input_path, os.path.join(catalog_debug_path,'input.epub'))
 
         # returns to gui2.actions.catalog:catalog_generated()
