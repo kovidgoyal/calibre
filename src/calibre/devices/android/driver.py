@@ -291,7 +291,7 @@ class ANDROID(USBMS):
     @classmethod
     def configure_for_kindle_app(cls):
         proxy = cls._configProxy()
-        proxy['format_map'] = ['mobi', 'azw', 'azw1', 'azw4', 'pdf']
+        proxy['format_map'] = ['azw3', 'mobi', 'azw', 'azw1', 'azw4', 'pdf']
         proxy['use_subdirs'] = False
         proxy['extra_customization'] = [
                 ','.join(['kindle']+cls.EBOOK_DIR_MAIN), '']
