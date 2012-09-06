@@ -488,6 +488,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             msg = self.listener.queue.get_nowait()
         except Empty:
             return
+        except:
+            prints('Received invalid message from another instance')
+            import traceback
+            traceback.print_exc()
+            return
         if msg.startswith('launched:'):
             argv = eval(msg[len('launched:'):])
             if len(argv) > 1:
