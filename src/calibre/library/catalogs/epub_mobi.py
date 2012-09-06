@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, sys, time
+import os, shutil
 from collections import namedtuple
 
 from calibre import strftime
@@ -334,7 +334,7 @@ class EPUB_MOBI(CatalogPlugin):
             log.info(" Begin catalog source generation")
 
         try:
-            catalog_source_built = catalog.build_sources()
+            catalog.build_sources()
             if opts.verbose:
                 log.info(" Completed catalog source generation\n")
         except (AuthorSortMismatchException, EmptyCatalogException), e:

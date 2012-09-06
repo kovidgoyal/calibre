@@ -56,77 +56,14 @@ class CatalogBuilder(object):
 
     """ property decorators for attributes """
     if True:
-        ''' list of unique authors '''
-        @property
-        def authors(self):
-            return self.__authors
-        @authors.setter
-        def authors(self, val):
-            self.__authors = val
 
-        ''' dict of bookmarked books '''
-        @property
-        def bookmarked_books(self):
-            return self.__bookmarked_books
-        @bookmarked_books.setter
-        def bookmarked_books(self, val):
-            self.__bookmarked_books = val
 
-        ''' list of bookmarked books, sorted by date read '''
-        @property
-        def bookmarked_books_by_date_read(self):
-            return self.__bookmarked_books_by_date_read
-        @bookmarked_books_by_date_read.setter
-        def bookmarked_books_by_date_read(self, val):
-            self.__bookmarked_books_by_date_read = val
 
-        ''' list of books, sorted by author '''
-        @property
-        def books_by_author(self):
-            return self.__books_by_author
-        @books_by_author.setter
-        def books_by_author(self, val):
-            self.__books_by_author = val
 
-        ''' list of books, grouped by date range (30 days) '''
-        @property
-        def books_by_date_range(self):
-            return self.__books_by_date_range
-        @books_by_date_range.setter
-        def books_by_date_range(self, val):
-            self.__books_by_date_range = val
 
-        ''' list of books, by date added reverse (most recent first) '''
-        @property
-        def books_by_month(self):
-            return self.__books_by_month
-        @books_by_month.setter
-        def books_by_month(self, val):
-            self.__books_by_month = val
 
-        ''' list of books in series '''
-        @property
-        def books_by_series(self):
-            return self.__books_by_series
-        @books_by_series.setter
-        def books_by_series(self, val):
-            self.__books_by_series = val
 
-        ''' list of books, sorted by title '''
-        @property
-        def books_by_title(self):
-            return self.__books_by_title
-        @books_by_title.setter
-        def books_by_title(self, val):
-            self.__books_by_title = val
 
-        ''' list of books in series, without series prefix '''
-        @property
-        def books_by_title_no_series_prefix(self):
-            return self.__books_by_title_no_series_prefix
-        @books_by_title_no_series_prefix.setter
-        def books_by_title_no_series_prefix(self, val):
-            self.__books_by_title_no_series_prefix = val
 
         ''' directory to store cached thumbs '''
         @property
@@ -143,26 +80,12 @@ class CatalogBuilder(object):
         def content_dir(self):
             return self.__content_dir
 
-        ''' track Job progress '''
-        @property
-        def current_step(self):
-            return self.__current_step
-        @current_step.setter
-        def current_step(self, val):
-            self.__current_step = val
 
         ''' active database '''
         @property
         def db(self):
             return self.__db
 
-        ''' cumulative error messages to report at conclusion  '''
-        @property
-        def error(self):
-            return self.__error
-        @error.setter
-        def error(self, val):
-            self.__error = val
 
         ''' tags to exclude as genres '''
         @property
@@ -179,50 +102,15 @@ class CatalogBuilder(object):
         def generate_recently_read(self):
             return self.__generate_recently_read
 
-        ''' list of dicts with books by genre '''
-        @property
-        def genres(self):
-            return self.__genres
-        @genres.setter
-        def genres(self, val):
-            self.__genres = val
 
-        ''' dict of enabled genre tags '''
-        @property
-        def genre_tags_dict(self):
-            return self.__genre_tags_dict
-        @genre_tags_dict.setter
-        def genre_tags_dict(self, val):
-            self.__genre_tags_dict = val
 
-        ''' Author, Title, Series sections '''
-        @property
-        def html_filelist_1(self):
-            return self.__html_filelist_1
-        @html_filelist_1.setter
-        def html_filelist_1(self, val):
-            self.__html_filelist_1 = val
 
-        ''' Date Added, Date Read '''
-        @property
-        def html_filelist_2(self):
-            return self.__html_filelist_2
-        @html_filelist_2.setter
-        def html_filelist_2(self, val):
-            self.__html_filelist_2 = val
 
         ''' additional field to include before/after comments '''
         @property
         def merge_comments_rule(self):
             return self.__merge_comments_rule
 
-        ''' cumulative HTML for NCX file '''
-        @property
-        def ncx_soup(self):
-            return self.__ncx_soup
-        @ncx_soup.setter
-        def ncx_soup(self, val):
-            self.__ncx_soup = val
 
         ''' opts passed from gui2.catalog.catalog_epub_mobi.py '''
         @property
@@ -234,42 +122,14 @@ class CatalogBuilder(object):
         def output_profile(self):
             return self.__output_profile
 
-        ''' playOrder value for building NCX '''
-        @property
-        def play_order(self):
-            return self.__play_order
-        @play_order.setter
-        def play_order(self, val):
-            self.__play_order = val
 
         ''' catalog??? device??? '''
         @property
         def plugin(self):
             return self.__plugin
 
-        ''' dict of prefix rules '''
-        @property
-        def prefix_rules(self):
-            return self.__prefix_rules
-        @prefix_rules.setter
-        def prefix_rules(self, val):
-            self.__prefix_rules = val
 
-        ''' used with ProgressReporter() '''
-        @property
-        def progress_int(self):
-            return self.__progress_int
-        @progress_int.setter
-        def progress_int(self, val):
-            self.__progress_int = val
 
-        ''' used with ProgressReporter() '''
-        @property
-        def progress_string(self):
-            return self.__progress_string
-        @progress_string.setter
-        def progress_string(self, val):
-            self.__progress_string = val
 
         ''' Progress Reporter for Jobs '''
         @property
@@ -315,40 +175,12 @@ class CatalogBuilder(object):
             else:
                 return self.format_prefix('&nbsp;')
 
-        @property
-        def thumb_height(self):
-            return self.__thumb_height
-        @thumb_height.setter
-        def thumb_height(self, val):
-            self.__thumb_height = val
-
-        @property
-        def thumb_width(self):
-            return self.__thumb_width
-        @thumb_width.setter
-        def thumb_width(self, val):
-            self.__thumb_width = val
-
-        ''' list of generated thumbs '''
-        @property
-        def thumbs(self):
-            return self.__thumbs
-        @thumbs.setter
-        def thumbs(self, val):
-            self.__thumbs = val
 
         ''' full path to thumbs archive '''
         @property
         def thumbs_path(self):
             return self.__thumbs_path
 
-        ''' used with ProgressReporter() '''
-        @property
-        def total_steps(self):
-            return self.__total_steps
-        @total_steps.setter
-        def total_steps(self, val):
-            self.__total_steps = val
 
         ''' switch controlling format of series books in Titles section '''
         @property
@@ -371,39 +203,63 @@ class CatalogBuilder(object):
                                               _opts.output_profile and
                                               _opts.output_profile.startswith("kindle")) else False
 
-        self.__authors = None
-        self.__bookmarked_books = None
-        self.__bookmarked_books_by_date_read = None
-        self.__books_by_author = None
-        self.__books_by_date_range = None
-        self.__books_by_month = None
-        self.__books_by_series = None
-        self.__books_by_title = None
-        self.__books_by_title_no_series_prefix = None
+        ''' list of unique authors '''
+        self.authors = None
+        ''' dict of bookmarked books '''
+        self.bookmarked_books = None
+        ''' list of bookmarked books, sorted by date read '''
+        self.bookmarked_books_by_date_read = None
+        ''' list of books, sorted by author '''
+        self.books_by_author = None
+        ''' list of books, grouped by date range (30 days) '''
+        self.books_by_date_range = None
+        ''' list of books, by date added reverse (most recent first) '''
+        self.books_by_month = None
+        ''' list of books in series '''
+        self.books_by_series = None
+        ''' list of books, sorted by title '''
+        self.books_by_title = None
+        ''' list of books in series, without series prefix '''
+        self.books_by_title_no_series_prefix = None
         self.__content_dir = os.path.join(self.catalog_path, "content")
-        self.__current_step = 0.0
-        self.__error = []
+        ''' track Job progress '''
+        self.current_step = 0.0
+        ''' cumulative error messages to report at conclusion  '''
+        self.error = []
         self.__excluded_tags = self.get_excluded_tags()
         self.__generate_recently_read = True if (_opts.generate_recently_added and
                                                  _opts.connected_kindle and
                                                  self.generate_for_kindle) else False
-        self.__genres = []
-        self.__genre_tags_dict = None
-        self.__html_filelist_1 = []
-        self.__html_filelist_2 = []
+        ''' list of dicts with books by genre '''
+        self.genres = []
+        ''' dict of enabled genre tags '''
+        self.genre_tags_dict = None
+        ''' Author, Title, Series sections '''
+        self.html_filelist_1 = []
+        ''' Date Added, Date Read '''
+        self.html_filelist_2 = []
         self.__merge_comments_rule = dict(zip(['field','position','hr'],_opts.merge_comments_rule.split(':')))
-        self.__ncx_soup = None
+        ''' cumulative HTML for NCX file '''
+        self.ncx_soup = None
         self.__output_profile = None
         self.__output_profile = self.get_output_profile(_opts)
-        self.__play_order = 1
-        self.__prefix_rules = self.get_prefix_rules()
-        self.__progress_int = 0.0
-        self.__progress_string = ''
+        ''' playOrder value for building NCX '''
+        self.play_order = 1
+        ''' dict of prefix rules '''
+        self.prefix_rules = self.get_prefix_rules()
+        ''' used with ProgressReporter() '''
+        self.progress_int = 0.0
+        ''' used with ProgressReporter() '''
+        self.progress_string = ''
+
         self.__thumb_height = 0
+
         self.__thumb_width = 0
-        self.__thumbs = None
+        ''' list of generated thumbs '''
+        self.thumbs = None
         self.__thumbs_path = os.path.join(self.cache_dir, "thumbs.zip")
-        self.__total_steps = 6.0
+        ''' used with ProgressReporter() '''
+        self.total_steps = 6.0
         self.__use_series_prefix_in_titles_section = False
 
         self.compute_total_steps()
