@@ -10,10 +10,12 @@ __docformat__ = 'restructuredtext en'
 import weakref
 
 from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
-        QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout)
+        QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
+        QPushButton)
 
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 class FormatsConfig(QWidget): # {{{
 
@@ -75,18 +77,27 @@ class TemplateConfig(QWidget): # {{{
         t.setText(val or '')
         t.setCursorPosition(0)
         self.setMinimumWidth(400)
-        self.l = l = QVBoxLayout(self)
+        self.l = l = QGridLayout(self)
         self.setLayout(l)
         self.m = m = QLabel('<p>'+_('''<b>Save &template</b> to control the filename and
         location of files sent to the device:'''))
         m.setWordWrap(True)
         m.setBuddy(t)
-        l.addWidget(m)
-        l.addWidget(t)
+        l.addWidget(m, 0, 0, 1, 2)
+        l.addWidget(t, 1, 0, 1, 1)
+        b = self.b = QPushButton(_('Template editor'))
+        l.addWidget(b, 1, 1, 1, 1)
+        b.clicked.connect(self.edit_template)
 
     @property
     def template(self):
         return unicode(self.t.text()).strip()
+
+    def edit_template(self):
+        t = TemplateDialog(self, self.template)
+        t.setWindowTitle(_('Edit template'))
+        if t.exec_():
+            self.t.setText(t.rule[1])
 
     def validate(self):
         from calibre.utils.formatter import validation_formatter
