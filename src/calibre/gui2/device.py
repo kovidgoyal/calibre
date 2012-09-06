@@ -976,6 +976,7 @@ class DeviceMixin(object): # {{{
             connected = False
         self.set_device_menu_items_state(connected)
         if connected:
+            self.device_connected = device_kind
             self.device_manager.get_device_information(\
                     FunctionDispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -983,9 +984,8 @@ class DeviceMixin(object): # {{{
             self.status_bar.show_message(_('Device: ')+\
                 self.device_manager.device.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = device_kind
             self.library_view.set_device_connected(self.device_connected)
-            self.refresh_ondevice (reset_only = True)
+            self.refresh_ondevice(reset_only=True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
