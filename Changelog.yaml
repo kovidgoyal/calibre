@@ -35,7 +35,7 @@
 
     - title: "Add an option under Preferences->Look & Feel->Book Details to hide the cover in the book details panel"
 
-    - title: "The Calibre Companion Android app that allows wireless connection of Android device to calibre is out of beta. See https://play.google.com/stor/apps/details?id=com.multipie.calibreandroid"
+    - title: "The Calibre Companion Android app that allows wireless connection of Android device to calibre is out of beta. See https://play.google.com/store/apps/details?id=com.multipie.calibreandroid"
  
   bug fixes:
     - title: "Fix sorting by author not working in the device view in calibre when connected to iTunes"
