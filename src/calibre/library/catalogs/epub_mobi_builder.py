@@ -55,199 +55,93 @@ class CatalogBuilder(object):
     # title                 dc:title in OPF metadata, NCX periodical
     # verbosity             level of diagnostic printout
 
-    """ property decorators for attributes """
-    if True:
-        ''' directory to store cached thumbs '''
-        @property
-        def cache_dir(self):
-            return self.__cache_dir
+    ''' device-specific symbol (default empty star) '''
+    @property
+    def SYMBOL_EMPTY_RATING(self):
+        return self.output_profile.empty_ratings_char
 
-        ''' temp dir to store generated catalog '''
-        @property
-        def catalog_path(self):
-            return self.__catalog_path
+    ''' device-specific symbol (default filled star) '''
+    @property
+    def SYMBOL_FULL_RATING(self):
+        return self.output_profile.ratings_char
 
-        ''' content dir in generated catalog '''
-        @property
-        def content_dir(self):
-            return self.__content_dir
+    ''' device-specific symbol for reading progress '''
+    @property
+    def SYMBOL_PROGRESS_READ(self):
+        psr = '+'
+        if self.generate_for_kindle:
+            psr = '&#9642;'
+        return psr
 
+    ''' device-specific symbol for reading progress '''
+    @property
+    def SYMBOL_PROGRESS_UNREAD(self):
+        psu = '-'
+        if self.generate_for_kindle:
+            psu = '&#9643;'
+        return psu
 
-        ''' active database '''
-        @property
-        def db(self):
-            return self.__db
+    ''' device-specific symbol for reading progress '''
+    @property
+    def SYMBOL_READING(self):
+        if self.generate_for_kindle:
+            return self.format_prefix('&#x25b7;')
+        else:
+            return self.format_prefix('&nbsp;')
 
-
-        ''' tags to exclude as genres '''
-        @property
-        def excluded_tags(self):
-            return self.__excluded_tags
-
-        ''' True if generating for Kindle in MOBI format '''
-        @property
-        def generate_for_kindle(self):
-            return self.__generate_for_kindle
-
-        ''' True if connected Kindle and generating for Kindle '''
-        @property
-        def generate_recently_read(self):
-            return self.__generate_recently_read
-
-        ''' additional field to include before/after comments '''
-        @property
-        def merge_comments_rule(self):
-            return self.__merge_comments_rule
-
-
-        ''' opts passed from gui2.catalog.catalog_epub_mobi.py '''
-        @property
-        def opts(self):
-            return self.__opts
-
-        ''' output_profile declares special symbols '''
-        @property
-        def output_profile(self):
-            return self.__output_profile
-
-
-        ''' catalog??? device??? '''
-        @property
-        def plugin(self):
-            return self.__plugin
-
-        ''' Progress Reporter for Jobs '''
-        @property
-        def reporter(self):
-            return self.__reporter
-
-        ''' stylesheet to include with catalog '''
-        @property
-        def stylesheet(self):
-            return self.__stylesheet
-
-        ''' device-specific symbol (default empty star) '''
-        @property
-        def SYMBOL_EMPTY_RATING(self):
-            return self.output_profile.empty_ratings_char
-
-        ''' device-specific symbol (default filled star) '''
-        @property
-        def SYMBOL_FULL_RATING(self):
-            return self.output_profile.ratings_char
-
-        ''' device-specific symbol for reading progress '''
-        @property
-        def SYMBOL_PROGRESS_READ(self):
-            psr = '+'
-            if self.generate_for_kindle:
-                psr = '&#9642;'
-            return psr
-
-        ''' device-specific symbol for reading progress '''
-        @property
-        def SYMBOL_PROGRESS_UNREAD(self):
-            psu = '-'
-            if self.generate_for_kindle:
-                psu = '&#9643;'
-            return psu
-
-        ''' device-specific symbol for reading progress '''
-        @property
-        def SYMBOL_READING(self):
-            if self.generate_for_kindle:
-                return self.format_prefix('&#x25b7;')
-            else:
-                return self.format_prefix('&nbsp;')
-
-
-        ''' full path to thumbs archive '''
-        @property
-        def thumbs_path(self):
-            return self.__thumbs_path
-
-
-        ''' switch controlling format of series books in Titles section '''
-        @property
-        def use_series_prefix_in_titles_section(self):
-            return self.__use_series_prefix_in_titles_section
 
     def __init__(self, db, _opts, plugin,
                     report_progress=DummyReporter(),
                     stylesheet="content/stylesheet.css",
                     init_resources=True):
 
-        self.__db = db
-        self.__opts = _opts
-        self.__plugin = plugin
-        self.__reporter = report_progress
-        self.__stylesheet = stylesheet
-        self.__cache_dir = os.path.join(config_dir, 'caches', 'catalog')
-        self.__catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
-        self.__excluded_tags = self.get_excluded_tags()
-        self.__generate_for_kindle = True if (_opts.fmt == 'mobi' and
+        self.db = db
+        self.opts = _opts
+        self.plugin = plugin
+        self.reporter = report_progress
+        self.stylesheet = stylesheet
+        self.cache_dir = os.path.join(config_dir, 'caches', 'catalog')
+        self.catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
+        self.excluded_tags = self.get_excluded_tags()
+        self.generate_for_kindle = True if (_opts.fmt == 'mobi' and
                                               _opts.output_profile and
                                               _opts.output_profile.startswith("kindle")) else False
 
-        ''' list of unique authors '''
         self.authors = None
-        ''' dict of bookmarked books '''
         self.bookmarked_books = None
-        ''' list of bookmarked books, sorted by date read '''
         self.bookmarked_books_by_date_read = None
-        ''' list of books, sorted by author '''
         self.books_by_author = None
-        ''' list of books, grouped by date range (30 days) '''
         self.books_by_date_range = None
-        ''' list of books, by date added reverse (most recent first) '''
         self.books_by_month = None
-        ''' list of books in series '''
         self.books_by_series = None
-        ''' list of books, sorted by title '''
         self.books_by_title = None
-        ''' list of books in series, without series prefix '''
         self.books_by_title_no_series_prefix = None
-        ''' Initial list of books to catalog from which all sections are built '''
         self.books_to_catalog = None
-        self.__content_dir = os.path.join(self.catalog_path, "content")
-        ''' track Job progress '''
+        self.content_dir = os.path.join(self.catalog_path, "content")
         self.current_step = 0.0
-        ''' cumulative error messages to report at conclusion  '''
         self.error = []
-        self.__generate_recently_read = True if (_opts.generate_recently_added and
-                                                 _opts.connected_kindle and
-                                                 self.generate_for_kindle) else False
-        ''' list of dicts with books by genre '''
+        self.generate_recently_read = True if (_opts.generate_recently_added and
+                                               _opts.connected_kindle and
+                                               self.generate_for_kindle) else False
         self.genres = []
-        ''' dict of enabled genre tags '''
         self.genre_tags_dict = None
-        ''' Author, Title, Series sections '''
         self.html_filelist_1 = []
-        ''' Date Added, Date Read '''
         self.html_filelist_2 = []
-        self.__merge_comments_rule = dict(zip(['field','position','hr'],_opts.merge_comments_rule.split(':')))
-        ''' cumulative HTML for NCX file '''
+        self.merge_comments_rule = dict(zip(['field','position','hr'],
+                                            _opts.merge_comments_rule.split(':')))
         self.ncx_soup = None
-        self.__output_profile = None
-        self.__output_profile = self.get_output_profile(_opts)
-        ''' playOrder value for building NCX '''
+        self.output_profile = None
+        self.output_profile = self.get_output_profile(_opts)
         self.play_order = 1
-        ''' dict of prefix rules '''
         self.prefix_rules = self.get_prefix_rules()
-        ''' used with ProgressReporter() '''
         self.progress_int = 0.0
-        ''' used with ProgressReporter() '''
         self.progress_string = ''
-
-        self.__thumb_height = 0
-
-        self.__thumb_width = 0
-        ''' list of generated thumbs '''
+        self.thumb_height = 0
+        self.thumb_width = 0
         self.thumbs = None
-        self.__thumbs_path = os.path.join(self.cache_dir, "thumbs.zip")
-        ''' used with ProgressReporter() '''
+        self.thumbs_path = os.path.join(self.cache_dir, "thumbs.zip")
         self.total_steps = 6.0
-        self.__use_series_prefix_in_titles_section = False
+        self.use_series_prefix_in_titles_section = False
 
         self.books_to_catalog = self.fetch_books_to_catalog()
         self.compute_total_steps()
@@ -3141,8 +3035,8 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_(u"Series beginning with %s") % \
-                (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
+            textTag.insert(0, NavigableString(_(u"Series beginning with '%s'") % \
+                (title_letters[i] if len(title_letters[i])>1 else title_letters[i])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
@@ -3262,8 +3156,8 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_(u"Titles beginning with %s") % \
-                (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
+            textTag.insert(0, NavigableString(_(u"Titles beginning with '%s'") % \
+                (title_letters[i] if len(title_letters[i])>1 else title_letters[i])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
