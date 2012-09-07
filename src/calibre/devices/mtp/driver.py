@@ -15,7 +15,7 @@ from calibre import prints
 from calibre.constants import iswindows, numeric_version
 from calibre.devices.mtp.base import debug
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
-from calibre.utils.config import from_json, to_json
+from calibre.utils.config import from_json, to_json, JSONConfig
 from calibre.utils.date import now, isoformat
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
@@ -39,9 +39,40 @@ class MTP_DEVICE(BASE):
     def __init__(self, *args, **kwargs):
         BASE.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
+        self._prefs = None
+
+    @property
+    def prefs(self):
+        if self._prefs is None:
+            from calibre.library.save_to_disk import config
+            self._prefs = p = JSONConfig('mtp_devices')
+            p.defaults['format_map'] = self.FORMATS
+            p.defaults['send_to'] = ['eBooks/import',
+                    'wordplayer/calibretransfer', 'Books', 'sdcard/ebooks',
+                    'eBooks', 'kindle']
+            p.defaults['send_template'] = config().parse().send_template
+
+        return self._prefs
+
+    def configure_for_kindle_app(self):
+        proxy = self.prefs
+        with proxy:
+            proxy['format_map'] = ['azw3', 'mobi', 'azw', 'azw1', 'azw4', 'pdf']
+            proxy['send_template'] = '{title} - {authors}'
+            orig = list(proxy['send_to'])
+            if 'kindle' in orig:
+                orig.remove('kindle')
+            orig.insert(0, 'kindle')
+            proxy['send_to'] = orig
+
+    def configure_for_generic_epub_app(self):
+        with self.prefs:
+            for x in ('format_map', 'send_template', 'send_to'):
+                del self.prefs[x]
 
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
+        self.location_paths = None
         BASE.open(self, devices, library_uuid)
 
     # Device information {{{
@@ -248,8 +279,24 @@ class MTP_DEVICE(BASE):
         return tuple(x for x in filepath.split('/'))
 
     def prefix_for_location(self, on_card):
-        # TODO: Implement this
-        return 'calibre'
+        if self.location_paths is None:
+            self.location_paths = {}
+            for sid, loc in ( (self._main_id, None), (self._carda_id, 'carda'),
+                    (self._cardb_id, 'cardb') ):
+                if sid is not None:
+                    storage = self.filesystem_cache.storage(sid)
+                    prefixes = self.get_pref('send_to')
+                    p = None
+                    for path in prefixes:
+                        path = path.replace(os.sep, '/')
+                        if storage.find_path(path.split('/')) is not None:
+                            p = path
+                            break
+                    if p is None:
+                        p = 'eBooks'
+                    self.location_paths[loc] = p
+
+        return self.location_paths[on_card]
 
     def ensure_parent(self, storage, path):
         parent = storage
@@ -366,13 +413,27 @@ class MTP_DEVICE(BASE):
     # }}}
 
     # Settings {{{
-    @classmethod
+
+    def get_pref(self, key):
+        return self.prefs.get('device-%s'%self.current_serial_num, {}).get(key,
+                self.prefs[key])
+
+    def config_widget(self):
+        from calibre.gui2.device_drivers.mtp_config import MTPConfig
+        return MTPConfig(self)
+
+    def save_settings(self, cw):
+        cw.commit()
+
     def settings(self):
-        # TODO: Implement this
         class Opts(object):
             def __init__(s):
-                s.format_map = self.FORMATS
+                s.format_map = self.get_pref('format_map')
         return Opts()
+
+    @property
+    def save_template(self):
+        return self.prefs['send_template']
 
     # }}}
 
@@ -390,6 +451,7 @@ if __name__ == '__main__':
         dev.set_progress_reporter(prints)
         dev.open(cd, None)
         dev.filesystem_cache.dump()
+        print ('Prefix for main mem:', dev.prefix_for_location(None))
     finally:
         dev.shutdown()
 

@@ -993,10 +993,10 @@ class Device(DeviceConfig, DevicePlugin):
 
         if on_card == 'carda':
             candidates = self.get_carda_ebook_dir(for_upload=True)
-            path = get_dest_dir(self._carda_prefix, candidates)
+            path = get_dest_dir(self._card_a_prefix, candidates)
         elif on_card == 'cardb':
             candidates = self.get_cardb_ebook_dir(for_upload=True)
-            path = get_dest_dir(self._cardb_prefix, candidates)
+            path = get_dest_dir(self._card_b_prefix, candidates)
         else:
             candidates = self.get_main_ebook_dir(for_upload=True)
             path = get_dest_dir(self._main_prefix, candidates)

@@ -267,7 +267,7 @@ class Android(Device):
     def commit(cls):
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
-            if plugin.name == 'Android driver':
+            if hasattr(plugin, 'configure_for_generic_epub_app'):
                 plugin.configure_for_generic_epub_app()
 
 class AndroidTablet(Android):
@@ -287,7 +287,7 @@ class AndroidPhoneWithKindle(Android):
     def commit(cls):
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
-            if plugin.name == 'Android driver':
+            if hasattr(plugin, 'configure_for_kindle_app'):
                 plugin.configure_for_kindle_app()
 
 class AndroidTabletWithKindle(AndroidPhoneWithKindle):

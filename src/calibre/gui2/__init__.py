@@ -328,6 +328,19 @@ def info_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
+def show_restart_warning(msg, parent=None):
+    d = warning_dialog(parent, _('Restart needed'), msg,
+            show_copy_button=False)
+    b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+    b.setIcon(QIcon(I('lt.png')))
+    d.do_restart = False
+    def rf():
+        d.do_restart = True
+    b.clicked.connect(rf)
+    d.set_details('')
+    d.exec_()
+    b.clicked.disconnect()
+    return d.do_restart
 
 
 class Dispatcher(QObject):
