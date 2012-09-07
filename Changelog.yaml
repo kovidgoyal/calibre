@@ -19,6 +19,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.68
+  date: 2012-09-07
+
+  new features:
+    - title: "Drivers for the Nokia N9, Viewsonic 7e, Prestigio PER3274B and Coby Kyros 7035 "
+      tickets: [1046794,1046544]
+
+    - title: "Add a tutorial on creating catalogs to the User Manual and a link to it in the create catalogs dialog"
+
+    - title: "Wireless device connections: Add an option to force calibre to listen on a particular IP address. Access it by customizing the plugin in Preferences->Plugins"
+
+    - title: "Android driver: Add an extra customization option to configure the directory to which ebooks are sent on the storage cards."
+      tickets: [1045045]
+
+    - title: "Add an option under Preferences->Look & Feel->Book Details to hide the cover in the book details panel"
+
+    - title: "The Calibre Companion Android app that allows wireless connection of Android device to calibre is out of beta. See https://play.google.com/stor/apps/details?id=com.multipie.calibreandroid"
+ 
+  bug fixes:
+    - title: "Fix sorting by author not working in the device view in calibre when connected to iTunes"
+      tickets: [1044619]
+
+    - title: "Fix using the 'configure this device' menu action not validating settings"
+
+    - title: "Device drivers: Ignore corrupted entries in metadata.calibre, instead of raising an error"
+
+    - title: "PDF Output: Do not error out when generating an outline which points to pages that have been removed."
+      tickets: [1044799]
+
+    - title: "PDF Output: Fix incorrect page numbers being generated in the outline when converting some books"
+
+    - title: "PDF Output: Reduce memory consumption when writing out the PDF file, by using a stream"
+
+    - title: "EPUB metadata: When there are multiple <dc:date> tags use the one with the earliest date as the published date"
+
+  improved recipes:
+    - Wall Street journal (subscription version)
+    - Houston Chronicle
+    - Various Romanian news sources
+    - Business Week Magazine
+    - Arcamax
+
 - version: 0.8.67
   date: 2012-08-31
 
