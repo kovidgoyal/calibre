@@ -19,7 +19,8 @@ from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
-        warning_dialog, info_dialog, choose_dir, FunctionDispatcher)
+        warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
+        show_restart_warning)
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
@@ -889,12 +890,16 @@ class DeviceMixin(object): # {{{
         bb.rejected.connect(d.reject)
         l.addWidget(cw)
         l.addWidget(bb)
+        def validate():
+            if cw.validate():
+                QDialog.accept(d)
+        d.accept = validate
         if d.exec_() == d.Accepted:
             dev.save_settings(cw)
-            warning_dialog(self, _('Disconnect device'),
-                    _('Disconnect and re-connect the %s for your changes to'
-                        ' be applied.')%dev.get_gui_name(), show=True,
-                    show_copy_button=False)
+            do_restart = show_restart_warning(_('Restart calibre for the changes to %s'
+                ' to be applied.')%dev.get_gui_name(), parent=self)
+            if do_restart:
+                self.quit(restart=True)
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -972,6 +977,7 @@ class DeviceMixin(object): # {{{
             connected = False
         self.set_device_menu_items_state(connected)
         if connected:
+            self.device_connected = device_kind
             self.device_manager.get_device_information(\
                     FunctionDispatcher(self.info_read))
             self.set_default_thumbnail(\
@@ -979,9 +985,8 @@ class DeviceMixin(object): # {{{
             self.status_bar.show_message(_('Device: ')+\
                 self.device_manager.device.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = device_kind
             self.library_view.set_device_connected(self.device_connected)
-            self.refresh_ondevice (reset_only = True)
+            self.refresh_ondevice(reset_only=True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()

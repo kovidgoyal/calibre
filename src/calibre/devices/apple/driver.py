@@ -13,7 +13,8 @@ from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
-from calibre.ebooks.metadata import authors_to_string, MetaInformation, title_sort
+from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
+    MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
@@ -3478,6 +3479,7 @@ class Book(Metadata):
     '''
     def __init__(self,title,author):
         Metadata.__init__(self, title, authors=author.split(' & '))
+        self.author_sort = author_to_author_sort(author)
 
     @property
     def title_sorter(self):

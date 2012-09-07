@@ -31,15 +31,13 @@ class Arcamax(BasicNewsRecipe):
                         , 'language'          : language
                         }
 
-    keep_only_tags     = [dict(name='div', attrs={'class':['comics-header']}),
-                                        dict(name='b', attrs={'class':['current']}),
-                                        dict(name='article', attrs={'class':['comic']}),
+    keep_only_tags     = [dict(name='article', attrs={'class':['comic']}),
                                         ]
 
-    remove_tags = [dict(name='div', attrs={'id':['comicfull' ]}),
-                               dict(name='div', attrs={'class':['calendar' ]}),
-                               dict(name='nav', attrs={'class':['calendar-nav' ]}),
-                               ]
+    #remove_tags = [dict(name='div', attrs={'id':['comicfull' ]}),
+                               #dict(name='div', attrs={'class':['calendar' ]}),
+                               #dict(name='nav', attrs={'class':['calendar-nav' ]}),
+                               #]
 
     def parse_index(self):
         feeds = []
@@ -48,20 +46,20 @@ class Arcamax(BasicNewsRecipe):
                             #(u"9 Chickweed Lane", u"http://www.arcamax.com/ninechickweedlane"),
                             #(u"Agnes", u"http://www.arcamax.com/agnes"),
                             #(u"Andy Capp", u"http://www.arcamax.com/andycapp"),
-                            (u"BC", u"http://www.arcamax.com/bc"),
+                            (u"BC", u"http://www.arcamax.com/thefunnies/bc"),
                             #(u"Baby Blues", u"http://www.arcamax.com/babyblues"),
                             #(u"Beetle Bailey", u"http://www.arcamax.com/beetlebailey"),
-                            (u"Blondie", u"http://www.arcamax.com/blondie"),
+                            (u"Blondie", u"http://www.arcamax.com/thefunnies/blondie"),
                             #u"Boondocks", u"http://www.arcamax.com/boondocks"),
                             #(u"Cathy", u"http://www.arcamax.com/cathy"),
                             #(u"Daddys Home", u"http://www.arcamax.com/daddyshome"),
-                            (u"Dilbert", u"http://www.arcamax.com/dilbert"),
+                            (u"Dilbert", u"http://www.arcamax.com/thefunnies/dilbert"),
                             #(u"Dinette Set", u"http://www.arcamax.com/thedinetteset"),
-                            (u"Dog Eat Doug", u"http://www.arcamax.com/dogeatdoug"),
-                            (u"Doonesbury", u"http://www.arcamax.com/doonesbury"),
+                            (u"Dog Eat Doug", u"http://www.arcamax.com/thefunnies/dogeatdoug"),
+                            (u"Doonesbury", u"http://www.arcamax.com/thefunnies/doonesbury"),
                             #(u"Dustin", u"http://www.arcamax.com/dustin"),
-                            (u"Family Circus", u"http://www.arcamax.com/familycircus"),
-                            (u"Garfield", u"http://www.arcamax.com/garfield"),
+                            (u"Family Circus", u"http://www.arcamax.com/thefunnies/familycircus"),
+                            (u"Garfield", u"http://www.arcamax.com/thefunnies/garfield"),
                             #(u"Get Fuzzy", u"http://www.arcamax.com/getfuzzy"),
                             #(u"Girls and Sports", u"http://www.arcamax.com/girlsandsports"),
                             #(u"Hagar the Horrible", u"http://www.arcamax.com/hagarthehorrible"),
@@ -70,16 +68,16 @@ class Arcamax(BasicNewsRecipe):
                             #(u"Luann", u"http://www.arcamax.com/luann"),
                             #(u"Momma", u"http://www.arcamax.com/momma"),
                             #(u"Mother Goose and Grimm", u"http://www.arcamax.com/mothergooseandgrimm"),
-                            (u"Mutts", u"http://www.arcamax.com/mutts"),
+                            (u"Mutts", u"http://www.arcamax.com/thefunnies/mutts"),
                             #(u"Non Sequitur", u"http://www.arcamax.com/nonsequitur"),
                             #(u"Pearls Before Swine", u"http://www.arcamax.com/pearlsbeforeswine"),
                             #(u"Pickles", u"http://www.arcamax.com/pickles"),
                             #(u"Red and Rover", u"http://www.arcamax.com/redandrover"),
                             #(u"Rubes", u"http://www.arcamax.com/rubes"),
                             #(u"Rugrats", u"http://www.arcamax.com/rugrats"),
-                            (u"Speed Bump", u"http://www.arcamax.com/speedbump"),
-                            (u"Wizard of Id", u"http://www.arcamax.com/wizardofid"),
-                            (u"Zits", u"http://www.arcamax.com/zits"),
+                            (u"Speed Bump", u"http://www.arcamax.com/thefunnies/speedbump"),
+                            (u"Wizard of Id", u"http://www.arcamax.com/thefunnies/wizardofid"),
+                            (u"Zits", u"http://www.arcamax.com/thefunnies/zits"),
                              ]:
             articles = self.make_links(url)
             if articles:
@@ -93,11 +91,11 @@ class Arcamax(BasicNewsRecipe):
         for page in pages:
             page_soup = self.index_to_soup(url)
             if page_soup:
-                title = self.tag_to_string(page_soup.find(name='div', attrs={'class':'comics-header'}).h1.contents[0])
+                title = self.tag_to_string(page_soup.find(name='div', attrs={'class':'columnheader'}).h1.contents[0])
                 page_url = url
                 # orig prev_page_url = 'http://www.arcamax.com' + page_soup.find('a', attrs={'class':'prev'}, text='Previous').parent['href']
-                prev_page_url = 'http://www.arcamax.com' + page_soup.find('span', text='Previous').parent.parent['href']
-                date = self.tag_to_string(page_soup.find(name='b', attrs={'class':['current']}))
+                prev_page_url = 'http://www.arcamax.com' + page_soup.find(name='a', attrs={'class':['prev']})['href']
+                date = self.tag_to_string(page_soup.find(name='span', attrs={'class':['cur']}))
             current_articles.append({'title': title, 'url': page_url, 'description':'', 'date': date})
             url = prev_page_url
         current_articles.reverse()
@@ -126,4 +124,5 @@ class Arcamax(BasicNewsRecipe):
                     img {max-width:100%; min-width:100%;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		'''
+        '''
+

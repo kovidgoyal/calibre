@@ -14,7 +14,7 @@
    <string>Generate catalog</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -37,7 +37,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -54,8 +54,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>666</width>
-        <height>599</height>
+        <width>650</width>
+        <height>575</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">

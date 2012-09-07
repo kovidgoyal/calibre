@@ -46,9 +46,8 @@ class MTPDeviceBase(DevicePlugin):
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
 
-    @classmethod
-    def get_gui_name(cls):
-        return getattr(cls, 'current_friendly_name', cls.gui_name)
+    def get_gui_name(self):
+        return getattr(self, 'current_friendly_name', self.gui_name)
 
     def is_usb_connected(self, devices_on_system, debug=False,
             only_presence=False):
@@ -60,13 +59,4 @@ class MTPDeviceBase(DevicePlugin):
         from calibre.devices.utils import build_template_regexp
         return build_template_regexp(self.save_template)
 
-    @property
-    def default_save_template(cls):
-        from calibre.library.save_to_disk import config
-        return config().parse().send_template
-
-    @property
-    def save_template(self):
-        # TODO: Use the device specific template here
-        return self.default_save_template
 
