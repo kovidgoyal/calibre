@@ -3035,7 +3035,11 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_(u"Series beginning with '%s'") % \
+            if len(title_letters[i])>1:
+                fmt_string = _(u"Series beginning with %s")
+            else:
+                fmt_string = _(u"Series beginning with '%s'")
+            textTag.insert(0, NavigableString(fmt_string %
                 (title_letters[i] if len(title_letters[i])>1 else title_letters[i])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
@@ -3156,7 +3160,11 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_(u"Titles beginning with '%s'") % \
+            if len(title_letters[i])>1:
+                fmt_string = _(u"Titles beginning with %s")
+            else:
+                fmt_string = _(u"Titles beginning with '%s'")
+            textTag.insert(0, NavigableString(fmt_string %
                 (title_letters[i] if len(title_letters[i])>1 else title_letters[i])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
@@ -3267,7 +3275,11 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_("Authors beginning with '%s'") % (authors_by_letter[1])))
+            if len(authors_by_letter[1])>1:
+                fmt_string = _(u"Authors beginning with %s")
+            else:
+                fmt_string = _(u"Authors beginning with '%s'")
+            textTag.insert(0, NavigableString(fmt_string % (authors_by_letter[1])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
