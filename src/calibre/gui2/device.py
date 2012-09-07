@@ -19,7 +19,8 @@ from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
-        warning_dialog, info_dialog, choose_dir, FunctionDispatcher)
+        warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
+        show_restart_warning)
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
@@ -895,10 +896,10 @@ class DeviceMixin(object): # {{{
         d.accept = validate
         if d.exec_() == d.Accepted:
             dev.save_settings(cw)
-            warning_dialog(self, _('Disconnect device'),
-                    _('Disconnect and re-connect the %s for your changes to'
-                        ' be applied.')%dev.get_gui_name(), show=True,
-                    show_copy_button=False)
+            do_restart = show_restart_warning(_('Restart calibre for the changes to %s'
+                ' to be applied.')%dev.get_gui_name(), parent=self)
+            if do_restart:
+                self.quit(restart=True)
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
