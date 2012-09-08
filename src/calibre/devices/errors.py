@@ -110,3 +110,9 @@ class WrongDestinationError(PathError):
     trying to send books to a non existant storage card.'''
     pass
 
+class BlacklistedDevice(OpenFailed):
+    ''' Raise this error during open() when the device being opened has been
+    blacklisted by the user. Only used in drivers that manage device presence,
+    like the MTP driver. '''
+    pass
+

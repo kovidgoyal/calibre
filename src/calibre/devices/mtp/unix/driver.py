@@ -15,7 +15,7 @@ from functools import partial
 from calibre import prints, as_unicode
 from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed, DeviceError
+from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
@@ -99,19 +99,25 @@ class MTP_DEVICE(MTPDeviceBase):
             return False
         p('Known MTP devices connected:')
         for d in devs: p(d)
-        d = devs[0]
-        p('\nTrying to open:', d)
-        try:
-            self.open(d, 'debug')
-        except:
-            p('Opening device failed:')
-            p(traceback.format_exc())
-            return False
-        p('Opened', self.current_friendly_name, 'successfully')
-        p('Storage info:')
-        p(pprint.pformat(self.dev.storage_info))
-        self.eject()
-        return True
+
+        for d in devs:
+            p('\nTrying to open:', d)
+            try:
+                self.open(d, 'debug')
+            except BlacklistedDevice:
+                p('This device has been blacklisted by the user')
+                continue
+            except:
+                p('Opening device failed:')
+                p(traceback.format_exc())
+                return False
+            else:
+                p('Opened', self.current_friendly_name, 'successfully')
+                p('Storage info:')
+                p(pprint.pformat(self.dev.storage_info))
+                self.post_yank_cleanup()
+                return True
+        return False
 
     @synchronous
     def create_device(self, connected_device):
@@ -167,6 +173,12 @@ class MTP_DEVICE(MTPDeviceBase):
         if not storage:
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
+        snum = self.dev.serial_number
+        if snum in self.prefs.get('blacklist', []):
+            self.blacklisted_devices.add(connected_device)
+            self.dev = None
+            raise BlacklistedDevice(
+                'The %s device has been blacklisted by the user'%(connected_device,))
         self._main_id = storage[0]['id']
         self._carda_id = self._cardb_id = None
         if len(storage) > 1:
@@ -176,7 +188,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.current_friendly_name = self.dev.friendly_name
         if not self.current_friendly_name:
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
-        self.current_serial_num = self.dev.serial_number
+        self.current_serial_num = snum
 
     @property
     def filesystem_cache(self):

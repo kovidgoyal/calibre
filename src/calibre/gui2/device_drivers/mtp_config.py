@@ -16,6 +16,7 @@ from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.utils.date import parse_date
 
 class FormatsConfig(QWidget): # {{{
 
@@ -136,6 +137,45 @@ class SendToConfig(QWidget): # {{{
 
 # }}}
 
+class IgnoredDevices(QWidget): # {{{
+
+    def __init__(self, devs, blacklist):
+        QWidget.__init__(self)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel('<p>'+_(
+            '''Select the devices to be <b>ignored</b>. calibre will not
+            connect to devices with a checkmark next to their names.'''))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.f = f = QListWidget(self)
+        l.addWidget(f)
+
+        devs = [(snum, (x[0], parse_date(x[1]))) for snum, x in
+                devs.iteritems()]
+        for dev, x in sorted(devs, key=lambda x:x[1][1], reverse=True):
+            name = x[0]
+            name = '%s [%s]'%(name, dev)
+            item = QListWidgetItem(name, f)
+            item.setData(Qt.UserRole, dev)
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
+            item.setCheckState(Qt.Checked if dev in blacklist else Qt.Unchecked)
+
+    @property
+    def blacklist(self):
+        return [unicode(self.f.item(i).data(Qt.UserRole).toString()) for i in
+                xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+
+    def ignore_device(self, snum):
+        for i in xrange(self.f.count()):
+            i = self.f.item(i)
+            c = unicode(i.data(Qt.UserRole).toString())
+            if c == snum:
+                i.setCheckState(Qt.Checked)
+                break
+
+# }}}
+
 class MTPConfig(QTabWidget):
 
     def __init__(self, device, parent=None):
@@ -162,6 +202,8 @@ class MTPConfig(QTabWidget):
             l = QLabel(msg)
             l.setWordWrap(True)
             l.setStyleSheet('QLabel { margin-left: 2em }')
+            l.setMinimumWidth(500)
+            l.setMinimumHeight(400)
             self.insertTab(0, l, _('Cannot configure'))
         else:
             self.base = QWidget(self)
@@ -173,15 +215,33 @@ class MTPConfig(QTabWidget):
                     self.get_pref('format_map'))
             self.send_to = SendToConfig(self.get_pref('send_to'))
             self.template = TemplateConfig(self.get_pref('send_template'))
-            self.base.la = la = QLabel(_('Choose the formats to send to the %s')%self.device.current_friendly_name)
+            self.base.la = la = QLabel(_(
+                'Choose the formats to send to the %s')%self.device.current_friendly_name)
             la.setWordWrap(True)
             l.addWidget(la, 0, 0, 1, 1)
-            l.addWidget(self.formats, 1, 0, 3, 1)
+            l.addWidget(self.formats, 1, 0, 2, 1)
             l.addWidget(self.send_to, 1, 1, 1, 1)
             l.addWidget(self.template, 2, 1, 1, 1)
             l.setRowStretch(2, 10)
+            self.base.b = b = QPushButton(QIcon(I('minus.png')),
+                _('Ignore the %s in calibre')%device.current_friendly_name,
+                self.base)
+            l.addWidget(b, 3, 0, 1, 2)
+            b.clicked.connect(self.ignore_device)
+
+        self.igntab = IgnoredDevices(self.device.prefs['history'],
+                self.device.prefs['blacklist'])
+        self.addTab(self.igntab, _('Ignored devices'))
 
         self.setCurrentIndex(0)
+
+    def ignore_device(self):
+        self.igntab.ignore_device(self.device.current_serial_num)
+        self.base.b.setEnabled(False)
+        self.base.b.setText(_('The %s will be ignored in calibre')%
+                self.device.current_friendly_name)
+        self.base.b.setStyleSheet('QPushButton { font-weight: bold }')
+        self.base.setEnabled(False)
 
     def get_pref(self, key):
         p = self.device.prefs.get(self.current_device_key, {})
@@ -194,31 +254,35 @@ class MTPConfig(QTabWidget):
         return self._device()
 
     def validate(self):
-        if not self.formats.validate():
-            return False
-        if not self.template.validate():
-            return False
+        if hasattr(self, 'formats'):
+            if not self.formats.validate():
+                return False
+            if not self.template.validate():
+                return False
         return True
 
     def commit(self):
         p = self.device.prefs.get(self.current_device_key, {})
 
-        p.pop('format_map', None)
-        f = self.formats.format_map
-        if f and f != self.device.prefs['format_map']:
-            p['format_map'] = f
+        if hasattr(self, 'formats'):
+            p.pop('format_map', None)
+            f = self.formats.format_map
+            if f and f != self.device.prefs['format_map']:
+                p['format_map'] = f
 
-        p.pop('send_template', None)
-        t = self.template.template
-        if t and t != self.device.prefs['send_template']:
-            p['send_template'] = t
+            p.pop('send_template', None)
+            t = self.template.template
+            if t and t != self.device.prefs['send_template']:
+                p['send_template'] = t
 
-        p.pop('send_to', None)
-        s = self.send_to.value
-        if s and s != self.device.prefs['send_to']:
-            p['send_to'] = s
+            p.pop('send_to', None)
+            s = self.send_to.value
+            if s and s != self.device.prefs['send_to']:
+                p['send_to'] = s
 
-        self.device.prefs[self.current_device_key] = p
+            self.device.prefs[self.current_device_key] = p
+
+        self.device.prefs['blacklist'] = self.igntab.blacklist
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

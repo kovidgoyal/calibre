@@ -15,7 +15,7 @@ from itertools import chain
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed, DeviceError
+from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase
 
 class ThreadingViolation(Exception):
@@ -163,6 +163,9 @@ class MTP_DEVICE(MTPDeviceBase):
             p('\nTrying to open:', pnp_id)
             try:
                 self.open(pnp_id, 'debug-detection')
+            except BlacklistedDevice:
+                p('This device has been blacklisted by the user')
+                continue
             except:
                 p('Open failed:')
                 p(traceback.format_exc())
@@ -172,7 +175,7 @@ class MTP_DEVICE(MTPDeviceBase):
             p('Opened', self.current_friendly_name, 'successfully')
             p('Device info:')
             p(pprint.pformat(self.dev.data))
-            self.eject()
+            self.post_yank_cleanup()
             return True
         p('No suitable MTP devices found')
         return False
@@ -225,7 +228,6 @@ class MTP_DEVICE(MTPDeviceBase):
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self._filesystem_cache = None
 
-
     @same_thread
     def post_yank_cleanup(self):
         self.currently_connected_pnp_id = self.current_friendly_name = None
@@ -256,6 +258,13 @@ class MTP_DEVICE(MTPDeviceBase):
         if not storage:
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
+        snum = devdata.get('serial_number', None)
+        if snum in self.prefs.get('blacklist', []):
+            self.blacklisted_devices.add(connected_device)
+            self.dev = None
+            raise BlacklistedDevice(
+                'The %s device has been blacklisted by the user'%(connected_device,))
+
         self._main_id = storage[0]['id']
         if len(storage) > 1:
             self._carda_id = storage[1]['id']
@@ -266,7 +275,7 @@ class MTP_DEVICE(MTPDeviceBase):
             self.current_friendly_name = devdata.get('model_name',
                 _('Unknown MTP device'))
         self.currently_connected_pnp_id = connected_device
-        self.current_serial_num = devdata.get('serial_number', None)
+        self.current_serial_num = snum
 
     @same_thread
     def get_basic_device_information(self):

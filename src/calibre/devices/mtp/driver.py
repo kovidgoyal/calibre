@@ -16,7 +16,7 @@ from calibre.constants import iswindows, numeric_version
 from calibre.devices.mtp.base import debug
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.config import from_json, to_json, JSONConfig
-from calibre.utils.date import now, isoformat
+from calibre.utils.date import now, isoformat, utcnow
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -51,6 +51,8 @@ class MTP_DEVICE(BASE):
                     'wordplayer/calibretransfer', 'Books', 'sdcard/ebooks',
                     'eBooks', 'kindle']
             p.defaults['send_template'] = config().parse().send_template
+            p.defaults['blacklist'] = []
+            p.defaults['history'] = {}
 
         return self._prefs
 
@@ -74,6 +76,11 @@ class MTP_DEVICE(BASE):
         self.current_library_uuid = library_uuid
         self.location_paths = None
         BASE.open(self, devices, library_uuid)
+        h = self.prefs['history']
+        if self.current_serial_num:
+            h[self.current_serial_num] = (self.current_friendly_name,
+                    isoformat(utcnow()))
+            self.prefs['history'] = h
 
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
