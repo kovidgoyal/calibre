@@ -1432,6 +1432,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
+        size = 0
         if copy_function is not None:
             copy_function(dest)
             size = os.path.getsize(dest)
@@ -1441,6 +1442,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with lopen(dest, 'wb') as f:
                     shutil.copyfileobj(stream, f)
                     size = f.tell()
+            elif os.path.exists(dest):
+                size = os.path.getsize(dest)
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.update_last_modified([id], commit=False)
