@@ -877,9 +877,11 @@ class CatalogBuilder(object):
 
             this_title['prefix'] = self.discover_prefix(record)
 
+            this_title['tags'] = []
             if record['tags']:
                 this_title['tags'] = self.filter_excluded_genres(record['tags'],
                                         self.opts.exclude_genre)
+
             if record['formats']:
                 formats = []
                 for format in record['formats']:
