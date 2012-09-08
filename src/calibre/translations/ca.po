@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:39+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:38+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -24313,76 +24313,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr ""
-#~ "Llista de carpetes del dispositiu separades per comes on s'enviaran els "
-#~ "llibres. Es farà servir la primera que ja existeixi al dispositiu."
-
-#~ msgid "Books by &Genre"
-#~ msgstr "Llibres per &gènere"
-
-#~ msgid "Books by &Title"
-#~ msgstr "Llibres per &títol"
-
-#~ msgid "Books by &Series"
-#~ msgstr "Llibres per &sèrie"
-
-#~ msgid "Recently &Added"
-#~ msgstr "&Afegits recentment"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "Etiquetes que s'&exclouran"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "&Fusiona amb comentaris"
-
-#~ msgid "&Separator"
-#~ msgstr "&Separador"
-
-#~ msgid "Books by Author"
-#~ msgstr "Llibres per autor"
-
-#~ msgid "No enabled genres found to catalog.\n"
-#~ msgstr "No hi ha cap gènere habilitat al catàleg.\n"
-
-#~ msgid ""
-#~ "No books found to catalog.\n"
-#~ "Check 'Excluded books' criteria in E-book options.\n"
-#~ msgstr ""
-#~ "No s'ha trobar cap llibre per catalogar.\n"
-#~ "Comproveu els criteris d'exclusió de llibres a les opcions de llibre.\n"
-
-#~ msgid ""
-#~ "Inconsistent Author Sort values for\n"
-#~ "Author '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ "Unable to build MOBI catalog.\n"
-#~ "\n"
-#~ "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
-#~ "dialog, then rebuild the catalog.\n"
-#~ msgstr ""
-#~ "Valors d'ordre per autor inconsistents per a:\n"
-#~ "Autor «{0}»:\n"
-#~ "«{1}» <> «{2}»\n"
-#~ "No s'ha pogut general el catàleg MOBI.\n"
-#~ "\n"
-#~ "Seleccioneu tots el llibre de «{0}», apliqueu un ordre per autor correcte\n"
-#~ "al quadre d'edició de metadades i aleshores torneu a generar el catàleg.\n"
-
-#~ msgid ""
-#~ "Warning: inconsistent Author Sort values for\n"
-#~ "Author '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ msgstr ""
-#~ "Avís: Valors d'ordre per autor inconsistents per a:\n"
-#~ "Autor «{0}»:\n"
-#~ "«{1}» <> «{2}»\n"
-
-#~ msgid "&Extra note"
-#~ msgstr "&Nota adicional"
-
-#~ msgid "&Thumb width"
-#~ msgstr "Amplada de la minia&tura"

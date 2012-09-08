@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-07 04:09+0000\n"
-"PO-Revision-Date: 2012-09-06 16:51+0000\n"
+"PO-Revision-Date: 2012-09-07 20:59+0000\n"
 "Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:40+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1025,12 +1025,16 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>main memory</b>. The first one that exists will be used"
 msgstr ""
+"Komma-getrennte Liste von Verzeichnissen für E-Books im <b>Hauptspeicher</b> "
+"des Gerätes. Das Erste das existiert wird benutzt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
 msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>storage cards</b>. The first one that exists will be used"
 msgstr ""
+"Komma-getrennte Liste von Verzeichnissen für E-Books auf der "
+"<b>Speicherkarte</b> des Gerätes. Das Erste das existiert wird benutzt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:310
 msgid "Communicate with S60 phones."
@@ -1878,69 +1882,69 @@ msgstr "Geräte-Information beziehen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:143
 msgid "Reading metadata from device"
-msgstr ""
+msgstr "Lese Metadaten vom Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:176
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "Lese Metadaten von %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:195
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "Aktualisiere Metadaten-Cache auf dem Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:197
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "Metadaten von Gerät gelesen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:346
 #, python-format
 msgid "Transferred %s to device"
-msgstr ""
+msgstr "%s auf Gerät übertragen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:348
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "Übertragung auf Gerät beendet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:369
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "%s hinzugefügt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:371
 msgid "Adding complete"
-msgstr ""
+msgstr "Hinzufügen beendet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:387
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "Bücher werden vom Gerät gelöscht..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "%s gelöscht."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:394
 msgid "All books deleted"
-msgstr ""
+msgstr "Alle Bücher gelöscht"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:397
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "Lösche Bücher aus den Metadaten."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:409
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "%s wurde entfernt"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:411
 msgid "All books removed"
-msgstr ""
+msgstr "Alle Bücher entfernt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:178
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:267
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Unbekanntes MTP-Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:64
 msgid ""
@@ -2201,10 +2205,12 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
 msgstr ""
+"Komma-getrennte Liste von Metadaten, die in \"Collections\" auf dem Gerät "
+"umgewandelt werden."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:150
 msgid "Possibilities include: series, tags, authors, etc"
-msgstr ""
+msgstr "Möglichkeiten enthalten: Serien, Tags, Autoren, etc."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:158
 msgid "Enable the no-activity timeout"
@@ -2224,7 +2230,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:163
 msgid "Use this IP address"
-msgstr ""
+msgstr "Benutze diese IP-Adresse"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:164
 msgid ""
@@ -5544,23 +5550,23 @@ msgstr "Keine Buch-Dateien gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:406
 msgid "Downloading books"
-msgstr ""
+msgstr "Lade Bücher herunter."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:407
 msgid "Downloading books from device"
-msgstr ""
+msgstr "Lade Bücher vom Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:426
 msgid "Could not download files from the device"
-msgstr ""
+msgstr "Die Dateien konnten nicht vom Gerät geladen werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:429
 msgid "Could not download some files from the device"
-msgstr ""
+msgstr "Einige Dateien können nicht vom Gerät geladen werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:433
 msgid "Could not download files"
-msgstr ""
+msgstr "Dateien können nicht heruntergeladen werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
@@ -7566,16 +7572,16 @@ msgstr "unbestimmt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:159
 msgid "No genres will be excluded"
-msgstr ""
+msgstr "Kein Genre wird ausgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:168
 #, python-format
 msgid "regex error: %s"
-msgstr ""
+msgstr "regex Fehler: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:177
 msgid "All genres will be excluded"
-msgstr ""
+msgstr "Alle Genres werden ausgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:613
 #, python-format
@@ -7632,23 +7638,23 @@ msgstr "Eingeschlossene Abschnitte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:268
 msgid "&Authors"
-msgstr ""
+msgstr "&Autoren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:269
 msgid "&Titles"
-msgstr ""
+msgstr "&Titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:270
 msgid "&Series"
-msgstr ""
+msgstr "&Serien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:271
 msgid "&Genres"
-msgstr ""
+msgstr "&Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:272
 msgid "&Recently Added"
-msgstr ""
+msgstr "Zuletzt hinzugefügt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:273
 msgid "&Descriptions"
@@ -7697,7 +7703,7 @@ msgstr "Ausgeschlossene Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:281
 msgid "Tags to &exclude (regex):"
-msgstr ""
+msgstr "Tags, die ausgeschlossen werden sollen (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:282
 msgid "Reset to default"
@@ -7705,7 +7711,7 @@ msgstr "Auf Voreinstellungen zurücksetzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:284
 msgid "Results of regex:"
-msgstr ""
+msgstr "Ergebnis von regex:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:285
 msgid "Tags that will be excluded as genres"
@@ -7760,11 +7766,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Generate new cover"
-msgstr ""
+msgstr "Neues Cover generieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Use existing cover"
-msgstr ""
+msgstr "Vorhandenes Cover verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "E&xtra Description note:"
@@ -9961,11 +9967,13 @@ msgstr "Vor&lage speichern:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:53
 msgid "No formats selected"
-msgstr ""
+msgstr "Kein Format ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:54
 msgid "You must choose at least one format to send to the device"
 msgstr ""
+"Sie müssen mindestens ein Format auswählen, welches an das Gerät gesendet "
+"werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:82
 msgid ""
@@ -9975,7 +9983,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:88
 msgid "Template editor"
-msgstr ""
+msgstr "Template Editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -10000,6 +10008,8 @@ msgid ""
 "<b>No MTP device connected.</b><p> You can only configure the MTP device "
 "plugin when a device is connected."
 msgstr ""
+"<b>Kein MTP Gerät ist angeschlossen.</b><p> Sie können das MTP Geräte-Plugin "
+"nur einrichten, wennein Gerät angeschlossen ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:160
 msgid ""
@@ -10010,7 +10020,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:176
 #, python-format
 msgid "Choose the formats to send to the %s"
-msgstr ""
+msgstr "Wählen Sie die Formate, die an %s gesendet werden sollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10093,11 +10103,11 @@ msgstr "Meine Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:190
 msgid "No help available"
-msgstr ""
+msgstr "Keine Hilfe verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:191
 msgid "No help available for this output format."
-msgstr ""
+msgstr "Für dieses Ausgabeformat ist keine Hilfe verfügbar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:328
@@ -12595,6 +12605,13 @@ msgid ""
 "other choice at Preferences -> Sending books to devices -> Metadata "
 "management"
 msgstr ""
+"Aktivieren der automatischen Metadaten-Verwaltung bedeutet, dass Calibre "
+"alle Änderungen die Sie an den Metadaten eines Buches vornehmen mit dem "
+"Gerät, falls dieses angeschlossen ist, synchronisiert. Dies ist die "
+"nützlichste Einstellung, wenn Sie dass Gerät via WLAN verbunden haben. Falls "
+"die Funktion deaktiviert ist, werden die Änderungen nur übernommen, wenn Sie "
+"das Buch erneut übertragen. Weitere Informationen finden Sie unter "
+"Einstellungen -> Bücher auf Geräte übertragen -> Metadaten-Management"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:127
@@ -20385,7 +20402,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:785
 msgid "Sorting database"
-msgstr ""
+msgstr "Datenbank wird sortiert"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:983
 msgid "Fetching database"
@@ -20403,11 +20420,11 @@ msgstr "Keine Bücher verfügbar um sie dem Katalog hinzuzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1983
 msgid "Genres HTML"
-msgstr ""
+msgstr "Genres HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2409
 msgid "Titles HTML"
-msgstr ""
+msgstr "Titel HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2604
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2606
@@ -20417,7 +20434,7 @@ msgstr "von "
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2745
 msgid "Descriptions HTML"
-msgstr ""
+msgstr "Beschreibungen HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2749
 msgid "Description HTML"
@@ -20425,15 +20442,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2884
 msgid "NCX header"
-msgstr ""
+msgstr "NCX Header"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2959
 msgid "NCX for Descriptions"
-msgstr ""
+msgstr "NCX für Beschreibungen"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3080
 msgid "NCX for Series"
-msgstr ""
+msgstr "NCX für Serien"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3156
 #, python-format
@@ -20442,7 +20459,7 @@ msgstr "Serien beginnen mit %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3199
 msgid "NCX for Titles"
-msgstr ""
+msgstr "NCX für Titel"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3277
 #, python-format
@@ -20451,7 +20468,7 @@ msgstr "Titel beginnen mit %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3318
 msgid "NCX for Authors"
-msgstr ""
+msgstr "NCX für Autoren"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3388
 #, python-format
@@ -20460,19 +20477,19 @@ msgstr "Autoren beginnen mit mit %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3428
 msgid "NCX for Recently Added"
-msgstr ""
+msgstr "NCX für Zuletzt hinzugefügt"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3615
 msgid "NCX for Recently Read"
-msgstr ""
+msgstr "NCX für Zuletzt gelesen"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3752
 msgid "NCX for Genres"
-msgstr ""
+msgstr "NCX für Genres"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3870
 msgid "Generating OPF"
-msgstr ""
+msgstr "OPF wird generiert"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4242
 msgid "Thumbnails"
@@ -20484,7 +20501,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4743
 msgid "Saving NCX"
-msgstr ""
+msgstr "NCX wird gespeichert"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -24435,89 +24452,3 @@ msgstr ""
 "drücken. Welche Technik Sie bevorzugen hängt von dem Zustand der Metadaten "
 "in Ihrer\n"
 "Bibliothek und Ihrem persönlichen Änderungsstil ab."
-
-#~ msgid "Books by Author"
-#~ msgstr "Bücher nach Autor"
-
-#~ msgid "Books by &Title"
-#~ msgstr "Bücher nach Titel"
-
-#~ msgid "Books by &Genre"
-#~ msgstr "Bücher nach Genre"
-
-#~ msgid "Recently &Added"
-#~ msgstr "Zuletzt hinzugefügt"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "Auszuschließende Tags"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "Zusammenführen mit Kommentaren"
-
-#~ msgid "&Separator"
-#~ msgstr "Trennzeichen"
-
-#~ msgid ""
-#~ "No books found to catalog.\n"
-#~ "Check 'Excluded books' criteria in E-book options.\n"
-#~ msgstr ""
-#~ "Keine Bücher im Katalog gefunden.\n"
-#~ "Prüfen Sie \"Ausgeschlossen Bücher\" Kriterien in E-Buch-Optionen.\n"
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr ""
-#~ "Durch Kommata getrennte Liste von Verzeichnissen an die E-Books auf das "
-#~ "Gerät gesendet werden. Das erste vorhandene wird benutzt"
-
-#~ msgid "No enabled genres found to catalog.\n"
-#~ msgstr "Keine aktivierten Genres im Katalog gefunden.\n"
-
-#~ msgid "Books by &Series"
-#~ msgstr "Bücher nach Buchreihen"
-
-#~ msgid ""
-#~ "Inconsistent Author Sort values for\n"
-#~ "Author '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ "Unable to build MOBI catalog.\n"
-#~ "\n"
-#~ "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
-#~ "dialog, then rebuild the catalog.\n"
-#~ msgstr ""
-#~ "Widersprüchliche Werte für die Autorensortierung\n"
-#~ "Autor '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ "MOBI Katalog kann nicht erstellt werden.\n"
-#~ "\n"
-#~ "Wählen Sie alle Bücher von '{0}' aus und korrigieren Sie den Wert für die "
-#~ "Autorensortierung unter \"Metadaten bearbeiten\". Erstellen Sie dann den "
-#~ "Katalog erneut.\n"
-
-#~ msgid ""
-#~ "Warning: inconsistent Author Sort values for\n"
-#~ "Author '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ msgstr ""
-#~ "Warnung: widersprüchliche Werte für die Autorensortierung \n"
-#~ "'{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-
-#~ msgid ""
-#~ "<p>Start wireless device connections.\n"
-#~ " <p>You may see some messages from your computer's firewall or anti-virus "
-#~ "manager asking you if it is OK for calibre to connect to the network. "
-#~ "<b>Please answer yes</b>. If you do not, wireless connections will not work."
-#~ msgstr ""
-#~ "<p>Drahtlose Verbindung aufbauen.\n"
-#~ " <p>Es kann passieren, dass die Firewall oder ein Anti-Viren Programm um "
-#~ "Erlaubnis fragt, ob sich Calibre mit dem Netzwerk verbinden darf. <b>Diese "
-#~ "Anfrage bitte bestätigen.</b> Andererseits wird die Drahtlosverbindung nicht "
-#~ "funktionieren."
-
-#~ msgid "&Extra note"
-#~ msgstr "&Extra Notiz"
-
-#~ msgid "&Thumb width"
-#~ msgstr "&Thumbnail Breite"

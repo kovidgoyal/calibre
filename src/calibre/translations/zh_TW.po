@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:53+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 "Language: zh_TW\n"
 
@@ -21489,32 +21489,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr "要將電子書傳送至裝置的目錄清單，以逗號分隔。會使用第一個存在的目錄"
-
-#~ msgid "&Separator"
-#~ msgstr "分隔字元(&S)"
-
-#~ msgid "Recently &Added"
-#~ msgstr "最近加入的(&A)"
-
-#~ msgid "Books by Author"
-#~ msgstr "書籍依作者"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "排除的標籤(&E)"
-
-#~ msgid "Books by &Title"
-#~ msgstr "書籍依書名(&T)"
-
-#~ msgid "Books by &Series"
-#~ msgstr "書籍依系列(&S)"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "合併評論(&M)"
-
-#~ msgid "Books by &Genre"
-#~ msgstr "書籍依分類(&G)"

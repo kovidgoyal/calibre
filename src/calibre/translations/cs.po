@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:38+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22150,44 +22150,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr ""
-#~ "Seznam adresářů oddělený čárkami k odeslání elektronických knih do zařízení. "
-#~ "Bude použit první nalezený."
-
-#~ msgid "Books by Author"
-#~ msgstr "Knihy podle autora"
-
-#~ msgid "Books by &Title"
-#~ msgstr "Knihy podle &titulu"
-
-#~ msgid "Books by &Genre"
-#~ msgstr "Knihy podle &žánru"
-
-#~ msgid "Books by &Series"
-#~ msgstr "Knihy podle &série"
-
-#~ msgid "Recently &Added"
-#~ msgstr "Nedávno &přidané"
-
-#~ msgid "&Separator"
-#~ msgstr "&Oddělovač"
-
-#~ msgid "No enabled genres found to catalog.\n"
-#~ msgstr "Nenalezeny žádné povolené žánry v katalogu.\n"
-
-#~ msgid ""
-#~ "No books found to catalog.\n"
-#~ "Check 'Excluded books' criteria in E-book options.\n"
-#~ msgstr ""
-#~ "Žádné dostupné knihy do katalogu.\n"
-#~ "Zkontrolujte kritérium 'Vyloučené knihy' v E-book volbě.\n"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "Tagy k &vynechání"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "&Spojit s komentáři"

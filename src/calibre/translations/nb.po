@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:46+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22226,34 +22226,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr ""
-#~ "Komma-delt liste av foldere som av e-bøker som sendes til enheten. Den "
-#~ "første som eksisterer vil bli benyttet"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "Nøkkelord som skal &ekskluderes"
-
-#~ msgid "Books by &Title"
-#~ msgstr "Bøker etter &tittel"
-
-#~ msgid "Books by &Genre"
-#~ msgstr "Bøker etter &sjanger"
-
-#~ msgid "Books by &Series"
-#~ msgstr "Bøker etter &serier"
-
-#~ msgid "Recently &Added"
-#~ msgstr "Nylig lagt &til"
-
-#~ msgid "Books by Author"
-#~ msgstr "Bøker etter Forfatter"
-
-#~ msgid "&Separator"
-#~ msgstr "&Separator"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "&Slå sammen med kommentarer"

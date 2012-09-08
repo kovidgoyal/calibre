@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:43+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:42+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -23963,74 +23963,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Books by Author"
-#~ msgstr "Könyvek szerző szerint"
-
-#~ msgid "&Separator"
-#~ msgstr "&Elválasztó"
-
-#~ msgid "Books by &Series"
-#~ msgstr "Könyvek &sorozat szerint"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "Kihagyni kívánt c&ímkék"
-
-#~ msgid "No enabled genres found to catalog.\n"
-#~ msgstr "Nem található engedélyezett műfaj a katalógusban.\n"
-
-#~ msgid "Books by &Genre"
-#~ msgstr "Könyvek mű&fajok szerint"
-
-#~ msgid "Recently &Added"
-#~ msgstr "Legutóbb hozzá&adva"
-
-#~ msgid "Books by &Title"
-#~ msgstr "Könyvek cím szerin&t"
-
-#~ msgid ""
-#~ "No books found to catalog.\n"
-#~ "Check 'Excluded books' criteria in E-book options.\n"
-#~ msgstr ""
-#~ "Nincs katalogizálandó könyv.\n"
-#~ "Ellenőrizze a „Kizárt könyvek” beállítást.\n"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "&Megjegyzésekkel egybevon"
-
-#~ msgid ""
-#~ "Inconsistent Author Sort values for\n"
-#~ "Author '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ "Unable to build MOBI catalog.\n"
-#~ "\n"
-#~ "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
-#~ "dialog, then rebuild the catalog.\n"
-#~ msgstr ""
-#~ "Nem megfelelő szerző rendezési forma\n"
-#~ "„{0}” szerző(k)nél:\n"
-#~ "„{1}” <> „{2}”\n"
-#~ "A MOBI katalógus létrehozása nem sikerült.\n"
-#~ "\n"
-#~ "Válassza ki „{0}” minden könyvét, majd adja meg a helyes „Szerző rendezési "
-#~ "formá”-t a „Metaadatok szerkesztése” párbeszédablakban és készítse el újra a "
-#~ "katalógust.\n"
-
-#~ msgid ""
-#~ "Warning: inconsistent Author Sort values for\n"
-#~ "Author '{0}':\n"
-#~ "'{1}' <> '{2}'\n"
-#~ msgstr ""
-#~ "Figyelem: nem megfelelő szerző rendezési forma\n"
-#~ "„{0}” szerző(k)nél:\n"
-#~ "„{1}” <> „{2}”\n"
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr ""
-#~ "Vesszővel tagolt mappa-lista az e-bookok olvasóra küldéséhez. Az első létező "
-#~ "mappába kerülnek a könyvek."
-
-#~ msgid "&Extra note"
-#~ msgstr "&További információ"

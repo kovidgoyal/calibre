@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-09-07 04:53+0000\n"
+"X-Launchpad-Export-Date: 2012-09-08 04:52+0000\n"
 "X-Generator: Launchpad (build 15914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22391,37 +22391,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "Comma separated list of directories to send e-books to on the device. The "
-#~ "first one that exists will be used"
-#~ msgstr ""
-#~ "Lista de diretórios separados por vírgulas para enviar eBooks ao "
-#~ "dispositivo. O primeiro existente será utilizado"
-
-#~ msgid "Books by Author"
-#~ msgstr "Livros por Autor"
-
-#~ msgid "&Separator"
-#~ msgstr "&Separador"
-
-#~ msgid "Books by &Title"
-#~ msgstr "Livros por &Título"
-
-#~ msgid "Books by &Genre"
-#~ msgstr "Livros por &Genero"
-
-#~ msgid "Books by &Series"
-#~ msgstr "Livros por &Séries"
-
-#~ msgid "Recently &Added"
-#~ msgstr "Adicionado &Recentemente"
-
-#~ msgid "Tags to &exclude"
-#~ msgstr "Marcações para &exclusão"
-
-#~ msgid "&Merge with Comments"
-#~ msgstr "&Fundir com comentários"
-
-#~ msgid "No enabled genres found to catalog.\n"
-#~ msgstr "Nenhum gênero habilitado foi encontrado no catálogo.\n"
