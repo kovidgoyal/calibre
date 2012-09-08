@@ -1,14 +1,17 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Birmingham post'
-    description = 'News for Birmingham UK'
-    timefmt = ''
+    description = 'Author D.Asbury. News for Birmingham UK'
+    #timefmt = ''
+    # last update 8/9/12
     __author__ = 'Dave Asbury'
-    cover_url = 'http://1.bp.blogspot.com/_GwWyq5eGw9M/S9BHPHxW55I/AAAAAAAAB6Q/iGCWl0egGzg/s320/Birmingham+post+Lite+front.JPG'
+    cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
     oldest_article = 2
     max_articles_per_feed = 12
+    linearize_tables = True
     remove_empty_feeds = True
     remove_javascript     = True
+    no_stylesheets = True
     #auto_cleanup = True
     language = 'en_GB'
 
@@ -17,11 +20,12 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
 
     keep_only_tags = [
-    	    dict(name='h1',attrs={'id' : 'article-headline'}),
+        dict(attrs={'id' : 'article-header'}),
+            #dict(name='h1',attrs={'id' : 'article-header'}),
                         dict(attrs={'class':['article-meta-author','article-meta-date','article main','art-o art-align-center otm-1 ']}),
-	    dict(name='div',attrs={'class' : 'article-image full'}),
-	    dict(attrs={'clas' : 'art-o art-align-center otm-1 '}),
-    	    dict(name='div',attrs={'class' : 'article main'}),
+        dict(name='div',attrs={'class' : 'article-image full'}),
+        dict(attrs={'clas' : 'art-o art-align-center otm-1 '}),
+            dict(name='div',attrs={'class' : 'article main'}),
 #dict(name='p')
     #dict(attrs={'id' : 'three-col'})
         ]
@@ -37,11 +41,9 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         (u'Bloggs & Comments',u'http://www.birminghampost.net/comment/rss.xml')
 
          ]
-    extra_css  = '''
-                    body {font: sans-serif medium;}'
-    h1 {text-align : center; font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;}
-                h2 {text-align : center;color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; }
-                    span{ font-size:9.5px; font-weight:bold;font-style:italic}
-                    p { text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-
-     '''
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;text-align:center;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''
