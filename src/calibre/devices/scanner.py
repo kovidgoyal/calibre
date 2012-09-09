@@ -338,7 +338,7 @@ def test_for_mem_leak():
     memory() # load the psutil library
     for i in xrange(3): gc.collect()
 
-    for reps in (1, 10, 100, 1000, 10000):
+    for reps in (1, 10, 100, 1000):
         for i in xrange(3): gc.collect()
         h1 = gc_histogram()
         startmem = memory()
@@ -352,6 +352,22 @@ def test_for_mem_leak():
         diff_hists(h1, gc_histogram())
         prints()
 
+    if not iswindows:
+        return
+
+    for reps in (1, 10, 100, 1000):
+        for i in xrange(3): gc.collect()
+        h1 = gc_histogram()
+        startmem = memory()
+        for i in xrange(reps):
+            win_pnp_drives()
+        for i in xrange(3): gc.collect()
+        usedmem = memory(startmem)
+        prints('Memory used in %d repetitions of pnp_scan(): %.5f KB'%(reps,
+            1024*usedmem))
+        prints('Differences in python object counts:')
+        diff_hists(h1, gc_histogram())
+        prints()
 
 def main(args=sys.argv):
     test_for_mem_leak()
