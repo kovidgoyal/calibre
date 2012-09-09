@@ -168,9 +168,9 @@ winutil_set_debug(PyObject *self, PyObject *args) {
 	return Py_None;
 }
 
-static LPTSTR
+static LPWSTR
 get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iterate) {
-    /* Get a the property specified by `property` from the registry for the
+    /* Get the property specified by `property` from the registry for the
      * device enumerated by `index` in the collection `hDevInfo`. `iterate`
      * will be set to `FALSE` if `index` points outside `hDevInfo`.
      * :return: A string allocated on the heap containing the property or
@@ -178,7 +178,7 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
      */
     SP_DEVINFO_DATA DeviceInfoData;
     DWORD DataT;
-    LPTSTR buffer = NULL;
+    LPWSTR buffer = NULL;
     DWORD buffersize = 0;
     DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
@@ -187,7 +187,7 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
         return NULL;
     }
 
-    while(!SetupDiGetDeviceRegistryProperty(
+    while(!SetupDiGetDeviceRegistryPropertyW(
             hDevInfo,
             &DeviceInfoData,
             property,
@@ -209,7 +209,7 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
 }
 
 static BOOL                                                                                                                                                                           
-check_device_id(LPTSTR buffer, unsigned int vid, unsigned int pid) {                                                                                                                  
+check_device_id(LPWSTR buffer, unsigned int vid, unsigned int pid) {                                                                                                                  
     WCHAR xVid[9], dVid[9], xPid[9], dPid[9];                                                                                                                                         
     unsigned int j;                                                                                                                                                                   
     _snwprintf_s(xVid, 9, _TRUNCATE, L"vid_%4.4x", vid);
@@ -672,7 +672,8 @@ winutil_get_usb_devices(PyObject *self, PyObject *args) {
 	HDEVINFO hDevInfo;
 	DWORD i; BOOL iterate = TRUE;
     PyObject *devices, *temp = (PyObject *)1;
-    LPTSTR buffer;
+    LPWSTR buffer;
+    BOOL ok = 1;
 
 	if (!PyArg_ParseTuple(args, "")) return NULL;
 
@@ -691,16 +692,17 @@ winutil_get_usb_devices(PyObject *self, PyObject *args) {
             PyErr_Print(); continue;
         }
         buffersize = wcslen(buffer);
-        for (j = 0; j < buffersize; j++) buffer[j] = tolower(buffer[j]);
+        for (j = 0; j < buffersize; j++) buffer[j] = towlower(buffer[j]);
         temp = PyUnicode_FromWideChar(buffer, buffersize);
         PyMem_Free(buffer);
         if (temp == NULL) {
         	PyErr_NoMemory();
+            ok = 0;
         	break;
         }
-        PyList_Append(devices, temp);
+        PyList_Append(devices, temp); Py_DECREF(temp); temp = NULL;
     } //for
-    if (temp == NULL) { Py_DECREF(devices); devices = NULL; }
+    if (!ok) { Py_DECREF(devices); devices = NULL; }
     SetupDiDestroyDeviceInfoList(hDevInfo);
 	return devices;
 }
@@ -711,7 +713,7 @@ winutil_is_usb_device_connected(PyObject *self, PyObject *args) {
 	unsigned int vid, pid;
     HDEVINFO hDevInfo;
     DWORD i; BOOL iterate = TRUE;
-    LPTSTR buffer;
+    LPWSTR buffer;
     int found = FALSE;
     PyObject *ans;
 
