@@ -607,31 +607,28 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
     	return NULL;
     }
 
-    ddebug = PyObject_IsTrue(pdebug);
+    // Find all removable drives
+    for (j = 0; j < MAX_DRIVES; j++) g_drives[j].letter = 0;
+    if (!get_all_removable_disks(g_drives)) return NULL;
 
     volumes = PyDict_New();
-    if (volumes == NULL) return NULL;
-    
-
-    for (j = 0; j < MAX_DRIVES; j++) g_drives[j].letter = 0;
-
-    // Find all removable drives
-    if (!get_all_removable_disks(g_drives)) {
-        return NULL;
-    }
+    if (volumes == NULL) return PyErr_NoMemory();
+    ddebug = PyObject_IsTrue(pdebug);
 
     hDevInfo = create_device_info_set((LPGUID)&GUID_DEVINTERFACE_VOLUME,
                             NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-    if (hDevInfo == INVALID_HANDLE_VALUE) return NULL;
+    if (hDevInfo == INVALID_HANDLE_VALUE) { Py_DECREF(volumes); return NULL; }
 
     // Enumerate through the set
     for (i=0; iterate; i++) {
         candidates = PyList_New(0);
-        if (candidates == NULL) return PyErr_NoMemory();
+        if (candidates == NULL) { Py_DECREF(volumes); return PyErr_NoMemory();}
 
         interfaceDetailData = get_device_ancestors(hDevInfo, i, candidates, &iterate, ddebug);
         if (interfaceDetailData == NULL) {
-            PyErr_Print(); continue;
+            PyErr_Print(); 
+            Py_DECREF(candidates); candidates = NULL; 
+            continue;
         }
 
         length = wcslen(interfaceDetailData->DevicePath);
@@ -653,12 +650,13 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
                     key = PyBytes_FromFormat("%c", (char)g_drives[j].letter);
                     if (key == NULL) return PyErr_NoMemory();
                     PyDict_SetItem(volumes, key, candidates);
-                    Py_DECREF(candidates);
+                    Py_DECREF(key); key = NULL;
                     break;
                 }
             }
 
         }
+        Py_XDECREF(candidates); candidates = NULL;
         PyMem_Free(interfaceDetailData);
     } //for
 
