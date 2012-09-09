@@ -199,9 +199,8 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
                 if (buffer != NULL) { PyMem_Free(buffer); buffer = NULL; }
                 buffer = (LPWSTR)PyMem_Malloc(2*buffersize); // Twice for bug in Win2k
             } else {
-            	PyMem_Free(buffer);
+                if (buffer != NULL) { PyMem_Free(buffer); buffer = NULL; }
             	PyErr_SetFromWindowsErr(0);
-                buffer = NULL;
                 break;
             }
     } //while
