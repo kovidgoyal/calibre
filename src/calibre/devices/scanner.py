@@ -346,7 +346,7 @@ def test_for_mem_leak():
             scanner.scan()
         for i in xrange(3): gc.collect()
         usedmem = memory(startmem)
-        prints('Memory used in %d repetitions of scan(): %.10f KB'%(reps,
+        prints('Memory used in %d repetitions of scan(): %.5f KB'%(reps,
             1024*usedmem))
         prints('Differences in python object counts:')
         diff_hists(h1, gc_histogram())
