@@ -329,8 +329,30 @@ class DeviceScanner(object):
         return device.is_usb_connected(self.devices, debug=debug,
                 only_presence=only_presence)
 
+def test_for_mem_leak():
+    from calibre.utils.mem import memory, gc_histogram, diff_hists
+    import gc
+    gc.disable()
+    scanner = DeviceScanner()
+    scanner.scan()
+    for i in xrange(3): gc.collect()
+
+    for reps in (10, 100, 1000, 10000):
+        for i in xrange(3): gc.collect()
+        h1 = gc_histogram()
+        startmem = memory()
+        for i in xrange(reps):
+            scanner.scan()
+        for i in xrange(3): gc.collect()
+        usedmem = memory(startmem)
+        prints('Memory used in %d repetitions of scan(): %.6f KB'%(reps,
+            1024*usedmem))
+        prints('Differences in python object counts:')
+        diff_hists(h1, gc_histogram())
+
 
 def main(args=sys.argv):
+    test_for_mem_leak()
     return 0
 
 if __name__ == '__main__':
