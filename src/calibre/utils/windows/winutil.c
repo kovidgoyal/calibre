@@ -683,8 +683,10 @@ winutil_get_usb_devices(PyObject *self, PyObject *args) {
 	// Create a Device information set with all USB devices
     hDevInfo = create_device_info_set(NULL, L"USB", 0,
             DIGCF_PRESENT | DIGCF_ALLCLASSES);
-    if (hDevInfo == INVALID_HANDLE_VALUE)
+    if (hDevInfo == INVALID_HANDLE_VALUE) { 
+        Py_DECREF(devices);
         return NULL;
+    }
     // Enumerate through the set
     for (i=0; iterate; i++) {
         buffer = get_registry_property(hDevInfo, i, SPDRP_HARDWAREID, &iterate);
