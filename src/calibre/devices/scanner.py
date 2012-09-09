@@ -335,9 +335,10 @@ def test_for_mem_leak():
     gc.disable()
     scanner = DeviceScanner()
     scanner.scan()
+    memory() # load the psutil library
     for i in xrange(3): gc.collect()
 
-    for reps in (10, 100, 1000, 10000):
+    for reps in (1, 10, 100, 1000, 10000):
         for i in xrange(3): gc.collect()
         h1 = gc_histogram()
         startmem = memory()
@@ -345,10 +346,11 @@ def test_for_mem_leak():
             scanner.scan()
         for i in xrange(3): gc.collect()
         usedmem = memory(startmem)
-        prints('Memory used in %d repetitions of scan(): %.6f KB'%(reps,
+        prints('Memory used in %d repetitions of scan(): %.10f KB'%(reps,
             1024*usedmem))
         prints('Differences in python object counts:')
         diff_hists(h1, gc_histogram())
+        prints()
 
 
 def main(args=sys.argv):
