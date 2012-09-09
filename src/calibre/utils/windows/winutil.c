@@ -196,7 +196,8 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
             buffersize,
             &buffersize)) {
             if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-                buffer = (LPTSTR)PyMem_Malloc(2*buffersize); // Twice for bug in Win2k
+                if (buffer != NULL) { PyMem_Free(buffer); buffer = NULL; }
+                buffer = (LPWSTR)PyMem_Malloc(2*buffersize); // Twice for bug in Win2k
             } else {
             	PyMem_Free(buffer);
             	PyErr_SetFromWindowsErr(0);
