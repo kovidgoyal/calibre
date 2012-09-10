@@ -87,7 +87,7 @@ class PluginWidget(QWidget,Ui_Form):
         option_fields += zip(['exclusion_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
-                               'name':'Catalogs',
+                               'name':_('Catalogs'),
                                'field':'Tags',
                                'pattern':'Catalog'},],
                              ['table_widget'])
@@ -96,13 +96,13 @@ class PluginWidget(QWidget,Ui_Form):
         option_fields += zip(['prefix_rules_tw','prefix_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
-                               'name':'Read book',
+                               'name':_('Read book'),
                                'field':'Tags',
                                'pattern':'+',
                                'prefix':u'\u2713'},
                               {'ordinal':1,
                                'enabled':True,
-                               'name':'Wishlist item',
+                               'name':_('Wishlist item'),
                                'field':'Tags',
                                'pattern':'Wishlist',
                                'prefix':u'\u00d7'},],
@@ -612,7 +612,7 @@ class GenericRulesTable(QTableWidget):
         first_rule_name = unicode(self.cellWidget(first-1,self.COLUMNS['NAME']['ordinal']).text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
         if len(rows) > 1:
-            message = _('Are you sure you want to delete rules #%d-%d?') % (first, last)
+            message = _('Are you sure you want to delete rules #%(first)d-%(last)d?') % dict(first=first, last=last)
         if not question_dialog(self, _('Delete Rule'), message, show_copy_button=False):
             return
         first_sel_row = self.currentRow()

@@ -974,6 +974,9 @@ class Device(DeviceConfig, DevicePlugin):
     def get_carda_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_CARD_A
 
+    def get_cardb_ebook_dir(self, for_upload=False):
+        return self.EBOOK_DIR_CARD_B
+
     def _sanity_check(self, on_card, files):
         from calibre.devices.utils import sanity_check
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
@@ -993,10 +996,10 @@ class Device(DeviceConfig, DevicePlugin):
 
         if on_card == 'carda':
             candidates = self.get_carda_ebook_dir(for_upload=True)
-            path = get_dest_dir(self._carda_prefix, candidates)
+            path = get_dest_dir(self._card_a_prefix, candidates)
         elif on_card == 'cardb':
             candidates = self.get_cardb_ebook_dir(for_upload=True)
-            path = get_dest_dir(self._cardb_prefix, candidates)
+            path = get_dest_dir(self._card_b_prefix, candidates)
         else:
             candidates = self.get_main_ebook_dir(for_upload=True)
             path = get_dest_dir(self._main_prefix, candidates)

@@ -59,7 +59,7 @@ class EPUB_MOBI(CatalogPlugin):
                           "Applies to: AZW3, ePub, MOBI output formats")),
 
                    Option('--exclusion-rules',
-                          default="(('Excluded tags','Tags','Catalog'),)",
+                          default="(('Catalogs','Tags','Catalog'),)",
                           dest='exclusion_rules',
                           action=None,
                           help=_("Specifies the rules used to exclude books from the generated catalog.\n"
@@ -139,7 +139,7 @@ class EPUB_MOBI(CatalogPlugin):
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--prefix-rules',
-                          default="(('Read books','tags','+','\u2713'),('Wishlist items','tags','Wishlist','\u00d7'))",
+                          default="(('Read books','tags','+','\u2713'),('Wishlist item','tags','Wishlist','\u00d7'))",
                           dest='prefix_rules',
                           action=None,
                           help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
@@ -412,10 +412,15 @@ class EPUB_MOBI(CatalogPlugin):
                 pass
 
             if GENERATE_DEBUG_EPUB:
+                from calibre.ebooks.epub import initialize_container
                 from calibre.ebooks.tweak import zip_rebuilder
+                from calibre.utils.zipfile import ZipFile
                 input_path = os.path.join(catalog_debug_path,'input')
-                shutil.copy(P('catalog/mimetype'),input_path)
-                shutil.copytree(P('catalog/META-INF'),os.path.join(input_path,'META-INF'))
+                epub_shell = os.path.join(catalog_debug_path,'epub_shell.zip')
+                initialize_container(epub_shell, opf_name='content.opf')
+                with ZipFile(epub_shell, 'r') as zf:
+                    zf.extractall(path=input_path)
+                os.remove(epub_shell)
                 zip_rebuilder(input_path, os.path.join(catalog_debug_path,'input.epub'))
 
         # returns to gui2.actions.catalog:catalog_generated()

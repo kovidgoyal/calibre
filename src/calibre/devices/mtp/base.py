@@ -59,4 +59,7 @@ class MTPDeviceBase(DevicePlugin):
         from calibre.devices.utils import build_template_regexp
         return build_template_regexp(self.save_template)
 
+    def is_customizable(self):
+        return True
+
 

@@ -5,6 +5,7 @@ __copyright__ = '2010, Greg Riker'
 
 import datetime, htmlentitydefs, os, re, shutil, unicodedata, zlib
 from copy import deepcopy
+from operator import itemgetter
 from xml.sax.saxutils import escape
 
 from calibre import (prepare_string_for_xml, strftime, force_unicode)
@@ -54,214 +55,95 @@ class CatalogBuilder(object):
     # title                 dc:title in OPF metadata, NCX periodical
     # verbosity             level of diagnostic printout
 
-    """ property decorators for attributes """
-    if True:
+    ''' device-specific symbol (default empty star) '''
+    @property
+    def SYMBOL_EMPTY_RATING(self):
+        return self.output_profile.empty_ratings_char
 
+    ''' device-specific symbol (default filled star) '''
+    @property
+    def SYMBOL_FULL_RATING(self):
+        return self.output_profile.ratings_char
 
+    ''' device-specific symbol for reading progress '''
+    @property
+    def SYMBOL_PROGRESS_READ(self):
+        psr = '+'
+        if self.generate_for_kindle:
+            psr = '&#9642;'
+        return psr
 
+    ''' device-specific symbol for reading progress '''
+    @property
+    def SYMBOL_PROGRESS_UNREAD(self):
+        psu = '-'
+        if self.generate_for_kindle:
+            psu = '&#9643;'
+        return psu
 
+    ''' device-specific symbol for reading progress '''
+    @property
+    def SYMBOL_READING(self):
+        if self.generate_for_kindle:
+            return self.format_prefix('&#x25b7;')
+        else:
+            return self.format_prefix('&nbsp;')
 
-
-
-
-
-        ''' directory to store cached thumbs '''
-        @property
-        def cache_dir(self):
-            return self.__cache_dir
-
-        ''' temp dir to store generated catalog '''
-        @property
-        def catalog_path(self):
-            return self.__catalog_path
-
-        ''' content dir in generated catalog '''
-        @property
-        def content_dir(self):
-            return self.__content_dir
-
-
-        ''' active database '''
-        @property
-        def db(self):
-            return self.__db
-
-
-        ''' tags to exclude as genres '''
-        @property
-        def excluded_tags(self):
-            return self.__excluded_tags
-
-        ''' True if generating for Kindle in MOBI format '''
-        @property
-        def generate_for_kindle(self):
-            return self.__generate_for_kindle
-
-        ''' True if connected Kindle and generating for Kindle '''
-        @property
-        def generate_recently_read(self):
-            return self.__generate_recently_read
-
-
-
-
-
-        ''' additional field to include before/after comments '''
-        @property
-        def merge_comments_rule(self):
-            return self.__merge_comments_rule
-
-
-        ''' opts passed from gui2.catalog.catalog_epub_mobi.py '''
-        @property
-        def opts(self):
-            return self.__opts
-
-        ''' output_profile declares special symbols '''
-        @property
-        def output_profile(self):
-            return self.__output_profile
-
-
-        ''' catalog??? device??? '''
-        @property
-        def plugin(self):
-            return self.__plugin
-
-
-
-
-        ''' Progress Reporter for Jobs '''
-        @property
-        def reporter(self):
-            return self.__reporter
-
-        ''' stylesheet to include with catalog '''
-        @property
-        def stylesheet(self):
-            return self.__stylesheet
-
-        ''' device-specific symbol (default empty star) '''
-        @property
-        def SYMBOL_EMPTY_RATING(self):
-            return self.output_profile.empty_ratings_char
-
-        ''' device-specific symbol (default filled star) '''
-        @property
-        def SYMBOL_FULL_RATING(self):
-            return self.output_profile.ratings_char
-
-        ''' device-specific symbol for reading progress '''
-        @property
-        def SYMBOL_PROGRESS_READ(self):
-            psr = '+'
-            if self.generate_for_kindle:
-                psr = '&#9642;'
-            return psr
-
-        ''' device-specific symbol for reading progress '''
-        @property
-        def SYMBOL_PROGRESS_UNREAD(self):
-            psu = '-'
-            if self.generate_for_kindle:
-                psu = '&#9643;'
-            return psu
-
-        ''' device-specific symbol for reading progress '''
-        @property
-        def SYMBOL_READING(self):
-            if self.generate_for_kindle:
-                return self.format_prefix('&#x25b7;')
-            else:
-                return self.format_prefix('&nbsp;')
-
-
-        ''' full path to thumbs archive '''
-        @property
-        def thumbs_path(self):
-            return self.__thumbs_path
-
-
-        ''' switch controlling format of series books in Titles section '''
-        @property
-        def use_series_prefix_in_titles_section(self):
-            return self.__use_series_prefix_in_titles_section
 
     def __init__(self, db, _opts, plugin,
                     report_progress=DummyReporter(),
                     stylesheet="content/stylesheet.css",
                     init_resources=True):
 
-        self.__db = db
-        self.__opts = _opts
-        self.__plugin = plugin
-        self.__reporter = report_progress
-        self.__stylesheet = stylesheet
-        self.__cache_dir = os.path.join(config_dir, 'caches', 'catalog')
-        self.__catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
-        self.__generate_for_kindle = True if (_opts.fmt == 'mobi' and
+        self.db = db
+        self.opts = _opts
+        self.plugin = plugin
+        self.reporter = report_progress
+        self.stylesheet = stylesheet
+        self.cache_dir = os.path.join(config_dir, 'caches', 'catalog')
+        self.catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
+        self.excluded_tags = self.get_excluded_tags()
+        self.generate_for_kindle = True if (_opts.fmt == 'mobi' and
                                               _opts.output_profile and
                                               _opts.output_profile.startswith("kindle")) else False
 
-        ''' list of unique authors '''
         self.authors = None
-        ''' dict of bookmarked books '''
         self.bookmarked_books = None
-        ''' list of bookmarked books, sorted by date read '''
         self.bookmarked_books_by_date_read = None
-        ''' list of books, sorted by author '''
         self.books_by_author = None
-        ''' list of books, grouped by date range (30 days) '''
         self.books_by_date_range = None
-        ''' list of books, by date added reverse (most recent first) '''
         self.books_by_month = None
-        ''' list of books in series '''
         self.books_by_series = None
-        ''' list of books, sorted by title '''
         self.books_by_title = None
-        ''' list of books in series, without series prefix '''
         self.books_by_title_no_series_prefix = None
-        self.__content_dir = os.path.join(self.catalog_path, "content")
-        ''' track Job progress '''
+        self.books_to_catalog = None
+        self.content_dir = os.path.join(self.catalog_path, "content")
         self.current_step = 0.0
-        ''' cumulative error messages to report at conclusion  '''
         self.error = []
-        self.__excluded_tags = self.get_excluded_tags()
-        self.__generate_recently_read = True if (_opts.generate_recently_added and
-                                                 _opts.connected_kindle and
-                                                 self.generate_for_kindle) else False
-        ''' list of dicts with books by genre '''
+        self.generate_recently_read = True if (_opts.generate_recently_added and
+                                               _opts.connected_kindle and
+                                               self.generate_for_kindle) else False
         self.genres = []
-        ''' dict of enabled genre tags '''
         self.genre_tags_dict = None
-        ''' Author, Title, Series sections '''
         self.html_filelist_1 = []
-        ''' Date Added, Date Read '''
         self.html_filelist_2 = []
-        self.__merge_comments_rule = dict(zip(['field','position','hr'],_opts.merge_comments_rule.split(':')))
-        ''' cumulative HTML for NCX file '''
+        self.merge_comments_rule = dict(zip(['field','position','hr'],
+                                            _opts.merge_comments_rule.split(':')))
         self.ncx_soup = None
-        self.__output_profile = None
-        self.__output_profile = self.get_output_profile(_opts)
-        ''' playOrder value for building NCX '''
+        self.output_profile = None
+        self.output_profile = self.get_output_profile(_opts)
         self.play_order = 1
-        ''' dict of prefix rules '''
         self.prefix_rules = self.get_prefix_rules()
-        ''' used with ProgressReporter() '''
         self.progress_int = 0.0
-        ''' used with ProgressReporter() '''
         self.progress_string = ''
-
-        self.__thumb_height = 0
-
-        self.__thumb_width = 0
-        ''' list of generated thumbs '''
+        self.thumb_height = 0
+        self.thumb_width = 0
         self.thumbs = None
-        self.__thumbs_path = os.path.join(self.cache_dir, "thumbs.zip")
-        ''' used with ProgressReporter() '''
+        self.thumbs_path = os.path.join(self.cache_dir, "thumbs.zip")
         self.total_steps = 6.0
-        self.__use_series_prefix_in_titles_section = False
+        self.use_series_prefix_in_titles_section = False
 
+        self.books_to_catalog = self.fetch_books_to_catalog()
         self.compute_total_steps()
         self.calculate_thumbnail_dimensions()
         self.confirm_thumbs_archive()
@@ -329,18 +211,27 @@ class CatalogBuilder(object):
          (str): sort key
         """
         if not book['series']:
-            fs = '{:<%d}!{!s}' % longest_author_sort
+            fs = u'{:<%d}!{!s}' % longest_author_sort
             key = fs.format(capitalize(book['author_sort']),
                             capitalize(book['title_sort']))
         else:
             index = book['series_index']
             integer = int(index)
             fraction = index-integer
-            series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-            fs = '{:<%d}~{!s}{!s}' % longest_author_sort
+            series_index = u'%04d%s' % (integer, str(u'%0.4f' % fraction).lstrip(u'0'))
+            fs = u'{:<%d}~{!s}{!s}' % longest_author_sort
             key = fs.format(capitalize(book['author_sort']),
                             self.generate_sort_title(book['series']),
                             series_index)
+        return key
+
+    def _kf_books_by_series_sorter(self, book):
+        index = book['series_index']
+        integer = int(index)
+        fraction = index-integer
+        series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
+        key = '%s %s' % (self.generate_sort_title(book['series']),
+                         series_index)
         return key
 
     """ Methods """
@@ -614,7 +505,7 @@ class CatalogBuilder(object):
         annoyance for EPUB.
 
         Inputs:
-         self.books_by_title (list): list of books to catalog
+         self.books_to_catalog (list): list of books to catalog
 
         Output:
          self.books_by_author (list): sorted by author
@@ -623,7 +514,7 @@ class CatalogBuilder(object):
          AuthorSortMismatchException: author_sort mismatch detected
         """
 
-        self.books_by_author = sorted(list(self.books_by_title), key=self._kf_books_by_author_sorter_author)
+        self.books_by_author = sorted(list(self.books_to_catalog), key=self._kf_books_by_author_sorter_author)
         authors = [(record['author'], record['author_sort']) for record in self.books_by_author]
         current_author = authors[0]
         for (i,author) in enumerate(authors):
@@ -671,7 +562,7 @@ class CatalogBuilder(object):
          None: no match
         """
         def _log_prefix_rule_match_info(rule, record):
-            self.opts.log.info("     %s '%s' by %s (Prefix rule '%s')" %
+            self.opts.log.info("  %s '%s' by %s (Prefix rule '%s')" %
                                (rule['prefix'],record['title'],
                                 record['authors'][0], rule['name']))
 
@@ -770,7 +661,7 @@ class CatalogBuilder(object):
         to self.authors.
 
         Inputs:
-         self.books_by_title (list): database, sorted by title
+         self.books_to_catalog (list): database, sorted by title
 
         Outputs:
          books_by_author: database, sorted by author
@@ -790,7 +681,7 @@ class CatalogBuilder(object):
         # Determine the longest author_sort length before sorting
         asl = [i['author_sort'] for i in self.books_by_author]
         las = max(asl, key=len)
-        self.books_by_author = sorted(self.books_by_author,
+        self.books_by_author = sorted(self.books_to_catalog,
             key=lambda x: sort_key(self._kf_books_by_author_sorter_author_sort(x, len(las))))
 
         if self.DEBUG and self.opts.verbose:
@@ -843,9 +734,42 @@ class CatalogBuilder(object):
         return True
 
     def fetch_books_by_title(self):
-        """ Populate self.books_by_title from database
+        """ Generate a list of books sorted by title.
 
-        Create self.books_by_title from filtered database.
+        Sort the database by title.
+
+        Inputs:
+         self.books_to_catalog (list): database
+
+        Outputs:
+         books_by_title: database, sorted by title
+
+        Return:
+         True: no errors
+         False: author_sort mismatch detected while building MOBI
+        """
+        self.update_progress_full_step(_("Sorting titles"))
+        # Re-sort based on title_sort
+        if len(self.books_to_catalog):
+            self.books_by_title = sorted(self.books_to_catalog, key=lambda x: sort_key(x['title_sort'].upper()))
+
+            if self.DEBUG and self.opts.verbose:
+                self.opts.log.info("fetch_books_by_title(): %d books" % len(self.books_by_title))
+                self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
+                for title in self.books_by_title:
+                    self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
+                                                            title['title_sort'][0:40])).encode('utf-8'))
+        else:
+            error_msg = _("No books to catalog.\nCheck 'Excluded books' rules in E-book options.\n")
+            self.opts.log.error('*** ' + error_msg + ' ***')
+            self.error.append(_('No books available to include in catalog'))
+            self.error.append(error_msg)
+            raise EmptyCatalogException, error_msg
+
+    def fetch_books_to_catalog(self):
+        """ Populate self.books_to_catalog from database
+
+        Create self.books_to_catalog from filtered database.
         Keys:
          authors            massaged
          author_sort        record['author_sort'] or computed
@@ -871,7 +795,7 @@ class CatalogBuilder(object):
          data (list): filtered list of book metadata dicts
 
         Outputs:
-         (list) books_by_title
+         (list) books_to_catalog
 
         Returns:
          True: Successful
@@ -953,9 +877,11 @@ class CatalogBuilder(object):
 
             this_title['prefix'] = self.discover_prefix(record)
 
+            this_title['tags'] = []
             if record['tags']:
                 this_title['tags'] = self.filter_excluded_genres(record['tags'],
                                         self.opts.exclude_genre)
+
             if record['formats']:
                 formats = []
                 for format in record['formats']:
@@ -980,7 +906,6 @@ class CatalogBuilder(object):
             return this_title
 
         # Entry point
-        self.update_progress_full_step(_("Fetching database"))
 
         self.opts.sort_by = 'title'
         search_phrase = ''
@@ -1003,28 +928,15 @@ class CatalogBuilder(object):
         data = self.plugin.search_sort_db(self.db, self.opts)
         data = self.process_exclusions(data)
 
+        if self.opts.verbose and self.prefix_rules:
+            self.opts.log.info(" Added prefixes:")
+
         # Populate this_title{} from data[{},{}]
         titles = []
         for record in data:
             this_title = _populate_title(record)
             titles.append(this_title)
-
-        # Re-sort based on title_sort
-        if len(titles):
-            self.books_by_title = sorted(titles, key=lambda x: sort_key(x['title_sort'].upper()))
-
-            if self.DEBUG and self.opts.verbose:
-                self.opts.log.info("fetch_books_by_title(): %d books" % len(self.books_by_title))
-                self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
-                for title in self.books_by_title:
-                    self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
-                                                            title['title_sort'][0:40])).encode('utf-8'))
-        else:
-            error_msg = _("No books to catalog.\nCheck 'Excluded books' rules in E-book options.\n")
-            self.opts.log.error('*** ' + error_msg + ' ***')
-            self.error.append(_('No books available to include in catalog'))
-            self.error.append(error_msg)
-            raise EmptyCatalogException, error_msg
+        return titles
 
     def fetch_bookmarks(self):
         """ Interrogate connected Kindle for bookmarks.
@@ -1104,7 +1016,7 @@ class CatalogBuilder(object):
             d.initialize(self.opts.connected_device['save_template'])
 
             bookmarks = {}
-            for book in self.books_by_title:
+            for book in self.books_to_catalog:
                 if 'formats' in book:
                     path_map = {}
                     id = book['id']
@@ -1148,7 +1060,7 @@ class CatalogBuilder(object):
          genre_tags_dict (dict): dict of filtered, normalized tags in data set
         """
 
-        def _format_tag_list(tags, indent=5, line_break=70, header='Tag list'):
+        def _format_tag_list(tags, indent=2, line_break=70, header='Tag list'):
             def _next_tag(sorted_tags):
                 for (i, tag) in enumerate(sorted_tags):
                     if i < len(tags) - 1:
@@ -1541,7 +1453,7 @@ class CatalogBuilder(object):
     def generate_html_by_date_added(self):
         """ Generate content/ByDateAdded.html.
 
-        Loop through self.books_by_title sorted by reverse date, generate HTML.
+        Loop through self.books_to_catalog sorted by reverse date, generate HTML.
 
         Input:
          books_by_title (list): books, sorted by title
@@ -1735,10 +1647,10 @@ class CatalogBuilder(object):
 
         # >>> Books by date range <<<
         if self.use_series_prefix_in_titles_section:
-            self.books_by_date_range = sorted(self.books_by_title,
+            self.books_by_date_range = sorted(self.books_to_catalog,
                                 key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
         else:
-            nspt = deepcopy(self.books_by_title)
+            nspt = deepcopy(self.books_to_catalog)
             self.books_by_date_range = sorted(nspt, key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
 
         date_range_list = []
@@ -1763,7 +1675,7 @@ class CatalogBuilder(object):
 
         # >>>> Books by month <<<<
         # Sort titles case-insensitive for by month using series prefix
-        self.books_by_month = sorted(self.books_by_title,
+        self.books_by_month = sorted(self.books_to_catalog,
                                 key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
 
         # Loop through books by date
@@ -2026,12 +1938,12 @@ class CatalogBuilder(object):
 
         if self.opts.verbose:
             if len(genre_list):
-                self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
-                                (len(genre_list), len(self.books_by_title)))
+                self.opts.log.info("  Genre summary: %d active genre tags used in generating catalog with %d titles" %
+                                (len(genre_list), len(self.books_to_catalog)))
 
                 for genre in genre_list:
                     for key in genre:
-                        self.opts.log.info("      %s: %d %s" % (self.get_friendly_genre_tag(key),
+                        self.opts.log.info("   %s: %d %s" % (self.get_friendly_genre_tag(key),
                                             len(genre[key]),
                                             'titles' if len(genre[key]) > 1 else 'title'))
 
@@ -2226,47 +2138,27 @@ class CatalogBuilder(object):
         Output:
          content/BySeries.html (file)
 
-        To do:
-         self.books_by_series = [i for i in self.books_by_title if i['series']]
         """
         friendly_name = _("Series")
         self.update_progress_full_step("%s HTML" % friendly_name)
 
         self.opts.sort_by = 'series'
 
-        # Merge self.excluded_tags with opts.search_text
-        # Updated to use exact match syntax
-
-        search_phrase = 'series:true '
-        if self.excluded_tags:
-            search_terms = []
-            for tag in self.excluded_tags:
-                search_terms.append("tag:=%s" % tag)
-            search_phrase += "not (%s)" % " or ".join(search_terms)
-
-        # If a list of ids are provided, don't use search_text
-        if self.opts.ids:
-            self.opts.search_text = search_phrase
-        else:
-            if self.opts.search_text:
-                self.opts.search_text += " " + search_phrase
-            else:
-                self.opts.search_text = search_phrase
-
-        # Fetch the database as a dictionary
-        data = self.plugin.search_sort_db(self.db, self.opts)
-
-        # Remove exclusions
-        self.books_by_series = self.process_exclusions(data, log_exclusion=False)
+        # *** Convert the existing database, resort by series/index ***
+        self.books_by_series = [i for i in self.books_to_catalog if i['series']]
+        self.books_by_series = sorted(self.books_by_series, key=lambda x: sort_key(self._kf_books_by_series_sorter(x)))
 
         if not self.books_by_series:
             self.opts.generate_series = False
-            self.opts.log(" no series found in selected books, cancelling series generation")
+            self.opts.log("  no series found in selected books, skipping Series section")
             return
 
         # Generate series_sort
         for book in self.books_by_series:
             book['series_sort'] = self.generate_sort_title(book['series'])
+
+        # Establish initial letter equivalencies
+        sort_equivalents = self.establish_equivalencies(self.books_by_series, key='series_sort')
 
         soup = self.generate_html_empty_header(friendly_name)
         body = soup.find('body')
@@ -2276,9 +2168,6 @@ class CatalogBuilder(object):
         dtc = 0
         current_letter = ""
         current_series = None
-
-        # Establish initial letter equivalencies
-        sort_equivalents = self.establish_equivalencies(self.books_by_series, key='series_sort')
 
         # Loop through books_by_series
         series_count = 0
@@ -2334,11 +2223,6 @@ class CatalogBuilder(object):
                 aTag['href'] = "book_%d.html" % (int(float(book['id'])))
             # Use series, series index if avail else just title
             #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
-
-            if is_date_undefined(book['pubdate']):
-                book['date'] = None
-            else:
-                book['date'] = strftime(u'%B %Y', book['pubdate'].timetuple())
 
             args = self.generate_format_args(book)
             formatted_title = self.by_series_title_template.format(**args).rstrip()
@@ -2438,7 +2322,7 @@ class CatalogBuilder(object):
         # Re-sort title list without leading series/series_index
         # Incoming title <series> <series_index>: <title>
         if not self.use_series_prefix_in_titles_section:
-            nspt = deepcopy(self.books_by_title)
+            nspt = deepcopy(self.books_to_catalog)
             nspt = sorted(nspt, key=lambda x: sort_key(x['title_sort'].upper()))
             self.books_by_title_no_series_prefix = nspt
 
@@ -2580,7 +2464,9 @@ class CatalogBuilder(object):
                         title_str=title_str,
                         xmlns=XHTML_NS,
                         )
-
+            for k, v in args.iteritems():
+                if isbytestring(v):
+                    args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',
                     data=True).decode('utf-8').format(**args)
             generated_html = substitute_entites(generated_html)
@@ -3153,8 +3039,12 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_(u"Series beginning with %s") % \
-                (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
+            if len(title_letters[i])>1:
+                fmt_string = _(u"Series beginning with %s")
+            else:
+                fmt_string = _(u"Series beginning with '%s'")
+            textTag.insert(0, NavigableString(fmt_string %
+                (title_letters[i] if len(title_letters[i])>1 else title_letters[i])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
@@ -3274,8 +3164,12 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_(u"Titles beginning with %s") % \
-                (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
+            if len(title_letters[i])>1:
+                fmt_string = _(u"Titles beginning with %s")
+            else:
+                fmt_string = _(u"Titles beginning with '%s'")
+            textTag.insert(0, NavigableString(fmt_string %
+                (title_letters[i] if len(title_letters[i])>1 else title_letters[i])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
@@ -3385,7 +3279,11 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(soup, 'navLabel')
             textTag = Tag(soup, 'text')
-            textTag.insert(0, NavigableString(_("Authors beginning with '%s'") % (authors_by_letter[1])))
+            if len(authors_by_letter[1])>1:
+                fmt_string = _(u"Authors beginning with %s")
+            else:
+                fmt_string = _(u"Authors beginning with '%s'")
+            textTag.insert(0, NavigableString(fmt_string % (authors_by_letter[1])))
             navLabelTag.insert(0, textTag)
             navPointByLetterTag.insert(0,navLabelTag)
             contentTag = Tag(soup, 'content')
@@ -4339,7 +4237,7 @@ class CatalogBuilder(object):
 
         # Report excluded books
         if self.opts.verbose and excluded_tags:
-            self.opts.log.info(" Excluded books by Tags:")
+            self.opts.log.info(" Excluded books:")
             data = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
                 matched = list(set(record['tags']) & set(excluded_tags))
@@ -4632,7 +4530,7 @@ class CatalogBuilder(object):
                     normalized += c
         return normalized
 
-    def process_exclusions(self, data_set, log_exclusion=True):
+    def process_exclusions(self, data_set):
         """ Filter data_set based on exclusion_rules.
 
         Compare each book in data_set to each exclusion_rule. Remove
@@ -4666,16 +4564,18 @@ class CatalogBuilder(object):
                         matched = re.search(pat, unicode(field_contents),
                                 re.IGNORECASE)
                         if matched is not None:
-                            if self.opts.verbose and log_exclusion:
+                            if self.opts.verbose:
                                 field_md = self.db.metadata_for_field(field)
                                 for rule in self.opts.exclusion_rules:
                                     if rule[1] == '#%s' % field_md['label']:
-                                        self.opts.log.info("     - '%s' by %s (Exclusion rule '%s')" %
+                                        self.opts.log.info("  - '%s' by %s (Exclusion rule '%s')" %
                                             (record['title'], record['authors'][0], rule[0]))
                             exclusion_set.append(record)
                             if record in filtered_data_set:
                                 filtered_data_set.remove(record)
                             break
+                        else:
+                            filtered_data_set.append(record)
                     else:
                         if (record not in filtered_data_set and
                             record not in exclusion_set):

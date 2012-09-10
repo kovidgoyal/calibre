@@ -75,7 +75,7 @@ class UpdateNotification(QDialog):
         self.logo.setPixmap(QPixmap(I('lt.png')).scaled(100, 100,
             Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
         self.label = QLabel(('<p>'+
-            _('%(app)s has been updated to version <b>%(ver)s</b>. '
+            _('New version <b>%(ver)s</b> of %(app)s is available for download. '
             'See the <a href="http://calibre-ebook.com/whats-new'
             '">new features</a>.'))%dict(
                 app=__appname__, ver=calibre_version))

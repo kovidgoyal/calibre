@@ -39,6 +39,7 @@ class MathJax
             showMathMenu: false,
             extensions: ["tex2jax.js", "asciimath2jax.js", "mml2jax.js"],
             jax: ["input/TeX","input/MathML","input/AsciiMath","output/SVG"],
+            // SVG : { linebreaks : { automatic : true } },
             TeX: {
                 extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
             }
