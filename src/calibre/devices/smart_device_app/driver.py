@@ -84,6 +84,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
 
+    SAVE_TEMPLATE               = '{title} - {authors} ({id})'
+
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
     PROTOCOL_VERSION            = 1
