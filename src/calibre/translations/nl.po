@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-09-08 11:42+0000\n"
-"PO-Revision-Date: 2012-08-26 08:32+0000\n"
+"PO-Revision-Date: 2012-09-09 12:53+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-09 04:38+0000\n"
-"X-Generator: Launchpad (build 15914)\n"
+"X-Launchpad-Export-Date: 2012-09-10 04:40+0000\n"
+"X-Generator: Launchpad (build 15924)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1067,12 +1067,18 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>main memory</b>. The first one that exists will be used"
 msgstr ""
+"Komma gescheiden lijst van mappen op in het E-reader <b>hoofdgeheugen</b> "
+"waar E-boeken moeten worden geplaatst. De eerste map die bestaat zal worden "
+"gebruikt"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
 msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>storage cards</b>. The first one that exists will be used"
 msgstr ""
+"Komma gescheiden lijst van mappen op de E-reader <b>geheugenkaarten</b> waar "
+"E-boeken moeten worden geplaatst. De eerste map die bestaat zal worden "
+"gebruikt"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:310
 msgid "Communicate with S60 phones."
@@ -1739,6 +1745,11 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo doet routinematig een update van de firmware en de database versie. Met "
+"deze optie zal calibre proberen volledige lees-schrijf toegang te krijgen - "
+"Hier zit de angel! Schakel enkel in toestaan als u vertrouwd bent met het "
+"terugzetten van uw Kobo naar de fabrieksinstellingen en het testen van "
+"software."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:607
 msgid "Kobo database version unsupported - See details"
@@ -1892,69 +1903,69 @@ msgstr "Apparaatinformatie ophalen..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:143
 msgid "Reading metadata from device"
-msgstr ""
+msgstr "Metagegevens van het apparaat aan het lezen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:176
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "Metagegevens van %s aan het lezen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:195
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "Metadata cache op apparaat aan het bijwerken"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:197
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "Metadata lezen op het apparaat voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:346
 #, python-format
 msgid "Transferred %s to device"
-msgstr ""
+msgstr "%s naar apparaat verplaatst"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:348
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "Verplaatsen naar apparaat voltooid..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:369
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "%s toegevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:371
 msgid "Adding complete"
-msgstr ""
+msgstr "Toevoegen compleet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:387
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "Boeken worden op apparaat gewist..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "%s gewist"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:394
 msgid "All books deleted"
-msgstr ""
+msgstr "Alle boeken gewist"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:397
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "Boeken worden verwijderd uit metadata"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:409
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "%s verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:411
 msgid "All books removed"
-msgstr ""
+msgstr "Alle boeken verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:178
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:267
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Onbekend MTP apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:64
 msgid ""
@@ -1962,6 +1973,9 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
+"De Windows Draagbare Apparaten service is niet beschikbaar op uw computer. U "
+"dient mogelijk Windows Media Player 11 of nieuwer te installeren en/of uw "
+"computer te herstarten."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2214,7 +2228,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:150
 msgid "Possibilities include: series, tags, authors, etc"
-msgstr ""
+msgstr "Mogelijkheden zijn o.a.: series, labels, auteurs, enz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:158
 msgid "Enable the no-activity timeout"
@@ -2230,7 +2244,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:163
 msgid "Use this IP address"
-msgstr ""
+msgstr "Gebruik dit IP adres"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:164
 msgid ""
@@ -3269,14 +3283,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid "The font family used to render monospaced fonts"
 msgstr ""
+"De lettertype-familie om te gebruiken bij het opbouwen van niet-"
+"proportionele lettertypen (monospaced)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:106
 msgid "The default font size"
-msgstr ""
+msgstr "De standaard lettergrootte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:109
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "De standaard lettergrootte van niet-proportionele text (monospaced)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3653,7 +3669,7 @@ msgid ""
 msgstr ""
 "XPath-expressie waarmee alle tags worden toegevoegd aan de inhoudsopgave op "
 "niveau een. Deze optie gaat boven andere vormen van auto-detectie. Zie ook "
-"de voorbeelden in de XPath-tutorial in de Calibre-handleiding."
+"de voorbeelden in de XPath-handleiding in de Calibre-handleiding."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -3663,7 +3679,7 @@ msgid ""
 msgstr ""
 "XPath-expressie waarmee alle tags worden toegevoegd aan de inhoudsopgave op "
 "niveau twee. Elke toevoeging komt onder de vorige vermelding op niveau een. "
-"Zie ook de voorbeelden in de XPath-tutorial in de Calibre-handleiding."
+"Zie ook de voorbeelden in de XPath-handleiding in de Calibre-handleiding."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:227
 msgid ""
@@ -3673,7 +3689,7 @@ msgid ""
 msgstr ""
 "XPath-expressie waarmee alle tags worden toegevoegd aan de inhoudsopgave op "
 "niveau drie. Elke toevoeging komt onder de vorige vermelding op niveau twee. "
-"Zie ook de voorbeelden in de XPath-tutorial in de Calibre-handleiding."
+"Zie ook de voorbeelden in de XPath-handleiding in de Calibre-handleiding."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:236
 msgid ""
@@ -3743,7 +3759,7 @@ msgstr ""
 "\"voorwoord\", \"nawoord\" of \"sectie\", en naar tags met "
 "class=\"chapter\". De expressie moet leiden tot een lijst met elementen. Om "
 "hoofdstukdetectie uit te schakelen, vult u in: \"/\" Voor meer informatie "
-"over deze optie, zie de XPath-tutorial in de Calibre-handleiding."
+"over deze optie, zie de XPath-handleiding in de Calibre-handleiding."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
 msgid ""
@@ -5097,7 +5113,7 @@ msgstr "Zijpaneel"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:60
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "Pagina %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -5500,23 +5516,23 @@ msgstr "Geen boekbestanden gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:406
 msgid "Downloading books"
-msgstr ""
+msgstr "Boeken aan het downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:407
 msgid "Downloading books from device"
-msgstr ""
+msgstr "Boeken van apparaat aan het downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:426
 msgid "Could not download files from the device"
-msgstr ""
+msgstr "Downloaden van bestanden van apparaat mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:429
 msgid "Could not download some files from the device"
-msgstr ""
+msgstr "Downloaden van sommige bestanden van het apparaat mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:433
 msgid "Could not download files"
-msgstr ""
+msgstr "Downloaden van bestanden mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
@@ -7470,15 +7486,15 @@ msgstr "E-bookinstellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:90
 msgid "Catalogs"
-msgstr ""
+msgstr "Catalogi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
-msgstr ""
+msgstr "Lees boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:105
 msgid "Wishlist item"
-msgstr ""
+msgstr "Wenslijst item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:769
@@ -7499,16 +7515,16 @@ msgstr "ongedefiniëerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:159
 msgid "No genres will be excluded"
-msgstr ""
+msgstr "Geen genres uitgesloten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:168
 #, python-format
 msgid "regex error: %s"
-msgstr ""
+msgstr "regex fout: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:177
 msgid "All genres will be excluded"
-msgstr ""
+msgstr "Alle genres worden uitgesloten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:613
 #, python-format
@@ -7518,7 +7534,7 @@ msgstr "Weet u zeker dat u '%s' wilt verwijderen?"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:615
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
-msgstr ""
+msgstr "Weet u zeker dat u regels #%(first)d-%(last)d wilt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:616
 msgid "Delete Rule"
@@ -7566,23 +7582,23 @@ msgstr "Ingevoegde afdelingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:268
 msgid "&Authors"
-msgstr ""
+msgstr "&Autheurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:269
 msgid "&Titles"
-msgstr ""
+msgstr "&Titels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:270
 msgid "&Series"
-msgstr ""
+msgstr "&Series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:271
 msgid "&Genres"
-msgstr ""
+msgstr "&Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:272
 msgid "&Recently Added"
-msgstr ""
+msgstr "&Recentelijk toegevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:273
 msgid "&Descriptions"
@@ -7632,7 +7648,7 @@ msgstr "Uitgesloten genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:281
 msgid "Tags to &exclude (regex):"
-msgstr ""
+msgstr "Labels om &uit te sluiten (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:282
 msgid "Reset to default"
@@ -7640,11 +7656,11 @@ msgstr "Herstel naar standaard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:284
 msgid "Results of regex:"
-msgstr ""
+msgstr "Resultaten van de regex:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:285
 msgid "Tags that will be excluded as genres"
-msgstr ""
+msgstr "Labels welke worden uitgesloten als genre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:286
 msgid "Other options"
@@ -7679,27 +7695,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Include &Separator"
-msgstr ""
+msgstr "Inclusief &scheidingsteken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "&Merge with Comments:"
-msgstr ""
+msgstr "Commentaar sa&menvoegen met:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "Catalog cover:"
-msgstr ""
+msgstr "Catalogus omslag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Generate new cover"
-msgstr ""
+msgstr "Maak een nieuwe omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Use existing cover"
-msgstr ""
+msgstr "Gebruik bestaande omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "E&xtra Description note:"
-msgstr ""
+msgstr "E&xtra notitie in bescrhijving:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Custom column source for text to include in Description section."
@@ -7989,7 +8005,7 @@ msgstr "Bijsnijden ui&tschakelen"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:108
 msgid "&Wide"
-msgstr "&Wijd"
+msgstr "&Breed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:104
@@ -9105,11 +9121,11 @@ msgid ""
 "Add button to add it to the list of expressions."
 msgstr ""
 "<p>Zoek en vervang gebruikt <i>reguliere expressies</i>. Zie de <a "
-"href=\"http://manual.calibre-ebook.com/regexp.html\">tutorial over reguliere "
-"expressies (Engels)</a> om met reguliere expressies aan de slag te gaan. Met "
-"de Wizard-knop kunt u de huidige expressie testen op het bronbestand. Als u "
-"tevreden bent met het resultaat, klik dan op Toevoegen om de expressie aan "
-"de lijst toe te voegen."
+"href=\"http://manual.calibre-ebook.com/regexp.html\">handleiding over "
+"reguliere expressies (Engelstalig)</a> om met reguliere expressies aan de "
+"slag te gaan. Met de Wizard-knop kunt u de huidige expressie testen op het "
+"bronbestand. Als u tevreden bent met het resultaat, klik dan op Toevoegen om "
+"de expressie aan de lijst toe te voegen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:181
 msgid "Convert"
@@ -9178,7 +9194,7 @@ msgstr "Nieuwe pagina starten voor (XPath-uitdrukking):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Start reading at (XPath expression):"
-msgstr ""
+msgstr "Begin te lezen bij (XPath-uitdrukking):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
@@ -9459,7 +9475,7 @@ msgstr ""
 "getoond worden, als u waarde leeg laat zullen alle waardes getoond worden. "
 "Als u * bij label instelt zal elk label getoond worden.</p><p>Om meer over "
 "XPath te leren kunt u de <a href=\"http://manual.calibre-"
-"ebook.com/xpath.html\">XPath Tutorial</a> doorlezen (Engelstalig)."
+"ebook.com/xpath.html\">XPath handleiding</a> doorlezen (Engelstalig)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:149
 msgid "Browse by covers"
@@ -9881,7 +9897,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:88
 msgid "Template editor"
-msgstr ""
+msgstr "Sjabloon berwerker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -9906,6 +9922,8 @@ msgid ""
 "<b>No MTP device connected.</b><p> You can only configure the MTP device "
 "plugin when a device is connected."
 msgstr ""
+"<b>Geen MTP apparaat verbonden.</b><p>U kunt de instellingen voor de \"MTP "
+"apparaten plugin\" alleen wijzigen als het apparaat is verbonden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:160
 msgid ""
@@ -9916,7 +9934,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:176
 #, python-format
 msgid "Choose the formats to send to the %s"
-msgstr ""
+msgstr "Kies de formaten om te sturen naar de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -9998,11 +10016,11 @@ msgstr "Mijn boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:190
 msgid "No help available"
-msgstr ""
+msgstr "Geen hulp beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:191
 msgid "No help available for this output format."
-msgstr ""
+msgstr "Geen hulp beschikbaar voor dit uitvoerformaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:328
@@ -12408,7 +12426,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:101
 msgid "Enable automatic metadata management"
-msgstr ""
+msgstr "Automatische metadata-beheer inschakelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:104
 msgid ""
@@ -12424,7 +12442,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:127
 msgid "Automatic metadata management is enabled"
-msgstr ""
+msgstr "Automatische metadata-beheer is ingeschakeld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:141
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:147
@@ -13101,9 +13119,9 @@ msgstr ""
 "<div style=\"font-size:10pt;\">\n"
 "<p>Stel een regexp in die gebruikt wordt bij het afleiden van metadata uit "
 "bestandsnamen. </p>\n"
-"<p>Er is een Engelstalige <a href=\"http://manual.calibre-"
-"ebook.com/regexp.html\">tutorial</a> over het gebruik van regexp "
-"beschikbaar.</p>\n"
+"<p>Er is een <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">handleiding (Engelstalig)</a> over het gebruik van "
+"regexp beschikbaar.</p>\n"
 "<p>Gebruik de <b>Test</b> mogelijkheden hieronder om uw regexp op een aantal "
 "bestandsnamen uit te testen (vergeet de bestandsextensies niet). De "
 "groepnamen van de verschillende metadata velden worden in tooltips "
@@ -13499,7 +13517,7 @@ msgstr "Y"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:59
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:285
 msgid "On Device"
-msgstr "Op het apparaat"
+msgstr "Op apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
 msgid "Size (MB)"
@@ -14702,8 +14720,8 @@ msgstr "Gedownload &nieuws automatisch naar de e-reader versturen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr ""
-"Het nieuws uit de bibliotheek &verwijderen als het automatisch naar de e-"
-"reader verstuurd wordt"
+"Het nieuws uit de bibliotheek &verwijderen bij automatisch versturen naar de "
+"e-reader"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Preferred &output format:"
@@ -15780,7 +15798,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid "Show &cover in the book details panel"
-msgstr ""
+msgstr "Toon &Omslag in het boekdetails paneel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:267
 msgid ""
@@ -15826,9 +15844,9 @@ msgid ""
 "up into subcategories. If the partition method is set to disable, this value "
 "is ignored."
 msgstr ""
-"Als een categorie in de Tagbrowser meer onderdelen heeft dan dit aantal, "
+"Als een categorie in de labelbrowser meer onderdelen heeft dan dit aantal, "
 "wordt de\n"
-"categorie opgedeeld in subcategorieën. Als de partitiemethode uitstaat, "
+"categorie opgedeeld in subcategorieën. Als de partitie-methode uitstaat, "
 "wordt deze waarde genegeerd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:282
@@ -16587,7 +16605,7 @@ msgstr "Te doorzoeken metadata &limiteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:174
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr "Beschikbare &kolommen, doorzoekbaar zonder prefix:"
+msgstr "&Kolommen, doorzoekbaar zonder prefix:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:175
 msgid ""
@@ -17997,12 +18015,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr "Pas tagbrowser aan"
+msgstr "Labelbrowser opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr "Sorteren op"
+msgstr "Sortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
 msgid "Sort by name"
@@ -18022,7 +18040,7 @@ msgstr "Leg de sorteervolgorde vast voor de items in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr "Overeenkomend type"
+msgstr "Zoek methode"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
@@ -19931,6 +19949,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Specificeerd het uitvoerprofiel.  In sommige gevallen, is een uitvoerprofiel "
+"nodig om de catalogus te optimalizeren voor het apparaat. Bijvoorbeeld, "
+"'kindle' of 'kindle_dx' maken een gstructureerde tabel van de inhoud met "
+"secties en artikelen.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoerformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:145
 msgid ""
