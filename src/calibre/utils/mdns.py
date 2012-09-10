@@ -39,6 +39,19 @@ def _get_external_ip():
     #print 'ipaddr: %s' % ipaddr
     return ipaddr
 
+def verify_ipV4_address(ip_address):
+    result = None
+    if ip_address != '0.0.0.0' and ip_address != '::':
+        # do some more sanity checks on the address
+        try:
+            socket.inet_aton(ip_address)
+            if len(ip_address.split('.')) == 4:
+                result = ip_address
+        except socket.error:
+            # Not legal ip address
+            pass
+    return result
+
 _ext_ip = None
 def get_external_ip():
     global _ext_ip
