@@ -1120,7 +1120,7 @@ OptionRecommendation(name='search_replace',
         self.log.info('Creating %s...'%self.output_plugin.name)
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
         self.output_plugin.report_progress = our
-        our(0., _('Creating')+' %s'%self.output_plugin.name)
+        our(0., _('Running %s plugin')%self.output_plugin.name)
         with self.output_plugin:
             self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
