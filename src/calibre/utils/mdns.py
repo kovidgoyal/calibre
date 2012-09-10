@@ -106,7 +106,8 @@ def publish(desc, type, port, properties=None, add_hostname=True, use_ip_address
                        into the TXT record.
     '''
     server = start_server()
-    service = create_service(desc, type, port, properties, add_hostname)
+    service = create_service(desc, type, port, properties, add_hostname,
+                             use_ip_address)
     server.registerService(service)
 
 def unpublish(desc, type, port, properties=None, add_hostname=True):
