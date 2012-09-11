@@ -1009,6 +1009,8 @@ OptionRecommendation(name='search_replace',
 
         pr(0., _('Running transforms on ebook...'))
 
+        self.oeb.plumber_output_format = self.output_fmt or ''
+
         from calibre.ebooks.oeb.transforms.guide import Clean
         Clean()(self.oeb, self.opts)
         pr(0.1)
