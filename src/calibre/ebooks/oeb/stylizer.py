@@ -267,8 +267,9 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
+        pseudo_pat = re.compile(ur':(first-letter|first-line|link|hover|visited|active|focus)', re.I)
         for _, _, cssdict, text, _ in rules:
-            fl = re.search(ur':(first-letter|first-line|link|hover|visited|active|focus)', text)
+            fl = pseudo_pat.search(text)
             if fl is not None:
                 text = text.replace(fl.group(), '')
             selector = get_css_selector(text)
