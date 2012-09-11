@@ -22,6 +22,7 @@ from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.usbms.driver import USBMS
+from calibre.devices.utils import build_template_regexp
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -560,6 +561,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.broadcast_socket.close()
             self.broadcast_socket = None
 
+    def _read_file_metadata(self, temp_file_name):
+        from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.customize.ui import quick_metadata
+        ext = temp_file_name.rpartition('.')[-1].lower()
+        with open(temp_file_name, 'rb') as stream:
+            with quick_metadata:
+                return get_metadata(stream, stream_type=ext,
+                        force_read_metadata=True,
+                        pattern=build_template_regexp(self.save_template()))
+
     # The public interface methods.
 
     @synchronous('sync_lock')
@@ -801,11 +812,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug(oncard)
         if oncard is not None:
             return CollectionsBookList(None, None, None)
-        opcode, result = self._call_client('GET_BOOK_COUNT', {'canStream':True})
+        opcode, result = self._call_client('GET_BOOK_COUNT', {'canStream':True,
+                                                              'canScan':True})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
             will_stream = 'willStream' in result
+            will_scan = 'willScan' in result
             for i in range(0, count):
                 if (i % 100) == 0:
                     self._debug('getting book metadata. Done', i, 'of', count)
@@ -820,8 +833,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
                     self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
+                    if '_new_book_' in result:
+                        book.set('_new_book_', True)
                 else:
                     raise ControlError(desc='book metadata not returned')
+
+            if will_scan:
+                total = 0
+                for book in bl:
+                    if book.get('_new_book_', None):
+                        total += 1
+                count = 0;
+                for book in bl:
+                    if book.get('_new_book_', None):
+                        paths = [book.lpath]
+                        self.prepare_addable_books(paths, this_book=count, total_books=total)
+                        book.smart_update(self._read_file_metadata(paths[0]))
+                        del book._new_book_
+                        count += 1
         self._debug('finished getting book metadata')
         return bl
 
@@ -951,33 +980,41 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
 
     @synchronous('sync_lock')
-    def get_file(self, path, outfile, end_session=True):
+    def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None):
         self._debug(path)
         eof = False
         position = 0
         while not eof:
             opcode, result = self._call_client('GET_BOOK_FILE_SEGMENT',
-                                    {'lpath' : path, 'position': position},
+                                    {'lpath' : path, 'position': position,
+                                     'thisBook': this_book, 'totalBooks': total_books,
+                                     'canStream':True},
                                     print_debug_info=False)
             if opcode == 'OK':
-                if not result['eof']:
-                    data = b64decode(result['data'])
-                    if len(data) != result['next_position'] - position:
-                        self._debug('position mismatch', result['next_position'], position)
-                    position = result['next_position']
-                    outfile.write(data)
-                else:
-                    eof = True
+                client_will_stream = 'willStream' in result;
+                while not eof:
+                    if not result['eof']:
+                        data = b64decode(result['data'])
+                        if len(data) != result['next_position'] - position:
+                            self._debug('position mismatch', result['next_position'], position)
+                        position = result['next_position']
+                        outfile.write(data)
+                        opcode, result = self._receive_from_client(print_debug_info=True)
+                    else:
+                        eof = True
+                    if not client_will_stream:
+                        break
             else:
                 raise ControlError(desc='request for book data failed')
 
     @synchronous('sync_lock')
-    def prepare_addable_books(self, paths):
+    def prepare_addable_books(self, paths, this_book=None, total_books=None):
         for idx, path in enumerate(paths):
             (ign, ext) = os.path.splitext(path)
-            tf = PersistentTemporaryFile(suffix=ext)
-            self.get_file(path, tf)
-            paths[idx] = tf.name
+            with PersistentTemporaryFile(suffix=ext) as tf:
+                self.get_file(path, tf, this_book=this_book, total_books=total_books)
+                paths[idx] = tf.name
+                tf.name = path
         return paths
 
     @synchronous('sync_lock')
