@@ -831,10 +831,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if '_series_sort_' in result:
                         del result['_series_sort_']
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
-                    self._set_known_metadata(book)
                     bl.add_book(book, replace_metadata=True)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
+                    else:
+                        self._set_known_metadata(book)
                 else:
                     raise ControlError(desc='book metadata not returned')
 
