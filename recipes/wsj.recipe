@@ -65,7 +65,7 @@ class WallStreetJournal(BasicNewsRecipe):
             br['password'] = self.password
             res = br.submit()
             raw = res.read()
-            if '>Log Out<' not in raw:
+            if 'Welcome,' not in raw and '>Logout<' not in raw and '>Log Out<' not in raw:
                 raise ValueError('Failed to log in to wsj.com, check your '
                         'username and password')
         return br
