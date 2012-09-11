@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-08 11:42+0000\n"
-"PO-Revision-Date: 2012-09-07 14:48+0000\n"
+"PO-Revision-Date: 2012-09-10 16:45+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-09 04:48+0000\n"
-"X-Generator: Launchpad (build 15914)\n"
+"X-Launchpad-Export-Date: 2012-09-11 04:50+0000\n"
+"X-Generator: Launchpad (build 15924)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid ""
@@ -7541,15 +7541,15 @@ msgstr "Opciones de libro digital"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:90
 msgid "Catalogs"
-msgstr ""
+msgstr "Catálogos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
-msgstr ""
+msgstr "Libro leído"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:105
 msgid "Wishlist item"
-msgstr ""
+msgstr "Deseado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:769
@@ -7590,6 +7590,7 @@ msgstr "¿Está seguro de querer eliminar «%s»?"
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
 msgstr ""
+"¿Está seguro de querer borrar las reglas de la %(first)d a la %(last)d?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:616
 msgid "Delete Rule"
@@ -9779,7 +9780,7 @@ msgstr "Configurar %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:899
 #, python-format
 msgid "Restart calibre for the changes to %s to be applied."
-msgstr ""
+msgstr "Reinicie calibre para que los cambios en %s tengan efecto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "Error talking to device"
@@ -18487,6 +18488,8 @@ msgid ""
 "New version <b>%(ver)s</b> of %(app)s is available for download. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"La nueva versión <b>%(ver)s</b> de %(app)s está disponible para descargar. "
+"Vea las <a href=\"http://calibre-ebook.com/whats-new\">novedades</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:84
 msgid "Update available!"
@@ -20254,7 +20257,7 @@ msgstr "Ordenando base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:751
 msgid "Sorting titles"
-msgstr ""
+msgstr "Ordenando títulos"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:763
 msgid ""
@@ -20310,7 +20313,7 @@ msgstr "Series que empiezan por %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3043
 #, python-format
 msgid "Series beginning with '%s'"
-msgstr ""
+msgstr "Series que empiezan por «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3087
 msgid "NCX for Titles"
@@ -20324,7 +20327,7 @@ msgstr "Títulos que empiezan por %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3168
 #, python-format
 msgid "Titles beginning with '%s'"
-msgstr ""
+msgstr "Títulos que empiezan por «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3210
 msgid "NCX for Authors"
@@ -20333,7 +20336,7 @@ msgstr "NCX para Autores"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3281
 #, python-format
 msgid "Authors beginning with %s"
-msgstr ""
+msgstr "Autores que empiezan por %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3283
 #, python-format

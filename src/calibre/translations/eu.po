@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-09-08 11:42+0000\n"
-"PO-Revision-Date: 2012-09-08 10:46+0000\n"
+"PO-Revision-Date: 2012-09-10 16:28+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-09 04:36+0000\n"
-"X-Generator: Launchpad (build 15914)\n"
+"X-Launchpad-Export-Date: 2012-09-11 04:49+0000\n"
+"X-Generator: Launchpad (build 15924)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1621,6 +1621,11 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
+"Baldin badaukazu zure calibre-liburutegian pertsonalizaturiko zutabe bat "
+"liburuen orrialde kopuru zehatzarekin, zera lor dezakezu, calibrek "
+"informazio hori zuzenean erabiltzea orrialde kopurua kalkulatzen ibili "
+"beharrean. Zehaztu ezazu hemen pertsonalizaturiko zutabearen izena, "
+"esaterako: #orrialdeak. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:450
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1652,6 +1657,10 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Oro har, KOBO irakurgailuek e-liburuaren azaleko irudia liburu "
+"elektronikotik bertatik eskuratzen dute. Aukera honekin, ordea, calibre "
+"programak irakurgailura liburu-azal irudi berezia bidaliko du. Aukera hau "
+"erabilgarria da azala zeuk aldatu baduzu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Upload Black and White Covers"
@@ -1667,6 +1676,11 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Aurreko bertsioarekin problema bat dela medio, ez da geratu kepub formatuko "
+"libururik datu-basean gordeta. Aukera honi esker, Calibre programak "
+"erakutsiko dizu iraungitako grabazioak zeintzuk diren eta utziko dizu "
+"iraungitako horiek behar bezala ezabatzen ezabatzeko sistema berri bati "
+"esker."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid "Show Previews"
@@ -1678,6 +1692,10 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Kobo-ren aurreikuspenak Touch horretan eta beste bertsio batzuetan ezarri "
+"dira eta lehenetsitako aukera bezala aurreikuspen horiek ez dira berez "
+"erakutsiko, erakusteko arrazoi onik ez badago behintzat.  Ezarri aukera hau "
+"baldin eta aurreikuspen horiek ikusi edota ezabatu nahi baldin badituzu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
 msgid "Show Recommendations"
@@ -2128,7 +2146,7 @@ msgstr "Komunikatu honekin:  Smart Device apps"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:131
 msgid "All by something"
-msgstr ""
+msgstr "Dena zerbaitengatik"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:134
 msgid "Enable connections at startup"
@@ -2189,14 +2207,16 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
 msgstr ""
+"Komen bidez berezituriko metadatuen eremuen zerrenda, irakurgailuan bilduma "
+"itxura hartzeko prestatuak."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:150
 msgid "Possibilities include: series, tags, authors, etc"
-msgstr ""
+msgstr "Hauexek dauden aukerak: serieak, etiketak, egileak, etab."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:158
 msgid "Enable the no-activity timeout"
-msgstr ""
+msgstr "Gaitu itxaronaldiko energia-aurrezteko etena"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:159
 #, python-format
@@ -2208,7 +2228,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:163
 msgid "Use this IP address"
-msgstr ""
+msgstr "Erabil ezazu honako IP helbidea"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:164
 msgid ""
@@ -2220,12 +2240,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:628
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Norbait gehigitan saiatu da %s horretatik konexioa lotzen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1027
 #, python-format
 msgid "Invalid port in options: %s"
-msgstr ""
+msgstr "Ezin portu hori erabili honako aukeretan: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1035
 #, python-format
@@ -2234,7 +2254,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1047
 msgid "Failed to allocate a random port"
-msgstr ""
+msgstr "Ausazko portua ezartzerakoan huts egin da"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2321,7 +2341,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:808
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Ezin izan da gailua muntatu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
@@ -2371,6 +2391,11 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Ezin izan da zure gailuko memoria nagusian sartu. Laguntza ona lortzeko, "
+"gailuko fabrikatzaileekin harremanetan jarri beharko zenuke. Askotan "
+"konponbidea hauxe: saia zaitez beste USB kable edo beste USB portu batekin. "
+"Zure gailuak baldin badu \"Hasierako ezarpenak berrezarri\", aukera hori "
+"erabiltzea duzu. Akatsa: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:114
 #, python-format
@@ -2381,6 +2406,13 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Ezin izan da zeure SD txartelean eragiketarik egin. Zergatia jakiteko hona "
+"iradokizun batzuk. SD txartela kalteturik egon liteke. Gerta daiteke zure "
+"irakurgailurako memoria handiegia izatea. Txartela idaztetik babestuta egon "
+"liteke, etab. Proba ezazu beste SD txartel batekin. Beste aukera, zure SD "
+"txartela berriro formateatzea duzu FAT32 formatu-sistema erabilita. "
+"(Txartelean dagoena galduko duzu, jakina). Bestalde, ziurtatu ezazu ez "
+"dagoela fitxategi gehiegi zure SDaren erroan (root-ean). Akatsa: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -2455,7 +2487,7 @@ msgstr "A txartelaren karpeta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "Aldatu nagusia eta A txartela"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
