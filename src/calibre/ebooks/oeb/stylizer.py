@@ -267,34 +267,43 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
+        pseudo_pat = re.compile(ur':(first-letter|first-line|link|hover|visited|active|focus)', re.I)
         for _, _, cssdict, text, _ in rules:
-            fl = ':first-letter' in text
-            if fl:
-                text = text.replace(':first-letter', '')
+            fl = pseudo_pat.search(text)
+            if fl is not None:
+                text = text.replace(fl.group(), '')
             selector = get_css_selector(text)
             matches = selector(tree, self.logger)
-            if fl:
-                from lxml.builder import ElementMaker
-                E = ElementMaker(namespace=XHTML_NS)
-                for elem in matches:
-                    for x in elem.iter():
-                        if x.text:
-                            punctuation_chars = []
-                            text = unicode(x.text)
-                            while text:
-                                if not unicodedata.category(text[0]).startswith('P'):
-                                    break
-                                punctuation_chars.append(text[0])
-                                text = text[1:]
+            if fl is not None:
+                fl = fl.group(1)
+                if fl == 'first-letter' and getattr(self.oeb,
+                        'plumber_output_format', '').lower() == u'mobi':
+                    # Fake first-letter
+                    from lxml.builder import ElementMaker
+                    E = ElementMaker(namespace=XHTML_NS)
+                    for elem in matches:
+                        for x in elem.iter():
+                            if x.text:
+                                punctuation_chars = []
+                                text = unicode(x.text)
+                                while text:
+                                    category = unicodedata.category(text[0])
+                                    if category[0] not in {'P', 'Z'}:
+                                        break
+                                    punctuation_chars.append(text[0])
+                                    text = text[1:]
 
-                            special_text = u''.join(punctuation_chars) + \
-                                    (text[0] if text else u'')
-                            span = E.span(special_text)
-                            span.tail = text[1:]
-                            x.text = None
-                            x.insert(0, span)
-                            self.style(span)._update_cssdict(cssdict)
-                            break
+                                special_text = u''.join(punctuation_chars) + \
+                                        (text[0] if text else u'')
+                                span = E.span(special_text)
+                                span.tail = text[1:]
+                                x.text = None
+                                x.insert(0, span)
+                                self.style(span)._update_cssdict(cssdict)
+                                break
+                else: # Element pseudo-class
+                    for elem in matches:
+                        self.style(elem)._update_pseudo_class(fl, cssdict)
             else:
                 for elem in matches:
                     self.style(elem)._update_cssdict(cssdict)
@@ -495,6 +504,7 @@ class Style(object):
         self._height = None
         self._lineHeight = None
         self._bgcolor = None
+        self._pseudo_classes = {}
         stylizer._styles[element] = self
 
     def set(self, prop, val):
@@ -505,6 +515,11 @@ class Style(object):
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
+
+    def _update_pseudo_class(self, name, cssdict):
+        orig = self._pseudo_classes.get(name, {})
+        orig.update(cssdict)
+        self._pseudo_classes[name] = orig
 
     def _apply_style_attr(self, url_replacer=None):
         attrib = self._element.attrib
@@ -778,3 +793,14 @@ class Style(object):
 
     def cssdict(self):
         return dict(self._style)
+
+    def pseudo_classes(self, filter_css):
+        if filter_css:
+            css = copy.deepcopy(self._pseudo_classes)
+            for psel, cssdict in css.iteritems():
+                for k in filter_css:
+                    cssdict.pop(k, None)
+        else:
+            css = self._pseudo_classes
+        return {k:v for k, v in css.iteritems() if v}
+

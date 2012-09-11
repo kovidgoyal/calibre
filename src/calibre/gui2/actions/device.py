@@ -88,11 +88,9 @@ class ShareConnMenu(QMenu): # {{{
         from calibre.utils.mdns import get_external_ip, verify_ipV4_address
         text = _('Start Content Server')
         if running:
-            listen_on = verify_ipV4_address(tweaks['server_listen_on'])
-            if listen_on:
-                text = _('Stop Content Server') + ' [%s]'%listen_on
-            else:
-                text = _('Stop Content Server') + ' [%s]'%get_external_ip()
+            listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
+                    get_external_ip())
+            text = _('Stop Content Server') + ' [%s]'%listen_on
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):
