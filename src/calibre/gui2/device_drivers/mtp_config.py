@@ -18,6 +18,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
+from calibre.gui2.device_drivers.mtp_folder_browser import Browser
 
 class FormatsConfig(QWidget): # {{{
 
@@ -117,19 +118,36 @@ class TemplateConfig(QWidget): # {{{
 
 class SendToConfig(QWidget): # {{{
 
-    def __init__(self, val):
+    def __init__(self, val, device):
         QWidget.__init__(self)
         self.t = t = QLineEdit(self)
         t.setText(', '.join(val or []))
         t.setCursorPosition(0)
-        self.l = l = QVBoxLayout(self)
+        self.l = l = QGridLayout(self)
         self.setLayout(l)
         self.m = m = QLabel('<p>'+_('''A <b>list of &folders</b> on the device to
         which to send ebooks. The first one that exists will be used:'''))
         m.setWordWrap(True)
         m.setBuddy(t)
-        l.addWidget(m)
-        l.addWidget(t)
+        l.addWidget(m, 0, 0, 1, 2)
+        l.addWidget(t, 1, 0)
+        self.b = b = QToolButton()
+        l.addWidget(b, 1, 1)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.clicked.connect(self.browse)
+        b.setToolTip(_('Browse for a folder on the device'))
+        self._device = weakref.ref(device)
+
+    @property
+    def device(self):
+        return self._device()
+
+    def browse(self):
+        b = Browser(self.device.filesystem_cache, show_files=False,
+                parent=self)
+        if b.exec_() == b.Accepted:
+            sid, path = b.current_item
+            self.t.setText('/'.join(path[1:]))
 
     @property
     def value(self):
@@ -183,8 +201,9 @@ class Rule(QWidget):
 
     remove = pyqtSignal(object)
 
-    def __init__(self, rule=None):
+    def __init__(self, device, rule=None):
         QWidget.__init__(self)
+        self._device = weakref.ref(device)
 
         self.l = l = QHBoxLayout()
         self.setLayout(l)
@@ -198,6 +217,11 @@ class Rule(QWidget):
         self.folder = f = QLineEdit(self)
         f.setPlaceholderText(_('Folder on the device'))
         l.addWidget(f)
+        self.b = b = QToolButton()
+        l.addWidget(b)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.clicked.connect(self.browse)
+        b.setToolTip(_('Browse for a folder on the device'))
         self.rb = rb = QPushButton(QIcon(I('list_remove.png')),
                 _('&Remove rule'), self)
         l.addWidget(rb)
@@ -217,6 +241,17 @@ class Rule(QWidget):
 
         self.ignore = False
 
+    @property
+    def device(self):
+        return self._device()
+
+    def browse(self):
+        b = Browser(self.device.filesystem_cache, show_files=False,
+                parent=self)
+        if b.exec_() == b.Accepted:
+            sid, path = b.current_item
+            self.folder.setText('/'.join(path[1:]))
+
     def removed(self):
         self.remove.emit(self)
 
@@ -232,8 +267,9 @@ class Rule(QWidget):
 
 class FormatRules(QGroupBox):
 
-    def __init__(self, rules):
+    def __init__(self, device, rules):
         QGroupBox.__init__(self, _('Format specific sending'))
+        self._device = weakref.ref(device)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         self.la = la = QLabel('<p>'+_(
@@ -251,7 +287,7 @@ class FormatRules(QGroupBox):
         l.addWidget(sa)
         self.widgets = []
         for rule in rules:
-            r = Rule(rule)
+            r = Rule(device, rule)
             self.widgets.append(r)
             w.l.addWidget(r)
             r.remove.connect(self.remove_rule)
@@ -264,8 +300,12 @@ class FormatRules(QGroupBox):
         b.clicked.connect(self.add_rule)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
 
+    @property
+    def device(self):
+        return self._device()
+
     def add_rule(self):
-        r = Rule()
+        r = Rule(self.device)
         self.widgets.append(r)
         self.w.l.addWidget(r)
         r.remove.connect(self.remove_rule)
@@ -319,10 +359,10 @@ class MTPConfig(QTabWidget):
             l = self.base.l = QGridLayout(self.base)
             self.base.setLayout(l)
 
-            self.rules = r = FormatRules(self.get_pref('rules'))
+            self.rules = r = FormatRules(self.device, self.get_pref('rules'))
             self.formats = FormatsConfig(set(BOOK_EXTENSIONS),
                     self.get_pref('format_map'))
-            self.send_to = SendToConfig(self.get_pref('send_to'))
+            self.send_to = SendToConfig(self.get_pref('send_to'), self.device)
             self.template = TemplateConfig(self.get_pref('send_template'))
             self.base.la = la = QLabel(_(
                 'Choose the formats to send to the %s')%self.device.current_friendly_name)

@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from operator import attrgetter
 
 from PyQt4.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
-        QDialogButtonBox, QVBoxLayout, QSize)
+        QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal)
 
 from calibre.gui2 import file_icon_provider
 
@@ -47,7 +47,16 @@ class Storage(QTreeWidget):
             for child in sorted(f.files, key=attrgetter('name')):
                 i = item(child, parent)
 
+    @property
+    def current_item(self):
+        item = self.currentItem()
+        if item is not None:
+            return (self.object_id, item.data(0, Qt.UserRole).toPyObject())
+        return None
+
 class Folders(QTabWidget):
+
+    selected = pyqtSignal()
 
     def __init__(self, filesystem_cache, show_files=True):
         QTabWidget.__init__(self)
@@ -55,8 +64,15 @@ class Folders(QTabWidget):
         for storage in self.fs.entries:
             w = Storage(storage, show_files)
             self.addTab(w, w.name)
+            w.doubleClicked.connect(self.selected)
 
         self.setCurrentIndex(0)
+
+    @property
+    def current_item(self):
+        w = self.currentWidget()
+        if w is not None:
+            return w.current_item
 
 class Browser(QDialog):
 
@@ -71,6 +87,11 @@ class Browser(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.setMinimumSize(QSize(500, 500))
+        self.folders.selected.connect(self.accept)
+
+    @property
+    def current_item(self):
+        return self.folders.current_item
 
 def browse():
     from calibre.gui2 import Application
@@ -87,10 +108,10 @@ def browse():
         raise ValueError('No MTP device found')
     dev.open(cd, 'test')
     d = Browser(dev.filesystem_cache)
-    if d.exec_() == d.Accepted:
-        pass
+    d.exec_()
     dev.shutdown()
+    return d.current_item
 
 if __name__ == '__main__':
-    browse()
+    print (browse())
 
