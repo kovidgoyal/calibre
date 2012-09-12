@@ -47,9 +47,9 @@ class MTP_DEVICE(BASE):
             from calibre.library.save_to_disk import config
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
-            p.defaults['send_to'] = ['Books', 'eBooks/import', 'eBooks',
-                    'wordplayer/calibretransfer', 'sdcard/ebooks',
-                    'kindle']
+            p.defaults['send_to'] = ['Calibre_Companion', 'Books',
+                    'eBooks/import', 'eBooks', 'wordplayer/calibretransfer',
+                    'sdcard/ebooks', 'kindle']
             p.defaults['send_template'] = config().parse().send_template
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
