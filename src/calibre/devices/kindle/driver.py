@@ -288,7 +288,7 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3/4/Touch Device Interface'
     description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
+    FORMATS        = ['azw3'] + KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr']
 
     PRODUCT_ID = [0x0002, 0x0004]
@@ -449,7 +449,7 @@ class KINDLE_DX(KINDLE2):
     name           = 'Kindle DX Device Interface'
     description    = _('Communicate with the Kindle DX eBook reader.')
 
-
+    FORMATS = KINDLE2.FORMATS[1:]
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
@@ -462,7 +462,6 @@ class KINDLE_FIRE(KINDLE2):
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
     FORMATS = list(KINDLE2.FORMATS)
-    FORMATS.insert(0, 'azw3')
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]
