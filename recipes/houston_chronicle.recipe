@@ -15,11 +15,11 @@ class HoustonChronicle(BasicNewsRecipe):
     remove_attributes = ['style']
     auto_cleanup = True
 
-    oldest_article = 2.0
+    oldest_article = 3.0
 
     #keep_only_tags = {'class':lambda x: x and ('hst-articletitle' in x or
         #'hst-articletext' in x or 'hst-galleryitem' in x)}
-    #remove_attributes = ['xmlns']
+    remove_attributes = ['xmlns']
 
     feeds = [
             ('News', "http://www.chron.com/rss/feed/News-270.php"),
@@ -38,4 +38,4 @@ class HoustonChronicle(BasicNewsRecipe):
         ]
 
 
- 
+

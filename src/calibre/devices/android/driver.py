@@ -208,7 +208,7 @@ class ANDROID(USBMS):
             'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
             'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
             'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
-            'COBY_MID']
+            'COBY_MID', 'VS', 'AINOL']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -227,7 +227,8 @@ class ANDROID(USBMS):
             'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
             'THINKPAD_TABLET', 'SGH-T989', 'YP-G70', 'STORAGE_DEVICE',
             'ADVANCED', 'SGH-I727', 'USB_FLASH_DRIVER', 'ANDROID',
-            'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VS']
+            'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
+            'NOVO7']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -237,7 +238,8 @@ class ANDROID(USBMS):
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0', 'XT875',
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
-            'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E']
+            'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
+            'NOVO7']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

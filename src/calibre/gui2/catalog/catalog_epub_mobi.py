@@ -612,7 +612,7 @@ class GenericRulesTable(QTableWidget):
         first_rule_name = unicode(self.cellWidget(first-1,self.COLUMNS['NAME']['ordinal']).text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
         if len(rows) > 1:
-            message = _('Are you sure you want to delete rules #%d-%d?') % (first, last)
+            message = _('Are you sure you want to delete rules #%(first)d-%(last)d?') % dict(first=first, last=last)
         if not question_dialog(self, _('Delete Rule'), message, show_copy_button=False):
             return
         first_sel_row = self.currentRow()

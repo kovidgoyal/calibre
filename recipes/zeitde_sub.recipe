@@ -118,13 +118,13 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
     def build_index(self):
         domain = "https://premium.zeit.de"
-        url = domain + "/abo/zeit_digital"
+        url = domain + "/abo/digitalpaket"
         browser = self.get_browser()
 
         # new login process
         response = browser.open(url)
         # Get rid of nested form
-        response.set_data(response.get_data().replace('<div><form action="/abo/zeit_digital?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
+        response.set_data(response.get_data().replace('<div><form action="/abo/digitalpaket?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
         browser.set_response(response)
         browser.select_form(nr=2)
         browser.form['name']=self.username
@@ -177,13 +177,13 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         try:
             self.log.warning('Trying PDF-based cover')
             domain = "https://premium.zeit.de"
-            url = domain + "/abo/zeit_digital"
+            url = domain + "/abo/digitalpaket"
             browser = self.get_browser()
 
             # new login process
             response=browser.open(url)
             # Get rid of nested form
-            response.set_data(response.get_data().replace('<div><form action="/abo/zeit_digital?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
+            response.set_data(response.get_data().replace('<div><form action="/abo/digitalpaket?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
             browser.set_response(response)
 
             browser.select_form(nr=2)

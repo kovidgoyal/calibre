@@ -16,7 +16,7 @@ from calibre.constants import iswindows, numeric_version
 from calibre.devices.mtp.base import debug
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.config import from_json, to_json, JSONConfig
-from calibre.utils.date import now, isoformat
+from calibre.utils.date import now, isoformat, utcnow
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -47,10 +47,13 @@ class MTP_DEVICE(BASE):
             from calibre.library.save_to_disk import config
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
-            p.defaults['send_to'] = ['eBooks/import',
-                    'wordplayer/calibretransfer', 'Books', 'sdcard/ebooks',
-                    'eBooks', 'kindle']
+            p.defaults['send_to'] = ['Calibre_Companion', 'Books',
+                    'eBooks/import', 'eBooks', 'wordplayer/calibretransfer',
+                    'sdcard/ebooks', 'kindle']
             p.defaults['send_template'] = config().parse().send_template
+            p.defaults['blacklist'] = []
+            p.defaults['history'] = {}
+            p.defaults['rules'] = []
 
         return self._prefs
 
@@ -74,6 +77,11 @@ class MTP_DEVICE(BASE):
         self.current_library_uuid = library_uuid
         self.location_paths = None
         BASE.open(self, devices, library_uuid)
+        h = self.prefs['history']
+        if self.current_serial_num:
+            h[self.current_serial_num] = (self.current_friendly_name,
+                    isoformat(utcnow()))
+            self.prefs['history'] = h
 
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
@@ -99,7 +107,7 @@ class MTP_DEVICE(BASE):
         dinfo['mtp_prefix'] = storage.storage_prefix
         raw = json.dumps(dinfo, default=to_json)
         self.put_file(storage, self.DRIVEINFO, BytesIO(raw), len(raw))
-        self.driveinfo = dinfo
+        self.driveinfo[location_code] = dinfo
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
@@ -266,15 +274,18 @@ class MTP_DEVICE(BASE):
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def create_upload_path(self, path, mdata, fname):
+    def create_upload_path(self, path, mdata, fname, routing):
         from calibre.devices.utils import create_upload_path
         from calibre.utils.filenames import ascii_filename as sanitize
+        ext = fname.rpartition('.')[-1].lower()
+        path = routing.get(ext, path)
+
         filepath = create_upload_path(mdata, fname, self.save_template, sanitize,
                 prefix_path=path,
                 path_type=posixpath,
                 maxlen=self.MAX_PATH_LEN,
-                use_subdirs = True,
-                news_in_folder = self.NEWS_IN_FOLDER,
+                use_subdirs=True,
+                news_in_folder=self.NEWS_IN_FOLDER,
                 )
         return tuple(x for x in filepath.split('/'))
 
@@ -293,7 +304,7 @@ class MTP_DEVICE(BASE):
                             p = path
                             break
                     if p is None:
-                        p = 'eBooks'
+                        p = 'Books'
                     self.location_paths[loc] = p
 
         return self.location_paths[on_card]
@@ -322,8 +333,10 @@ class MTP_DEVICE(BASE):
         self.report_progress(0, _('Transferring books to device...'))
         i, total = 0, len(files)
 
+        routing = {fmt:dest for fmt,dest in self.get_pref('rules')}
+
         for infile, fname, mi in izip(files, names, metadata):
-            path = self.create_upload_path(prefix, mi, fname)
+            path = self.create_upload_path(prefix, mi, fname, routing)
             parent = self.ensure_parent(storage, path)
             if hasattr(infile, 'read'):
                 pos = infile.tell()

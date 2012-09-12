@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, traceback, pprint, sys
+import operator, traceback, pprint, sys, time
 from threading import RLock
 from collections import namedtuple
 from functools import partial
@@ -15,8 +15,8 @@ from functools import partial
 from calibre import prints, as_unicode
 from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed, DeviceError
-from calibre.devices.mtp.base import MTPDeviceBase, synchronous
+from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
+from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -99,19 +99,25 @@ class MTP_DEVICE(MTPDeviceBase):
             return False
         p('Known MTP devices connected:')
         for d in devs: p(d)
-        d = devs[0]
-        p('\nTrying to open:', d)
-        try:
-            self.open(d, 'debug')
-        except:
-            p('Opening device failed:')
-            p(traceback.format_exc())
-            return False
-        p('Opened', self.current_friendly_name, 'successfully')
-        p('Storage info:')
-        p(pprint.pformat(self.dev.storage_info))
-        self.eject()
-        return True
+
+        for d in devs:
+            p('\nTrying to open:', d)
+            try:
+                self.open(d, 'debug')
+            except BlacklistedDevice:
+                p('This device has been blacklisted by the user')
+                continue
+            except:
+                p('Opening device failed:')
+                p(traceback.format_exc())
+                return False
+            else:
+                p('Opened', self.current_friendly_name, 'successfully')
+                p('Storage info:')
+                p(pprint.pformat(self.dev.storage_info))
+                self.post_yank_cleanup()
+                return True
+        return False
 
     @synchronous
     def create_device(self, connected_device):
@@ -167,6 +173,12 @@ class MTP_DEVICE(MTPDeviceBase):
         if not storage:
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
+        snum = self.dev.serial_number
+        if snum in self.prefs.get('blacklist', []):
+            self.blacklisted_devices.add(connected_device)
+            self.dev = None
+            raise BlacklistedDevice(
+                'The %s device has been blacklisted by the user'%(connected_device,))
         self._main_id = storage[0]['id']
         self._carda_id = self._cardb_id = None
         if len(storage) > 1:
@@ -176,11 +188,13 @@ class MTP_DEVICE(MTPDeviceBase):
         self.current_friendly_name = self.dev.friendly_name
         if not self.current_friendly_name:
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
-        self.current_serial_num = self.dev.serial_number
+        self.current_serial_num = snum
 
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            st = time.time()
+            debug('Loading filesystem metadata...')
             from calibre.devices.mtp.filesystem_cache import FilesystemCache
             with self.lock:
                 storage, all_items, all_errs = [], [], []
@@ -208,6 +222,7 @@ class MTP_DEVICE(MTPDeviceBase):
                                 self.current_friendly_name,
                                 self.format_errorstack(all_errs)))
                 self._filesystem_cache = FilesystemCache(storage, all_items)
+            debug('Filesystem metadata loaded in %g seconds'%(time.time()-st))
         return self._filesystem_cache
 
     @synchronous

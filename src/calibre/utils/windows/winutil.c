@@ -168,9 +168,9 @@ winutil_set_debug(PyObject *self, PyObject *args) {
 	return Py_None;
 }
 
-static LPTSTR
+static LPWSTR
 get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iterate) {
-    /* Get a the property specified by `property` from the registry for the
+    /* Get the property specified by `property` from the registry for the
      * device enumerated by `index` in the collection `hDevInfo`. `iterate`
      * will be set to `FALSE` if `index` points outside `hDevInfo`.
      * :return: A string allocated on the heap containing the property or
@@ -178,7 +178,7 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
      */
     SP_DEVINFO_DATA DeviceInfoData;
     DWORD DataT;
-    LPTSTR buffer = NULL;
+    LPWSTR buffer = NULL;
     DWORD buffersize = 0;
     DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
@@ -187,7 +187,7 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
         return NULL;
     }
 
-    while(!SetupDiGetDeviceRegistryProperty(
+    while(!SetupDiGetDeviceRegistryPropertyW(
             hDevInfo,
             &DeviceInfoData,
             property,
@@ -196,11 +196,11 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
             buffersize,
             &buffersize)) {
             if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-                buffer = (LPTSTR)PyMem_Malloc(2*buffersize); // Twice for bug in Win2k
+                if (buffer != NULL) { PyMem_Free(buffer); buffer = NULL; }
+                buffer = (LPWSTR)PyMem_Malloc(2*buffersize); // Twice for bug in Win2k
             } else {
-            	PyMem_Free(buffer);
+                if (buffer != NULL) { PyMem_Free(buffer); buffer = NULL; }
             	PyErr_SetFromWindowsErr(0);
-                buffer = NULL;
                 break;
             }
     } //while
@@ -209,7 +209,7 @@ get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iter
 }
 
 static BOOL                                                                                                                                                                           
-check_device_id(LPTSTR buffer, unsigned int vid, unsigned int pid) {                                                                                                                  
+check_device_id(LPWSTR buffer, unsigned int vid, unsigned int pid) {                                                                                                                  
     WCHAR xVid[9], dVid[9], xPid[9], dPid[9];                                                                                                                                         
     unsigned int j;                                                                                                                                                                   
     _snwprintf_s(xVid, 9, _TRUNCATE, L"vid_%4.4x", vid);
@@ -607,31 +607,28 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
     	return NULL;
     }
 
-    ddebug = PyObject_IsTrue(pdebug);
+    // Find all removable drives
+    for (j = 0; j < MAX_DRIVES; j++) g_drives[j].letter = 0;
+    if (!get_all_removable_disks(g_drives)) return NULL;
 
     volumes = PyDict_New();
-    if (volumes == NULL) return NULL;
-    
-
-    for (j = 0; j < MAX_DRIVES; j++) g_drives[j].letter = 0;
-
-    // Find all removable drives
-    if (!get_all_removable_disks(g_drives)) {
-        return NULL;
-    }
+    if (volumes == NULL) return PyErr_NoMemory();
+    ddebug = PyObject_IsTrue(pdebug);
 
     hDevInfo = create_device_info_set((LPGUID)&GUID_DEVINTERFACE_VOLUME,
                             NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-    if (hDevInfo == INVALID_HANDLE_VALUE) return NULL;
+    if (hDevInfo == INVALID_HANDLE_VALUE) { Py_DECREF(volumes); return NULL; }
 
     // Enumerate through the set
     for (i=0; iterate; i++) {
         candidates = PyList_New(0);
-        if (candidates == NULL) return PyErr_NoMemory();
+        if (candidates == NULL) { Py_DECREF(volumes); return PyErr_NoMemory();}
 
         interfaceDetailData = get_device_ancestors(hDevInfo, i, candidates, &iterate, ddebug);
         if (interfaceDetailData == NULL) {
-            PyErr_Print(); continue;
+            PyErr_Print(); 
+            Py_DECREF(candidates); candidates = NULL; 
+            continue;
         }
 
         length = wcslen(interfaceDetailData->DevicePath);
@@ -653,12 +650,13 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
                     key = PyBytes_FromFormat("%c", (char)g_drives[j].letter);
                     if (key == NULL) return PyErr_NoMemory();
                     PyDict_SetItem(volumes, key, candidates);
-                    Py_DECREF(candidates);
+                    Py_DECREF(key); key = NULL;
                     break;
                 }
             }
 
         }
+        Py_XDECREF(candidates); candidates = NULL;
         PyMem_Free(interfaceDetailData);
     } //for
 
@@ -672,7 +670,8 @@ winutil_get_usb_devices(PyObject *self, PyObject *args) {
 	HDEVINFO hDevInfo;
 	DWORD i; BOOL iterate = TRUE;
     PyObject *devices, *temp = (PyObject *)1;
-    LPTSTR buffer;
+    LPWSTR buffer;
+    BOOL ok = 1;
 
 	if (!PyArg_ParseTuple(args, "")) return NULL;
 
@@ -682,8 +681,10 @@ winutil_get_usb_devices(PyObject *self, PyObject *args) {
 	// Create a Device information set with all USB devices
     hDevInfo = create_device_info_set(NULL, L"USB", 0,
             DIGCF_PRESENT | DIGCF_ALLCLASSES);
-    if (hDevInfo == INVALID_HANDLE_VALUE)
+    if (hDevInfo == INVALID_HANDLE_VALUE) { 
+        Py_DECREF(devices);
         return NULL;
+    }
     // Enumerate through the set
     for (i=0; iterate; i++) {
         buffer = get_registry_property(hDevInfo, i, SPDRP_HARDWAREID, &iterate);
@@ -691,16 +692,17 @@ winutil_get_usb_devices(PyObject *self, PyObject *args) {
             PyErr_Print(); continue;
         }
         buffersize = wcslen(buffer);
-        for (j = 0; j < buffersize; j++) buffer[j] = tolower(buffer[j]);
+        for (j = 0; j < buffersize; j++) buffer[j] = towlower(buffer[j]);
         temp = PyUnicode_FromWideChar(buffer, buffersize);
         PyMem_Free(buffer);
         if (temp == NULL) {
         	PyErr_NoMemory();
+            ok = 0;
         	break;
         }
-        PyList_Append(devices, temp);
+        PyList_Append(devices, temp); Py_DECREF(temp); temp = NULL;
     } //for
-    if (temp == NULL) { Py_DECREF(devices); devices = NULL; }
+    if (!ok) { Py_DECREF(devices); devices = NULL; }
     SetupDiDestroyDeviceInfoList(hDevInfo);
 	return devices;
 }
@@ -711,7 +713,7 @@ winutil_is_usb_device_connected(PyObject *self, PyObject *args) {
 	unsigned int vid, pid;
     HDEVINFO hDevInfo;
     DWORD i; BOOL iterate = TRUE;
-    LPTSTR buffer;
+    LPWSTR buffer;
     int found = FALSE;
     PyObject *ans;
 

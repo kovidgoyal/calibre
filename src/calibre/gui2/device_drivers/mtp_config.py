@@ -11,11 +11,13 @@ import weakref
 
 from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
         QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
-        QPushButton)
+        QPushButton, QGroupBox, QScrollArea, QHBoxLayout, QComboBox,
+        pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox)
 
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.utils.date import parse_date
 
 class FormatsConfig(QWidget): # {{{
 
@@ -85,7 +87,7 @@ class TemplateConfig(QWidget): # {{{
         m.setBuddy(t)
         l.addWidget(m, 0, 0, 1, 2)
         l.addWidget(t, 1, 0, 1, 1)
-        b = self.b = QPushButton(_('Template editor'))
+        b = self.b = QPushButton(_('&Template editor'))
         l.addWidget(b, 1, 1, 1, 1)
         b.clicked.connect(self.edit_template)
 
@@ -136,6 +138,152 @@ class SendToConfig(QWidget): # {{{
 
 # }}}
 
+class IgnoredDevices(QWidget): # {{{
+
+    def __init__(self, devs, blacklist):
+        QWidget.__init__(self)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel('<p>'+_(
+            '''Select the devices to be <b>ignored</b>. calibre will not
+            connect to devices with a checkmark next to their names.'''))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.f = f = QListWidget(self)
+        l.addWidget(f)
+
+        devs = [(snum, (x[0], parse_date(x[1]))) for snum, x in
+                devs.iteritems()]
+        for dev, x in sorted(devs, key=lambda x:x[1][1], reverse=True):
+            name = x[0]
+            name = '%s [%s]'%(name, dev)
+            item = QListWidgetItem(name, f)
+            item.setData(Qt.UserRole, dev)
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
+            item.setCheckState(Qt.Checked if dev in blacklist else Qt.Unchecked)
+
+    @property
+    def blacklist(self):
+        return [unicode(self.f.item(i).data(Qt.UserRole).toString()) for i in
+                xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+
+    def ignore_device(self, snum):
+        for i in xrange(self.f.count()):
+            i = self.f.item(i)
+            c = unicode(i.data(Qt.UserRole).toString())
+            if c == snum:
+                i.setCheckState(Qt.Checked)
+                break
+
+# }}}
+
+# Rules {{{
+
+class Rule(QWidget):
+
+    remove = pyqtSignal(object)
+
+    def __init__(self, rule=None):
+        QWidget.__init__(self)
+
+        self.l = l = QHBoxLayout()
+        self.setLayout(l)
+
+        self.l1 = l1 = QLabel(_('Send the '))
+        l.addWidget(l1)
+        self.fmt = f = QComboBox(self)
+        l.addWidget(f)
+        self.l2 = l2 = QLabel(_(' format to the folder: '))
+        l.addWidget(l2)
+        self.folder = f = QLineEdit(self)
+        f.setPlaceholderText(_('Folder on the device'))
+        l.addWidget(f)
+        self.rb = rb = QPushButton(QIcon(I('list_remove.png')),
+                _('&Remove rule'), self)
+        l.addWidget(rb)
+        rb.clicked.connect(self.removed)
+
+        for fmt in sorted(BOOK_EXTENSIONS):
+            self.fmt.addItem(fmt.upper(), fmt.lower())
+
+        self.fmt.setCurrentIndex(0)
+
+        if rule is not None:
+            fmt, folder = rule
+            idx = self.fmt.findText(fmt.upper())
+            if idx > -1:
+                self.fmt.setCurrentIndex(idx)
+            self.folder.setText(folder)
+
+        self.ignore = False
+
+    def removed(self):
+        self.remove.emit(self)
+
+    @property
+    def rule(self):
+        folder = unicode(self.folder.text()).strip()
+        if folder:
+            return (
+                unicode(self.fmt.itemData(self.fmt.currentIndex()).toString()),
+                folder
+                )
+        return None
+
+class FormatRules(QGroupBox):
+
+    def __init__(self, rules):
+        QGroupBox.__init__(self, _('Format specific sending'))
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel('<p>'+_(
+            '''You can create rules that control where ebooks of a specific
+            format are sent to on the device. These will take precedence over
+            the folders specified above.'''))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.sa = sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        self.w = w = QWidget(self)
+        w.l = QVBoxLayout()
+        w.setLayout(w.l)
+        sa.setWidget(w)
+        l.addWidget(sa)
+        self.widgets = []
+        for rule in rules:
+            r = Rule(rule)
+            self.widgets.append(r)
+            w.l.addWidget(r)
+            r.remove.connect(self.remove_rule)
+
+        if not self.widgets:
+            self.add_rule()
+
+        self.b = b = QPushButton(QIcon(I('plus.png')), _('Add a &new rule'))
+        l.addWidget(b)
+        b.clicked.connect(self.add_rule)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+
+    def add_rule(self):
+        r = Rule()
+        self.widgets.append(r)
+        self.w.l.addWidget(r)
+        r.remove.connect(self.remove_rule)
+        self.sa.verticalScrollBar().setValue(self.sa.verticalScrollBar().maximum())
+
+    def remove_rule(self, rule):
+        rule.setVisible(False)
+        rule.ignore = True
+
+    @property
+    def rules(self):
+        for w in self.widgets:
+            if not w.ignore:
+                r = w.rule
+                if r is not None:
+                    yield r
+# }}}
+
 class MTPConfig(QTabWidget):
 
     def __init__(self, device, parent=None):
@@ -145,8 +293,8 @@ class MTPConfig(QTabWidget):
         cd = msg = None
         if device.current_friendly_name is not None:
             if device.current_serial_num is None:
-                msg = '<p>' + _('The <b>%s</b> device has no serial number, '
-                    'it cannot be configured'%device.current_friendly_name)
+                msg = '<p>' + (_('The <b>%s</b> device has no serial number, '
+                    'it cannot be configured')%device.current_friendly_name)
             else:
                 cd = 'device-'+device.current_serial_num
         else:
@@ -162,6 +310,8 @@ class MTPConfig(QTabWidget):
             l = QLabel(msg)
             l.setWordWrap(True)
             l.setStyleSheet('QLabel { margin-left: 2em }')
+            l.setMinimumWidth(500)
+            l.setMinimumHeight(400)
             self.insertTab(0, l, _('Cannot configure'))
         else:
             self.base = QWidget(self)
@@ -169,19 +319,41 @@ class MTPConfig(QTabWidget):
             l = self.base.l = QGridLayout(self.base)
             self.base.setLayout(l)
 
+            self.rules = r = FormatRules(self.get_pref('rules'))
             self.formats = FormatsConfig(set(BOOK_EXTENSIONS),
                     self.get_pref('format_map'))
             self.send_to = SendToConfig(self.get_pref('send_to'))
             self.template = TemplateConfig(self.get_pref('send_template'))
-            self.base.la = la = QLabel(_('Choose the formats to send to the %s')%self.device.current_friendly_name)
+            self.base.la = la = QLabel(_(
+                'Choose the formats to send to the %s')%self.device.current_friendly_name)
             la.setWordWrap(True)
-            l.addWidget(la, 0, 0, 1, 1)
-            l.addWidget(self.formats, 1, 0, 3, 1)
-            l.addWidget(self.send_to, 1, 1, 1, 1)
-            l.addWidget(self.template, 2, 1, 1, 1)
-            l.setRowStretch(2, 10)
+            self.base.b = b = QPushButton(QIcon(I('list_remove.png')),
+                _('&Ignore the %s in calibre')%device.current_friendly_name,
+                self.base)
+            b.clicked.connect(self.ignore_device)
+
+            l.addWidget(b, 0, 0, 1, 2)
+            l.addWidget(la, 1, 0, 1, 1)
+            l.addWidget(self.formats, 2, 0, 3, 1)
+            l.addWidget(self.send_to, 2, 1, 1, 1)
+            l.addWidget(self.template, 3, 1, 1, 1)
+            l.setRowStretch(4, 10)
+            l.addWidget(r, 5, 0, 1, 2)
+            l.setRowStretch(5, 100)
+
+        self.igntab = IgnoredDevices(self.device.prefs['history'],
+                self.device.prefs['blacklist'])
+        self.addTab(self.igntab, _('Ignored devices'))
 
         self.setCurrentIndex(0)
+
+    def ignore_device(self):
+        self.igntab.ignore_device(self.device.current_serial_num)
+        self.base.b.setEnabled(False)
+        self.base.b.setText(_('The %s will be ignored in calibre')%
+                self.device.current_friendly_name)
+        self.base.b.setStyleSheet('QPushButton { font-weight: bold }')
+        self.base.setEnabled(False)
 
     def get_pref(self, key):
         p = self.device.prefs.get(self.current_device_key, {})
@@ -194,31 +366,40 @@ class MTPConfig(QTabWidget):
         return self._device()
 
     def validate(self):
-        if not self.formats.validate():
-            return False
-        if not self.template.validate():
-            return False
+        if hasattr(self, 'formats'):
+            if not self.formats.validate():
+                return False
+            if not self.template.validate():
+                return False
         return True
 
     def commit(self):
         p = self.device.prefs.get(self.current_device_key, {})
 
-        p.pop('format_map', None)
-        f = self.formats.format_map
-        if f and f != self.device.prefs['format_map']:
-            p['format_map'] = f
+        if hasattr(self, 'formats'):
+            p.pop('format_map', None)
+            f = self.formats.format_map
+            if f and f != self.device.prefs['format_map']:
+                p['format_map'] = f
 
-        p.pop('send_template', None)
-        t = self.template.template
-        if t and t != self.device.prefs['send_template']:
-            p['send_template'] = t
+            p.pop('send_template', None)
+            t = self.template.template
+            if t and t != self.device.prefs['send_template']:
+                p['send_template'] = t
 
-        p.pop('send_to', None)
-        s = self.send_to.value
-        if s and s != self.device.prefs['send_to']:
-            p['send_to'] = s
+            p.pop('send_to', None)
+            s = self.send_to.value
+            if s and s != self.device.prefs['send_to']:
+                p['send_to'] = s
 
-        self.device.prefs[self.current_device_key] = p
+            p.pop('rules', None)
+            r = list(self.rules.rules)
+            if r and r != self.device.prefs['rules']:
+                p['rules'] = r
+
+            self.device.prefs[self.current_device_key] = p
+
+        self.device.prefs['blacklist'] = self.igntab.blacklist
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -232,8 +413,16 @@ if __name__ == '__main__':
     cd = dev.detect_managed_devices(s.devices)
     dev.open(cd, 'test')
     cw = dev.config_widget()
-    cw.show()
-    app.exec_()
+    d = QDialog()
+    d.l = QVBoxLayout()
+    d.setLayout(d.l)
+    d.l.addWidget(cw)
+    bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+    d.l.addWidget(bb)
+    bb.accepted.connect(d.accept)
+    bb.rejected.connect(d.reject)
+    if d.exec_() == d.Accepted:
+        cw.commit()
     dev.shutdown()
 
 

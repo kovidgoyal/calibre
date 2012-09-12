@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>588</width>
-    <height>342</height>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,20 +91,30 @@
       <item row="0" column="1">
        <widget class="QComboBox" name="opt_mobi_file_type"/>
       </item>
-      <item row="1" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Personal Doc tag:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="3" column="1">
        <widget class="QLineEdit" name="opt_personal_doc"/>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_share_not_sync">
         <property name="text">
          <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>&lt;b&gt;WARNING:&lt;/b&gt; Various Kindle devices have trouble displaying the new or both MOBI filetypes. If you wish to use the new format on your device, convert to AZW3 instead of MOBI.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

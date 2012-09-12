@@ -211,15 +211,15 @@ class CatalogBuilder(object):
          (str): sort key
         """
         if not book['series']:
-            fs = '{:<%d}!{!s}' % longest_author_sort
+            fs = u'{:<%d}!{!s}' % longest_author_sort
             key = fs.format(capitalize(book['author_sort']),
                             capitalize(book['title_sort']))
         else:
             index = book['series_index']
             integer = int(index)
             fraction = index-integer
-            series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-            fs = '{:<%d}~{!s}{!s}' % longest_author_sort
+            series_index = u'%04d%s' % (integer, str(u'%0.4f' % fraction).lstrip(u'0'))
+            fs = u'{:<%d}~{!s}{!s}' % longest_author_sort
             key = fs.format(capitalize(book['author_sort']),
                             self.generate_sort_title(book['series']),
                             series_index)
@@ -2464,7 +2464,9 @@ class CatalogBuilder(object):
                         title_str=title_str,
                         xmlns=XHTML_NS,
                         )
-
+            for k, v in args.iteritems():
+                if isbytestring(v):
+                    args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',
                     data=True).decode('utf-8').format(**args)
             generated_html = substitute_entites(generated_html)

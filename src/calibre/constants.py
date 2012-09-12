@@ -57,7 +57,7 @@ else:
             # On linux, unicode arguments to os file functions are coerced to an ascii
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
             # just plain dumb. So issue a warning.
-            print ('WARNING: You do not have the LANG environment variable set. '
+            print ('WARNING: You do not have the LANG environment variable set correctly. '
                     'This will cause problems with non-ascii filenames. '
                     'Set it to something like en_US.UTF-8.\n')
     except:

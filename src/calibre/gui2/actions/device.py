@@ -11,6 +11,7 @@ from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
+from calibre.utils.config import tweaks
 from calibre.constants import iswindows, isosx
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
@@ -84,10 +85,12 @@ class ShareConnMenu(QMenu): # {{{
                     action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
-        from calibre.utils.mdns import get_external_ip
+        from calibre.utils.mdns import get_external_ip, verify_ipV4_address
         text = _('Start Content Server')
         if running:
-            text = _('Stop Content Server') + ' [%s]'%get_external_ip()
+            listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
+                    get_external_ip())
+            text = _('Stop Content Server') + ' [%s]'%listen_on
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):

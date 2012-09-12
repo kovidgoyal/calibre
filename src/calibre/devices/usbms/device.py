@@ -974,6 +974,9 @@ class Device(DeviceConfig, DevicePlugin):
     def get_carda_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_CARD_A
 
+    def get_cardb_ebook_dir(self, for_upload=False):
+        return self.EBOOK_DIR_CARD_B
+
     def _sanity_check(self, on_card, files):
         from calibre.devices.utils import sanity_check
         sanity_check(on_card, files, self.card_prefix(), self.free_space())

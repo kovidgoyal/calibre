@@ -24,7 +24,8 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import FreeSpaceError, WrongDestinationError
+from calibre.devices.errors import (FreeSpaceError, WrongDestinationError,
+        BlacklistedDevice)
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
@@ -252,6 +253,9 @@ class DeviceManager(Thread): # {{{
                     if cd is not None:
                         try:
                             dev.open(cd, self.current_library_uuid)
+                        except BlacklistedDevice as e:
+                            prints('Ignoring blacklisted device: %s'%
+                                    as_unicode(e))
                         except:
                             prints('Error while trying to open %s (Driver: %s)'%
                                     (cd, dev))

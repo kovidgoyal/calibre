@@ -1,0 +1,87 @@
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from collections import OrderedDict
+
+class HistoryToday(BasicNewsRecipe):
+
+    title       = 'History Today'
+    __author__  = 'Rick Shang'
+
+    description = 'UK-based magazine, publishing articles and book reviews covering all types and periods of history.'
+    language = 'en'
+    category = 'news'
+    encoding = 'UTF-8'
+
+    remove_tags = [dict(name='div',attrs={'class':['print-logo','print-site_name','print-breadcrumb']}),
+            dict(name='div', attrs={'id':['ht-tools','ht-tools2','ht-tags']})]
+    no_javascript = True
+    no_stylesheets = True
+
+
+    needs_subscription = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.historytoday.com/user/login')
+            br.select_form(nr=1)
+            br['name']   = self.username
+            br['pass'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if 'Session limit exceeded' in raw:
+                br.select_form(nr=1)
+            control=br.find_control('sid').items[1]
+            sid = []
+            br['sid']=sid.join(control)
+            br.submit()
+        return br
+
+    def parse_index(self):
+
+        #Find date
+        soup0 = self.index_to_soup('http://www.historytoday.com/')
+        dates = self.tag_to_string(soup0.find('div',attrs={'id':'block-block-226'}).span)
+        self.timefmt = u' [%s]'%dates
+
+        #Go to issue
+        soup = self.index_to_soup('http://www.historytoday.com/contents')
+        cover = soup.find('div',attrs={'id':'content-area'}).find('img')['src']
+        self.cover_url=cover
+
+        #Go to the main body
+
+        div = soup.find ('div', attrs={'class':'region region-content-bottom'})
+
+        feeds = OrderedDict()
+        section_title = ''
+        for section in div.findAll('div', attrs={'id':re.compile("block\-views\-contents.*")}):
+            section_title = self.tag_to_string(section.find('h2',attrs={'class':'title'}))
+            sectionbody=section.find('div', attrs={'class':'view-content'})
+            for article in sectionbody.findAll('div',attrs={'class':re.compile("views\-row.*")}):
+                articles = []
+                subarticle = []
+                subarticle = article.findAll('div')
+                if len(subarticle) < 2:
+                    continue
+                title=self.tag_to_string(subarticle[0])
+                originalurl="http://www.historytoday.com" + subarticle[0].span.a['href'].strip()
+                originalpage=self.index_to_soup(originalurl)
+                printurl=originalpage.find('div',attrs = {'id':'ht-tools'}).a['href'].strip()
+                url="http://www.historytoday.com" + printurl
+                desc=self.tag_to_string(subarticle[1])
+                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+
+                if articles:
+                    if section_title not in feeds:
+                        feeds[section_title] = []
+                    feeds[section_title] += articles
+
+
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
+
+
+    def cleanup(self):
+        self.browser.open('http://www.historytoday.com/logout')
+
