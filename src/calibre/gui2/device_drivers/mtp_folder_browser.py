@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from operator import attrgetter
 
 from PyQt4.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
-        QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal)
+        QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon)
 
 from calibre.gui2 import file_icon_provider
 
@@ -88,6 +88,8 @@ class Browser(QDialog):
         bb.rejected.connect(self.reject)
         self.setMinimumSize(QSize(500, 500))
         self.folders.selected.connect(self.accept)
+        self.setWindowTitle(_('Choose folder on device'))
+        self.setWindowIcon(QIcon(I('devices/galaxy_s3.png')))
 
     @property
     def current_item(self):

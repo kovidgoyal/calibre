@@ -499,6 +499,7 @@ class FileIconProvider(QFileIconProvider):
         self.icons = {}
         for key in self.__class__.ICONS.keys():
             self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.png'
+        self.icons['calibre'] = I('lt.png')
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 
