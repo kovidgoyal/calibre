@@ -523,7 +523,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _set_known_metadata(self, book, remove=False):
         lpath = book.lpath
         if remove:
-            self.known_metadata[lpath] = None
+            self.known_metadata.pop(lpath, None)
         else:
             self.known_metadata[lpath] = book.deepcopy()
 
@@ -844,10 +844,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 for book in bl:
                     if book.get('_new_book_', None):
                         total += 1
-                count = 0;
+                count = 0
                 for book in bl:
                     if book.get('_new_book_', None):
                         paths = [book.lpath]
+                        self._set_known_metadata(book, remove=True)
                         self.prepare_addable_books(paths, this_book=count, total_books=total)
                         book.smart_update(self._read_file_metadata(paths[0]))
                         del book._new_book_
@@ -992,7 +993,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                      'canStream':True},
                                     print_debug_info=False)
             if opcode == 'OK':
-                client_will_stream = 'willStream' in result;
+                client_will_stream = 'willStream' in result
                 while not eof:
                     if not result['eof']:
                         data = b64decode(result['data'])
