@@ -11,12 +11,14 @@ import weakref
 
 from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
         QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
-        QPushButton)
+        QPushButton, QGroupBox, QScrollArea, QHBoxLayout, QComboBox,
+        pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox)
 
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
+from calibre.gui2.device_drivers.mtp_folder_browser import Browser
 
 class FormatsConfig(QWidget): # {{{
 
@@ -86,7 +88,7 @@ class TemplateConfig(QWidget): # {{{
         m.setBuddy(t)
         l.addWidget(m, 0, 0, 1, 2)
         l.addWidget(t, 1, 0, 1, 1)
-        b = self.b = QPushButton(_('Template editor'))
+        b = self.b = QPushButton(_('&Template editor'))
         l.addWidget(b, 1, 1, 1, 1)
         b.clicked.connect(self.edit_template)
 
@@ -116,19 +118,36 @@ class TemplateConfig(QWidget): # {{{
 
 class SendToConfig(QWidget): # {{{
 
-    def __init__(self, val):
+    def __init__(self, val, device):
         QWidget.__init__(self)
         self.t = t = QLineEdit(self)
         t.setText(', '.join(val or []))
         t.setCursorPosition(0)
-        self.l = l = QVBoxLayout(self)
+        self.l = l = QGridLayout(self)
         self.setLayout(l)
         self.m = m = QLabel('<p>'+_('''A <b>list of &folders</b> on the device to
         which to send ebooks. The first one that exists will be used:'''))
         m.setWordWrap(True)
         m.setBuddy(t)
-        l.addWidget(m)
-        l.addWidget(t)
+        l.addWidget(m, 0, 0, 1, 2)
+        l.addWidget(t, 1, 0)
+        self.b = b = QToolButton()
+        l.addWidget(b, 1, 1)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.clicked.connect(self.browse)
+        b.setToolTip(_('Browse for a folder on the device'))
+        self._device = weakref.ref(device)
+
+    @property
+    def device(self):
+        return self._device()
+
+    def browse(self):
+        b = Browser(self.device.filesystem_cache, show_files=False,
+                parent=self)
+        if b.exec_() == b.Accepted:
+            sid, path = b.current_item
+            self.t.setText('/'.join(path[1:]))
 
     @property
     def value(self):
@@ -176,6 +195,135 @@ class IgnoredDevices(QWidget): # {{{
 
 # }}}
 
+# Rules {{{
+
+class Rule(QWidget):
+
+    remove = pyqtSignal(object)
+
+    def __init__(self, device, rule=None):
+        QWidget.__init__(self)
+        self._device = weakref.ref(device)
+
+        self.l = l = QHBoxLayout()
+        self.setLayout(l)
+
+        self.l1 = l1 = QLabel(_('Send the '))
+        l.addWidget(l1)
+        self.fmt = f = QComboBox(self)
+        l.addWidget(f)
+        self.l2 = l2 = QLabel(_(' format to the folder: '))
+        l.addWidget(l2)
+        self.folder = f = QLineEdit(self)
+        f.setPlaceholderText(_('Folder on the device'))
+        l.addWidget(f)
+        self.b = b = QToolButton()
+        l.addWidget(b)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.clicked.connect(self.browse)
+        b.setToolTip(_('Browse for a folder on the device'))
+        self.rb = rb = QPushButton(QIcon(I('list_remove.png')),
+                _('&Remove rule'), self)
+        l.addWidget(rb)
+        rb.clicked.connect(self.removed)
+
+        for fmt in sorted(BOOK_EXTENSIONS):
+            self.fmt.addItem(fmt.upper(), fmt.lower())
+
+        self.fmt.setCurrentIndex(0)
+
+        if rule is not None:
+            fmt, folder = rule
+            idx = self.fmt.findText(fmt.upper())
+            if idx > -1:
+                self.fmt.setCurrentIndex(idx)
+            self.folder.setText(folder)
+
+        self.ignore = False
+
+    @property
+    def device(self):
+        return self._device()
+
+    def browse(self):
+        b = Browser(self.device.filesystem_cache, show_files=False,
+                parent=self)
+        if b.exec_() == b.Accepted:
+            sid, path = b.current_item
+            self.folder.setText('/'.join(path[1:]))
+
+    def removed(self):
+        self.remove.emit(self)
+
+    @property
+    def rule(self):
+        folder = unicode(self.folder.text()).strip()
+        if folder:
+            return (
+                unicode(self.fmt.itemData(self.fmt.currentIndex()).toString()),
+                folder
+                )
+        return None
+
+class FormatRules(QGroupBox):
+
+    def __init__(self, device, rules):
+        QGroupBox.__init__(self, _('Format specific sending'))
+        self._device = weakref.ref(device)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel('<p>'+_(
+            '''You can create rules that control where ebooks of a specific
+            format are sent to on the device. These will take precedence over
+            the folders specified above.'''))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.sa = sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        self.w = w = QWidget(self)
+        w.l = QVBoxLayout()
+        w.setLayout(w.l)
+        sa.setWidget(w)
+        l.addWidget(sa)
+        self.widgets = []
+        for rule in rules:
+            r = Rule(device, rule)
+            self.widgets.append(r)
+            w.l.addWidget(r)
+            r.remove.connect(self.remove_rule)
+
+        if not self.widgets:
+            self.add_rule()
+
+        self.b = b = QPushButton(QIcon(I('plus.png')), _('Add a &new rule'))
+        l.addWidget(b)
+        b.clicked.connect(self.add_rule)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+
+    @property
+    def device(self):
+        return self._device()
+
+    def add_rule(self):
+        r = Rule(self.device)
+        self.widgets.append(r)
+        self.w.l.addWidget(r)
+        r.remove.connect(self.remove_rule)
+        self.sa.verticalScrollBar().setValue(self.sa.verticalScrollBar().maximum())
+
+    def remove_rule(self, rule):
+        rule.setVisible(False)
+        rule.ignore = True
+
+    @property
+    def rules(self):
+        for w in self.widgets:
+            if not w.ignore:
+                r = w.rule
+                if r is not None:
+                    yield r
+# }}}
+
 class MTPConfig(QTabWidget):
 
     def __init__(self, device, parent=None):
@@ -185,8 +333,8 @@ class MTPConfig(QTabWidget):
         cd = msg = None
         if device.current_friendly_name is not None:
             if device.current_serial_num is None:
-                msg = '<p>' + _('The <b>%s</b> device has no serial number, '
-                    'it cannot be configured'%device.current_friendly_name)
+                msg = '<p>' + (_('The <b>%s</b> device has no serial number, '
+                    'it cannot be configured')%device.current_friendly_name)
             else:
                 cd = 'device-'+device.current_serial_num
         else:
@@ -211,23 +359,27 @@ class MTPConfig(QTabWidget):
             l = self.base.l = QGridLayout(self.base)
             self.base.setLayout(l)
 
+            self.rules = r = FormatRules(self.device, self.get_pref('rules'))
             self.formats = FormatsConfig(set(BOOK_EXTENSIONS),
                     self.get_pref('format_map'))
-            self.send_to = SendToConfig(self.get_pref('send_to'))
+            self.send_to = SendToConfig(self.get_pref('send_to'), self.device)
             self.template = TemplateConfig(self.get_pref('send_template'))
             self.base.la = la = QLabel(_(
                 'Choose the formats to send to the %s')%self.device.current_friendly_name)
             la.setWordWrap(True)
-            l.addWidget(la, 0, 0, 1, 1)
-            l.addWidget(self.formats, 1, 0, 2, 1)
-            l.addWidget(self.send_to, 1, 1, 1, 1)
-            l.addWidget(self.template, 2, 1, 1, 1)
-            l.setRowStretch(2, 10)
-            self.base.b = b = QPushButton(QIcon(I('minus.png')),
-                _('Ignore the %s in calibre')%device.current_friendly_name,
+            self.base.b = b = QPushButton(QIcon(I('list_remove.png')),
+                _('&Ignore the %s in calibre')%device.current_friendly_name,
                 self.base)
-            l.addWidget(b, 3, 0, 1, 2)
             b.clicked.connect(self.ignore_device)
+
+            l.addWidget(b, 0, 0, 1, 2)
+            l.addWidget(la, 1, 0, 1, 1)
+            l.addWidget(self.formats, 2, 0, 3, 1)
+            l.addWidget(self.send_to, 2, 1, 1, 1)
+            l.addWidget(self.template, 3, 1, 1, 1)
+            l.setRowStretch(4, 10)
+            l.addWidget(r, 5, 0, 1, 2)
+            l.setRowStretch(5, 100)
 
         self.igntab = IgnoredDevices(self.device.prefs['history'],
                 self.device.prefs['blacklist'])
@@ -280,6 +432,11 @@ class MTPConfig(QTabWidget):
             if s and s != self.device.prefs['send_to']:
                 p['send_to'] = s
 
+            p.pop('rules', None)
+            r = list(self.rules.rules)
+            if r and r != self.device.prefs['rules']:
+                p['rules'] = r
+
             self.device.prefs[self.current_device_key] = p
 
         self.device.prefs['blacklist'] = self.igntab.blacklist
@@ -296,8 +453,16 @@ if __name__ == '__main__':
     cd = dev.detect_managed_devices(s.devices)
     dev.open(cd, 'test')
     cw = dev.config_widget()
-    cw.show()
-    app.exec_()
+    d = QDialog()
+    d.l = QVBoxLayout()
+    d.setLayout(d.l)
+    d.l.addWidget(cw)
+    bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+    d.l.addWidget(bb)
+    bb.accepted.connect(d.accept)
+    bb.rejected.connect(d.reject)
+    if d.exec_() == d.Accepted:
+        cw.commit()
     dev.shutdown()
 
 

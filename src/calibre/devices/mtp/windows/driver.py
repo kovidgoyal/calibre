@@ -16,7 +16,7 @@ from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
-from calibre.devices.mtp.base import MTPDeviceBase
+from calibre.devices.mtp.base import MTPDeviceBase, debug
 
 class ThreadingViolation(Exception):
 
@@ -199,6 +199,8 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            debug('Loading filesystem metadata...')
+            st = time.time()
             from calibre.devices.mtp.filesystem_cache import FilesystemCache
             ts = self.total_space()
             all_storage = []
@@ -218,6 +220,8 @@ class MTP_DEVICE(MTPDeviceBase):
                 all_storage.append(storage)
                 items.append(id_map.itervalues())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
+            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
+                time.time()-st, len(self._filesystem_cache)))
         return self._filesystem_cache
 
     @same_thread

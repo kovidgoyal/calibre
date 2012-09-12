@@ -152,8 +152,16 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 scheme = u'devpath' if isdevice else u'path'
                 url = prepare_string_for_xml(path if isdevice else
                         unicode(mi.id), True)
-                link = u'<a href="%s:%s" title="%s">%s</a>' % (scheme, url,
-                        prepare_string_for_xml(path, True), _('Click to open'))
+                pathstr = _('Click to open')
+                extra = ''
+                if isdevice:
+                    durl = url
+                    if durl.startswith('mtp:::'):
+                        durl = ':::'.join( (durl.split(':::'))[2:] )
+                    extra = '<br><span style="font-size:smaller">%s</span>'%(
+                            prepare_string_for_xml(durl))
+                link = u'<a href="%s:%s" title="%s">%s</a>%s' % (scheme, url,
+                        prepare_string_for_xml(path, True), pathstr, extra)
                 ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, link)))
         elif field == 'formats':
             if isdevice: continue

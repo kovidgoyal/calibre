@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, traceback, pprint, sys
+import operator, traceback, pprint, sys, time
 from threading import RLock
 from collections import namedtuple
 from functools import partial
@@ -16,7 +16,7 @@ from calibre import prints, as_unicode
 from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
-from calibre.devices.mtp.base import MTPDeviceBase, synchronous
+from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -193,6 +193,8 @@ class MTP_DEVICE(MTPDeviceBase):
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
+            st = time.time()
+            debug('Loading filesystem metadata...')
             from calibre.devices.mtp.filesystem_cache import FilesystemCache
             with self.lock:
                 storage, all_items, all_errs = [], [], []
@@ -220,6 +222,8 @@ class MTP_DEVICE(MTPDeviceBase):
                                 self.current_friendly_name,
                                 self.format_errorstack(all_errs)))
                 self._filesystem_cache = FilesystemCache(storage, all_items)
+            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
+                time.time()-st, len(self._filesystem_cache)))
         return self._filesystem_cache
 
     @synchronous
