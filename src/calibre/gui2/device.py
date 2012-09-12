@@ -433,6 +433,15 @@ class DeviceManager(Thread): # {{{
         return self.create_job_step(self._get_device_information, done,
                     description=_('Get device information'), to_job=add_as_step_to_job)
 
+    def slow_driveinfo(self):
+        ''' Update the stored device information with the driveinfo if the
+        device indicates that getting driveinfo is slow '''
+        info = self._device_information['info']
+        if (not info[4] and self.device.SLOW_DRIVEINFO):
+            info = list(info)
+            info[4] = self.device.get_driveinfo()
+            self._device_information['info'] = tuple(info)
+
     def get_current_device_information(self):
         return self._device_information
 
@@ -1023,6 +1032,7 @@ class DeviceMixin(object): # {{{
         if job.failed:
             self.device_job_exception(job)
             return
+        self.device_manager.slow_driveinfo()
         # set_books_in_library might schedule a sync_booklists job
         self.set_books_in_library(job.result, reset=True, add_as_step_to_job=job)
         mainlist, cardalist, cardblist = job.result

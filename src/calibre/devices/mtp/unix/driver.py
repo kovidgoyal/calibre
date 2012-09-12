@@ -222,7 +222,8 @@ class MTP_DEVICE(MTPDeviceBase):
                                 self.current_friendly_name,
                                 self.format_errorstack(all_errs)))
                 self._filesystem_cache = FilesystemCache(storage, all_items)
-            debug('Filesystem metadata loaded in %g seconds'%(time.time()-st))
+            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
+                time.time()-st, len(self._filesystem_cache)))
         return self._filesystem_cache
 
     @synchronous

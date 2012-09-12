@@ -35,6 +35,7 @@ class MTP_DEVICE(BASE):
     MANAGES_DEVICE_PRESENCE = True
     FORMATS = ['epub', 'azw3', 'mobi', 'pdf']
     DEVICE_PLUGBOARD_NAME = 'MTP_DEVICE'
+    SLOW_DRIVEINFO = True
 
     def __init__(self, *args, **kwargs):
         BASE.__init__(self, *args, **kwargs)
@@ -76,6 +77,7 @@ class MTP_DEVICE(BASE):
     def open(self, devices, library_uuid):
         self.current_library_uuid = library_uuid
         self.location_paths = None
+        self.driveinfo = {}
         BASE.open(self, devices, library_uuid)
         h = self.prefs['history']
         if self.current_serial_num:
@@ -109,13 +111,17 @@ class MTP_DEVICE(BASE):
         self.put_file(storage, self.DRIVEINFO, BytesIO(raw), len(raw))
         self.driveinfo[location_code] = dinfo
 
+    def get_driveinfo(self):
+        if not self.driveinfo:
+            self.driveinfo = {}
+            for sid, location_code in ( (self._main_id, 'main'), (self._carda_id,
+                'A'), (self._cardb_id, 'B')):
+                if sid is None: continue
+                self._update_drive_info(self.filesystem_cache.storage(sid), location_code)
+        return self.driveinfo
+
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
-        self.driveinfo = {}
-        for sid, location_code in ( (self._main_id, 'main'), (self._carda_id,
-            'A'), (self._cardb_id, 'B')):
-            if sid is None: continue
-            self._update_drive_info(self.filesystem_cache.storage(sid), location_code)
         dinfo = self.get_basic_device_information()
         return tuple( list(dinfo) + [self.driveinfo] )
 
@@ -135,6 +141,7 @@ class MTP_DEVICE(BASE):
     def books(self, oncard=None, end_session=True):
         from calibre.devices.mtp.books import JSONCodec
         from calibre.devices.mtp.books import BookList, Book
+        self.get_driveinfo() # Ensure driveinfo is loaded
         sid = {'carda':self._carda_id, 'cardb':self._cardb_id}.get(oncard,
                 self._main_id)
         if sid is None:

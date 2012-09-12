@@ -95,6 +95,10 @@ class DevicePlugin(Plugin):
     #: call post_yank_cleanup().
     MANAGES_DEVICE_PRESENCE = False
 
+    #: If set the True, calibre will call the :method:`get_driveinfo()` method
+    #: after the books lists have been loaded to get the driveinfo.
+    SLOW_DRIVEINFO = False
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
@@ -351,6 +355,18 @@ class DevicePlugin(Plugin):
 
         """
         raise NotImplementedError()
+
+    def get_driveinfo(self):
+        '''
+        Return the driveinfo dictionary. Usually called from
+        get_device_information(), but if loading the driveinfo is slow for this
+        driver, then it should set SLOW_DRIVEINFO. In this case, this method
+        will be called by calibre after the book lists have been loaded. Note
+        that it is not called on the device thread, so the driver should cache
+        the drive info in the books() method and this function should return
+        the cached data.
+        '''
+        return {}
 
     def card_prefix(self, end_session=True):
         '''
