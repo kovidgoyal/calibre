@@ -274,15 +274,18 @@ class MTP_DEVICE(BASE):
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def create_upload_path(self, path, mdata, fname):
+    def create_upload_path(self, path, mdata, fname, routing):
         from calibre.devices.utils import create_upload_path
         from calibre.utils.filenames import ascii_filename as sanitize
+        ext = fname.rpartition('.')[-1].lower()
+        path = routing.get(ext, path)
+
         filepath = create_upload_path(mdata, fname, self.save_template, sanitize,
                 prefix_path=path,
                 path_type=posixpath,
                 maxlen=self.MAX_PATH_LEN,
-                use_subdirs = True,
-                news_in_folder = self.NEWS_IN_FOLDER,
+                use_subdirs=True,
+                news_in_folder=self.NEWS_IN_FOLDER,
                 )
         return tuple(x for x in filepath.split('/'))
 
@@ -330,8 +333,10 @@ class MTP_DEVICE(BASE):
         self.report_progress(0, _('Transferring books to device...'))
         i, total = 0, len(files)
 
+        routing = {fmt:dest for fmt,dest in self.get_pref('rules')}
+
         for infile, fname, mi in izip(files, names, metadata):
-            path = self.create_upload_path(prefix, mi, fname)
+            path = self.create_upload_path(prefix, mi, fname, routing)
             parent = self.ensure_parent(storage, path)
             if hasattr(infile, 'read'):
                 pos = infile.tell()
