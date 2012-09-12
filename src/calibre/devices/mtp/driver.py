@@ -53,6 +53,7 @@ class MTP_DEVICE(BASE):
             p.defaults['send_template'] = config().parse().send_template
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
+            p.defaults['rules'] = []
 
         return self._prefs
 
@@ -106,7 +107,7 @@ class MTP_DEVICE(BASE):
         dinfo['mtp_prefix'] = storage.storage_prefix
         raw = json.dumps(dinfo, default=to_json)
         self.put_file(storage, self.DRIVEINFO, BytesIO(raw), len(raw))
-        self.driveinfo = dinfo
+        self.driveinfo[location_code] = dinfo
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
