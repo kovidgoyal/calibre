@@ -103,6 +103,9 @@ class CatalogBuilder(object):
         self.cache_dir = os.path.join(config_dir, 'caches', 'catalog')
         self.catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
         self.excluded_tags = self.get_excluded_tags()
+        self.generate_for_kindle_azw3 = True if (_opts.fmt == 'azw3' and
+                                              _opts.output_profile and
+                                              _opts.output_profile.startswith("kindle")) else False
         self.generate_for_kindle_mobi = True if (_opts.fmt == 'mobi' and
                                               _opts.output_profile and
                                               _opts.output_profile.startswith("kindle")) else False
