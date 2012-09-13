@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from collections import namedtuple
-from copy import deepcopy
 
 from calibre import strftime
 from calibre.customize import CatalogPlugin
@@ -329,9 +328,6 @@ class EPUB_MOBI(CatalogPlugin):
         # Launch the Catalog builder
         catalog = CatalogBuilder(db, opts, self, report_progress=notification)
 
-        # Save the output profile for the plumber
-        output_profile = deepcopy(catalog.output_profile)
-
         if opts.verbose:
             log.info(" Begin catalog source generation")
 
@@ -350,7 +346,7 @@ class EPUB_MOBI(CatalogPlugin):
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
-            recommendations.append(('output_profile', output_profile,
+            recommendations.append(('output_profile', opts.output_profile,
                 OptionRecommendation.HIGH))
 
             """
