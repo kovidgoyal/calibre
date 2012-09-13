@@ -63,6 +63,7 @@ class ANDROID(USBMS):
                        0x42d7 : [0x216],
                        0x42f7 : [0x216],
                        0x4365 : [0x216],
+                       0x4366 : [0x216],
                      },
             # Freescale
             0x15a2 : {
