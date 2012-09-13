@@ -108,10 +108,10 @@ After creating the saved search, you can use it as a restriction.
 Useful Template Functions
 -------------------------
  
- You might want to use the genre information in a template, such as with save to disk or send to device. The question might then be "How do I get the outermost genre name or names?" An |app| template function, subitems, is provided to make doing this easier.
+ You might want to use the genre information in a template, such as with save to disk or send to device. The question might then be "How do I get the outermost genre name or names?" A |app| template function, subitems, is provided to make doing this easier.
  
  For example, assume you want to add the outermost genre level to the save-to-disk template to make genre folders, as in "History/The Gathering Storm - Churchill, Winston". To do this, you must extract the first level of the hierarchy and add it to the front along with a slash to indicate that it should make a folder. The template below accomplishes this::
  
     {#genre:subitems(0,1)||/}{title} - {authors}
 
-See :ref:`The |app| template language <templatelangcalibre>` for more information templates and the subitem function.
+See :ref:`The template language <templatelangcalibre>` for more information templates and the :func:`subitems` function.

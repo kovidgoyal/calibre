@@ -95,7 +95,7 @@ class DevicePlugin(Plugin):
     #: call post_yank_cleanup().
     MANAGES_DEVICE_PRESENCE = False
 
-    #: If set the True, calibre will call the :method:`get_driveinfo()` method
+    #: If set the True, calibre will call the :meth:`get_driveinfo()` method
     #: after the books lists have been loaded to get the driveinfo.
     SLOW_DRIVEINFO = False
 

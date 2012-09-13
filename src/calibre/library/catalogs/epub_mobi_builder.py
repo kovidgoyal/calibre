@@ -5,10 +5,10 @@ __copyright__ = '2010, Greg Riker'
 
 import datetime, htmlentitydefs, os, re, shutil, unicodedata, zlib
 from copy import deepcopy
-from operator import itemgetter
 from xml.sax.saxutils import escape
 
-from calibre import (prepare_string_for_xml, strftime, force_unicode)
+from calibre import (prepare_string_for_xml, strftime, force_unicode,
+        isbytestring)
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -69,7 +69,7 @@ class CatalogBuilder(object):
     @property
     def SYMBOL_PROGRESS_READ(self):
         psr = '+'
-        if self.generate_for_kindle:
+        if self.generate_for_kindle_mobi:
             psr = '&#9642;'
         return psr
 
@@ -77,14 +77,14 @@ class CatalogBuilder(object):
     @property
     def SYMBOL_PROGRESS_UNREAD(self):
         psu = '-'
-        if self.generate_for_kindle:
+        if self.generate_for_kindle_mobi:
             psu = '&#9643;'
         return psu
 
     ''' device-specific symbol for reading progress '''
     @property
     def SYMBOL_READING(self):
-        if self.generate_for_kindle:
+        if self.generate_for_kindle_mobi:
             return self.format_prefix('&#x25b7;')
         else:
             return self.format_prefix('&nbsp;')
@@ -103,7 +103,7 @@ class CatalogBuilder(object):
         self.cache_dir = os.path.join(config_dir, 'caches', 'catalog')
         self.catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
         self.excluded_tags = self.get_excluded_tags()
-        self.generate_for_kindle = True if (_opts.fmt == 'mobi' and
+        self.generate_for_kindle_mobi = True if (_opts.fmt == 'mobi' and
                                               _opts.output_profile and
                                               _opts.output_profile.startswith("kindle")) else False
 
@@ -122,7 +122,7 @@ class CatalogBuilder(object):
         self.error = []
         self.generate_recently_read = True if (_opts.generate_recently_added and
                                                _opts.connected_kindle and
-                                               self.generate_for_kindle) else False
+                                               self.generate_for_kindle_mobi) else False
         self.genres = []
         self.genre_tags_dict = None
         self.html_filelist_1 = []
@@ -130,7 +130,6 @@ class CatalogBuilder(object):
         self.merge_comments_rule = dict(zip(['field','position','hr'],
                                             _opts.merge_comments_rule.split(':')))
         self.ncx_soup = None
-        self.output_profile = None
         self.output_profile = self.get_output_profile(_opts)
         self.play_order = 1
         self.prefix_rules = self.get_prefix_rules()
@@ -469,7 +468,7 @@ class CatalogBuilder(object):
                 shutil.copy(os.path.join(catalog_resources,file[1]),
                                 os.path.join(self.catalog_path, file[0]))
 
-        if self.generate_for_kindle:
+        if self.generate_for_kindle_mobi:
             try:
                 self.generate_masthead_image(os.path.join(self.catalog_path,
                                                 'images/mastheadImage.gif'))
@@ -1421,7 +1420,7 @@ class CatalogBuilder(object):
         pTag.insert(ptc, aTag)
         ptc += 1
 
-        if not self.generate_for_kindle:
+        if not self.generate_for_kindle_mobi:
             # Kindle don't need this because it shows section titles in Periodical format
             aTag = Tag(soup, "a")
             anchor_name = friendly_name.lower()
@@ -1629,7 +1628,7 @@ class CatalogBuilder(object):
         pTag.insert(ptc, aTag)
         ptc += 1
 
-        if not self.generate_for_kindle:
+        if not self.generate_for_kindle_mobi:
             # Kindle don't need this because it shows section titles in Periodical format
             aTag = Tag(soup, "a")
             anchor_name = friendly_name.lower()
@@ -2258,7 +2257,7 @@ class CatalogBuilder(object):
         pTag.insert(ptc, aTag)
         ptc += 1
 
-        if not self.generate_for_kindle:
+        if not self.generate_for_kindle_mobi:
             # Insert the <h2> tag with book_count at the head
             aTag = Tag(soup, "a")
             anchor_name = friendly_name.lower()
@@ -2304,7 +2303,7 @@ class CatalogBuilder(object):
         pTag.insert(ptc, aTag)
         ptc += 1
 
-        if not self.generate_for_kindle:
+        if not self.generate_for_kindle_mobi:
             # Kindle don't need this because it shows section titles in Periodical format
             aTag = Tag(soup, "a")
             aTag['id'] = "bytitle"
@@ -2883,7 +2882,7 @@ class CatalogBuilder(object):
                 series_index = str(book['series_index'])
                 if series_index.endswith('.0'):
                     series_index = series_index[:-2]
-                if self.generate_for_kindle:
+                if self.generate_for_kindle_mobi:
                     # Don't include Author for Kindle
                     textTag.insert(0, NavigableString(self.format_ncx_text('%s (%s [%s])' %
                                     (book['title'], book['series'], series_index), dest='title')))
@@ -2892,7 +2891,7 @@ class CatalogBuilder(object):
                     textTag.insert(0, NavigableString(self.format_ncx_text('%s (%s [%s]) &middot; %s ' %
                                     (book['title'], book['series'], series_index, book['author']), dest='title')))
             else:
-                if self.generate_for_kindle:
+                if self.generate_for_kindle_mobi:
                     # Don't include Author for Kindle
                     title_str = self.format_ncx_text('%s' % (book['title']), dest='title')
                     if self.opts.connected_kindle and book['id'] in self.bookmarked_books:
@@ -2915,7 +2914,7 @@ class CatalogBuilder(object):
             contentTag['src'] = "content/book_%d.html#book%d" % (int(book['id']), int(book['id']))
             navPointVolumeTag.insert(1, contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 # Add the author tag
                 cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "author"
@@ -3056,7 +3055,7 @@ class CatalogBuilder(object):
 
             navPointByLetterTag.insert(1,contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 cmTag = Tag(soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "description"
                 cmTag.insert(0, NavigableString(self.format_ncx_text(books, dest='description')))
@@ -3179,7 +3178,7 @@ class CatalogBuilder(object):
                 contentTag['src'] = "content/%s.html#%s_titles" % (output, self.generate_unicode_name(title_letters[i]))
             navPointByLetterTag.insert(1,contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 cmTag = Tag(soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "description"
                 cmTag.insert(0, NavigableString(self.format_ncx_text(books, dest='description')))
@@ -3293,7 +3292,7 @@ class CatalogBuilder(object):
                 contentTag['src'] = "%s#%s_authors" % (HTML_file, self.generate_unicode_name(authors_by_letter[1]))
             navPointByLetterTag.insert(1,contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 cmTag = Tag(soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "description"
                 cmTag.insert(0, NavigableString(authors_by_letter[0]))
@@ -3403,7 +3402,7 @@ class CatalogBuilder(object):
 
             navPointByDateRangeTag.insert(1,contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 cmTag = Tag(soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "description"
                 cmTag.insert(0, NavigableString(books_by_date_range[0]))
@@ -3462,7 +3461,7 @@ class CatalogBuilder(object):
 
             navPointByMonthTag.insert(1,contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 cmTag = Tag(soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "description"
                 cmTag.insert(0, NavigableString(books_by_month[0]))
@@ -3611,7 +3610,7 @@ class CatalogBuilder(object):
 
             navPointByDayTag.insert(1,contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 cmTag = Tag(soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "description"
                 cmTag.insert(0, NavigableString(books_by_day[0]))
@@ -3702,7 +3701,7 @@ class CatalogBuilder(object):
             contentTag['src'] = "content/Genre_%s.html#Genre_%s" % (normalized_tag, normalized_tag)
             navPointVolumeTag.insert(1, contentTag)
 
-            if self.generate_for_kindle:
+            if self.generate_for_kindle_mobi:
                 # Build the author tag
                 cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                 cmTag['name'] = "author"
@@ -3772,7 +3771,6 @@ class CatalogBuilder(object):
             <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
                 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <dc:language>en-US</dc:language>
-                    <meta name="calibre:publication_type" content="periodical:default"/>
                 </metadata>
                 <manifest></manifest>
                 <spine toc="ncx"></spine>
@@ -3780,7 +3778,7 @@ class CatalogBuilder(object):
             </package>
             '''
         # Add the supplied metadata tags
-        soup = BeautifulStoneSoup(header, selfClosingTags=['item','itemref', 'reference'])
+        soup = BeautifulStoneSoup(header, selfClosingTags=['item','itemref', 'meta', 'reference'])
         metadata = soup.find('metadata')
         mtc = 0
 
@@ -3793,6 +3791,13 @@ class CatalogBuilder(object):
         creatorTag.insert(0, self.opts.creator)
         metadata.insert(mtc, creatorTag)
         mtc += 1
+
+        if self.generate_for_kindle_mobi:
+            periodicalTag = Tag(soup, "meta")
+            periodicalTag['name'] = "calibre:publication_type"
+            periodicalTag['content'] = "periodical:default"
+            metadata.insert(mtc, periodicalTag)
+            mtc += 1
 
         # Create the OPF tags
         manifest = soup.find('manifest')

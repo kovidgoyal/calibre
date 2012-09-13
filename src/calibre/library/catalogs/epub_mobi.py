@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os
 from collections import namedtuple
 
 from calibre import strftime
@@ -51,7 +51,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'\n"
                            "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[.+\]|\+',
+                          default='\[.+\]|^\+$',
                           dest='exclude_genre',
                           action = None,
                           help=_("Regex describing tags to exclude as genres.\n"
@@ -313,18 +313,16 @@ class EPUB_MOBI(CatalogPlugin):
         keys.sort()
         build_log.append(" opts:")
         for key in keys:
-            if key in ['catalog_title','author_clip','connected_kindle','description_clip',
-                       'exclude_book_marker','exclude_genre','exclude_tags',
-                       'exclusion_rules', 'fmt',
+            if key in ['catalog_title','author_clip','connected_kindle','creator',
+                       'description_clip','exclude_book_marker','exclude_genre',
+                       'exclude_tags','exclusion_rules', 'fmt',
                        'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                        'thumb_width','use_existing_cover','wishlist_tag']:
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
-
         if opts.verbose:
             log('\n'.join(line for line in build_log))
-
         self.opts = opts
 
         # Launch the Catalog builder
@@ -348,6 +346,8 @@ class EPUB_MOBI(CatalogPlugin):
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
+            recommendations.append(('output_profile', opts.output_profile,
+                OptionRecommendation.HIGH))
 
             """
             >>> Use to debug generated catalog code before pipeline conversion <<<
@@ -362,9 +362,7 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('debug_pipeline', dp,
                     OptionRecommendation.HIGH))
 
-            if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
-                recommendations.append(('output_profile', opts.output_profile,
-                    OptionRecommendation.HIGH))
+            if opts.output_profile and opts.output_profile.startswith("kindle"):
                 recommendations.append(('no_inline_toc', True,
                     OptionRecommendation.HIGH))
                 recommendations.append(('book_producer',opts.output_profile,
