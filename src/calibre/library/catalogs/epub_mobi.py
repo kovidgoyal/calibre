@@ -51,7 +51,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'\n"
                            "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[.+\]|\+',
+                          default='\[.+\]|^\+$',
                           dest='exclude_genre',
                           action = None,
                           help=_("Regex describing tags to exclude as genres.\n"
@@ -313,18 +313,16 @@ class EPUB_MOBI(CatalogPlugin):
         keys.sort()
         build_log.append(" opts:")
         for key in keys:
-            if key in ['catalog_title','author_clip','connected_kindle','description_clip',
-                       'exclude_book_marker','exclude_genre','exclude_tags',
-                       'exclusion_rules', 'fmt',
+            if key in ['catalog_title','author_clip','connected_kindle','creator',
+                       'description_clip','exclude_book_marker','exclude_genre',
+                       'exclude_tags','exclusion_rules', 'fmt',
                        'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                        'thumb_width','use_existing_cover','wishlist_tag']:
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
-
         if opts.verbose:
             log('\n'.join(line for line in build_log))
-
         self.opts = opts
 
         # Launch the Catalog builder

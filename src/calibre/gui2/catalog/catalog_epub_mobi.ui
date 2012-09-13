@@ -208,7 +208,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
          </size>
         </property>
         <property name="toolTip">
-         <string extracomment="Default: \[[\w]*\]"/>
+         <string/>
         </property>
        </widget>
       </item>
@@ -223,7 +223,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="regex_results_label">
         <property name="minimumSize">
          <size>
           <width>175</width>
