@@ -8,8 +8,8 @@ import shutil
 
 from PyQt4.Qt import QString, SIGNAL
 
-from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
-    GroupModel
+from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
+    GroupModel, gprefs)
 from calibre.customize.ui import available_output_formats
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -62,6 +62,9 @@ class BulkConfig(Config):
                 'settings.'))
             o.setChecked(False)
 
+        geom = gprefs.get('convert_bulk_dialog_geom', None)
+        if geom:
+            self.restoreGeometry(geom)
 
     def setup_pipeline(self, *args):
         oidx = self.groups.currentIndex().row()
@@ -138,4 +141,10 @@ class BulkConfig(Config):
             recs.update(x)
         self._recommendations = recs
         ResizableDialog.accept(self)
+
+    def done(self, r):
+        if self.isVisible():
+            gprefs['convert_bulk_dialog_geom'] = \
+                bytearray(self.saveGeometry())
+        return ResizableDialog.done(self, r)
 

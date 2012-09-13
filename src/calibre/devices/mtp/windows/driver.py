@@ -220,7 +220,8 @@ class MTP_DEVICE(MTPDeviceBase):
                 all_storage.append(storage)
                 items.append(id_map.itervalues())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
-            debug('Filesystem metadata loaded in %g seconds'%(time.time()-st))
+            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
+                time.time()-st, len(self._filesystem_cache)))
         return self._filesystem_cache
 
     @same_thread

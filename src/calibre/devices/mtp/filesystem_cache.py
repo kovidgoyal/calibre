@@ -230,6 +230,9 @@ class FilesystemCache(object):
                     continue # Ignore .txt files in the root
                 yield x
 
+    def __len__(self):
+        return len(self.id_map)
+
     def resolve_mtp_id_path(self, path):
         if not path.startswith('mtp:::'):
             raise ValueError('%s is not a valid MTP path'%path)
