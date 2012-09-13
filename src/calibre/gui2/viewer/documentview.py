@@ -21,7 +21,7 @@ from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
-from calibre.gui2.viewer.config import config, ConfigDialog
+from calibre.gui2.viewer.config import config, ConfigDialog, load_themes
 from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
@@ -31,8 +31,7 @@ class Document(QWebPage): # {{{
 
     page_turn = pyqtSignal(object)
 
-    def set_font_settings(self):
-        opts = config().parse()
+    def set_font_settings(self, opts):
         settings = self.settings()
         settings.setFontSize(QWebSettings.DefaultFontSize, opts.default_font_size)
         settings.setFontSize(QWebSettings.DefaultFixedFontSize, opts.mono_font_size)
@@ -47,11 +46,15 @@ class Document(QWebPage): # {{{
     def do_config(self, parent=None):
         d = ConfigDialog(self.shortcuts, parent)
         if d.exec_() == QDialog.Accepted:
-            with self.page_position:
-                self.set_font_settings()
-                self.set_user_stylesheet()
-                self.misc_config()
-                self.after_load()
+            opts = config().parse()
+            self.apply_settings(opts)
+
+    def apply_settings(self, opts):
+        with self.page_position:
+            self.set_font_settings(opts)
+            self.set_user_stylesheet(opts)
+            self.misc_config(opts)
+            self.after_load()
 
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
@@ -87,7 +90,8 @@ class Document(QWebPage): # {{{
         self.all_viewer_plugins = tuple(all_viewer_plugins())
         for pl in self.all_viewer_plugins:
             pl.load_fonts()
-        self.set_font_settings()
+        opts = config().parse()
+        self.set_font_settings(opts)
 
         # Security
         settings.setAttribute(QWebSettings.JavaEnabled, False)
@@ -98,8 +102,8 @@ class Document(QWebPage): # {{{
         # Miscellaneous
         settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
         settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
-        self.set_user_stylesheet()
-        self.misc_config()
+        self.set_user_stylesheet(opts)
+        self.misc_config(opts)
 
         # Load javascript
         self.mainFrame().javaScriptWindowObjectCleared.connect(
@@ -112,8 +116,7 @@ class Document(QWebPage): # {{{
         mf.setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
         mf.setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
-    def set_user_stylesheet(self):
-        opts = config().parse()
+    def set_user_stylesheet(self, opts):
         bg = opts.background_color or 'white'
         brules = ['background-color: %s !important'%bg]
         prefix = '''
@@ -127,8 +130,7 @@ class Document(QWebPage): # {{{
         data += b64encode(raw.encode('utf-8'))
         self.settings().setUserStyleSheetUrl(QUrl(data))
 
-    def misc_config(self):
-        opts = config().parse()
+    def misc_config(self, opts):
         self.hyphenate = opts.hyphenate
         self.hyphenate_default_lang = opts.hyphenate_default_lang
         self.do_fit_images = opts.fit_images
@@ -556,6 +558,15 @@ class DocumentView(QWebView): # {{{
 
     def config(self, parent=None):
         self.document.do_config(parent)
+        if self.document.in_fullscreen_mode:
+            self.document.switch_to_fullscreen_mode()
+        self.setFocus(Qt.OtherFocusReason)
+
+    def load_theme(self, theme_id):
+        themes = load_themes()
+        theme = themes[theme_id]
+        opts = config(theme).parse()
+        self.document.apply_settings(opts)
         if self.document.in_fullscreen_mode:
             self.document.switch_to_fullscreen_mode()
         self.setFocus(Qt.OtherFocusReason)

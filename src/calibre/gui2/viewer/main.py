@@ -245,8 +245,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_back.triggered[bool].connect(self.back)
         self.action_forward.triggered[bool].connect(self.forward)
         self.action_bookmark.triggered[bool].connect(self.bookmark)
-        self.action_preferences.triggered.connect(lambda :
-                self.view.config(self))
+        self.action_preferences.triggered.connect(self.do_config)
         self.pos.editingFinished.connect(self.goto_page_num)
         self.vertical_scrollbar.valueChanged[int].connect(lambda
                 x:self.goto_page(x/100.))
@@ -259,6 +258,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_bookmark.setMenu(self.bookmarks_menu)
         self.set_bookmarks([])
 
+        self.themes_menu = QMenu()
+        self.action_load_theme.setMenu(self.themes_menu)
+        self.tool_bar.widgetForAction(self.action_load_theme).setPopupMode(QToolButton.InstantPopup)
+        self.load_theme_menu()
 
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
@@ -844,6 +847,21 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         for o in ('tool_bar', 'tool_bar2', 'view', 'horizontal_scrollbar', 'vertical_scrollbar'):
             getattr(self, o).setEnabled(False)
         self.setCursor(Qt.BusyCursor)
+
+    def load_theme_menu(self):
+        from calibre.gui2.viewer.config import load_themes
+        self.themes_menu.clear()
+        for key in load_themes():
+            title = key[len('theme_'):]
+            self.themes_menu.addAction(title, partial(self.load_theme,
+                key))
+
+    def load_theme(self, theme_id):
+        self.view.load_theme(theme_id)
+
+    def do_config(self):
+        self.view.config(self)
+        self.load_theme_menu()
 
     def bookmark(self, *args):
         num = 1
