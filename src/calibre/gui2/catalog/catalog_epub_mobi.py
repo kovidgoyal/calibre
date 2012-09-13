@@ -75,7 +75,7 @@ class PluginWidget(QWidget,Ui_Form):
                             ['radio_button' for i in RadioButtonControls])
 
         # LineEditControls
-        option_fields += zip(['exclude_genre'],['\[.+\]|\+'],['line_edit'])
+        option_fields += zip(['exclude_genre'],['\[.+\]|^\+$'],['line_edit'])
 
         # TextEditControls
         #option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
@@ -156,6 +156,32 @@ class PluginWidget(QWidget,Ui_Form):
         Output:
          self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
         """
+        def _truncated_results(excluded_tags, limit=180):
+            '''
+            Limit number of genres displayed to avoid dialog explosion
+            '''
+            start = []
+            end = []
+            lower = 0
+            upper = len(excluded_tags) -1
+            excluded_tags.sort()
+            while True:
+                if lower > upper:
+                    break
+                elif lower == upper:
+                    start.append(excluded_tags[lower])
+                    break
+                start.append(excluded_tags[lower])
+                end.insert(0,excluded_tags[upper])
+                if len(', '.join(start)) + len(', '.join(end)) > limit:
+                    break
+                lower += 1
+                upper -= 1
+            if excluded_tags == start + end:
+                return ', '.join(excluded_tags)
+            else:
+                return "%s  ...  %s" % (', '.join(start), ', '.join(end))
+
         results = _('No genres will be excluded')
         if not regex:
             self.exclude_genre_results.clear()
@@ -176,7 +202,7 @@ class PluginWidget(QWidget,Ui_Form):
                 if set(excluded_tags) == set(self.all_tags):
                     results = _("All genres will be excluded")
                 else:
-                    results = ', '.join(sorted(excluded_tags))
+                    results = _truncated_results(excluded_tags)
         finally:
             if self.DEBUG:
                 print(results)
