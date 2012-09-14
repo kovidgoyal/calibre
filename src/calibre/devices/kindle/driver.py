@@ -289,7 +289,7 @@ class KINDLE2(KINDLE):
     description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
 
     FORMATS        = ['azw3'] + KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr']
+    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
