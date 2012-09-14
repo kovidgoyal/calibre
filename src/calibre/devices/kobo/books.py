@@ -8,6 +8,7 @@ import time
 
 from calibre.utils.date import parse_date
 from calibre.devices.usbms.books import Book as Book_
+from calibre.ebooks.metadata import author_to_author_sort
 
 class Book(Book_):
 
@@ -20,6 +21,7 @@ class Book(Book_):
             self.authors = ['']
         else:
             self.authors = [authors]
+        self.author_sort = author_to_author_sort(self.authors[0])
 
         if not title:
             self.title = _('Unknown')

@@ -5,10 +5,10 @@ __copyright__ = '2010, Greg Riker'
 
 import datetime, htmlentitydefs, os, re, shutil, unicodedata, zlib
 from copy import deepcopy
-from operator import itemgetter
 from xml.sax.saxutils import escape
 
-from calibre import (prepare_string_for_xml, strftime, force_unicode)
+from calibre import (prepare_string_for_xml, strftime, force_unicode,
+        isbytestring)
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
