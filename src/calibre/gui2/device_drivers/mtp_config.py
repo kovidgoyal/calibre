@@ -208,11 +208,12 @@ class Rule(QWidget):
         self.l = l = QHBoxLayout()
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_('Send the '))
+        p, s = _('Send the %s format to the folder:').partition('%s')[0::2]
+        self.l1 = l1 = QLabel(p)
         l.addWidget(l1)
         self.fmt = f = QComboBox(self)
         l.addWidget(f)
-        self.l2 = l2 = QLabel(_(' format to the folder: '))
+        self.l2 = l2 = QLabel(s)
         l.addWidget(l2)
         self.folder = f = QLineEdit(self)
         f.setPlaceholderText(_('Folder on the device'))

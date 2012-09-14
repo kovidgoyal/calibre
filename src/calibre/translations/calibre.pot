@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.69\n"
-"POT-Creation-Date: 2012-09-14 09:40+IST\n"
-"PO-Revision-Date: 2012-09-14 09:40+IST\n"
+"POT-Creation-Date: 2012-09-14 17:27+IST\n"
+"PO-Revision-Date: 2012-09-14 17:27+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -30,7 +30,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:77
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:25
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:656
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/books.py:44
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:204
@@ -155,10 +155,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:408
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1062
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1270
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1273
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1276
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1364
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1279
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1367
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:245
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:256
@@ -204,7 +204,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:356
 msgid "Cannot configure"
 msgstr ""
 
@@ -7834,7 +7834,7 @@ msgid "Cannot configure the device while there are running device jobs."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:897
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:359
 #, python-format
 msgid "Configure %s"
 msgstr ""
@@ -8012,7 +8012,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:138
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:225
 msgid "Browse for a folder on the device"
 msgstr ""
 
@@ -8023,64 +8023,61 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:211
-msgid "Send the "
+#, python-format
+msgid "Send the %s format to the folder:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:215
-msgid " format to the folder: "
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:219
 msgid "Folder on the device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:227
 msgid "&Remove rule"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:271
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:272
 msgid "Format specific sending"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:276
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:277
 msgid ""
 "You can create rules that control where ebooks of a specific\n"
 "            format are sent to on the device. These will take precedence over\n"
 "            the folders specified above."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:298
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:299
 msgid "Add a &new rule"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:337
 #, python-format
 msgid "The <b>%s</b> device has no serial number, it cannot be configured"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:342
 msgid "<b>No MTP device connected.</b><p> You can only configure the MTP device plugin when a device is connected."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:348
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:349
 msgid "If you want to un-ignore a previously ignored MTP device, use the \"Ignored devices\" tab."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:369
 #, python-format
 msgid "Choose the formats to send to the %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:372
 #, python-format
 msgid "&Ignore the %s in calibre"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:386
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:387
 msgid "Ignored devices"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:393
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:394
 #, python-format
 msgid "The %s will be ignored in calibre"
 msgstr ""
@@ -11165,13 +11162,13 @@ msgid "Modified"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:785
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1400
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1403
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:312
 msgid "The lookup/search name is \"{0}\""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:791
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1402
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1405
 msgid "This book's UUID is \"{0}\""
 msgstr ""
 
@@ -11204,11 +11201,11 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1382
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1385
 msgid "Marked for deletion"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1385
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1388
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr ""
 
