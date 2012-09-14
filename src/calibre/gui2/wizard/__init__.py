@@ -446,7 +446,7 @@ class KindlePage(QWizardPage, KindleUI):
             if not accounts: accounts = {}
             for y in accounts.values():
                 y[2] = False
-            accounts[x] = ['AZW, MOBI, TPZ, PRC, AZW1', True, True]
+            accounts[x] = ['AZW, MOBI, TPZ, PRC, AZW1, AZW3', True, True]
             conf.set('accounts', accounts)
 
     def nextId(self):

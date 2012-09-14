@@ -23,7 +23,7 @@ def get_metadata(stream):
         if stream_type:
             stream_type = stream_type[1:]
             if stream_type in ('lit', 'opf', 'prc', 'mobi', 'fb2', 'epub',
-                               'rb', 'imp', 'pdf', 'lrf', 'azw'):
+                               'rb', 'imp', 'pdf', 'lrf', 'azw', 'azw1', 'azw3'):
                 with TemporaryDirectory() as tdir:
                     with CurrentDir(tdir):
                         path = zf.extract(f)

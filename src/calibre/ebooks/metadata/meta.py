@@ -15,7 +15,7 @@ _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
                        'rtf', 'fb2', 'pdf', 'prc', 'odt',
                        'epub', 'lit', 'lrx', 'lrf', 'mobi',
-                       'rb', 'imp', 'azw', 'snb'
+                       'rb', 'imp', 'azw', 'azw3', 'azw1' 'snb'
                       ]
 
 # The priorities for loading metadata from different file types
@@ -85,7 +85,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'
-    if stream_type in ('mobi', 'prc', 'azw'):
+    if stream_type in ('mobi', 'prc', 'azw', 'azw1', 'azw3'):
         stream_type = 'mobi'
     if stream_type in ('odt', 'ods', 'odp', 'odg', 'odf'):
         stream_type = 'odt'

@@ -54,8 +54,16 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         items = metadata[term]
         if term == 'creator':
             if prefer_author_sort:
-                creators = [unicode(c.file_as or c) for c in
+                # This is a bit hackish... We only get the first item in the creators list,
+                # because we only care about the file_as property, and it contains *all* the authors in every creator markup,
+                # so we only need one, or we end up with duplicates ;).
+                # We then end up with a single item in our list, that contains every authors, in author sort syntax, separated by an ' & ' character.
+                # That's not good enough, because we want each author in a separate entry in the list, so we just split this on every & ;).
+                # This way, we properly end up with multiple Creator fields in the EXTH header, one for each author, like KindleGen :).
+                all_creators = [unicode(c.file_as or c) for c in
                         items][:1]
+                for creator in all_creators:
+                    creators = creator.split(' & ')
             else:
                 creators = [unicode(c) for c in items]
             items = creators
