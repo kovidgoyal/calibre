@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil
 from collections import namedtuple
 
 from calibre import strftime
@@ -346,8 +346,6 @@ class EPUB_MOBI(CatalogPlugin):
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
-            recommendations.append(('output_profile', opts.output_profile,
-                OptionRecommendation.HIGH))
 
             """
             >>> Use to debug generated catalog code before pipeline conversion <<<
@@ -362,7 +360,9 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('debug_pipeline', dp,
                     OptionRecommendation.HIGH))
 
-            if opts.output_profile and opts.output_profile.startswith("kindle"):
+            if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
+                recommendations.append(('output_profile', opts.output_profile,
+                    OptionRecommendation.HIGH))
                 recommendations.append(('no_inline_toc', True,
                     OptionRecommendation.HIGH))
                 recommendations.append(('book_producer',opts.output_profile,
