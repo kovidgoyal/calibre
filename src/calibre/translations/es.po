@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-08 11:42+0000\n"
-"PO-Revision-Date: 2012-09-10 16:45+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2012-09-14 02:59+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-11 04:50+0000\n"
-"X-Generator: Launchpad (build 15924)\n"
+"X-Launchpad-Export-Date: 2012-09-14 04:35+0000\n"
+"X-Generator: Launchpad (build 15944)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid ""
@@ -12883,7 +12883,7 @@ msgstr "Enviar correo de prueba desde %s a:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:134
 msgid "&Test"
-msgstr "Prueba"
+msgstr "&Probar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"

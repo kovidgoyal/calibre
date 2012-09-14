@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-08 11:42+0000\n"
-"PO-Revision-Date: 2012-08-20 16:59+0000\n"
-"Last-Translator: Eugene Marshal <Unknown>\n"
+"PO-Revision-Date: 2012-09-13 19:11+0000\n"
+"Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-09-09 04:46+0000\n"
-"X-Generator: Launchpad (build 15914)\n"
+"X-Launchpad-Export-Date: 2012-09-14 04:35+0000\n"
+"X-Generator: Launchpad (build 15944)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1015,12 +1015,16 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>main memory</b>. The first one that exists will be used"
 msgstr ""
+"Разделённый запятыми список папок для отправки книг в <b>основную память</b> "
+"устройства. Будет использована первая существующая"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
 msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>storage cards</b>. The first one that exists will be used"
 msgstr ""
+"Разделённый запятыми список папок для отправки книг на <b>карты памяти</b> "
+"устройства. Будет использована первая существующая"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:310
 msgid "Communicate with S60 phones."
@@ -1852,69 +1856,69 @@ msgstr "Получение информацию об устройстве..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:143
 msgid "Reading metadata from device"
-msgstr ""
+msgstr "Читаю метаданные из устройства"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:176
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "Читаю метаданные из %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:195
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "Обновляю кэш метаданных на устройстве"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:197
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "Завершено чтение метаданных из устройства"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:346
 #, python-format
 msgid "Transferred %s to device"
-msgstr ""
+msgstr "Передано %s на устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:348
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "Передача на устройство завершена..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:369
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "Добавлено %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:371
 msgid "Adding complete"
-msgstr ""
+msgstr "Добавление завершено"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:387
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "Удаление книги из устройства..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "Удалено %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:394
 msgid "All books deleted"
-msgstr ""
+msgstr "Все книги удалены"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:397
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "Удаление книг из метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:409
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "Удалено %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:411
 msgid "All books removed"
-msgstr ""
+msgstr "Все книги удалены"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:178
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:267
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Неизвестное MTP устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:64
 msgid ""
@@ -1922,6 +1926,9 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
+"Сервис Портативных Устройств Windows недоступен на вашем компьютере. "
+"Возможно вам потребуется установить Windows Media Player 11 или более новый "
+"и перезагрузить компьютер"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2110,7 +2117,7 @@ msgstr "Соединиться с приложением Smart Device"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:131
 msgid "All by something"
-msgstr ""
+msgstr "Всё на что-то"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:134
 msgid "Enable connections at startup"
@@ -2168,6 +2175,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
 msgstr ""
+"Разделённый запятыми список полей метаданных для превращения в коллекцию на "
+"устройстве"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:150
 msgid "Possibilities include: series, tags, authors, etc"
