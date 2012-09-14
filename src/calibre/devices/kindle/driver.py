@@ -290,6 +290,7 @@ class KINDLE2(KINDLE):
 
     FORMATS        = ['azw3'] + KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
+    # On the Touch, there's also .asc files, but not using the same basename (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in the .sdr sidecar folder
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
