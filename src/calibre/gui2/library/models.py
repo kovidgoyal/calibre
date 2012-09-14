@@ -1193,7 +1193,10 @@ class DeviceBooksModel(BooksModel): # {{{
                     ax = authors_to_string(self.db[x].authors)
                 except:
                     ax = ''
-            return ax
+            try:
+                return sort_key(ax)
+            except:
+                return ax
 
         keygen = {
                 'title': ('title_sorter', lambda x: sort_key(x) if x else ''),
