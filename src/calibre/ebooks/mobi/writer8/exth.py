@@ -13,6 +13,7 @@ from io import BytesIO
 
 from calibre.ebooks.mobi.utils import utf8_text
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.ebooks.metadata import authors_to_sort_string
 
 EXTH_CODES = {
     'creator': 100,
@@ -54,8 +55,8 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         items = metadata[term]
         if term == 'creator':
             if prefer_author_sort:
-                creators = [unicode(c.file_as or c) for c in
-                        items][:1]
+                creators = [authors_to_sort_string([unicode(c)]) for c in
+                            items]
             else:
                 creators = [unicode(c) for c in items]
             items = creators
