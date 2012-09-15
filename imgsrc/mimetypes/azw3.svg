@@ -15,8 +15,8 @@
    height="128"
    id="svg2606"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="mobi.svg"
-   inkscape:export-filename="/home/niluje/Patchland/calibre/imgsrc/mimetypes/mobi.png"
+   sodipodi:docname="azw3.svg"
+   inkscape:export-filename="/home/niluje/Patchland/calibre/imgsrc/mimetypes/azw3.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <sodipodi:namedview
@@ -33,8 +33,8 @@
      id="namedview45"
      showgrid="false"
      inkscape:zoom="1.84375"
-     inkscape:cx="64"
-     inkscape:cy="64"
+     inkscape:cx="-11.118644"
+     inkscape:cy="42.305085"
      inkscape:window-x="-2"
      inkscape:window-y="-3"
      inkscape:window-maximized="1"
@@ -181,7 +181,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -211,16 +211,16 @@
        id="path14523"
        style="fill:url(#linearGradient10213);fill-opacity:1" />
     <text
-       x="64.902344"
+       x="64.392578"
        y="32.103516"
        id="text3772"
        xml:space="preserve"
        style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
        sodipodi:linespacing="125%"><tspan
-         x="64.902344"
-         y="32.103516"
-         id="tspan3774"
-         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans">mobi</tspan></text>
+         sodipodi:role="line"
+         id="tspan3026"
+         x="64.392578"
+         y="32.103516">KF8</tspan></text>
     <path
        d="m 68.227,60.477999 c 0,2.157 0.052,3.954 -1.035,5.874 -0.88,1.561 -2.279,2.517 -3.833,2.517 -2.121,0 -3.366,-1.62 -3.366,-4.015 C 59.993,60.14 64.225,59.283 68.226,59.283 v 1.194999 z m 5.579,13.496 c -0.365,0.332 -0.896,0.352 -1.307,0.132 -1.838,-1.528 -2.167,-2.231 -3.174,-3.69 -3.035,3.094 -5.188,4.023 -9.123,4.023 -4.663,0 -8.284,-2.876 -8.284,-8.629 0,-4.49 2.433,-7.543999 5.899,-9.044999 3.005,-1.317 7.202,-1.556 10.41,-1.914 v -0.723 c 0,-1.313 0.104,-2.875 -0.671,-4.012 -0.674,-1.021 -1.968,-1.437 -3.106,-1.437 -2.111,0 -3.99,1.078 -4.45,3.321 -0.097,0.498 -0.46,0.991 -0.962,1.017 l -5.364,-0.581 c -0.456,-0.102 -0.958,-0.463 -0.828,-1.155 1.233,-6.511 7.109,-8.475 12.378,-8.475 2.693,0 6.215,0.719 8.335,2.757 2.692997,2.515 2.431997,5.869 2.431997,9.524 v 8.622999 c 0,2.596 1.081,3.732 2.091,5.128 0.354,0.503 0.434,1.103 -0.018,1.473 -1.131,0.949 -3.138997,2.693 -4.243997,3.676 l -0.014,-0.013 z"
        id="path4047"

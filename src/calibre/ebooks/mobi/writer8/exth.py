@@ -11,7 +11,7 @@ import re
 from struct import pack
 from io import BytesIO
 
-from calibre.ebooks.mobi.utils import utf8_text
+from calibre.ebooks.mobi.utils import (utf8_text, to_base)
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.ebooks.metadata import authors_to_sort_string
 
@@ -31,6 +31,7 @@ EXTH_CODES = {
     'startreading': 116,
     'kf8_header_index': 121,
     'num_of_resources': 125,
+    'kf8_thumbnail_uri': 129,
     'kf8_unknown_count': 131,
     'coveroffset': 201,
     'thumboffset': 202,
@@ -160,7 +161,10 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     if thumbnail_offset is not None:
         exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
             thumbnail_offset))
-        nrecs += 1
+        thumbnail_uri_str = bytes('kindle:embed:%s' %(to_base(thumbnail_offset, base=32, min_num_digits=4)))
+        exth.write(pack(b'>II', EXTH_CODES['kf8_thumbnail_uri'], len(thumbnail_uri_str) + 8))
+        exth.write(thumbnail_uri_str)
+        nrecs += 2
 
     if start_offset is not None:
         try:
