@@ -276,8 +276,10 @@ get_all_removable_disks(struct tagDrives *g_drives)
 
     for(nLoopIndex = 0; nLoopIndex < MAX_DRIVES; nLoopIndex++)
     {
-        // if a drive is present,
-		if(dwDriveMask & 1)
+        // if a drive is present (we ignore the A and B drives as they are
+        // always present (even if no actual floppy is present) and we dont
+        // care about floppies)
+		if(nLoopIndex > 1 && dwDriveMask & 1)
         {
             caDrive[0] = 'A' + nLoopIndex;
 
