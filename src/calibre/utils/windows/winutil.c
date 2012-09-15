@@ -95,6 +95,25 @@ struct tagDrives
     WCHAR volume[BUFSIZE];
 };
 
+static void console_out(LPCWSTR fmt, LPCWSTR arg) {
+    char *bfmt, *barg;
+    int sz;
+
+    sz = WideCharToMultiByte(CP_UTF8, 0, fmt, -1, NULL, 0, NULL, NULL);
+    bfmt = (char*)calloc(sz+1, sizeof(char));
+    WideCharToMultiByte(CP_UTF8, 0, fmt, -1, bfmt, sz, NULL, NULL);
+
+    sz = WideCharToMultiByte(CP_UTF8, 0, arg, -1, NULL, 0, NULL, NULL);
+    barg = (char*)calloc(sz+1, sizeof(char));
+    WideCharToMultiByte(CP_UTF8, 0, arg, -1, barg, sz, NULL, NULL);
+
+    if (bfmt != NULL && barg != NULL) {
+        printf(bfmt, barg);
+        fflush(stdout);
+        free(bfmt); free(barg);
+    }
+}
+
 static PyObject *
 winutil_folder_path(PyObject *self, PyObject *args) {
     int res; DWORD dwFlags;
@@ -581,7 +600,7 @@ get_device_ancestors(HDEVINFO hDevInfo, DWORD index, PyObject *candidates, BOOL 
         // Get the device instance of parent.
         if (CM_Get_Parent(&parent, pos, 0) != CR_SUCCESS) break;
         if (CM_Get_Device_ID(parent, temp, BUFSIZE, 0) == CR_SUCCESS) {
-            if (ddebug) wprintf(L"device id: %s\n", temp); fflush(stdout);
+            if (ddebug) console_out(L"device id: %s\n", temp);
             devid = PyUnicode_FromWideChar(temp, wcslen(temp));
             if (devid) {
                 PyList_Append(candidates, devid);
@@ -637,14 +656,14 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
         interfaceDetailData->DevicePath[length] = L'\\';
         interfaceDetailData->DevicePath[length+1] = 0;
 
-        if (ddebug) wprintf(L"Device path: %s\n", interfaceDetailData->DevicePath); fflush(stdout);
+        if (ddebug) console_out(L"Device path: %s\n", interfaceDetailData->DevicePath);
         // On Vista+ DevicePath contains the information we need.
         temp = PyUnicode_FromWideChar(interfaceDetailData->DevicePath, length);
         if (temp == NULL) return PyErr_NoMemory();
         PyList_Append(candidates, temp);
         Py_DECREF(temp);
         if(GetVolumeNameForVolumeMountPointW(interfaceDetailData->DevicePath, volume, BUFSIZE)) {
-            if (ddebug) wprintf(L"Volume: %s\n", volume); fflush(stdout);
+            if (ddebug) console_out(L"Volume: %s\n", volume);
             
             for(j = 0; j < MAX_DRIVES; j++) {
                 if(g_drives[j].letter != 0 && wcscmp(g_drives[j].volume, volume)==0) {
