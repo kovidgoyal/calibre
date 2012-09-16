@@ -61,13 +61,18 @@ def generate_test_db(library_path, # {{{
     print 'Time per record:', t/float(num_of_records)
 # }}}
 
-def current_library_name():
+def current_library_path():
     from calibre.utils.config import prefs
-    import posixpath
     path = prefs['library_path']
     if path:
         path = path.replace('\\', '/')
         while path.endswith('/'):
             path = path[:-1]
+        return path
+
+def current_library_name():
+    import posixpath
+    path = current_library_path()
+    if path:
         return posixpath.basename(path)
 
