@@ -442,7 +442,7 @@ class Win32Freeze(Command, WixMixIn):
                     '/RELEASE',
                     '/ENTRY:wWinMainCRTStartup',
                     '/OUT:'+exe, self.embed_resources(exe),
-                    obj, 'User32.lib']
+                    obj, 'User32.lib', 'Shlwapi.lib']
             self.run_builder(cmd)
 
         self.info('Creating portable installer')
