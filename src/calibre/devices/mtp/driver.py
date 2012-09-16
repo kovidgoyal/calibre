@@ -45,13 +45,12 @@ class MTP_DEVICE(BASE):
     @property
     def prefs(self):
         if self._prefs is None:
-            from calibre.library.save_to_disk import config
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
             p.defaults['send_to'] = ['Calibre_Companion', 'Books',
                     'eBooks/import', 'eBooks', 'wordplayer/calibretransfer',
                     'sdcard/ebooks', 'kindle']
-            p.defaults['send_template'] = config().parse().send_template
+            p.defaults['send_template'] = '{title} - {authors}'
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
             p.defaults['rules'] = []
@@ -291,7 +290,7 @@ class MTP_DEVICE(BASE):
                 prefix_path=path,
                 path_type=posixpath,
                 maxlen=self.MAX_PATH_LEN,
-                use_subdirs=True,
+                use_subdirs='/' in self.save_template,
                 news_in_folder=self.NEWS_IN_FOLDER,
                 )
         return tuple(x for x in filepath.split('/'))
