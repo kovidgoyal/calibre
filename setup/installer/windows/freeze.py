@@ -385,7 +385,7 @@ class Win32Freeze(Command, WixMixIn):
         zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
         usz = os.path.getsize(zf)
         def cc(src, obj):
-            cflags  = '/c /EHsc /MT /W4 /Ox /nologo /D_UNICODE /DUNICODE'.split()
+            cflags  = '/c /EHsc /MT /W4 /Ox /nologo /D_UNICODE /DUNICODE /DPSAPI_VERSION=1'.split()
             cflags.append(r'/I%s\include'%LZMA)
             cflags.append('/DUNCOMPRESSED_SIZE=%d'%usz)
             if self.newer(obj, [src]):
@@ -414,7 +414,7 @@ class Win32Freeze(Command, WixMixIn):
                         desc='Calibre Portable Installer', extra_data=zf,
                         product_description='Calibre Portable Installer'),
                     xobj, obj, 'User32.lib', 'Shell32.lib', 'easylzma_s.lib',
-                    'Ole32.lib', 'Shlwapi.lib', 'Kernel32.lib']
+                    'Ole32.lib', 'Shlwapi.lib', 'Kernel32.lib', 'Psapi.lib']
             self.run_builder(cmd)
 
         os.remove(zf)

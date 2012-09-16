@@ -10,6 +10,7 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 #include <Shellapi.h>
+#include <Psapi.h>
 #include <wchar.h>
 #include <stdio.h>
 #include <io.h>
@@ -433,6 +434,39 @@ static BOOL move_program() {
 }
 // }}}
 
+static BOOL ensure_not_running(LPCWSTR dest) {
+    DWORD processes[4096], needed, num;
+    unsigned int i;
+    WCHAR name[4*MAX_PATH] = L"<unknown>";
+    HANDLE h;
+    DWORD len;
+    LPWSTR fname = NULL;
+
+    if ( !EnumProcesses( processes, sizeof(processes), &needed ) ) {
+        return true;
+    }
+    num = needed / sizeof(DWORD);
+
+    for (i = 0; i < num; i++) {
+        if (processes[i] == 0) continue;
+        h = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, processes[i] );
+        if (h != NULL) {
+            len = GetProcessImageFileNameW(h, name, 4*MAX_PATH);
+            CloseHandle(h);
+            if (len != 0) {
+                name[len] = 0;
+                fname = PathFindFileName(name);
+                if (wcscmp(fname, L"calibre.exe") == 0) {
+                    show_error(L"Calibre appears to be running on your computer. Please quit it before trying to install Calibre Portable.");
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 static void launch_calibre() {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -515,6 +549,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         if (MessageBox(NULL, mb_msg,
                 L"Upgrade Calibre Portable?", MB_ICONEXCLAMATION | MB_YESNO | MB_TOPMOST) != IDYES)
             goto end;
+    }
+
+    if (existing) {
+        if (!ensure_not_running(fdest)) goto end;
     }
 
     // Make a temp dir to unpack into
