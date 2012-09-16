@@ -146,6 +146,13 @@ class MTP_DEVICE(MTPDeviceBase):
             p(traceback.format_exc())
             return False
 
+        if not pnp_ids:
+            p('The Windows WPD service says there are no portable devices connected')
+            return False
+
+        p('List of WPD PNP ids:')
+        p(pprint.pformat(list(pnp_ids)))
+
         for pnp_id in pnp_ids:
             try:
                 data = self.wpd.device_info(pnp_id)
