@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1347706704(BasicNewsRecipe):
+    title          = u'FC Knudde'
+    __author__  = u'DrMerry'
+    description = u'FC Knudde de populaire sport strip van Toon van Driel (http://www.toonvandriel.nl)'
+    language = u'nl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    cover_url = 'http://a1.mzstatic.com/us/r1000/035/Purple/be/33/70/mzl.qkvshinq.320x480-75.jpg'
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    remove_tags_before = dict(id='title')
+    remove_tags_after = dict(attrs={'class':'entry-content rich-content'})
+    use_embedded_content = True
+
+    feeds          = [(u'FC Knudde', u'http://www.nusport.nl/feeds/rss/fc-knudde.rss')]

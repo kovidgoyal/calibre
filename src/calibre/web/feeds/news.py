@@ -453,11 +453,11 @@ class BasicNewsRecipe(Recipe):
         Override in a subclass to customize extraction of the :term:`URL` that points
         to the content for each article. Return the
         article URL. It is called with `article`, an object representing a parsed article
-        from a feed. See `feedparser <http://www.feedparser.org/docs/>`_.
+        from a feed. See `feedparser <http://packages.python.org/feedparser/>`_.
         By default it looks for the original link (for feeds syndicated via a
         service like feedburner or pheedo) and if found,
         returns that or else returns
-        `article.link <http://www.feedparser.org/docs/reference-entry-link.html>`_.
+        `article.link <http://packages.python.org/feedparser/reference-entry-link.html>`_.
         '''
         for key in article.keys():
             if key.endswith('_origlink'):

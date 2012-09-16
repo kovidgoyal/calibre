@@ -30,7 +30,7 @@ def installers():
     installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
     installers.append(installer_name('tar.bz2', is64bit=True))
     installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
-    installers.append('dist/%s-portable-%s.zip'%(__appname__, __version__))
+    installers.append('dist/%s-portable-installer-%s.exe'%(__appname__, __version__))
     return installers
 
 def installer_description(fname):

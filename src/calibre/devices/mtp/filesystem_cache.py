@@ -204,7 +204,7 @@ class FilesystemCache(object):
             except KeyError:
                 # Parent does not exist, set the parent to be the storage
                 # object
-                sid = p.storage_id
+                sid = item.storage_id
                 if sid not in all_storage_ids:
                     sid = all_storage_ids[0]
                 item.parent_id = sid

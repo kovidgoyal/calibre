@@ -9,7 +9,7 @@ the file are big-endian.
 Layout
 ------
 
-bytes   content             comments 
+bytes   content             comments
 
 4       00010001            Format identifier. Value of 65537 little-endian.
 4       start of next       The offset after ending location of the first header.
@@ -25,7 +25,7 @@ Starts next sequence
 2       unknown             Always 32
 N       second header       String containing the page mapping header
 4*N     padding             The first number given in the page mapping header indicates the number of 0 bytes.
-4*N     page list           
+4*N     page list
 
 
 Content Header
@@ -43,6 +43,14 @@ fileRevisionId      Revision of this file.
 Example:
 {"contentGuid":"d8c14b0","asin":"B000JML5VM","cdeType":"EBOK","fileRevisionId":"1296874359405"}
 
+
+In devices with KF8 support, we're seeing an extended content header (which seems to be required by some FW versions for KF8 files, like FW 3.4):
+
+format              Mobi version. MOBI_8 for KF8, MOBI_7 for legacy mobi files.
+acr                 Palm DB name
+
+Example:
+{"contentGuid":"f2fc7597","asin":"B003M68YKM","cdeType":"EBOK","format":"MOBI_8","fileRevisionId":"1342776186889","acr":"CR!1F5WDHWWVN4Y78MA87Z13H9K6RKE"}
 
 Page Mapping Header
 -------------------
