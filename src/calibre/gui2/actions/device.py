@@ -139,10 +139,13 @@ class ShareConnMenu(QMenu): # {{{
     def setup_email(self, *args):
         self.config_email.emit()
 
-    def set_state(self, device_connected):
+    def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
         self.connect_to_itunes_action.setEnabled(not device_connected)
         self.connect_to_bambook_action.setEnabled(not device_connected)
+        enabled = not device_connected or (device_connected and
+                device.__class__.__name__ == 'SMART_DEVICE_APP')
+        self.control_smartdevice_action.setEnabled(enabled)
 
 
 # }}}
@@ -187,8 +190,8 @@ class ConnectShareAction(InterfaceAction):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
 
-    def set_state(self, device_connected):
-        self.share_conn_menu.set_state(device_connected)
+    def set_state(self, device_connected, device):
+        self.share_conn_menu.set_state(device_connected, device)
 
     def build_email_entries(self):
         m = self.gui.iactions['Send To Device'].qaction.menu()

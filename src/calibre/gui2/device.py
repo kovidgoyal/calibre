@@ -929,7 +929,8 @@ class DeviceMixin(object): # {{{
         self._sync_menu.fetch_annotations.connect(
                 self.iactions['Fetch Annotations'].fetch_annotations)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
-        self.iactions['Connect Share'].set_state(self.device_connected)
+        self.iactions['Connect Share'].set_state(self.device_connected,
+                None)
         if self.device_connected:
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
@@ -968,7 +969,8 @@ class DeviceMixin(object): # {{{
     # Device connected {{{
 
     def set_device_menu_items_state(self, connected):
-        self.iactions['Connect Share'].set_state(connected)
+        self.iactions['Connect Share'].set_state(connected,
+                self.device_manager.device)
         if connected:
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
