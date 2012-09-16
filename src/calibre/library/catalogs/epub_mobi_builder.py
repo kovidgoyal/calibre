@@ -33,6 +33,12 @@ class CatalogBuilder(object):
         catalog = Catalog(notification=Reporter())
         catalog.build_sources()
     Options managed in gui2.catalog.catalog_epub_mobi.py
+
+    Turned off fetch_bookmarks as of 0.8.70
+    self.generate_recently_read = True if (_opts.generate_recently_added and
+                                           _opts.connected_kindle and
+                                           self.generate_for_kindle_mobi) else False
+    Does not work with AZW3, interferes with new prefix handling
     '''
 
     DEBUG = False
@@ -85,9 +91,9 @@ class CatalogBuilder(object):
     @property
     def SYMBOL_READING(self):
         if self.generate_for_kindle_mobi:
-            return self.format_prefix('&#x25b7;')
+            return '&#x25b7;'
         else:
-            return self.format_prefix('&nbsp;')
+            return '&nbsp;'
 
 
     def __init__(self, db, _opts, plugin,
@@ -123,9 +129,7 @@ class CatalogBuilder(object):
         self.content_dir = os.path.join(self.catalog_path, "content")
         self.current_step = 0.0
         self.error = []
-        self.generate_recently_read = True if (_opts.generate_recently_added and
-                                               _opts.connected_kindle and
-                                               self.generate_for_kindle_mobi) else False
+        self.generate_recently_read = False
         self.genres = []
         self.genre_tags_dict = None
         self.html_filelist_1 = []
@@ -959,7 +963,7 @@ class CatalogBuilder(object):
         """
 
         from calibre.devices.usbms.device import Device
-        from calibre.devices.kindle.driver import Bookmark
+        from calibre.devices.kindle.bookmark import Bookmark
         from calibre.ebooks.metadata import MetaInformation
 
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
@@ -985,7 +989,10 @@ class CatalogBuilder(object):
                     file_fmts.add(fmt)
 
                 bookmark_extension = None
-                if file_fmts.intersection(mbp_formats):
+                if file_fmts.intersection(han_formats):
+                    book_extension = list(file_fmts.intersection(han_formats))[0]
+                    bookmark_extension = 'han'
+                elif file_fmts.intersection(mbp_formats):
                     book_extension = list(file_fmts.intersection(mbp_formats))[0]
                     bookmark_extension = 'mbp'
                 elif file_fmts.intersection(tan_formats):
@@ -1012,6 +1019,7 @@ class CatalogBuilder(object):
                 path_map.pop(id)
             return path_map, book_ext
 
+        self.bookmarked_books = {}
         if self.generate_recently_read:
             self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
 
@@ -1046,8 +1054,6 @@ class CatalogBuilder(object):
                         bookmarks[id] = ((myBookmark,book))
 
             self.bookmarked_books = bookmarks
-        else:
-            self.bookmarked_books = {}
 
     def filter_db_tags(self):
         """ Remove excluded tags from data set, return normalized genre list.
@@ -2849,7 +2855,10 @@ class CatalogBuilder(object):
 
         self.update_progress_full_step(_("NCX for Descriptions"))
 
-        # --- Construct the 'Books by Title' section ---
+        sort_descriptions_by = self.books_by_author if self.opts.sort_descriptions_by_author \
+                                                    else self.books_by_title
+
+        # --- Construct the 'Descriptions' section ---
         ncx_soup = self.ncx_soup
         body = ncx_soup.find("navPoint")
         btc = len(body.contents)
@@ -2858,7 +2867,7 @@ class CatalogBuilder(object):
         navPointTag = Tag(ncx_soup, 'navPoint')
         if self.generate_for_kindle_mobi:
             navPointTag['class'] = "section"
-        navPointTag['id'] = "bytitle-ID"
+        navPointTag['id'] = "bydescription-ID"
         navPointTag['playOrder'] = self.play_order
         self.play_order += 1
         navLabelTag = Tag(ncx_soup, 'navLabel')
@@ -2869,13 +2878,11 @@ class CatalogBuilder(object):
         navPointTag.insert(nptc, navLabelTag)
         nptc += 1
         contentTag = Tag(ncx_soup,"content")
-        contentTag['src'] = "content/book_%d.html" % int(self.books_by_author[0]['id'])
+        contentTag['src'] = "content/book_%d.html" % int(sort_descriptions_by[0]['id'])
         navPointTag.insert(nptc, contentTag)
         nptc += 1
 
         # Loop over the titles
-        sort_descriptions_by = self.books_by_author if self.opts.sort_descriptions_by_author \
-                                                    else self.books_by_title
 
         for book in sort_descriptions_by:
             navPointVolumeTag = Tag(ncx_soup, 'navPoint')
