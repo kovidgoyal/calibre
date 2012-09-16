@@ -62,7 +62,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
     already have been called (for example in the main GUI), pass in the list of
     device plugins as the plugins parameter.
     '''
-    import textwrap
+    import textwrap, platform
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
     from calibre.constants import iswindows, isosx, __version__
@@ -85,7 +85,21 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
                 out('Startup failed for device plugin: %s'%d)
 
     try:
-        out('Version:', __version__)
+        out('Calibre Version:', __version__)
+        out(platform.platform(), platform.system())
+        out(platform.system_alias(platform.system(), platform.release(),
+                platform.version()))
+        out('Python', platform.python_version())
+        try:
+            if iswindows:
+                out('Windows:', platform.win32_ver())
+            elif isosx:
+                out('OSX:', platform.mac_ver())
+            else:
+                out('Linux:', platform.linux_distribution())
+        except:
+            pass
+
         s = DeviceScanner()
         s.scan()
         devices = (s.devices)
