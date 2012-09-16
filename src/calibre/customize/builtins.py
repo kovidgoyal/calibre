@@ -1639,7 +1639,6 @@ plugins += [
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore, StoreSonyStore,
-    StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
