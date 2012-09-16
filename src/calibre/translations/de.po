@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-14 12:01+0000\n"
-"PO-Revision-Date: 2012-09-14 23:03+0000\n"
-"Last-Translator: sarah <sarah@tigerbus.de>\n"
+"PO-Revision-Date: 2012-09-15 09:11+0000\n"
+"Last-Translator: Klaus Thenmayer <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-15 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-09-16 04:38+0000\n"
 "X-Generator: Launchpad (build 15944)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2146,7 +2146,7 @@ msgstr "Mit SmartDevice Apps kommunizieren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:134
 msgid "All by something"
-msgstr ""
+msgstr "Von allem etwas"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:137
 msgid "Enable connections at startup"
@@ -3285,16 +3285,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
 msgid "The font family used to render serif fonts"
-msgstr ""
+msgstr "Die Schriftfamilie wird verwendet, um in Serifenschriften zu rendern"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:96
 msgid "The font family used to render sans-serif fonts"
 msgstr ""
+"Die Schriftfamilie wird verwendet, um serifenlose Schriften zu rendern"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid "The font family used to render monospaced fonts"
-msgstr ""
+msgstr "Die Schriftfamilie wird verwendet, um Monospace-Schriften zu rendern"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:106
 msgid "The default font size"
@@ -3302,7 +3303,7 @@ msgstr "Voreingestellte Schriftgröße"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:109
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "Die Standard-Schriftgröße für Monospace-Text"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -4263,7 +4264,7 @@ msgstr "Veränderungen am E-Book durchführen ..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:1125
 #, python-format
 msgid "Running %s plugin"
-msgstr ""
+msgstr "%s Plugin ausgeführt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -7578,11 +7579,11 @@ msgstr "Kataloge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
-msgstr ""
+msgstr "Buch einlesen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:105
 msgid "Wishlist item"
-msgstr ""
+msgstr "Wunschlisteneintrag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:795
@@ -7623,6 +7624,8 @@ msgstr "Sind Sie sicher, dass Sie '%s' löschen wollen?"
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
 msgstr ""
+"Sind Sie sich sicher, dass Sie die Regeln #%(first)d-%(last)d löschen "
+"möchten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:642
 msgid "Delete Rule"
@@ -7785,11 +7788,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Include &Separator"
-msgstr ""
+msgstr "&Seperator einfügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "&Merge with Comments:"
-msgstr ""
+msgstr "Mit Kommentaren &zusammenführen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "Catalog cover:"
@@ -7805,7 +7808,7 @@ msgstr "Vorhandenes Cover verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "E&xtra Description note:"
-msgstr ""
+msgstr "E&xtra Noitz zur Beschreibung:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Custom column source for text to include in Description section."
@@ -7815,7 +7818,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Thumb width:"
-msgstr ""
+msgstr "&Vorlagen Weite:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Size hint for cover thumbnails included in Descriptions section."
@@ -8837,6 +8840,9 @@ msgid ""
 "both MOBI filetypes. If you wish to use the new format on your device, "
 "convert to AZW3 instead of MOBI."
 msgstr ""
+"<b>WARNUNG:</b> Einige Kindle Geräte haben Probleme mit der Darstellung der "
+"neueren oder beider MOBI Dateiarten. Falls Sie das neue Format auf Ihrem "
+"Gerät nutzen wollen, konvertieren Sie es in das Format AZW3 anstatt in MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -10014,10 +10020,12 @@ msgid ""
 "<b>Save &template</b> to control the filename and\n"
 "        location of files sent to the device:"
 msgstr ""
+"<b>Speichere &template</b> um den Dateinamen und den Speicherort\n"
+"       am Gerät zu wählen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:91
 msgid "&Template editor"
-msgstr ""
+msgstr "&Vorlagen Editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -10038,30 +10046,33 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:225
 msgid "Browse for a folder on the device"
-msgstr ""
+msgstr "Ein Verzeichnis auf dem Gerät wählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:166
 msgid ""
 "Select the devices to be <b>ignored</b>. calibre will not\n"
 "            connect to devices with a checkmark next to their names."
 msgstr ""
+"Geräte auswählen, die <b>ignoriert</b> werden sollen: Calibre wird sich "
+"nicht\n"
+"            mit Geräten, die ausgewählt wurden, verbinden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:211
 #, python-format
 msgid "Send the %s format to the folder:"
-msgstr ""
+msgstr "Das Format %s an das Verzeichnis senden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:219
 msgid "Folder on the device"
-msgstr ""
+msgstr "Verzeichnis auf dem Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:227
 msgid "&Remove rule"
-msgstr ""
+msgstr "&Regel entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:272
 msgid "Format specific sending"
-msgstr ""
+msgstr "Spezielles Senden einstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:277
 msgid ""
@@ -10070,10 +10081,14 @@ msgid ""
 "over\n"
 "            the folders specified above."
 msgstr ""
+"Sie können Regeln erstellen, in wohin Bücher eines bestimmten \n"
+"          Formates auf dem Gerät gespeichert werden. Dies hat mehr Priorität "
+"als \n"
+"          die oben gewählten Verzeichnisse."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:299
 msgid "Add a &new rule"
-msgstr ""
+msgstr "Eine &neue Regel hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:337
 #, python-format
@@ -10095,6 +10110,8 @@ msgid ""
 "If you want to un-ignore a previously ignored MTP device, use the \"Ignored "
 "devices\" tab."
 msgstr ""
+"Falls Sie ein MTP Gerät nicht mehr ignorieren wollen, verwenden Sie den Tag "
+"\"Ignorierte Geräte\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:369
 #, python-format
@@ -10104,20 +10121,20 @@ msgstr "Wählen Sie die Formate, die an %s gesendet werden sollen"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:372
 #, python-format
 msgid "&Ignore the %s in calibre"
-msgstr ""
+msgstr "%s in Calibre &ignorieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:387
 msgid "Ignored devices"
-msgstr ""
+msgstr "Ignorierte Geräte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:394
 #, python-format
 msgid "The %s will be ignored in calibre"
-msgstr ""
+msgstr "Das %s wird in Calibre ignoriert werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:91
 msgid "Choose folder on device"
-msgstr ""
+msgstr "Wählen Sie ein Verzeichnis auf dem Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -16106,7 +16123,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid "Show &cover in the book details panel"
-msgstr ""
+msgstr "Zeige das &Cover in der Buchdetailansicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:267
 msgid ""
@@ -18727,6 +18744,8 @@ msgid ""
 "New version <b>%(ver)s</b> of %(app)s is available for download. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"Neue Version <b>%(ver)s</b> von %(app)s ist zum Download verfügbar. Siehe "
+"die <a href=\"http://calibre-ebook.com/whats-new\">neuen Features</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:84
 msgid "Update available!"
@@ -19554,11 +19573,11 @@ msgstr "Zum Modus »Seitenansicht« wechseln"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:230
 msgid "Load theme"
-msgstr ""
+msgstr "Lade Vorlage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:231
 msgid "Load a theme"
-msgstr ""
+msgstr "Lade Vorlage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"
@@ -20423,6 +20442,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Ersetze das existierende Cover mit einem aus dem Katalog.\n"
+"Standard: '%default'\n"
+"Betrifft: AZW3, ePub, MOBI Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:161
 #, python-format
@@ -20452,11 +20474,11 @@ msgstr "Symbole"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:275
 msgid "No genres to catalog.\n"
-msgstr ""
+msgstr "Keine Genre im Katalog\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:277
 msgid "Check 'Excluded genres' regex in E-book options.\n"
-msgstr ""
+msgstr "Prüfe das 'Ausgeschlossene Genre\" Regex in den E-Book Optionen\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:279
 msgid "No books available to catalog"
@@ -20487,11 +20509,12 @@ msgstr "Beschreibungen"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:527
 msgid "<p>Inconsistent Author Sort values for Author<br/>"
-msgstr ""
+msgstr "<p>Inkonsistente Werte für die Autorensortierung für den Autor<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:544
 msgid "Warning: Inconsistent Author Sort values for Author '{!s}':\n"
 msgstr ""
+"Warnung: Inkonsistente Werte für die Autorensortierung für den Autor '{!s}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:678
 msgid "Sorting database"
@@ -20499,13 +20522,15 @@ msgstr "Datenbank wird sortiert"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:753
 msgid "Sorting titles"
-msgstr ""
+msgstr "Sortiere Titel"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:765
 msgid ""
 "No books to catalog.\n"
 "Check 'Excluded books' rules in E-book options.\n"
 msgstr ""
+"Keine Bücher im Katalog\n"
+"Prüfe die \"Ausgeschlossene Bücher\" Regeln in den E-Book Optionen\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:767
 msgid "No books available to include in catalog"
@@ -20531,7 +20556,7 @@ msgstr "Beschreibungen HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2637
 msgid "Description HTML"
-msgstr ""
+msgstr "Beschreibung HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2772
 msgid "NCX header"
@@ -20553,7 +20578,7 @@ msgstr "Serien beginnen mit %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3047
 #, python-format
 msgid "Series beginning with '%s'"
-msgstr ""
+msgstr "Serien beginnend mit '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3091
 msgid "NCX for Titles"
@@ -20567,7 +20592,7 @@ msgstr "Titel beginnen mit %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3172
 #, python-format
 msgid "Titles beginning with '%s'"
-msgstr ""
+msgstr "Titel beginnend mit '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3214
 msgid "NCX for Authors"
@@ -20576,7 +20601,7 @@ msgstr "NCX für Autoren"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3285
 #, python-format
 msgid "Authors beginning with %s"
-msgstr ""
+msgstr "Autoren beginnend mit '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3287
 #, python-format
@@ -20601,11 +20626,11 @@ msgstr "OPF wird generiert"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4148
 msgid "Thumbnails"
-msgstr ""
+msgstr "Vorschaubilder"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4154
 msgid "Thumbnail"
-msgstr ""
+msgstr "Vorschaubild"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4651
 msgid "Saving NCX"
@@ -22293,6 +22318,14 @@ msgid ""
 "also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used "
 "in the argument to this function when using template program mode."
 msgstr ""
+"eval(template) - Überprüft die Vorlage, die lokalen Variablen (jene die "
+"'eingebunden wurden) anstelle der Buchmetadaten. Dies hat zur Folge, dass "
+"der Vorlagenprozessor komplexe Ergebnisse von lokalen Variablen erzeugt. "
+"Weil die Zeichen { und } spezielle Funktion haben, musst du für { die "
+"Zeichen [[ und für } die Zeichen ]] verwenden; sie werden automatisch "
+"umgewandelt. Beachten Sie, dass Vor- und Nachzeiten (die Vorzeichen "
+"'|prefix|suffix' Syntax) nicht für diese Funktionen verwendet werden kann, "
+"dass der Vorlagenprogrammiermodus verwendet wird."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:253
 msgid ""
