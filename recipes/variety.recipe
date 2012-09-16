@@ -19,7 +19,13 @@ class Variety(BasicNewsRecipe):
     category               = 'Entertainment Industry News, Daily Variety, Movie Reviews, TV, Awards, Oscars, Cannes, Box Office, Hollywood'
     language               = 'en'
     masthead_url           = 'http://images1.variety.com/graphics/variety/Variety_logo_green_tm.gif'
-    extra_css              = ' body{font-family: Georgia,"Times New Roman",Times,Courier,serif } img{margin-bottom: 1em} '
+    extra_css              = """ 
+                                body{font-family: Arial,Helvetica,sans-serif; font-size: 1.275em}
+                                .date{font-size: small; border: 1px dotted rgb(204, 204, 204); font-style: italic; color: rgb(102, 102, 102); margin: 5px 0px; padding: 0.5em;}
+                                .author{margin: 5px 0px 5px 20px; padding: 0.5em; background: none repeat scroll 0% 0% rgb(247, 247, 247);}
+                                .art h2{color: rgb(153, 0, 0); font-size: 1.275em; font-weight: bold;}
+                                img{margin-bottom: 1em} 
+                             """
 
     conversion_options = {
                              'comments'  : description
@@ -29,7 +35,7 @@ class Variety(BasicNewsRecipe):
                          }
 
     remove_tags = [dict(name=['object','link','map'])]
-
+    remove_attributes=['lang','vspace','hspace','xmlns:ms','xmlns:dt']
     keep_only_tags = [dict(name='div', attrs={'class':'art control'})]
 
     feeds = [(u'News & Articles', u'http://feeds.feedburner.com/variety/headlines' )]
@@ -37,3 +43,29 @@ class Variety(BasicNewsRecipe):
     def print_version(self, url):
         rpt = url.rpartition('.html')[0]
         return rpt + '?printerfriendly=true'
+
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head>'+raw[raw.find('</head>'):]
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        return url.rpartition('?')[0]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+        

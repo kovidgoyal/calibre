@@ -9,14 +9,14 @@ import textwrap
 from functools import partial
 from collections import OrderedDict
 
-from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
-        QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
-        QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction, \
-        QDialogButtonBox, QHBoxLayout
+from PyQt4.Qt import (QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget,
+        QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence,
+        QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction,
+        QDialogButtonBox, QHBoxLayout)
 
 from calibre.constants import __appname__, __version__, islinux
-from calibre.gui2 import gprefs, min_available_height, available_width, \
-    warning_dialog
+from calibre.gui2 import (gprefs, min_available_height, available_width,
+    show_restart_warning)
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
 
@@ -346,19 +346,8 @@ class Preferences(QMainWindow):
                         'restarted immediately. You will not be allowed to '
                         'set any more preferences, until you restart.')
 
+            do_restart = show_restart_warning(msg, parent=self)
 
-            d = warning_dialog(self, _('Restart needed'), msg,
-                    show_copy_button=False)
-            b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
-            b.setIcon(QIcon(I('lt.png')))
-            d.do_restart = False
-            def rf():
-                d.do_restart = True
-            b.clicked.connect(rf)
-            d.set_details('')
-            d.exec_()
-            b.clicked.disconnect()
-            do_restart = d.do_restart
         self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
         if self.close_after_initial or (must_restart and rc) or do_restart:

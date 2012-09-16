@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, uuid
 
 from lxml import etree
 from urlparse import urlparse
@@ -79,6 +79,35 @@ class DetectStructure(object):
         for node in self.oeb.toc.iter():
             if not node.title or not node.title.strip():
                 node.title = _('Unnamed')
+
+        if self.opts.start_reading_at:
+            self.detect_start_reading()
+
+    def detect_start_reading(self):
+        expr = self.opts.start_reading_at
+        try:
+            expr = XPath(expr)
+        except:
+            self.log.warn(
+                'Invalid start reading at XPath expression, ignoring: %s'%expr)
+            return
+        for item in self.oeb.spine:
+            if not hasattr(item.data, 'xpath'): continue
+            matches = expr(item.data)
+            if matches:
+                elem = matches[0]
+                eid = elem.get('id', None)
+                if not eid:
+                    eid = u'start_reading_at_'+unicode(uuid.uuid4()).replace(u'-', u'')
+                    elem.set('id', eid)
+                if u'text' in self.oeb.guide:
+                    self.oeb.guide.remove(u'text')
+                self.oeb.guide.add(u'text', u'Start', item.href+u'#'+eid)
+                self.log('Setting start reading at position to %s in %s'%(
+                    self.opts.start_reading_at, item.href))
+                return
+        self.log.warn("Failed to find start reading at position: %s"%
+                self.opts.start_reading_at)
 
     def detect_chapters(self):
         self.detected_chapters = []

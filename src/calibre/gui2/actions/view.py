@@ -256,6 +256,15 @@ class ViewAction(InterfaceAction):
             db.prefs['gui_view_history'] = history[:vh]
             self.build_menus(db)
 
+    def view_device_book(self, path):
+        pt = PersistentTemporaryFile('_view_device_book'+\
+                os.path.splitext(path)[1])
+        self.persistent_files.append(pt)
+        pt.close()
+        self.gui.device_manager.view_book(
+                Dispatcher(self.book_downloaded_for_viewing),
+                                        path, pt.name)
+
     def _view_books(self, rows):
         if not rows or len(rows) == 0:
             self._launch_viewer()
@@ -270,12 +279,5 @@ class ViewAction(InterfaceAction):
         else:
             paths = self.gui.current_view().model().paths(rows)
             for path in paths:
-                pt = PersistentTemporaryFile('_viewer_'+\
-                        os.path.splitext(path)[1])
-                self.persistent_files.append(pt)
-                pt.close()
-                self.gui.device_manager.view_book(\
-                        Dispatcher(self.book_downloaded_for_viewing),
-                                              path, pt.name)
-
+                self.view_device_book(path)
 

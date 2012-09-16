@@ -7,13 +7,32 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
-from threading import RLock
+import time, threading, traceback
+from functools import wraps, partial
+from future_builtins import zip
+from itertools import chain
 
 from calibre import as_unicode, prints
 from calibre.constants import plugins, __appname__, numeric_version
-from calibre.devices.errors import OpenFailed
-from calibre.devices.mtp.base import MTPDeviceBase, synchronous
+from calibre.ptempfile import SpooledTemporaryFile
+from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
+from calibre.devices.mtp.base import MTPDeviceBase, debug
+
+class ThreadingViolation(Exception):
+
+    def __init__(self):
+        Exception.__init__(self,
+                'You cannot use the MTP driver from a thread other than the '
+                ' thread in which startup() was called')
+
+def same_thread(func):
+    @wraps(func)
+    def check_thread(self, *args, **kwargs):
+        if self.start_thread is not threading.current_thread():
+            raise ThreadingViolation()
+        return func(self, *args, **kwargs)
+    return check_thread
+
 
 class MTP_DEVICE(MTPDeviceBase):
 
@@ -22,7 +41,6 @@ class MTP_DEVICE(MTPDeviceBase):
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.dev = None
-        self.lock = RLock()
         self.blacklisted_devices = set()
         self.ejected_devices = set()
         self.currently_connected_pnp_id = None
@@ -31,9 +49,12 @@ class MTP_DEVICE(MTPDeviceBase):
         self.last_refresh_devices_time = time.time()
         self.wpd = self.wpd_error = None
         self._main_id = self._carda_id = self._cardb_id = None
+        self.start_thread = None
+        self._filesystem_cache = None
+        self.eject_dev_on_next_scan = False
 
-    @synchronous
     def startup(self):
+        self.start_thread = threading.current_thread()
         self.wpd, self.wpd_error = plugins['wpd']
         if self.wpd is not None:
             try:
@@ -46,19 +67,24 @@ class MTP_DEVICE(MTPDeviceBase):
             except Exception as e:
                 self.wpd_error = as_unicode(e)
 
-    @synchronous
+    @same_thread
     def shutdown(self):
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = self.start_thread = None
         if self.wpd is not None:
             self.wpd.uninit()
 
-    @synchronous
-    def detect_managed_devices(self, devices_on_system):
+    @same_thread
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if self.wpd is None: return None
+        if self.eject_dev_on_next_scan:
+            self.eject_dev_on_next_scan = False
+            if self.currently_connected_pnp_id is not None:
+                self.do_eject()
 
         devices_on_system = frozenset(devices_on_system)
-        if (devices_on_system != self.previous_devices_on_system or time.time()
-                - self.last_refresh_devices_time > 10):
+        if (force_refresh or
+                devices_on_system != self.previous_devices_on_system or
+                time.time() - self.last_refresh_devices_time > 10):
             self.previous_devices_on_system = devices_on_system
             self.last_refresh_devices_time = time.time()
             try:
@@ -103,6 +129,57 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return None
 
+    @same_thread
+    def debug_managed_device_detection(self, devices_on_system, output):
+        import pprint
+        p = partial(prints, file=output)
+        if self.currently_connected_pnp_id is not None:
+            return True
+        if self.wpd_error:
+            p('Cannot detect MTP devices')
+            p(self.wpd_error)
+            return False
+        try:
+            pnp_ids = frozenset(self.wpd.enumerate_devices())
+        except:
+            p("Failed to get list of PNP ids on system")
+            p(traceback.format_exc())
+            return False
+
+        for pnp_id in pnp_ids:
+            try:
+                data = self.wpd.device_info(pnp_id)
+            except:
+                p('Failed to get data for device:', pnp_id)
+                p(traceback.format_exc())
+                continue
+            protocol = data.get('protocol', '').lower()
+            if not protocol.startswith('mtp:'): continue
+            p('MTP device:', pnp_id)
+            p(pprint.pformat(data))
+            if not self.is_suitable_wpd_device(data):
+                p('Not a suitable MTP device, ignoring\n')
+                continue
+            p('\nTrying to open:', pnp_id)
+            try:
+                self.open(pnp_id, 'debug-detection')
+            except BlacklistedDevice:
+                p('This device has been blacklisted by the user')
+                continue
+            except:
+                p('Open failed:')
+                p(traceback.format_exc())
+                continue
+            break
+        if self.currently_connected_pnp_id:
+            p('Opened', self.current_friendly_name, 'successfully')
+            p('Device info:')
+            p(pprint.pformat(self.dev.data))
+            self.post_yank_cleanup()
+            return True
+        p('No suitable MTP devices found')
+        return False
+
     def is_suitable_wpd_device(self, devdata):
         # Check that protocol is MTP
         protocol = devdata.get('protocol', '').lower()
@@ -119,23 +196,57 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return True
 
-    @synchronous
-    def post_yank_cleanup(self):
-        self.currently_connected_pnp_id = self.current_friendly_name = None
-        self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = self.filesystem_cache = None
+    @property
+    def filesystem_cache(self):
+        if self._filesystem_cache is None:
+            debug('Loading filesystem metadata...')
+            st = time.time()
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
+            ts = self.total_space()
+            all_storage = []
+            items = []
+            for storage_id, capacity in zip([self._main_id, self._carda_id,
+                self._cardb_id], ts):
+                if storage_id is None: continue
+                name = _('Unknown')
+                for s in self.dev.data['storage']:
+                    if s['id'] == storage_id:
+                        name = s['name']
+                        break
+                storage = {'id':storage_id, 'size':capacity, 'name':name,
+                        'is_folder':True, 'can_delete':False, 'is_system':True}
+                id_map = self.dev.get_filesystem(storage_id)
+                for x in id_map.itervalues(): x['storage_id'] = storage_id
+                all_storage.append(storage)
+                items.append(id_map.itervalues())
+            self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
+            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
+                time.time()-st, len(self._filesystem_cache)))
+        return self._filesystem_cache
 
-    @synchronous
-    def eject(self):
+    @same_thread
+    def do_eject(self):
         if self.currently_connected_pnp_id is None: return
         self.ejected_devices.add(self.currently_connected_pnp_id)
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = None
 
-    @synchronous
+    @same_thread
+    def post_yank_cleanup(self):
+        self.currently_connected_pnp_id = self.current_friendly_name = None
+        self._main_id = self._carda_id = self._cardb_id = None
+        self.dev = self._filesystem_cache = None
+        self.current_serial_num = None
+
+    def eject(self):
+        if self.currently_connected_pnp_id is None: return
+        self.eject_dev_on_next_scan = True
+        self.current_serial_num = None
+
+    @same_thread
     def open(self, connected_device, library_uuid):
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = None
         try:
             self.dev = self.wpd.Device(connected_device)
         except self.wpd.WPDError:
@@ -151,29 +262,32 @@ class MTP_DEVICE(MTPDeviceBase):
         if not storage:
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
+        snum = devdata.get('serial_number', None)
+        if snum in self.prefs.get('blacklist', []):
+            self.blacklisted_devices.add(connected_device)
+            self.dev = None
+            raise BlacklistedDevice(
+                'The %s device has been blacklisted by the user'%(connected_device,))
+
         self._main_id = storage[0]['id']
         if len(storage) > 1:
             self._carda_id = storage[1]['id']
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
-        self.current_friendly_name = devdata.get('friendly_name', None)
+        self.current_friendly_name = devdata.get('friendly_name', '')
+        if not self.current_friendly_name:
+            self.current_friendly_name = devdata.get('model_name',
+                _('Unknown MTP device'))
+        self.currently_connected_pnp_id = connected_device
+        self.current_serial_num = snum
 
-    @synchronous
-    def get_device_information(self, end_session=True):
+    @same_thread
+    def get_basic_device_information(self):
         d = self.dev.data
         dv = d.get('device_version', '')
         return (self.current_friendly_name, dv, dv, '')
 
-    @synchronous
-    def card_prefix(self, end_session=True):
-        ans = [None, None]
-        if self._carda_id is not None:
-            ans[0] = 'mtp:::%s:::'%self._carda_id
-        if self._cardb_id is not None:
-            ans[1] = 'mtp:::%s:::'%self._cardb_id
-        return tuple(ans)
-
-    @synchronous
+    @same_thread
     def total_space(self, end_session=True):
         ans = [0, 0, 0]
         dd = self.dev.data
@@ -184,7 +298,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['capacity']
         return tuple(ans)
 
-    @synchronous
+    @same_thread
     def free_space(self, end_session=True):
         self.dev.update_data()
         ans = [0, 0, 0]
@@ -196,5 +310,69 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['free_space']
         return tuple(ans)
 
+    @same_thread
+    def get_mtp_file(self, f, stream=None, callback=None):
+        if f.is_folder:
+            raise ValueError('%s if a folder'%(f.full_path,))
+        if stream is None:
+            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+            stream.name = f.name
+        try:
+            try:
+                self.dev.get_file(f.object_id, stream, callback)
+            except self.wpd.WPDFileBusy:
+                time.sleep(2)
+                self.dev.get_file(f.object_id, stream, callback)
+        except Exception as e:
+            raise DeviceError('Failed to fetch the file %s with error: %s'%
+                    f.full_path, as_unicode(e))
+        stream.seek(0)
+        return stream
+
+    @same_thread
+    def create_folder(self, parent, name):
+        if not parent.is_folder:
+            raise ValueError('%s is not a folder'%(parent.full_path,))
+        e = parent.folder_named(name)
+        if e is not None:
+            return e
+        ans = self.dev.create_folder(parent.object_id, name)
+        ans['storage_id'] = parent.storage_id
+        return parent.add_child(ans)
+
+    @same_thread
+    def delete_file_or_folder(self, obj):
+        if obj.deleted:
+            return
+        if not obj.can_delete:
+            raise ValueError('Cannot delete %s as deletion not allowed'%
+                    (obj.full_path,))
+        if obj.is_system:
+            raise ValueError('Cannot delete %s as it is a system object'%
+                    (obj.full_path,))
+        if obj.files or obj.folders:
+            raise ValueError('Cannot delete %s as it is not empty'%
+                    (obj.full_path,))
+        parent = obj.parent
+        self.dev.delete_object(obj.object_id)
+        parent.remove_child(obj)
+        return parent
+
+    @same_thread
+    def put_file(self, parent, name, stream, size, callback=None, replace=True):
+        e = parent.folder_named(name)
+        if e is not None:
+            raise ValueError('Cannot upload file, %s already has a folder named: %s'%(
+                parent.full_path, e.name))
+        e = parent.file_named(name)
+        if e is not None:
+            if not replace:
+                raise ValueError('Cannot upload file %s, it already exists'%(
+                    e.full_path,))
+            self.delete_file_or_folder(e)
+        sid, pid = parent.storage_id, parent.object_id
+        ans = self.dev.put_file(pid, name, stream, size, callback)
+        ans['storage_id'] = sid
+        return parent.add_child(ans)
 
 

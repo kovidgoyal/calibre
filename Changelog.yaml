@@ -19,6 +19,178 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.69
+  date: 2012-09-14
+
+  new features:
+    - title: "E-book viewer: Add a button to the toolbar to switch themes easily"
+      tickets: [1047992]
+
+    - title: "When downloading metadata for many books, if some of them fail, add an option to the downloaded message to show the failed books in the main book list, so that they can be individually processed easily"
+
+    - title: "Remember last used window size of the conversion dialogs."
+      tickets: [1049265]
+
+    - title: "Kindle driver: Turn on sending of azw3 files to kindles by default, since the KK now has azw3 support"
+
+    - title: "Conversion: Add support for CSS pseudo classes :hover, :link, :visited, :first-line, :focus, :active, :first-letter"
+
+    - title: "Wireless device driver: Make the default save template not use folders"
+ 
+  bug fixes:
+    - title: "Fix a regression in th previous release that broke sending of books to the second SD card in SONY readers"
+      tickets: [1047992]
+
+    - title: "Fix a memory leak when scanning for devices in windows"
+
+    - title: "Ebook-viewer: When displaying mathematics, reflow equations that dont fit on a single line"
+
+    - title: "Catalogs: Do not mark the AZW3 catalog as a periodical, as most Kindle devices cannot handle AZW3 periodicals"
+
+    - title: "Content server: When using a custom IP address to listen on via Preferences->Tweaks advertise that IP address via BonJour."
+
+    - title: "Fix ebook catalog generation on linux systems where the encoding is not UTF-8."
+      tickets: [1048404]
+
+  improved recipes:
+    - De Volksrant
+    - Metro UK
+    - Countryfile
+    - Die Zeit (subscription)
+    - Birmingham post
+
+  new recipes:
+    - title: History Today 
+      author: Rick Shang
+
+- version: 0.8.68
+  date: 2012-09-07
+
+  new features:
+    - title: "Drivers for the Nokia N9, Viewsonic 7e, Prestigio PER3274B and Coby Kyros 7035 "
+      tickets: [1046794,1046544]
+
+    - title: "Add a tutorial on creating catalogs to the User Manual and a link to it in the create catalogs dialog"
+
+    - title: "Wireless device connections: Add an option to force calibre to listen on a particular IP address. Access it by customizing the plugin in Preferences->Plugins"
+
+    - title: "Android driver: Add an extra customization option to configure the directory to which ebooks are sent on the storage cards."
+      tickets: [1045045]
+
+    - title: "Add an option under Preferences->Look & Feel->Book Details to hide the cover in the book details panel"
+
+    - title: "The Calibre Companion Android app that allows wireless connection of Android device to calibre is out of beta. See https://play.google.com/store/apps/details?id=com.multipie.calibreandroid"
+ 
+  bug fixes:
+    - title: "Fix sorting by author not working in the device view in calibre when connected to iTunes"
+      tickets: [1044619]
+
+    - title: "Fix using the 'configure this device' menu action not validating settings"
+
+    - title: "Device drivers: Ignore corrupted entries in metadata.calibre, instead of raising an error"
+
+    - title: "PDF Output: Do not error out when generating an outline which points to pages that have been removed."
+      tickets: [1044799]
+
+    - title: "PDF Output: Fix incorrect page numbers being generated in the outline when converting some books"
+
+    - title: "PDF Output: Reduce memory consumption when writing out the PDF file, by using a stream"
+
+    - title: "EPUB metadata: When there are multiple <dc:date> tags use the one with the earliest date as the published date"
+
+  improved recipes:
+    - Wall Street journal (subscription version)
+    - Houston Chronicle
+    - Various Romanian news sources
+    - Business Week Magazine
+    - Arcamax
+
+- version: 0.8.67
+  date: 2012-08-31
+
+  new features:
+    - title: "PDF Output: Generate a PDF Outline based on the Table of Contents of the input document"
+
+    - title: "Conversion: Add an option under Structure Detection to set the 'Start reading at' metadata with an XPath expression."
+      tickets: [1043233]
+
+    - title: "Speed up changing the title and author of files with books larger than 3MB by avoiding an unnecessary extra copy."
+
+    - title: "Wireless device driver: Make detecting and connecting to devices easier on networks where mdns is disabled"
+
+    - title: "PDF Output: Allow choosing the default font family and size when generating PDF files (under PDF Options) in the conversion dialog"
+
+    - title: "Metadata dialog: Comments editor: Allow specifying the name of a link when using the insert link button."
+      tickets: [1042683]
+
+    - title: "Remove the unmaintained pdfmanipulate command line utility. There are many other tools that provide similar functionality, for example, pdftk and podofo"
+ 
+  bug fixes:
+    - title: "Catalogs: Fix regression that broke sorting of non series titles before series titles"
+
+    - title: "PDF Output: Do not create duplicate embedded fonts in the PDF for every individual HTML file in the input document"
+
+    - title: "Fix regression that broke DnD of files having a # character in their names to the book details panel"
+
+    - title: "PDF Output: Allow generating PDF files with more than 512 pages on windows."
+      tickets: [1041614]
+
+    - title: "Fix minor bug in handling of the completion popups when using the next/previous buttons in the edit metadata dialog"
+      ticket: [1041389]
+
+  improved recipes:
+    - Coding Horror
+    - TIME Magazine
+
+  new recipes:
+    - title: Cumhuriyet Yzarlar 
+      author: Sethi Eksi
+
+    - title: Arcadia 
+      author: Masahiro Hasegawa
+
+    - title: Business Week Magazine and Chronicle of Higher Education 
+      author: Rick Shang
+
+    - title: CIPER Chile 
+      author: Darko Miletic
+
+- version: 0.8.66
+  date: 2012-08-24
+
+  new features:
+    - title: "E-book viewer: Support the display of mathematics in e-books. Supports both embedded TeX and MathML"
+      description: "The calibre ebook viewer can now display embedded mathematics (symbols, equations, fractions, matrices, etc.) in EPUB and HTML ebooks. For details, see: http://manual.calibre-ebook.com/typesetting_math.html"
+      type: major
+
+    - title: "Drivers for SONY PRS-T2, Freelander PD10 and Coolreader Tablet"
+      tickets: [1039103]
+
+    - title: "Wireless device connections: Use a streamed mode for improved networking performance leading to much less time spent sending metadata to/from the device. Also make it easier to specify a fixed port directly in the dialog used to start the connection."
+
+    - title: "Get books: Add ebooksgratuitis.com"
+ 
+  bug fixes:
+    - title: "PDF Output: Handle input epub documents with filenames starting with a dot. Also do not hang if there is an unhandled error."
+      tickets: [1040603]
+
+    - title: "Get Books: Update B&N plugin to handle changes to the B&N website"
+
+    - title: "Content server: Fix regression that caused the port being advertised via BonJour to be incorrect if the user changed the port for the server."
+      tickets: [1037912]
+
+
+  improved recipes:
+    - Variety
+    - The Times UK
+
+  new recipes:
+    - title: Le Monde subscription version 
+      author: Remi Vanicat
+
+    - title: Brecha Digital 
+      author: Darko Miletic
+
 - version: 0.8.65
   date: 2012-08-17
 

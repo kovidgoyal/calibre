@@ -1,0 +1,81 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from collections import OrderedDict
+
+class Chronicle(BasicNewsRecipe):
+
+    title       = 'The Chronicle of Higher Education'
+    __author__  = 'Rick Shang'
+
+    description = 'Weekly news and job-information source for college and university faculty members, administrators, and students.'
+    language = 'en'
+    category = 'news'
+    encoding = 'UTF-8'
+    keep_only_tags = [
+            dict(name='div', attrs={'class':'article'}),
+            ]
+    remove_tags = [dict(name='div',attrs={'class':['related module1','maintitle']}),
+            dict(name='div', attrs={'id':['section-nav','icon-row']})]
+    no_javascript = True
+    no_stylesheets = True
+
+
+    needs_subscription = True
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://chronicle.com/myaccount/login')
+            br.select_form(nr=1)
+            br['username']   = self.username
+            br['password'] = self.password
+        br.submit()
+        return br
+
+    def parse_index(self):
+
+        #Go to the issue
+        soup0 = self.index_to_soup('http://chronicle.com/section/Archives/39/')
+        issue = soup0.find('ul',attrs={'class':'feature-promo-list'}).li
+        issueurl = "http://chronicle.com"+issue.a['href']
+
+        #Find date
+        dates = self.tag_to_string(issue.a).split(': ')[-1]
+        self.timefmt = u' [%s]'%dates
+
+        #Find cover
+        cover=soup0.find('div',attrs={'class':'promo'}).findNext('div')
+        self.cover_url="http://chronicle.com"+cover.find('img')['src']
+
+        #Go to the main body
+        soup = self.index_to_soup(issueurl)
+        div = soup.find ('div', attrs={'id':'article-body'})
+
+        feeds = OrderedDict()
+        section_title = ''
+        for post in div.findAll('li'):
+            articles = []
+            a=post.find('a', href=True)
+            if a is not None:
+                title=self.tag_to_string(a)
+                url="http://chronicle.com"+a['href'].strip()
+                sectiontitle=post.findPrevious('h3')
+                if sectiontitle is None:
+                    sectiontitle=post.findPrevious('h4')
+                section_title=self.tag_to_string(sectiontitle)
+                desc=self.tag_to_string(post.find('p'))
+                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+
+                if articles:
+                    if section_title not in feeds:
+                        feeds[section_title] = []
+                    feeds[section_title] += articles
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
+
+    def preprocess_html(self,soup):
+        #process all the images
+        for div in soup.findAll('div', attrs={'class':'tableauPlaceholder'}):
+            noscripts=div.find('noscript').a
+            div.replaceWith(noscripts)
+        for div0 in soup.findAll('div',text='Powered by Tableau'):
+            div0.extract()
+        return soup

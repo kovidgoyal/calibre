@@ -137,11 +137,19 @@ extensions = [
         ['calibre/ebooks/compression/palmdoc.c']),
 
     Extension('podofo',
-                    ['calibre/utils/podofo/podofo.cpp'],
+                    [
+                        'calibre/utils/podofo/utils.cpp',
+                        'calibre/utils/podofo/output.cpp',
+                        'calibre/utils/podofo/doc.cpp',
+                        'calibre/utils/podofo/outline.cpp',
+                        'calibre/utils/podofo/podofo.cpp',
+                    ],
+                    headers=[
+                        'calibre/utils/podofo/global.h',
+                    ],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
                     inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],
-                    optional=True,
                     error=podofo_error),
 
     Extension('pictureflow',
@@ -179,7 +187,7 @@ if iswindows:
             headers=[
                 'calibre/devices/mtp/windows/global.h',
             ],
-            libraries=['ole32', 'portabledeviceguids', 'user32'],
+            libraries=['ole32', 'oleaut32', 'portabledeviceguids', 'user32'],
             # needs_ddk=True,
             cflags=['/X']
             ),
@@ -188,10 +196,15 @@ if iswindows:
 if isosx:
     extensions.append(Extension('usbobserver',
                 ['calibre/devices/usbobserver/usbobserver.c'],
-                ldflags=['-framework', 'IOKit'])
+                ldflags=['-framework', 'CoreServices', '-framework', 'IOKit'])
             )
 
-if islinux:
+if islinux or isosx:
+    extensions.append(Extension('libusb',
+        ['calibre/devices/libusb/libusb.c'],
+        libraries=['usb-1.0']
+    ))
+
     extensions.append(Extension('libmtp',
         [
         'calibre/devices/mtp/unix/devices.c',

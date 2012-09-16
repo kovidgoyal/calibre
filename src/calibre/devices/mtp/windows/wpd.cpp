@@ -10,7 +10,7 @@
 using namespace wpd;
 
 // Module exception types
-PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL;
+PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL, *wpd::WPDFileBusy = NULL;
 
 // The global device manager
 IPortableDeviceManager *wpd::portable_device_manager = NULL;
@@ -120,14 +120,14 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
         hresult_set_exc("Failed to get list of portable devices", hr);
     }
 
+    Py_BEGIN_ALLOW_THREADS;
     for (i = 0; i < num_of_devices; i++) {
-        Py_BEGIN_ALLOW_THREADS;
         CoTaskMemFree(pnp_device_ids[i]);
-        Py_END_ALLOW_THREADS;
         pnp_device_ids[i] = NULL;
     }
     free(pnp_device_ids);
     pnp_device_ids = NULL;
+    Py_END_ALLOW_THREADS;
 
     return Py_BuildValue("N", ans);
 } // }}}
@@ -195,9 +195,15 @@ initwpd(void) {
 
     WPDError = PyErr_NewException("wpd.WPDError", NULL, NULL);
     if (WPDError == NULL) return;
+    PyModule_AddObject(m, "WPDError", WPDError);
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) return;
+    PyModule_AddObject(m, "NoWPD", NoWPD);
+
+    WPDFileBusy = PyErr_NewException("wpd.WPDFileBusy", NULL, NULL);
+    if (WPDFileBusy == NULL) return;
+    PyModule_AddObject(m, "WPDFileBusy", WPDFileBusy);
 
     Py_INCREF(&DeviceType);
     PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);

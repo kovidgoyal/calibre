@@ -80,7 +80,7 @@ class EditMetadataAction(InterfaceAction):
                 Dispatcher(self.metadata_downloaded),
                 ensure_fields=ensure_fields)
 
-    def cleanup_bulk_download(self, tdir):
+    def cleanup_bulk_download(self, tdir, *args):
         try:
             shutil.rmtree(tdir, ignore_errors=True)
         except:
@@ -108,22 +108,26 @@ class EditMetadataAction(InterfaceAction):
             'Proceed with updating the metadata in your library?')%len(id_map)
 
         show_copy_button = False
+        checkbox_msg = None
         if failed_ids or failed_covers:
             show_copy_button = True
             num = len(failed_ids.union(failed_covers))
             msg += '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
                     ' "Show details" to see which books.')%num
+            checkbox_msg = _('Show the &failed books in the main book list '
+                    'after updating metadata')
 
-        payload = (id_map, tdir, log_file, lm_map)
-        self.gui.proceed_question(self.apply_downloaded_metadata,
-                payload, log_file,
-                _('Download log'), _('Download complete'), msg,
+        payload = (id_map, tdir, log_file, lm_map,
+                failed_ids.union(failed_covers))
+        self.gui.proceed_question(self.apply_downloaded_metadata, payload,
+                log_file, _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
-                cancel_callback=lambda x:self.cleanup_bulk_download(tdir),
-                log_is_file=True)
+                cancel_callback=partial(self.cleanup_bulk_download, tdir),
+                log_is_file=True, checkbox_msg=checkbox_msg,
+                checkbox_checked=False)
 
-    def apply_downloaded_metadata(self, payload):
-        good_ids, tdir, log_file, lm_map = payload
+    def apply_downloaded_metadata(self, payload, *args):
+        good_ids, tdir, log_file, lm_map, failed_ids = payload
         if not good_ids:
             return
 
@@ -162,8 +166,18 @@ class EditMetadataAction(InterfaceAction):
                 cov = None
             id_map[bid] = (opf, cov)
 
-        self.apply_metadata_changes(id_map, callback=lambda x:
-                self.cleanup_bulk_download(tdir))
+        restrict_to_failed = bool(args and args[0])
+        if restrict_to_failed:
+            db.data.set_marked_ids(failed_ids)
+
+        self.apply_metadata_changes(id_map,
+                callback=partial(self.downloaded_metadata_applied, tdir,
+                    restrict_to_failed))
+
+    def downloaded_metadata_applied(self, tdir, restrict_to_failed, *args):
+        if restrict_to_failed:
+            self.gui.search.set_search_string('marked:true')
+        self.cleanup_bulk_download(tdir)
 
     # }}}
 

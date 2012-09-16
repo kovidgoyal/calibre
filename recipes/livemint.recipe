@@ -7,20 +7,29 @@ class LiveMint(BasicNewsRecipe):
     #encoding = 'cp1252'
     oldest_article = 1 #days
     max_articles_per_feed = 25
-    use_embedded_content = True
+    use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True
 
 
     feeds          = [
-('Latest News',
- 'http://www.livemint.com/StoryRss.aspx?LN=Latestnews'),
- ('Gallery',
- 'http://www.livemint.com/GalleryRssfeed.aspx'),
+('Companies',
+ 'http://www.livemint.com/rss/companies'),
+ ('Consumer',
+ 'http://www.livemint.com/rss/consumer'),
  ('Top Stories',
- 'http://www.livemint.com/StoryRss.aspx?ts=Topstories'),
- ('Banking',
- 'http://www.livemint.com/StoryRss.aspx?Id=104'),
+ 'http://www.livemint.com/rss/homepage'),
+ ('Opinion',
+ 'http://www.livemint.com/rss/opinion'),
+ ('Money',
+ 'http://www.livemint.com/rss/money'),
+ ('Industry',
+ 'http://www.livemint.com/rss/industry'),
+ ('Economy Politics',
+ 'http://www.livemint.com/rss/economy_politics'),
+ ('Lounge',
+ 'http://www.livemint.com/rss/lounge'),
 ]
 
+ 

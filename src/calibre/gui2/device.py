@@ -19,11 +19,13 @@ from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
-        warning_dialog, info_dialog, choose_dir, FunctionDispatcher)
+        warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
+        show_restart_warning)
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
-from calibre.devices.errors import FreeSpaceError, WrongDestinationError
+from calibre.devices.errors import (FreeSpaceError, WrongDestinationError,
+        BlacklistedDevice)
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
@@ -128,6 +130,10 @@ class DeviceManager(Thread): # {{{
         self.setDaemon(True)
         # [Device driver, Showing in GUI, Ejected]
         self.devices        = list(device_plugins())
+        self.managed_devices = [x for x in self.devices if
+                not x.MANAGES_DEVICE_PRESENCE]
+        self.unmanaged_devices = [x for x in self.devices if
+                x.MANAGES_DEVICE_PRESENCE]
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
         self.jobs           = Queue.Queue(0)
@@ -182,11 +188,14 @@ class DeviceManager(Thread): # {{{
                     prints('Unable to open device', str(dev))
                     prints(tb)
                 continue
-            self.connected_device = dev
-            self.connected_device_kind = device_kind
-            self.connected_slot(True, device_kind)
+            self.after_device_connect(dev, device_kind)
             return True
         return False
+
+    def after_device_connect(self, dev, device_kind):
+        self.connected_device = dev
+        self.connected_device_kind = device_kind
+        self.connected_slot(True, device_kind)
 
     def connected_device_removed(self):
         while True:
@@ -215,22 +224,48 @@ class DeviceManager(Thread): # {{{
 
     def detect_device(self):
         self.scanner.scan()
+
         if self.is_device_connected:
-            connected, detected_device = \
-                self.scanner.is_device_connected(self.connected_device,
-                        only_presence=True)
-            if not connected:
-                if DEBUG:
-                    # Allow the device subsystem to output debugging info about
-                    # why it thinks the device is not connected. Used, for e.g.
-                    # in the can_handle() method of the T1 driver
+            if self.connected_device.MANAGES_DEVICE_PRESENCE:
+                cd = self.connected_device.detect_managed_devices(self.scanner.devices)
+                if cd is None:
+                    self.connected_device_removed()
+            else:
+                connected, detected_device = \
                     self.scanner.is_device_connected(self.connected_device,
-                            only_presence=True, debug=True)
-                self.connected_device_removed()
+                            only_presence=True)
+                if not connected:
+                    if DEBUG:
+                        # Allow the device subsystem to output debugging info about
+                        # why it thinks the device is not connected. Used, for e.g.
+                        # in the can_handle() method of the T1 driver
+                        self.scanner.is_device_connected(self.connected_device,
+                                only_presence=True, debug=True)
+                    self.connected_device_removed()
         else:
+            for dev in self.unmanaged_devices:
+                try:
+                    cd = dev.detect_managed_devices(self.scanner.devices)
+                except:
+                    prints('Error during device detection for %s:'%dev)
+                    traceback.print_exc()
+                else:
+                    if cd is not None:
+                        try:
+                            dev.open(cd, self.current_library_uuid)
+                        except BlacklistedDevice as e:
+                            prints('Ignoring blacklisted device: %s'%
+                                    as_unicode(e))
+                        except:
+                            prints('Error while trying to open %s (Driver: %s)'%
+                                    (cd, dev))
+                            traceback.print_exc()
+                        else:
+                            self.after_device_connect(dev, 'unmanaged-device')
+                            return
             try:
                 possibly_connected_devices = []
-                for device in self.devices:
+                for device in self.managed_devices:
                     if device in self.ejected_devices:
                         continue
                     try:
@@ -248,7 +283,7 @@ class DeviceManager(Thread): # {{{
                             prints('Connect to device failed, retrying in 5 seconds...')
                         time.sleep(5)
                         if not self.do_connect(possibly_connected_devices,
-                                           device_kind='usb'):
+                                           device_kind='device'):
                             if DEBUG:
                                 prints('Device connect failed again, giving up')
             except OpenFailed as e:
@@ -264,9 +299,10 @@ class DeviceManager(Thread): # {{{
     # disconnect a device
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
-            if self.connected_device_kind == 'device':
+            if self.connected_device_kind in {'unmanaged-device', 'device'}:
                 self.connected_device.eject()
-                self.ejected_devices.add(self.connected_device)
+                if self.connected_device_kind != 'unmanaged-device':
+                    self.ejected_devices.add(self.connected_device)
                 self.connected_slot(False, self.connected_device_kind)
             elif hasattr(self.connected_device, 'unmount_device'):
                 # As we are on the wrong thread, this call must *not* do
@@ -397,6 +433,15 @@ class DeviceManager(Thread): # {{{
         return self.create_job_step(self._get_device_information, done,
                     description=_('Get device information'), to_job=add_as_step_to_job)
 
+    def slow_driveinfo(self):
+        ''' Update the stored device information with the driveinfo if the
+        device indicates that getting driveinfo is slow '''
+        info = self._device_information['info']
+        if (not info[4] and self.device.SLOW_DRIVEINFO):
+            info = list(info)
+            info[4] = self.device.get_driveinfo()
+            self._device_information['info'] = tuple(info)
+
     def get_current_device_information(self):
         return self._device_information
 
@@ -411,6 +456,14 @@ class DeviceManager(Thread): # {{{
         '''Return callable that returns the list of books on device as two booklists'''
         return self.create_job_step(self._books, done,
                 description=_('Get list of books on device'), to_job=add_as_step_to_job)
+
+    def _prepare_addable_books(self, paths):
+        return self.device.prepare_addable_books(paths)
+
+    def prepare_addable_books(self, done, paths, add_as_step_to_job=None):
+        return self.create_job_step(self._prepare_addable_books, done, args=[paths],
+                description=_('Prepare files for transfer from device'),
+                to_job=add_as_step_to_job)
 
     def _annotations(self, path_map):
         return self.device.get_annotations(path_map)
@@ -525,9 +578,8 @@ class DeviceManager(Thread): # {{{
                         to_job=add_as_step_to_job)
 
     def _view_book(self, path, target):
-        f = open(target, 'wb')
-        self.device.get_file(path, f)
-        f.close()
+        with open(target, 'wb') as f:
+            self.device.get_file(path, f)
         return target
 
     def view_book(self, done, path, target, add_as_step_to_job=None):
@@ -554,7 +606,7 @@ class DeviceManager(Thread): # {{{
     # will switch to the device thread before calling the plugin.
 
     def start_plugin(self, name):
-        self._call_request(name, 'start_plugin')
+        return self._call_request(name, 'start_plugin')
 
     def stop_plugin(self, name):
         self._call_request(name, 'stop_plugin')
@@ -851,12 +903,16 @@ class DeviceMixin(object): # {{{
         bb.rejected.connect(d.reject)
         l.addWidget(cw)
         l.addWidget(bb)
+        def validate():
+            if cw.validate():
+                QDialog.accept(d)
+        d.accept = validate
         if d.exec_() == d.Accepted:
             dev.save_settings(cw)
-            warning_dialog(self, _('Disconnect device'),
-                    _('Disconnect and re-connect the %s for your changes to'
-                        ' be applied.')%dev.get_gui_name(), show=True,
-                    show_copy_button=False)
+            do_restart = show_restart_warning(_('Restart calibre for the changes to %s'
+                ' to be applied.')%dev.get_gui_name(), parent=self)
+            if do_restart:
+                self.quit(restart=True)
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -934,16 +990,16 @@ class DeviceMixin(object): # {{{
             connected = False
         self.set_device_menu_items_state(connected)
         if connected:
+            self.device_connected = device_kind
             self.device_manager.get_device_information(\
                     FunctionDispatcher(self.info_read))
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
             self.status_bar.show_message(_('Device: ')+\
-                self.device_manager.device.__class__.get_gui_name()+\
+                self.device_manager.device.get_gui_name()+\
                         _(' detected.'), 3000)
-            self.device_connected = device_kind
             self.library_view.set_device_connected(self.device_connected)
-            self.refresh_ondevice (reset_only = True)
+            self.refresh_ondevice(reset_only=True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
@@ -976,6 +1032,7 @@ class DeviceMixin(object): # {{{
         if job.failed:
             self.device_job_exception(job)
             return
+        self.device_manager.slow_driveinfo()
         # set_books_in_library might schedule a sync_booklists job
         self.set_books_in_library(job.result, reset=True, add_as_step_to_job=job)
         mainlist, cardalist, cardblist = job.result
@@ -1457,8 +1514,12 @@ class DeviceMixin(object): # {{{
                 self.device_job_exception(job)
             return
 
-        self.device_manager.add_books_to_metadata(job.result,
-                metadata, self.booklists())
+        try:
+            self.device_manager.add_books_to_metadata(job.result,
+                    metadata, self.booklists())
+        except:
+            traceback.print_exc()
+            raise
 
         books_to_be_deleted = []
         if memory and memory[1]:
@@ -1608,7 +1669,10 @@ class DeviceMixin(object): # {{{
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     id_ = db_book_uuid_cache[book.uuid]
                     if update_metadata:
-                        book.smart_update(db.get_metadata(id_,
+                        mi = db.get_metadata(id_, index_is_id=True,
+                                             get_cover=get_covers)
+                        if book.get('last_modified', None) != mi.last_modified:
+                            book.smart_update(db.get_metadata(id_,
                                                           index_is_id=True,
                                                           get_cover=get_covers),
                                           replace_metadata=True)

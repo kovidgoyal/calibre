@@ -14,6 +14,7 @@ from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks import calibre_cover
+from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -50,7 +51,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'\n"
                            "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[.+\]|\+',
+                          default='\[.+\]|^\+$',
                           dest='exclude_genre',
                           action = None,
                           help=_("Regex describing tags to exclude as genres.\n"
@@ -58,7 +59,7 @@ class EPUB_MOBI(CatalogPlugin):
                           "Applies to: AZW3, ePub, MOBI output formats")),
 
                    Option('--exclusion-rules',
-                          default="(('Excluded tags','Tags','Catalog'),)",
+                          default="(('Catalogs','Tags','Catalog'),)",
                           dest='exclusion_rules',
                           action=None,
                           help=_("Specifies the rules used to exclude books from the generated catalog.\n"
@@ -120,9 +121,9 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Custom field containing note text to insert in Description header.\n"
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
-                   Option('--merge-comments',
+                   Option('--merge-comments-rule',
                           default='::',
-                          dest='merge_comments',
+                          dest='merge_comments_rule',
                           action = None,
                           help=_("#<custom field>:[before|after]:[True|False] specifying:\n"
                           " <custom field> Custom field containing notes to merge with Comments\n"
@@ -138,7 +139,7 @@ class EPUB_MOBI(CatalogPlugin):
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--prefix-rules',
-                          default="(('Read books','tags','+','\u2713'),('Wishlist items','tags','Wishlist','\u00d7'))",
+                          default="(('Read books','tags','+','\u2713'),('Wishlist item','tags','Wishlist','\u00d7'))",
                           dest='prefix_rules',
                           action=None,
                           help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
@@ -146,6 +147,13 @@ class EPUB_MOBI(CatalogPlugin):
                           "When multiple rules are defined, the first matching rule will be used.\n"
                           "Default:\n" + '"' + '%default' + '"' + "\n"
                           "Applies to AZW3, ePub, MOBI output formats")),
+                   Option('--use-existing-cover',
+                          default=False,
+                          dest='use_existing_cover',
+                          action = 'store_true',
+                          help=_("Replace existing cover when generating the catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--thumb-width',
                           default='1.0',
                           dest='thumb_width',
@@ -182,8 +190,8 @@ class EPUB_MOBI(CatalogPlugin):
             else:
                 op = "kindle"
 
-        opts.descriptionClip = 380 if op.endswith('dx') or 'kindle' not in op else 100
-        opts.authorClip = 100 if op.endswith('dx') or 'kindle' not in op else 60
+        opts.description_clip = 380 if op.endswith('dx') or 'kindle' not in op else 100
+        opts.author_clip = 100 if op.endswith('dx') or 'kindle' not in op else 60
         opts.output_profile = op
 
         opts.basename = "Catalog"
@@ -198,11 +206,12 @@ class EPUB_MOBI(CatalogPlugin):
             (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
              'CLI' if opts.cli_environment else 'GUI'))
 
-        # If exclude_genre is blank, assume user wants all genre tags included
+        # If exclude_genre is blank, assume user wants all tags as genres
         if opts.exclude_genre.strip() == '':
-            opts.exclude_genre = '\[^.\]'
-            build_log.append(" converting empty exclude_genre to '\[^.\]'")
-
+            #opts.exclude_genre = '\[^.\]'
+            #build_log.append(" converting empty exclude_genre to '\[^.\]'")
+            opts.exclude_genre = 'a^'
+            build_log.append(" converting empty exclude_genre to 'a^'")
         if opts.connected_device['is_device_connected'] and \
            opts.connected_device['kind'] == 'device':
             if opts.connected_device['serial']:
@@ -304,18 +313,16 @@ class EPUB_MOBI(CatalogPlugin):
         keys.sort()
         build_log.append(" opts:")
         for key in keys:
-            if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
-                       'exclude_book_marker','exclude_genre','exclude_tags',
-                       'exclusion_rules',
-                       'header_note_source_field','merge_comments',
+            if key in ['catalog_title','author_clip','connected_kindle','creator',
+                       'description_clip','exclude_book_marker','exclude_genre',
+                       'exclude_tags','exclusion_rules', 'fmt',
+                       'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
-                       'thumb_width','wishlist_tag']:
+                       'thumb_width','use_existing_cover','wishlist_tag']:
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
-
         if opts.verbose:
             log('\n'.join(line for line in build_log))
-
         self.opts = opts
 
         # Launch the Catalog builder
@@ -323,26 +330,30 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             log.info(" Begin catalog source generation")
-        catalog.createDirectoryStructure()
-        catalog.copyResources()
-        catalog.calculateThumbnailSize()
-        catalog_source_built = catalog.buildSources()
 
-        if opts.verbose:
-            if catalog_source_built:
+        try:
+            catalog.build_sources()
+            if opts.verbose:
                 log.info(" Completed catalog source generation\n")
-            else:
-                log.error(" *** Terminated catalog generation, check log for details ***")
+        except (AuthorSortMismatchException, EmptyCatalogException), e:
+            log.error(" *** Terminated catalog generation: %s ***" % e)
+        except:
+            log.error(" unhandled exception in catalog generator")
+            raise
 
-        if catalog_source_built:
+        else:
             recommendations = []
             recommendations.append(('remove_fake_margins', False,
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
-            # >>> Use to debug generated catalog code before conversion <<<
-            if False:
-                setattr(opts,'debug_pipeline',os.path.expanduser("~/Desktop/Catalog debug"))
+            """
+            >>> Use to debug generated catalog code before pipeline conversion <<<
+            """
+            GENERATE_DEBUG_EPUB = False
+            if GENERATE_DEBUG_EPUB:
+                catalog_debug_path = os.path.join(os.path.expanduser('~'),'Desktop','Catalog debug')
+                setattr(opts,'debug_pipeline',os.path.expanduser(catalog_debug_path))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
@@ -357,9 +368,9 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('book_producer',opts.output_profile,
                     OptionRecommendation.HIGH))
 
-            # If cover exists, use it
+            # Use existing cover or generate new cover
             cpath = None
-            generate_new_cover = False
+            existing_cover = False
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
@@ -367,19 +378,18 @@ class EPUB_MOBI(CatalogPlugin):
                 if matches:
                     cpath = db.cover(matches[0], index_is_id=True, as_path=True)
                     if cpath and os.path.exists(cpath):
-                        recommendations.append(('cover', cpath,
-                            OptionRecommendation.HIGH))
-                        log.info("using existing cover")
-                    else:
-                        log.info("no existing cover, generating new cover")
-                        generate_new_cover = True
-                else:
-                    log.info("no existing cover, generating new cover")
-                    generate_new_cover = True
+                        existing_cover = True
             except:
                 pass
 
-            if generate_new_cover:
+            if self.opts.use_existing_cover and not existing_cover:
+                log.warning("no existing catalog cover found")
+
+            if self.opts.use_existing_cover and existing_cover:
+                recommendations.append(('cover', cpath, OptionRecommendation.HIGH))
+                log.info("using existing catalog cover")
+            else:
+                log.info("replacing catalog cover")
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
                 new_cover = calibre_cover(opts.catalog_title.replace('"', '\\"'), 'calibre')
                 new_cover_path.write(new_cover)
@@ -388,7 +398,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber
-            plumber = Plumber(os.path.join(catalog.catalogPath,
+            plumber = Plumber(os.path.join(catalog.catalog_path,
                             opts.basename + '.opf'), path_to_output, log, report_progress=notification,
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
@@ -398,6 +408,18 @@ class EPUB_MOBI(CatalogPlugin):
                 os.remove(cpath)
             except:
                 pass
+
+            if GENERATE_DEBUG_EPUB:
+                from calibre.ebooks.epub import initialize_container
+                from calibre.ebooks.tweak import zip_rebuilder
+                from calibre.utils.zipfile import ZipFile
+                input_path = os.path.join(catalog_debug_path,'input')
+                epub_shell = os.path.join(catalog_debug_path,'epub_shell.zip')
+                initialize_container(epub_shell, opf_name='content.opf')
+                with ZipFile(epub_shell, 'r') as zf:
+                    zf.extractall(path=input_path)
+                os.remove(epub_shell)
+                zip_rebuilder(input_path, os.path.join(catalog_debug_path,'input.epub'))
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error

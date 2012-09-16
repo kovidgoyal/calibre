@@ -163,7 +163,7 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
 
 def check_ebook_format(stream, current_guess):
     ans = current_guess
-    if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1'):
+    if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1', 'azw3'):
         stream.seek(0)
         if stream.read(3) == 'TPZ':
             ans = 'tpz'

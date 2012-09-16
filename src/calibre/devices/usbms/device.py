@@ -15,11 +15,10 @@ import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import (DeviceError, FreeSpaceError,
-        WrongDestinationError)
+from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
-from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
+from calibre.utils.filenames import ascii_filename as sanitize
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -975,54 +974,36 @@ class Device(DeviceConfig, DevicePlugin):
     def get_carda_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_CARD_A
 
-    def _sanity_check(self, on_card, files):
-        if on_card == 'carda' and not self._card_a_prefix:
-            raise WrongDestinationError(_(
-                'The reader has no storage card %s. You may have changed '
-                'the default send to device action. Right click on the send '
-                'to device button and reset the default action to be '
-                '"Send to main memory".')%'A')
-        elif on_card == 'cardb' and not self._card_b_prefix:
-            raise WrongDestinationError(_(
-                'The reader has no storage card %s. You may have changed '
-                'the default send to device action. Right click on the send '
-                'to device button and reset the default action to be '
-                '"Send to main memory".')%'B')
-        elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
+    def get_cardb_ebook_dir(self, for_upload=False):
+        return self.EBOOK_DIR_CARD_B
 
-        if on_card == 'carda':
-            path = os.path.join(self._card_a_prefix,
-                    *(self.get_carda_ebook_dir(for_upload=True).split('/')))
-        elif on_card == 'cardb':
-            path = os.path.join(self._card_b_prefix,
-                    *(self.EBOOK_DIR_CARD_B.split('/')))
-        else:
-            candidates = self.get_main_ebook_dir(for_upload=True)
+    def _sanity_check(self, on_card, files):
+        from calibre.devices.utils import sanity_check
+        sanity_check(on_card, files, self.card_prefix(), self.free_space())
+
+        def get_dest_dir(prefix, candidates):
             if isinstance(candidates, basestring):
                 candidates = [candidates]
+            if not candidates:
+                candidates = ['']
             candidates = [
-                    ((os.path.join(self._main_prefix, *(x.split('/')))) if x else
-                    self._main_prefix) for x
-                    in candidates]
+                ((os.path.join(prefix, *(x.split('/')))) if x else prefix)
+                for x in candidates]
             existing = [x for x in candidates if os.path.exists(x)]
             if not existing:
-                existing = candidates[:1]
-            path = existing[0]
+                existing = candidates
+            return existing[0]
 
-        def get_size(obj):
-            path = getattr(obj, 'name', obj)
-            return os.path.getsize(path)
+        if on_card == 'carda':
+            candidates = self.get_carda_ebook_dir(for_upload=True)
+            path = get_dest_dir(self._card_a_prefix, candidates)
+        elif on_card == 'cardb':
+            candidates = self.get_cardb_ebook_dir(for_upload=True)
+            path = get_dest_dir(self._card_b_prefix, candidates)
+        else:
+            candidates = self.get_main_ebook_dir(for_upload=True)
+            path = get_dest_dir(self._main_prefix, candidates)
 
-        sizes = [get_size(f) for f in files]
-        size = sum(sizes)
-
-        if not on_card and size > self.free_space()[0] - 2*1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space in main memory"))
-        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
     def filename_callback(self, default, mi):
@@ -1052,78 +1033,16 @@ class Device(DeviceConfig, DevicePlugin):
         pass
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        path = os.path.abspath(path)
-        maxlen = self.MAX_PATH_LEN
-
-        special_tag = None
-        if mdata.tags:
-            for t in mdata.tags:
-                if t.startswith(_('News')) or t.startswith('/'):
-                    special_tag = t
-                    break
-
+        from calibre.devices.utils import create_upload_path
         settings = self.settings()
-        template = self.save_template()
-        if mdata.tags and _('News') in mdata.tags:
-            try:
-                p = mdata.pubdate
-                date  = (p.year, p.month, p.day)
-            except:
-                today = time.localtime()
-                date = (today[0], today[1], today[2])
-            template = "{title}_%d-%d-%d" % date
-        use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
-
-        fname = sanitize(fname)
-        ext = os.path.splitext(fname)[1]
-
-        from calibre.library.save_to_disk import get_components
-        from calibre.library.save_to_disk import config
-        opts = config().parse()
-        if not isinstance(template, unicode):
-            template = template.decode('utf-8')
-        app_id = str(getattr(mdata, 'application_id', ''))
-        id_ = mdata.get('id', fname)
-        extra_components = get_components(template, mdata, id_,
-                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
-        if not extra_components:
-            extra_components.append(sanitize(self.filename_callback(fname,
-                mdata)))
-        else:
-            extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
-
-        if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
-            extra_components[-1] = 'x' + extra_components[-1][1:]
-
-        if special_tag is not None:
-            name = extra_components[-1]
-            extra_components = []
-            tag = special_tag
-            if tag.startswith(_('News')):
-                if self.NEWS_IN_FOLDER:
-                    extra_components.append('News')
-            else:
-                for c in tag.split('/'):
-                    c = sanitize(c)
-                    if not c: continue
-                    extra_components.append(c)
-            extra_components.append(name)
-
-        if not use_subdirs:
-            extra_components = extra_components[-1:]
-
-        def remove_trailing_periods(x):
-            ans = x
-            while ans.endswith('.'):
-                ans = ans[:-1].strip()
-            if not ans:
-                ans = 'x'
-            return ans
-
-        extra_components = list(map(remove_trailing_periods, extra_components))
-        components = shorten_components_to(maxlen - len(path), extra_components)
-        components = self.sanitize_path_components(components)
-        filepath = os.path.join(path, *components)
+        filepath = create_upload_path(mdata, fname, self.save_template(), sanitize,
+                prefix_path=os.path.abspath(path),
+                maxlen=self.MAX_PATH_LEN,
+                use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs,
+                news_in_folder = self.NEWS_IN_FOLDER,
+                filename_callback=self.filename_callback,
+                sanitize_path_components=self.sanitize_path_components
+                )
         filedir = os.path.dirname(filepath)
 
         if create_dirs and not os.path.exists(filedir):

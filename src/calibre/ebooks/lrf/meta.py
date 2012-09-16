@@ -18,13 +18,41 @@ from cStringIO import StringIO
 import xml.dom.minidom as dom
 from functools import wraps
 
-from calibre.devices.prs500.prstypes import field
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes
 DWORD     = "<I"  #: Unsigned integer little endian encoded in 4 bytes
 QWORD     = "<Q"  #: Unsigned long long little endian encoded in 8 bytes
+
+class field(object):
+    """ A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>}, that implements access
+    to protocol packets in a human readable way.
+    """
+    def __init__(self, start=16, fmt=DWORD):
+        """
+        @param start: The byte at which this field is stored in the buffer
+        @param fmt:   The packing format for this field.
+        See U{struct<http://docs.python.org/lib/module-struct.html>}.
+        """
+        self._fmt, self._start = fmt, start
+
+    def __get__(self, obj, typ=None):
+        return obj.unpack(start=self._start, fmt=self._fmt)[0]
+
+    def __set__(self, obj, val):
+        obj.pack(val, start=self._start, fmt=self._fmt)
+
+    def __repr__(self):
+        typ = ""
+        if self._fmt == DWORD:
+            typ  = "unsigned int"
+        if self._fmt == QWORD:
+            typ = "unsigned long long"
+        return "An " + typ + " stored in " + \
+        str(struct.calcsize(self._fmt)) + \
+        " bytes starting at byte " + str(self._start)
+
 
 class versioned_field(field):
     def __init__(self, vfield, version, start=0, fmt=WORD):

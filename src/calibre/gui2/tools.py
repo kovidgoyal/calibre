@@ -234,6 +234,9 @@ class QueueBulk(QProgressDialog):
 
 def fetch_scheduled_recipe(arg): # {{{
     fmt = prefs['output_format'].lower()
+    # Never use AZW3 for periodicals...
+    if fmt == 'azw3':
+        fmt = 'mobi'
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
     recs = []

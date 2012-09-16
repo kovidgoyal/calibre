@@ -9,7 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 from functools import wraps
 
+from calibre import prints
+from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
+
+def debug(*args, **kwargs):
+    if DEBUG:
+        prints('MTP:', *args, **kwargs)
 
 def synchronous(func):
     @wraps(func)
@@ -19,36 +25,41 @@ def synchronous(func):
     return synchronizer
 
 class MTPDeviceBase(DevicePlugin):
-    name = 'SmartDevice App Interface'
+    name = 'MTP Device Interface'
     gui_name = _('MTP Device')
     icon = I('devices/galaxy_s3.png')
     description = _('Communicate with MTP devices')
     author = 'Kovid Goyal'
     version = (1, 0, 0)
 
-    # Invalid USB vendor information so the scanner will never match
-    VENDOR_ID                   = [0xffff]
-    PRODUCT_ID                  = [0xffff]
-    BCD                         = [0xffff]
-
-    THUMBNAIL_HEIGHT = 128
-    CAN_SET_METADATA = []
-
-    BACKLOADING_ERROR_MESSAGE = None
-
     def __init__(self, *args, **kwargs):
         DevicePlugin.__init__(self, *args, **kwargs)
         self.progress_reporter = None
         self.current_friendly_name = None
+        self.report_progress = lambda x, y: None
+        self.current_serial_num = None
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
         pass
 
     def set_progress_reporter(self, report_progress):
-        self.progress_reporter = report_progress
+        self.report_progress = report_progress
 
     def get_gui_name(self):
-        return self.current_friendly_name or self.name
+        return getattr(self, 'current_friendly_name', self.gui_name)
+
+    def is_usb_connected(self, devices_on_system, debug=False,
+            only_presence=False):
+        # We manage device presence ourselves, so this method should always
+        # return False
+        return False
+
+    def build_template_regexp(self):
+        from calibre.devices.utils import build_template_regexp
+        return build_template_regexp(self.save_template)
+
+    def is_customizable(self):
+        return True
 
 

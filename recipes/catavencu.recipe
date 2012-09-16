@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AcademiaCatavencu(BasicNewsRecipe):
     title                 = u'Academia Ca\u0163avencu'
     __author__            = u'Silviu Cotoar\u0103'
-    description           = 'Tagma cum laude'
+    description           = 'Academia Catavencu. Pamflete!'
     publisher             = u'Ca\u0163avencu'
     oldest_article        = 5
     language              = 'ro'
@@ -21,7 +21,7 @@ class AcademiaCatavencu(BasicNewsRecipe):
     use_embedded_content  = False
     category              = 'Ziare'
     encoding              = 'utf-8'
-    cover_url         = 'http://www.academiacatavencu.info/images/logo.png'
+    cover_url         = 'http://www.inpolitics.ro/Uploads/Articles/academia_catavencu.jpg'
 
     conversion_options = {
                              'comments'   : description
@@ -31,21 +31,21 @@ class AcademiaCatavencu(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-            dict(name='h1', attrs={'class':'art_title'}),
-			dict(name='div', attrs={'class':'art_text'})
+            dict(name='h1', attrs={'class':'entry-title'}),
+			dict(name='div', attrs={'class':'entry-content'})
                      ]
 
     remove_tags = [
-             dict(name='div', attrs={'class':['desp_m']})
-           , dict(name='div', attrs={'id':['tags']})          
+             dict(name='div', attrs={'class':['mr_social_sharing_wrapper']})
+           , dict(name='div', attrs={'id':['fb_share_1']})          
                   ]
 
     remove_tags_after = [
-              dict(name='div', attrs={'class':['desp_m']})
+              dict(name='div', attrs={'id':['fb_share_1']})
             ]
 
     feeds          = [
-            (u'Feeds', u'http://www.academiacatavencu.info/rss.xml')
+            (u'Feeds', u'http://www.academiacatavencu.info/feed')
                  ]
 
     def preprocess_html(self, soup):

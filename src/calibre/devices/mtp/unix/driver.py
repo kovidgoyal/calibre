@@ -7,140 +7,153 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, operator
+import operator, traceback, pprint, sys, time
 from threading import RLock
-from itertools import chain
-from collections import deque, OrderedDict
-from io import BytesIO
+from collections import namedtuple
+from functools import partial
 
-from calibre import prints
-from calibre.devices.errors import OpenFailed, DeviceError
-from calibre.devices.mtp.base import MTPDeviceBase, synchronous
-from calibre.devices.mtp.unix.detect import MTPDetect
+from calibre import prints, as_unicode
+from calibre.constants import plugins
+from calibre.ptempfile import SpooledTemporaryFile
+from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
+from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
 
-class FilesystemCache(object):
+MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
+        'bcd serial manufacturer product')
 
-    def __init__(self, files, folders):
-        self.files = files
-        self.folders = folders
-        self.file_id_map = {f['id']:f for f in files}
-        self.folder_id_map = {f['id']:f for f in self.iterfolders(set_level=0)}
-
-        # Set the parents of each file
-        self.files_in_root = OrderedDict()
-        for f in files:
-            parents = deque()
-            pid = f['parent_id']
-            while pid is not None and pid > 0:
-                try:
-                    parent = self.folder_id_map[pid]
-                except KeyError:
-                    break
-                parents.appendleft(pid)
-                pid = parent['parent_id']
-            f['parents'] = parents
-            if not parents:
-                self.files_in_root[f['id']] = f
-
-        # Set the files in each folder
-        for f in self.iterfolders():
-            f['files'] = [i for i in files if i['parent_id'] ==
-                    f['id']]
-
-        # Decode the file and folder names
-        for f in chain(files, folders):
-            try:
-                name = f['name'].decode('utf-8')
-            except UnicodeDecodeError:
-                name = 'undecodable_%d'%f['id']
-            f['name'] = name
-
-    def iterfolders(self, folders=None, set_level=None):
-        clevel = None if set_level is None else set_level + 1
-        if folders is None:
-            folders = self.folders
-        for f in folders:
-            if set_level is not None:
-                f['level'] = set_level
-            yield f
-            for c in f['children']:
-                for child in self.iterfolders([c], set_level=clevel):
-                    yield child
-
-    def dump_filesystem(self):
-        indent = 2
-        for f in self.iterfolders():
-            prefix = ' '*(indent*f['level'])
-            prints(prefix, '+', f['name'], 'id=%s'%f['id'])
-            for leaf in f['files']:
-                prints(prefix, ' '*indent, '-', leaf['name'],
-                        'id=%d'%leaf['id'], 'size=%d'%leaf['size'],
-                        'modtime=%d'%leaf['modtime'])
-        for leaf in self.files_in_root.itervalues():
-            prints('-', leaf['name'], 'id=%d'%leaf['id'],
-                    'size=%d'%leaf['size'], 'modtime=%d'%leaf['modtime'])
+def fingerprint(d):
+    return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
+            d.serial, d.manufacturer, d.product)
 
 class MTP_DEVICE(MTPDeviceBase):
 
+    # libusb(x) does not work on OS X. So no MTP support for OS X
     supported_platforms = ['linux']
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
+        self.libmtp = None
+        self.known_devices = None
+        self.detect_cache = {}
+
         self.dev = None
-        self.filesystem_cache = None
+        self._filesystem_cache = None
         self.lock = RLock()
         self.blacklisted_devices = set()
+        self.ejected_devices = set()
+        self.currently_connected_dev = None
 
     def set_debug_level(self, lvl):
-        self.detect.libmtp.set_debug_level(lvl)
-
-    def report_progress(self, sent, total):
-        try:
-            p = int(sent/total * 100)
-        except ZeroDivisionError:
-            p = 100
-        if self.progress_reporter is not None:
-            self.progress_reporter(p)
+        self.libmtp.set_debug_level(lvl)
 
     @synchronous
-    def is_usb_connected(self, devices_on_system, debug=False,
-            only_presence=False):
-
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
+        if self.libmtp is None: return None
         # First remove blacklisted devices.
-        devs = []
+        devs = set()
         for d in devices_on_system:
-            if (d.busnum, d.devnum, d.vendor_id,
-                d.product_id, d.bcd, d.serial) not in self.blacklisted_devices:
-                devs.append(d)
+            fp = fingerprint(d)
+            if fp not in self.blacklisted_devices:
+                devs.add(fp)
 
-        devs = self.detect(devs)
-        if self.dev is not None:
-            # Check if the currently opened device is still connected
-            ids = self.dev.ids
-            found = False
-            for d in devs:
-                if ( (d.busnum, d.devnum, d.vendor_id, d.product_id, d.serial)
-                        == ids ):
-                    found = True
-                    break
-            return found
-        # Check if any MTP capable device is present
-        return len(devs) > 0
+        # Clean up ejected devices
+        self.ejected_devices = devs.intersection(self.ejected_devices)
+
+        # Check if the currently connected device is still present
+        if self.currently_connected_dev is not None:
+            return (self.currently_connected_dev if
+                    self.currently_connected_dev in devs else None)
+
+        # Remove ejected devices
+        devs = devs - self.ejected_devices
+
+        # Now check for MTP devices
+        if force_refresh:
+            self.detect_cache = {}
+        cache = self.detect_cache
+        for d in devs:
+            ans = cache.get(d, None)
+            if ans is None:
+                ans = (d.vendor_id, d.product_id) in self.known_devices
+                cache[d] = ans
+            if ans:
+                return d
+
+        return None
+
+    @synchronous
+    def debug_managed_device_detection(self, devices_on_system, output):
+        if self.currently_connected_dev is not None:
+            return True
+        p = partial(prints, file=output)
+        if self.libmtp is None:
+            err = plugins['libmtp'][1]
+            if not err:
+                err = 'startup() not called on this device driver'
+            p(err)
+            return False
+        devs = [d for d in devices_on_system if (d.vendor_id, d.product_id)
+                in self.known_devices]
+        if not devs:
+            p('No known MTP devices connected to system')
+            return False
+        p('Known MTP devices connected:')
+        for d in devs: p(d)
+
+        for d in devs:
+            p('\nTrying to open:', d)
+            try:
+                self.open(d, 'debug')
+            except BlacklistedDevice:
+                p('This device has been blacklisted by the user')
+                continue
+            except:
+                p('Opening device failed:')
+                p(traceback.format_exc())
+                return False
+            else:
+                p('Opened', self.current_friendly_name, 'successfully')
+                p('Storage info:')
+                p(pprint.pformat(self.dev.storage_info))
+                self.post_yank_cleanup()
+                return True
+        return False
+
+    @synchronous
+    def create_device(self, connected_device):
+        d = connected_device
+        return self.libmtp.Device(d.busnum, d.devnum, d.vendor_id,
+                d.product_id, d.manufacturer, d.product, d.serial)
+
+    @synchronous
+    def eject(self):
+        if self.currently_connected_dev is None: return
+        self.ejected_devices.add(self.currently_connected_dev)
+        self.post_yank_cleanup()
 
     @synchronous
     def post_yank_cleanup(self):
-        self.dev = self.filesystem_cache = self.current_friendly_name = None
+        self.dev = self._filesystem_cache = self.current_friendly_name = None
+        self.currently_connected_dev = None
+        self.current_serial_num = None
 
     @synchronous
     def startup(self):
-        self.detect = MTPDetect()
-        for x in vars(self.detect.libmtp):
+        p = plugins['libmtp']
+        self.libmtp = p[0]
+        if self.libmtp is None:
+            print ('Failed to load libmtp, MTP device detection disabled')
+            print (p[1])
+        else:
+            self.known_devices = frozenset(self.libmtp.known_devices())
+
+        for x in vars(self.libmtp):
             if x.startswith('LIBMTP'):
-                setattr(self, x, getattr(self.detect.libmtp, x))
+                setattr(self, x, getattr(self.libmtp, x))
 
     @synchronous
     def shutdown(self):
-        self.dev = self.filesystem_cache = None
+        self.dev = self._filesystem_cache = None
 
     def format_errorstack(self, errs):
         return '\n'.join(['%d:%s'%(code, msg.decode('utf-8', 'replace')) for
@@ -148,68 +161,75 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def open(self, connected_device, library_uuid):
-        self.dev = self.filesystem_cache = None
-        def blacklist_device():
-            d = connected_device
-            self.blacklisted_devices.add((d.busnum, d.devnum, d.vendor_id,
-                    d.product_id, d.bcd, d.serial))
+        self.dev = self._filesystem_cache = None
         try:
-            self.dev = self.detect.create_device(connected_device)
-        except ValueError:
-            # Give the device some time to settle
-            time.sleep(2)
-            try:
-                self.dev = self.detect.create_device(connected_device)
-            except ValueError:
-                # Black list this device so that it is ignored for the
-                # remainder of this session.
-                blacklist_device()
-                raise OpenFailed('%s is not a MTP device'%(connected_device,))
-        except TypeError:
-            blacklist_device()
-            raise OpenFailed('')
+            self.dev = self.create_device(connected_device)
+        except Exception as e:
+            raise OpenFailed('Failed to open %s: Error: %s'%(
+                    connected_device, as_unicode(e)))
 
         storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
+        storage = [x for x in storage if x.get('rw', False)]
         if not storage:
-            blacklist_device()
+            self.blacklisted_devices.add(connected_device)
             raise OpenFailed('No storage found for device %s'%(connected_device,))
+        snum = self.dev.serial_number
+        if snum in self.prefs.get('blacklist', []):
+            self.blacklisted_devices.add(connected_device)
+            self.dev = None
+            raise BlacklistedDevice(
+                'The %s device has been blacklisted by the user'%(connected_device,))
         self._main_id = storage[0]['id']
         self._carda_id = self._cardb_id = None
         if len(storage) > 1:
             self._carda_id = storage[1]['id']
         if len(storage) > 2:
             self._cardb_id = storage[2]['id']
-        self.current_friendly_name = self.dev.name
+        self.current_friendly_name = self.dev.friendly_name
+        if not self.current_friendly_name:
+            self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
+        self.current_serial_num = snum
+
+    @property
+    def filesystem_cache(self):
+        if self._filesystem_cache is None:
+            st = time.time()
+            debug('Loading filesystem metadata...')
+            from calibre.devices.mtp.filesystem_cache import FilesystemCache
+            with self.lock:
+                storage, all_items, all_errs = [], [], []
+                for sid, capacity in zip([self._main_id, self._carda_id,
+                    self._cardb_id], self.total_space()):
+                    if sid is None: continue
+                    name = _('Unknown')
+                    for x in self.dev.storage_info:
+                        if x['id'] == sid:
+                            name = x['name']
+                            break
+                    storage.append({'id':sid, 'size':capacity,
+                        'is_folder':True, 'name':name, 'can_delete':False,
+                        'is_system':True})
+                    items, errs = self.dev.get_filesystem(sid)
+                    all_items.extend(items), all_errs.extend(errs)
+                if not all_items and all_errs:
+                    raise DeviceError(
+                            'Failed to read filesystem from %s with errors: %s'
+                            %(self.current_friendly_name,
+                                self.format_errorstack(all_errs)))
+                if all_errs:
+                    prints('There were some errors while getting the '
+                            ' filesystem from %s: %s'%(
+                                self.current_friendly_name,
+                                self.format_errorstack(all_errs)))
+                self._filesystem_cache = FilesystemCache(storage, all_items)
+            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
+                time.time()-st, len(self._filesystem_cache)))
+        return self._filesystem_cache
 
     @synchronous
-    def read_filesystem_cache(self):
-        try:
-            files, errs = self.dev.get_filelist(self)
-            if errs and not files:
-                raise DeviceError('Failed to read files from device. Underlying errors:\n'
-                        +self.format_errorstack(errs))
-            folders, errs = self.dev.get_folderlist()
-            if errs and not folders:
-                raise DeviceError('Failed to read folders from device. Underlying errors:\n'
-                        +self.format_errorstack(errs))
-            self.filesystem_cache = FilesystemCache(files, folders)
-        except:
-            self.dev = self._main_id = self._carda_id = self._cardb_id = None
-            raise
-
-    @synchronous
-    def get_device_information(self, end_session=True):
+    def get_basic_device_information(self):
         d = self.dev
         return (self.current_friendly_name, d.device_version, d.device_version, '')
-
-    @synchronous
-    def card_prefix(self, end_session=True):
-        ans = [None, None]
-        if self._carda_id is not None:
-            ans[0] = 'mtp:::%d:::'%self._carda_id
-        if self._cardb_id is not None:
-            ans[1] = 'mtp:::%d:::'%self._cardb_id
-        return tuple(ans)
 
     @synchronous
     def total_space(self, end_session=True):
@@ -232,39 +252,105 @@ class MTP_DEVICE(MTPDeviceBase):
                 ans[i] = s['freespace_bytes']
         return tuple(ans)
 
+    @synchronous
+    def create_folder(self, parent, name):
+        if not parent.is_folder:
+            raise ValueError('%s is not a folder'%(parent.full_path,))
+        e = parent.folder_named(name)
+        if e is not None:
+            return e
+        ename = name.encode('utf-8') if isinstance(name, unicode) else name
+        sid, pid = parent.storage_id, parent.object_id
+        if pid == sid:
+            pid = 0
+        ans, errs = self.dev.create_folder(sid, pid, ename)
+        if ans is None:
+            raise DeviceError(
+                    'Failed to create folder named %s in %s with error: %s'%
+                    (name, parent.full_path, self.format_errorstack(errs)))
+        return parent.add_child(ans)
 
-if __name__ == '__main__':
-    BytesIO
-    class PR:
-        def report_progress(self, sent, total):
-            print (sent, total, end=', ')
+    @synchronous
+    def put_file(self, parent, name, stream, size, callback=None, replace=True):
+        e = parent.folder_named(name)
+        if e is not None:
+            raise ValueError('Cannot upload file, %s already has a folder named: %s'%(
+                parent.full_path, e.name))
+        e = parent.file_named(name)
+        if e is not None:
+            if not replace:
+                raise ValueError('Cannot upload file %s, it already exists'%(
+                    e.full_path,))
+            self.delete_file_or_folder(e)
+        ename = name.encode('utf-8') if isinstance(name, unicode) else name
+        sid, pid = parent.storage_id, parent.object_id
+        if pid == sid:
+            pid = 0
 
-    from pprint import pprint
+        ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
+        if ans is None:
+            raise DeviceError('Failed to upload file named: %s to %s: %s'
+                    %(name, parent.full_path, self.format_errorstack(errs)))
+        return parent.add_child(ans)
+
+    @synchronous
+    def get_mtp_file(self, f, stream=None, callback=None):
+        if f.is_folder:
+            raise ValueError('%s if a folder'%(f.full_path,))
+        if stream is None:
+            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+            stream.name = f.name
+        ok, errs = self.dev.get_file(f.object_id, stream, callback)
+        if not ok:
+            raise DeviceError('Failed to get file: %s with errors: %s'%(
+                f.full_path, self.format_errorstack(errs)))
+        stream.seek(0)
+        return stream
+
+    @synchronous
+    def delete_file_or_folder(self, obj):
+        if obj.deleted:
+            return
+        if not obj.can_delete:
+            raise ValueError('Cannot delete %s as deletion not allowed'%
+                    (obj.full_path,))
+        if obj.is_system:
+            raise ValueError('Cannot delete %s as it is a system object'%
+                    (obj.full_path,))
+        if obj.files or obj.folders:
+            raise ValueError('Cannot delete %s as it is not empty'%
+                    (obj.full_path,))
+        parent = obj.parent
+        ok, errs = self.dev.delete_object(obj.object_id)
+        if not ok:
+            raise DeviceError('Failed to delete %s with error: %s'%
+                (obj.full_path, self.format_errorstack(errs)))
+        parent.remove_child(obj)
+        return parent
+
+def develop():
+    from calibre.devices.scanner import DeviceScanner
+    scanner = DeviceScanner()
+    scanner.scan()
     dev = MTP_DEVICE(None)
     dev.startup()
-    from calibre.devices.scanner import linux_scanner
-    devs = linux_scanner()
-    mtp_devs = dev.detect(devs)
-    dev.open(list(mtp_devs)[0], 'xxx')
-    dev.read_filesystem_cache()
-    d = dev.dev
-    print ("Opened device:", dev.get_gui_name())
-    print ("Storage info:")
-    pprint(d.storage_info)
-    print("Free space:", dev.free_space())
-    # print (d.create_folder(dev._main_id, 0, 'testf'))
-    # raw = b'test'
-    # fname = b'moose.txt'
-    # src = BytesIO(raw)
-    # print (d.put_file(dev._main_id, 0, fname, src, len(raw), PR()))
-    dev.filesystem_cache.dump_filesystem()
-    # with open('/tmp/flint.epub', 'wb') as f:
-    #     print(d.get_file(786, f, PR()))
-    # print()
-    # with open('/tmp/bleak.epub', 'wb') as f:
-    #     print(d.get_file(601, f, PR()))
-    # print()
+    try:
+        cd = dev.detect_managed_devices(scanner.devices)
+        if cd is None: raise RuntimeError('No MTP device found')
+        dev.open(cd, 'develop')
+        pprint.pprint(dev.dev.storage_info)
+        dev.filesystem_cache
+    finally:
+        dev.shutdown()
+
+if __name__ == '__main__':
+    dev = MTP_DEVICE(None)
+    dev.startup()
+    from calibre.devices.scanner import DeviceScanner
+    scanner = DeviceScanner()
+    scanner.scan()
+    devs = scanner.devices
+    dev.debug_managed_device_detection(devs, sys.stdout)
     dev.set_debug_level(dev.LIBMTP_DEBUG_ALL)
-    del d
     dev.shutdown()
 

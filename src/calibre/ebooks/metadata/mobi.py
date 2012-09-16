@@ -341,11 +341,14 @@ class MetadataUpdater(object):
             kindle_pdoc = None
             share_not_sync = False
         if mi.author_sort and pas:
-            authors = mi.author_sort
-            update_exth_record((100, normalize(authors).encode(self.codec, 'replace')))
+            # We want an EXTH field per author...
+            authors = mi.author_sort.split(' & ')
+            for author in authors:
+                update_exth_record((100, normalize(author).encode(self.codec, 'replace')))
         elif mi.authors:
-            authors = ';'.join(mi.authors)
-            update_exth_record((100, normalize(authors).encode(self.codec, 'replace')))
+            authors = mi.authors
+            for author in authors:
+                update_exth_record((100, normalize(author).encode(self.codec, 'replace')))
         if mi.publisher:
             update_exth_record((101, normalize(mi.publisher).encode(self.codec, 'replace')))
         if mi.comments:
@@ -360,6 +363,7 @@ class MetadataUpdater(object):
         if mi.isbn:
             update_exth_record((104, mi.isbn.encode(self.codec, 'replace')))
         if mi.tags:
+            # FIXME: Keep a single subject per EXTH field?
             subjects = '; '.join(mi.tags)
             update_exth_record((105, normalize(subjects).encode(self.codec, 'replace')))
 

@@ -12,7 +12,10 @@ import struct
 
 from calibre.ebooks.mobi.reader.mobi6 import MobiReader
 from calibre.ebooks.pdb.header import PdbHeaderReader
+from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.utils.logging import default_log
+from calibre import prints
+from calibre.constants import DEBUG
 
 class APNXBuilder(object):
     '''
@@ -25,11 +28,32 @@ class APNXBuilder(object):
         pass in a value to page_count, otherwise a count will be estimated
         using either the fast or accurate algorithm.
         '''
-        # Check that this is really a MOBI file.
+        import uuid
+        apnx_meta = { 'guid': str(uuid.uuid4()).replace('-', '')[:8], 'asin':
+                '', 'cdetype': 'EBOK', 'format': 'MOBI_7', 'acr': '' }
+
         with open(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
-        if ident != 'BOOKMOBI':
-            raise Exception(_('Not a valid MOBI file. Reports identity of %s') % ident)
+            if ident != 'BOOKMOBI':
+                # Check that this is really a MOBI file.
+                raise Exception(_('Not a valid MOBI file. Reports identity of %s') % ident)
+            apnx_meta['acr'] = str(PdbHeaderReader(mf).name())
+
+        # We'll need the PDB name, the MOBI version, and some metadata to make FW 3.4 happy with KF8 files...
+        with open(mobi_file_path, 'rb') as mf:
+            mh = MetadataHeader(mf, default_log)
+            if mh.mobi_version == 8:
+                apnx_meta['format'] = 'MOBI_8'
+            else:
+                apnx_meta['format'] = 'MOBI_7'
+            if mh.exth is None or not mh.exth.cdetype:
+                apnx_meta['cdetype'] = 'EBOK'
+            else:
+                apnx_meta['cdetype'] = str(mh.exth.cdetype)
+            if mh.exth is None or not mh.exth.uuid:
+                apnx_meta['asin'] = ''
+            else:
+                apnx_meta['asin'] = str(mh.exth.uuid)
 
         # Get the pages depending on the chosen parser
         pages = []
@@ -51,23 +75,32 @@ class APNXBuilder(object):
             raise Exception(_('Could not generate page mapping.'))
 
         # Generate the APNX file from the page mapping.
-        apnx = self.generate_apnx(pages)
+        apnx = self.generate_apnx(pages, apnx_meta)
 
         # Write the APNX.
         with open(apnx_path, 'wb') as apnxf:
             apnxf.write(apnx)
 
-    def generate_apnx(self, pages):
-        import uuid
+    def generate_apnx(self, pages, apnx_meta):
         apnx = ''
 
-        content_vals = {
-            'guid': str(uuid.uuid4()).replace('-', '')[:8],
-            'isbn': '',
-        }
+        if DEBUG:
+            prints('APNX META: guid:', apnx_meta['guid'])
+            prints('APNX META: ASIN:', apnx_meta['asin'])
+            prints('APNX META: CDE:', apnx_meta['cdetype'])
+            prints('APNX META: format:', apnx_meta['format'])
+            prints('APNX META: Name:', apnx_meta['acr'])
 
-        content_header = '{"contentGuid":"%(guid)s","asin":"%(isbn)s","cdeType":"EBOK","fileRevisionId":"1"}' % content_vals
-        page_header = '{"asin":"%(isbn)s","pageMap":"(1,a,1)"}' % content_vals
+        # Updated header if we have a KF8 file...
+        if apnx_meta['format'] == 'MOBI_8':
+            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta
+        else:
+            # My 5.1.x Touch & 3.4 K3 seem to handle the 'extended' header fine for legacy mobi files, too. But, since they still handle this one too, let's try not to break old devices, and keep using the simple header ;).
+            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","fileRevisionId":"1"}' % apnx_meta
+        page_header = '{"asin":"%(asin)s","pageMap":"(1,a,1)"}' % apnx_meta
+
+        if DEBUG:
+            prints('APNX Content Header:', content_header)
 
         apnx += struct.pack('>I', 65537)
         apnx += struct.pack('>I', 12 + len(content_header))

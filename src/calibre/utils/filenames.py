@@ -187,11 +187,66 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
         os.fsync(ans.fileno())
 
         cl = fname.lower()
-        candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+        try:
+            candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+        except EnvironmentError:
+            # The containing directory, somehow disappeared?
+            candidates = []
         if len(candidates) == 1:
             fpath = os.path.join(cpath, candidates[0])
         else:
             # We are on a case sensitive filesystem
             fpath = os.path.join(cpath, fname)
     return ans, fpath
+
+def samefile_windows(src, dst):
+    import win32file
+    from pywintypes import error
+
+    samestring = (os.path.normcase(os.path.abspath(src)) ==
+            os.path.normcase(os.path.abspath(dst)))
+    if samestring:
+        return True
+
+    def get_fileid(x):
+        if isbytestring(x): x = x.decode(filesystem_encoding)
+        try:
+            h = win32file.CreateFile(x, 0, 0, None, win32file.OPEN_EXISTING,
+                    win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
+            data = win32file.GetFileInformationByHandle(h)
+        except (error, EnvironmentError):
+            return None
+        return (data[4], data[8], data[9])
+
+    a, b = get_fileid(src), get_fileid(dst)
+    if a is None and b is None:
+        return False
+    return a == b
+
+def samefile(src, dst):
+    '''
+    Check if two paths point to the same actual file on the filesystem. Handles
+    symlinks, case insensitivity, mapped drives, etc.
+
+    Returns True iff both paths exist and point to the same file on disk.
+
+    Note: On windows will return True if the two string are identical (upto
+    case) even if the file does not exist. This is because I have no way of
+    knowing how reliable the GetFileInformationByHandle method is.
+    '''
+    if iswindows:
+        return samefile_windows(src, dst)
+
+    if hasattr(os.path, 'samefile'):
+        # Unix
+        try:
+            return os.path.samefile(src, dst)
+        except EnvironmentError:
+            return False
+
+    # All other platforms: check for same pathname.
+    samestring = (os.path.normcase(os.path.abspath(src)) ==
+            os.path.normcase(os.path.abspath(dst)))
+    return samestring
+
 

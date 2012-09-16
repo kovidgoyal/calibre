@@ -101,6 +101,7 @@ gprefs.defaults['auto_add_auto_convert'] = True
 gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
+gprefs.defaults['bd_show_cover'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -327,6 +328,19 @@ def info_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
+def show_restart_warning(msg, parent=None):
+    d = warning_dialog(parent, _('Restart needed'), msg,
+            show_copy_button=False)
+    b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+    b.setIcon(QIcon(I('lt.png')))
+    d.do_restart = False
+    def rf():
+        d.do_restart = True
+    b.clicked.connect(rf)
+    d.set_details('')
+    d.exec_()
+    b.clicked.disconnect()
+    return d.do_restart
 
 
 class Dispatcher(QObject):
@@ -463,10 +477,13 @@ class FileIconProvider(QFileIconProvider):
              'prc'     : 'mobi',
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
+             'pobi'    : 'mobi',
              'mbp'     : 'zero',
-             'azw1'    : 'mobi',
+             'azw1'    : 'tpz',
+             'azw2'    : 'azw2',
+             'azw3'    : 'azw3',
              'azw4'    : 'pdf',
-             'tpz'     : 'mobi',
+             'tpz'     : 'tpz',
              'tan'     : 'zero',
              'epub'    : 'epub',
              'fb2'     : 'fb2',
@@ -485,6 +502,7 @@ class FileIconProvider(QFileIconProvider):
         self.icons = {}
         for key in self.__class__.ICONS.keys():
             self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.png'
+        self.icons['calibre'] = I('lt.png')
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 

@@ -11,18 +11,18 @@ from collections import namedtuple
 
 from PyQt4.Qt import (QDialog, Qt, QLabel, QGridLayout, QPixmap,
         QDialogButtonBox, QApplication, QSize, pyqtSignal, QIcon,
-        QPlainTextEdit)
+        QPlainTextEdit, QCheckBox)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
-        'show_copy_button')
+        'show_copy_button checkbox_msg checkbox_checked')
 
 class ProceedQuestion(QDialog):
 
-    ask_question = pyqtSignal(object, object)
+    ask_question = pyqtSignal(object, object, object)
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
@@ -62,10 +62,13 @@ class ProceedQuestion(QDialog):
         self.bb.setStandardButtons(self.bb.Yes|self.bb.No)
         self.bb.button(self.bb.Yes).setDefault(True)
 
+        self.checkbox = QCheckBox('', self)
+
         l.addWidget(ic, 0, 0, 1, 1)
         l.addWidget(msg, 0, 1, 1, 1)
-        l.addWidget(self.det_msg, 1, 0, 1, 2)
-        l.addWidget(self.bb, 2, 0, 1, 2)
+        l.addWidget(self.checkbox, 1, 0, 1, 2)
+        l.addWidget(self.det_msg, 2, 0, 1, 2)
+        l.addWidget(self.bb, 3, 0, 1, 2)
 
         self.ask_question.connect(self.do_ask_question,
                 type=Qt.QueuedConnection)
@@ -82,19 +85,28 @@ class ProceedQuestion(QDialog):
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
-            self.ask_question.emit(callback, payload)
+            cb = None
+            if self.checkbox.isVisible():
+                cb = bool(self.checkbox.isChecked())
+            self.ask_question.emit(callback, payload, cb)
         self.hide()
 
     def reject(self):
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
-            self.ask_question.emit(cancel_callback, payload)
+            cb = None
+            if self.checkbox.isVisible():
+                cb = bool(self.checkbox.isChecked())
+            self.ask_question.emit(cancel_callback, payload, cb)
         self.hide()
 
-    def do_ask_question(self, callback, payload):
+    def do_ask_question(self, callback, payload, checkbox_checked):
         if callable(callback):
-            callback(payload)
+            args = [payload]
+            if checkbox_checked is not None:
+                args.append(checkbox_checked)
+            callback(*args)
         self.show_question()
 
     def toggle_det_msg(self, *args):
@@ -122,6 +134,10 @@ class ProceedQuestion(QDialog):
             self.det_msg.setVisible(False)
             self.det_msg_toggle.setVisible(bool(question.det_msg))
             self.det_msg_toggle.setText(self.show_det_msg)
+            self.checkbox.setVisible(question.checkbox_msg is not None)
+            if question.checkbox_msg is not None:
+                self.checkbox.setText(question.checkbox_msg)
+                self.checkbox.setChecked(question.checkbox_checked)
             self.do_resize()
             self.show()
             self.bb.button(self.bb.Yes).setDefault(True)
@@ -129,10 +145,10 @@ class ProceedQuestion(QDialog):
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
-            log_is_file=False):
+            log_is_file=False, checkbox_msg=None, checkbox_checked=False):
         '''
         A non modal popup that notifies the user that a background task has
-        been completed. This class guarantees that onlya single popup is
+        been completed. This class guarantees that only a single popup is
         visible at any one time. Other requests are queued and displayed after
         the user dismisses the current popup.
 
@@ -147,11 +163,18 @@ class ProceedQuestion(QDialog):
         :param msg: The msg to display
         :param det_msg: Detailed message
         :param log_is_file: If True the html_log parameter is interpreted as
-        the path to a file on disk containing the log encoded with utf-8
+                            the path to a file on disk containing the log
+                            encoded with utf-8
+        :param checkbox_msg: If not None, a checkbox is displayed in the
+                             dialog, showing this message. The callback is
+                             called with both the payload and the state of the
+                             checkbox as arguments.
+        :param checkbox_checked: If True the checkbox is checked by default.
+
         '''
         question = Question(payload, callback, cancel_callback, title, msg,
                 html_log, log_viewer_title, log_is_file, det_msg,
-                show_copy_button)
+                show_copy_button, checkbox_msg, checkbox_checked)
         self.questions.append(question)
         self.show_question()
 
@@ -169,7 +192,8 @@ def main():
     from calibre.gui2 import Application
     app = Application([])
     p = ProceedQuestion(None)
-    p(lambda p:None, None, 'ass', 'ass', 'testing', 'testing')
+    p(lambda p:None, None, 'ass', 'ass', 'testing', 'testing',
+            checkbox_msg='testing the ruddy checkbox', det_msg='details')
     p.exec_()
     app
 
