@@ -141,7 +141,7 @@ class GoogleCode(Base):# {{{
             # The pattern to match filenames for the files being uploaded and
             # extract version information from them. Must have a named group
             # named version
-            filename_pattern=r'{appname}-(?:portable-)?(?P<version>.+?)(?:-(?:i686|x86_64|32bit|64bit))?\.(?:zip|exe|msi|dmg|tar\.bz2|tar\.xz|txz|tbz2)'
+            filename_pattern=r'{appname}-(?:portable-installer-)?(?P<version>.+?)(?:-(?:i686|x86_64|32bit|64bit))?\.(?:zip|exe|msi|dmg|tar\.bz2|tar\.xz|txz|tbz2)'
 
             ):
         self.username, self.password, = username, password
