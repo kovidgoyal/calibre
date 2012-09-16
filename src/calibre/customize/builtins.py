@@ -1269,17 +1269,6 @@ class StoreBNStore(StoreBase):
     headquarters = 'US'
     formats = ['NOOK']
 
-class StoreBeamEBooksDEStore(StoreBase):
-    name = 'Beam EBooks DE'
-    author = 'Charles Haley'
-    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
-    actual_plugin = 'calibre.gui2.store.stores.beam_ebooks_de_plugin:BeamEBooksDEStore'
-
-    drm_free_only = True
-    headquarters = 'DE'
-    formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
-
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
     description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
