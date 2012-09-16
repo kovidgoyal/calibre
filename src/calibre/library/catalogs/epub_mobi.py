@@ -360,13 +360,14 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('debug_pipeline', dp,
                     OptionRecommendation.HIGH))
 
-            if opts.fmt == 'mobi' and opts.output_profile and opts.output_profile.startswith("kindle"):
+            if opts.output_profile and opts.output_profile.startswith("kindle"):
                 recommendations.append(('output_profile', opts.output_profile,
-                    OptionRecommendation.HIGH))
-                recommendations.append(('no_inline_toc', True,
                     OptionRecommendation.HIGH))
                 recommendations.append(('book_producer',opts.output_profile,
                     OptionRecommendation.HIGH))
+                if opts.fmt == 'mobi':
+                    recommendations.append(('no_inline_toc', True,
+                        OptionRecommendation.HIGH))
 
             # Use existing cover or generate new cover
             cpath = None

@@ -33,6 +33,12 @@ class CatalogBuilder(object):
         catalog = Catalog(notification=Reporter())
         catalog.build_sources()
     Options managed in gui2.catalog.catalog_epub_mobi.py
+
+    Turned off fetch_bookmarks as of 0.8.70
+    self.generate_recently_read = True if (_opts.generate_recently_added and
+                                           _opts.connected_kindle and
+                                           self.generate_for_kindle_mobi) else False
+    Does not work with AZW3, interferes with new prefix handling
     '''
 
     DEBUG = False
@@ -85,9 +91,9 @@ class CatalogBuilder(object):
     @property
     def SYMBOL_READING(self):
         if self.generate_for_kindle_mobi:
-            return self.format_prefix('&#x25b7;')
+            return '&#x25b7;'
         else:
-            return self.format_prefix('&nbsp;')
+            return '&nbsp;'
 
 
     def __init__(self, db, _opts, plugin,
@@ -123,9 +129,7 @@ class CatalogBuilder(object):
         self.content_dir = os.path.join(self.catalog_path, "content")
         self.current_step = 0.0
         self.error = []
-        self.generate_recently_read = True if (_opts.generate_recently_added and
-                                               _opts.connected_kindle and
-                                               self.generate_for_kindle_mobi) else False
+        self.generate_recently_read = False
         self.genres = []
         self.genre_tags_dict = None
         self.html_filelist_1 = []
@@ -460,8 +464,9 @@ class CatalogBuilder(object):
         catalog_resources = P("catalog")
 
         files_to_copy = [('','DefaultCover.jpg'),
-                            ('content','stylesheet.css'),
-                            ('images','mastheadImage.gif')]
+                            ('content','stylesheet.css')]
+        if self.generate_for_kindle_mobi:
+            files_to_copy.extend([('images','mastheadImage.gif')])
 
         for file in files_to_copy:
             if file[0] == '':
@@ -958,7 +963,7 @@ class CatalogBuilder(object):
         """
 
         from calibre.devices.usbms.device import Device
-        from calibre.devices.kindle.driver import Bookmark
+        from calibre.devices.kindle.bookmark import Bookmark
         from calibre.ebooks.metadata import MetaInformation
 
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
@@ -984,7 +989,10 @@ class CatalogBuilder(object):
                     file_fmts.add(fmt)
 
                 bookmark_extension = None
-                if file_fmts.intersection(mbp_formats):
+                if file_fmts.intersection(han_formats):
+                    book_extension = list(file_fmts.intersection(han_formats))[0]
+                    bookmark_extension = 'han'
+                elif file_fmts.intersection(mbp_formats):
                     book_extension = list(file_fmts.intersection(mbp_formats))[0]
                     bookmark_extension = 'mbp'
                 elif file_fmts.intersection(tan_formats):
@@ -1011,6 +1019,7 @@ class CatalogBuilder(object):
                 path_map.pop(id)
             return path_map, book_ext
 
+        self.bookmarked_books = {}
         if self.generate_recently_read:
             self.opts.log.info("     Collecting Kindle bookmarks matching catalog entries")
 
@@ -1045,8 +1054,6 @@ class CatalogBuilder(object):
                         bookmarks[id] = ((myBookmark,book))
 
             self.bookmarked_books = bookmarks
-        else:
-            self.bookmarked_books = {}
 
     def filter_db_tags(self):
         """ Remove excluded tags from data set, return normalized genre list.
@@ -2781,7 +2788,8 @@ class CatalogBuilder(object):
         ncx = soup.find('ncx')
         navMapTag = Tag(soup, 'navMap')
         navPointTag = Tag(soup, 'navPoint')
-        navPointTag['class'] = "periodical"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "periodical"
         navPointTag['id'] = "title"
         navPointTag['playOrder'] = self.play_order
         self.play_order += 1
@@ -2820,12 +2828,13 @@ class CatalogBuilder(object):
             contentTag['src'] = "content/book_%d.html" % int(sort_descriptions_by[0]['id'])
             navPointTag.insert(1, contentTag)
 
-        cmiTag = Tag(soup, '%s' % 'calibre:meta-img')
-        cmiTag['id'] = "mastheadImage"
-        cmiTag['src'] = "images/mastheadImage.gif"
-        navPointTag.insert(2,cmiTag)
-        navMapTag.insert(0,navPointTag)
+        if self.generate_for_kindle_mobi:
+            cmiTag = Tag(soup, '%s' % 'calibre:meta-img')
+            cmiTag['id'] = "mastheadImage"
+            cmiTag['src'] = "images/mastheadImage.gif"
+            navPointTag.insert(2,cmiTag)
 
+        navMapTag.insert(0,navPointTag)
         ncx.insert(0,navMapTag)
         self.ncx_soup = soup
 
@@ -2846,15 +2855,19 @@ class CatalogBuilder(object):
 
         self.update_progress_full_step(_("NCX for Descriptions"))
 
-        # --- Construct the 'Books by Title' section ---
+        sort_descriptions_by = self.books_by_author if self.opts.sort_descriptions_by_author \
+                                                    else self.books_by_title
+
+        # --- Construct the 'Descriptions' section ---
         ncx_soup = self.ncx_soup
         body = ncx_soup.find("navPoint")
         btc = len(body.contents)
 
         # Add the section navPoint
         navPointTag = Tag(ncx_soup, 'navPoint')
-        navPointTag['class'] = "section"
-        navPointTag['id'] = "bytitle-ID"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
+        navPointTag['id'] = "bydescription-ID"
         navPointTag['playOrder'] = self.play_order
         self.play_order += 1
         navLabelTag = Tag(ncx_soup, 'navLabel')
@@ -2865,17 +2878,16 @@ class CatalogBuilder(object):
         navPointTag.insert(nptc, navLabelTag)
         nptc += 1
         contentTag = Tag(ncx_soup,"content")
-        contentTag['src'] = "content/book_%d.html" % int(self.books_by_title[0]['id'])
+        contentTag['src'] = "content/book_%d.html" % int(sort_descriptions_by[0]['id'])
         navPointTag.insert(nptc, contentTag)
         nptc += 1
 
         # Loop over the titles
-        sort_descriptions_by = self.books_by_author if self.opts.sort_descriptions_by_author \
-                                                    else self.books_by_title
 
         for book in sort_descriptions_by:
             navPointVolumeTag = Tag(ncx_soup, 'navPoint')
-            navPointVolumeTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointVolumeTag['class'] = "article"
             navPointVolumeTag['id'] = "book%dID" % int(book['id'])
             navPointVolumeTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -2979,7 +2991,8 @@ class CatalogBuilder(object):
 
         # --- Construct the 'Books By Series' section ---
         navPointTag = Tag(soup, 'navPoint')
-        navPointTag['class'] = "section"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
         navPointTag['id'] = "byseries-ID"
         navPointTag['playOrder'] = self.play_order
         self.play_order += 1
@@ -3035,7 +3048,8 @@ class CatalogBuilder(object):
         # Add *article* entries for each populated series title letter
         for (i,books) in enumerate(series_by_letter):
             navPointByLetterTag = Tag(soup, 'navPoint')
-            navPointByLetterTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointByLetterTag['class'] = "article"
             navPointByLetterTag['id'] = "%sSeries-ID" % (title_letters[i].upper())
             navPointTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -3102,7 +3116,8 @@ class CatalogBuilder(object):
 
         # --- Construct the 'Books By Title' section ---
         navPointTag = Tag(soup, 'navPoint')
-        navPointTag['class'] = "section"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
         navPointTag['id'] = "byalphatitle-ID"
         navPointTag['playOrder'] = self.play_order
         self.play_order += 1
@@ -3160,7 +3175,8 @@ class CatalogBuilder(object):
         # Add *article* entries for each populated title letter
         for (i,books) in enumerate(books_by_letter):
             navPointByLetterTag = Tag(soup, 'navPoint')
-            navPointByLetterTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointByLetterTag['class'] = "article"
             navPointByLetterTag['id'] = "%sTitles-ID" % (title_letters[i].upper())
             navPointTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -3225,7 +3241,8 @@ class CatalogBuilder(object):
 
         # --- Construct the 'Books By Author' *section* ---
         navPointTag = Tag(soup, 'navPoint')
-        navPointTag['class'] = "section"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
         file_ID = "%s" % tocTitle.lower()
         file_ID = file_ID.replace(" ","")
         navPointTag['id'] = "%s-ID" % file_ID
@@ -3275,7 +3292,8 @@ class CatalogBuilder(object):
         # master_author_list{}: [0]:author list [1]:Initial letter
         for authors_by_letter in master_author_list:
             navPointByLetterTag = Tag(soup, 'navPoint')
-            navPointByLetterTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointByLetterTag['class'] = "article"
             navPointByLetterTag['id'] = "%sauthors-ID" % (authors_by_letter[1])
             navPointTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -3346,7 +3364,8 @@ class CatalogBuilder(object):
 
         # --- Construct the 'Recently Added' *section* ---
         navPointTag = Tag(soup, 'navPoint')
-        navPointTag['class'] = "section"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
         file_ID = "%s" % tocTitle.lower()
         file_ID = file_ID.replace(" ","")
         navPointTag['id'] = "%s-ID" % file_ID
@@ -3390,7 +3409,8 @@ class CatalogBuilder(object):
         # master_date_range_list{}: [0]:titles list [1]:datestr
         for books_by_date_range in master_date_range_list:
             navPointByDateRangeTag = Tag(soup, 'navPoint')
-            navPointByDateRangeTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointByDateRangeTag['class'] = "article"
             navPointByDateRangeTag['id'] = "%s-ID" %  books_by_date_range[1].replace(' ','')
             navPointTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -3449,7 +3469,8 @@ class CatalogBuilder(object):
         for books_by_month in master_month_list:
             datestr = strftime(u'%B %Y', books_by_month[1].timetuple())
             navPointByMonthTag = Tag(soup, 'navPoint')
-            navPointByMonthTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointByMonthTag['class'] = "article"
             navPointByMonthTag['id'] = "bda_%s-%s-ID" % (books_by_month[1].year,books_by_month[1].month )
             navPointTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -3524,7 +3545,8 @@ class CatalogBuilder(object):
 
         # --- Construct the 'Recently Read' *section* ---
         navPointTag = Tag(soup, 'navPoint')
-        navPointTag['class'] = "section"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
         file_ID = "%s" % tocTitle.lower()
         file_ID = file_ID.replace(" ","")
         navPointTag['id'] = "%s-ID" % file_ID
@@ -3594,7 +3616,8 @@ class CatalogBuilder(object):
         for books_by_day in master_day_list:
             datestr = strftime(u'%A, %B %d', books_by_day[1].timetuple())
             navPointByDayTag = Tag(soup, 'navPoint')
-            navPointByDayTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointByDayTag['class'] = "article"
             navPointByDayTag['id'] = "bdr_%s-%s-%sID" % (books_by_day[1].year,
                                                             books_by_day[1].month,
                                                             books_by_day[1].day )
@@ -3662,7 +3685,8 @@ class CatalogBuilder(object):
 
         # --- Construct the 'Books By Genre' *section* ---
         navPointTag = Tag(ncx_soup, 'navPoint')
-        navPointTag['class'] = "section"
+        if self.generate_for_kindle_mobi:
+            navPointTag['class'] = "section"
         file_ID = "%s" % tocTitle.lower()
         file_ID = file_ID.replace(" ","")
         navPointTag['id'] = "%s-ID" % file_ID
@@ -3684,7 +3708,8 @@ class CatalogBuilder(object):
         for genre in self.genres:
             # Add an article for each genre
             navPointVolumeTag = Tag(ncx_soup, 'navPoint')
-            navPointVolumeTag['class'] = "article"
+            if self.generate_for_kindle_mobi:
+                navPointVolumeTag['class'] = "article"
             navPointVolumeTag['id'] = "genre-%s-ID" % genre['tag']
             navPointVolumeTag['playOrder'] = self.play_order
             self.play_order += 1
@@ -3823,12 +3848,13 @@ class CatalogBuilder(object):
         manifest.insert(mtc, itemTag)
         mtc += 1
 
-        itemTag = Tag(soup, "item")
-        itemTag['id'] = 'mastheadimage-image'
-        itemTag['href'] = "images/mastheadImage.gif"
-        itemTag['media-type'] = 'image/gif'
-        manifest.insert(mtc, itemTag)
-        mtc += 1
+        if self.generate_for_kindle_mobi:
+            itemTag = Tag(soup, "item")
+            itemTag['id'] = 'mastheadimage-image'
+            itemTag['href'] = "images/mastheadImage.gif"
+            itemTag['media-type'] = 'image/gif'
+            manifest.insert(mtc, itemTag)
+            mtc += 1
 
         # Write the thumbnail images, descriptions to the manifest
         sort_descriptions_by = []
@@ -3914,11 +3940,12 @@ class CatalogBuilder(object):
             stc += 1
 
         # Guide
-        referenceTag = Tag(soup, "reference")
-        referenceTag['type'] = 'masthead'
-        referenceTag['title'] = 'mastheadimage-image'
-        referenceTag['href'] = 'images/mastheadImage.gif'
-        guide.insert(0,referenceTag)
+        if self.generate_for_kindle_mobi:
+            referenceTag = Tag(soup, "reference")
+            referenceTag['type'] = 'masthead'
+            referenceTag['title'] = 'mastheadimage-image'
+            referenceTag['href'] = 'images/mastheadImage.gif'
+            guide.insert(0,referenceTag)
 
         # Write the OPF file
         outfile = open("%s/%s.opf" % (self.catalog_path, self.opts.basename), 'w')
