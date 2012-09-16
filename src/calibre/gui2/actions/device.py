@@ -143,9 +143,6 @@ class ShareConnMenu(QMenu): # {{{
         self.connect_to_folder_action.setEnabled(not device_connected)
         self.connect_to_itunes_action.setEnabled(not device_connected)
         self.connect_to_bambook_action.setEnabled(not device_connected)
-        enabled = not device_connected or (device_connected and
-                device.__class__.__name__ == 'SMART_DEVICE_APP')
-        self.control_smartdevice_action.setEnabled(enabled)
 
 
 # }}}
