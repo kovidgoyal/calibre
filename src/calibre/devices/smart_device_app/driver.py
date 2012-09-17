@@ -89,6 +89,8 @@ class ConnectionListener (Thread):
                     except Queue.Empty:
                         pass
                     queue_not_serviced_count = 0
+            else:
+                queue_not_serviced_count = 0
 
             if getattr(self.driver, 'broadcast_socket', None) is not None:
                 while True:
@@ -140,7 +142,7 @@ class ConnectionListener (Thread):
                         try:
                             self.driver.connection_queue.put_nowait(device_socket)
                         except Queue.Full:
-                            device_socket.close();
+                            device_socket.close()
                             device_socket = None
                             self.driver._debug('driver is not answering')
 
@@ -577,7 +579,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         opcode, result = self._call_client('SEND_BOOK', {'lpath': lpath, 'length': length,
                                'metadata': book_metadata, 'thisBook': this_book,
                                'totalBooks': total_books,
-                               'willStreamBooks': self.client_can_stream_books},
+                               'willStreamBooks': self.client_can_stream_books,
+                               'willStreamBinary' : self.client_can_receive_book_binary},
                           print_debug_info=False,
                           wait_for_response=(not self.client_can_stream_books))
 
@@ -590,17 +593,21 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 blen = len(b)
                 if not b:
                     break
-                b = b64encode(b)
-                opcode, result = self._call_client('BOOK_DATA',
-                                {'lpath': lpath, 'position': pos, 'data': b},
-                                print_debug_info=False,
-                                wait_for_response=(not self.client_can_stream_books))
+                if self.client_can_stream_books and self.client_can_receive_book_binary:
+                    self._send_byte_string(self.device_socket, b)
+                else:
+                    b = b64encode(b)
+                    opcode, result = self._call_client('BOOK_DATA',
+                                    {'lpath': lpath, 'position': pos, 'data': b},
+                                    print_debug_info=False,
+                                    wait_for_response=(not self.client_can_stream_books))
                 pos += blen
                 if not self.client_can_stream_books and opcode != 'OK':
                     self._debug('protocol error', opcode)
                     failed = True
                     break
-        self._call_client('BOOK_DONE', {'lpath': lpath})
+        if not (self.client_can_stream_books and self.client_can_receive_book_binary):
+            self._call_client('BOOK_DONE', {'lpath': lpath})
         self.time = None
         if close_:
             infile.close()
@@ -799,6 +806,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can stream books', self.client_can_stream_books)
             self.client_can_stream_metadata = result.get('canStreamMetadata', False)
             self._debug('Device can stream metadata', self.client_can_stream_metadata)
+            self.client_can_receive_book_binary = result.get('canReceiveBookBinary', False)
+            self._debug('Device can receive book binary', self.client_can_stream_metadata)
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
