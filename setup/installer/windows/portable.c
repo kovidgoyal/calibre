@@ -8,7 +8,6 @@
 
 
 #include <windows.h>
-#include <Shlwapi.h>
 #include <tchar.h>
 #include <wchar.h>
 #include <stdio.h>
@@ -90,7 +89,7 @@ LPTSTR get_app_dir() {
     return buf3;
 }
 
-void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
+void launch_calibre(LPCTSTR exe, LPCTSTR config_dir) {
     DWORD dwFlags=0;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -108,13 +107,12 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
     }
 
     dwFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP;
-    _sntprintf_s(cmdline, BUFSIZE, _TRUNCATE, _T(" \"--with-library=%s\""), library_dir);
 
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 
-    fSuccess = CreateProcess(exe, cmdline,
+    fSuccess = CreateProcess(exe, NULL,
         NULL,           // Process handle not inheritable
         NULL,           // Thread handle not inheritable
         FALSE,          // Set handle inheritance to FALSE
@@ -135,45 +133,6 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
 
 }
 
-static BOOL is_dots(LPCTSTR name) {
-    return _tcscmp(name, _T(".")) == 0 || _tcscmp(name, _T("..")) == 0;
-}
-
-static void find_calibre_library(LPTSTR library_dir) {
-    TCHAR base[BUFSIZE] = {0}, buf[BUFSIZE] = {0};
-    WIN32_FIND_DATA fdFile; 
-    HANDLE hFind = NULL;
-
-    _sntprintf_s(buf, BUFSIZE, _TRUNCATE, _T("%s\\metadata.db"), base);
-
-    if (PathFileExists(buf)) return; // Calibre Library/metadata.db exists, we use it
-
-    _tcscpy(base, library_dir);
-    PathRemoveFileSpec(base);
-
-    _sntprintf_s(buf, BUFSIZE, _TRUNCATE, _T("%s\\*"), base);
-
-    // Look for some other folder that contains a metadata.db file inside the Calibre Portable folder
-    if((hFind = FindFirstFileEx(buf, FindExInfoStandard, &fdFile, FindExSearchLimitToDirectories, NULL, 0)) 
-            != INVALID_HANDLE_VALUE) {
-        do {
-            if(is_dots(fdFile.cFileName)) continue;
-
-            if(fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                _sntprintf_s(buf, BUFSIZE, _TRUNCATE, _T("%s\\%s\\metadata.db"), base, fdFile.cFileName);
-                if (PathFileExists(buf)) {
-                    // some dir/metadata.db exists, we use it as the library
-                    PathRemoveFileSpec(buf);
-                    _tcscpy(library_dir, buf);
-                    FindClose(hFind);
-                    return;
-                }
-            } 
-        } while(FindNextFile(hFind, &fdFile));
-        FindClose(hFind);
-    }
-
-}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
@@ -181,26 +140,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     app_dir = get_app_dir();
     config_dir = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
-    library_dir = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
     exe = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
 
     _sntprintf_s(config_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Settings"), app_dir);
     _sntprintf_s(exe, BUFSIZE, _TRUNCATE, _T("%sCalibre\\calibre.exe"), app_dir);
-    _sntprintf_s(library_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Library"), app_dir);
 
-    find_calibre_library(library_dir);
+    launch_calibre(exe, config_dir);
 
-    if ( _tcscnlen(library_dir, BUFSIZE) <= 74 ) {
-        launch_calibre(exe, config_dir, library_dir);
-    } else {
-        too_long = (LPTSTR)calloc(BUFSIZE+300, sizeof(TCHAR));
-        _sntprintf_s(too_long, BUFSIZE+300, _TRUNCATE, 
-                _T("Path to Calibre Portable (%s) too long. Must be less than 59 characters."), app_dir);
-
-        show_error(too_long);
-    }
-
-    free(app_dir); free(config_dir); free(exe); free(library_dir);
+    free(app_dir); free(config_dir); free(exe); 
 
     return 0;
 }

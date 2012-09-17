@@ -177,6 +177,11 @@ def get_version():
         v += '*'
     return v
 
+def get_portable_base():
+    'Return path to the directory that contains calibre-portable.exe or None'
+    if isportable:
+        return os.path.dirname(os.path.dirname(os.environ['CALIBRE_PORTABLE_BUILD']))
+
 def get_unicode_windows_env_var(name):
     import ctypes
     name = unicode(name)

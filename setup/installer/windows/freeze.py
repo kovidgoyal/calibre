@@ -381,7 +381,6 @@ class Win32Freeze(Command, WixMixIn):
             sys.exit(1)
 
     def build_portable_installer(self):
-        base  = self.portable_base
         zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
         usz = os.path.getsize(zf)
         def cc(src, obj):
@@ -442,7 +441,7 @@ class Win32Freeze(Command, WixMixIn):
                     '/RELEASE',
                     '/ENTRY:wWinMainCRTStartup',
                     '/OUT:'+exe, self.embed_resources(exe),
-                    obj, 'User32.lib', 'Shlwapi.lib']
+                    obj, 'User32.lib']
             self.run_builder(cmd)
 
         self.info('Creating portable installer')
