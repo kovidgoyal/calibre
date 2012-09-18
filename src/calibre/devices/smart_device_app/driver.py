@@ -200,6 +200,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     PATH_FUDGE_FACTOR           = 40
 
     THUMBNAIL_HEIGHT            = 160
+    DEFAULT_THUMBNAIL_HEIGHT    = 160
+
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
 
@@ -370,9 +372,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         fname = sanitize(fname)
         ext = os.path.splitext(fname)[1]
 
-        maxlen = (self.WINDOWS_MAX_PATH_LEN -
-                  (self.WINDOWS_PATH_FUDGE_FACTOR +
-                   self.exts_path_lengths.get(ext, self.WINDOWS_PATH_FUDGE_FACTOR)))
+        maxlen = (self.MAX_PATH_LEN - (self.PATH_FUDGE_FACTOR +
+                   self.exts_path_lengths.get(ext, self.PATH_FUDGE_FACTOR)))
 
         special_tag = None
         if mdata.tags:
@@ -646,7 +647,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
             return (v.get('uuid', None) == book.get('uuid', None) and
-                    v.get('last_modified', None) == book.get('last_modified', None))
+                    v.get('last_modified', None) == book.get('last_modified', None) and
+                    v.get('thumbnail', None) == book.get('thumbnail', None))
         return False
 
     def _set_known_metadata(self, book, remove=False):
@@ -840,6 +842,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             self.exts_path_lengths = result.get('extensionPathLengths', {})
             self._debug('extension path lengths', self.exts_path_lengths)
+
+            self.THUMBNAIL_HEIGHT = result.get('coverHeight', self.DEFAULT_THUMBNAIL_HEIGHT)
+            if 'coverWidth' in result:
+                # Setting this field forces the aspect ratio
+                self.THUMBNAIL_WIDTH = result.get('coverWidth',
+                                      (self.DEFAULT_THUMBNAIL_HEIGHT/3) * 4)
+            elif hasattr(self, 'THUMBNAIL_WIDTH'):
+                    delattr(self, 'THUMBNAIL_WIDTH')
 
             if password:
                 returned_hash = result.get('passwordHash', None)
@@ -1137,7 +1147,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 client_will_stream_binary = 'willStreamBinary' in result
 
                 if (client_will_stream_binary):
-                    length = result.get('fileLength');
+                    length = result.get('fileLength')
                     remaining = length
 
                     while remaining > 0:
