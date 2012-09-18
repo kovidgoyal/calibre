@@ -321,9 +321,9 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
+        set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
-            stream.name = f.name
         try:
             try:
                 self.dev.get_file(f.object_id, stream, callback)
@@ -334,6 +334,8 @@ class MTP_DEVICE(MTPDeviceBase):
             raise DeviceError('Failed to fetch the file %s with error: %s'%
                     f.full_path, as_unicode(e))
         stream.seek(0)
+        if set_name:
+            stream.name = f.name
         return stream
 
     @same_thread

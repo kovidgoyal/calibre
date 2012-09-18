@@ -17,6 +17,7 @@ from calibre.devices.mtp.base import debug
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.config import from_json, to_json, JSONConfig
 from calibre.utils.date import now, isoformat, utcnow
+from calibre.utils.filenames import shorten_components_to
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -264,7 +265,11 @@ class MTP_DEVICE(BASE):
                 continue
             base = os.path.join(tdir, '%s'%f.object_id)
             os.mkdir(base)
-            with open(os.path.join(base, f.name), 'wb') as out:
+            name = f.name
+            if iswindows:
+                plen = len(base)
+                name = ''.join(shorten_components_to(245-plen, [name]))
+            with open(os.path.join(base, name), 'wb') as out:
                 try:
                     self.get_mtp_file(f, out)
                 except Exception as e:
