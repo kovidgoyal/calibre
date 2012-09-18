@@ -457,7 +457,7 @@ class MTP_DEVICE(BASE):
 
     @property
     def save_template(self):
-        return self.prefs['send_template']
+        return self.get_pref('send_template')
 
     # }}}
 
