@@ -195,9 +195,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # in the future.
     MAX_PATH_LEN                = 250
     # guess of length of MTP name. The length of the full path to the folder
-    # on the device is added to this. That path includes device the mount point.
+    # on the device is added to this. That path includes the device's mount point
     # making this number effectively around 10 to 15 larger.
-    PATH_FUDGE_FACTOR   = 40
+    PATH_FUDGE_FACTOR           = 40
 
     THUMBNAIL_HEIGHT            = 160
     PREFIX                      = ''
