@@ -18,7 +18,7 @@ from errno import EAGAIN, EINTR
 from threading import Thread
 
 from calibre import prints
-from calibre.constants import numeric_version, DEBUG, iswindows
+from calibre.constants import numeric_version, DEBUG
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
                                     InitialConnectionError, PacketError)
 from calibre.devices.interface import DevicePlugin
@@ -188,15 +188,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     NEWS_IN_FOLDER              = True
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
-    NOT_WINDOWS_MAX_PATH_LEN    = 250
 
     # Guess about the max length on windows. This number will be reduced by
-    # the length of the path on the client, and by the fudge factor below
-    WINDOWS_MAX_PATH_LEN        = 250
+    # the length of the path on the client, and by the fudge factor below. We
+    # use this on all platforms because the device might be connected to windows
+    # in the future.
+    MAX_PATH_LEN                = 250
     # guess of length of MTP name. The length of the full path to the folder
     # on the device is added to this. That path includes device the mount point.
     # making this number effectively around 10 to 15 larger.
-    WINDOWS_PATH_FUDGE_FACTOR   = 40
+    PATH_FUDGE_FACTOR   = 40
 
     THUMBNAIL_HEIGHT            = 160
     PREFIX                      = ''
@@ -369,13 +370,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         fname = sanitize(fname)
         ext = os.path.splitext(fname)[1]
 
-        if iswindows:
-            maxlen = (self.WINDOWS_MAX_PATH_LEN -
-                      (self.WINDOWS_PATH_FUDGE_FACTOR +
-                       self.exts_path_lengths.get(ext,
-                                        self.WINDOWS_PATH_FUDGE_FACTOR)))
-        else:
-            maxlen = self.MAX_PATH_LEN
+        maxlen = (self.WINDOWS_MAX_PATH_LEN -
+                  (self.WINDOWS_PATH_FUDGE_FACTOR +
+                   self.exts_path_lengths.get(ext, self.WINDOWS_PATH_FUDGE_FACTOR)))
 
         special_tag = None
         if mdata.tags:
