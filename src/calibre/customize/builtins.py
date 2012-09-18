@@ -674,6 +674,7 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
+from calibre.devices.mtp.driver import MTP_DEVICE
 
 # Order here matters. The first matched device is the one used.
 plugins += [
@@ -745,14 +746,11 @@ plugins += [
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
+    MTP_DEVICE,
     SMART_DEVICE_APP,
     USER_DEFINED,
 ]
 
-from calibre.utils.config_base import tweaks
-if tweaks.get('test_mtp_driver', False):
-    from calibre.devices.mtp.driver import MTP_DEVICE
-    plugins.append(MTP_DEVICE)
 
 # }}}
 
