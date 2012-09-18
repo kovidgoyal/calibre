@@ -765,6 +765,8 @@ class Application(QApplication):
             args = [override_program_name] + args[1:]
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
+        if DEBUG:
+            self.redirect_notify = True
         QApplication.__init__(self, qargs)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
@@ -774,8 +776,6 @@ class Application(QApplication):
         self._file_open_paths = []
         self._file_open_lock = RLock()
         self.setup_styles(force_calibre_style)
-        if DEBUG:
-            self.redirect_notify = True
 
     if DEBUG:
         def notify(self, receiver, event):
