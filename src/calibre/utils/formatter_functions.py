@@ -593,6 +593,24 @@ class BuiltinSelect(BuiltinFormatterFunction):
                 return v[len(key)+1:]
         return ''
 
+class BuiltinApproximateFormats(BuiltinFormatterFunction):
+    name = 'approximate_formats'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('approximate_formats() -- return a comma-separated '
+                  'list of formats that at one point were associated with the '
+                  'book. There is no guarantee that this list is correct, '
+                  'although it probably is. '
+                  'This function can be called in template program mode using '
+                  'the template "{:\'approximate_formats()\'}. '
+                  'Note that format names are always uppercase, as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('db_approx_formats', [])
+        data = sorted(fmt_data)
+        return ','.join(v.upper() for v in data)
+
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
     arg_count = 1
@@ -633,12 +651,12 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     name = 'formats_paths'
     arg_count = 0
     category = 'Get values from metadata'
-    __doc__ = doc = _('formats_paths() -- return a comma-separated list of '
-                      'colon_separated items representing full path to '
-                      'the formats of a book. You can use the select '
-                      'function to get the path for a specific '
-                      'format. Note that format names are always uppercase, '
-                      'as in EPUB.'
+        __doc__ = doc = _('formats_paths() -- return a comma-separated list of '
+                          'colon_separated items representing full path to '
+                          'the formats of a book. You can use the select '
+                          'function to get the path for a specific '
+                          'format. Note that format names are always uppercase, '
+                          'as in EPUB.'
             )
 
     def evaluate(self, formatter, kwargs, mi, locals):
@@ -1167,9 +1185,9 @@ class BuiltinCurrentLibraryPath(BuiltinFormatterFunction):
     arg_count = 0
     category = 'Get values from metadata'
     __doc__ = doc = _('current_library_path() -- '
-            'return the path to the current calibre library. This function can '
-            'be called in template program mode using the template '
-            '"{:\'current_library_path()\'}".')
+                'return the path to the current calibre library. This function can '
+                'be called in template program mode using the template '
+                '"{:\'current_library_path()\'}".')
     def evaluate(self, formatter, kwargs, mi, locals):
         from calibre.library import current_library_path
         return current_library_path()
@@ -1191,9 +1209,10 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
         return prefix + formatter._do_format(val, fmt) + suffix
 
 _formatter_builtins = [
-    BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
+    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
+    BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
-    BuiltinCurrentLibraryName(),
+    BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsPaths(),
