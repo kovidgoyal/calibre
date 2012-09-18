@@ -18,7 +18,7 @@ from calibre.utils.date import local_tz, as_utc
 from calibre.utils.icu import sort_key, lower
 from calibre.ebooks import BOOK_EXTENSIONS
 
-bexts = frozenset(BOOK_EXTENSIONS)
+bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 
 class FileOrFolder(object):
 
