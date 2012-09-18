@@ -367,7 +367,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             maxlen = 225 - max(25, self.exts_path_lengths.get(ext, 25))
         else:
             maxlen = self.MAX_PATH_LEN
-        self._debug('max path length', maxlen)
 
         special_tag = None
         if mdata.tags:
@@ -462,6 +461,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return json.dumps([op, res], encoding='utf-8')
 
     # Network functions
+
+    def _read_binary_from_net(self, length):
+        self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
+        v = self.device_socket.recv(length)
+        self.device_socket.settimeout(None)
+        return v
+
     def _read_string_from_net(self):
         data = bytes(0)
         while True:
@@ -470,9 +476,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 break
             # recv seems to return a pointer into some internal buffer.
             # Things get trashed if we don't make a copy of the data.
-            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = self.device_socket.recv(2)
-            self.device_socket.settimeout(None)
+            v = self._read_binary_from_net(2)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
             data += v
@@ -480,9 +484,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         data = data[dex:]
         pos = len(data)
         while pos < total_len:
-            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = self.device_socket.recv(total_len - pos)
-            self.device_socket.settimeout(None)
+            v = self._read_binary_from_net(total_len - pos)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
             data += v
@@ -582,7 +584,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         length = infile.tell()
         book_metadata.size = length
         infile.seek(0)
-        self._debug(lpath, length)
+
         opcode, result = self._call_client('SEND_BOOK', {'lpath': lpath, 'length': length,
                                'metadata': book_metadata, 'thisBook': this_book,
                                'totalBooks': total_books,
@@ -818,6 +820,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
+            self._debug('max_book_packet_len', self.max_book_packet_len)
+
             exts = result.get('acceptedExtensions', None)
             if exts is None or not isinstance(exts, list) or len(exts) == 0:
                 self._debug('Protocol error - bogus accepted extensions')
@@ -1024,7 +1028,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        self._debug(names)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(names)
+        else:
+            self._debug()
 
         paths = []
         names = iter(names)
@@ -1071,7 +1078,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def delete_books(self, paths, end_session=True):
-        self._debug(paths)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(paths)
+        else:
+            self._debug()
+
         for path in paths:
             # the path has the prefix on it (I think)
             path = self._strip_prefix(path)
@@ -1083,7 +1094,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def remove_books_from_metadata(self, paths, booklists):
-        self._debug(paths)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(paths)
+        else:
+            self._debug()
+
         for i, path in enumerate(paths):
             path = self._strip_prefix(path)
             self.report_progress((i + 1) / float(len(paths)), _('Removing books from device metadata listing...'))
@@ -1098,29 +1113,45 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None):
-        self._debug(path)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(path)
+        else:
+            self._debug()
+
         eof = False
         position = 0
         while not eof:
             opcode, result = self._call_client('GET_BOOK_FILE_SEGMENT',
                                     {'lpath' : path, 'position': position,
                                      'thisBook': this_book, 'totalBooks': total_books,
-                                     'canStream':True},
+                                     'canStream':True, 'canStreamBinary': True},
                                     print_debug_info=False)
             if opcode == 'OK':
                 client_will_stream = 'willStream' in result
-                while not eof:
-                    if not result['eof']:
-                        data = b64decode(result['data'])
-                        if len(data) != result['next_position'] - position:
-                            self._debug('position mismatch', result['next_position'], position)
-                        position = result['next_position']
-                        outfile.write(data)
-                        opcode, result = self._receive_from_client(print_debug_info=True)
-                    else:
-                        eof = True
-                    if not client_will_stream:
-                        break
+                client_will_stream_binary = 'willStreamBinary' in result
+
+                if (client_will_stream_binary):
+                    length = result.get('fileLength');
+                    remaining = length
+
+                    while remaining > 0:
+                        v = self._read_binary_from_net(min(remaining, self.max_book_packet_len))
+                        outfile.write(v)
+                        remaining -= len(v)
+                    eof = True
+                else:
+                    while not eof:
+                        if not result['eof']:
+                            data = b64decode(result['data'])
+                            if len(data) != result['next_position'] - position:
+                                self._debug('position mismatch', result['next_position'], position)
+                            position = result['next_position']
+                            outfile.write(data)
+                            opcode, result = self._receive_from_client(print_debug_info=True)
+                        else:
+                            eof = True
+                        if not client_will_stream:
+                            break
             else:
                 raise ControlError(desc='request for book data failed')
 
