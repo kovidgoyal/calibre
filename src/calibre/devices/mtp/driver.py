@@ -74,11 +74,11 @@ class MTP_DEVICE(BASE):
             for x in ('format_map', 'send_template', 'send_to'):
                 del self.prefs[x]
 
-    def open(self, devices, library_uuid):
+    def open(self, device, library_uuid):
         self.current_library_uuid = library_uuid
         self.location_paths = None
         self.driveinfo = {}
-        BASE.open(self, devices, library_uuid)
+        BASE.open(self, device, library_uuid)
         h = self.prefs['history']
         if self.current_serial_num:
             h[self.current_serial_num] = (self.current_friendly_name,

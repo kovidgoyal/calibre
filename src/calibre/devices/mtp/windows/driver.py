@@ -332,7 +332,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 self.dev.get_file(f.object_id, stream, callback)
         except Exception as e:
             raise DeviceError('Failed to fetch the file %s with error: %s'%
-                    f.full_path, as_unicode(e))
+                    (f.full_path, as_unicode(e)))
         stream.seek(0)
         if set_name:
             stream.name = f.name
