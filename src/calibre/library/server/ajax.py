@@ -181,7 +181,7 @@ class AjaxServer(object):
         return data, mi.last_modified
 
     @Endpoint(set_last_modified=False)
-    def ajax_book(self, book_id, category_urls='true'):
+    def ajax_book(self, book_id, category_urls='true', id_is_uuid='false'):
         '''
         Return the metadata of the book as a JSON dictionary.
 
@@ -192,7 +192,10 @@ class AjaxServer(object):
         cherrypy.response.timeout = 3600
 
         try:
-            book_id = int(book_id)
+            if id_is_uuid == 'true':
+                book_id = self.db.get_id_from_uuid(book_id)
+            else:
+                book_id = int(book_id)
             data, last_modified = self.ajax_book_to_json(book_id,
                     get_category_urls=category_urls.lower()=='true')
         except:
@@ -204,7 +207,7 @@ class AjaxServer(object):
         return data
 
     @Endpoint(set_last_modified=False)
-    def ajax_books(self, ids=None, category_urls='true'):
+    def ajax_books(self, ids=None, category_urls='true', id_is_uuid='false'):
         '''
         Return the metadata for a list of books specified as a comma separated
         list of ids. The metadata is returned as a dictionary mapping ids to
@@ -218,7 +221,10 @@ class AjaxServer(object):
         if ids is None:
             raise cherrypy.HTTPError(404, 'Must specify some ids')
         try:
-            ids = set(int(x.strip()) for x in ids.split(','))
+            if id_is_uuid == 'true':
+                ids = set(self.db.get_id_from_uuid(x) for x in ids.split(','))
+            else:
+                ids = set(int(x.strip()) for x in ids.split(','))
         except:
             raise cherrypy.HTTPError(404, 'ids must be a comma separated list'
                     ' of integers')

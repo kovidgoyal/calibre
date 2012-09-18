@@ -2564,6 +2564,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
+    def get_id_from_uuid(self, uuid):
+        if uuid:
+            return self.conn.get('SELECT id FROM books WHERE uuid=?', (uuid,),
+                                 all=False)
+
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
     # refresh everything.
