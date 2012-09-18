@@ -18,7 +18,7 @@ from errno import EAGAIN, EINTR
 from threading import Thread
 
 from calibre import prints
-from calibre.constants import numeric_version, DEBUG
+from calibre.constants import numeric_version, DEBUG, iswindows
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
                                     InitialConnectionError, PacketError)
 from calibre.devices.interface import DevicePlugin
@@ -189,6 +189,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
     MAX_PATH_LEN                = 250
+    # guess of length of MTP name. The length of the full path to the folder
+    # on the device is added to this. That path includes device the mount point.
+    WINDOWS_PATH_FUDGE_FACTOR   = 25
     THUMBNAIL_HEIGHT            = 160
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
@@ -357,7 +360,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # remove the 'path' argument and all its uses. Also removed the calls to
     # filename_callback and sanitize_path_components
     def _create_upload_path(self, mdata, fname, create_dirs=True):
-        maxlen = self.MAX_PATH_LEN
+        fname = sanitize(fname)
+        ext = os.path.splitext(fname)[1]
+
+        if iswindows:
+            maxlen = 225 - max(25, self.exts_path_lengths.get(ext, 25))
+        else:
+            maxlen = self.MAX_PATH_LEN
+        self._debug('max path length', maxlen)
 
         special_tag = None
         if mdata.tags:
@@ -377,9 +387,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 date = (today[0], today[1], today[2])
             template = "{title}_%d-%d-%d" % date
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
-
-        fname = sanitize(fname)
-        ext = os.path.splitext(fname)[1]
 
         from calibre.library.save_to_disk import get_components
         from calibre.library.save_to_disk import config
@@ -816,9 +823,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('Protocol error - bogus accepted extensions')
                 self._close_device_socket()
                 return False
+
             config = self._configProxy()
             config['format_map'] = exts
             self._debug('selected formats', config['format_map'])
+
+            self.exts_path_lengths = result.get('extensionPathLengths', {})
+            self._debug('extension path lengths', self.exts_path_lengths)
+
             if password:
                 returned_hash = result.get('passwordHash', None)
                 if result.get('passwordHash', None) is None:
