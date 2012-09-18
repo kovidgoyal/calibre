@@ -246,6 +246,10 @@ class MTP_DEVICE(MTPDeviceBase):
         self.dev = self._filesystem_cache = None
         self.current_serial_num = None
 
+    @property
+    def is_mtp_device_connected(self):
+        return self.currently_connected_pnp_id is not None
+
     def eject(self):
         if self.currently_connected_pnp_id is None: return
         self.eject_dev_on_next_scan = True

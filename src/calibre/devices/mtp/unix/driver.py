@@ -137,6 +137,10 @@ class MTP_DEVICE(MTPDeviceBase):
         self.currently_connected_dev = None
         self.current_serial_num = None
 
+    @property
+    def is_mtp_device_connected(self):
+        return self.currently_connected_dev is not None
+
     @synchronous
     def startup(self):
         p = plugins['libmtp']
@@ -189,6 +193,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if not self.current_friendly_name:
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
         self.current_serial_num = snum
+        self.currently_connected_dev = connected_device
 
     @property
     def filesystem_cache(self):

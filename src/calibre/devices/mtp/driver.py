@@ -14,6 +14,7 @@ from itertools import izip
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
 from calibre.devices.mtp.base import debug
+from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.config import from_json, to_json, JSONConfig
 from calibre.utils.date import now, isoformat, utcnow
@@ -42,6 +43,8 @@ class MTP_DEVICE(BASE):
         BASE.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
         self._prefs = None
+        self.device_defaults = DeviceDefaults()
+        self.current_device_defaults = {}
 
     @property
     def prefs(self):
@@ -84,6 +87,8 @@ class MTP_DEVICE(BASE):
             h[self.current_serial_num] = (self.current_friendly_name,
                     isoformat(utcnow()))
             self.prefs['history'] = h
+
+        self.current_device_defaults = self.device_defaults(device, self)
 
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
@@ -439,8 +444,13 @@ class MTP_DEVICE(BASE):
     # Settings {{{
 
     def get_pref(self, key):
-        return self.prefs.get('device-%s'%self.current_serial_num, {}).get(key,
-                self.prefs[key])
+        ''' Get the setting named key. First looks for a device specific setting.
+        If that is not found looks for a device default and if that is not
+        found uses the global default.'''
+        dd = self.current_device_defaults if self.is_mtp_device_connected else {}
+        dev_settings = self.prefs.get('device-%s'%self.current_serial_num, {})
+        default_value = dd.get(key, self.prefs[key])
+        return dev_settings.get(key, default_value)
 
     def config_widget(self):
         from calibre.gui2.device_drivers.mtp_config import MTPConfig

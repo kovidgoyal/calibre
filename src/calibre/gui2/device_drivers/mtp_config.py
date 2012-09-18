@@ -400,7 +400,7 @@ class MTPConfig(QTabWidget):
         p = self.device.prefs.get(self.current_device_key, {})
         if not p:
             self.device.prefs[self.current_device_key] = p
-        return p.get(key, self.device.prefs[key])
+        return self.device.get_pref(key)
 
     @property
     def device(self):
