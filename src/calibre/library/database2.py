@@ -1262,7 +1262,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ans = {}
         if path is not None:
             stat = os.stat(path)
-            ans['path'] = path;
+            ans['path'] = path
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
             self.format_metadata_cache[id_][fmt] = ans

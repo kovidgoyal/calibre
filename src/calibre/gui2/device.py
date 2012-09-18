@@ -1673,10 +1673,7 @@ class DeviceMixin(object): # {{{
                     if update_metadata:
                         mi = db.get_metadata(id_, index_is_id=True,
                                              get_cover=get_covers)
-                        book.smart_update(db.get_metadata(id_,
-                                                      index_is_id=True,
-                                                      get_cover=get_covers),
-                                      replace_metadata=True)
+                        book.smart_update(mi, replace_metadata=True)
                     book.in_library = 'UUID'
                     # ensure that the correct application_id is set
                     book.application_id = id_
