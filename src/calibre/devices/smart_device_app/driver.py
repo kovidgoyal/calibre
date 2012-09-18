@@ -67,7 +67,7 @@ class ConnectionListener (Thread):
         device_socket = None
         while self.keep_running:
             try:
-                time.sleep(1) # Limit to one book per two seconds
+                time.sleep(1)
             except:
                 # Happens during interpreter shutdown
                 break
@@ -76,7 +76,6 @@ class ConnectionListener (Thread):
                 break
 
             if not self.driver.connection_queue.empty():
-                self.driver._debug('queue not empty')
                 queue_not_serviced_count += 1
                 if queue_not_serviced_count >= 3:
                     self.driver._debug('queue not serviced')
