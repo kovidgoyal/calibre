@@ -163,7 +163,7 @@ class IgnoredDevices(QWidget): # {{{
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         self.la = la = QLabel('<p>'+_(
-            '''Select the devices to be <b>ignored</b>. calibre will not
+            '''Select the devices to be <b>ignored</b>. calibre <b>will not</b>
             connect to devices with a checkmark next to their names.'''))
         la.setWordWrap(True)
         l.addWidget(la)
@@ -386,7 +386,7 @@ class MTPConfig(QTabWidget):
                 self.device.prefs['blacklist'])
         self.addTab(self.igntab, _('Ignored devices'))
 
-        self.setCurrentIndex(0)
+        self.setCurrentIndex(1 if msg else 0)
 
     def ignore_device(self):
         self.igntab.ignore_device(self.device.current_serial_num)
@@ -400,7 +400,7 @@ class MTPConfig(QTabWidget):
         p = self.device.prefs.get(self.current_device_key, {})
         if not p:
             self.device.prefs[self.current_device_key] = p
-        return p.get(key, self.device.prefs[key])
+        return self.device.get_pref(key)
 
     @property
     def device(self):

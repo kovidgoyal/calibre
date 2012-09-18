@@ -13,7 +13,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        config_dir, filesystem_encoding)
+        plugins, config_dir, filesystem_encoding, DEBUG)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -567,7 +567,8 @@ class FileDialog(QObject):
                        modal = True,
                        name = '',
                        mode = QFileDialog.ExistingFiles,
-                       default_dir='~'
+                       default_dir='~',
+                       no_save_dir=False
                        ):
         QObject.__init__(self)
         ftext = ''
@@ -586,8 +587,11 @@ class FileDialog(QObject):
         self.selected_files = None
         self.fd = None
 
-        initial_dir = dynamic.get(self.dialog_name,
-                os.path.expanduser(default_dir))
+        if no_save_dir:
+            initial_dir = os.path.expanduser(default_dir)
+        else:
+            initial_dir = dynamic.get(self.dialog_name,
+                    os.path.expanduser(default_dir))
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
@@ -629,7 +633,8 @@ class FileDialog(QObject):
             saved_loc = self.selected_files[0]
             if os.path.isfile(saved_loc):
                 saved_loc = os.path.dirname(saved_loc)
-            dynamic[self.dialog_name] = saved_loc
+            if not no_save_dir:
+                dynamic[self.dialog_name] = saved_loc
         self.accepted = bool(self.selected_files)
 
     def get_files(self):
@@ -638,10 +643,10 @@ class FileDialog(QObject):
         return tuple(self.selected_files)
 
 
-def choose_dir(window, name, title, default_dir='~'):
+def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
             parent=window, name=name, mode=QFileDialog.Directory,
-            default_dir=default_dir)
+            default_dir=default_dir, no_save_dir=no_save_dir)
     dir = fd.get_files()
     fd.setParent(None)
     if dir:
@@ -759,6 +764,9 @@ class Application(QApplication):
         if override_program_name:
             args = [override_program_name] + args[1:]
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
+        self.pi = plugins['progress_indicator'][0]
+        if DEBUG:
+            self.redirect_notify = True
         QApplication.__init__(self, qargs)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
@@ -769,15 +777,23 @@ class Application(QApplication):
         self._file_open_lock = RLock()
         self.setup_styles(force_calibre_style)
 
+    if DEBUG:
+        def notify(self, receiver, event):
+            if self.redirect_notify:
+                self.redirect_notify = False
+                return self.pi.do_notify(receiver, event)
+            else:
+                ret = QApplication.notify(self, receiver, event)
+                self.redirect_notify = True
+                return ret
+
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
         orig_pal = QPalette(self.palette())
 
-        from calibre.constants import plugins
-        pi = plugins['progress_indicator'][0]
         path = os.path.join(sys.extensions_location, 'calibre_style.'+(
             'pyd' if iswindows else 'so'))
-        pi.load_style(path, 'Calibre')
+        self.pi.load_style(path, 'Calibre')
         # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
         for role in (orig_pal.Button, orig_pal.Window):
             c = orig_pal.brush(role).color()

@@ -100,3 +100,5 @@ private:
  */
 int load_style(QString &path, QString &name);
 
+bool do_notify(QObject *receiver, QEvent *event);
+

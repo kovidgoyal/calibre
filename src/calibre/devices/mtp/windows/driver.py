@@ -246,6 +246,10 @@ class MTP_DEVICE(MTPDeviceBase):
         self.dev = self._filesystem_cache = None
         self.current_serial_num = None
 
+    @property
+    def is_mtp_device_connected(self):
+        return self.currently_connected_pnp_id is not None
+
     def eject(self):
         if self.currently_connected_pnp_id is None: return
         self.eject_dev_on_next_scan = True
@@ -321,9 +325,9 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
+        set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
-            stream.name = f.name
         try:
             try:
                 self.dev.get_file(f.object_id, stream, callback)
@@ -332,8 +336,10 @@ class MTP_DEVICE(MTPDeviceBase):
                 self.dev.get_file(f.object_id, stream, callback)
         except Exception as e:
             raise DeviceError('Failed to fetch the file %s with error: %s'%
-                    f.full_path, as_unicode(e))
+                    (f.full_path, as_unicode(e)))
         stream.seek(0)
+        if set_name:
+            stream.name = f.name
         return stream
 
     @same_thread
