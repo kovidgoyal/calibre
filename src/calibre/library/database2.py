@@ -1262,6 +1262,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ans = {}
         if path is not None:
             stat = os.stat(path)
+            ans['path'] = path
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
             self.format_metadata_cache[id_][fmt] = ans
@@ -2562,6 +2563,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.commit()
             if notify:
                 self.notify('metadata', [id])
+
+    def get_id_from_uuid(self, uuid):
+        if uuid:
+            return self.conn.get('SELECT id FROM books WHERE uuid=?', (uuid,),
+                                 all=False)
 
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will

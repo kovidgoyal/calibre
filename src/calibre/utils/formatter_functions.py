@@ -629,6 +629,22 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
         fmt_data = mi.get('format_metadata', {})
         return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
 
+class BuiltinFormatsPaths(BuiltinFormatterFunction):
+    name = 'formats_paths'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('formats_paths() -- return a comma-separated list of '
+                      'colon_separated items representing full path to '
+                      'the formats of a book. You can use the select '
+                      'function to get the path for a specific '
+                      'format. Note that format names are always uppercase, '
+                      'as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('format_metadata', {})
+        return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
+
 class BuiltinHumanReadable(BuiltinFormatterFunction):
     name = 'human_readable'
     arg_count = 1
@@ -1146,6 +1162,18 @@ class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
         from calibre.library import current_library_name
         return current_library_name()
 
+class BuiltinCurrentLibraryPath(BuiltinFormatterFunction):
+    name = 'current_library_path'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('current_library_path() -- '
+            'return the path to the current calibre library. This function can '
+            'be called in template program mode using the template '
+            '"{:\'current_library_path()\'}".')
+    def evaluate(self, formatter, kwargs, mi, locals):
+        from calibre.library import current_library_path
+        return current_library_path()
+
 class BuiltinFinishFormatting(BuiltinFormatterFunction):
     name = 'finish_formatting'
     arg_count = 4
@@ -1168,7 +1196,8 @@ _formatter_builtins = [
     BuiltinCurrentLibraryName(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
-    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
+    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsPaths(),
+    BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
