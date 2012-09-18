@@ -1,3 +1,5 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
 class AdvancedUserRecipe1347706704(BasicNewsRecipe):
     title          = u'Stamgasten'
     __author__  = u'DrMerry'
