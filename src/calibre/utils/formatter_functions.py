@@ -651,13 +651,12 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     name = 'formats_paths'
     arg_count = 0
     category = 'Get values from metadata'
-        __doc__ = doc = _('formats_paths() -- return a comma-separated list of '
-                          'colon_separated items representing full path to '
-                          'the formats of a book. You can use the select '
-                          'function to get the path for a specific '
-                          'format. Note that format names are always uppercase, '
-                          'as in EPUB.'
-            )
+    __doc__ = doc = _('formats_paths() -- return a comma-separated list of '
+                      'colon_separated items representing full path to '
+                      'the formats of a book. You can use the select '
+                      'function to get the path for a specific '
+                      'format. Note that format names are always uppercase, '
+                      'as in EPUB.')
 
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
