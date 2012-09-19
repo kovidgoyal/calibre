@@ -1004,6 +1004,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.format_metadata = FormatMetadata(self, idx, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
+        mi.db_approx_formats = formats
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
