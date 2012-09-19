@@ -11,6 +11,9 @@
 const calibre_device_entry_t calibre_mtp_device_table[] = {
 #include "upstream/music-players.h"
 
-  , { NULL, 0xffff, NULL, 0xffff, DEVICE_FLAG_NONE }
+    // Amazon Kindle Fire HD
+    , { "Amazon", 0x1949, "Fire HD", 0x0007, DEVICE_FLAGS_ANDROID_BUGS}
+
+    , { NULL, 0xffff, NULL, 0xffff, DEVICE_FLAG_NONE }
 };
 
