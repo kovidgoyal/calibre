@@ -102,7 +102,9 @@ class DevicePlugin(Plugin):
     #: If set to True, calibre will ask the user if they want to manage the
     #: device with calibre, the first time it is detected. If you set this to
     #: True you must implement :meth:`get_device_uid()` and
-    #: :meth:`ignore_connected_device()`.
+    #: :meth:`ignore_connected_device()` and
+    #: :meth:`get_user_blacklisted_devices` and
+    #: :meth:`set_user_blacklisted_devices`
     ASK_TO_ALLOW_CONNECT = False
 
     @classmethod
@@ -610,6 +612,19 @@ class DevicePlugin(Plugin):
         should reset that state.
         '''
         raise NotImplementedError()
+
+    def get_user_blacklisted_devices(self):
+        '''
+        Return map of device uid to friendly name for all devices that the user
+        has asked to be ignored.
+        '''
+        return {}
+
+    def set_user_blacklisted_devices(self, devices):
+        '''
+        Set the list of device uids that should be ignored by this driver.
+        '''
+        pass
 
     # Dynamic control interface.
     # The following methods are probably called on the GUI thread. Any driver

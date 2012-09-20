@@ -1119,6 +1119,19 @@ class MetadataSources(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.metadata_sources'
     description = _('Control how calibre downloads ebook metadata from the net')
 
+class IgnoredDevices(PreferencesPlugin):
+    name = 'Ignored Devices'
+    icon = I('reader.png')
+    gui_name = _('Ignored devices')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.ignored_devices'
+    description = _('Control which devices calibre will ignore when they are connected '
+            'to the computer.')
+
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1167,7 +1180,7 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources, Keyboard]
+        MetadataSources, Keyboard, IgnoredDevices]
 
 #}}}
 
