@@ -99,10 +99,15 @@ class ConnectionListener (Thread):
                         try:
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
-                            content_server_port = ConfigProxy(content_server_config())['port']
+                            content_server_port = b'';
+                            try :
+                                content_server_port = \
+                                    str(ConfigProxy(content_server_config())['port'])
+                            except:
+                                pass
                             message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
                                             str(socket.gethostname().partition('.')[0]) +
-                                            b');' + str(content_server_port) +
+                                            b');' + content_server_port +
                                             b',' + str(self.driver.port))
                             self.driver._debug('received broadcast', packet, message)
                             self.driver.broadcast_socket.sendto(message, remote)
