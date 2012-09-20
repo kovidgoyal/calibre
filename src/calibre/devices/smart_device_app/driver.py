@@ -163,7 +163,9 @@ class SDBook(Book):
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
-    gui_name = _('SmartDevice')
+    gui_name = _('Wireless Device')
+    gui_name_template = '%s: %s'
+
     icon = I('devices/galaxy_s3.png')
     description = _('Communicate with Smart Device apps')
     supported_platforms = ['windows', 'osx', 'linux']
@@ -321,28 +323,30 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_can_stream_metadata = False
 
     def _debug(self, *args):
-        if not DEBUG:
-            return
-        total_elapsed = time.time() - self.debug_start_time
-        elapsed = time.time() - self.debug_time
-        print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
-                                               inspect.stack()[1][3]), end='')
-        for a in args:
-            try:
-                if isinstance(a, dict):
-                    printable = {}
-                    for k,v in a.iteritems():
-                        if isinstance(v, (str, unicode)) and len(v) > 50:
-                            printable[k] = 'too long'
-                        else:
-                            printable[k] = v
-                    prints('', printable, end='')
-                else:
-                    prints('', a, end='')
-            except:
-                prints('', 'value too long', end='')
-        print()
-        self.debug_time = time.time()
+        # manual synchronization so we don't lose the calling method name
+        with self.sync_lock:
+            if not DEBUG:
+                return
+            total_elapsed = time.time() - self.debug_start_time
+            elapsed = time.time() - self.debug_time
+            print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
+                                                   inspect.stack()[1][3]), end='')
+            for a in args:
+                try:
+                    if isinstance(a, dict):
+                        printable = {}
+                        for k,v in a.iteritems():
+                            if isinstance(v, (str, unicode)) and len(v) > 50:
+                                printable[k] = 'too long'
+                            else:
+                                printable[k] = v
+                        prints('', printable, end='')
+                    else:
+                        prints('', a, end='')
+                except:
+                    prints('', 'value too long', end='')
+            print()
+            self.debug_time = time.time()
 
     # local utilities
 
@@ -825,6 +829,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.client_can_receive_book_binary = result.get('canReceiveBookBinary', False)
             self._debug('Device can receive book binary', self.client_can_stream_metadata)
 
+            self.client_device_kind = result.get('deviceKind', '')
+            self._debug('Client device kind', self.client_device_kind)
+
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             self._debug('max_book_packet_len', self.max_book_packet_len)
@@ -885,6 +892,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._close_device_socket()
             raise
         return False
+
+    @synchronous('sync_lock')
+    def get_gui_name(self):
+        if self.client_device_kind:
+            return self.gui_name_template%(self.gui_name, self.client_device_kind)
+        return self.gui_name
+
 
     @synchronous('sync_lock')
     def get_device_information(self, end_session=True):
@@ -1039,6 +1053,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def post_yank_cleanup(self):
         self._debug()
+        self.gui_name = self.gui_name_base
 
     @synchronous('sync_lock')
     def upload_books(self, files, names, on_card=None, end_session=True,
