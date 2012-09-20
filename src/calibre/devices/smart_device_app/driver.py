@@ -102,7 +102,7 @@ class ConnectionListener (Thread):
                             content_server_port = b'';
                             try :
                                 content_server_port = \
-                                    str(ConfigProxy(content_server_config())['port'])
+                                    str(content_server_config().parse().port)
                             except:
                                 pass
                             message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
@@ -901,7 +901,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             raise
         return False
 
-    @synchronous('sync_lock')
     def get_gui_name(self):
         if self.client_device_kind:
             return self.gui_name_template%(self.gui_name, self.client_device_kind)
