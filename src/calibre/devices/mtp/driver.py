@@ -38,6 +38,7 @@ class MTP_DEVICE(BASE):
     FORMATS = ['epub', 'azw3', 'mobi', 'pdf']
     DEVICE_PLUGBOARD_NAME = 'MTP_DEVICE'
     SLOW_DRIVEINFO = True
+    ASK_TO_ALLOW_CONNECT = True
 
     def __init__(self, *args, **kwargs):
         BASE.__init__(self, *args, **kwargs)
@@ -89,6 +90,17 @@ class MTP_DEVICE(BASE):
             self.prefs['history'] = h
 
         self.current_device_defaults = self.device_defaults(device, self)
+
+    def get_device_uid(self):
+        return self.current_serial_num
+
+    def ignore_connected_device(self, uid):
+        bl = self.prefs['blacklist']
+        if uid not in bl:
+            bl.append(uid)
+            self.prefs['blacklist'] = bl
+        if self.is_mtp_device_connected:
+            self.eject()
 
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):

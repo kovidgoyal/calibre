@@ -99,6 +99,12 @@ class DevicePlugin(Plugin):
     #: after the books lists have been loaded to get the driveinfo.
     SLOW_DRIVEINFO = False
 
+    #: If set to True, calibre will ask the user if they want to manage the
+    #: device with calibre, the first time it is detected. If you set this to
+    #: True you must implement :meth:`get_device_uid()` and
+    #: :meth:`ignore_connected_device()`.
+    ASK_TO_ALLOW_CONNECT = False
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
@@ -586,6 +592,24 @@ class DevicePlugin(Plugin):
         device thread, not the GUI thread.
         '''
         pass
+
+    def get_device_uid(self):
+        '''
+        Must return a unique id for the currently connected device (this is
+        called immediately after a successful call to open()). You must
+        implement this method if you set ASK_TO_ALLOW_CONNECT = True
+        '''
+        raise NotImplementedError()
+
+    def ignore_connected_device(self, uid):
+        '''
+        Should ignore the device identified by uid (the result of a call to
+        get_device_uid()) in the future. You must implement this method if you
+        set ASK_TO_ALLOW_CONNECT = True. Note that this function is called
+        immediately after open(), so if open() caches some state, the driver
+        should reset that state.
+        '''
+        raise NotImplementedError()
 
     # Dynamic control interface.
     # The following methods are probably called on the GUI thread. Any driver

@@ -294,7 +294,9 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         # Set skip_dialog_name to a unique name for this dialog
         # Set skip_dialog_msg to a message displayed to the user
         skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
-        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True):
+        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
+        # Override icon (QIcon to be used as the icon for this dialog)
+        override_icon=None):
     from calibre.gui2.dialogs.message_box import MessageBox
 
     auto_skip = set(gprefs.get('questions_to_auto_skip', []))
@@ -302,7 +304,8 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         return bool(skip_dialog_skipped_value)
 
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
-                    show_copy_button=show_copy_button, default_yes=default_yes)
+                    show_copy_button=show_copy_button, default_yes=default_yes,
+                    q_icon=override_icon)
 
     if skip_dialog_name is not None and skip_dialog_msg:
         tc = d.toggle_checkbox
