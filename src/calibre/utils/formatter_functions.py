@@ -608,6 +608,8 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('db_approx_formats', [])
+        if not fmt_data:
+            return ''
         data = sorted(fmt_data)
         return ','.join(v.upper() for v in data)
 
