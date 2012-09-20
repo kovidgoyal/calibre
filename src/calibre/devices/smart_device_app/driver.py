@@ -34,7 +34,7 @@ from calibre.library import current_library_name
 from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.config import from_json, tweaks, ConfigProxy
+from calibre.utils.config import from_json, tweaks
 from calibre.utils.date import isoformat, now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
@@ -171,7 +171,7 @@ class SDBook(Book):
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
-    gui_name = _('Wireless Device')
+    gui_name = gui_name_base = _('Wireless Device')
     gui_name_template = '%s: %s'
 
     icon = I('devices/galaxy_s3.png')
@@ -1056,6 +1056,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def eject(self):
         self._debug()
         self._close_device_socket()
+        self.gui_name = self.gui_name_base
 
     @synchronous('sync_lock')
     def post_yank_cleanup(self):
