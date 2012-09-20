@@ -31,9 +31,10 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
+from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.config import from_json, tweaks
+from calibre.utils.config import from_json, tweaks, ConfigProxy
 from calibre.utils.date import isoformat, now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
@@ -98,9 +99,11 @@ class ConnectionListener (Thread):
                         try:
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
+                            content_server_port = ConfigProxy(content_server_config())['port']
                             message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
                                             str(socket.gethostname().partition('.')[0]) +
-                                            b'),' + str(self.driver.port))
+                                            b');' + str(content_server_port) +
+                                            b',' + str(self.driver.port))
                             self.driver._debug('received broadcast', packet, message)
                             self.driver.broadcast_socket.sendto(message, remote)
                         except:
