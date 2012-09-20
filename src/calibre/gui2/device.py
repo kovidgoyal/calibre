@@ -201,7 +201,7 @@ class DeviceManager(Thread): # {{{
             uid = None
         asked = gprefs.get('ask_to_manage_device', [])
         if (dev.ASK_TO_ALLOW_CONNECT and uid and uid not in asked):
-            if not self.allow_connect_slot(dev.get_gui_name()):
+            if not self.allow_connect_slot(dev.get_gui_name(), dev.icon):
                 allow_connect = False
             asked.append(uid)
             gprefs.set('ask_to_manage_device', asked)
@@ -852,11 +852,11 @@ class DeviceMixin(object): # {{{
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
-    def allow_connect(self, name):
+    def allow_connect(self, name, icon):
         return question_dialog(self, _('Mange the %s?')%name,
                 _('Detected the <b>%s</b>. Do you want calibre to manage it?')%
                 name, show_copy_button=False,
-                override_icon=QIcon(I('reader.png')))
+                override_icon=QIcon(icon))
 
     def debug_detection(self, done):
         self.debug_detection_callback = weakref.ref(done)

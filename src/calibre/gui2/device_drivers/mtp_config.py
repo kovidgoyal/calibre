@@ -415,6 +415,7 @@ class MTPConfig(QTabWidget):
         return True
 
     def commit(self):
+        self.device.prefs['blacklist'] = self.igntab.blacklist
         p = self.device.prefs.get(self.current_device_key, {})
 
         if hasattr(self, 'formats'):
@@ -440,7 +441,6 @@ class MTPConfig(QTabWidget):
 
             self.device.prefs[self.current_device_key] = p
 
-        self.device.prefs['blacklist'] = self.igntab.blacklist
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
