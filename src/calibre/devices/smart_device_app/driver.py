@@ -171,10 +171,10 @@ class SDBook(Book):
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
-    gui_name = gui_name_base = _('Wireless Device')
+    gui_name = _('Wireless Device')
     gui_name_template = '%s: %s'
 
-    icon = I('devices/galaxy_s3.png')
+    icon = I('devices/tablet.png')
     description = _('Communicate with Smart Device apps')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Charles Haley'
@@ -1056,12 +1056,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def eject(self):
         self._debug()
         self._close_device_socket()
-        self.gui_name = self.gui_name_base
 
     @synchronous('sync_lock')
     def post_yank_cleanup(self):
         self._debug()
-        self.gui_name = self.gui_name_base
 
     @synchronous('sync_lock')
     def upload_books(self, files, names, on_card=None, end_session=True,
