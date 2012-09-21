@@ -13,7 +13,7 @@ from future_builtins import zip
 from itertools import chain
 
 from calibre import as_unicode, prints
-from calibre.constants import plugins, __appname__, numeric_version
+from calibre.constants import plugins, __appname__, numeric_version, isxp
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, debug
@@ -55,7 +55,11 @@ class MTP_DEVICE(MTPDeviceBase):
 
     def startup(self):
         self.start_thread = threading.current_thread()
-        self.wpd, self.wpd_error = plugins['wpd']
+        if isxp:
+            self.wpd = None
+            self.wpd_error = _('MTP devices are not supported on Windows XP')
+        else:
+            self.wpd, self.wpd_error = plugins['wpd']
         if self.wpd is not None:
             try:
                 self.wpd.init(__appname__, *(numeric_version[:3]))
