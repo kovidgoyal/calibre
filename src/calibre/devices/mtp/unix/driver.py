@@ -169,6 +169,7 @@ class MTP_DEVICE(MTPDeviceBase):
         try:
             self.dev = self.create_device(connected_device)
         except Exception as e:
+            self.blacklisted_devices.add(connected_device)
             raise OpenFailed('Failed to open %s: Error: %s'%(
                     connected_device, as_unicode(e)))
 
