@@ -164,7 +164,7 @@ class GoogleCode(Base):# {{{
         typ = 'Type-' + ('Source' if fname.endswith('.xz') else 'Archive' if
                 fname.endswith('.zip') else 'Installer')
         ext = os.path.splitext(fname)[1][1:]
-        op  = 'OpSys-'+{'msi':'Windows','zip':'Windows',
+        op  = 'OpSys-'+{'msi':'Windows','exe':'Windows',
                 'dmg':'OSX','bz2':'Linux','xz':'All'}[ext]
         desc = self.files[fname]
         start = time.time()

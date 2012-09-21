@@ -481,7 +481,20 @@ class MTP_DEVICE(BASE):
     def save_template(self):
         return self.get_pref('send_template')
 
+    def get_user_blacklisted_devices(self):
+        bl = frozenset(self.prefs['blacklist'])
+        ans = {}
+        for dev, x in self.prefs['history'].iteritems():
+            name = x[0]
+            if dev in bl:
+                ans[dev] = name
+        return ans
+
+    def set_user_blacklisted_devices(self, devs):
+        self.prefs['blacklist'] = list(devs)
+
     # }}}
+
 
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)
