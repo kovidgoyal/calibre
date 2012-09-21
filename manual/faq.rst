@@ -315,8 +315,7 @@ Over the air
 ^^^^^^^^^^^^^^
 
 The easiest way to transfer books wirelessly to your Android device is to use
-the `Calibre Companion
-<http://www.multipie.co.uk/calibre-companion/>`_
+the `Calibre Companion <http://www.multipie.co.uk/calibre-companion/>`_
 Android app. This app is maintained by a core calibre developer and allows
 |app| to connect to your Android device wirelessly, just as though you
 plugged in the device with a USB cable. You can browse files on the device
