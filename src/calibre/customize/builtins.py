@@ -674,6 +674,7 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
+from calibre.devices.mtp.driver import MTP_DEVICE
 
 # Order here matters. The first matched device is the one used.
 plugins += [
@@ -745,14 +746,11 @@ plugins += [
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
+    MTP_DEVICE,
     SMART_DEVICE_APP,
     USER_DEFINED,
 ]
 
-from calibre.utils.config_base import tweaks
-if tweaks.get('test_mtp_driver', False):
-    from calibre.devices.mtp.driver import MTP_DEVICE
-    plugins.append(MTP_DEVICE)
 
 # }}}
 
@@ -1121,6 +1119,19 @@ class MetadataSources(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.metadata_sources'
     description = _('Control how calibre downloads ebook metadata from the net')
 
+class IgnoredDevices(PreferencesPlugin):
+    name = 'Ignored Devices'
+    icon = I('reader.png')
+    gui_name = _('Ignored devices')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.ignored_devices'
+    description = _('Control which devices calibre will ignore when they are connected '
+            'to the computer.')
+
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1169,7 +1180,7 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources, Keyboard]
+        MetadataSources, Keyboard, IgnoredDevices]
 
 #}}}
 
@@ -1268,17 +1279,6 @@ class StoreBNStore(StoreBase):
 
     headquarters = 'US'
     formats = ['NOOK']
-
-class StoreBeamEBooksDEStore(StoreBase):
-    name = 'Beam EBooks DE'
-    author = 'Charles Haley'
-    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
-    actual_plugin = 'calibre.gui2.store.stores.beam_ebooks_de_plugin:BeamEBooksDEStore'
-
-    drm_free_only = True
-    headquarters = 'DE'
-    formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
@@ -1650,7 +1650,6 @@ plugins += [
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore, StoreSonyStore,
-    StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,

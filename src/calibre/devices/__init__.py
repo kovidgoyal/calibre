@@ -64,8 +64,9 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
     '''
     import textwrap
     from calibre.customize.ui import device_plugins
+    from calibre.debug import print_basic_debug_info
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
-    from calibre.constants import iswindows, isosx, __version__
+    from calibre.constants import iswindows, isosx
     from calibre import prints
     oldo, olde = sys.stdout, sys.stderr
 
@@ -85,7 +86,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
                 out('Startup failed for device plugin: %s'%d)
 
     try:
-        out('Version:', __version__)
+        print_basic_debug_info(out=buf)
         s = DeviceScanner()
         s.scan()
         devices = (s.devices)

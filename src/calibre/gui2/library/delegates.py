@@ -9,7 +9,7 @@ import sys
 
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
-        QAbstractTextDocumentLayout, QFont, QFontInfo)
+        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -83,6 +83,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
+
 # }}}
 
 class PubDateDelegate(QStyledItemDelegate): # {{{
@@ -103,6 +104,12 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
+
+    def setEditorData(self, editor, index):
+        val = index.data(Qt.EditRole).toDate()
+        if val == UNDEFINED_QDATETIME.date():
+            val = QDate(2000, 1, 1)
+        editor.setDate(val)
 
 # }}}
 

@@ -23,6 +23,7 @@ SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
         'VisualMagick', 'bin')
 CRT = r'C:\Microsoft.VC90.CRT'
+LZMA = r'Q:\easylzma\build\easylzma-0.0.8'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
@@ -89,6 +90,7 @@ class Win32Freeze(Command, WixMixIn):
         self.remove_CRT_from_manifests()
         self.create_installer()
         self.build_portable()
+        self.build_portable_installer()
 
     def remove_CRT_from_manifests(self):
         '''
@@ -311,7 +313,8 @@ class Win32Freeze(Command, WixMixIn):
         subprocess.check_call([r'C:\Program Files\7-Zip\7z.exe', 'a', '-r',
             '-scsUTF-8', '-sfx', 'winfrozen', 'winfrozen'], cwd=self.base)
 
-    def embed_resources(self, module, desc=None):
+    def embed_resources(self, module, desc=None, extra_data=None,
+            product_description=None):
         icon_base = self.j(self.src_root, 'icons')
         icon_map = {'calibre':'library', 'ebook-viewer':'viewer',
                 'lrfviewer':'viewer', 'calibre-portable':'library'}
@@ -320,6 +323,8 @@ class Win32Freeze(Command, WixMixIn):
         bname = self.b(module)
         internal_name = os.path.splitext(bname)[0]
         icon = icon_map.get(internal_name, 'command-prompt')
+        if internal_name.startswith('calibre-portable-'):
+            icon = 'install'
         icon = self.j(icon_base, icon+'.ico')
         if desc is None:
             defdesc = 'A dynamic link library' if file_type == 'DLL' else \
@@ -327,6 +332,8 @@ class Win32Freeze(Command, WixMixIn):
             desc = DESCRIPTIONS.get(internal_name, defdesc)
         license = 'GNU GPL v3.0'
         def e(val): return val.replace('"', r'\"')
+        if product_description is None:
+            product_description = __appname__ + ' - E-book management'
         rc = template.format(
                 icon=icon,
                 file_type=e(file_type),
@@ -338,11 +345,13 @@ class Win32Freeze(Command, WixMixIn):
                 product_version=e(WINVER.replace('.', ',')),
                 product_version_str=e(__version__),
                 product_name=e(__appname__),
-                product_description=e(__appname__+' - E-book management'),
+                product_description=e(product_description),
                 legal_copyright=e(license),
                 legal_trademarks=e(__appname__ + \
                         ' is a registered U.S. trademark number 3,666,525')
         )
+        if extra_data:
+            rc += '\nextra extra "%s"'%extra_data
         tdir = self.obj_dir
         rcf = self.j(tdir, bname+'.rc')
         with open(rcf, 'wb') as f:
@@ -370,6 +379,44 @@ class Win32Freeze(Command, WixMixIn):
             self.info(p.stdout.read())
             self.info(p.stderr.read())
             sys.exit(1)
+
+    def build_portable_installer(self):
+        zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
+        usz = os.path.getsize(zf)
+        def cc(src, obj):
+            cflags  = '/c /EHsc /MT /W4 /Ox /nologo /D_UNICODE /DUNICODE /DPSAPI_VERSION=1'.split()
+            cflags.append(r'/I%s\include'%LZMA)
+            cflags.append('/DUNCOMPRESSED_SIZE=%d'%usz)
+            if self.newer(obj, [src]):
+                self.info('Compiling', obj)
+                cmd = [msvc.cc] + cflags + ['/Fo'+obj, src]
+                self.run_builder(cmd)
+
+        src = self.j(self.src_root, 'setup', 'installer', 'windows',
+                'portable-installer.cpp')
+        obj = self.j(self.obj_dir, self.b(src)+'.obj')
+        xsrc = self.j(self.src_root, 'setup', 'installer', 'windows',
+                'XUnzip.cpp')
+        xobj = self.j(self.obj_dir, self.b(xsrc)+'.obj')
+        cc(src, obj)
+        cc(xsrc, xobj)
+
+        exe = self.j('dist', 'calibre-portable-installer-%s.exe'%VERSION)
+        if self.newer(exe, [obj, xobj]):
+            self.info('Linking', exe)
+            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+                    '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
+                    '/LIBPATH:'+(LZMA+r'\lib\Release'),
+                    '/RELEASE',
+                    '/ENTRY:wWinMainCRTStartup',
+                    '/OUT:'+exe, self.embed_resources(exe,
+                        desc='Calibre Portable Installer', extra_data=zf,
+                        product_description='Calibre Portable Installer'),
+                    xobj, obj, 'User32.lib', 'Shell32.lib', 'easylzma_s.lib',
+                    'Ole32.lib', 'Shlwapi.lib', 'Kernel32.lib', 'Psapi.lib']
+            self.run_builder(cmd)
+
+        os.remove(zf)
 
     def build_portable(self):
         base  = self.portable_base
@@ -403,8 +450,11 @@ class Win32Freeze(Command, WixMixIn):
         os.mkdir(self.j(base, 'Calibre Settings'))
 
         name = '%s-portable-%s.zip'%(__appname__, __version__)
-        with zipfile.ZipFile(self.j('dist', name), 'w', zipfile.ZIP_DEFLATED) as zf:
+        name = self.j('dist', name)
+        with zipfile.ZipFile(name, 'w', zipfile.ZIP_STORED) as zf:
             self.add_dir_to_zip(zf, base, 'Calibre Portable')
+
+        subprocess.check_call([LZMA + r'\bin\elzma.exe', '-9', '--lzip', name])
 
     def add_dir_to_zip(self, zf, path, prefix=''):
         '''

@@ -14,9 +14,11 @@ from itertools import izip
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
 from calibre.devices.mtp.base import debug
+from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.config import from_json, to_json, JSONConfig
 from calibre.utils.date import now, isoformat, utcnow
+from calibre.utils.filenames import shorten_components_to
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -36,22 +38,24 @@ class MTP_DEVICE(BASE):
     FORMATS = ['epub', 'azw3', 'mobi', 'pdf']
     DEVICE_PLUGBOARD_NAME = 'MTP_DEVICE'
     SLOW_DRIVEINFO = True
+    ASK_TO_ALLOW_CONNECT = True
 
     def __init__(self, *args, **kwargs):
         BASE.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
         self._prefs = None
+        self.device_defaults = DeviceDefaults()
+        self.current_device_defaults = {}
 
     @property
     def prefs(self):
         if self._prefs is None:
-            from calibre.library.save_to_disk import config
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
             p.defaults['send_to'] = ['Calibre_Companion', 'Books',
                     'eBooks/import', 'eBooks', 'wordplayer/calibretransfer',
                     'sdcard/ebooks', 'kindle']
-            p.defaults['send_template'] = config().parse().send_template
+            p.defaults['send_template'] = '{title} - {authors}'
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
             p.defaults['rules'] = []
@@ -74,16 +78,29 @@ class MTP_DEVICE(BASE):
             for x in ('format_map', 'send_template', 'send_to'):
                 del self.prefs[x]
 
-    def open(self, devices, library_uuid):
+    def open(self, device, library_uuid):
         self.current_library_uuid = library_uuid
         self.location_paths = None
         self.driveinfo = {}
-        BASE.open(self, devices, library_uuid)
+        BASE.open(self, device, library_uuid)
         h = self.prefs['history']
         if self.current_serial_num:
             h[self.current_serial_num] = (self.current_friendly_name,
                     isoformat(utcnow()))
             self.prefs['history'] = h
+
+        self.current_device_defaults = self.device_defaults(device, self)
+
+    def get_device_uid(self):
+        return self.current_serial_num
+
+    def ignore_connected_device(self, uid):
+        bl = self.prefs['blacklist']
+        if uid not in bl:
+            bl.append(uid)
+            self.prefs['blacklist'] = bl
+        if self.is_mtp_device_connected:
+            self.eject()
 
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
@@ -265,7 +282,11 @@ class MTP_DEVICE(BASE):
                 continue
             base = os.path.join(tdir, '%s'%f.object_id)
             os.mkdir(base)
-            with open(os.path.join(base, f.name), 'wb') as out:
+            name = f.name
+            if iswindows:
+                plen = len(base)
+                name = ''.join(shorten_components_to(245-plen, [name]))
+            with open(os.path.join(base, name), 'wb') as out:
                 try:
                     self.get_mtp_file(f, out)
                 except Exception as e:
@@ -291,7 +312,7 @@ class MTP_DEVICE(BASE):
                 prefix_path=path,
                 path_type=posixpath,
                 maxlen=self.MAX_PATH_LEN,
-                use_subdirs=True,
+                use_subdirs='/' in self.save_template,
                 news_in_folder=self.NEWS_IN_FOLDER,
                 )
         return tuple(x for x in filepath.split('/'))
@@ -435,8 +456,13 @@ class MTP_DEVICE(BASE):
     # Settings {{{
 
     def get_pref(self, key):
-        return self.prefs.get('device-%s'%self.current_serial_num, {}).get(key,
-                self.prefs[key])
+        ''' Get the setting named key. First looks for a device specific setting.
+        If that is not found looks for a device default and if that is not
+        found uses the global default.'''
+        dd = self.current_device_defaults if self.is_mtp_device_connected else {}
+        dev_settings = self.prefs.get('device-%s'%self.current_serial_num, {})
+        default_value = dd.get(key, self.prefs[key])
+        return dev_settings.get(key, default_value)
 
     def config_widget(self):
         from calibre.gui2.device_drivers.mtp_config import MTPConfig
@@ -453,9 +479,22 @@ class MTP_DEVICE(BASE):
 
     @property
     def save_template(self):
-        return self.prefs['send_template']
+        return self.get_pref('send_template')
+
+    def get_user_blacklisted_devices(self):
+        bl = frozenset(self.prefs['blacklist'])
+        ans = {}
+        for dev, x in self.prefs['history'].iteritems():
+            name = x[0]
+            if dev in bl:
+                ans[dev] = name
+        return ans
+
+    def set_user_blacklisted_devices(self, devs):
+        self.prefs['blacklist'] = list(devs)
 
     # }}}
+
 
 if __name__ == '__main__':
     dev = MTP_DEVICE(None)

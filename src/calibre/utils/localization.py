@@ -161,6 +161,7 @@ _extra_lang_codes = {
         'en_PK' : _('English (Pakistan)'),
         'en_HR' : _('English (Croatia)'),
         'en_HK' : _('English (Hong Kong)'),
+        'en_HU' : _('English (Hungary)'),
         'en_ID' : _('English (Indonesia)'),
         'en_IL' : _('English (Israel)'),
         'en_RU' : _('English (Russia)'),

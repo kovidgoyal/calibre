@@ -37,7 +37,7 @@ class Win32(VMInstaller):
     SHUTDOWN_CMD = ['shutdown.exe', '-s', '-f', '-t', '0']
 
     def sign_msi(self):
-        print ('Signing .msi ...')
+        print ('Signing installers ...')
         raw = open(self.VM).read()
         vmx = re.search(r'''launch_vmware\(['"](.+?)['"]''', raw).group(1)
         subprocess.check_call(['vmrun', '-T', 'ws', '-gu', 'kovid', '-gp',
@@ -56,7 +56,7 @@ class Win32(VMInstaller):
             self.warn('Failed to freeze')
             raise SystemExit(1)
 
-        installer = 'dist/%s-portable-%s.zip'%(__appname__, __version__)
+        installer = 'dist/%s-portable-installer-%s.exe'%(__appname__, __version__)
         subprocess.check_call(('scp',
             'xp_build:build/%s/%s'%(__appname__, installer), 'dist'))
         if not os.path.exists(installer):

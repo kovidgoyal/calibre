@@ -96,7 +96,7 @@ class SVGRasterizer(object):
 
     def dataize_manifest(self):
         for item in self.oeb.manifest.values():
-            if item.media_type == SVG_MIME:
+            if item.media_type == SVG_MIME and item.data is not None:
                 self.dataize_svg(item)
 
     def dataize_svg(self, item, svg=None):

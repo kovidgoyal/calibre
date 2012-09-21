@@ -11,7 +11,6 @@ wWinMain(HINSTANCE Inst, HINSTANCE PrevInst,
     wchar_t *CmdLine, int CmdShow) {
 
     wchar_t *stdout_redirect, *stderr_redirect, basename[50];
-	int ret = 0;
 
     set_gui_app((char)1);
 
@@ -20,7 +19,7 @@ wWinMain(HINSTANCE Inst, HINSTANCE PrevInst,
     stdout_redirect = redirect_out_stream(basename, (char)1);
     stderr_redirect = redirect_out_stream(basename, (char)0);
 
-	ret = execute_python_entrypoint(BASENAME, MODULE, FUNCTION,
+	execute_python_entrypoint(BASENAME, MODULE, FUNCTION,
 					stdout_redirect, stderr_redirect);
 
     if (stdout != NULL) fclose(stdout);
@@ -29,7 +28,7 @@ wWinMain(HINSTANCE Inst, HINSTANCE PrevInst,
     DeleteFile(stdout_redirect);
     DeleteFile(stderr_redirect);
 
-    return ret;
+    return 0; // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
 }
 
 #else

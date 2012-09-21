@@ -18,7 +18,7 @@ from calibre.utils.date import local_tz, as_utc
 from calibre.utils.icu import sort_key, lower
 from calibre.ebooks import BOOK_EXTENSIONS
 
-bexts = frozenset(BOOK_EXTENSIONS)
+bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 
 class FileOrFolder(object):
 
@@ -204,7 +204,7 @@ class FilesystemCache(object):
             except KeyError:
                 # Parent does not exist, set the parent to be the storage
                 # object
-                sid = p.storage_id
+                sid = item.storage_id
                 if sid not in all_storage_ids:
                     sid = all_storage_ids[0]
                 item.parent_id = sid

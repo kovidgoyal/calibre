@@ -163,7 +163,7 @@ class IgnoredDevices(QWidget): # {{{
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         self.la = la = QLabel('<p>'+_(
-            '''Select the devices to be <b>ignored</b>. calibre will not
+            '''Select the devices to be <b>ignored</b>. calibre <b>will not</b>
             connect to devices with a checkmark next to their names.'''))
         la.setWordWrap(True)
         l.addWidget(la)
@@ -208,11 +208,12 @@ class Rule(QWidget):
         self.l = l = QHBoxLayout()
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_('Send the '))
+        p, s = _('Send the %s format to the folder:').partition('%s')[0::2]
+        self.l1 = l1 = QLabel(p)
         l.addWidget(l1)
         self.fmt = f = QComboBox(self)
         l.addWidget(f)
-        self.l2 = l2 = QLabel(_(' format to the folder: '))
+        self.l2 = l2 = QLabel(s)
         l.addWidget(l2)
         self.folder = f = QLineEdit(self)
         f.setPlaceholderText(_('Folder on the device'))
@@ -385,7 +386,7 @@ class MTPConfig(QTabWidget):
                 self.device.prefs['blacklist'])
         self.addTab(self.igntab, _('Ignored devices'))
 
-        self.setCurrentIndex(0)
+        self.setCurrentIndex(1 if msg else 0)
 
     def ignore_device(self):
         self.igntab.ignore_device(self.device.current_serial_num)
@@ -399,7 +400,7 @@ class MTPConfig(QTabWidget):
         p = self.device.prefs.get(self.current_device_key, {})
         if not p:
             self.device.prefs[self.current_device_key] = p
-        return p.get(key, self.device.prefs[key])
+        return self.device.get_pref(key)
 
     @property
     def device(self):
@@ -414,6 +415,7 @@ class MTPConfig(QTabWidget):
         return True
 
     def commit(self):
+        self.device.prefs['blacklist'] = self.igntab.blacklist
         p = self.device.prefs.get(self.current_device_key, {})
 
         if hasattr(self, 'formats'):
@@ -439,7 +441,6 @@ class MTPConfig(QTabWidget):
 
             self.device.prefs[self.current_device_key] = p
 
-        self.device.prefs['blacklist'] = self.igntab.blacklist
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

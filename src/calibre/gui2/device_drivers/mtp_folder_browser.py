@@ -89,7 +89,7 @@ class Browser(QDialog):
         self.setMinimumSize(QSize(500, 500))
         self.folders.selected.connect(self.accept)
         self.setWindowTitle(_('Choose folder on device'))
-        self.setWindowIcon(QIcon(I('devices/galaxy_s3.png')))
+        self.setWindowIcon(QIcon(I('devices/tablet.png')))
 
     @property
     def current_item(self):

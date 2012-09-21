@@ -20,7 +20,7 @@ from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
         warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
-        show_restart_warning)
+        show_restart_warning, gprefs, question_dialog)
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
@@ -122,7 +122,7 @@ def device_name_for_plugboards(device_class):
 class DeviceManager(Thread): # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot,
-            open_feedback_msg, sleep_time=2):
+            open_feedback_msg, allow_connect_slot, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
@@ -136,6 +136,7 @@ class DeviceManager(Thread): # {{{
                 x.MANAGES_DEVICE_PRESENCE]
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
+        self.allow_connect_slot = allow_connect_slot
         self.jobs           = Queue.Queue(0)
         self.job_steps      = Queue.Queue(0)
         self.keep_going     = True
@@ -193,6 +194,21 @@ class DeviceManager(Thread): # {{{
         return False
 
     def after_device_connect(self, dev, device_kind):
+        allow_connect = True
+        try:
+            uid = dev.get_device_uid()
+        except NotImplementedError:
+            uid = None
+        asked = gprefs.get('ask_to_manage_device', [])
+        if (dev.ASK_TO_ALLOW_CONNECT and uid and uid not in asked):
+            if not self.allow_connect_slot(dev.get_gui_name(), dev.icon):
+                allow_connect = False
+            asked.append(uid)
+            gprefs.set('ask_to_manage_device', asked)
+        if not allow_connect:
+            dev.ignore_connected_device(uid)
+            return
+
         self.connected_device = dev
         self.connected_device_kind = device_kind
         self.connected_slot(True, device_kind)
@@ -829,11 +845,18 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog.setModal(Qt.NonModal)
         self.device_manager = DeviceManager(FunctionDispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message),
-                Dispatcher(self.show_open_feedback))
+                Dispatcher(self.show_open_feedback),
+                FunctionDispatcher(self.allow_connect))
         self.device_manager.start()
         self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def allow_connect(self, name, icon):
+        return question_dialog(self, _('Manage the %s?')%name,
+                _('Detected the <b>%s</b>. Do you want calibre to manage it?')%
+                name, show_copy_button=False,
+                override_icon=QIcon(icon))
 
     def debug_detection(self, done):
         self.debug_detection_callback = weakref.ref(done)
@@ -929,7 +952,8 @@ class DeviceMixin(object): # {{{
         self._sync_menu.fetch_annotations.connect(
                 self.iactions['Fetch Annotations'].fetch_annotations)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
-        self.iactions['Connect Share'].set_state(self.device_connected)
+        self.iactions['Connect Share'].set_state(self.device_connected,
+                None)
         if self.device_connected:
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
         else:
@@ -968,7 +992,8 @@ class DeviceMixin(object): # {{{
     # Device connected {{{
 
     def set_device_menu_items_state(self, connected):
-        self.iactions['Connect Share'].set_state(connected)
+        self.iactions['Connect Share'].set_state(connected,
+                self.device_manager.device)
         if connected:
             self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
@@ -1671,11 +1696,7 @@ class DeviceMixin(object): # {{{
                     if update_metadata:
                         mi = db.get_metadata(id_, index_is_id=True,
                                              get_cover=get_covers)
-                        if book.get('last_modified', None) != mi.last_modified:
-                            book.smart_update(db.get_metadata(id_,
-                                                          index_is_id=True,
-                                                          get_cover=get_covers),
-                                          replace_metadata=True)
+                        book.smart_update(mi, replace_metadata=True)
                     book.in_library = 'UUID'
                     # ensure that the correct application_id is set
                     book.application_id = id_

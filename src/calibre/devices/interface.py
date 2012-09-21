@@ -99,6 +99,14 @@ class DevicePlugin(Plugin):
     #: after the books lists have been loaded to get the driveinfo.
     SLOW_DRIVEINFO = False
 
+    #: If set to True, calibre will ask the user if they want to manage the
+    #: device with calibre, the first time it is detected. If you set this to
+    #: True you must implement :meth:`get_device_uid()` and
+    #: :meth:`ignore_connected_device()` and
+    #: :meth:`get_user_blacklisted_devices` and
+    #: :meth:`set_user_blacklisted_devices`
+    ASK_TO_ALLOW_CONNECT = False
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
@@ -584,6 +592,37 @@ class DevicePlugin(Plugin):
         Called when calibre is shutting down, either for good or in preparation
         to restart. Do any cleanup required. This method is called on the
         device thread, not the GUI thread.
+        '''
+        pass
+
+    def get_device_uid(self):
+        '''
+        Must return a unique id for the currently connected device (this is
+        called immediately after a successful call to open()). You must
+        implement this method if you set ASK_TO_ALLOW_CONNECT = True
+        '''
+        raise NotImplementedError()
+
+    def ignore_connected_device(self, uid):
+        '''
+        Should ignore the device identified by uid (the result of a call to
+        get_device_uid()) in the future. You must implement this method if you
+        set ASK_TO_ALLOW_CONNECT = True. Note that this function is called
+        immediately after open(), so if open() caches some state, the driver
+        should reset that state.
+        '''
+        raise NotImplementedError()
+
+    def get_user_blacklisted_devices(self):
+        '''
+        Return map of device uid to friendly name for all devices that the user
+        has asked to be ignored.
+        '''
+        return {}
+
+    def set_user_blacklisted_devices(self, devices):
+        '''
+        Set the list of device uids that should be ignored by this driver.
         '''
         pass
 

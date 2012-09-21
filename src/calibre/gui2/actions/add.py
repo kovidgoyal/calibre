@@ -30,7 +30,7 @@ def get_filters():
             (_('LRF Books'), ['lrf']),
             (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
             (_('LIT Books'), ['lit']),
-            (_('MOBI Books'), ['mobi', 'prc', 'azw']),
+            (_('MOBI Books'), ['mobi', 'prc', 'azw', 'azw3']),
             (_('Topaz books'), ['tpz','azw1']),
             (_('Text books'), ['txt', 'text', 'rtf']),
             (_('PDF Books'), ['pdf', 'azw4']),

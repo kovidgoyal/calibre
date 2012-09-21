@@ -8,6 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import re, operator, math
 from collections import defaultdict
+from xml.dom import SyntaxErr
 
 from lxml import etree
 import cssutils
@@ -279,7 +280,7 @@ class CSSFlattener(object):
         if 'color' in node.attrib:
             try:
                 cssdict['color'] = Property('color', node.attrib['color']).value
-            except ValueError:
+            except (ValueError, SyntaxErr):
                 pass
             del node.attrib['color']
         if 'bgcolor' in node.attrib:

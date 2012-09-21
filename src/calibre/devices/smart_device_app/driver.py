@@ -10,9 +10,12 @@ Created on 29 Jun 2012
 import socket, select, json, inspect, os, traceback, time, sys, random
 import posixpath
 import hashlib, threading
+import Queue
+
 from base64 import b64encode, b64decode
 from functools import wraps
 from errno import EAGAIN, EINTR
+from threading import Thread
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
@@ -28,6 +31,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
+from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
@@ -48,6 +52,117 @@ def synchronous(tlockname):
     return _synched
 
 
+class ConnectionListener (Thread):
+
+    def __init__(self, driver):
+        Thread.__init__(self)
+        self.daemon = True
+        self.driver = driver
+        self.keep_running = True
+
+    def stop(self):
+        self.keep_running = False
+
+    def run(self):
+        queue_not_serviced_count = 0
+        device_socket = None
+        while self.keep_running:
+            try:
+                time.sleep(1)
+            except:
+                # Happens during interpreter shutdown
+                break
+
+            if not self.keep_running:
+                break
+
+            if not self.driver.connection_queue.empty():
+                queue_not_serviced_count += 1
+                if queue_not_serviced_count >= 3:
+                    self.driver._debug('queue not serviced')
+                    try:
+                        sock = self.driver.connection_queue.get_nowait()
+                        s = self.driver._json_encode(
+                                        self.driver.opcodes['CALIBRE_BUSY'], {})
+                        self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + s)
+                        sock.close()
+                    except Queue.Empty:
+                        pass
+                    queue_not_serviced_count = 0
+            else:
+                queue_not_serviced_count = 0
+
+            if getattr(self.driver, 'broadcast_socket', None) is not None:
+                while True:
+                    ans = select.select((self.driver.broadcast_socket,), (), (), 0)
+                    if len(ans[0]) > 0:
+                        try:
+                            packet = self.driver.broadcast_socket.recvfrom(100)
+                            remote = packet[1]
+                            content_server_port = b'';
+                            try :
+                                content_server_port = \
+                                    str(content_server_config().parse().port)
+                            except:
+                                pass
+                            message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
+                                            str(socket.gethostname().partition('.')[0]) +
+                                            b');' + content_server_port +
+                                            b',' + str(self.driver.port))
+                            self.driver._debug('received broadcast', packet, message)
+                            self.driver.broadcast_socket.sendto(message, remote)
+                        except:
+                            pass
+                    else:
+                        break
+
+            if self.driver.connection_queue.empty() and \
+                        getattr(self.driver, 'listen_socket', None) is not None:
+                ans = select.select((self.driver.listen_socket,), (), (), 0)
+                if len(ans[0]) > 0:
+                    # timeout in 10 ms to detect rare case where the socket went
+                    # way between the select and the accept
+                    try:
+                        self.driver._debug('attempt to open device socket')
+                        device_socket = None
+                        self.driver.listen_socket.settimeout(0.010)
+                        device_socket, ign = eintr_retry_call(
+                                self.driver.listen_socket.accept)
+                        self.driver.listen_socket.settimeout(None)
+                        device_socket.settimeout(None)
+
+                        try:
+                            peer = self.driver.device_socket.getpeername()[0]
+                            attempts = self.drjver.connection_attempts.get(peer, 0)
+                            if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
+                                self.driver._debug('too many connection attempts from', peer)
+                                device_socket.close()
+                                device_socket = None
+#                                raise InitialConnectionError(_('Too many connection attempts from %s') % peer)
+                            else:
+                                self.driver.connection_attempts[peer] = attempts + 1
+                        except InitialConnectionError:
+                            raise
+                        except:
+                            pass
+
+                        try:
+                            self.driver.connection_queue.put_nowait(device_socket)
+                        except Queue.Full:
+                            device_socket.close()
+                            device_socket = None
+                            self.driver._debug('driver is not answering')
+
+                    except socket.timeout:
+                        pass
+                    except socket.error:
+                        x = sys.exc_info()[1]
+                        self.driver._debug('unexpected socket exception', x.args[0])
+                        device_socket.close()
+                        device_socket = None
+#                        raise
+
+
 class SDBook(Book):
     def __init__(self, prefix, lpath, size=None, other=None):
         Book.__init__(self, prefix, lpath, size=size, other=other)
@@ -56,8 +171,10 @@ class SDBook(Book):
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
-    gui_name = _('SmartDevice')
-    icon = I('devices/galaxy_s3.png')
+    gui_name = _('Wireless Device')
+    gui_name_template = '%s: %s'
+
+    icon = I('devices/tablet.png')
     description = _('Communicate with Smart Device apps')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Charles Haley'
@@ -80,8 +197,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     NEWS_IN_FOLDER              = True
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
+
+    # Guess about the max length on windows. This number will be reduced by
+    # the length of the path on the client, and by the fudge factor below. We
+    # use this on all platforms because the device might be connected to windows
+    # in the future.
     MAX_PATH_LEN                = 250
+    # guess of length of MTP name. The length of the full path to the folder
+    # on the device is added to this. That path includes the device's mount point
+    # making this number effectively around 10 to 15 larger.
+    PATH_FUDGE_FACTOR           = 40
+
     THUMBNAIL_HEIGHT            = 160
+    DEFAULT_THUMBNAIL_HEIGHT    = 160
+
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
 
@@ -112,6 +241,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'OK'                     : 0,
         'BOOK_DATA'              : 10,
         'BOOK_DONE'              : 11,
+        'CALIBRE_BUSY'           : 18,
         'DELETE_BOOK'            : 13,
         'DISPLAY_MESSAGE'        : 17,
         'FREE_SPACE'             : 5,
@@ -201,28 +331,30 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_can_stream_metadata = False
 
     def _debug(self, *args):
-        if not DEBUG:
-            return
-        total_elapsed = time.time() - self.debug_start_time
-        elapsed = time.time() - self.debug_time
-        print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
-                                               inspect.stack()[1][3]), end='')
-        for a in args:
-            try:
-                if isinstance(a, dict):
-                    printable = {}
-                    for k,v in a.iteritems():
-                        if isinstance(v, (str, unicode)) and len(v) > 50:
-                            printable[k] = 'too long'
-                        else:
-                            printable[k] = v
-                    prints('', printable, end='')
-                else:
-                    prints('', a, end='')
-            except:
-                prints('', 'value too long', end='')
-        print()
-        self.debug_time = time.time()
+        # manual synchronization so we don't lose the calling method name
+        with self.sync_lock:
+            if not DEBUG:
+                return
+            total_elapsed = time.time() - self.debug_start_time
+            elapsed = time.time() - self.debug_time
+            print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
+                                                   inspect.stack()[1][3]), end='')
+            for a in args:
+                try:
+                    if isinstance(a, dict):
+                        printable = {}
+                        for k,v in a.iteritems():
+                            if isinstance(v, (str, unicode)) and len(v) > 50:
+                                printable[k] = 'too long'
+                            else:
+                                printable[k] = v
+                        prints('', printable, end='')
+                    else:
+                        prints('', a, end='')
+                except:
+                    prints('', 'value too long', end='')
+            print()
+            self.debug_time = time.time()
 
     # local utilities
 
@@ -248,7 +380,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # remove the 'path' argument and all its uses. Also removed the calls to
     # filename_callback and sanitize_path_components
     def _create_upload_path(self, mdata, fname, create_dirs=True):
-        maxlen = self.MAX_PATH_LEN
+        fname = sanitize(fname)
+        ext = os.path.splitext(fname)[1]
+
+        maxlen = (self.MAX_PATH_LEN - (self.PATH_FUDGE_FACTOR +
+                   self.exts_path_lengths.get(ext, self.PATH_FUDGE_FACTOR)))
 
         special_tag = None
         if mdata.tags:
@@ -268,9 +404,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 date = (today[0], today[1], today[2])
             template = "{title}_%d-%d-%d" % date
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
-
-        fname = sanitize(fname)
-        ext = os.path.splitext(fname)[1]
 
         from calibre.library.save_to_disk import get_components
         from calibre.library.save_to_disk import config
@@ -346,6 +479,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return json.dumps([op, res], encoding='utf-8')
 
     # Network functions
+
+    def _read_binary_from_net(self, length):
+        self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
+        v = self.device_socket.recv(length)
+        self.device_socket.settimeout(None)
+        return v
+
     def _read_string_from_net(self):
         data = bytes(0)
         while True:
@@ -354,9 +494,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 break
             # recv seems to return a pointer into some internal buffer.
             # Things get trashed if we don't make a copy of the data.
-            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = self.device_socket.recv(2)
-            self.device_socket.settimeout(None)
+            v = self._read_binary_from_net(2)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
             data += v
@@ -364,16 +502,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         data = data[dex:]
         pos = len(data)
         while pos < total_len:
-            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            v = self.device_socket.recv(total_len - pos)
-            self.device_socket.settimeout(None)
+            v = self._read_binary_from_net(total_len - pos)
             if len(v) == 0:
                 return '' # documentation says the socket is broken permanently.
             data += v
             pos += len(v)
         return data
 
-    def _send_byte_string(self, s):
+    def _send_byte_string(self, sock, s):
         if not isinstance(s, bytes):
             self._debug('given a non-byte string!')
             raise PacketError("Internal error: found a string that isn't bytes")
@@ -382,11 +518,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         while sent_len < total_len:
             try:
                 if sent_len == 0:
-                    amt_sent = self.device_socket.send(s)
+                    amt_sent = sock.send(s)
                 else:
-                    amt_sent = self.device_socket.send(s[sent_len:])
+                    amt_sent = sock.send(s[sent_len:])
                 if amt_sent <= 0:
-                    raise IOError('Bad write on device socket')
+                    raise IOError('Bad write on socket')
                 sent_len += amt_sent
             except socket.error as e:
                 self._debug('socket error', e, e.errno)
@@ -410,7 +546,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
             self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-            self._send_byte_string((b'%d' % len(s)) + s)
+            self._send_byte_string(self.device_socket, (b'%d' % len(s)) + s)
             if not wait_for_response:
                 return None, None
             return self._receive_from_client(print_debug_info=print_debug_info)
@@ -466,11 +602,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         length = infile.tell()
         book_metadata.size = length
         infile.seek(0)
-        self._debug(lpath, length)
+
         opcode, result = self._call_client('SEND_BOOK', {'lpath': lpath, 'length': length,
                                'metadata': book_metadata, 'thisBook': this_book,
                                'totalBooks': total_books,
-                               'willStreamBooks': self.client_can_stream_books},
+                               'willStreamBooks': self.client_can_stream_books,
+                               'willStreamBinary' : self.client_can_receive_book_binary},
                           print_debug_info=False,
                           wait_for_response=(not self.client_can_stream_books))
 
@@ -483,17 +620,21 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 blen = len(b)
                 if not b:
                     break
-                b = b64encode(b)
-                opcode, result = self._call_client('BOOK_DATA',
-                                {'lpath': lpath, 'position': pos, 'data': b},
-                                print_debug_info=False,
-                                wait_for_response=(not self.client_can_stream_books))
+                if self.client_can_stream_books and self.client_can_receive_book_binary:
+                    self._send_byte_string(self.device_socket, b)
+                else:
+                    b = b64encode(b)
+                    opcode, result = self._call_client('BOOK_DATA',
+                                    {'lpath': lpath, 'position': pos, 'data': b},
+                                    print_debug_info=False,
+                                    wait_for_response=(not self.client_can_stream_books))
                 pos += blen
                 if not self.client_can_stream_books and opcode != 'OK':
                     self._debug('protocol error', opcode)
                     failed = True
                     break
-        self._call_client('BOOK_DONE', {'lpath': lpath})
+        if not (self.client_can_stream_books and self.client_can_receive_book_binary):
+            self._call_client('BOOK_DONE', {'lpath': lpath})
         self.time = None
         if close_:
             infile.close()
@@ -517,7 +658,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
             return (v.get('uuid', None) == book.get('uuid', None) and
-                    v.get('last_modified', None) == book.get('last_modified', None))
+                    v.get('last_modified', None) == book.get('last_modified', None) and
+                    v.get('thumbnail', None) == book.get('thumbnail', None))
         return False
 
     def _set_known_metadata(self, book, remove=False):
@@ -620,39 +762,26 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     break
 
         if getattr(self, 'listen_socket', None) is not None:
-            ans = select.select((self.listen_socket,), (), (), 0)
-            if len(ans[0]) > 0:
-                # timeout in 10 ms to detect rare case where the socket went
-                # way between the select and the accept
+            try:
+                ans = self.connection_queue.get_nowait()
+                self.device_socket = ans
+                self.is_connected = True
                 try:
-                    self.device_socket = None
-                    self.listen_socket.settimeout(0.010)
-                    self.device_socket, ign = eintr_retry_call(
-                            self.listen_socket.accept)
-                    self.listen_socket.settimeout(None)
-                    self.device_socket.settimeout(None)
-                    self.is_connected = True
-                    try:
-                        peer = self.device_socket.getpeername()[0]
-                        attempts = self.connection_attempts.get(peer, 0)
-                        if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
-                            self._debug('too many connection attempts from', peer)
-                            self._close_device_socket()
-                            raise InitialConnectionError(_('Too many connection attempts from %s') % peer)
-                        else:
-                            self.connection_attempts[peer] = attempts + 1
-                    except InitialConnectionError:
-                        raise
-                    except:
-                        pass
-                except socket.timeout:
-                    self._close_device_socket()
-                except socket.error:
-                    x = sys.exc_info()[1]
-                    self._debug('unexpected socket exception', x.args[0])
-                    self._close_device_socket()
+                    peer = self.device_socket.getpeername()[0]
+                    attempts = self.connection_attempts.get(peer, 0)
+                    if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
+                        self._debug('too many connection attempts from', peer)
+                        self._close_device_socket()
+                        raise InitialConnectionError(_('Too many connection attempts from %s') % peer)
+                    else:
+                        self.connection_attempts[peer] = attempts + 1
+                except InitialConnectionError:
                     raise
-                return (self.is_connected, self)
+                except:
+                    pass
+            except Queue.Empty:
+                self.is_connected = False
+            return (self.is_connected, self)
         return (False, None)
 
     @synchronous('sync_lock')
@@ -705,17 +834,37 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can stream books', self.client_can_stream_books)
             self.client_can_stream_metadata = result.get('canStreamMetadata', False)
             self._debug('Device can stream metadata', self.client_can_stream_metadata)
+            self.client_can_receive_book_binary = result.get('canReceiveBookBinary', False)
+            self._debug('Device can receive book binary', self.client_can_stream_metadata)
+
+            self.client_device_kind = result.get('deviceKind', '')
+            self._debug('Client device kind', self.client_device_kind)
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
+            self._debug('max_book_packet_len', self.max_book_packet_len)
+
             exts = result.get('acceptedExtensions', None)
             if exts is None or not isinstance(exts, list) or len(exts) == 0:
                 self._debug('Protocol error - bogus accepted extensions')
                 self._close_device_socket()
                 return False
+
             config = self._configProxy()
             config['format_map'] = exts
             self._debug('selected formats', config['format_map'])
+
+            self.exts_path_lengths = result.get('extensionPathLengths', {})
+            self._debug('extension path lengths', self.exts_path_lengths)
+
+            self.THUMBNAIL_HEIGHT = result.get('coverHeight', self.DEFAULT_THUMBNAIL_HEIGHT)
+            if 'coverWidth' in result:
+                # Setting this field forces the aspect ratio
+                self.THUMBNAIL_WIDTH = result.get('coverWidth',
+                                      (self.DEFAULT_THUMBNAIL_HEIGHT/3) * 4)
+            elif hasattr(self, 'THUMBNAIL_WIDTH'):
+                    delattr(self, 'THUMBNAIL_WIDTH')
+
             if password:
                 returned_hash = result.get('passwordHash', None)
                 if result.get('passwordHash', None) is None:
@@ -751,6 +900,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._close_device_socket()
             raise
         return False
+
+    def get_gui_name(self):
+        if self.client_device_kind:
+            return self.gui_name_template%(self.gui_name, self.client_device_kind)
+        return self.gui_name
+
 
     @synchronous('sync_lock')
     def get_device_information(self, end_session=True):
@@ -909,7 +1064,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        self._debug(names)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(names)
+        else:
+            self._debug()
 
         paths = []
         names = iter(names)
@@ -956,7 +1114,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def delete_books(self, paths, end_session=True):
-        self._debug(paths)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(paths)
+        else:
+            self._debug()
+
         for path in paths:
             # the path has the prefix on it (I think)
             path = self._strip_prefix(path)
@@ -968,7 +1130,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def remove_books_from_metadata(self, paths, booklists):
-        self._debug(paths)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(paths)
+        else:
+            self._debug()
+
         for i, path in enumerate(paths):
             path = self._strip_prefix(path)
             self.report_progress((i + 1) / float(len(paths)), _('Removing books from device metadata listing...'))
@@ -983,29 +1149,45 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None):
-        self._debug(path)
+        if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
+            self._debug(path)
+        else:
+            self._debug()
+
         eof = False
         position = 0
         while not eof:
             opcode, result = self._call_client('GET_BOOK_FILE_SEGMENT',
                                     {'lpath' : path, 'position': position,
                                      'thisBook': this_book, 'totalBooks': total_books,
-                                     'canStream':True},
+                                     'canStream':True, 'canStreamBinary': True},
                                     print_debug_info=False)
             if opcode == 'OK':
                 client_will_stream = 'willStream' in result
-                while not eof:
-                    if not result['eof']:
-                        data = b64decode(result['data'])
-                        if len(data) != result['next_position'] - position:
-                            self._debug('position mismatch', result['next_position'], position)
-                        position = result['next_position']
-                        outfile.write(data)
-                        opcode, result = self._receive_from_client(print_debug_info=True)
-                    else:
-                        eof = True
-                    if not client_will_stream:
-                        break
+                client_will_stream_binary = 'willStreamBinary' in result
+
+                if (client_will_stream_binary):
+                    length = result.get('fileLength')
+                    remaining = length
+
+                    while remaining > 0:
+                        v = self._read_binary_from_net(min(remaining, self.max_book_packet_len))
+                        outfile.write(v)
+                        remaining -= len(v)
+                    eof = True
+                else:
+                    while not eof:
+                        if not result['eof']:
+                            data = b64decode(result['data'])
+                            if len(data) != result['next_position'] - position:
+                                self._debug('position mismatch', result['next_position'], position)
+                            position = result['next_position']
+                            outfile.write(data)
+                            opcode, result = self._receive_from_client(print_debug_info=True)
+                        else:
+                            eof = True
+                        if not client_will_stream:
+                            break
             else:
                 raise ControlError(desc='request for book data failed')
 
@@ -1127,17 +1309,22 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('broadcast socket listening on port', port)
                 break
 
+        message = None
         if port == 0:
             self.broadcast_socket.close()
             self.broadcast_socket = None
             message = 'attaching port to broadcast socket failed. This is not fatal.'
             self._debug(message)
-            return message
 
+        self.connection_queue = Queue.Queue(1)
+        self.connection_listener = ConnectionListener(self)
+        self.connection_listener.start()
+        return message
 
     @synchronous('sync_lock')
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
+            self.connection_listener.stop()
             unpublish_zeroconf('calibre smart device client',
                              '_calibresmartdeviceapp._tcp', self.port, {})
             self._close_listen_socket()

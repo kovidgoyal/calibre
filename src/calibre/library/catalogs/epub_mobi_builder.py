@@ -989,8 +989,8 @@ class CatalogBuilder(object):
                     file_fmts.add(fmt)
 
                 bookmark_extension = None
-                if file_fmts.intersection(han_formats):
-                    book_extension = list(file_fmts.intersection(han_formats))[0]
+                if file_fmts.intersection(tan_formats):
+                    book_extension = list(file_fmts.intersection(tan_formats))[0]
                     bookmark_extension = 'han'
                 elif file_fmts.intersection(mbp_formats):
                     book_extension = list(file_fmts.intersection(mbp_formats))[0]

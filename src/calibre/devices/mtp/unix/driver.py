@@ -137,6 +137,10 @@ class MTP_DEVICE(MTPDeviceBase):
         self.currently_connected_dev = None
         self.current_serial_num = None
 
+    @property
+    def is_mtp_device_connected(self):
+        return self.currently_connected_dev is not None
+
     @synchronous
     def startup(self):
         p = plugins['libmtp']
@@ -189,6 +193,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if not self.current_friendly_name:
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
         self.current_serial_num = snum
+        self.currently_connected_dev = connected_device
 
     @property
     def filesystem_cache(self):
@@ -297,14 +302,16 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))
+        set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
-            stream.name = f.name
         ok, errs = self.dev.get_file(f.object_id, stream, callback)
         if not ok:
             raise DeviceError('Failed to get file: %s with errors: %s'%(
                 f.full_path, self.format_errorstack(errs)))
         stream.seek(0)
+        if set_name:
+            stream.name = f.name
         return stream
 
     @synchronous
