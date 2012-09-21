@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-09-14 12:01+0000\n"
-"PO-Revision-Date: 2012-09-09 12:53+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2012-09-20 20:48+0000\n"
+"Last-Translator: rob.moerland <rob.moerland@gmail.com>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-15 04:39+0000\n"
-"X-Generator: Launchpad (build 15944)\n"
+"X-Launchpad-Export-Date: 2012-09-21 04:40+0000\n"
+"X-Generator: Launchpad (build 15985)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -2218,7 +2218,7 @@ msgstr "Extra debug informatie tonen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:149
 msgid "Check this box if requested when reporting problems"
-msgstr "Slecteer dit indien gevraagd bij het melden van problemen"
+msgstr "Selecteer dit indien gevraagd bij het melden van problemen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:151
 msgid ""
@@ -6238,7 +6238,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:253
 msgid "Many IP addresses. See Start/Stop dialog."
-msgstr ""
+msgstr "Meerdere ip-adressen. Zie Start/Stop dialoog."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -6778,7 +6778,7 @@ msgstr ""
 "Alle transacties (betaald of niet) zijn tussen u en de verkoper. Calibre is "
 "geen onderdeel van dit proces, en problemen met aankopen moet u met de "
 "website waarbij u het boek koop afhandelen. Zorg ervoor dat u goed "
-"controleert of het boek dat u koop op uw e-reader te lezen is, vooral als "
+"controleert of het boek dat u koopt op uw e-reader te lezen is, vooral als "
 "het boek <a href=\"http://drmfree.calibre-ebook.com/about#drm\">DRM</a> "
 "gebruikt."
 
