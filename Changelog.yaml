@@ -19,6 +19,62 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.70
+  date: 2012-09-21
+
+  new features:
+    - title: "Support for connecting MTP (non disk based) devices via USB, such as the Nexus 7 and the Kindle Fire HD (Windows Vista and newer and Linux only)"
+      type: major
+      description: "calibre can now detect and connect to devices that do not present themselves as USB disks to the operating system. Newer Android devices all use the 'MTP' protocol when connected via USB. calibre now supports devices using this protocol on both Windows (Vista and newer) and Linux."
+
+    - title: "Calibre Portable: Create a new installer that does not require manually unzipping the Calibre Portable folder. Instead just run the installer and point it to the location you want to install to."
+
+    - title: "Calibre Portable: Add support for multiple libraries created inside the 'Calibre Portable' folder."
+
+    - title: "In the main book list when editing a blank published date, use a default value of Jan 2000 so that changing the date it easier"
+
+    - title: "Template language: Add function approximate_formats() to get list of formats saved in the db for a book as opposed to the formats that actually exist on disk"
+
+    - title: "Template language: Add a couple of new functions to get the path to individual book formats and the calibre library as a whole"
+
+    - title: "Drivers for HTC Flyer and Trekstor 4ink"
+ 
+  bug fixes:
+    - title: "Conversion: Do not error out when tags have unparseable color attributes."
+      tickets: [1053583]
+
+    - title: "AZW3 Output: Do not error out if the input document contains embedded fonts of less than 1040 bytes."
+      tickets: [1052892]
+
+    - title: "Catalogs: Fix AZW3 output not properly indexed"
+
+    - title: "Get Books: Remove Beam Books due to lack of response to issues with the store."
+
+    - title: "Windows: Ignore drives A: and B: when scanning for the drives belonging to a device"
+
+    - title: "Kindle driver: Fix generation of apnx files for newer kindle firmware."
+
+    - title: "News download: If the output format is set to azw3, generate periodicals in mobi format as amazon does not support azw3 periodicals."
+
+  improved recipes:
+    - Indian Express
+    - Anadtech
+    - London Review of Books (subscrption version)
+    - Livemint
+    - xkcd
+    - Doghouse Diaries
+
+  new recipes:
+    - title: Various Hungarian recipes 
+      author: laca
+
+    - title: NSFW Corp 
+      author: Darko Miletic.
+
+    - title: FC Knudde and Stamgasten
+      author: drMerry
+
+
 - version: 0.8.69
   date: 2012-09-14
 
