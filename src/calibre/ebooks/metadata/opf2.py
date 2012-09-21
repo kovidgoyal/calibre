@@ -1359,7 +1359,10 @@ class OPFCreator(Metadata):
         guide = E.guide()
         if self.guide is not None:
             for ref in self.guide:
-                item = E.reference(type=ref.type, href=ref.href())
+                href = ref.href()
+                if isinstance(href, bytes):
+                    href = href.decode('utf-8')
+                item = E.reference(type=ref.type, href=href)
                 if ref.title:
                     item.set('title', ref.title)
                 guide.append(item)
