@@ -602,7 +602,7 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
                   'book. There is no guarantee that this list is correct, '
                   'although it probably is. '
                   'This function can be called in template program mode using '
-                  'the template "{:\'approximate_formats()\'}. '
+                  'the template "{:\'approximate_formats()\'}". '
                   'Note that format names are always uppercase, as in EPUB.'
             )
 

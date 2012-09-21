@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.70\n"
-"POT-Creation-Date: 2012-09-21 09:52+IST\n"
-"PO-Revision-Date: 2012-09-21 09:52+IST\n"
+"POT-Creation-Date: 2012-09-21 13:10+IST\n"
+"PO-Revision-Date: 2012-09-21 13:10+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -3485,7 +3485,7 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1488
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1491
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:958
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -7827,7 +7827,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:856
 #, python-format
-msgid "Mange the %s?"
+msgid "Manage the %s?"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:857
@@ -17967,7 +17967,7 @@ msgid "select(val, key) -- interpret the value as a comma-separated list of item
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:600
-msgid "approximate_formats() -- return a comma-separated list of formats that at one point were associated with the book. There is no guarantee that this list is correct, although it probably is. This function can be called in template program mode using the template \"{:'approximate_formats()'}. Note that format names are always uppercase, as in EPUB."
+msgid "approximate_formats() -- return a comma-separated list of formats that at one point were associated with the book. There is no guarantee that this list is correct, although it probably is. This function can be called in template program mode using the template \"{:'approximate_formats()'}\". Note that format names are always uppercase, as in EPUB."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:620
