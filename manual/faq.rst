@@ -300,16 +300,16 @@ Android: Some examples (in no particular order):
 Using a USB cable
 ^^^^^^^^^^^^^^^^^^^^
 
-.. note:: With newer Android devices, the USB connection is only supported on
-          Windows Vista and newer and Linux. If you are on Windows XP or OS X,
-          you should use one of the wireless connection methods.
-
 Simply plug your device into the computer with a USB cable. |app| should
-automatically detect the phone and then you can transfer books to it by
+automatically detect the device and then you can transfer books to it by
 clicking the Send to Device button. |app| does not have support for every
 single android device out there, so if your device is not automatically
 detected, follow the instructions at :ref:`devsupport` to get your device
 supported in |app|.
+
+.. note:: With newer Android devices, the USB connection is only supported on
+          Windows Vista and newer and Linux. If you are on Windows XP or OS X,
+          you should use one of the wireless connection methods.
 
 Over the air
 ^^^^^^^^^^^^^^
