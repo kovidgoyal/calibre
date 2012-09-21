@@ -43,7 +43,7 @@ def installer_description(fname):
         return 'Windows installer'
     if fname.endswith('.dmg'):
         return 'OS X dmg'
-    if fname.endswith('.zip'):
+    if fname.endswith('.exe'):
         return 'Calibre Portable'
     return 'Unknown file'
 
