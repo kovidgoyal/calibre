@@ -13,8 +13,10 @@ class IndianExpress(BasicNewsRecipe):
     #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
     remove_tags = [
        dict(name='iframe'),
-       dict(name='div', attrs={'class':['bookmarks_div', 'comment_box', 'bookmarks_div_bot', 'box']}),
-       dict(name='div', attrs={'id':['footer', 'tab_innerhc', 'discussion', 'google_new']}),
+       dict(name='div', attrs={'class':['pagination_new', 'comments_desc',
+           'content_right', 'bookmarks_div', 'comment_box', 'bookmarks_div_bot', 'box']}),
+       dict(name='div', attrs={'id':['footer', 'tab_innerhc', 'discussion',
+           'google_new', 'header_new', 'slidebox']}),
        dict(name='a', attrs={'class':'nobdr'}),
        #dict(name='span', text=':'),
     ]
