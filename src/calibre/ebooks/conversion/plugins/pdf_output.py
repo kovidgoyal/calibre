@@ -151,6 +151,8 @@ class PDFOutput(OutputFormatPlugin):
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
 
             if iswindows:
+                # On windows Qt generates an image based PDF if the html uses
+                # embedded fonts. See https://launchpad.net/bugs/1053906
                 for f in walk(oeb_dir):
                     if f.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
                         self.log.warn('Found embedded font %s, removing it, as '
