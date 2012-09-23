@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-21 07:51+0000\n"
-"PO-Revision-Date: 2012-09-21 16:21+0000\n"
+"PO-Revision-Date: 2012-09-22 19:43+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-09-22 04:48+0000\n"
+"X-Launchpad-Export-Date: 2012-09-23 04:37+0000\n"
 "X-Generator: Launchpad (build 15985)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -12601,7 +12601,7 @@ msgstr " (нету ни в одной книге)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr "Название категории просмотра: "
+msgstr "Название категории для поиска: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -15329,15 +15329,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No lookup name was provided"
-msgstr "Имя для просмотра не введено"
+msgstr "Имя для поиска не введено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:225
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr ""
-"Имя для просмотра должно содержать только строчные буквы, цифры, "
-"подчеркивания и начинаться с буквы"
+"Имя для поиска должно содержать только строчные буквы, цифры, подчеркивания "
+"и начинаться с буквы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:228
 msgid ""
@@ -15354,7 +15354,7 @@ msgstr "Не указан заголовок столбца"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:248
 #, python-format
 msgid "The lookup name %s is already used"
-msgstr "Имя для просмотра %s уже используется"
+msgstr "Имя для поиска %s уже используется"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:260
 #, python-format
@@ -16485,7 +16485,7 @@ msgstr "Пользовательские поля"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:35
 msgid "The lookup name of any custom field (these names begin with \"#\")."
 msgstr ""
-"Название любого пользовательского поля (эти названия начинаются с \"#\")."
+"Поисковое имя любого пользовательского поля (эти имена начинаются с \"#\")."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
@@ -21762,7 +21762,7 @@ msgid ""
 "When searching for text without using lookup prefixes, as for example, Red "
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
-"При поиске в тексте без использования поиска префиксов, например, Red "
+"При поиске в тексте без использования поисковых префиксов, например, Red "
 "(красный) вместо title:Red (заголовок:красный), ограничить столбцы поиска "
 "указанными ниже."
 
