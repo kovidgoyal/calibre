@@ -200,6 +200,12 @@ class MTP_DEVICE(MTPDeviceBase):
         if not devdata.get('has_storage', False): return False
         has_rw_storage = False
         for s in devdata.get('storage', []):
+            if s.get('filesystem', None) == 'DCF':
+                # DCF filesystem indicates a camera or an iPhone
+                # See https://bugs.launchpad.net/calibre/+bug/1054562
+                continue
+            if s.get('type', 'unknown_unknown').split('_')[-1] == 'rom':
+                continue # Read only storage
             if s.get('rw', False):
                 has_rw_storage = True
                 break
