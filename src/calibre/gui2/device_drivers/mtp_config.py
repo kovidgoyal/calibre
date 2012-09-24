@@ -12,7 +12,8 @@ import weakref
 from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
         QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
         QPushButton, QGroupBox, QScrollArea, QHBoxLayout, QComboBox,
-        pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox)
+        pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox, QPlainTextEdit,
+        QApplication)
 
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
@@ -372,21 +373,45 @@ class MTPConfig(QTabWidget):
                 _('&Ignore the %s in calibre')%device.current_friendly_name,
                 self.base)
             b.clicked.connect(self.ignore_device)
+            self.show_debug_button = bd = QPushButton(QIcon(I('debug.png')),
+                    _('Show device information'))
+            bd.clicked.connect(self.show_debug_info)
 
             l.addWidget(b, 0, 0, 1, 2)
             l.addWidget(la, 1, 0, 1, 1)
-            l.addWidget(self.formats, 2, 0, 3, 1)
+            l.addWidget(self.formats, 2, 0, 4, 1)
             l.addWidget(self.send_to, 2, 1, 1, 1)
             l.addWidget(self.template, 3, 1, 1, 1)
-            l.setRowStretch(4, 10)
-            l.addWidget(r, 5, 0, 1, 2)
-            l.setRowStretch(5, 100)
+            l.addWidget(self.show_debug_button, 4, 1, 1, 1)
+            l.setRowStretch(5, 10)
+            l.addWidget(r, 6, 0, 1, 2)
+            l.setRowStretch(6, 100)
 
         self.igntab = IgnoredDevices(self.device.prefs['history'],
                 self.device.prefs['blacklist'])
         self.addTab(self.igntab, _('Ignored devices'))
 
         self.setCurrentIndex(1 if msg else 0)
+
+    def show_debug_info(self):
+        info = self.device.device_debug_info()
+        d = QDialog(self)
+        d.l = l = QVBoxLayout()
+        d.setLayout(l)
+        d.v = v = QPlainTextEdit()
+        d.setWindowTitle(self.device.get_gui_name())
+        v.setPlainText(info)
+        v.setMinimumWidth(400)
+        v.setMinimumHeight(350)
+        l.addWidget(v)
+        bb = d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        l.addWidget(bb)
+        bb.addButton(_('Copy to clipboard'), bb.ActionRole)
+        bb.clicked.connect(lambda :
+                QApplication.clipboard().setText(v.toPlainText()))
+        d.exec_()
 
     def ignore_device(self):
         self.igntab.ignore_device(self.device.current_serial_num)

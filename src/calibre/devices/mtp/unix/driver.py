@@ -196,6 +196,19 @@ class MTP_DEVICE(MTPDeviceBase):
         self.current_serial_num = snum
         self.currently_connected_dev = connected_device
 
+    @synchronous
+    def device_debug_info(self):
+        ans = self.get_gui_name()
+        ans += '\nSerial number: %s'%self.current_serial_num
+        ans += '\nManufacturer: %s'%self.dev.manufacturer_name
+        ans += '\nModel: %s'%self.dev.model_name
+        ans += '\nids: %s'%(self.dev.ids,)
+        ans += '\nDevice version: %s'%self.dev.device_version
+        ans += '\nStorage:\n'
+        storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
+        ans += pprint.pformat(storage)
+        return ans
+
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:

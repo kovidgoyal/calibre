@@ -52,6 +52,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.start_thread = None
         self._filesystem_cache = None
         self.eject_dev_on_next_scan = False
+        self.current_device_data = {}
 
     def startup(self):
         self.start_thread = threading.current_thread()
@@ -303,6 +304,11 @@ class MTP_DEVICE(MTPDeviceBase):
                 _('Unknown MTP device'))
         self.currently_connected_pnp_id = connected_device
         self.current_serial_num = snum
+        self.current_device_data = devdata.copy()
+
+    def device_debug_info(self):
+        import pprint
+        return pprint.pformat(self.current_device_data)
 
     @same_thread
     def get_basic_device_information(self):
