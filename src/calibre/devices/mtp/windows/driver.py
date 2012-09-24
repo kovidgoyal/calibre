@@ -290,6 +290,8 @@ class MTP_DEVICE(MTPDeviceBase):
             raise BlacklistedDevice(
                 'The %s device has been blacklisted by the user'%(connected_device,))
 
+        storage.sort(key=lambda x:x.get('id', 'zzzzz'))
+
         self._main_id = storage[0]['id']
         if len(storage) > 1:
             self._carda_id = storage[1]['id']
