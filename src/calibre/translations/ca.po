@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-21 07:51+0000\n"
-"PO-Revision-Date: 2012-09-22 12:28+0000\n"
+"PO-Revision-Date: 2012-09-24 11:33+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-23 04:37+0000\n"
-"X-Generator: Launchpad (build 15985)\n"
+"X-Launchpad-Export-Date: 2012-09-25 04:43+0000\n"
+"X-Generator: Launchpad (build 16019)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -569,7 +569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 msgid "Sending books to devices"
-msgstr "Envia llibres als dispositius"
+msgstr "Enviament de llibres als dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid "Control how calibre transfers files to your ebook reader"
@@ -12658,6 +12658,13 @@ msgid ""
 "other choice at Preferences -> Sending books to devices -> Metadata "
 "management"
 msgstr ""
+"L'activació de la gestió automàtica de metadades fa que el calibre enviï "
+"tots els canvis que feu a les metadades dels llibres quan el vostre "
+"dispositiu està connectat, que és la configuració més útil quan s'utilitza "
+"la interfície sense fils. Si no s'habilitat la gestió automàtica de "
+"metadades, els canvis només s'envien si torneu a enviar el llibre. Per a més "
+"informació o per canviar aquest paràmetre vegeu Preferències -> Enviament de "
+"llibres als dispositius -> Gestió de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:127
@@ -20244,6 +20251,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Inclou una secció «Afegits recentment» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida AZW3, ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:121
 #, python-format
@@ -20252,6 +20262,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Camp personalitzar que conté una nota de text per inserir a la capçalera de "
+"«Descripció».\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida AZW3, ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:128
 #, python-format
@@ -20292,6 +20306,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Substitueix la portada existent en generar el catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida AZW3, ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:161
 #, python-format
@@ -20301,6 +20318,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Mida recomanada (en polzades) per a les portades de llibre del catàleg.\n"
+"Interval: 1,0 - 2,0\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida AZW3, ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:268
 msgid ""
@@ -20321,6 +20342,7 @@ msgstr "No hi ha gèneres per catalogar\n"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:281
 msgid "Check 'Excluded genres' regex in E-book options.\n"
 msgstr ""
+"Comproveu l'expressió regular «Gèneres exclosos» a les opcions del llibre.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:283
 msgid "No books available to catalog"
@@ -20380,11 +20402,11 @@ msgstr "No es disposa de cap llibre per incloure al catàleg."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1904
 msgid "Genres HTML"
-msgstr ""
+msgstr "HTML de Gèneres"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2302
 msgid "Titles HTML"
-msgstr ""
+msgstr "HTML de Títols"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2499
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2501
@@ -20394,23 +20416,23 @@ msgstr "per "
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2640
 msgid "Descriptions HTML"
-msgstr ""
+msgstr "HTML de Descripcions"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2644
 msgid "Description HTML"
-msgstr ""
+msgstr "HTML de Descripció"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2779
 msgid "NCX header"
-msgstr ""
+msgstr "Capçalera NCX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2856
 msgid "NCX for Descriptions"
-msgstr ""
+msgstr "NCX per a Descripcions"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2980
 msgid "NCX for Series"
-msgstr ""
+msgstr "NCX per a Sèries"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3059
 #, python-format
@@ -20420,11 +20442,11 @@ msgstr "Sèries que comencen per %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3061
 #, python-format
 msgid "Series beginning with '%s'"
-msgstr ""
+msgstr "Sèries que comencen per «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3105
 msgid "NCX for Titles"
-msgstr ""
+msgstr "NCX per a Títols"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3186
 #, python-format
@@ -20434,16 +20456,16 @@ msgstr "Títols que comencen per %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3188
 #, python-format
 msgid "Titles beginning with '%s'"
-msgstr ""
+msgstr "Títols que comencen per «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3230
 msgid "NCX for Authors"
-msgstr ""
+msgstr "NCX per a Autors"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3303
 #, python-format
 msgid "Authors beginning with %s"
-msgstr ""
+msgstr "Autors que comencen per %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3305
 #, python-format
@@ -20452,31 +20474,31 @@ msgstr "Autors que comencen per «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3346
 msgid "NCX for Recently Added"
-msgstr ""
+msgstr "NCX per a Afegits recentment"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3536
 msgid "NCX for Recently Read"
-msgstr ""
+msgstr "NCX per a Llegits recentment"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3675
 msgid "NCX for Genres"
-msgstr ""
+msgstr "NCX per a Gèneres"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3795
 msgid "Generating OPF"
-msgstr ""
+msgstr "S'està generant l'OPF"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4175
 msgid "Thumbnails"
-msgstr ""
+msgstr "Miniatures"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4181
 msgid "Thumbnail"
-msgstr ""
+msgstr "Miniatura"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4678
 msgid "Saving NCX"
-msgstr ""
+msgstr "S'està desant l'NCX"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -22886,7 +22908,7 @@ msgstr "Anglès (Hong Kong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "English (Hungary)"
-msgstr ""
+msgstr "Anglès (Hongria)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:165
 msgid "English (Indonesia)"
