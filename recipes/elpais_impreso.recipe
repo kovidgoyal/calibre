@@ -41,7 +41,7 @@ class ElPais_RSS(BasicNewsRecipe):
                           ,dict(attrs={'class':['firma','columna_texto','entrevista_p_r']})
                         ]
     remove_tags       = [
-                          dict(name=['meta','link','base','iframe','embed','object'])
+                          dict(name=['iframe','embed','object'])
                          ,dict(attrs={'class':'disposicion_vertical'})
                         ]
 
@@ -74,13 +74,14 @@ class ElPais_RSS(BasicNewsRecipe):
              ,(u'Justicia y Leyes'     , u'http://elpais.com/tag/rss/justicia/a/'              )
              ,(u'Guerras y conflictos' , u'http://elpais.com/tag/rss/conflictos/a/'            )
              ,(u'Politica'             , u'http://ep00.epimg.net/rss/politica/portada.xml'     )
-             ,(u'Opinion'              , u'http://ep01.epimg.net/rss/politica/opinion.xml'     )
+             ,(u'Opinion'              , u'http://ep01.epimg.net/rss/elpais/opinion.xml'       )
             ]
 
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
         if url and (not('/album/' in url) and not('/futbol/partido/' in url)):
-            return url
+            urlverified = self.browser.open_novisit(url).geturl()
+            return urlverified
         self.log('Skipping non-article', url)
         return None
 
@@ -107,3 +108,7 @@ class ElPais_RSS(BasicNewsRecipe):
         for item in soup.findAll('img',alt=False):
             item['alt'] = 'image'
         return soup
+
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head><title>Untitled</title>'+raw[raw.find('</head>'):]
+        
