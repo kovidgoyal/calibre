@@ -97,7 +97,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         with closing(br.open(url + id, timeout=timeout)) as nf:
             pdoc = html.fromstring(nf.read())
 
-            price_l = pdoc.xpath('//span[@class="price"]/text()')
+            price_l = pdoc.xpath('//div[@class="book-info"]/div[@class="price"]/text()')
             if price_l:
                 price = price_l[0]
             search_result.price = price.strip()
