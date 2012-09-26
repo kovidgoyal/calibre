@@ -792,19 +792,16 @@ class OPF(object): # {{{
             remove = list(self.authors_path(self.metadata))
             for elem in remove:
                 elem.getparent().remove(elem)
-            elems = []
-            for author in val:
-                attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
-                elem = self.create_metadata_element('creator', attrib=attrib)
+            # Ensure new author element is at the top of the list
+            # for broken implementations that always use the first
+            # <dc:creator> element with no attention to the role
+            for author in reversed(val):
+                elem = self.metadata.makeelement('{%s}creator'%
+                        self.NAMESPACES['dc'], nsmap=self.NAMESPACES)
+                elem.tail = '\n'
+                self.metadata.insert(0, elem)
+                elem.set('{%s}role'%self.NAMESPACES['opf'], 'aut')
                 self.set_text(elem, author.strip())
-                # Ensure new author element is at the top of the list
-                # for broken implementations that always use the first
-                # <dc:creator> element with no attention to the role
-                elems.append(elem)
-            for elem in reversed(elems):
-                parent = elem.getparent()
-                parent.remove(elem)
-                parent.insert(0, elem)
 
         return property(fget=fget, fset=fset)
 
