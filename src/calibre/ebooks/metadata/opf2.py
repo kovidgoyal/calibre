@@ -1017,9 +1017,8 @@ class OPF(object): # {{{
         def fset(self, val):
             matches = self.bkp_path(self.metadata)
             if not matches:
-                attrib = {'{%s}role'%self.NAMESPACES['opf']: 'bkp'}
-                matches = [self.create_metadata_element('contributor',
-                                                        attrib=attrib)]
+                matches = [self.create_metadata_element('contributor')]
+                matches[0].set('{%s}role'%self.NAMESPACES['opf'], 'bkp')
             self.set_text(matches[0], unicode(val))
         return property(fget=fget, fset=fset)
 
@@ -1152,7 +1151,7 @@ class OPF(object): # {{{
     def smart_update(self, mi, replace_metadata=False):
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'tags', 'category', 'comments',
+                     'isbn', 'tags', 'category', 'comments', 'book_producer',
                      'pubdate', 'user_categories', 'author_link_map'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
