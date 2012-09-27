@@ -169,6 +169,7 @@ class MTP_DEVICE(MTPDeviceBase):
         try:
             self.dev = self.create_device(connected_device)
         except Exception as e:
+            self.blacklisted_devices.add(connected_device)
             raise OpenFailed('Failed to open %s: Error: %s'%(
                     connected_device, as_unicode(e)))
 
@@ -194,6 +195,19 @@ class MTP_DEVICE(MTPDeviceBase):
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
         self.current_serial_num = snum
         self.currently_connected_dev = connected_device
+
+    @synchronous
+    def device_debug_info(self):
+        ans = self.get_gui_name()
+        ans += '\nSerial number: %s'%self.current_serial_num
+        ans += '\nManufacturer: %s'%self.dev.manufacturer_name
+        ans += '\nModel: %s'%self.dev.model_name
+        ans += '\nids: %s'%(self.dev.ids,)
+        ans += '\nDevice version: %s'%self.dev.device_version
+        ans += '\nStorage:\n'
+        storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
+        ans += pprint.pformat(storage)
+        return ans
 
     @property
     def filesystem_cache(self):

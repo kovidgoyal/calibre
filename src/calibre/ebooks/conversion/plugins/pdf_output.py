@@ -14,6 +14,8 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
+from calibre.constants import iswindows
+from calibre import walk
 
 UNITS = [
             'millimeter',
@@ -147,6 +149,16 @@ class PDFOutput(OutputFormatPlugin):
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
+
+            if iswindows:
+                # On windows Qt generates an image based PDF if the html uses
+                # embedded fonts. See https://launchpad.net/bugs/1053906
+                for f in walk(oeb_dir):
+                    if f.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
+                        self.log.warn('Found embedded font %s, removing it, as '
+                                'embedded fonts on windows are not supported by '
+                                'the PDF Output plugin'%os.path.basename(f))
+                        os.remove(f)
 
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             opf = OPF(opfpath, os.path.dirname(opfpath))

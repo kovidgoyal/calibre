@@ -34,20 +34,21 @@ class macWorld(BasicNewsRecipe):
 
     remove_javascript     = True
     no_stylesheets        = True
+    auto_cleanup = True
 
-    keep_only_tags     = [
-                            dict(name='div', attrs={'id':'content'})
-                        ]
+    #keep_only_tags     = [
+                            #dict(name='div', attrs={'id':'content'})
+                        #]
 
-    remove_tags        = [
-                            {'class':['toolBar','mac_tags','toolBar  btmTools','textAds']},
-                            dict(name='p', attrs={'class':'breadcrumbs'}),
-                            dict(id=['breadcrumb','sidebar','comments','topContentWrapper',
-                                    'rightColumn', 'aboveFootPromo', 'storyCarousel']),
-                            {'class':lambda x: x and ('tools' in x or 'toolBar'
-                                in x)}
+    #remove_tags        = [
+                            #{'class':['toolBar','mac_tags','toolBar  btmTools','textAds']},
+                            #dict(name='p', attrs={'class':'breadcrumbs'}),
+                            #dict(id=['breadcrumb','sidebar','comments','topContentWrapper',
+                                    #'rightColumn', 'aboveFootPromo', 'storyCarousel']),
+                            #{'class':lambda x: x and ('tools' in x or 'toolBar'
+                                #in x)}
 
-                        ]
+                        #]
 
     feeds          = [
                        (u'MacWorld Headlines', u'http://rss.macworld.com/macworld/news'),
@@ -82,3 +83,4 @@ class macWorld(BasicNewsRecipe):
                 .articleInfo {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
                 img {align:left;}
                 '''
+

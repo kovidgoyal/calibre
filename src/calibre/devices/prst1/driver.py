@@ -687,7 +687,7 @@ class PRST1(USBMS):
                             'WHERE _id = ?')
                     t = (collectionId,)
                     cursor.execute(query, t)
-                    debug_print('Deleted Collection: ' + collection)
+                    debug_print('Deleted Collection: ' + repr(collection))
 
             connection.commit()
             cursor.close()

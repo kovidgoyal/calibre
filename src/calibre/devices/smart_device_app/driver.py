@@ -902,10 +902,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return False
 
     def get_gui_name(self):
-        if self.client_device_kind:
+        if getattr(self, 'client_device_kind', None):
             return self.gui_name_template%(self.gui_name, self.client_device_kind)
         return self.gui_name
 
+    def config_widget(self):
+        from calibre.gui2.device_drivers.configwidget import ConfigWidget
+        cw = ConfigWidget(self.settings(), self.FORMATS, self.SUPPORTS_SUB_DIRS,
+            self.MUST_READ_METADATA, self.SUPPORTS_USE_AUTHOR_SORT,
+            self.EXTRA_CUSTOMIZATION_MESSAGE, self)
+        return cw
 
     @synchronous('sync_lock')
     def get_device_information(self, end_session=True):

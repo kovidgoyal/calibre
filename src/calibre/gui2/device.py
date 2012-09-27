@@ -853,7 +853,7 @@ class DeviceMixin(object): # {{{
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
     def allow_connect(self, name, icon):
-        return question_dialog(self, _('Mange the %s?')%name,
+        return question_dialog(self, _('Manage the %s?')%name,
                 _('Detected the <b>%s</b>. Do you want calibre to manage it?')%
                 name, show_copy_button=False,
                 override_icon=QIcon(icon))
