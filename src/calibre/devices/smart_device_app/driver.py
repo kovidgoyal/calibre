@@ -744,22 +744,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except:
                     self._close_device_socket()
             return (self.is_connected, self)
-        if getattr(self, 'broadcast_socket', None) is not None:
-            while True:
-                ans = select.select((self.broadcast_socket,), (), (), 0)
-                if len(ans[0]) > 0:
-                    try:
-                        packet = self.broadcast_socket.recvfrom(100)
-                        remote = packet[1]
-                        message = str(self.ZEROCONF_CLIENT_STRING + b' (on ' +
-                                        str(socket.gethostname().partition('.')[0]) +
-                                        b'),' + str(self.port))
-                        self._debug('received broadcast', packet, message)
-                        self.broadcast_socket.sendto(message, remote)
-                    except:
-                        pass
-                else:
-                    break
 
         if getattr(self, 'listen_socket', None) is not None:
             try:
