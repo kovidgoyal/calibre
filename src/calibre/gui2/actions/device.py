@@ -17,6 +17,7 @@ from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.gui2 import info_dialog, question_dialog
+from calibre.library.server import server_config as content_server_config
 
 class ShareConnMenu(QMenu): # {{{
 
@@ -90,7 +91,12 @@ class ShareConnMenu(QMenu): # {{{
         if running:
             listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
                     get_external_ip())
-            text = _('Stop Content Server') + ' [%s]'%listen_on
+            try :
+                cs_port = content_server_config().parse().port
+                ip_text = ' [%s, port %d]'%(listen_on, cs_port)
+            except:
+                ip_text = '';
+            text = _('Stop Content Server') + ip_text
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):
