@@ -95,7 +95,7 @@ class ShareConnMenu(QMenu): # {{{
                 cs_port = content_server_config().parse().port
                 ip_text = ' [%s, port %d]'%(listen_on, cs_port)
             except:
-                ip_text = '';
+                ip_text = ' [%s]'%listen_on;
             text = _('Stop Content Server') + ip_text
         self.toggle_server_action.setText(text)
 
