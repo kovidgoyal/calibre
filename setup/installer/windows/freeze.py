@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time
+import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwrap
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
@@ -407,7 +407,7 @@ class Win32Freeze(Command, WixMixIn):
             cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/LIBPATH:'+(LZMA+r'\lib\Release'),
-                    '/RELEASE',
+                    '/RELEASE', '/MANIFEST', '/MANIFESTUAC:level="asInvoker" uiAccess="false"',
                     '/ENTRY:wWinMainCRTStartup',
                     '/OUT:'+exe, self.embed_resources(exe,
                         desc='Calibre Portable Installer', extra_data=zf,
@@ -415,6 +415,31 @@ class Win32Freeze(Command, WixMixIn):
                     xobj, obj, 'User32.lib', 'Shell32.lib', 'easylzma_s.lib',
                     'Ole32.lib', 'Shlwapi.lib', 'Kernel32.lib', 'Psapi.lib']
             self.run_builder(cmd)
+            manifest = exe + '.manifest'
+            with open(manifest, 'r+b') as f:
+                raw = f.read()
+                f.seek(0)
+                f.truncate()
+                # TODO: Add the windows 8 GUID to the compatibility section
+                # after windows 8 is released, see:
+                # http://msdn.microsoft.com/en-us/library/windows/desktop/hh848036(v=vs.85).aspx
+                raw = raw.replace(b'</assembly>', textwrap.dedent(
+                    b'''\
+                    <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+                      <application>
+                        <!--The ID below indicates app support for Windows Vista -->
+                        <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/>
+                        <!--The ID below indicates app support for Windows 7 -->
+                        <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
+                      </application>
+                    </compatibility>
+                  </assembly>
+                    '''))
+                f.write(raw)
+
+            self.run_builder([MT, '-manifest', manifest,
+                '-outputresource:%s;1'%exe])
+            os.remove(manifest)
 
         os.remove(zf)
 
