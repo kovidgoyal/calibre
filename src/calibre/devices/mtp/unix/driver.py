@@ -151,9 +151,9 @@ class MTP_DEVICE(MTPDeviceBase):
         else:
             self.known_devices = frozenset(self.libmtp.known_devices())
 
-        for x in vars(self.libmtp):
-            if x.startswith('LIBMTP'):
-                setattr(self, x, getattr(self.libmtp, x))
+            for x in vars(self.libmtp):
+                if x.startswith('LIBMTP'):
+                    setattr(self, x, getattr(self.libmtp, x))
 
     @synchronous
     def shutdown(self):
