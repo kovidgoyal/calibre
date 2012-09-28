@@ -305,7 +305,7 @@ class Chunker(object):
         ans.append(start)
         while rest:
             start, rest = split_multibyte_text(rest)
-            ans.append(b'<span class="AmznBigTextBlock">' + start + '</span>')
+            ans.append(b'<span class="AmznBigTextBlock">' + start + b'</span>')
         return [Chunk(x, self.chunk_selector) for x in ans]
 
     def merge_small_chunks(self, chunks):
