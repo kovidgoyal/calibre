@@ -744,22 +744,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 except:
                     self._close_device_socket()
             return (self.is_connected, self)
-        if getattr(self, 'broadcast_socket', None) is not None:
-            while True:
-                ans = select.select((self.broadcast_socket,), (), (), 0)
-                if len(ans[0]) > 0:
-                    try:
-                        packet = self.broadcast_socket.recvfrom(100)
-                        remote = packet[1]
-                        message = str(self.ZEROCONF_CLIENT_STRING + b' (on ' +
-                                        str(socket.gethostname().partition('.')[0]) +
-                                        b'),' + str(self.port))
-                        self._debug('received broadcast', packet, message)
-                        self.broadcast_socket.sendto(message, remote)
-                    except:
-                        pass
-                else:
-                    break
 
         if getattr(self, 'listen_socket', None) is not None:
             try:
@@ -902,10 +886,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return False
 
     def get_gui_name(self):
-        if self.client_device_kind:
+        if getattr(self, 'client_device_kind', None):
             return self.gui_name_template%(self.gui_name, self.client_device_kind)
         return self.gui_name
 
+    def config_widget(self):
+        from calibre.gui2.device_drivers.configwidget import ConfigWidget
+        cw = ConfigWidget(self.settings(), self.FORMATS, self.SUPPORTS_SUB_DIRS,
+            self.MUST_READ_METADATA, self.SUPPORTS_USE_AUTHOR_SORT,
+            self.EXTRA_CUSTOMIZATION_MESSAGE, self)
+        return cw
 
     @synchronous('sync_lock')
     def get_device_information(self, end_session=True):

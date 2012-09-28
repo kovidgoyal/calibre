@@ -13,7 +13,7 @@ from future_builtins import zip
 from itertools import chain
 
 from calibre import as_unicode, prints
-from calibre.constants import plugins, __appname__, numeric_version
+from calibre.constants import plugins, __appname__, numeric_version, isxp
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, debug
@@ -52,10 +52,15 @@ class MTP_DEVICE(MTPDeviceBase):
         self.start_thread = None
         self._filesystem_cache = None
         self.eject_dev_on_next_scan = False
+        self.current_device_data = {}
 
     def startup(self):
         self.start_thread = threading.current_thread()
-        self.wpd, self.wpd_error = plugins['wpd']
+        if isxp:
+            self.wpd = None
+            self.wpd_error = _('MTP devices are not supported on Windows XP')
+        else:
+            self.wpd, self.wpd_error = plugins['wpd']
         if self.wpd is not None:
             try:
                 self.wpd.init(__appname__, *(numeric_version[:3]))
@@ -196,6 +201,12 @@ class MTP_DEVICE(MTPDeviceBase):
         if not devdata.get('has_storage', False): return False
         has_rw_storage = False
         for s in devdata.get('storage', []):
+            if s.get('filesystem', None) == 'DCF':
+                # DCF filesystem indicates a camera or an iPhone
+                # See https://bugs.launchpad.net/calibre/+bug/1054562
+                continue
+            if s.get('type', 'unknown_unknown').split('_')[-1] == 'rom':
+                continue # Read only storage
             if s.get('rw', False):
                 has_rw_storage = True
                 break
@@ -280,6 +291,8 @@ class MTP_DEVICE(MTPDeviceBase):
             raise BlacklistedDevice(
                 'The %s device has been blacklisted by the user'%(connected_device,))
 
+        storage.sort(key=lambda x:x.get('id', 'zzzzz'))
+
         self._main_id = storage[0]['id']
         if len(storage) > 1:
             self._carda_id = storage[1]['id']
@@ -291,6 +304,11 @@ class MTP_DEVICE(MTPDeviceBase):
                 _('Unknown MTP device'))
         self.currently_connected_pnp_id = connected_device
         self.current_serial_num = snum
+        self.current_device_data = devdata.copy()
+
+    def device_debug_info(self):
+        import pprint
+        return pprint.pformat(self.current_device_data)
 
     @same_thread
     def get_basic_device_information(self):

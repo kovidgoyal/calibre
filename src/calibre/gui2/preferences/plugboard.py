@@ -10,7 +10,7 @@ import copy
 from PyQt4.Qt import Qt, QComboBox, QListWidgetItem
 
 from calibre.customize.ui import is_disabled
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog, warning_dialog
 from calibre.gui2.device import device_name_for_plugboards
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -254,6 +254,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                      show=True)
                 self.new_device.setCurrentIndex(0)
                 return
+
+        if self.current_format == plugboard_any_format_value and \
+                    self.current_device == plugboard_content_server_value:
+            warning_dialog(self, '',
+                 _('The {0} device supports only the {1} format(s).').
+                            format(plugboard_content_server_value,
+                                   ', '.join(plugboard_content_server_formats)),
+                 show=True)
+
         self.set_fields()
 
     def new_format_changed(self, txt):
