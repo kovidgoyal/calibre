@@ -1276,35 +1276,33 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                              '_calibresmartdeviceapp._tcp', port, {},
                              use_ip_address=ip_addr)
         except:
-            message = 'registration with bonjour failed'
-            self._debug(message)
-            self._close_listen_socket()
-            return message
+            self._debug('registration with bonjour failed')
+            traceback.print_exc()
 
         self._debug('listening on port', port)
         self.port = port
 
         # Now try to open a UDP socket to receive broadcasts on
 
+        message = None
         try:
             self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except:
             message = 'creation of broadcast socket failed. This is not fatal.'
             self._debug(message)
-            return message
-
-        for p in self.BROADCAST_PORTS:
-            port = self._attach_to_port(self.broadcast_socket, p)
-            if port != 0:
-                self._debug('broadcast socket listening on port', port)
-                break
-
-        message = None
-        if port == 0:
-            self.broadcast_socket.close()
             self.broadcast_socket = None
-            message = 'attaching port to broadcast socket failed. This is not fatal.'
-            self._debug(message)
+        else:
+            for p in self.BROADCAST_PORTS:
+                port = self._attach_to_port(self.broadcast_socket, p)
+                if port != 0:
+                    self._debug('broadcast socket listening on port', port)
+                    break
+
+            if port == 0:
+                self.broadcast_socket.close()
+                self.broadcast_socket = None
+                message = 'attaching port to broadcast socket failed. This is not fatal.'
+                self._debug(message)
 
         self.connection_queue = Queue.Queue(1)
         self.connection_listener = ConnectionListener(self)
