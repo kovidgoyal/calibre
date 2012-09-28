@@ -19,6 +19,51 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.0
+  date: 2012-09-28
+
+  new features:
+    - title: "For a summary of the major changes in calibre between 0.8 and 0.9, see http://calibre-ebook.com/new-in/nine"
+      type: major
+
+  bug fixes:
+    - title: "KF8 Output: Fix handling of &amp; &lt; and &gt; entities in the text. They were sometimes being incorrectly unescaped."
+
+    - title: "Calibre portable: Add a manifest to the portable installer exe to prevent the application compatibility wizard from warning about a possible failed installation on windows 7. Also fixes installer requiring admin privileges on some computers" 
+      tickets: [1057042]
+
+    - title: "EPUB metadata: Fix book producer not being set when updating EPUB metadata"
+
+    - title: "EPUB metadata: Fix incorrect namespace on the role attribute of <dc:creator> tags when updating the metadata in EPUB"
+
+    - title: "Get Books: Fix incorrect price retrieval from ebooks.com."
+      tickets: [1055785]
+
+    - title: "MTP windows driver: Fix main memory and storage card sometimes swapped"
+      tickets: [1055129]
+
+    - title: "PDF Output: On windows, remove any embedded fonts before generating the PDF as on windows, Qt generates image based PDFs when embedded fonts are present."
+      tickets: [1053906]
+
+    - title: "MTP windows driver: Do not try to connect to unsuitable devices such as the iPhone."
+      tickets: [1054562]
+
+    - title: "KF8 Input: Handle files that use non ascii paths/anchor names in the guide entries."
+      tickets: [1053751]
+
+  new recipes:
+    - title: Pubblico Giornale 
+      author: iusvar
+ 
+  improved recipes:
+    - Monitor Online
+    - El Pais
+    - Chronicle of Higher Education
+    - Baltimore Sun
+    - Mac World
+    - Maximum PC
+    - Financial Times UK
+
 - version: 0.8.70
   date: 2012-09-21
 
