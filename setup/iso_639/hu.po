@@ -9,33 +9,33 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-11-12 07:52+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-09-25 20:15+0000\n"
+"Last-Translator: Gergely Szarka <szarka.honved@gmail.com>\n"
 "Language-Team: Hungarian <debian-l10n-hungarian@lists.d.o>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-26 05:19+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2012-09-26 04:36+0000\n"
+"X-Generator: Launchpad (build 16022)\n"
 "X-Poedit-Country: HUNGARY\n"
 "Language: hu\n"
 "X-Poedit-Language: Hungarian\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr "ghotuo"
+msgstr "Ghotuo"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr "alumu-tesu"
+msgstr "Alumu-Tesu"
 
 #. name for aac
 msgid "Ari"
-msgstr "ari"
+msgstr "Ari"
 
 #. name for aad
 msgid "Amal"
-msgstr "amal"
+msgstr "Amal"
 
 #. name for aae
 msgid "Albanian; Arbëreshë"
@@ -43,11 +43,11 @@ msgstr "albán;  Arbëreshë"
 
 #. name for aaf
 msgid "Aranadan"
-msgstr "aranadan"
+msgstr "Aranadan"
 
 #. name for aag
 msgid "Ambrak"
-msgstr "ambrak"
+msgstr "Ambrak"
 
 #. name for aah
 msgid "Arapesh; Abu'"
@@ -55,11 +55,11 @@ msgstr "arapesh; Abu'"
 
 #. name for aai
 msgid "Arifama-Miniafia"
-msgstr "arifama-miniafia"
+msgstr "Arifama-Miniafia"
 
 #. name for aak
 msgid "Ankave"
-msgstr "ankave"
+msgstr "Ankave"
 
 #. name for aal
 msgid "Afade"
@@ -107,11 +107,11 @@ msgstr "szolong"
 
 #. name for aax
 msgid "Mandobo Atas"
-msgstr ""
+msgstr "Mandobo Atas"
 
 #. name for aaz
 msgid "Amarasi"
-msgstr ""
+msgstr "Amarasi"
 
 #. name for aba
 msgid "Abé"
@@ -119,7 +119,7 @@ msgstr "abé"
 
 #. name for abb
 msgid "Bankon"
-msgstr ""
+msgstr "Bankon"
 
 #. name for abc
 msgid "Ayta; Ambala"
@@ -127,7 +127,7 @@ msgstr ""
 
 #. name for abd
 msgid "Manide"
-msgstr ""
+msgstr "Manide"
 
 #. name for abe
 msgid "Abnaki; Western"
@@ -135,11 +135,11 @@ msgstr "abnaki; nyugati"
 
 #. name for abf
 msgid "Abai Sungai"
-msgstr ""
+msgstr "Abai Sungai"
 
 #. name for abg
 msgid "Abaga"
-msgstr ""
+msgstr "Abaga"
 
 #. name for abh
 msgid "Arabic; Tajiki"
@@ -147,7 +147,7 @@ msgstr "arab; tadzsik"
 
 #. name for abi
 msgid "Abidji"
-msgstr ""
+msgstr "Abidji"
 
 #. name for abj
 msgid "Aka-Bea"
@@ -159,19 +159,19 @@ msgstr "abház"
 
 #. name for abl
 msgid "Lampung Nyo"
-msgstr ""
+msgstr "Lampung Nyo"
 
 #. name for abm
 msgid "Abanyom"
-msgstr ""
+msgstr "Abanyom"
 
 #. name for abn
 msgid "Abua"
-msgstr ""
+msgstr "Abua"
 
 #. name for abo
 msgid "Abon"
-msgstr ""
+msgstr "Abon"
 
 #. name for abp
 msgid "Ayta; Abellen"
@@ -179,11 +179,11 @@ msgstr ""
 
 #. name for abq
 msgid "Abaza"
-msgstr ""
+msgstr "Abaza"
 
 #. name for abr
 msgid "Abron"
-msgstr ""
+msgstr "Abron"
 
 #. name for abs
 msgid "Malay; Ambonese"
@@ -191,11 +191,11 @@ msgstr "maláj; amboni"
 
 #. name for abt
 msgid "Ambulas"
-msgstr ""
+msgstr "Ambulas"
 
 #. name for abu
 msgid "Abure"
-msgstr ""
+msgstr "Abure"
 
 #. name for abv
 msgid "Arabic; Baharna"
@@ -203,31 +203,31 @@ msgstr "arab; Baharna"
 
 #. name for abw
 msgid "Pal"
-msgstr ""
+msgstr "Pal"
 
 #. name for abx
 msgid "Inabaknon"
-msgstr ""
+msgstr "Inabaknon"
 
 #. name for aby
 msgid "Aneme Wake"
-msgstr ""
+msgstr "Aneme Wake"
 
 #. name for abz
 msgid "Abui"
-msgstr ""
+msgstr "Abui"
 
 #. name for aca
 msgid "Achagua"
-msgstr ""
+msgstr "Achagua"
 
 #. name for acb
 msgid "Áncá"
-msgstr ""
+msgstr "Áncá"
 
 #. name for acd
 msgid "Gikyode"
-msgstr ""
+msgstr "Gikyode"
 
 # src/trans.h:220
 #. name for ace
@@ -244,15 +244,15 @@ msgstr "acoli"
 
 #. name for aci
 msgid "Aka-Cari"
-msgstr ""
+msgstr "Aka-Cari"
 
 #. name for ack
 msgid "Aka-Kora"
-msgstr ""
+msgstr "Aka-Kora"
 
 #. name for acl
 msgid "Akar-Bale"
-msgstr ""
+msgstr "Akar-Bale"
 
 #. name for acm
 msgid "Arabic; Mesopotamian"
@@ -264,7 +264,7 @@ msgstr ""
 
 #. name for acp
 msgid "Acipa; Eastern"
-msgstr ""
+msgstr "Acipa; Keleti"
 
 #. name for acq
 msgid "Arabic; Ta'izzi-Adeni"
@@ -272,7 +272,7 @@ msgstr "arabic; ta'izzi-adeni"
 
 #. name for acr
 msgid "Achi"
-msgstr ""
+msgstr "Achi"
 
 #. name for acs
 msgid "Acroá"
