@@ -155,6 +155,9 @@ class MTP_DEVICE(BASE):
     # }}}
 
     # Get list of books from device, with metadata {{{
+    def filesystem_callback(self, msg):
+        self.report_progress(0, msg)
+
     def books(self, oncard=None, end_session=True):
         from calibre.devices.mtp.books import JSONCodec
         from calibre.devices.mtp.books import BookList, Book

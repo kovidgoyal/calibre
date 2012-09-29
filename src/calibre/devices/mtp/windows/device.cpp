@@ -78,14 +78,15 @@ update_data(Device *self, PyObject *args) {
 // get_filesystem() {{{
 static PyObject*
 py_get_filesystem(Device *self, PyObject *args) {
-    PyObject *storage_id, *ret;
+    PyObject *storage_id, *ret, *callback;
     wchar_t *storage;
 
-    if (!PyArg_ParseTuple(args, "O", &storage_id)) return NULL;
+    if (!PyArg_ParseTuple(args, "OO", &storage_id, &callback)) return NULL;
+    if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback is not a callable"); return NULL; }
     storage = unicode_to_wchar(storage_id);
     if (storage == NULL) return NULL;
 
-    ret = wpd::get_filesystem(self->device, storage, self->bulk_properties);
+    ret = wpd::get_filesystem(self->device, storage, self->bulk_properties, callback);
     free(storage);
     return ret;
 } // }}}
@@ -163,7 +164,7 @@ static PyMethodDef Device_methods[] = {
     },
 
     {"get_filesystem", (PyCFunction)py_get_filesystem, METH_VARARGS,
-     "get_filesystem(storage_id) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible."
+     "get_filesystem(storage_id, callback) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible. callback must be a callable that accepts a single argument. It is called with every found id and then with the metadata for every id."
     },
 
     {"get_file", (PyCFunction)py_get_file, METH_VARARGS,
