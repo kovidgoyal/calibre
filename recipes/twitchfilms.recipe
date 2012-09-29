@@ -13,6 +13,7 @@ class Twitchfilm(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    auto_cleanup = True
     encoding              = 'utf-8'
     publisher             = 'Twitch'
     masthead_url          = 'http://twitchfilm.com/img/logo.png'
@@ -26,18 +27,18 @@ class Twitchfilm(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags=[dict(attrs={'class':'asset-header'})]
-    remove_tags_after=dict(attrs={'class':'asset-body'})
-    remove_tags = [  dict(name='div', attrs={'class':['social','categories']})
-                   , dict(attrs={'id':'main-asset'})
-                   , dict(name=['meta','link','iframe','embed','object'])
-                  ]
+    #keep_only_tags=[dict(attrs={'class':'asset-header'})]
+    #remove_tags_after=dict(attrs={'class':'asset-body'})
+    #remove_tags = [  dict(name='div', attrs={'class':['social','categories']})
+                   #, dict(attrs={'id':'main-asset'})
+                   #, dict(name=['meta','link','iframe','embed','object'])
+                  #]
 
     feeds = [(u'News', u'http://feeds.twitchfilm.net/TwitchEverything')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
-            del item['style']    
+            del item['style']
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
