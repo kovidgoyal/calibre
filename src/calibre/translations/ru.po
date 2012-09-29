@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-21 07:51+0000\n"
-"PO-Revision-Date: 2012-09-22 19:43+0000\n"
+"POT-Creation-Date: 2012-09-28 05:31+0000\n"
+"PO-Revision-Date: 2012-09-28 19:39+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-09-23 04:37+0000\n"
-"X-Generator: Launchpad (build 15985)\n"
+"X-Launchpad-Export-Date: 2012-09-29 04:48+0000\n"
+"X-Generator: Launchpad (build 16049)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -40,8 +40,8 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:656
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/books.py:44
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:209
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:218
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:223
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:229
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:661
@@ -86,8 +86,8 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:472
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:474
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:476
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1188
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1299
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1184
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1295
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:88
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/plucker.py:25
@@ -211,7 +211,7 @@ msgstr "Настроить"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:356
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:357
 msgid "Cannot configure"
 msgstr "Невозможно настроить"
 
@@ -636,7 +636,7 @@ msgid "Control how calibre downloads ebook metadata from the net"
 msgstr "Изменить параметры загрузки метаданных из интернета"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:387
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
 msgstr "Игнорируемые устройства"
 
@@ -1288,8 +1288,8 @@ msgstr "Получение списка книг с устройства..."
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:268
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:324
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:361
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1088
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1090
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1078
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1080
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:277
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:279
 msgid "Transferring books to device..."
@@ -1300,8 +1300,8 @@ msgstr "Передача книги на устройство..."
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:480
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:515
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:398
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1101
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1112
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1091
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1102
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:301
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:332
 msgid "Adding books to device metadata listing..."
@@ -1323,8 +1323,8 @@ msgstr "Удаление книги с устройства..."
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:468
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:475
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1140
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1146
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1130
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1136
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:366
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:371
 msgid "Removing books from device metadata listing..."
@@ -1863,7 +1863,7 @@ msgid "Communicate with MTP devices"
 msgstr "Соединиться с MTP устройством"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:141
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:913
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:903
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
 msgid "Get device information..."
 msgstr "Получение информацию об устройстве..."
@@ -1929,12 +1929,16 @@ msgstr "Удалено %s"
 msgid "All books removed"
 msgstr "Все книги удалены"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:194
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:291
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:195
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:304
 msgid "Unknown MTP device"
 msgstr "Неизвестное MTP устройство"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:64
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
+msgid "MTP devices are not supported on Windows XP"
+msgstr "MTP устройства не поддерживаются на Windows XP"
+
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
 "The Windows Portable Devices service is not available on your computer. You "
 "may need to install Windows Media Player 11 or newer and/or restart your "
@@ -2225,22 +2229,22 @@ msgstr ""
 "определённый IP адрес. Драйвер будет ожидать только введённый адрес и только "
 "этот адрес будет объявлен через mDNS (bonjour)."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:775
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:759
 #, python-format
 msgid "Too many connection attempts from %s"
 msgstr "Слишком много попыток соединения из %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1250
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1240
 #, python-format
 msgid "Invalid port in options: %s"
 msgstr "Неверный порт в настройках: %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1258
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1248
 #, python-format
 msgid "Failed to connect to port %d. Try a different value."
 msgstr "Не удалось соединиться с портом %d. Попробуйте другое значение."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1270
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1260
 msgid "Failed to allocate a random port"
 msgstr "Не удалось выделить случайный порт"
 
@@ -3200,7 +3204,7 @@ msgstr ""
 msgid "Use the new PDF conversion engine."
 msgstr "Использовать новый механизм конвертирования PDF."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:70
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:72
 #, python-format
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
@@ -3209,7 +3213,7 @@ msgstr ""
 "Единица измерения. По умолчанию дюйм. Варианты: %s Примечание: Данная "
 "установка не переопределит единицу измерения для полей!"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:75
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:77
 #, python-format
 msgid ""
 "The size of the paper. This size will be overridden when a non default "
@@ -3218,7 +3222,7 @@ msgstr ""
 "Размер бумаги. Этот размер будет изменён, когда используетя профиль не по "
 "умолчанию. По умолчанию letter. Выберите %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:79
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:81
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
@@ -3227,12 +3231,12 @@ msgstr ""
 "`123x321` для указания ширины и высоты. Данная установка переопределяет "
 "любой определенный формат бумаги."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:84
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:86
 #, python-format
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr "Орентация страницы. По умолчанию портретный. Выбрано %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:90
 msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
@@ -3240,25 +3244,25 @@ msgstr ""
 "Сохранять пропорции обложки, а не растягивать её изображение во весь размер "
 "первой страницы созданного PDF-документа."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "The font family used to render serif fonts"
 msgstr "Шрифт используемый для отображения шрифтов типа serif"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:96
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:98
 msgid "The font family used to render sans-serif fonts"
 msgstr "Шрифт используемый для отображения шрифтов типа sans-serif"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:105
 msgid "The font family used to render monospaced fonts"
 msgstr ""
 "Шрифт используемый для отображения равноширинных (monospaced) шрифтов"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:106
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "The default font size"
 msgstr "Размер шрифта по умолчанию"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:109
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "The default font size for monospaced text"
 msgstr "Размер шрифта по умолчанию для равноширинного (monospaced) текста"
 
@@ -4763,7 +4767,7 @@ msgstr ""
 "Получить изображение обложки, информацию о книге по номеру ISBN из "
 "LibraryThing.com\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1491
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1487
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:958
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -6095,84 +6099,89 @@ msgid ""
 msgstr ""
 "Выбранные книги будут <b>удалены</b> из вашего устройства. Вы уверены?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
 msgstr "Запустить беспроводное соединение устройств"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:34
 msgid "Stop wireless device connection"
 msgstr "Остановить беспроводное соединение устройств"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:38
 msgid "Connect to folder"
 msgstr "Подключиться к папке"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:43
 msgid "Connect to iTunes"
 msgstr "Подключиться к iTunes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:49
 msgid "Connect to Bambook"
 msgstr "Подключение к Bambook"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:89
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
 msgid "Start Content Server"
 msgstr "Запустить контент сервер"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:85
 msgid "Start/stop content server"
 msgstr "Запуск/остановка сервнра содержимого"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:93
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
+#, python-format
+msgid " [%s, port %d]"
+msgstr " [%s, порт %d]"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:99
 msgid "Stop Content Server"
 msgstr "Остановить контент сервер"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:107
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:132
 msgid "Email to"
 msgstr "Отправить по электронной почте к"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:117
 msgid "Email to and delete from library"
 msgstr "Отправить по email и удалить из библиотеки"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:126
 msgid "(delete from library)"
 msgstr "(Удалить из библиотеки)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:141
 msgid "Setup email based sharing of books"
 msgstr "Настроить общий доступ к книгам на основе электронной почты"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:159
 msgid "D"
 msgstr "D"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:159
 msgid "Send to device"
 msgstr "Отправить в устройство"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:177
 msgid "Connect/share"
 msgstr "Подключиться/общий доступ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
 msgid "Stopping"
 msgstr "Остановка"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:86
 msgid "Stopping server, this could take upto a minute, please wait..."
 msgstr ""
 "Остановка сервера, это может занять минуту, пожалуйста, подождите ..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:235
 msgid "Disable autostart"
 msgstr "Отключить автозапуск"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:236
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
@@ -6180,7 +6189,7 @@ msgstr ""
 "Вы желаете что бы беспроводное соединение устройств запускалось "
 "автоматически при старте calibre?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:253
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:259
 msgid "Many IP addresses. See Start/Stop dialog."
 msgstr "Много IP адресов. Смотрите диалог Запуск/Остановка."
 
@@ -9692,7 +9701,7 @@ msgid "Cannot configure the device while there are running device jobs."
 msgstr "Не могу настроить устройство пока запущены задачи устройства."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:920
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:359
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:360
 #, python-format
 msgid "Configure %s"
 msgstr "Настроить %s"
@@ -9818,7 +9827,7 @@ msgstr ""
 "Если вы отправите эти форматы {1}, они могут не работать. Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:155
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:456
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:70
@@ -9826,7 +9835,7 @@ msgid "Invalid template"
 msgstr "Неверный шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:156
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:457
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:280
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:71
@@ -9859,15 +9868,15 @@ msgstr "Использовать сортировочное имя автора 
 msgid "Save &template:"
 msgstr "Сохранить &шаблон"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:57
 msgid "No formats selected"
 msgstr "Нет выбранных форматов"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:58
 msgid "You must choose at least one format to send to the device"
 msgstr "Вы должны выбрать хотя бы один формат для отправки на устройство"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:86
 msgid ""
 "<b>Save &template</b> to control the filename and\n"
 "        location of files sent to the device:"
@@ -9875,18 +9884,18 @@ msgstr ""
 "<b>Сохранить шаблон</b> для управления именем и\n"
 "        положением отправляемых на устройство файлов:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:91
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
 msgstr "Редактор шаблона"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:443
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:48
 msgid "Edit template"
 msgstr "Изменить шаблон"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:129
 msgid ""
 "A <b>list of &folders</b> on the device to\n"
 "        which to send ebooks. The first one that exists will be used:"
@@ -9894,12 +9903,12 @@ msgstr ""
 "<b>Список папок</b> на устройстве, в которые\n"
 "        отправляются книги. Будет использована первая существующая:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:138
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
 msgid "Browse for a folder on the device"
 msgstr "Перейти к папке на устройстве"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:166
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:167
 msgid ""
 "Select the devices to be <b>ignored</b>. calibre <b>will not</b>\n"
 "            connect to devices with a checkmark next to their names."
@@ -9908,24 +9917,24 @@ msgstr ""
 "будет</b> \n"
 "            соединяться с устройствами имеющими отмеченное название."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
 msgid "Send the %s format to the folder:"
 msgstr "Отправить формат %s в папку:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:220
 msgid "Folder on the device"
 msgstr "Папка на устройстве"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:228
 msgid "&Remove rule"
 msgstr "&Удалить правило"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
 msgstr "Отправка определённого формата"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:277
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:278
 msgid ""
 "You can create rules that control where ebooks of a specific\n"
 "            format are sent to on the device. These will take precedence "
@@ -9936,17 +9945,17 @@ msgstr ""
 "            форматов на устройство. Они будут иметь приоритет \n"
 "            над папками указанными выше."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:299
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
 msgstr "Добавить новое правило"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:338
 #, python-format
 msgid "The <b>%s</b> device has no serial number, it cannot be configured"
 msgstr ""
 "Устройство <b>%s</b> не имеет серийного номера, оно не может быть настроено"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:342
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:343
 msgid ""
 "<b>No MTP device connected.</b><p> You can only configure the MTP device "
 "plugin when a device is connected."
@@ -9954,7 +9963,7 @@ msgstr ""
 "<b>Не подсоединено MTP устройств.</b><p> Вы можете настроить плагин MTP "
 "устройства только когда оно присоединено."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:350
 msgid ""
 "If you want to un-ignore a previously ignored MTP device, use the \"Ignored "
 "devices\" tab."
@@ -9962,17 +9971,29 @@ msgstr ""
 "Если вы хотите включить игнорируемое MTP устройство, то зайдите на вкладку "
 "\"Игнорируемые устройства\"."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:369
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
 msgid "Choose the formats to send to the %s"
 msgstr "Выберите форматы для отправки на %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:373
 #, python-format
 msgid "&Ignore the %s in calibre"
 msgstr "Игнорировать %s в calibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:394
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
+msgid "Show device information"
+msgstr "Показать информацию об устройстве"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:880
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:344
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
+msgid "Copy to clipboard"
+msgstr "Копировать в буфер"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:419
 #, python-format
 msgid "The %s will be ignored in calibre"
 msgstr "%s будет игнорироваться в calibre"
@@ -10849,13 +10870,6 @@ msgstr "Показать детальную информацию об ошибк
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:595
 msgid "Copied"
 msgstr "Скопирована"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:880
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:344
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
-msgid "Copy to clipboard"
-msgstr "Копировать в буфер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:251
@@ -20542,9 +20556,9 @@ msgid ""
 msgstr ""
 "%prog add_format [options] id ebook_file\n"
 "\n"
-"Добавить ebook в ebook_file в одном из доступных для logical book форматов, "
-"ebook идентифецирована по id. id можно получить командой list. Если книга в "
-"данном формате уже есть, она будет заменена.\n"
+"Добавить книгу в папку книги как ещё один доступный формат. Книга "
+"определяется по id. id можно получить командой list. Если книга в данном "
+"формате уже есть, она будет заменена.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:433
 msgid "You must specify an id and an ebook file"
@@ -21439,13 +21453,13 @@ msgstr ""
 "Префикс добавляемый ко всем адресам. Полезно для переадресации на этот "
 "сервер из Apache/nginx/и т.д."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:300
+#: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:317
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
 msgid "All books"
 msgstr "Все книги"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:301
+#: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:318
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:584
@@ -23954,6 +23968,32 @@ msgid ""
 "[ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]\n"
 "Default: empty (no rules), so no collection attributes are named."
 msgstr ""
+"Определите, как сортируются коллекции sony. Эта настройка применима только "
+"тогда, \n"
+"когда включён автоматический режим управления метаданными. Вы можете "
+"определить \n"
+"какие метаданные будут использованы для сортировки между коллекциями. \n"
+"Формат настройки - это список полей метаданных из которых собирается "
+"коллекция, \n"
+"по порядку имён полей метаданных содержащих сортировочные значения.\n"
+"Пример: Следующий пример показывает что коллекции собранные из даты "
+"публикации \n"
+"(pubdate) и тэгов (tags), будут отсортированы по значению в пользовательском "
+"\n"
+"столбце '#mydate', коллекции созданные из серий ('series') будут "
+"сортироваться \n"
+"по индексу серии ('series_index'), и что все остальные коллекции будут "
+"сортироваться \n"
+"по заголовку. Если в коллекции поле метаданных не имеет имени, и если оно "
+"основано \n"
+"на серииях, то будет сортироваться по порядку серии, а иначе по заголовку.\n"
+"[(['pubdate', 'tags'],'#mydate'), (['series'],'series_index'), (['*'], "
+"'title')]\n"
+"Помните, что кавычки и скобки необходимы. Синтаксис таков:\n"
+"[ ( [список полей], поле для сортировки ) , ( [список полей] , поле для "
+"сортировки ) ]\n"
+"По умолчанию: empty (no rules), тоесть никаких атрибутов коллекции не "
+"названо."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid "Control how tags are applied when copying books to another library"
