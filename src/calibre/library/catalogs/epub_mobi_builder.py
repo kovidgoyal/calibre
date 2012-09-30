@@ -3,12 +3,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
-import datetime, htmlentitydefs, os, re, shutil, unicodedata, zlib
+import datetime, htmlentitydefs, os, platform, re, shutil, unicodedata, zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 
 from calibre import (prepare_string_for_xml, strftime, force_unicode,
         isbytestring)
+from calibre.constants import isosx
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -643,12 +644,32 @@ class CatalogBuilder(object):
                 c = item
 
             ordnum, ordlen = collation_order(c)
-            if last_ordnum != ordnum:
-                last_c = icu_upper(c[0:ordlen])
-                if last_c in exceptions.keys():
-                    last_c = exceptions[unicode(last_c)]
-                last_ordnum = ordnum
-            cl_list[idx] = last_c
+            if isosx and platform.mac_ver()[0] < '10.7':
+                # Hackhackhackhackhack
+                # icu returns bogus results with curly apostrophes, maybe others under OS X 10.6.x
+                # When we see the magic combo of 0/-1 for ordnum/ordlen, special case the logic
+                if ordnum == 0 and ordlen == -1:
+                    if icu_upper(c[0]) != last_c:
+                        last_c = icu_upper(c[0])
+                        if last_c in exceptions.keys():
+                            last_c = exceptions[unicode(last_c)]
+                        last_ordnum = ordnum
+                    cl_list[idx] = last_c
+                else:
+                    if last_ordnum != ordnum:
+                        last_c = icu_upper(c[0:ordlen])
+                        if last_c in exceptions.keys():
+                            last_c = exceptions[unicode(last_c)]
+                        last_ordnum = ordnum
+                    cl_list[idx] = last_c
+
+            else:
+                if last_ordnum != ordnum:
+                    last_c = icu_upper(c[0:ordlen])
+                    if last_c in exceptions.keys():
+                        last_c = exceptions[unicode(last_c)]
+                    last_ordnum = ordnum
+                cl_list[idx] = last_c
 
         if self.DEBUG and self.opts.verbose:
             print("     establish_equivalencies():")
@@ -656,7 +677,7 @@ class CatalogBuilder(object):
                 for idx, item in enumerate(item_list):
                     print("      %s %s" % (cl_list[idx],item[sort_field]))
             else:
-                    print("      %s %s" % (cl_list[0], item))
+                    print("      %s %s" % (cl_list[idx], item))
 
         return cl_list
 
