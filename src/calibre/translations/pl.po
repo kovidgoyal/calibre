@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-09-28 05:31+0000\n"
-"PO-Revision-Date: 2012-09-12 17:51+0000\n"
+"PO-Revision-Date: 2012-09-29 16:04+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-09-29 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-09-30 04:44+0000\n"
 "X-Generator: Launchpad (build 16049)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -1934,7 +1934,7 @@ msgstr "Nieznane urządzenie MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "Urządzenia MTP nie są wspierane przez Windows XP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2123,7 +2123,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
 msgid "Wireless Device"
-msgstr ""
+msgstr "Urządzenie bezprzewodowe"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
@@ -4198,7 +4198,7 @@ msgstr "Wykonywanie przekształceń na książce..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:1125
 #, python-format
 msgid "Running %s plugin"
-msgstr ""
+msgstr "Działa %s wtyczek"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -6131,7 +6131,7 @@ msgstr "Zatrzymaj/uruchom serwer zawartości"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%s, port %d]"
-msgstr ""
+msgstr " [%s, port %d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:99
 msgid "Stop Content Server"
@@ -8699,6 +8699,9 @@ msgid ""
 "both MOBI filetypes. If you wish to use the new format on your device, "
 "convert to AZW3 instead of MOBI."
 msgstr ""
+"<b>UWAGA</b> Niektóre urządzenia Kindle nie wspierają nowych formatów MOBI. "
+"Jeśli chcesz użyć nowych formatów przekonwertuj książkę na format AZW3 "
+"zamiast na MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -9668,7 +9671,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:857
 #, python-format
 msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
-msgstr ""
+msgstr "Wykryto <b>%s</b>. Czy calibre ma nim zarządzać?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:880
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1456
@@ -9876,7 +9879,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
-msgstr ""
+msgstr "Edytor &szablonów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -9896,7 +9899,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
 msgid "Browse for a folder on the device"
-msgstr ""
+msgstr "Przeglądaj foldery na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:167
 msgid ""
@@ -9907,15 +9910,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
 msgid "Send the %s format to the folder:"
-msgstr ""
+msgstr "Wyślij format %s do folderu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:220
 msgid "Folder on the device"
-msgstr ""
+msgstr "folder na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:228
 msgid "&Remove rule"
-msgstr ""
+msgstr "Usuń &regułę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
@@ -9931,7 +9934,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
-msgstr ""
+msgstr "Dodaj &nową regułę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:338
 #, python-format
@@ -9963,11 +9966,11 @@ msgstr "Wybierz formaty do wysłania do %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:373
 #, python-format
 msgid "&Ignore the %s in calibre"
-msgstr ""
+msgstr "Ignoruj %s w calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Show device information"
-msgstr ""
+msgstr "Pokaż informacje o urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
@@ -9980,11 +9983,11 @@ msgstr "Kopiuj do schowka"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:419
 #, python-format
 msgid "The %s will be ignored in calibre"
-msgstr ""
+msgstr "%s będzie ignorowany przez calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:91
 msgid "Choose folder on device"
-msgstr ""
+msgstr "Wybierz folder na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10394,12 +10397,15 @@ msgid ""
 "You should not create a library inside the Calibre folder as this folder is "
 "automatically deleted during upgrades."
 msgstr ""
+"Nie należy tworzyć biblioteki w folderze calibre gdyż jest on automatycznie "
+"usuwany w czasie uaktualniania."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:78
 #, python-format
 msgid ""
 "You can only create libraries inside %s at the top level, not in sub-folders"
 msgstr ""
+"Można utworzyć bibliotekę tylko na najwyższym poziomie %s, nie w podfolderach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 msgid "No existing library found"
@@ -13815,13 +13821,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:75
 msgid "Path too long"
-msgstr ""
+msgstr "Ścieżka jest zbyt długa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:76
 #, python-format
 msgid ""
 "Path to Calibre Portable (%s) too long. Must be less than 59 characters."
 msgstr ""
+"Ścieżka do Calibre Portable (%s) jest zbyt długa. Musi być krótsza niż 59 "
+"znaków."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:772
@@ -19282,11 +19290,11 @@ msgstr "Przełącz tryb stronicowania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:230
 msgid "Load theme"
-msgstr ""
+msgstr "Wczytaj temat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:231
 msgid "Load a theme"
-msgstr ""
+msgstr "Wczytaj temat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:66
 msgid "Failed to render"

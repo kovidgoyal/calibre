@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-28 05:31+0000\n"
-"PO-Revision-Date: 2012-09-28 14:13+0000\n"
-"Last-Translator: Arnaud <Unknown>\n"
+"PO-Revision-Date: 2012-09-29 06:35+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-09-29 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-09-30 04:43+0000\n"
 "X-Generator: Launchpad (build 16049)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -1980,6 +1980,9 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
+"Le service de périphériques portables Windows (WPD) n'est pas disponible sur "
+"votre ordinateur. L'installation de Windows Media Player 11 ou plus récent "
+"et/ou le redémarrage de votre ordinateur peuvent être nécessaires."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2249,7 +2252,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:291
 msgid "Enable the no-activity timeout"
-msgstr ""
+msgstr "Activer le timeout d'inactivité"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:292
 #, python-format
@@ -2258,6 +2261,9 @@ msgid ""
 "device does nothing for %d minutes. Unchecking this  box disables this "
 "timeout, so calibre will never automatically disconnect."
 msgstr ""
+"Si la case est cochée, Calibre déconnectera automatiquement le périphérique "
+"s'il n'a rien fait pendant %d minutes. Décocher cette case désactive le "
+"timeout, donc Calibre ne déconnectera jamais automatiquement le périphérique."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
 msgid "Use this IP address"
@@ -2269,6 +2275,9 @@ msgid ""
 "address. The driver will listen only on the entered address, and this "
 "address will be the one advertized over mDNS (bonjour)."
 msgstr ""
+"Utilisez cette option si vous souhaitez forcer le pilote à écouter sur une "
+"adresse IP particulière. Le pilote écoutera seulement sur l'adresse entrée, "
+"et cette adresse sera celle qui sera publiée par mDNS (bonjour)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:759
 #, python-format
@@ -2526,6 +2535,8 @@ msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Cocher cette case si la mémoire principale de l'appareil est vue comme la "
+"carte A et la carte comme mémoire principale"
 
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:24
@@ -2535,6 +2546,10 @@ msgid ""
 "device action. Right click on the send to device button and reset the "
 "default action to be \"Send to main memory\"."
 msgstr ""
+"Le lecteur n'a pas de carte de stockage %s. Vous avez peut-être modifié "
+"l'action par défaut envoyer à l'appareil. Faites un clic droit sur le bouton "
+"envoyer à l'appareil  et réinitialiser l'action par défaut à \"Envoyer vers "
+"la mémoire du lecteur\"."
 
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:29
 #, python-format
@@ -3045,6 +3060,8 @@ msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
 msgstr ""
+"Si  cette option est activée, le nom du fichier html à l'intérieur du htmlz "
+"sera basé sur le titre du livre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -3303,7 +3320,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "The font family used to render serif fonts"
-msgstr ""
+msgstr "La famille de police utilisée pour rendre les polices serif"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:98
 msgid "The font family used to render sans-serif fonts"
@@ -7778,7 +7795,7 @@ msgstr "Résultats de l'expression régulière :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:285
 msgid "Tags that will be excluded as genres"
-msgstr ""
+msgstr "Etiquettes qui seront exclues comme les genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:286
 msgid "Other options"
@@ -9822,7 +9839,7 @@ msgstr "Erreur pendant la communication avec le lecteur électronique"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:856
 #, python-format
 msgid "Manage the %s?"
-msgstr ""
+msgstr "Gérer le %s ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:857
 #, python-format
@@ -10105,6 +10122,8 @@ msgid ""
 "<b>No MTP device connected.</b><p> You can only configure the MTP device "
 "plugin when a device is connected."
 msgstr ""
+"<b>Aucun périphérique MTP connecté.</b><p> Vous ne pouvez configurer le  "
+"module d’extension périphérique MTP que lorsqu'un périphérique est connecté."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:350
 msgid ""
@@ -12719,12 +12738,12 @@ msgstr "Numéro de port invalide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:142
 msgid "You must provide a port number."
-msgstr ""
+msgstr "Vous devez fournir un numéro de port."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:153
 msgid "The port must be a number between 8000 and 32000."
-msgstr ""
+msgstr "Le port doit être un nombre compris entre 8000 et 32000"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:394
