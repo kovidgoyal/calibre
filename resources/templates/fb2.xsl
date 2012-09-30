@@ -53,9 +53,11 @@
                     
                     ul {margin-left: 0}
                     
-                    .epigraph{width:50%; margin-left : 35%;}
+                    .epigraph{width:75%; margin-left : 25%; font-style: italic;}
                     
                     div.paragraph { text-indent: 2em; }
+
+                    .subtitle { text-align: center; }
                 </style>
                 <link rel="stylesheet" type="text/css" href="inline-styles.css" />
             </head>
@@ -213,7 +215,7 @@
                 <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
             </xsl:element>
         </xsl:if>
-        <h5>
+        <h5 class="subtitle">
             <xsl:apply-templates/>
         </h5>
     </xsl:template>
@@ -234,11 +236,11 @@
     </xsl:template>
     <!-- strong -->
     <xsl:template match="fb:strong">
-        <b><xsl:apply-templates/></b>
+        <strong><xsl:apply-templates/></strong>
     </xsl:template>
     <!-- emphasis -->
     <xsl:template match="fb:emphasis">
-        <i> <xsl:apply-templates/></i>
+        <em> <xsl:apply-templates/></em>
     </xsl:template>
     <!-- style -->
     <xsl:template match="fb:style">
@@ -409,6 +411,10 @@
                     <xsl:attribute name="title"><xsl:value-of select="@title"/></xsl:attribute>
                 </xsl:if>
             </xsl:element>
+    </xsl:template>
+    <!-- code -->
+    <xsl:template match="fb:code">
+        <code><xsl:apply-templates/></code>
     </xsl:template>
 
 </xsl:stylesheet>
