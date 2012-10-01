@@ -254,7 +254,8 @@ class HTMLInput(InputFormatPlugin):
                 except EnvironmentError:
                     pass
                 else:
-                    media_type = self.guess_type('dummy.'+img)[0] or self.BINARY_MIME
+                    if img:
+                        media_type = self.guess_type('dummy.'+img)[0] or self.BINARY_MIME
 
             self.oeb.log.debug('Added', link)
             self.oeb.container = self.DirContainer(os.path.dirname(link),
