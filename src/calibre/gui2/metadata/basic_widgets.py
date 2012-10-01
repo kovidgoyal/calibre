@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox,
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
+from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon,
+        QToolButton, QWidget, QLabel, QGridLayout, QApplication,
+        QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
+        QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox,
+        QAction, QCalendarWidget, QDate)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
@@ -1371,7 +1372,15 @@ class PublisherEdit(EditWithComplete): # {{{
 
 # }}}
 
-class DateEdit(QDateTimeEdit): # {{{
+# DateEdit {{{
+
+class CalendarWidget(QCalendarWidget):
+
+    def showEvent(self, ev):
+        if self.selectedDate().year() == UNDEFINED_DATE.year:
+            self.setSelectedDate(QDate.currentDate())
+
+class DateEdit(QDateTimeEdit):
 
     TOOLTIP = ''
     LABEL = _('&Date:')
@@ -1388,6 +1397,8 @@ class DateEdit(QDateTimeEdit): # {{{
             fmt = self.FMT
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
+        self.cw = CalendarWidget(self)
+        self.setCalendarWidget(self.cw)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.clear_button = QToolButton(parent)

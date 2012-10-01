@@ -151,28 +151,32 @@ class PDFOutput(OutputFormatPlugin):
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
 
             if iswindows:
-                from calibre.utils.fonts.utils import remove_embed_restriction
+                # from calibre.utils.fonts.utils import remove_embed_restriction
                 # On windows Qt generates an image based PDF if the html uses
                 # embedded fonts. See https://launchpad.net/bugs/1053906
                 for f in walk(oeb_dir):
                     if f.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
-                        fixed = False
-                        with open(f, 'r+b') as s:
-                            raw = s.read()
-                            try:
-                                raw = remove_embed_restriction(raw)
-                            except:
-                                self.log.exception('Failed to remove embedding'
-                                    ' restriction from font %s, ignoring it'%
-                                    os.path.basename(f))
-                            else:
-                                s.seek(0)
-                                s.truncate()
-                                s.write(raw)
-                                fixed = True
+                        os.remove(f)
+                        # It's not the font embedding restriction that causes
+                        # this, even after removing the restriction, Qt still
+                        # generates an image based document. Theoretically, it
+                        # fixed = False
+                        # with open(f, 'r+b') as s:
+                        #     raw = s.read()
+                        #     try:
+                        #         raw = remove_embed_restriction(raw)
+                        #     except:
+                        #         self.log.exception('Failed to remove embedding'
+                        #             ' restriction from font %s, ignoring it'%
+                        #             os.path.basename(f))
+                        #     else:
+                        #         s.seek(0)
+                        #         s.truncate()
+                        #         s.write(raw)
+                        #         fixed = True
 
-                        if not fixed:
-                            os.remove(f)
+                        # if not fixed:
+                        #     os.remove(f)
 
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             opf = OPF(opfpath, os.path.dirname(opfpath))

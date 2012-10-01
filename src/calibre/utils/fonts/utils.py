@@ -18,23 +18,23 @@ def is_truetype_font(raw):
     sfnt_version = raw[:4]
     return (sfnt_version in {b'\x00\x01\x00\x00', b'OTTO'}, sfnt_version)
 
-def get_table(raw, name):
-    ''' Get the raw table bytes for the specified table in the font '''
+def get_tables(raw):
     num_tables = struct.unpack_from(b'>H', raw, 4)[0]
     offset = 4*3 # start of the table record entries
-    table_offset = table_checksum = table_length = table_index = table = None
-    name = bytes(name.lower())
     for i in xrange(num_tables):
-        table_tag = raw[offset:offset+4]
-        if table_tag.lower() == name:
-            table_checksum, table_offset, table_length = struct.unpack_from(
-                    b'>3L', raw, offset+4)
-            table_index = offset
-            break
+        table_tag, table_checksum, table_offset, table_length = struct.unpack_from(
+                    b'>4s3L', raw, offset)
+        yield (table_tag, raw[table_offset:table_offset+table_length], offset,
+                table_offset, table_checksum)
         offset += 4*4
-    if table_offset is not None:
-        table = raw[table_offset:table_offset+table_length]
-    return table, table_index, table_offset, table_checksum
+
+def get_table(raw, name):
+    ''' Get the raw table bytes for the specified table in the font '''
+    name = bytes(name.lower())
+    for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
+        if table_tag.lower() == name:
+            return table, table_index, table_offset, table_checksum
+    return None, None, None, None
 
 def get_font_characteristics(raw):
     '''
@@ -154,13 +154,59 @@ def get_font_names(raw):
 
     return family_name, subfamily_name, full_name
 
+def checksum_of_block(raw):
+    extra = 4 - len(raw)%4
+    raw += b'\0'*extra
+    num = len(raw)//4
+    return sum(struct.unpack(b'>%dI'%num, raw)) % (1<<32)
+
+def verify_checksums(raw):
+    head_table = None
+    for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
+        if table_tag.lower() == b'head':
+            version, fontrev, checksum_adj = struct.unpack_from(b'>ffL', table)
+            head_table = table
+            offset = table_offset
+            checksum = table_checksum
+        elif checksum_of_block(table) != table_checksum:
+            raise ValueError('The %r table has an incorrect checksum'%table_tag)
+
+    if head_table is not None:
+        table = head_table
+        table = table[:8] + struct.pack(b'>I', 0) + table[12:]
+        raw = raw[:offset] + table + raw[offset+len(table):]
+        # Check the checksum of the head table
+        if checksum_of_block(table) != checksum:
+            raise ValueError('Checksum of head table not correct')
+        # Check the checksum of the entire font
+        checksum = checksum_of_block(raw)
+        q = (0xB1B0AFBA - checksum) & 0xffffffff
+        if q != checksum_adj:
+            raise ValueError('Checksum of entire font incorrect')
+
+def set_checksum_adjustment(f):
+    offset = get_table(f.getvalue(), 'head')[2]
+    offset += 8
+    f.seek(offset)
+    f.write(struct.pack(b'>I', 0))
+    checksum = checksum_of_block(f.getvalue())
+    q = (0xB1B0AFBA - checksum) & 0xffffffff
+    f.seek(offset)
+    f.write(struct.pack(b'>I', q))
+
+def set_table_checksum(f, name):
+    table, table_index, table_offset, table_checksum = get_table(f.getvalue(), name)
+    checksum = checksum_of_block(table)
+    if checksum != table_checksum:
+        f.seek(table_index + 4)
+        f.write(struct.pack(b'>I', checksum))
 
 def remove_embed_restriction(raw):
     ok, sig = is_truetype_font(raw)
     if not ok:
         raise UnsupportedFont('Not a supported font, sfnt_version: %r'%sig)
 
-    table, table_index, table_offset = get_table(raw, 'os/2')
+    table, table_index, table_offset = get_table(raw, 'os/2')[:3]
     if table is None:
         raise UnsupportedFont('Not a supported font, has no OS/2 table')
 
@@ -172,7 +218,12 @@ def remove_embed_restriction(raw):
     f = BytesIO(raw)
     f.seek(fs_type_offset + table_offset)
     f.write(struct.pack(b'>H', 0))
-    return f.getvalue()
+
+    set_table_checksum(f, 'os/2')
+    set_checksum_adjustment(f)
+    raw = f.getvalue()
+    verify_checksums(raw)
+    return raw
 
 def test():
     import sys, os
@@ -181,6 +232,9 @@ def test():
         raw = open(f, 'rb').read()
         print (get_font_names(raw))
         print (get_font_characteristics(raw))
+        verify_checksums(raw)
+        remove_embed_restriction(raw)
+
 
 if __name__ == '__main__':
     test()
