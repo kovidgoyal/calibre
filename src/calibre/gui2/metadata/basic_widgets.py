@@ -1398,6 +1398,7 @@ class DateEdit(QDateTimeEdit):
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
         self.cw = CalendarWidget(self)
+        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
         self.setCalendarWidget(self.cw)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
