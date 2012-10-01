@@ -12,7 +12,7 @@ from itertools import product
 
 from calibre import prints
 from calibre.constants import plugins
-from calibre.utils.fonts.utils import (is_truetype_font,
+from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)
 
 class WinFonts(object):
@@ -57,12 +57,17 @@ class WinFonts(object):
             ext = 'otf' if sig == b'OTTO' else 'ttf'
 
             try:
-                weight, is_italic, is_bold, is_regular = get_font_characteristics(data)
+                weight, is_italic, is_bold, is_regular = get_font_characteristics(data)[:4]
             except Exception as e:
                 prints('Failed to get font characteristic for font: %s [%s]'
                         ' with error: %s'%(family,
                             self.get_normalized_name(is_italic, weight), e))
                 continue
+
+            try:
+                family_name, sub_family_name, full_name = get_font_names(data)
+            except:
+                pass
 
             if normalize:
                 ft = {(True, True):'bi', (True, False):'italic', (False,
@@ -71,7 +76,24 @@ class WinFonts(object):
             else:
                 ft = (1 if is_italic else 0, weight//10)
 
-            ans[ft] = (ext, data)
+            if not (family_name or full_name):
+                # prints('Font %s [%s] has no names'%(family,
+                #     self.get_normalized_name(is_italic, weight)))
+                family_name = family
+            name = full_name or family + ' ' + (sub_family_name or '')
+
+            try:
+                name.encode('ascii')
+            except ValueError:
+                try:
+                    sub_family_name.encode('ascii')
+                    subf = sub_family_name
+                except:
+                    subf = ''
+
+                name = family + ((' ' + subf) if subf else '')
+
+            ans[ft] = (ext, name, data)
 
         return ans
 
@@ -105,8 +127,8 @@ if __name__ == '__main__':
     print (families)
 
     for family in families:
-        print (family + ':')
+        prints(family + ':')
         for font, data in w.fonts_for_family(family).iteritems():
-            print ('  ', font, data[0], len(data[1]))
+            prints('  ', font, data[0], data[1], len(data[2]))
         print ()
 
