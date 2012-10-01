@@ -39,7 +39,7 @@ class KOBO(USBMS):
     CAN_SET_METADATA = ['collections']
 
     VENDOR_ID   = [0x2237]
-    PRODUCT_ID  = [0x4161, 0x4163, 0x4165]
+    PRODUCT_ID  = [0x4161, 0x4163, 0x4165, 0x4173]
     BCD         = [0x0110, 0x0323, 0x0326]
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
