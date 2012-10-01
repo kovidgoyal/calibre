@@ -101,7 +101,7 @@
     </xsl:template>
     <!-- secuence template -->
     <xsl:template name="sequence">
-        <LI/>
+        <li/>
         <xsl:value-of select="@name"/>
         <xsl:if test="@number">
             <xsl:text disable-output-escaping="no">,&#032;#</xsl:text>
@@ -296,12 +296,26 @@
         </table>
     </xsl:template>
     <xsl:template match="fb:tr">
-        <tr><xsl:apply-templates/></tr>
-    </xsl:template>
-    <xsl:template match="fb:td">
-        <xsl:element name="td">
+        <xsl:element name="tr">
             <xsl:if test="@align">
                 <xsl:attribute name="align"><xsl:value-of select="@align"/></xsl:attribute>
+            </xsl:if>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+    <xsl:template match="fb:td|fb:th">
+        <xsl:element name="{local-name()}">
+            <xsl:if test="@align">
+                <xsl:attribute name="align"><xsl:value-of select="@align"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@style">
+                <xsl:attribute name="style"><xsl:value-of select="@style"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@colspan">
+                <xsl:attribute name="colspan"><xsl:value-of select="@colspan"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@rowspan">
+                <xsl:attribute name="rowspan"><xsl:value-of select="@rowspan"/></xsl:attribute>
             </xsl:if>
             <xsl:apply-templates/>
         </xsl:element>
@@ -415,6 +429,10 @@
     <!-- code -->
     <xsl:template match="fb:code">
         <code><xsl:apply-templates/></code>
+    </xsl:template>
+    <!-- Strikethrough text -->
+    <xsl:template match="fb:strikethrough">
+        <del><xsl:apply-templates/></del>
     </xsl:template>
 
 </xsl:stylesheet>
