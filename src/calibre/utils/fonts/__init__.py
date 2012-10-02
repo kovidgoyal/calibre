@@ -26,7 +26,8 @@ class Fonts(object):
     def files_for_family(self, family, normalize=True):
         '''
         Find all the variants in the font family `family`.
-        Returns a dictionary of tuples. Each tuple is of the form (Full font name, path to font file).
+        Returns a dictionary of tuples. Each tuple is of the form (path to font
+        file, Full font name).
         The keys of the dictionary depend on `normalize`. If `normalize` is `False`,
         they are a tuple (slant, weight) otherwise they are strings from the set
         `('normal', 'bold', 'italic', 'bi', 'light', 'li')`
@@ -40,7 +41,7 @@ class Fonts(object):
                 pt = PersistentTemporaryFile('.'+ext)
                 pt.write(data)
                 pt.close()
-                ans[ft] = (name, pt.name)
+                ans[ft] = (pt.name, name)
             return ans
         return self.backend.files_for_family(family, normalize=normalize)
 
