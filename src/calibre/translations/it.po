@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-28 05:31+0000\n"
-"PO-Revision-Date: 2012-09-24 15:36+0000\n"
-"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
+"PO-Revision-Date: 2012-10-01 12:42+0000\n"
+"Last-Translator: Michele Galimberti <Unknown>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-09-29 04:43+0000\n"
-"X-Generator: Launchpad (build 16049)\n"
+"X-Launchpad-Export-Date: 2012-10-02 05:19+0000\n"
+"X-Generator: Launchpad (build 16061)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1960,7 +1960,7 @@ msgstr "Dispositivo MTP sconosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "I dispositivi MPT non sono supportati su Windows XP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -10057,7 +10057,7 @@ msgstr "&Ignora il %s in calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Show device information"
-msgstr ""
+msgstr "Mostra informazioni dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
