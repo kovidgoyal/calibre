@@ -106,6 +106,7 @@ static PyObject* enum_font_families(PyObject *self, PyObject *args) {
 
 // }}}
 
+// font_data() {{{
 static PyObject* font_data(PyObject *self, PyObject *args) {
     PyObject *ans = NULL, *italic, *pyname;
     LOGFONTW lf;
@@ -157,6 +158,23 @@ static PyObject* font_data(PyObject *self, PyObject *args) {
 
     return ans;
 }
+// }}}
+
+static PyObject* add_font(PyObject *self, PyObject *args) {
+    PyObject *pyname, *private_font;
+    LPWSTR path;
+    int num;
+
+    if (!PyArg_ParseTuple(args, "OO", &pyname, &private_font)) return NULL;
+
+    path = unicode_to_wchar(pyname);
+    if (path == NULL) return NULL;
+
+    num = AddFontResourceEx(path, (PyObject_IsTrue(private_font)) ? FR_PRIVATE : 0, 0);
+    free(path);
+
+    return Py_BuildValue("i", num);
+}
 
 static 
 PyMethodDef winfonts_methods[] = {
@@ -168,6 +186,11 @@ PyMethodDef winfonts_methods[] = {
     {"font_data", font_data, METH_VARARGS,
     "font_data(family_name, italic, weight)\n\n"
         "Return the raw font data for the specified font."
+    },
+
+    {"add_font", add_font, METH_VARARGS,
+    "add_font(filename, private)\n\n"
+        "Add the font(s) in filename to windows. If private is True, the font will only be available to this process and will not be installed system wide. Reeturns the number of fonts added."
     },
 
     {NULL, NULL, 0, NULL}
