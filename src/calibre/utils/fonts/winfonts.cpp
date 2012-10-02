@@ -161,19 +161,47 @@ static PyObject* font_data(PyObject *self, PyObject *args) {
 // }}}
 
 static PyObject* add_font(PyObject *self, PyObject *args) {
-    PyObject *pyname, *private_font;
+    char *data;
+    Py_ssize_t sz;
+    DWORD num = 0;
+
+    if (!PyArg_ParseTuple(args, "s#", &data, &sz)) return NULL;
+
+    AddFontMemResourceEx(data, sz, NULL, &num);
+
+    return Py_BuildValue("k", num);
+}
+
+static PyObject* add_system_font(PyObject *self, PyObject *args) {
+    PyObject *name;
     LPWSTR path;
     int num;
 
-    if (!PyArg_ParseTuple(args, "OO", &pyname, &private_font)) return NULL;
-
-    path = unicode_to_wchar(pyname);
+    if (!PyArg_ParseTuple(args, "O", &name)) return NULL;
+    path = unicode_to_wchar(name);
     if (path == NULL) return NULL;
 
-    num = AddFontResourceEx(path, (PyObject_IsTrue(private_font)) ? FR_PRIVATE : 0, 0);
+    num = AddFontResource(path);
+    if (num > 0)
+        SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
     free(path);
-
     return Py_BuildValue("i", num);
+}
+
+static PyObject* remove_system_font(PyObject *self, PyObject *args) {
+    PyObject *name, *ok = Py_False;
+    LPWSTR path;
+
+    if (!PyArg_ParseTuple(args, "O", &name)) return NULL;
+    path = unicode_to_wchar(name);
+    if (path == NULL) return NULL;
+
+    if (RemoveFontResource(path)) {
+        SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
+        ok = Py_True;
+    }
+    free(path);
+    return Py_BuildValue("O", ok);
 }
 
 static 
@@ -189,8 +217,18 @@ PyMethodDef winfonts_methods[] = {
     },
 
     {"add_font", add_font, METH_VARARGS,
-    "add_font(filename, private)\n\n"
-        "Add the font(s) in filename to windows. If private is True, the font will only be available to this process and will not be installed system wide. Reeturns the number of fonts added."
+    "add_font(data)\n\n"
+        "Add the font(s) in the data (bytestring) to windows. Added fonts are always private. Returns the number of fonts added."
+    },
+
+    {"add_system_font", add_system_font, METH_VARARGS,
+    "add_system_font(data)\n\n"
+        "Add the font(s) in the specified file to the system font tables."
+    },
+
+    {"remove_system_font", remove_system_font, METH_VARARGS,
+    "remove_system_font(data)\n\n"
+        "Remove the font(s) in the specified file from the system font tables."
     },
 
     {NULL, NULL, 0, NULL}

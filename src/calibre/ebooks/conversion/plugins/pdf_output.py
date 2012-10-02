@@ -15,7 +15,6 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import iswindows
-from calibre import walk
 
 UNITS = [
             'millimeter',
@@ -138,6 +137,85 @@ class PDFOutput(OutputFormatPlugin):
             item = oeb.manifest.ids[cover_id]
             self.cover_data = item.data
 
+    def handle_embedded_fonts(self):
+        '''
+        Because of QtWebKit's inability to handle embedded fonts correctly, we
+        remove the embedded fonts and make them available system wide instead.
+        If you ever move to Qt WebKit 2.3+ then this will be unnecessary.
+        '''
+        from calibre.ebooks.oeb.base import urlnormalize
+        from calibre.gui2 import must_use_qt
+        from calibre.utils.fonts.utils import get_font_names, remove_embed_restriction
+        from PyQt4.Qt import QFontDatabase, QByteArray
+
+        # First find all @font-face rules and remove them, adding the embedded
+        # fonts to Qt
+        family_map = {}
+        for item in list(self.oeb.manifest):
+            if not hasattr(item.data, 'cssRules'): continue
+            remove = set()
+            for i, rule in enumerate(item.data.cssRules):
+                if rule.type == rule.FONT_FACE_RULE:
+                    remove.add(i)
+                    try:
+                        s = rule.style
+                        src = s.getProperty('src').propertyValue[0].uri
+                        font_family = s.getProperty('font-family').propertyValue[0].value
+                    except:
+                        continue
+                    path = item.abshref(src)
+                    ff = self.oeb.manifest.hrefs.get(urlnormalize(path), None)
+                    if ff is None:
+                        continue
+
+                    raw = ff.data
+                    self.oeb.manifest.remove(ff)
+                    try:
+                        raw = remove_embed_restriction(raw)
+                    except:
+                        continue
+                    must_use_qt()
+                    QFontDatabase.addApplicationFontFromData(QByteArray(raw))
+                    try:
+                        family_name = get_font_names(raw)[0]
+                    except:
+                        family_name = None
+                    if family_name:
+                        family_map[icu_lower(font_family)] = family_name
+
+            for i in sorted(remove, reverse=True):
+                item.data.cssRules.pop(i)
+
+        # Now map the font family name specified in the css to the actual
+        # family name of the embedded font (they may be different in general).
+        for item in self.oeb.manifest:
+            if not hasattr(item.data, 'cssRules'): continue
+            for i, rule in enumerate(item.data.cssRules):
+                if rule.type != rule.STYLE_RULE: continue
+                ff = rule.style.getProperty('font-family')
+                if ff is None: continue
+                val = ff.propertyValue
+                for i in xrange(val.length):
+                    k = icu_lower(val[i].value)
+                    if k in family_map:
+                        val[i].value = family_map[k]
+
+    def remove_font_specification(self):
+        # Qt produces image based pdfs on windows when non-generic fonts are specified
+        # This might change in Qt WebKit 2.3+ you will have to test.
+        for item in self.oeb.manifest:
+            if not hasattr(item.data, 'cssRules'): continue
+            for i, rule in enumerate(item.data.cssRules):
+                if rule.type != rule.STYLE_RULE: continue
+                ff = rule.style.getProperty('font-family')
+                if ff is None: continue
+                val = ff.propertyValue
+                for i in xrange(val.length):
+                    k = icu_lower(val[i].value)
+                    if k not in {'serif', 'sans', 'sans-serif', 'sansserif',
+                            'monospace', 'cursive', 'fantasy'}:
+                        val[i].value = ''
+
     def convert_text(self, oeb_book):
         from calibre.ebooks.pdf.writer import PDFWriter
         from calibre.ebooks.metadata.opf2 import OPF
@@ -145,38 +223,15 @@ class PDFOutput(OutputFormatPlugin):
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
+        if iswindows:
+            self.remove_font_specification()
+        else:
+            self.handle_embedded_fonts()
+
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
-
-            if iswindows:
-                # from calibre.utils.fonts.utils import remove_embed_restriction
-                # On windows Qt generates an image based PDF if the html uses
-                # embedded fonts. See https://launchpad.net/bugs/1053906
-                for f in walk(oeb_dir):
-                    if f.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
-                        os.remove(f)
-                        # It's not the font embedding restriction that causes
-                        # this, even after removing the restriction, Qt still
-                        # generates an image based document. Theoretically, it
-                        # fixed = False
-                        # with open(f, 'r+b') as s:
-                        #     raw = s.read()
-                        #     try:
-                        #         raw = remove_embed_restriction(raw)
-                        #     except:
-                        #         self.log.exception('Failed to remove embedding'
-                        #             ' restriction from font %s, ignoring it'%
-                        #             os.path.basename(f))
-                        #     else:
-                        #         s.seek(0)
-                        #         s.truncate()
-                        #         s.write(raw)
-                        #         fixed = True
-
-                        # if not fixed:
-                        #     os.remove(f)
 
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             opf = OPF(opfpath, os.path.dirname(opfpath))

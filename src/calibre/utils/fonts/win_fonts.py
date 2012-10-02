@@ -7,11 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import os, sys, atexit
 from itertools import product
 
-from calibre import prints
-from calibre.constants import plugins
+from calibre import prints, isbytestring
+from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)
 
@@ -97,6 +97,17 @@ class WinFonts(object):
 
         return ans
 
+    def add_system_font(self, path):
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
+        path = os.path.abspath(path)
+        ret = self.w.add_system_font(path)
+        if ret > 0:
+            atexit.register(self.remove_system_font, path)
+        return ret
+
+    def remove_system_font(self, path):
+        return self.w.remove_system_font(path)
 
 def load_winfonts():
     w, err = plugins['winfonts']
