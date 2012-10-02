@@ -22,9 +22,10 @@ TEMPLATE = '''
   li {{ list-style-type: none }}
   a {{ text-decoration: none }}
   a:hover {{ color: red }}
+  {extra_css}
   </style>
 </head>
-<body>
+<body id="calibre_generated_inline_toc">
 <h2>{title}</h2>
 <ul>
 </ul>
@@ -64,7 +65,7 @@ class TOCAdder(object):
         self.log('\tGenerating in-line ToC')
 
         root = etree.fromstring(TEMPLATE.format(xhtmlns=XHTML_NS,
-            title=self.title))
+            title=self.title, extra_css=(opts.extra_css or '')))
         parent = XPath('//h:ul')(root)[0]
         parent.text = '\n\t'
         for child in self.oeb.toc:
