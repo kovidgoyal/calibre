@@ -30,7 +30,7 @@ from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
 from calibre.constants import DEBUG
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.magick.draw import thumbnail
 from calibre.library.save_to_disk import find_plugboard
 # }}}
@@ -210,6 +210,7 @@ class DeviceManager(Thread): # {{{
             return
 
         self.connected_device = dev
+        self.connected_device.specialize_global_preferences(device_prefs)
         self.connected_device_kind = device_kind
         self.connected_slot(True, device_kind)
 
@@ -235,6 +236,7 @@ class DeviceManager(Thread): # {{{
             # is being shut down.
             self.connected_device.shutdown()
             self.call_shutdown_on_disconnect = False
+        device_prefs.set_overrides()
         self.connected_device = None
         self._device_information = None
 
@@ -1648,7 +1650,7 @@ class DeviceMixin(object): # {{{
             x = x.lower() if x else ''
             return string_pat.sub('', x)
 
-        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
+        update_metadata = device_prefs['manage_device_metadata'] == 'on_connect'
 
         get_covers = False
         if update_metadata and self.device_manager.is_device_connected:

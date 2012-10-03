@@ -626,6 +626,19 @@ class DevicePlugin(Plugin):
         '''
         pass
 
+    def specialize_global_preferences(self, device_prefs):
+        '''
+        Implement this method if your device wants to override a particular
+        preference. You must ensure that all call sites that want a preference
+        that can be overridden use device_prefs['something'] instead
+        of prefs['something']. Your
+        method should call device_prefs.set_overrides(pref=val, pref=val, ...).
+        Currently used for:
+            metadata management (prefs['manage_device_metadata'])
+        '''
+        device_prefs.set_overrides()
+
+
     # Dynamic control interface.
     # The following methods are probably called on the GUI thread. Any driver
     # that implements these methods must take pains to be thread safe, because

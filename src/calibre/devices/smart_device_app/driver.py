@@ -1198,6 +1198,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.plugboard_func = pb_func
 
     @synchronous('sync_lock')
+    def specialize_global_preferences(self, device_prefs):
+        device_prefs.set_overrides(manage_device_metadata='on_connect')
+
+    @synchronous('sync_lock')
     def startup(self):
         self.listen_socket = None
 
