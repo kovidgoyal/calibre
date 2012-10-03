@@ -210,8 +210,7 @@ class DeviceManager(Thread): # {{{
             return
 
         self.connected_device = dev
-        self.connected_device.specialize_global_preferences(device_prefs,
-                                                    add_specializations=True)
+        self.connected_device.specialize_global_preferences(device_prefs)
         self.connected_device_kind = device_kind
         self.connected_slot(True, device_kind)
 
@@ -237,8 +236,7 @@ class DeviceManager(Thread): # {{{
             # is being shut down.
             self.connected_device.shutdown()
             self.call_shutdown_on_disconnect = False
-        self.connected_device.specialize_global_preferences(device_prefs,
-                                                add_specializations=False)
+        device_prefs.set_overrides()
         self.connected_device = None
         self._device_information = None
 

@@ -16,7 +16,7 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, prefs, device_prefs
+from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser

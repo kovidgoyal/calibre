@@ -5,7 +5,6 @@ from collections import namedtuple
 
 from calibre.customize import Plugin
 from calibre.constants import iswindows
-from calibre.utils.config import prefs
 
 class DevicePlugin(Plugin):
     """
@@ -627,19 +626,17 @@ class DevicePlugin(Plugin):
         '''
         pass
 
-    def specialize_global_preferences(self, device_prefs, add_specializations):
+    def specialize_global_preferences(self, device_prefs):
         '''
         Implement this method if your device wants to override a particular
         preference. You must ensure that all call sites that want a preference
         that can be overridden use device_prefs['something'] instead
-        of prefs['something']. If add_specializations is True, then your
+        of prefs['something']. Your
         method should call device_prefs.set_overrides(pref=val, pref=val, ...).
-        If add_specializations is False, then your method should call
-        device_prefs.set_overrides() to remove any previous specialization.
         Currently used for:
             metadata management (prefs['manage_device_metadata'])
         '''
-        pass
+        device_prefs.set_overrides()
 
 
     # Dynamic control interface.
