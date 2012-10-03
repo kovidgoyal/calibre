@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-28 05:31+0000\n"
-"PO-Revision-Date: 2012-09-28 19:39+0000\n"
+"PO-Revision-Date: 2012-10-02 22:03+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-09-29 04:48+0000\n"
-"X-Generator: Launchpad (build 16049)\n"
+"X-Launchpad-Export-Date: 2012-10-03 05:09+0000\n"
+"X-Generator: Launchpad (build 16061)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -582,7 +582,7 @@ msgstr "Изменять поля метаданных до сохранения
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
 msgid "Template Functions"
-msgstr "Шаблонная функция"
+msgstr "Функции Шаблона"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1140

@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-28 05:31+0000\n"
-"PO-Revision-Date: 2012-10-01 12:42+0000\n"
-"Last-Translator: Michele Galimberti <Unknown>\n"
+"PO-Revision-Date: 2012-10-02 15:21+0000\n"
+"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-02 05:19+0000\n"
+"X-Launchpad-Export-Date: 2012-10-03 05:08+0000\n"
 "X-Generator: Launchpad (build 16061)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -6212,7 +6212,7 @@ msgstr "Avvia/ferma il server dei contenuti"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%s, port %d]"
-msgstr ""
+msgstr " [%s, porta %d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:99
 msgid "Stop Content Server"
@@ -10057,7 +10057,7 @@ msgstr "&Ignora il %s in calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Show device information"
-msgstr "Mostra informazioni dispositivo"
+msgstr "Mostra informazioni sul dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
@@ -11332,6 +11332,10 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
+"Forza il titolo ad avere le iniziali maiuscole. Se selezionata assieme a "
+"\"scambia autori\",\n"
+"il titolo e l'autore sono scambiati prima che al titolo vengano applicate le "
+"iniziali maiuscole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 msgid "Change title to title &case"
@@ -13447,7 +13451,7 @@ msgstr "Lavoro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:69
 msgid "Progress"
-msgstr "Progresso"
+msgstr "Avanzamento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:70
 msgid "Running time"
@@ -13771,7 +13775,7 @@ msgstr "Marcato per l'eliminazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1388
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr "Doppio clic per <b>modificarmi</b><br><br>"
+msgstr "Doppio clic per <b>modificare</b><br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:208
 #, python-format
@@ -22502,7 +22506,7 @@ msgstr "Inglese (Hong Kong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "English (Hungary)"
-msgstr ""
+msgstr "Inglese (Ungheria)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:165
 msgid "English (Indonesia)"
