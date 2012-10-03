@@ -66,6 +66,7 @@ class RecipeInput(InputFormatPlugin):
             if os.access(recipe_or_file, os.R_OK):
                 self.recipe_source = open(recipe_or_file, 'rb').read()
                 recipe = compile_recipe(self.recipe_source)
+                log('Using custom recipe')
             else:
                 from calibre.web.feeds.recipes.collection import \
                         get_builtin_recipe_by_title
@@ -87,12 +88,15 @@ class RecipeInput(InputFormatPlugin):
                             'back to builtin one')
                     builtin = True
                 if builtin:
+                    log('Using bundled builtin recipe')
                     raw = get_builtin_recipe_by_title(title, log=log,
                             download_recipe=False)
                     if raw is None:
                         raise ValueError('Failed to find builtin recipe: '+title)
                     recipe = compile_recipe(raw)
                     self.recipe_source = raw
+                else:
+                    log('Using downloaded builtin recipe')
 
             if recipe is None:
                 raise ValueError('%r is not a valid recipe file or builtin recipe' %

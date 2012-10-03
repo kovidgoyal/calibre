@@ -53,9 +53,11 @@
                     
                     ul {margin-left: 0}
                     
-                    .epigraph{width:50%; margin-left : 35%;}
+                    .epigraph{width:75%; margin-left : 25%; font-style: italic;}
                     
                     div.paragraph { text-indent: 2em; }
+
+                    .subtitle { text-align: center; }
                 </style>
                 <link rel="stylesheet" type="text/css" href="inline-styles.css" />
             </head>
@@ -99,7 +101,7 @@
     </xsl:template>
     <!-- secuence template -->
     <xsl:template name="sequence">
-        <LI/>
+        <li/>
         <xsl:value-of select="@name"/>
         <xsl:if test="@number">
             <xsl:text disable-output-escaping="no">,&#032;#</xsl:text>
@@ -213,7 +215,7 @@
                 <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
             </xsl:element>
         </xsl:if>
-        <h5>
+        <h5 class="subtitle">
             <xsl:apply-templates/>
         </h5>
     </xsl:template>
@@ -234,11 +236,11 @@
     </xsl:template>
     <!-- strong -->
     <xsl:template match="fb:strong">
-        <b><xsl:apply-templates/></b>
+        <strong><xsl:apply-templates/></strong>
     </xsl:template>
     <!-- emphasis -->
     <xsl:template match="fb:emphasis">
-        <i> <xsl:apply-templates/></i>
+        <em> <xsl:apply-templates/></em>
     </xsl:template>
     <!-- style -->
     <xsl:template match="fb:style">
@@ -294,12 +296,26 @@
         </table>
     </xsl:template>
     <xsl:template match="fb:tr">
-        <tr><xsl:apply-templates/></tr>
-    </xsl:template>
-    <xsl:template match="fb:td">
-        <xsl:element name="td">
+        <xsl:element name="tr">
             <xsl:if test="@align">
                 <xsl:attribute name="align"><xsl:value-of select="@align"/></xsl:attribute>
+            </xsl:if>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+    <xsl:template match="fb:td|fb:th">
+        <xsl:element name="{local-name()}">
+            <xsl:if test="@align">
+                <xsl:attribute name="align"><xsl:value-of select="@align"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@style">
+                <xsl:attribute name="style"><xsl:value-of select="@style"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@colspan">
+                <xsl:attribute name="colspan"><xsl:value-of select="@colspan"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@rowspan">
+                <xsl:attribute name="rowspan"><xsl:value-of select="@rowspan"/></xsl:attribute>
             </xsl:if>
             <xsl:apply-templates/>
         </xsl:element>
@@ -409,6 +425,14 @@
                     <xsl:attribute name="title"><xsl:value-of select="@title"/></xsl:attribute>
                 </xsl:if>
             </xsl:element>
+    </xsl:template>
+    <!-- code -->
+    <xsl:template match="fb:code">
+        <code><xsl:apply-templates/></code>
+    </xsl:template>
+    <!-- Strikethrough text -->
+    <xsl:template match="fb:strikethrough">
+        <del><xsl:apply-templates/></del>
     </xsl:template>
 
 </xsl:stylesheet>

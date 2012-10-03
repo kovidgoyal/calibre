@@ -170,7 +170,7 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
-                      'remove_fake_margins',
+                      'remove_fake_margins', 'start_reading_at',
                   ]
                   ),
 

@@ -30,7 +30,7 @@ def installers():
     installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
     installers.append(installer_name('tar.bz2', is64bit=True))
     installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
-    installers.append('dist/%s-portable-%s.zip'%(__appname__, __version__))
+    installers.append('dist/%s-portable-installer-%s.exe'%(__appname__, __version__))
     return installers
 
 def installer_description(fname):
@@ -43,9 +43,24 @@ def installer_description(fname):
         return 'Windows installer'
     if fname.endswith('.dmg'):
         return 'OS X dmg'
-    if fname.endswith('.zip'):
+    if fname.endswith('.exe'):
         return 'Calibre Portable'
     return 'Unknown file'
+
+def upload_signatures():
+    tdir = mkdtemp()
+    for installer in installers():
+        if not os.path.exists(installer):
+            continue
+        with open(installer, 'rb') as f:
+            raw = f.read()
+        fingerprint = hashlib.sha512(raw).hexdigest()
+        fname = os.path.basename(installer+'.sha512')
+        with open(os.path.join(tdir, fname), 'wb') as f:
+            f.write(fingerprint)
+    check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
+            shell=True)
+    shutil.rmtree(tdir)
 
 class ReUpload(Command): # {{{
 
@@ -57,6 +72,7 @@ class ReUpload(Command): # {{{
         opts.replace = True
 
     def run(self, opts):
+        upload_signatures()
         for x in installers():
             if os.path.exists(x):
                 os.remove(x)
@@ -223,19 +239,7 @@ class UploadToServer(Command): # {{{
                    %(__version__, DOWNLOADS), shell=True)
         check_call('ssh divok /etc/init.d/apache2 graceful',
                    shell=True)
-        tdir = mkdtemp()
-        for installer in installers():
-            if not os.path.exists(installer):
-                continue
-            with open(installer, 'rb') as f:
-                raw = f.read()
-            fingerprint = hashlib.sha512(raw).hexdigest()
-            fname = os.path.basename(installer+'.sha512')
-            with open(os.path.join(tdir, fname), 'wb') as f:
-                f.write(fingerprint)
-        check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
-                shell=True)
-        shutil.rmtree(tdir)
+        upload_signatures()
 # }}}
 
 # Testing {{{

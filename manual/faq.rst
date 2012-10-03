@@ -126,9 +126,11 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk. 
-
-There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
+|app| can directly connect to all the major (and most of the minor) ebook reading devices,
+smarthphones, tablets, etc.
+In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk. 
+You can even connect to Apple devices (via iTunes), using the :guilabel:`Connect to iTunes`
+function.
 
 .. _devsupport:
 
@@ -159,8 +161,8 @@ Follow these steps to find the problem:
     * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
     * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk, that you can access using Windows explorer or whatever the file management program on your computer is. On Windows your device **must have been assigned a drive letter**, like K:.
-    * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
+    * Ensure your operating system is seeing the device. That is, the device should show up in Windows Explorer (in Windows) or Finder (in OS X).
+    * In |app|, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
@@ -285,20 +287,47 @@ This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux
 How do I use |app| with my Android phone/tablet?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two ways that you can connect your Android device to calibre. Using a USB cable-- or wirelessly, over the air.
-**The USB cable method only works if your Android device can act as a USB disk, that means in windows it must have a drive letter, like K:**. Some devices may have a setting to put them in "disk mode" or "USB Transfer mode" that is needed before they act as USB disks.
+There are two ways that you can connect your Android device to calibre. Using a USB cable -- or wirelessly, over the air.
+The first step to using an Android device is installing an ebook reading
+application on it. There are many free and paid ebook reading applications for
+Android: Some examples (in no particular order): 
+`FBReader <https://play.google.com/store/apps/details?id=org.geometerplus.zlibrary.ui.android&hl=en>`_, 
+`Moon+ <https://play.google.com/store/apps/details?id=com.flyersoft.moonreader&hl=en>`_,
+`Mantano <https://play.google.com/store/apps/details?id=com.mantano.reader.android.lite&hl=en>`_,
+`Aldiko <https://play.google.com/store/apps/details?id=com.aldiko.android&hl=en>`_,
+`Kindle <https://play.google.com/store/apps/details?id=com.amazon.kindle&feature=related_apps>`_.
 
 Using a USB cable
 ^^^^^^^^^^^^^^^^^^^^
 
-First install either the WordPlayer or Aldiko ebook reading apps from the Android Marketplace onto your phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single android device out there, so if your device is not automatically detected, follow the instructions at :ref:`devsupport` to get your device supported in |app|.
+Simply plug your device into the computer with a USB cable. |app| should
+automatically detect the device and then you can transfer books to it by
+clicking the Send to Device button. |app| does not have support for every
+single android device out there, so if your device is not automatically
+detected, follow the instructions at :ref:`devsupport` to get your device
+supported in |app|.
+
+.. note:: With newer Android devices, the USB connection is only supported on
+          Windows Vista and newer and Linux. If you are on Windows XP or OS X,
+          you should use one of the wireless connection methods.
 
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your |app| collection on your Android device is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
+The easiest way to transfer books wirelessly to your Android device is to use
+the `Calibre Companion <http://www.multipie.co.uk/calibre-companion/>`_
+Android app. This app is maintained by a core calibre developer and allows
+|app| to connect to your Android device wirelessly, just as though you
+plugged in the device with a USB cable. You can browse files on the device
+in |app| and use the :guilabel:`Send to device` button to transfer files to
+your device wirelessly.
 
-  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+|app| also has a builtin web server, the :guilabel:`Content Server`.
+You can browse your |app| collection on your Android device is by using the
+calibre content server, which makes your collection available over the net.
+First perform the following steps in |app|
+
+  * Set the :guilabel:`Preferred Output Format` in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
   * Set the output profile to Tablet (this will work for phones as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
   * Convert the books you want to read on your device to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
@@ -307,11 +336,22 @@ Now on your Android device, open the browser and browse to
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If your local network supports the use of computer names, you can replace the IP address with the network name of the computer. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port.
+Replace ``192.168.1.2`` with the local IP address of the computer running
+|app|. If your local network supports the use of computer names, you can
+replace the IP address with the network name of the computer. If you have
+changed the port the |app| content server is running on, you will have to
+change ``8080`` as well to the new port.
 
-The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address. You can now browse your book collection and download books from |app| to your device to open with whatever ebook reading software you have on your android device.
+The local IP address is the IP address you computer is assigned on your home
+network. A quick Google search will tell you how to find out your local IP
+address. You can now browse your book collection and download books from |app|
+to your device to open with whatever ebook reading software you have on your
+android device.
 
-Some reading programs support browsing the Calibre library directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, then give the catalog a title such as "Calibre" and provide the URL listed above. You can now browse the Calibre library and download directly into the reading software.
+Some reading programs support browsing the Calibre library directly. For
+example, in Aldiko, click My Catalogs, then + to add a catalog, then give the
+catalog a title such as "Calibre" and provide the URL listed above. You can now
+browse the Calibre library and download directly into the reading software.
 
 Can I access my |app| books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -515,7 +555,7 @@ There can be two reasons why |app| is showing a empty list of books:
 
   * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, do a right-click on the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
 
-  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Click-and-hold the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
+  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
 
 
 Content From The Web

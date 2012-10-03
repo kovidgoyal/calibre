@@ -6,17 +6,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from copy import copy
+import re, sys
+
 from functools import partial
 
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs, question_dialog
+from calibre.gui2 import gprefs, open_url, question_dialog
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QLineEdit, QObject, QRadioButton, QSize, QSizePolicy,
-        QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout, QWidget,
+        QTableWidget, QTableWidgetItem, QTextEdit, QToolButton, QUrl,
+        QVBoxLayout, QWidget,
         SIGNAL)
 
 class PluginWidget(QWidget,Ui_Form):
@@ -44,6 +46,7 @@ class PluginWidget(QWidget,Ui_Form):
         LineEditControls = []
         RadioButtonControls = []
         TableWidgetControls = []
+        TextEditControls = []
 
         for item in self.__dict__:
             if type(self.__dict__[item]) is QCheckBox:
@@ -58,6 +61,8 @@ class PluginWidget(QWidget,Ui_Form):
                 RadioButtonControls.append(str(self.__dict__[item].objectName()))
             elif type(self.__dict__[item]) is QTableWidget:
                 TableWidgetControls.append(str(self.__dict__[item].objectName()))
+            elif type(self.__dict__[item]) is QTextEdit:
+                TextEditControls.append(str(self.__dict__[item].objectName()))
 
         option_fields = zip(CheckBoxControls,
                             [True for i in CheckBoxControls],
@@ -70,35 +75,38 @@ class PluginWidget(QWidget,Ui_Form):
                             ['radio_button' for i in RadioButtonControls])
 
         # LineEditControls
-        option_fields += zip(['exclude_genre'],['\[.+\]|\+'],['line_edit'])
+        option_fields += zip(['exclude_genre'],['\[.+\]|^\+$'],['line_edit'])
+
+        # TextEditControls
+        #option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
 
         # SpinBoxControls
         option_fields += zip(['thumb_width'],[1.00],['spin_box'])
 
         # Exclusion rules
-        option_fields += zip(['exclusion_rules_tw','exclusion_rules_tw'],
+        option_fields += zip(['exclusion_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
-                               'name':'Catalogs',
+                               'name':_('Catalogs'),
                                'field':'Tags',
                                'pattern':'Catalog'},],
-                             ['table_widget','table_widget'])
+                             ['table_widget'])
 
         # Prefix rules
-        option_fields += zip(['prefix_rules_tw','prefix_rules_tw','prefix_rules_tw'],
+        option_fields += zip(['prefix_rules_tw','prefix_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
-                               'name':'Read book',
+                               'name':_('Read book'),
                                'field':'Tags',
                                'pattern':'+',
                                'prefix':u'\u2713'},
                               {'ordinal':1,
                                'enabled':True,
-                               'name':'Wishlist item',
+                               'name':_('Wishlist item'),
                                'field':'Tags',
                                'pattern':'Wishlist',
                                'prefix':u'\u00d7'},],
-                             ['table_widget','table_widget','table_widget'])
+                             ['table_widget','table_widget'])
 
         self.OPTION_FIELDS = option_fields
 
@@ -110,13 +118,13 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         rule_set = []
         for stored_rule in opt_value:
-            rule = copy(stored_rule)
+            rule = stored_rule.copy()
             # Skip disabled and incomplete rules
             if not rule['enabled']:
                 continue
             elif not rule['field'] or not rule['pattern']:
                 continue
-            elif 'prefix' in rule and not rule['prefix']:
+            elif 'prefix' in rule and rule['prefix'] is None:
                 continue
             else:
                 if rule['field'] != 'Tags':
@@ -130,12 +138,84 @@ class PluginWidget(QWidget,Ui_Form):
                 pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
             else:
                 pr = (rule['name'],rule['field'],rule['pattern'])
+
             rule_set.append(pr)
         opt_value = tuple(rule_set)
         # Strip off the trailing '_tw'
         opts_dict[c_name[:-3]] = opt_value
 
-    def fetchEligibleCustomFields(self):
+    def exclude_genre_changed(self, regex):
+        """ Dynamically compute excluded genres.
+
+        Run exclude_genre regex against db.all_tags() to show excluded tags.
+        PROVISIONAL CODE, NEEDS TESTING
+
+        Args:
+         regex (QLineEdit.text()): regex to compile, compute
+
+        Output:
+         self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
+        """
+        def _truncated_results(excluded_tags, limit=180):
+            '''
+            Limit number of genres displayed to avoid dialog explosion
+            '''
+            start = []
+            end = []
+            lower = 0
+            upper = len(excluded_tags) -1
+            excluded_tags.sort()
+            while True:
+                if lower > upper:
+                    break
+                elif lower == upper:
+                    start.append(excluded_tags[lower])
+                    break
+                start.append(excluded_tags[lower])
+                end.insert(0,excluded_tags[upper])
+                if len(', '.join(start)) + len(', '.join(end)) > limit:
+                    break
+                lower += 1
+                upper -= 1
+            if excluded_tags == start + end:
+                return ', '.join(excluded_tags)
+            else:
+                return "%s  ...  %s" % (', '.join(start), ', '.join(end))
+
+        results = _('No genres will be excluded')
+        if not regex:
+            self.exclude_genre_results.clear()
+            self.exclude_genre_results.setText(results)
+            return
+
+        try:
+            pattern = re.compile((str(regex)))
+        except:
+            results = _("regex error: %s") % sys.exc_info()[1]
+        else:
+            excluded_tags = []
+            for tag in self.all_tags:
+                hit = pattern.search(tag)
+                if hit:
+                    excluded_tags.append(hit.string)
+            if excluded_tags:
+                if set(excluded_tags) == set(self.all_tags):
+                    results = _("All genres will be excluded")
+                else:
+                    results = _truncated_results(excluded_tags)
+        finally:
+            if self.DEBUG:
+                print(results)
+            self.exclude_genre_results.clear()
+            self.exclude_genre_results.setText(results)
+
+    def exclude_genre_reset(self):
+        for default in self.OPTION_FIELDS:
+            if default[0] == 'exclude_genre':
+                self.exclude_genre.setText(default[1])
+                break
+
+    def fetch_eligible_custom_fields(self):
         self.all_custom_fields = self.db.custom_field_keys()
         custom_fields = {}
         custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
@@ -146,28 +226,42 @@ class PluginWidget(QWidget,Ui_Form):
                                                    'datatype':field_md['datatype']}
         self.eligible_custom_fields = custom_fields
 
+    def generate_descriptions_changed(self, enabled):
+        '''
+        Toggle Description-related controls
+        '''
+        self.header_note_source_field.setEnabled(enabled)
+        self.thumb_width.setEnabled(enabled)
+        self.merge_source_field.setEnabled(enabled)
+        self.merge_before.setEnabled(enabled)
+        self.merge_after.setEnabled(enabled)
+        self.include_hr.setEnabled(enabled)
+
     def initialize(self, name, db):
         '''
 
         CheckBoxControls (c_type: check_box):
             ['generate_titles','generate_series','generate_genres',
-                            'generate_recently_added','generate_descriptions','include_hr']
+             'generate_recently_added','generate_descriptions','include_hr']
         ComboBoxControls (c_type: combo_box):
             ['exclude_source_field','header_note_source_field',
-                            'merge_source_field']
+             'merge_source_field']
         LineEditControls (c_type: line_edit):
             ['exclude_genre']
         RadioButtonControls (c_type: radio_button):
-            ['merge_before','merge_after']
+            ['merge_before','merge_after','generate_new_cover', 'use_existing_cover']
         SpinBoxControls (c_type: spin_box):
             ['thumb_width']
         TableWidgetControls (c_type: table_widget):
             ['exclusion_rules_tw','prefix_rules_tw']
+        TextEditControls (c_type: text_edit):
+            ['exclude_genre_results']
 
         '''
         self.name = name
         self.db = db
-        self.fetchEligibleCustomFields()
+        self.all_tags = db.all_tags()
+        self.fetch_eligible_custom_fields()
         self.populate_combo_boxes()
 
         # Update dialog fields from stored options
@@ -200,9 +294,16 @@ class PluginWidget(QWidget,Ui_Form):
                     if opt_value not in prefix_rules:
                         prefix_rules.append(opt_value)
 
-        # Add icon to the reset button
+        # Add icon to the reset button, hook textChanged signal
         self.reset_exclude_genres_tb.setIcon(QIcon(I('trash.png')))
-        self.reset_exclude_genres_tb.clicked.connect(self.reset_exclude_genres)
+        self.reset_exclude_genres_tb.clicked.connect(self.exclude_genre_reset)
+
+        # Hook textChanged event for exclude_genre QLineEdit
+        self.exclude_genre.textChanged.connect(self.exclude_genre_changed)
+
+        # Hook Descriptions checkbox for related options, init
+        self.generate_descriptions.clicked.connect(self.generate_descriptions_changed)
+        self.generate_descriptions_changed(self.generate_descriptions.isChecked())
 
         # Init self.merge_source_field_name
         self.merge_source_field_name = ''
@@ -225,6 +326,9 @@ class PluginWidget(QWidget,Ui_Form):
         # Initialize prefix rules
         self.prefix_rules_table = PrefixRules(self.prefix_rules_gb,
             "prefix_rules_tw",prefix_rules, self.eligible_custom_fields,self.db)
+
+        # Initialize excluded genres preview
+        self.exclude_genre_changed(unicode(getattr(self, 'exclude_genre').text()).strip())
 
     def options(self):
         # Save/return the current options
@@ -275,16 +379,21 @@ class PluginWidget(QWidget,Ui_Form):
         elif self.merge_after.isChecked():
             checked = 'after'
         include_hr = self.include_hr.isChecked()
-        opts_dict['merge_comments'] = "%s:%s:%s" % \
+        opts_dict['merge_comments_rule'] = "%s:%s:%s" % \
             (self.merge_source_field_name, checked, include_hr)
 
         opts_dict['header_note_source_field'] = self.header_note_source_field_name
+
+        # Fix up exclude_genre regex if blank. Assume blank = no exclusions
+        if opts_dict['exclude_genre'] == '':
+            opts_dict['exclude_genre'] = 'a^'
 
         # Append the output profile
         try:
             opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
         except:
             opts_dict['output_profile'] = ['default']
+
         if self.DEBUG:
             print "opts_dict"
             for opt in sorted(opts_dict.keys(), key=sort_key):
@@ -377,11 +486,11 @@ class PluginWidget(QWidget,Ui_Form):
             self.merge_after.setEnabled(False)
             self.include_hr.setEnabled(False)
 
-    def reset_exclude_genres(self):
-        for default in self.OPTION_FIELDS:
-            if default[0] == 'exclude_genre':
-                self.exclude_genre.setText(default[1])
-                break
+    def show_help(self):
+        '''
+        Display help file
+        '''
+        open_url(QUrl('http://manual.calibre-ebook.com/catalogs.html'))
 
 class CheckableTableWidgetItem(QTableWidgetItem):
     '''
@@ -529,7 +638,7 @@ class GenericRulesTable(QTableWidget):
         first_rule_name = unicode(self.cellWidget(first-1,self.COLUMNS['NAME']['ordinal']).text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
         if len(rows) > 1:
-            message = _('Are you sure you want to delete rules #%d-%d?') % (first, last)
+            message = _('Are you sure you want to delete rules #%(first)d-%(last)d?') % dict(first=first, last=last)
         if not question_dialog(self, _('Delete Rule'), message, show_copy_button=False):
             return
         first_sel_row = self.currentRow()

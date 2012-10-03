@@ -89,7 +89,7 @@ LPTSTR get_app_dir() {
     return buf3;
 }
 
-void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
+void launch_calibre(LPCTSTR exe, LPCTSTR config_dir) {
     DWORD dwFlags=0;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -107,13 +107,12 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
     }
 
     dwFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP;
-    _sntprintf_s(cmdline, BUFSIZE, _TRUNCATE, _T(" \"--with-library=%s\""), library_dir);
 
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
 
-    fSuccess = CreateProcess(exe, cmdline,
+    fSuccess = CreateProcess(exe, NULL,
         NULL,           // Process handle not inheritable
         NULL,           // Thread handle not inheritable
         FALSE,          // Set handle inheritance to FALSE
@@ -134,30 +133,21 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
 
 }
 
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
     LPTSTR app_dir, config_dir, exe, library_dir, too_long;
 
     app_dir = get_app_dir();
     config_dir = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
-    library_dir = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
     exe = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
 
     _sntprintf_s(config_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Settings"), app_dir);
     _sntprintf_s(exe, BUFSIZE, _TRUNCATE, _T("%sCalibre\\calibre.exe"), app_dir);
-    _sntprintf_s(library_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Library"), app_dir);
 
-    if ( _tcscnlen(library_dir, BUFSIZE) <= 74 ) {
-        launch_calibre(exe, config_dir, library_dir);
-    } else {
-        too_long = (LPTSTR)calloc(BUFSIZE+300, sizeof(TCHAR));
-        _sntprintf_s(too_long, BUFSIZE+300, _TRUNCATE, 
-                _T("Path to Calibre Portable (%s) too long. Must be less than 59 characters."), app_dir);
+    launch_calibre(exe, config_dir);
 
-        show_error(too_long);
-    }
-
-    free(app_dir); free(config_dir); free(exe); free(library_dir);
+    free(app_dir); free(config_dir); free(exe); 
 
     return 0;
 }

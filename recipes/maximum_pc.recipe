@@ -1,4 +1,3 @@
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1276930924(BasicNewsRecipe):
@@ -14,30 +13,30 @@ class AdvancedUserRecipe1276930924(BasicNewsRecipe):
     use_embedded_content   = False
     no_stylesheets = True
     language = 'en'
-    temp_files = []
-    articles_are_obfuscated = True
-    feeds          = [(u'News', u'http://www.maximumpc.com/articles/4/feed'),
+    auto_cleanup = True
+    feeds          = [#(u'News', u'http://www.maximumpc.com/articles/all/feed'),
+                          (u'News', u'http://www.maximumpc.com/articles/4/feed'),
                           (u'Reviews', u'http://www.maximumpc.com/articles/40/feed'),
                           (u'Editors Blog', u'http://www.maximumpc.com/articles/6/feed'),
                           (u'How-to', u'http://www.maximumpc.com/articles/32/feed'),
                           (u'Features', u'http://www.maximumpc.com/articles/31/feed'),
                            (u'From the Magazine', u'http://www.maximumpc.com/articles/72/feed')
                          ]
-    keep_only_tags = [
-                               dict(name='div', attrs={'class':['print-title','article_body']}),
-                              ]
-    remove_tags = [
-                    dict(name='div', attrs={'class':'comments-tags-actions'}),
-                          ]
-    remove_tags_before  = dict(name='div', attrs={'class':'print-title'})
-    remove_tags_after     = dict(name='div', attrs={'class':'meta-content'})
+    #keep_only_tags = [
+                               #dict(name='div', attrs={'class':['print-title','article_body']}),
+                              #]
+    #remove_tags = [
+                    #dict(name='div', attrs={'class':'comments-tags-actions'}),
+                          #]
+    #remove_tags_before  = dict(name='div', attrs={'class':'print-title'})
+    #remove_tags_after     = dict(name='div', attrs={'class':'meta-content'})
 
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url)
-        response = br.follow_link(url_regex = r'/print/[0-9]+', nr = 0)
-        html = response.read()
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
+    #def get_obfuscated_article(self, url):
+        #br = self.get_browser()
+        #br.open(url)
+        #response = br.follow_link(url_regex = r'/print/[0-9]+', nr = 0)
+        #html = response.read()
+        #self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        #self.temp_files[-1].write(html)
+        #self.temp_files[-1].close()
+        #return self.temp_files[-1].name

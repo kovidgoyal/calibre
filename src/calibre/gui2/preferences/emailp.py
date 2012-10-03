@@ -54,6 +54,8 @@ class EmailAccounts(QAbstractTableModel): # {{{
         if row < 0 or row >= self.rowCount():
             return NONE
         account = self.account_order[row]
+        if account not in self.accounts:
+            return NONE
         if role == Qt.UserRole:
             return (account, self.accounts[account])
         if role == Qt.ToolTipRole:

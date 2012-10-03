@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from collections import namedtuple
 from functools import partial
+from xml.sax.saxutils import escape
 
 from lxml import etree
 
@@ -289,6 +290,7 @@ class Chunker(object):
         self.chunk_selector = ('S', aid)
 
     def chunk_up_text(self, text):
+        text = escape(text)
         text = text.encode('utf-8')
         ans = []
 
@@ -303,7 +305,7 @@ class Chunker(object):
         ans.append(start)
         while rest:
             start, rest = split_multibyte_text(rest)
-            ans.append(b'<span class="AmznBigTextBlock">' + start + '</span>')
+            ans.append(b'<span class="AmznBigTextBlock">' + start + b'</span>')
         return [Chunk(x, self.chunk_selector) for x in ans]
 
     def merge_small_chunks(self, chunks):

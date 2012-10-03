@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
+    <width>658</width>
     <height>603</height>
    </rect>
   </property>
@@ -41,51 +41,51 @@
       <string>Included sections</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="generate_genres">
-        <property name="text">
-         <string>Books by &amp;Genre</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="generate_recently_added">
-        <property name="text">
-         <string>Recently &amp;Added</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="generate_descriptions">
-        <property name="text">
-         <string>&amp;Descriptions</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="generate_series">
-        <property name="text">
-         <string>Books by &amp;Series</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="generate_titles">
-        <property name="text">
-         <string>Books by &amp;Title</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QCheckBox" name="generate_authors">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Books by Author</string>
+         <string>&amp;Authors</string>
         </property>
         <property name="checked">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="generate_titles">
+        <property name="text">
+         <string>&amp;Titles</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="generate_series">
+        <property name="text">
+         <string>&amp;Series</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="generate_genres">
+        <property name="text">
+         <string>&amp;Genres</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QCheckBox" name="generate_recently_added">
+        <property name="text">
+         <string>&amp;Recently Added</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QCheckBox" name="generate_descriptions">
+        <property name="text">
+         <string>&amp;Descriptions</string>
         </property>
        </widget>
       </item>
@@ -93,99 +93,22 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="excludedGenres">
+    <widget class="QGroupBox" name="prefix_rules_gb">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
      <property name="toolTip">
-      <string>A regular expression describing genres to be excluded from the generated catalog. Genres are derived from the tags applied to your books.
-The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book], and '+', the default tag for a read book.</string>
+      <string>The first matching prefix rule applies a prefix to book listings in the generated catalog.</string>
      </property>
      <property name="title">
-      <string>Excluded genres</string>
+      <string>Prefixes</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_3">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-      </property>
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="spacing">
-         <number>-1</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Tags to &amp;exclude</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::AutoText</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <property name="buddy">
-           <cstring>exclude_genre</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="exclude_genre">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string extracomment="Default: \[[\w]*\]"/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="reset_exclude_genres_tb">
-          <property name="toolTip">
-           <string>Reset to default</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6"/>
       </item>
      </layout>
     </widget>
@@ -218,22 +141,148 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="prefix_rules_gb">
+    <widget class="QGroupBox" name="excludedGenres">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="toolTip">
-      <string>The first matching prefix rule applies a prefix to book listings in the generated catalog.</string>
+      <string>A regular expression describing genres to be excluded from the generated catalog. Genres are derived from the tags applied to your books.
+The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book], and '+', the default tag for a read book.</string>
      </property>
      <property name="title">
-      <string>Prefixes</string>
+      <string>Excluded genres</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_8">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_6"/>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Tags to &amp;exclude (regex):</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="buddy">
+         <cstring>exclude_genre</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="exclude_genre">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="reset_exclude_genres_tb">
+        <property name="toolTip">
+         <string>Reset to default</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="regex_results_label">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Results of regex:</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="buddy">
+         <cstring>exclude_genre</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="exclude_genre_results">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Tags that will be excluded as genres</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -255,142 +304,9 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
      <property name="title">
       <string>Other options</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_4">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-      </property>
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="label_10">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&amp;Thumb width</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>merge_source_field</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="thumb_width">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>137</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Size hint for cover thumbnails included in Descriptions section.</string>
-          </property>
-          <property name="suffix">
-           <string> inch</string>
-          </property>
-          <property name="decimals">
-           <number>2</number>
-          </property>
-          <property name="minimum">
-           <double>1.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>2.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>&amp;Extra note</string>
-          </property>
-          <property name="buddy">
-           <cstring>header_note_source_field</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="header_note_source_field">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Custom column source for text to include in Description section.</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="minimumSize">
-           <size>
-            <width>175</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>&amp;Merge with Comments</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>merge_source_field</cstring>
-          </property>
-         </widget>
-        </item>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="merge_with_comments_hl">
         <item>
          <widget class="QComboBox" name="merge_source_field">
           <property name="minimumSize">
@@ -419,6 +335,9 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
           <property name="text">
            <string>&amp;Before</string>
           </property>
+          <attribute name="buttonGroup">
+           <string>merge_options_bg</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -429,6 +348,9 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
           <property name="text">
            <string>&amp;After</string>
           </property>
+          <attribute name="buttonGroup">
+           <string>merge_options_bg</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -444,7 +366,196 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
            <string>Separate Comments metadata and additional content with a horizontal rule.</string>
           </property>
           <property name="text">
-           <string>&amp;Separator</string>
+           <string>Include &amp;Separator</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&amp;Merge with Comments:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>merge_source_field</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="minimumSize">
+         <size>
+          <width>175</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Catalog cover:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="replace_cover_hl">
+        <item>
+         <widget class="QRadioButton" name="generate_new_cover">
+          <property name="text">
+           <string>Generate new cover</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string>cover_options_bg</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="use_existing_cover">
+          <property name="text">
+           <string>Use existing cover</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string>cover_options_bg</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="spacer_label">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>E&amp;xtra Description note:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>header_note_source_field</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QComboBox" name="header_note_source_field">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Custom column source for text to include in Description section.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&amp;Thumb width:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>merge_source_field</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="thumb_width">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Size hint for cover thumbnails included in Descriptions section.</string>
+          </property>
+          <property name="suffix">
+           <string> inch</string>
+          </property>
+          <property name="decimals">
+           <number>2</number>
+          </property>
+          <property name="minimum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>2.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
           </property>
          </widget>
         </item>
@@ -457,4 +568,8 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="cover_options_bg"/>
+  <buttongroup name="merge_options_bg"/>
+ </buttongroups>
 </ui>

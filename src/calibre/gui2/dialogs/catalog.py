@@ -10,7 +10,7 @@ import os, sys, importlib
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
-from calibre.gui2 import dynamic, ResizableDialog
+from calibre.gui2 import dynamic, ResizableDialog, info_dialog
 from calibre.customize.ui import catalog_plugins
 
 class Catalog(ResizableDialog, Ui_Dialog):
@@ -22,7 +22,6 @@ class Catalog(ResizableDialog, Ui_Dialog):
         from PyQt4.uic import compileUi
 
         ResizableDialog.__init__(self, parent)
-
         self.dbspec, self.ids = dbspec, ids
 
         # Display the number of books we've been passed
@@ -115,6 +114,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
 
         self.format.currentIndexChanged.connect(self.show_plugin_tab)
         self.buttonBox.button(self.buttonBox.Apply).clicked.connect(self.apply)
+        self.buttonBox.button(self.buttonBox.Help).clicked.connect(self.help)
         self.show_plugin_tab(None)
 
         geom = dynamic.get('catalog_window_geom', None)
@@ -129,6 +129,10 @@ class Catalog(ResizableDialog, Ui_Dialog):
             if cf in pw.formats:
                 self.tabs.addTab(pw, pw.TITLE)
                 break
+        if hasattr(self.tabs.widget(1),'show_help'):
+            self.buttonBox.button(self.buttonBox.Help).setVisible(True)
+        else:
+            self.buttonBox.button(self.buttonBox.Help).setVisible(False)
 
     def format_changed(self, idx):
         cf = unicode(self.format.currentText())
@@ -164,6 +168,29 @@ class Catalog(ResizableDialog, Ui_Dialog):
     def accept(self):
         self.save_catalog_settings()
         return ResizableDialog.accept(self)
+
+    def help(self):
+        '''
+        To add help functionality for a specific format:
+        In gui2.catalog.catalog_<format>.py, add the following:
+            from calibre.gui2 import open_url
+            from PyQt4.Qt import QUrl
+
+        In the PluginWidget() class, add this method:
+            def show_help(self):
+                url = 'file:///' + P('catalog/help_<format>.html')
+                open_url(QUrl(url))
+
+        Create the help file at resources/catalog/help_<format>.html
+        '''
+        if self.tabs.count() > 1 and hasattr(self.tabs.widget(1),'show_help'):
+            try:
+                self.tabs.widget(1).show_help()
+            except:
+                info_dialog(self, _('No help available'),
+                    _('No help available for this output format.'),
+                    show_copy_button=False,
+                    show=True)
 
     def reject(self):
         dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))

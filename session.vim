@@ -3,6 +3,7 @@ let $PYFLAKES_BUILTINS = "_,dynamic_property,__,P,I,lopen,icu_lower,icu_upper,ic
 
 " Include directories for C++ modules
 let g:syntastic_cpp_include_dirs = [ 
+            \'/usr/include/python2.7',
             \'/usr/include/podofo', 
             \'/usr/include/qt4/QtCore', 
             \'/usr/include/qt4/QtGui', 
@@ -11,6 +12,9 @@ let g:syntastic_cpp_include_dirs = [
             \'/usr/include/ImageMagick',
             \]
 let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
+
+set wildignore+=resources/viewer/mathjax/**
+set wildignore+=build/**
 
 fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to

@@ -73,14 +73,20 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
       Change Log:
        Date: 10/15/2010
        Feeds updated by Martin Tarenskeen
+       Date: 09/09/2012
+       Feeds updated by Eric Lammerts
     '''
 
     feeds          = [
-                      (u'Laatste Nieuws', u'http://www.volkskrant.nl/rss/laatstenieuws.rss'),
-                      (u'Binnenland', u'http://www.volkskrant.nl/rss/nederland.rss'),
-                      (u'Buitenland', u'http://www.volkskrant.nl/rss/internationaal.rss'),
-                      (u'Economie', u'http://www.volkskrant.nl/rss/economie.rss'),
-                      (u'Sport', u'http://www.volkskrant.nl/rss/sport.rss'),
-                      (u'Cultuur', u'http://www.volkskrant.nl/rss/kunst.rss'),
-                      (u'Gezondheid & Wetenschap', u'http://www.volkskrant.nl/rss/wetenschap.rss'),
-                      (u'Internet & Media', u'http://www.volkskrant.nl/rss/media.rss') ]
+                      (u'Nieuws', u'http://www.volkskrant.nl/nieuws/rss.xml'),
+                      (u'Binnenland', u'http://www.volkskrant.nl/nieuws/binnenland/rss.xml'),
+                      (u'Buitenland', u'http://www.volkskrant.nl/buitenland/rss.xml'),
+                      (u'Economie', u'http://www.volkskrant.nl/nieuws/economie/rss.xml'),
+                      (u'Politiek', u'http://www.volkskrant.nl/politiek/rss.xml'),
+                      (u'Sport', u'http://www.volkskrant.nl/sport/rss.xml'),
+                      (u'Cultuur', u'http://www.volkskrant.nl/nieuws/cultuur/rss.xml'),
+                      (u'Gezondheid & wetenschap', u'http://www.volkskrant.nl/nieuws/gezondheid--wetenschap/rss.xml'),
+                      (u'Tech & Media', u'http://www.volkskrant.nl/tech-media/rss.xml'),
+                      (u'Reizen', u'http://www.volkskrant.nl/nieuws/reizen/rss.xml'),
+                      (u'Opinie', u'http://www.volkskrant.nl/opinie/rss.xml'),
+                      (u'Opmerkelijk', u'http://www.volkskrant.nl/nieuws/opmerkelijk/rss.xml') ]

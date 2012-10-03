@@ -288,11 +288,14 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3/4/Touch Device Interface'
     description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr']
+    FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
+    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
+    # On the Touch, there's also .asc files, but not using the same basename (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in the .sdr sidecar folder
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
+    # SUPPORTS_SUB_DIRS = False # Apparently the Paperwhite doesn't like files placed in subdirectories
+    # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Send page number information when sending books') +
@@ -449,7 +452,7 @@ class KINDLE_DX(KINDLE2):
     name           = 'Kindle DX Device Interface'
     description    = _('Communicate with the Kindle DX eBook reader.')
 
-
+    FORMATS = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
@@ -461,8 +464,7 @@ class KINDLE_FIRE(KINDLE2):
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
-    FORMATS = list(KINDLE2.FORMATS)
-    FORMATS.insert(0, 'azw3')
+    FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]

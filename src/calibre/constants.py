@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 65)
+numeric_version = (0, 9, 0)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -57,7 +57,7 @@ else:
             # On linux, unicode arguments to os file functions are coerced to an ascii
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
             # just plain dumb. So issue a warning.
-            print ('WARNING: You do not have the LANG environment variable set. '
+            print ('WARNING: You do not have the LANG environment variable set correctly. '
                     'This will cause problems with non-ascii filenames. '
                     'Set it to something like en_US.UTF-8.\n')
     except:
@@ -91,10 +91,11 @@ class Plugins(collections.Mapping):
                 'speedup',
             ]
         if iswindows:
-            plugins.extend(['winutil', 'wpd'])
+            plugins.extend(['winutil', 'wpd', 'winfonts'])
         if isosx:
             plugins.append('usbobserver')
-        if islinux:
+        if islinux or isosx:
+            plugins.append('libusb')
             plugins.append('libmtp')
         self.plugins = frozenset(plugins)
 
@@ -175,6 +176,11 @@ def get_version():
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
     return v
+
+def get_portable_base():
+    'Return path to the directory that contains calibre-portable.exe or None'
+    if isportable:
+        return os.path.dirname(os.path.dirname(os.environ['CALIBRE_PORTABLE_BUILD']))
 
 def get_unicode_windows_env_var(name):
     import ctypes

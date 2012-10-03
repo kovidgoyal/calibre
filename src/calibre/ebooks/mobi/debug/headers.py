@@ -116,61 +116,83 @@ class Record(object): # {{{
 # EXTH {{{
 class EXTHRecord(object):
 
-    def __init__(self, type_, data):
+    def __init__(self, type_, data, length):
         self.type = type_
         self.data = data
+        self.length = length
         self.name = {
-                1 : 'DRM Server id',
-                2 : 'DRM Commerce id',
-                3 : 'DRM ebookbase book id',
-                100 : 'author',
-                101 : 'publisher',
-                102 : 'imprint',
-                103 : 'description',
-                104 : 'isbn',
-                105 : 'subject',
-                106 : 'publishingdate',
-                107 : 'review',
-                108 : 'contributor',
-                109 : 'rights',
-                110 : 'subjectcode',
-                111 : 'type',
-                112 : 'source',
-                113 : 'asin',
-                114 : 'versionnumber',
+                  1 : 'Drm Server Id',
+                  2 : 'Drm Commerce Id',
+                  3 : 'Drm Ebookbase Book Id',
+                100 : 'Creator',
+                101 : 'Publisher',
+                102 : 'Imprint',
+                103 : 'Description',
+                104 : 'ISBN',
+                105 : 'Subject',
+                106 : 'Published',
+                107 : 'Review',
+                108 : 'Contributor',
+                109 : 'Rights',
+                110 : 'SubjectCode',
+                111 : 'Type',
+                112 : 'Source',
+                113 : 'ASIN',
+                114 : 'versionNumber',
                 115 : 'sample',
-                116 : 'startreading',
-                117 : 'adult',
-                118 : 'retailprice',
-                119 : 'retailpricecurrency',
-                121 : 'KF8 header section index',
-                125 : 'KF8 resources (images/fonts) count',
-                129 : 'KF8 cover URI',
-                131 : 'KF8 unknown count',
-                201 : 'coveroffset',
-                202 : 'thumboffset',
-                203 : 'hasfakecover',
+                116 : 'StartOffset',
+                117 : 'Adult',
+                118 : 'Price',
+                119 : 'Currency',
+                121 : 'KF8_Boundary_Section',
+                122 : 'fixed-layout',
+                123 : 'book-type',
+                124 : 'orientation-lock',
+                125 : 'KF8_Count_of_Resources_Fonts_Images',
+                126 : 'original-resolution',
+                127 : 'zero-gutter',
+                128 : 'zero-margin',
+                129 : 'KF8_Masthead/Cover_Image',
+                131 : 'KF8_Unidentified_Count',
+                132 : 'RegionMagnification',
+                200 : 'DictShortName',
+                201 : 'CoverOffset',
+                202 : 'ThumbOffset',
+                203 : 'Fake Cover',
                 204 : 'Creator Software',
                 205 : 'Creator Major Version', # '>I'
                 206 : 'Creator Minor Version', # '>I'
                 207 : 'Creator Build Number', # '>I'
-                208 : 'watermark',
-                209 : 'tamper_proof_keys',
-                300 : 'fontsignature',
-                301 : 'clippinglimit', # percentage '>B'
-                402 : 'publisherlimit',
-                404 : 'TTS flag', # '>B' 1 - TTS disabled 0 - TTS enabled
-                501 : 'cdetype', # 4 chars (PDOC or EBOK)
-                502 : 'lastupdatetime',
-                503 : 'updatedtitle',
-                524 : 'language',
+                208 : 'Watermark',
+                209 : 'Tamper Proof Keys [hex]',
+                300 : 'Font Signature [hex]',
+                301 : 'Clipping Limit [3xx]', # percentage '>B'
+                401 : 'Clipping Limit', # percentage '>B'
+                402 : 'Publisher Limit',
+                404 : 'Text to Speech Disabled', # '>B' 1 - TTS disabled 0 - TTS enabled
+                501 : 'CDE Type', # 4 chars (PDOC, EBOK, MAGZ, ...)
+                502 : 'last_update_time',
+                503 : 'Updated Title',
+                504 : 'ASIN [5xx]',
+                524 : 'Language',
+                525 : 'TextDirection',
+                528 : 'Unknown_Logical_Value',
+                535 : 'Kindlegen Build-Rev Number',
         }.get(self.type, repr(self.type))
 
-        if (self.name in {'coveroffset', 'thumboffset', 'hasfakecover',
-                'Creator Major Version', 'Creator Minor Version',
-                'Creator Build Number', 'Creator Software', 'startreading'} or
+        if (self.name in {'sample', 'StartOffset', 'CoverOffset', 'ThumbOffset', 'Fake Cover',
+                'Creator Software', 'Creator Major Version', 'Creator Minor Version',
+                'Creator Build Number', 'Clipping Limit (3xx)', 'Clipping Limit',
+                'Publisher Limit', 'Text to Speech Disabled'} or
                 self.type in {121, 125, 131}):
-            self.data, = struct.unpack(b'>I', self.data)
+            if self.length == 9:
+                self.data, = struct.unpack(b'>B', self.data)
+            elif self.length == 10:
+                self.data, = struct.unpack(b'>H', self.data)
+            else:
+                self.data, = struct.unpack(b'>L', self.data)
+        elif self.type in {209, 300}:
+            self.data = bytes(self.data.encode('hex'))
 
     def __str__(self):
         return '%s (%d): %r'%(self.name, self.type, self.data)
@@ -181,8 +203,8 @@ class EXTHHeader(object):
         self.raw = raw
         if not self.raw.startswith(b'EXTH'):
             raise ValueError('EXTH header does not start with EXTH')
-        self.length, = struct.unpack(b'>I', self.raw[4:8])
-        self.count,  = struct.unpack(b'>I', self.raw[8:12])
+        self.length, = struct.unpack(b'>L', self.raw[4:8])
+        self.count,  = struct.unpack(b'>L', self.raw[8:12])
 
         pos = 12
         self.records = []
@@ -199,9 +221,9 @@ class EXTHHeader(object):
         return getattr(ans, 'data', default)
 
     def read_record(self, pos):
-        type_, length = struct.unpack(b'>II', self.raw[pos:pos+8])
+        type_, length = struct.unpack(b'>LL', self.raw[pos:pos+8])
         data = self.raw[(pos+8):(pos+length)]
-        self.records.append(EXTHRecord(type_, data))
+        self.records.append(EXTHRecord(type_, data, length))
         return pos + length
 
     @property

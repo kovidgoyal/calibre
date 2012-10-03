@@ -9,7 +9,7 @@ from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
 
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
-        filesystem_encoding)
+        filesystem_encoding, get_portable_base)
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
     Application, choose_dir, error_dialog, question_dialog, gprefs)
@@ -20,6 +20,9 @@ from calibre.library.sqlite import sqlite, DatabaseException
 
 if iswindows:
     winutil = plugins['winutil'][0]
+
+class AbortInit(Exception):
+    pass
 
 def option_parser():
     parser = _option_parser('''\
@@ -46,10 +49,43 @@ path_to_ebook to the database.
                 'will be silently aborted, so use with care.'))
     return parser
 
+def find_portable_library():
+    base = get_portable_base()
+    if base is None: return
+    import glob
+    candidates = [os.path.basename(os.path.dirname(x)) for x in glob.glob(
+        os.path.join(base, u'*%smetadata.db'%os.sep))]
+    if not candidates:
+        candidates = [u'Calibre Library']
+    lp = prefs['library_path']
+    if not lp:
+        lib = os.path.join(base, candidates[0])
+    else:
+        lib = None
+        q = os.path.basename(lp)
+        for c in candidates:
+            c = c
+            if c.lower() == q.lower():
+                lib = os.path.join(base, c)
+                break
+        if lib is None:
+            lib = os.path.join(base, candidates[0])
+
+    if len(lib) > 74:
+        error_dialog(None, _('Path too long'),
+            _("Path to Calibre Portable (%s) "
+                'too long. Must be less than 59 characters.')%base, show=True)
+        raise AbortInit()
+
+    prefs.set('library_path', lib)
+    if not os.path.exists(lib):
+        os.mkdir(lib)
+
 def init_qt(args):
     from calibre.gui2.ui import Main
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    find_portable_library()
     if opts.with_library is not None:
         if not os.path.exists(opts.with_library):
             os.makedirs(opts.with_library)
@@ -360,7 +396,10 @@ def main(args=sys.argv):
         gui_debug = args[1]
         args = ['calibre']
 
-    app, opts, args, actions = init_qt(args)
+    try:
+        app, opts, args, actions = init_qt(args)
+    except AbortInit:
+        return 1
     from calibre.utils.lock import singleinstance
     from multiprocessing.connection import Listener
     si = singleinstance('calibre GUI')

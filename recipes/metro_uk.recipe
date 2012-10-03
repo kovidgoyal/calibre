@@ -1,10 +1,10 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
-    description = 'Author Dave Asbury : News as provide by The Metro -UK'
+    description = 'Author Dave Asbury : News from The Metro - UK'
     #timefmt = ''
     __author__ = 'Dave Asbury'
-    #last update 4/8/12
+    #last update 9/9/12
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
     no_stylesheets = True
     oldest_article = 1
@@ -17,23 +17,24 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     language = 'en_GB'
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
     extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:1.6em;}
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:900;font-size:1.6em;}
                     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:1.2em;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:1.0em;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:1.0em;}
-		'''
+        '''
     keep_only_tags = [
-		#dict(name='h1'),
-		#dict(name='h2'),
-		#dict(name='div', attrs={'class' : ['row','article','img-cnt figure','clrd']})
-	#dict(name='h3'),
-	#dict(attrs={'class' :  'BText'}),
-		]
+        #dict(name='h1'),
+        #dict(name='h2'),
+        #dict(name='div', attrs={'class' : ['row','article','img-cnt figure','clrd']})
+    #dict(name='h3'),
+    #dict(attrs={'class' :  'BText'}),
+        ]
     remove_tags    = [
+                                dict(name='div',attrs={'class' : 'art-fd fd-gr1-b clrd'}),
                                 dict(name='span',attrs={'class' : 'share'}),
-		dict(name='li'),
-		dict(attrs={'class' : ['twitter-share-button','header-forms','hdr-lnks','close','art-rgt','fd-gr1-b clrd google-article','news m12 clrd clr-b p5t shareBtm','item-ds csl-3-img news','c-1of3 c-last','c-1of1','pd','item-ds csl-3-img sport']}),
-           		dict(attrs={'id' : ['','sky-left','sky-right','ftr-nav','and-ftr','notificationList','logo','miniLogo','comments-news','metro_extras']})
+        dict(name='li'),
+        dict(attrs={'class' : ['twitter-share-button','header-forms','hdr-lnks','close','art-rgt','fd-gr1-b clrd google-article','news m12 clrd clr-b p5t shareBtm','item-ds csl-3-img news','c-1of3 c-last','c-1of1','pd','item-ds csl-3-img sport']}),
+                dict(attrs={'id' : ['','sky-left','sky-right','ftr-nav','and-ftr','notificationList','logo','miniLogo','comments-news','metro_extras']})
                                ]
     remove_tags_before = dict(name='h1')
     #remove_tags_after = dict(attrs={'id':['topic-buttons']})

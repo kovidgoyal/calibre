@@ -14,10 +14,40 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
+   <item row="2" column="3">
+    <widget class="QCheckBox" name="opt_remove_fake_margins">
+     <property name="text">
+      <string>Remove &amp;fake margins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>The header and footer removal options have been replaced by the Search &amp; Replace options. Click the Search &amp; Replace category in the bar to the left to use these options. Leave the replace field blank and enter your header/footer removal regexps into the search field.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" rowspan="2" colspan="4">
+    <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="QCheckBox" name="opt_insert_metadata">
+     <property name="text">
+      <string>Insert &amp;metadata as page at start of book</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="4">
+    <widget class="XPathEdit" name="opt_start_reading_at" native="true"/>
+   </item>
+   <item row="0" column="0" colspan="4">
     <widget class="XPathEdit" name="opt_chapter" native="true"/>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Chapter &amp;mark:</string>
@@ -27,44 +57,14 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="1" column="2">
     <widget class="QComboBox" name="opt_chapter_mark">
      <property name="minimumContentsLength">
       <number>20</number>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_remove_first_image">
-     <property name="text">
-      <string>Remove first &amp;image</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_insert_metadata">
-     <property name="text">
-      <string>Insert &amp;metadata as page at start of book</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="3">
-    <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
-   </item>
-   <item row="8" column="0" colspan="3">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="2">
+   <item row="1" column="3">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -77,22 +77,25 @@
      </property>
     </spacer>
    </item>
-   <item row="5" column="0" colspan="3">
-    <widget class="QLabel" name="label_2">
+   <item row="2" column="0" colspan="3">
+    <widget class="QCheckBox" name="opt_remove_first_image">
      <property name="text">
-      <string>The header and footer removal options have been replaced by the Search &amp; Replace options. Click the Search &amp; Replace category in the bar to the left to use these options. Leave the replace field blank and enter your header/footer removal regexps into the search field.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+      <string>Remove first &amp;image</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QCheckBox" name="opt_remove_fake_margins">
-     <property name="text">
-      <string>Remove &amp;fake margins</string>
+   <item row="8" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

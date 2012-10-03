@@ -2,6 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Changelog:
+2012-04-06
+Fixed empty articles, added masthead img (NiLuJe)
 2011-09-24
 Changed cover (drMerry)
 '''
@@ -13,7 +15,8 @@ import time, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class XkcdCom(BasicNewsRecipe):
-    cover_url = 'http://imgs.xkcd.com/s/9be30a7.png'
+    cover_url = 'http://imgs.xkcd.com/static/terrible_small_logo.png'
+    masthead_url = 'http://imgs.xkcd.com/static/terrible_small_logo.png'
     title = 'xkcd'
     description = 'A webcomic of romance and math humor.'
     __author__ = 'Martin Pitt updated by DrMerry.'
@@ -21,13 +24,14 @@ class XkcdCom(BasicNewsRecipe):
 
     use_embedded_content   = False
     oldest_article = 60
-    keep_only_tags = [dict(id='middleContainer')]
-    remove_tags = [dict(name='ul'), dict(name='h3'), dict(name='br')]
+    #keep_only_tags = [dict(id='middleContainer')]
+    #remove_tags = [dict(name='ul'), dict(name='h3'), dict(name='br')]
+    keep_only_tags = [dict(id='comic')]
     no_stylesheets = True
-    # turn image bubblehelp into a paragraph
+    # turn image bubblehelp into a paragraph, and put alt in a heading
     preprocess_regexps = [
-        (re.compile(r'(<img.*title=")([^"]+)(".*>)'),
-         lambda m: '%s%s<p>%s</p>' % (m.group(1), m.group(3), m.group(2)))
+        (re.compile(r'(<img.*title=")([^"]+)(".alt=")([^"]+)(".*>)'),
+         lambda m: '<h1>%s</h1>%s%s%s<p>%s</p>' % (m.group(4), m.group(1), m.group(3), m.group(5), m.group(2)))
     ]
 
     def parse_index(self):

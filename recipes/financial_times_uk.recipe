@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.ft.com/uk-edition
 '''
@@ -10,7 +10,7 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class FinancialTimes(BasicNewsRecipe):
-    title                 = 'Financial Times - UK printed edition'
+    title                 = 'Financial Times (UK)'
     __author__            = 'Darko Miletic'
     description           = "The Financial Times (FT) is one of the world's leading business news and information organisations, recognised internationally for its authority, integrity and accuracy."
     publisher             = 'The Financial Times Ltd.'
@@ -51,10 +51,15 @@ class FinancialTimes(BasicNewsRecipe):
         return br
 
     keep_only_tags = [
-                        dict(name='div', attrs={'class':['fullstory fullstoryHeader', 'ft-story-header']})
-                       ,dict(name='div', attrs={'class':'standfirst'})
-                       ,dict(name='div', attrs={'id'   :'storyContent'})
-                       ,dict(name='div', attrs={'class':['ft-story-body','index-detail']})
+                        dict(name='div' , attrs={'class':['fullstory fullstoryHeader', 'ft-story-header']})
+                       ,dict(name='div' , attrs={'class':'standfirst'})
+                       ,dict(name='div' , attrs={'id'   :'storyContent'})
+                       ,dict(name='div' , attrs={'class':['ft-story-body','index-detail']})
+                       ,dict(name='div' , attrs={'class':['ft-story-body','index-detail']})
+                       ,dict(name='h2'  , attrs={'class':'entry-title'} )
+                       ,dict(name='span', attrs={'class':lambda x: x and 'posted-on' in x.split()} )
+                       ,dict(name='span', attrs={'class':'author_byline'} )
+                       ,dict(name='div' , attrs={'class':'entry-content'} )
                      ]
     remove_tags = [
                       dict(name='div', attrs={'id':'floating-con'})
@@ -83,10 +88,9 @@ class FinancialTimes(BasicNewsRecipe):
             if self.test and count > 2:
                return articles
             rawlink = item['href']
-            if rawlink.startswith('http://'):
-               url = rawlink
-            else:
-               url   = self.PREFIX + rawlink
+            url = rawlink
+            if not rawlink.startswith('http://'):
+               url = self.PREFIX + rawlink
             urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
             title = self.tag_to_string(item)
             date = strftime(self.timefmt)
@@ -101,23 +105,25 @@ class FinancialTimes(BasicNewsRecipe):
     def parse_index(self):
         feeds = []
         soup = self.index_to_soup(self.INDEX)
+        dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
+        self.timefmt = ' [%s]'%dates
         wide = soup.find('div',attrs={'class':'wide'})
         if not wide:
            return feeds
-        strest = wide.findAll('h3', attrs={'class':'section'})
-        if not strest:
+        allsections = wide.findAll(attrs={'class':lambda x: x and 'footwell' in x.split()})
+        if not allsections:
            return feeds
-        st = wide.find('h4',attrs={'class':'section-no-arrow'})
-        if st:
-           strest.insert(0,st)
         count = 0
-        for item in strest:
+        for item in allsections:
             count = count + 1
             if self.test and count > 2:
                return feeds
-            ftitle   = self.tag_to_string(item)
+            fitem = item.h3
+            if not fitem:
+               fitem = item.h4
+            ftitle = self.tag_to_string(fitem)   
             self.report_progress(0, _('Fetching feed')+' %s...'%(ftitle))
-            feedarts = self.get_artlinks(item.parent.ul)
+            feedarts = self.get_artlinks(item.ul)
             feeds.append((ftitle,feedarts))
         return feeds
 
@@ -151,7 +157,7 @@ class FinancialTimes(BasicNewsRecipe):
     def get_cover_url(self):
         cdate = datetime.date.today()
         if cdate.isoweekday() == 7:
-           cdate -= datetime.timedelta(days=1)
+            cdate -= datetime.timedelta(days=1)
         return cdate.strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_LON.pdf')
 
     def get_obfuscated_article(self, url):
@@ -163,9 +169,9 @@ class FinancialTimes(BasicNewsRecipe):
                 count = 10
             except:
                 print "Retrying download..."
-            count += 1        
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
-        
+            count += 1
+        tfile = PersistentTemporaryFile('_fa.html')
+        tfile.write(html)
+        tfile.close()        
+        self.temp_files.append(tfile)
+        return tfile.name

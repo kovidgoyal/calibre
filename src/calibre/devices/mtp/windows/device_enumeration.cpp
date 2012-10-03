@@ -84,8 +84,8 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
     PWSTR object_ids[10];
     GUID guid;
     ULONGLONG capacity, free_space, capacity_objects, free_objects;
-    ULONG access;
-    LPWSTR storage_desc = NULL;
+    ULONG access, storage_type = WPD_STORAGE_TYPE_UNDEFINED;
+    LPWSTR storage_desc = NULL, st = NULL;
 
     storage = PyList_New(0);
     if (storage == NULL) { PyErr_NoMemory(); goto end; }
@@ -116,6 +116,7 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
     hr = storage_properties->Add(WPD_STORAGE_FREE_SPACE_IN_OBJECTS);
     hr = storage_properties->Add(WPD_STORAGE_ACCESS_CAPABILITY);
     hr = storage_properties->Add(WPD_STORAGE_FILE_SYSTEM_TYPE);
+    hr = storage_properties->Add(WPD_STORAGE_TYPE);
     hr = storage_properties->Add(WPD_OBJECT_NAME);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) {hresult_set_exc("Failed to create collection of properties for storage query", hr); goto end; }
@@ -145,11 +146,12 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
                         values->GetUnsignedLargeIntegerValue(WPD_STORAGE_CAPACITY_IN_OBJECTS, &capacity_objects);
                         values->GetUnsignedLargeIntegerValue(WPD_STORAGE_FREE_SPACE_IN_BYTES, &free_space);
                         values->GetUnsignedLargeIntegerValue(WPD_STORAGE_FREE_SPACE_IN_OBJECTS, &free_objects);
+                        values->GetUnsignedIntegerValue(WPD_STORAGE_TYPE, &storage_type);
                         desc = Py_False;
                         if (SUCCEEDED(values->GetUnsignedIntegerValue(WPD_STORAGE_ACCESS_CAPABILITY, &access)) && access == WPD_STORAGE_ACCESS_CAPABILITY_READWRITE) desc = Py_True;
                         soid = PyUnicode_FromWideChar(object_ids[i], wcslen(object_ids[i]));
                         if (soid == NULL) { PyErr_NoMemory(); goto end; }
-                        so = Py_BuildValue("{s:K,s:K,s:K,s:K,s:O,s:N}", 
+                        so = Py_BuildValue("{s:K, s:K, s:K, s:K, s:O, s:N}", 
                                 "capacity", capacity, "capacity_objects", capacity_objects, "free_space", free_space, "free_objects", free_objects, "rw", desc, "id", soid);
                         if (so == NULL) { PyErr_NoMemory(); goto end; }
                         if (SUCCEEDED(values->GetStringValue(WPD_STORAGE_DESCRIPTION, &storage_desc))) {
@@ -167,6 +169,25 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
                                 if (desc != NULL) { PyDict_SetItemString(so, "filesystem", desc); Py_DECREF(desc);}
                                 CoTaskMemFree(storage_desc); storage_desc = NULL;
                         }
+                        switch(storage_type) {
+                            case WPD_STORAGE_TYPE_REMOVABLE_RAM:
+                                st = L"removable_ram";
+                                break;
+                            case WPD_STORAGE_TYPE_REMOVABLE_ROM:
+                                st = L"removable_rom";
+                                break;
+                            case WPD_STORAGE_TYPE_FIXED_RAM:
+                                st = L"fixed_ram";
+                                break;
+                            case WPD_STORAGE_TYPE_FIXED_ROM:
+                                st = L"fixed_rom";
+                                break;
+                            default:
+                                st = L"unknown_unknown";
+                        }
+                        desc = PyUnicode_FromWideChar(st, wcslen(st));
+                        if (desc != NULL) {PyDict_SetItemString(so, "type", desc); Py_DECREF(desc);}
+                        desc = NULL;
                         PyList_Append(storage, so);
                         Py_DECREF(so);
                     }

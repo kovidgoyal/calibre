@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.thetimes.co.uk
 '''
@@ -21,6 +21,7 @@ class TimesOnline(BasicNewsRecipe):
     encoding              = 'utf-8'
     delay                 = 1
     needs_subscription    = True
+    auto_cleanup          = False    
     publication_type      = 'newspaper'
     masthead_url          = 'http://www.thetimes.co.uk/tto/public/img/the_times_460.gif'
     INDEX                 = 'http://www.thetimes.co.uk'
@@ -41,13 +42,14 @@ class TimesOnline(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        br.open('http://www.timesplus.co.uk/tto/news/?login=false&url=http://www.thetimes.co.uk/tto/news/?lightbox=false')
+        br.open('http://www.thetimes.co.uk/tto/news/')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({ 'userName':self.username
+            data = urllib.urlencode({ 
+                                      'gotoUrl' :self.INDEX
+                                     ,'username':self.username
                                      ,'password':self.password
-                                     ,'keepMeLoggedIn':'false'
                                    })
-            br.open('https://www.timesplus.co.uk/iam/app/authenticate',data)
+            br.open('https://acs.thetimes.co.uk/user/login',data)
         return br
 
     remove_tags      = [
@@ -58,6 +60,7 @@ class TimesOnline(BasicNewsRecipe):
     keep_only_tags   = [
                           dict(attrs={'class':'heading' })
                          ,dict(attrs={'class':'f-author'})
+                         ,dict(attrs={'class':['media','byline-timestamp']})
                          ,dict(attrs={'id':'bodycopy'})
                        ]
 
@@ -78,11 +81,6 @@ class TimesOnline(BasicNewsRecipe):
                ,(u'Life'        , PREFIX + u'life/?view=list'         )
                ,(u'Arts'        , PREFIX + u'arts/?view=list'         )
             ]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)
 
     def parse_index(self):
         totalfeeds = []

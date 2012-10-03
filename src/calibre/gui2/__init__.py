@@ -12,8 +12,9 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
+from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        config_dir, filesystem_encoding)
+        plugins, config_dir, filesystem_encoding, DEBUG)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -101,6 +102,7 @@ gprefs.defaults['auto_add_auto_convert'] = True
 gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
+gprefs.defaults['bd_show_cover'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -293,7 +295,9 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         # Set skip_dialog_name to a unique name for this dialog
         # Set skip_dialog_msg to a message displayed to the user
         skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
-        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True):
+        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
+        # Override icon (QIcon to be used as the icon for this dialog)
+        override_icon=None):
     from calibre.gui2.dialogs.message_box import MessageBox
 
     auto_skip = set(gprefs.get('questions_to_auto_skip', []))
@@ -301,7 +305,8 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         return bool(skip_dialog_skipped_value)
 
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
-                    show_copy_button=show_copy_button, default_yes=default_yes)
+                    show_copy_button=show_copy_button, default_yes=default_yes,
+                    q_icon=override_icon)
 
     if skip_dialog_name is not None and skip_dialog_msg:
         tc = d.toggle_checkbox
@@ -327,6 +332,19 @@ def info_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
+def show_restart_warning(msg, parent=None):
+    d = warning_dialog(parent, _('Restart needed'), msg,
+            show_copy_button=False)
+    b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+    b.setIcon(QIcon(I('lt.png')))
+    d.do_restart = False
+    def rf():
+        d.do_restart = True
+    b.clicked.connect(rf)
+    d.set_details('')
+    d.exec_()
+    b.clicked.disconnect()
+    return d.do_restart
 
 
 class Dispatcher(QObject):
@@ -463,10 +481,13 @@ class FileIconProvider(QFileIconProvider):
              'prc'     : 'mobi',
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
+             'pobi'    : 'mobi',
              'mbp'     : 'zero',
-             'azw1'    : 'mobi',
+             'azw1'    : 'tpz',
+             'azw2'    : 'azw2',
+             'azw3'    : 'azw3',
              'azw4'    : 'pdf',
-             'tpz'     : 'mobi',
+             'tpz'     : 'tpz',
              'tan'     : 'zero',
              'epub'    : 'epub',
              'fb2'     : 'fb2',
@@ -485,6 +506,7 @@ class FileIconProvider(QFileIconProvider):
         self.icons = {}
         for key in self.__class__.ICONS.keys():
             self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.png'
+        self.icons['calibre'] = I('lt.png')
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 
@@ -549,7 +571,8 @@ class FileDialog(QObject):
                        modal = True,
                        name = '',
                        mode = QFileDialog.ExistingFiles,
-                       default_dir='~'
+                       default_dir='~',
+                       no_save_dir=False
                        ):
         QObject.__init__(self)
         ftext = ''
@@ -568,8 +591,11 @@ class FileDialog(QObject):
         self.selected_files = None
         self.fd = None
 
-        initial_dir = dynamic.get(self.dialog_name,
-                os.path.expanduser(default_dir))
+        if no_save_dir:
+            initial_dir = os.path.expanduser(default_dir)
+        else:
+            initial_dir = dynamic.get(self.dialog_name,
+                    os.path.expanduser(default_dir))
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
@@ -611,7 +637,8 @@ class FileDialog(QObject):
             saved_loc = self.selected_files[0]
             if os.path.isfile(saved_loc):
                 saved_loc = os.path.dirname(saved_loc)
-            dynamic[self.dialog_name] = saved_loc
+            if not no_save_dir:
+                dynamic[self.dialog_name] = saved_loc
         self.accepted = bool(self.selected_files)
 
     def get_files(self):
@@ -620,10 +647,10 @@ class FileDialog(QObject):
         return tuple(self.selected_files)
 
 
-def choose_dir(window, name, title, default_dir='~'):
+def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
             parent=window, name=name, mode=QFileDialog.Directory,
-            default_dir=default_dir)
+            default_dir=default_dir, no_save_dir=no_save_dir)
     dir = fd.get_files()
     fd.setParent(None)
     if dir:
@@ -741,6 +768,9 @@ class Application(QApplication):
         if override_program_name:
             args = [override_program_name] + args[1:]
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
+        self.pi = plugins['progress_indicator'][0]
+        if DEBUG:
+            self.redirect_notify = True
         QApplication.__init__(self, qargs)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
@@ -751,15 +781,24 @@ class Application(QApplication):
         self._file_open_lock = RLock()
         self.setup_styles(force_calibre_style)
 
+    if DEBUG:
+        def notify(self, receiver, event):
+            if self.redirect_notify:
+                self.redirect_notify = False
+                return self.pi.do_notify(receiver, event)
+            else:
+                ret = QApplication.notify(self, receiver, event)
+                self.redirect_notify = True
+                return ret
+
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
         orig_pal = QPalette(self.palette())
 
-        from calibre.constants import plugins
-        pi = plugins['progress_indicator'][0]
         path = os.path.join(sys.extensions_location, 'calibre_style.'+(
             'pyd' if iswindows else 'so'))
-        pi.load_style(path, 'Calibre')
+        if not self.pi.load_style(path, 'Calibre'):
+            prints('Failed to load calibre style')
         # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
         for role in (orig_pal.Button, orig_pal.Window):
             c = orig_pal.brush(role).color()
@@ -816,6 +855,8 @@ class Application(QApplication):
             except:
                 import traceback
                 traceback.print_exc()
+            if not depth_ok:
+                prints('Color depth is less than 32 bits disabling modern look')
 
         if force_calibre_style or (depth_ok and gprefs['ui_style'] !=
                 'system'):

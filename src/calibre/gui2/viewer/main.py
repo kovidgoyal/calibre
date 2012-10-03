@@ -21,7 +21,7 @@ from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
     info_dialog, error_dialog, open_url, available_height)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isbsd, isosx, filesystem_encoding
+from calibre.constants import islinux, isbsd, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
@@ -185,6 +185,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos.setDecimals(1)
         self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
         self.pos.setMinimumWidth(150)
         self.tool_bar2.insertWidget(self.action_find_next, self.pos)
         self.reference = Reference()
@@ -207,9 +209,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
         self.view_resized_timer.setSingleShot(True)
         self.resize_in_progress = False
-        qs = [Qt.CTRL+Qt.Key_Q]
-        if isosx:
-            qs += [Qt.CTRL+Qt.Key_W]
+        qs = [Qt.CTRL+Qt.Key_Q,Qt.CTRL+Qt.Key_W]
         self.action_quit.setShortcuts(qs)
         self.action_quit.triggered.connect(self.quit)
         self.action_focus_search = QAction(self)
@@ -243,8 +243,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_back.triggered[bool].connect(self.back)
         self.action_forward.triggered[bool].connect(self.forward)
         self.action_bookmark.triggered[bool].connect(self.bookmark)
-        self.action_preferences.triggered.connect(lambda :
-                self.view.config(self))
+        self.action_preferences.triggered.connect(self.do_config)
         self.pos.editingFinished.connect(self.goto_page_num)
         self.vertical_scrollbar.valueChanged[int].connect(lambda
                 x:self.goto_page(x/100.))
@@ -257,6 +256,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_bookmark.setMenu(self.bookmarks_menu)
         self.set_bookmarks([])
 
+        self.themes_menu = QMenu()
+        self.action_load_theme.setMenu(self.themes_menu)
+        self.tool_bar.widgetForAction(self.action_load_theme).setPopupMode(QToolButton.InstantPopup)
+        self.load_theme_menu()
 
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
@@ -843,6 +846,21 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             getattr(self, o).setEnabled(False)
         self.setCursor(Qt.BusyCursor)
 
+    def load_theme_menu(self):
+        from calibre.gui2.viewer.config import load_themes
+        self.themes_menu.clear()
+        for key in load_themes():
+            title = key[len('theme_'):]
+            self.themes_menu.addAction(title, partial(self.load_theme,
+                key))
+
+    def load_theme(self, theme_id):
+        self.view.load_theme(theme_id)
+
+    def do_config(self):
+        self.view.config(self)
+        self.load_theme_menu()
+
     def bookmark(self, *args):
         num = 1
         bm = None
@@ -1028,6 +1046,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         av = available_height() - 30
         if self.height() > av:
             self.resize(self.width(), av)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')

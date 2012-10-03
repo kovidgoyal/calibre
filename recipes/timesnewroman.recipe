@@ -36,12 +36,14 @@ class TimesNewRoman(BasicNewsRecipe):
 
     remove_tags = [
                 dict(name='p', attrs={'class':['articleinfo']})
-              , dict(name='div',attrs={'class':['vergefacebooklike']})
-                  , dict(name='div', attrs={'class':'cleared'})
+              , dict(name='div', attrs={'class':['shareTools']})
+			  ,  dict(name='div', attrs={'class':'fb_iframe_widget'})
+			  , dict(name='div', attrs={'id':'jc'})
                   ]
 
     remove_tags_after = [
-               dict(name='div', attrs={'class':'cleared'})
+               dict(name='div', attrs={'class':'fb_iframe_widget'}), 
+			   dict(name='div', attrs={'id':'jc'})
                     ]
 
     feeds          = [

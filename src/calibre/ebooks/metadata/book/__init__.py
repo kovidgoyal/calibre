@@ -42,6 +42,7 @@ PUBLICATION_METADATA_FIELDS = frozenset([
     'book_producer',
     'timestamp',        # Dates and times must be timezone aware
     'pubdate',
+    'last_modified',
     'rights',
     # So far only known publication type is periodical:calibre
     # If None, means book

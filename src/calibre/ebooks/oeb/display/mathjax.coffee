@@ -23,25 +23,23 @@ class MathJax
         this.pending_cfi = null
         this.hub = null
 
-    load_mathjax: (script) ->
+    load_mathjax: (user_config) ->
         if this.base == null
             log('You must specify the path to the MathJax installation before trying to load MathJax')
             return null
 
-        created = false
-        if script == null
-            script = document.createElement('script')
-            created = true
+        script = document.createElement('script')
 
         script.type = 'text/javascript'
         script.src = 'file://' + this.base + '/MathJax.js'
-
-        script.text = script.text + '''
+        script.text = user_config + '''
+        MathJax.Hub.signal.Interest(function (message) {if (String(message).match(/error/i)) {console.log(message)}});
         MathJax.Hub.Config({
             positionToHash: false,
             showMathMenu: false,
-            extensions: ["tex2jax.js","asciimath2jax.js","mml2jax.js"],
+            extensions: ["tex2jax.js", "asciimath2jax.js", "mml2jax.js"],
             jax: ["input/TeX","input/MathML","input/AsciiMath","output/SVG"],
+            SVG : { linebreaks : { automatic : true } },
             TeX: {
                 extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
             }
@@ -50,9 +48,7 @@ class MathJax
         MathJax.Hub.Register.StartupHook("End", window.mathjax.load_finished);
         window.mathjax.hub = MathJax.Hub
         '''
-
-        if created
-            document.head.appendChild(script)
+        document.head.appendChild(script)
 
     load_finished: () =>
         log('MathJax load finished!')
@@ -67,14 +63,17 @@ class MathJax
         this.math_present = false
         this.math_loaded = false
         this.pending_cfi = null
+        user_config = ''
         for c in document.getElementsByTagName('script')
             if c.getAttribute('type') == 'text/x-mathjax-config'
+                if c.text
+                    user_config += c.text
                 script = c
-                break
+                c.parentNode.removeChild(c)
 
         if script != null or document.getElementsByTagName('math').length > 0
             this.math_present = true
-            this.load_mathjax(script)
+            this.load_mathjax(user_config)
 
     after_resize: () ->
         if not this.math_present or this.hub == null

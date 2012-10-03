@@ -226,6 +226,7 @@ class TREKSTOR(USBMS):
     VENDOR_ID   = [0x1e68]
     PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
             0x003e, # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
+            0x5cL, # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
             ]
     BCD         = [0x0002, 0x100]
 

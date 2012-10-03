@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.nin.co.rs
 '''
@@ -15,11 +15,11 @@ class Nin(BasicNewsRecipe):
     publisher              = 'NIN d.o.o. - Ringier d.o.o.'
     category               = 'news, politics, Serbia'
     no_stylesheets         = True
-    delay                  = 1
     oldest_article         = 15
     encoding               = 'utf-8'
     needs_subscription     = True
     remove_empty_feeds     = True
+    auto_cleanup           = False
     PREFIX                 = 'http://www.nin.co.rs'
     INDEX                  = PREFIX + '/?change_lang=ls'
     use_embedded_content   = False
@@ -63,7 +63,11 @@ class Nin(BasicNewsRecipe):
     keep_only_tags    =[dict(name='td', attrs={'width':'520'})]
     remove_tags_before =dict(name='span', attrs={'class':'izjava'})
     remove_tags_after =dict(name='html')
-    remove_tags = [dict(name=['object','link','iframe','meta','base'])]
+    remove_tags = [
+                     dict(name=['object','link','iframe','meta','base'])
+                    ,dict(attrs={'class':['fb-like','twitter-share-button']})
+                    ,dict(attrs={'rel':'nofollow'})
+                  ]
     remove_attributes=['border','background','height','width','align','valign']
 
     def get_cover_url(self):
@@ -77,10 +81,6 @@ class Nin(BasicNewsRecipe):
         return cover_url
 
     feeds          = [(u'NIN Online', u'http://www.nin.co.rs/misc/rss.php?feed=RSS2.0')]
-
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        return url.replace('.co.yu', '.co.rs')
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
@@ -99,4 +99,3 @@ class Nin(BasicNewsRecipe):
                img.extract()
                tbl.replaceWith(img)
         return soup
-

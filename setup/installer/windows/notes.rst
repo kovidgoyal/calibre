@@ -348,6 +348,36 @@ Remove the CORE_xlib, UTIL_Imdisplay and CORE_Magick++ projects.
 F7 for build project, you will get one error due to the removal of xlib, ignore
 it.
 
+netifaces
+------------
+
+Download the source tarball from http://alastairs-place.net/projects/netifaces/
+
+Rename netifaces.c to netifaces.cpp and make the same change in setup.py
+
+Run 
+
+python setup.py build
+cp build/lib.win32-2.7/netifaces.pyd /cygdrive/c/Python27/Lib/site-packages/
+
+psutil
+--------
+
+Download the source tarball
+
+Run
+
+Python setup.py build
+cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
+
+easylzma
+----------
+
+Get it from http://lloyd.github.com/easylzma/ (use the trunk version)
+
+Run cmake and build the Visual Studio solution (generates CLI tools and dll and
+static lib automatically)
+
 calibre
 ---------
 

@@ -19,8 +19,8 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
-from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
-        gprefs, rating_font)
+from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs,
+        rating_font)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
@@ -152,8 +152,16 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 scheme = u'devpath' if isdevice else u'path'
                 url = prepare_string_for_xml(path if isdevice else
                         unicode(mi.id), True)
-                link = u'<a href="%s:%s" title="%s">%s</a>' % (scheme, url,
-                        prepare_string_for_xml(path, True), _('Click to open'))
+                pathstr = _('Click to open')
+                extra = ''
+                if isdevice:
+                    durl = url
+                    if durl.startswith('mtp:::'):
+                        durl = ':::'.join( (durl.split(':::'))[2:] )
+                    extra = '<br><span style="font-size:smaller">%s</span>'%(
+                            prepare_string_for_xml(durl))
+                link = u'<a href="%s:%s" title="%s">%s</a>%s' % (scheme, url,
+                        prepare_string_for_xml(path, True), pathstr, extra)
                 ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, link)))
         elif field == 'formats':
             if isdevice: continue
@@ -297,7 +305,8 @@ class CoverView(QWidget): # {{{
             self.pixmap = self.default_pixmap
         self.do_layout()
         self.update()
-        if not same_item and not config['disable_animations']:
+        if (not same_item and not config['disable_animations'] and
+                self.isVisible()):
             self.animation.start()
 
     def paintEvent(self, event):
@@ -512,6 +521,7 @@ class DetailsLayout(QLayout): # {{{
         self.do_layout(r)
 
     def cover_height(self, r):
+        if not self._children[0].widget().isVisible(): return 0
         mh = min(int(r.height()/2.), int(4/3. * r.width())+1)
         try:
             ph = self._children[0].widget().pixmap.height()
@@ -522,6 +532,7 @@ class DetailsLayout(QLayout): # {{{
         return mh
 
     def cover_width(self, r):
+        if not self._children[0].widget().isVisible(): return 0
         mw = 1 + int(3/4. * r.height())
         try:
             pw = self._children[0].widget().pixmap.width()
@@ -566,6 +577,7 @@ class BookDetails(QWidget): # {{{
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
     cover_removed = pyqtSignal(object)
+    view_device_book = pyqtSignal(object)
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
@@ -640,7 +652,7 @@ class BookDetails(QWidget): # {{{
             id_, fmt = val.split(':')
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
-            open_local_file(val)
+            self.view_device_book.emit(val)
         else:
             try:
                 open_url(QUrl(link, QUrl.TolerantMode))
@@ -660,6 +672,7 @@ class BookDetails(QWidget): # {{{
         self.update_layout()
 
     def update_layout(self):
+        self.cover_view.setVisible(gprefs['bd_show_cover'])
         self._layout.do_layout(self.rect())
         self.cover_view.update_tooltip(self.current_path)
 

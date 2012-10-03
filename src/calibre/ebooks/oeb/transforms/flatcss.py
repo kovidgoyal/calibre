@@ -8,6 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import re, operator, math
 from collections import defaultdict
+from xml.dom import SyntaxErr
 
 from lxml import etree
 import cssutils
@@ -222,7 +223,7 @@ class CSSFlattener(object):
                         value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
-    def flatten_node(self, node, stylizer, names, styles, psize, item_id):
+    def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
                return
@@ -279,7 +280,7 @@ class CSSFlattener(object):
         if 'color' in node.attrib:
             try:
                 cssdict['color'] = Property('color', node.attrib['color']).value
-            except ValueError:
+            except (ValueError, SyntaxErr):
                 pass
             del node.attrib['color']
         if 'bgcolor' in node.attrib:
@@ -357,25 +358,51 @@ class CSSFlattener(object):
                 cssdict.get('text-align', None) not in ('center', 'right')):
                 cssdict['text-indent'] =  "%1.1fem" % indent_size
 
-        if cssdict:
-            items = cssdict.items()
-            items.sort()
-            css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
-            classes = node.get('class', '').strip() or 'calibre'
-            klass = STRIPNUM.sub('', classes.split()[0].replace('_', ''))
-            if css in styles:
-                match = styles[css]
-            else:
-                match = klass + str(names[klass] or '')
-                styles[css] = match
-                names[klass] += 1
-            node.attrib['class'] = match
+        pseudo_classes = style.pseudo_classes(self.filter_css)
+        if cssdict or pseudo_classes:
+            keep_classes = set()
+
+            if cssdict:
+                items = cssdict.items()
+                items.sort()
+                css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                classes = node.get('class', '').strip() or 'calibre'
+                klass = STRIPNUM.sub('', classes.split()[0].replace('_', ''))
+                if css in styles:
+                    match = styles[css]
+                else:
+                    match = klass + str(names[klass] or '')
+                    styles[css] = match
+                    names[klass] += 1
+                node.attrib['class'] = match
+                keep_classes.add(match)
+
+            for psel, cssdict in pseudo_classes.iteritems():
+                items = sorted(cssdict.iteritems())
+                css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                pstyles = pseudo_styles[psel]
+                if css in pstyles:
+                    match = pstyles[css]
+                else:
+                    # We have to use a different class for each psel as
+                    # otherwise you can have incorrect styles for a situation
+                    # like: a:hover { color: red } a:link { color: blue } a.x:hover { color: green }
+                    # If the pcalibre class for a:hover and a:link is the same,
+                    # then the class attribute for a.x tags will contain both
+                    # that class and the class for a.x:hover, which is wrong.
+                    klass = 'pcalibre'
+                    match = klass + str(names[klass] or '')
+                    pstyles[css] = match
+                    names[klass] += 1
+                keep_classes.add(match)
+                node.attrib['class'] = ' '.join(keep_classes)
+
         elif 'class' in node.attrib:
             del node.attrib['class']
         if 'style' in node.attrib:
             del node.attrib['style']
         for child in node:
-            self.flatten_node(child, stylizer, names, styles, psize, item_id)
+            self.flatten_node(child, stylizer, names, styles, pseudo_styles, psize, item_id)
 
     def flatten_head(self, item, href, global_href):
         html = item.data
@@ -446,7 +473,7 @@ class CSSFlattener(object):
 
     def flatten_spine(self):
         names = defaultdict(int)
-        styles = {}
+        styles, pseudo_styles = {}, defaultdict(dict)
         for item in self.oeb.spine:
             html = item.data
             stylizer = self.stylizers[item]
@@ -454,10 +481,20 @@ class CSSFlattener(object):
                 self.specializer(item, stylizer)
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
-            self.flatten_node(body, stylizer, names, styles, fsize, item.id)
+            self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
         items = [(key, val) for (val, key) in styles.items()]
         items.sort()
+        # :hover must come after link and :active must come after :hover
+        psels = sorted(pseudo_styles.iterkeys(), key=lambda x :
+                {'hover':1, 'active':2}.get(x, 0))
+        for psel in psels:
+            styles = pseudo_styles[psel]
+            if not styles: continue
+            x = sorted(((k+':'+psel, v) for v, k in styles.iteritems()))
+            items.extend(x)
+
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
+
         href = self.replace_css(css)
         global_css = self.collect_global_css()
         for item in self.oeb.spine:

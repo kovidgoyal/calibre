@@ -35,6 +35,8 @@ def load_html(path, view, codec='utf-8', mime_type=None,
     from PyQt4.Qt import QUrl, QByteArray
     if mime_type is None:
         mime_type = guess_type(path)[0]
+        if not mime_type:
+            mime_type = 'text/html'
     if path_is_html:
         html = path
     else:

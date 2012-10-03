@@ -5,6 +5,7 @@
 #include <QPluginLoader>
 #include <QStyle>
 #include <QApplication>
+#include <QDebug>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),
@@ -145,3 +146,16 @@ int load_style(QString &path, QString &name) {
     }
     return ret;
 }
+
+bool do_notify(QObject *receiver, QEvent *event) {
+    try {
+        return QApplication::instance()->notify(receiver, event);
+    } catch (std::exception& e) {
+        qCritical() << "C++ exception thrown in slot: " << e.what();
+    } catch (...) {
+        qCritical() << "Unknown C++ exception thrown in slot";
+    }
+    qCritical() << "Receiver name:" << receiver->objectName() << "Receiver class:" << receiver->metaObject()->className() << "Event type: " << event->type();
+    return false;
+}
+

@@ -76,6 +76,9 @@ def config(defaults=None):
 
     return c
 
+def load_themes():
+    return JSONConfig('viewer_themes')
+
 class ConfigDialog(QDialog, Ui_Dialog):
 
     def __init__(self, shortcuts, parent=None):
@@ -113,7 +116,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.hyphenate_default_lang.setVisible(False)
             self.hyphenate_label.setVisible(False)
 
-        self.themes = JSONConfig('viewer_themes')
+        self.themes = load_themes()
         self.save_theme_button.clicked.connect(self.save_theme)
         self.load_theme_button.m = m = QMenu()
         self.load_theme_button.setMenu(m)

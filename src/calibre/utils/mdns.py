@@ -4,8 +4,21 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import socket, time, atexit
+from collections import defaultdict
 
 _server = None
+
+def get_all_ips():
+    ''' Return a mapping of interface names to the configuration of the
+    interface, which includes the ip address, netmask and broadcast addresses
+    '''
+    import netifaces
+    all_ips = defaultdict(list)
+    if hasattr(netifaces, 'AF_INET'):
+        for x in netifaces.interfaces():
+            for c in netifaces.ifaddresses(x).get(netifaces.AF_INET, []):
+                all_ips[x].append(c)
+    return dict(all_ips)
 
 def _get_external_ip():
     'Get IP address of interface used to connect to the outside world'
@@ -25,6 +38,19 @@ def _get_external_ip():
                 time.sleep(0.3)
     #print 'ipaddr: %s' % ipaddr
     return ipaddr
+
+def verify_ipV4_address(ip_address):
+    result = None
+    if ip_address != '0.0.0.0' and ip_address != '::':
+        # do some more sanity checks on the address
+        try:
+            socket.inet_aton(ip_address)
+            if len(ip_address.split('.')) == 4:
+                result = ip_address
+        except socket.error:
+            # Not legal ip address
+            pass
+    return result
 
 _ext_ip = None
 def get_external_ip():
@@ -47,7 +73,7 @@ def start_server():
 
     return _server
 
-def create_service(desc, type, port, properties, add_hostname):
+def create_service(desc, type, port, properties, add_hostname, use_ip_address=None):
     port = int(port)
     try:
         hostname = socket.gethostname().partition('.')[0]
@@ -56,7 +82,10 @@ def create_service(desc, type, port, properties, add_hostname):
 
     if add_hostname:
         desc += ' (on %s)'%hostname
-    local_ip = get_external_ip()
+    if use_ip_address:
+        local_ip = use_ip_address
+    else:
+        local_ip = get_external_ip()
     type = type+'.local.'
     from calibre.utils.Zeroconf import ServiceInfo
     return ServiceInfo(type, desc+'.'+type,
@@ -66,7 +95,7 @@ def create_service(desc, type, port, properties, add_hostname):
                           server=hostname+'.local.')
 
 
-def publish(desc, type, port, properties=None, add_hostname=True):
+def publish(desc, type, port, properties=None, add_hostname=True, use_ip_address=None):
     '''
     Publish a service.
 
@@ -77,7 +106,8 @@ def publish(desc, type, port, properties=None, add_hostname=True):
                        into the TXT record.
     '''
     server = start_server()
-    service = create_service(desc, type, port, properties, add_hostname)
+    service = create_service(desc, type, port, properties, add_hostname,
+                             use_ip_address)
     server.registerService(service)
 
 def unpublish(desc, type, port, properties=None, add_hostname=True):

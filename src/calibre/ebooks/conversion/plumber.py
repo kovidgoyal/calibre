@@ -304,6 +304,16 @@ OptionRecommendation(name='chapter_mark',
                     'to mark chapters.')
         ),
 
+OptionRecommendation(name='start_reading_at',
+        recommended_value=None, level=OptionRecommendation.LOW,
+        help=_('An XPath expression to detect the location in the document'
+            ' at which to start reading. Some ebook reading programs'
+            ' (most prominently the Kindle) use this location as the'
+            ' position at which to open the book. See the XPath tutorial'
+            ' in the calibre User Manual for further help using this'
+            ' feature.')
+        ),
+
 OptionRecommendation(name='extra_css',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('Either the path to a CSS stylesheet or raw CSS. '
@@ -999,6 +1009,8 @@ OptionRecommendation(name='search_replace',
 
         pr(0., _('Running transforms on ebook...'))
 
+        self.oeb.plumber_output_format = self.output_fmt or ''
+
         from calibre.ebooks.oeb.transforms.guide import Clean
         Clean()(self.oeb, self.opts)
         pr(0.1)
@@ -1110,7 +1122,7 @@ OptionRecommendation(name='search_replace',
         self.log.info('Creating %s...'%self.output_plugin.name)
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
         self.output_plugin.report_progress = our
-        our(0., _('Creating')+' %s'%self.output_plugin.name)
+        our(0., _('Running %s plugin')%self.output_plugin.name)
         with self.output_plugin:
             self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
