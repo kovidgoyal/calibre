@@ -214,6 +214,14 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return True
 
+    def _filesystem_callback(self, obj):
+        if isinstance(obj, dict):
+            n = obj.get('name', '')
+            msg = _('Found object: %s')%n
+        else:
+            msg = _('Found id: %s')%obj
+        self.filesystem_callback(msg)
+
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
@@ -233,7 +241,8 @@ class MTP_DEVICE(MTPDeviceBase):
                         break
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True, 'can_delete':False, 'is_system':True}
-                id_map = self.dev.get_filesystem(storage_id)
+                id_map = self.dev.get_filesystem(storage_id,
+                        self._filesystem_callback)
                 for x in id_map.itervalues(): x['storage_id'] = storage_id
                 all_storage.append(storage)
                 items.append(id_map.itervalues())

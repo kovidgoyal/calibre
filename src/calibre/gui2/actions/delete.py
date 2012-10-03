@@ -286,6 +286,14 @@ class DeleteAction(InterfaceAction):
                 current_row = view.row_count() - 1
             view.set_current_row(current_row)
 
+    def library_ids_deleted2(self, ids_deleted, next_id=None):
+        view = self.gui.library_view
+        current_row = None
+        if next_id is not None:
+            rmap = view.ids_to_rows([next_id])
+            current_row = rmap.get(next_id, None)
+        self.library_ids_deleted(ids_deleted, current_row=current_row)
+
     def delete_books(self, *args):
         '''
         Delete selected books from device or library.
@@ -325,16 +333,13 @@ class DeleteAction(InterfaceAction):
                                    'removed from your calibre library. Are you sure?')
                                 +'</p>', 'library_delete_books', self.gui):
                 return
-            ci = view.currentIndex()
-            row = None
-            if ci.isValid():
-                row = ci.row()
+            next_id = view.next_id
             if len(rows) < 5:
                 view.model().delete_books_by_id(to_delete_ids)
-                self.library_ids_deleted(to_delete_ids, row)
+                self.library_ids_deleted2(to_delete_ids, next_id=next_id)
             else:
                 self.__md = MultiDeleter(self.gui, to_delete_ids,
-                        partial(self.library_ids_deleted, current_row=row))
+                        partial(self.library_ids_deleted2, next_id=next_id))
         # Device view is visible.
         else:
             if self.gui.stack.currentIndex() == 1:

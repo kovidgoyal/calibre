@@ -12,6 +12,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
+from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
         plugins, config_dir, filesystem_encoding, DEBUG)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
@@ -796,7 +797,8 @@ class Application(QApplication):
 
         path = os.path.join(sys.extensions_location, 'calibre_style.'+(
             'pyd' if iswindows else 'so'))
-        self.pi.load_style(path, 'Calibre')
+        if not self.pi.load_style(path, 'Calibre'):
+            prints('Failed to load calibre style')
         # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
         for role in (orig_pal.Button, orig_pal.Window):
             c = orig_pal.brush(role).color()
@@ -853,6 +855,8 @@ class Application(QApplication):
             except:
                 import traceback
                 traceback.print_exc()
+            if not depth_ok:
+                prints('Color depth is less than 32 bits disabling modern look')
 
         if force_calibre_style or (depth_ok and gprefs['ui_style'] !=
                 'system'):

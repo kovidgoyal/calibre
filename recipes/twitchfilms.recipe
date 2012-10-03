@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 twitchfilm.net/news/
 '''
@@ -15,7 +15,6 @@ class Twitchfilm(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf-8'
     publisher             = 'Twitch'
-    masthead_url          = 'http://twitchfilm.com/img/logo.png'
     category              = 'twitch, twitchfilm, movie news, movie reviews, cult cinema, independent cinema, anime, foreign cinema, geek talk'
     language              = 'en'
 
@@ -26,8 +25,8 @@ class Twitchfilm(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags=[dict(attrs={'class':'asset-header'})]
-    remove_tags_after=dict(attrs={'class':'asset-body'})
+    keep_only_tags=[dict(attrs={'class':'entry'})]
+    remove_tags_after=dict(attrs={'class':'text'})
     remove_tags = [  dict(name='div', attrs={'class':['social','categories']})
                    , dict(attrs={'id':'main-asset'})
                    , dict(name=['meta','link','iframe','embed','object'])

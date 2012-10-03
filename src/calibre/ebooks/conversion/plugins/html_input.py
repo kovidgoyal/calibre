@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, tempfile, os
+import re, tempfile, os, imghdr
 from functools import partial
 from itertools import izip
 from urllib import quote
@@ -247,6 +247,15 @@ class HTMLInput(InputFormatPlugin):
             if media_type == 'text/plain':
                 self.log.warn('Ignoring link to text file %r'%link_)
                 return None
+            if media_type == self.BINARY_MIME:
+                # Check for the common case, images
+                try:
+                    img = imghdr.what(link)
+                except EnvironmentError:
+                    pass
+                else:
+                    if img:
+                        media_type = self.guess_type('dummy.'+img)[0] or self.BINARY_MIME
 
             self.oeb.log.debug('Added', link)
             self.oeb.container = self.DirContainer(os.path.dirname(link),

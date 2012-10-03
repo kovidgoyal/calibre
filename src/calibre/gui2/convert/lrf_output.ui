@@ -176,13 +176,13 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="opt_serif_family"/>
+       <widget class="FontFamilyChooser" name="opt_serif_family"/>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="opt_sans_family"/>
+       <widget class="FontFamilyChooser" name="opt_sans_family"/>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="opt_mono_family"/>
+       <widget class="FontFamilyChooser" name="opt_mono_family"/>
       </item>
      </layout>
     </widget>
@@ -202,6 +202,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FontFamilyChooser</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/font_family_chooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

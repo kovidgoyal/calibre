@@ -555,7 +555,7 @@ There can be two reasons why |app| is showing a empty list of books:
 
   * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, do a right-click on the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
 
-  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Click-and-hold the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
+  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
 
 
 Content From The Web

@@ -11,23 +11,8 @@ class NatureNews(BasicNewsRecipe):
     max_articles_per_feed = 50
 
     no_stylesheets = True
-    keep_only_tags = [dict(name='div', attrs={'id':'content'})]
-#    remove_tags_before = dict(name='h1', attrs={'class':'heading entry-title'})
-#    remove_tags_after  = dict(name='h2', attrs={'id':'comments'})
-    remove_tags = [
-       dict(name='h2', attrs={'id':'comments'}),
-       dict(attrs={'alt':'Advertisement'}),
-       dict(name='div', attrs={'class':'ad'}),
-       dict(attrs={'class':'Z3988'}),
-       dict(attrs={'class':['formatpublished','type-of-article','cleardiv','disclaimer','buttons','comments xoxo']}),
-       dict(name='a', attrs={'href':'#comments'}),
-       dict(name='h2',attrs={'class':'subheading plusicon icon-add-comment'})
-    ]
-
-    preprocess_regexps = [
-        (re.compile(r'<p>ADVERTISEMENT</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        ]
-
+    use_embedded_content = False
+    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
     extra_css             = '''
                             .author { text-align: right; font-size: small; line-height:1em; margin-top:0px; margin-left:0; margin-right:0; margin-bottom: 0; }
                             .imagedescription { font-size: small; font-style:italic; line-height:1em; margin-top:5px; margin-left:0; margin-right:0; margin-bottom: 0; }
@@ -36,51 +21,3 @@ class NatureNews(BasicNewsRecipe):
 
     feeds = [('Nature News', 'http://feeds.nature.com/news/rss/most_recent')]
 
-    def preprocess_html(self,soup):
-        # The author name is slightly buried - dig it up
-        author = soup.find('p', {'class':'byline'})
-        if author:
-            # Find out the author's name
-            authornamediv = author.find('span',{'class':'author fn'})
-            authornamelink = authornamediv.find('a')
-            if authornamelink:
-                authorname = authornamelink.contents[0]
-            else:
-                authorname = authornamediv.contents[0]
-            # Stick the author's name in the byline tag
-            tag = Tag(soup,'div')
-            tag['class'] = 'author'
-            tag.insert(0,authorname.strip())
-            author.replaceWith(tag)
-
-        # Change the intro from a p to a div
-        intro = soup.find('p',{'class':'intro'})
-        if intro:
-            tag = Tag(soup,'div')
-            tag['class'] = 'intro'
-            tag.insert(0,intro.contents[0])
-            intro.replaceWith(tag)
-
-        # Change span class=imagedescription to div
-        descr = soup.find('span',{'class':'imagedescription'})
-        if descr:
-            tag = Tag(soup,'div')
-            tag['class'] = 'imagedescription'
-            tag.insert(0,descr.renderContents())
-            descr.replaceWith(tag)
-
-        # The references are in a list, let's make them simpler
-        reflistcont =  soup.find('ul',{'id':'article-refrences'})
-        if reflistcont:
-            reflist = reflistcont.li.renderContents()
-            tag = Tag(soup,'div')
-            tag['class'] = 'article-references'
-            tag.insert(0,reflist)
-            reflistcont.replaceWith(tag)
-
-        # Within the id=content div, we need to remove all the stuff after the end of the class=entry-content
-        entrycontent = soup.find('div',{'class':'entry-content'})
-        for nextSibling in entrycontent.findNextSiblings():
-            nextSibling.extract()
-
-        return soup

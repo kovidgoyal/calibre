@@ -212,6 +212,9 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += pprint.pformat(storage)
         return ans
 
+    def _filesystem_callback(self, entry):
+        self.filesystem_callback(_('Found object: %s')%entry.get('name', ''))
+
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
@@ -231,7 +234,8 @@ class MTP_DEVICE(MTPDeviceBase):
                     storage.append({'id':sid, 'size':capacity,
                         'is_folder':True, 'name':name, 'can_delete':False,
                         'is_system':True})
-                    items, errs = self.dev.get_filesystem(sid)
+                    items, errs = self.dev.get_filesystem(sid,
+                            self._filesystem_callback)
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
                     raise DeviceError(

@@ -867,6 +867,35 @@ class BooksView(QTableView): # {{{
                     break
         return property(fget=fget, fset=fset)
 
+    @property
+    def next_id(self):
+        '''
+        Return the id of the 'next' row (i.e. the first unselected row after
+        the current row).
+        '''
+        ci = self.currentIndex()
+        if not ci.isValid():
+            return None
+        selected_rows = frozenset([i.row() for i in self.selectedIndexes() if
+            i.isValid()])
+        column = ci.column()
+
+        for i in xrange(ci.row()+1, self.row_count()):
+            if i in selected_rows: continue
+            try:
+                return self.model().id(self.model().index(i, column))
+            except:
+                pass
+
+        # No unselected rows after the current row, look before
+        for i in xrange(ci.row()-1, -1, -1):
+            if i in selected_rows: continue
+            try:
+                return self.model().id(self.model().index(i, column))
+            except:
+                pass
+        return None
+
     def close(self):
         self._model.close()
 

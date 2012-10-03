@@ -931,6 +931,7 @@ class FullFetch(QDialog): # {{{
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         l.addWidget(self.bb)
         self.bb.rejected.connect(self.reject)
+        self.bb.accepted.connect(self.accept)
         self.next_button = self.bb.addButton(_('Next'), self.bb.AcceptRole)
         self.next_button.setDefault(True)
         self.next_button.setEnabled(False)
@@ -978,6 +979,7 @@ class FullFetch(QDialog): # {{{
         self.log('\n\n')
         self.covers_widget.start(book, self.current_cover,
                 self.title, self.authors, caches)
+        self.ok_button.setFocus()
 
     def back_clicked(self):
         self.next_button.setVisible(True)
@@ -988,6 +990,8 @@ class FullFetch(QDialog): # {{{
         self.covers_widget.reset_covers()
 
     def accept(self):
+        if self.stack.currentIndex() == 1:
+            return QDialog.accept(self)
         # Prevent the usual dialog accept mechanisms from working
         pass
 
