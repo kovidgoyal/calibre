@@ -15,6 +15,7 @@ from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
+from calibre.utils.config import device_prefs
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 
@@ -228,6 +229,7 @@ def main():
             continue
         else:
             dev = d
+            d.specialize_global_preferences(device_prefs)
             break
 
 

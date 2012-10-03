@@ -1,6 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
-import re
 
 class NatureNews(BasicNewsRecipe):
     title          = u'Nature News'
