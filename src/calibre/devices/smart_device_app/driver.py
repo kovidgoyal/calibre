@@ -34,7 +34,7 @@ from calibre.library import current_library_name
 from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.config import from_json, tweaks
+from calibre.utils.config import from_json, tweaks, prefs
 from calibre.utils.date import isoformat, now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
@@ -1196,6 +1196,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug()
         self.plugboards = plugboards
         self.plugboard_func = pb_func
+
+    @synchronous('sync_lock')
+    def specialize_global_preferences(self, device_prefs, add_specializations):
+        self._debug('add', add_specializations)
+        if add_specializations:
+            device_prefs.set_overrides(manage_device_metadata='on_connect')
+        else:
+            device_prefs.set_overrides()
 
     @synchronous('sync_lock')
     def startup(self):

@@ -5,6 +5,7 @@ from collections import namedtuple
 
 from calibre.customize import Plugin
 from calibre.constants import iswindows
+from calibre.utils.config import prefs
 
 class DevicePlugin(Plugin):
     """
@@ -625,6 +626,21 @@ class DevicePlugin(Plugin):
         Set the list of device uids that should be ignored by this driver.
         '''
         pass
+
+    def specialize_global_preferences(self, device_prefs, add_specializations):
+        '''
+        Implement this method if your device wants to override a particular
+        preference. You must ensure that all call sites that want a preference
+        that can be overridden use device_prefs['something'] instead
+        of prefs['something']. If add_specializations is True, then your
+        method should call device_prefs.set_overrides(pref=val, pref=val, ...).
+        If add_specializations is False, then your method should call
+        device_prefs.set_overrides() to remove any previous specialization.
+        Currently used for:
+            metadata management (prefs['manage_device_metadata'])
+        '''
+        pass
+
 
     # Dynamic control interface.
     # The following methods are probably called on the GUI thread. Any driver
