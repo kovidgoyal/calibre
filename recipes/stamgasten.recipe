@@ -14,5 +14,6 @@ class AdvancedUserRecipe1347706704(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_tags_before = dict(id='title')
     remove_tags_after = dict(attrs={'class':'entry-content rich-content'})
+    extra_css = 'img{border:0;padding:0;margin:0;width:100%}'
 
     feeds          = [(u'Stamgasten', u'http://toonvandriel.nl/feed/')]
