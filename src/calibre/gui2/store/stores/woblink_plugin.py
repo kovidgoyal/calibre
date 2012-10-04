@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import copy
 import re
 import urllib
 from contextlib import closing
@@ -74,7 +73,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price + ' zł'
                 s.detail_item = id.strip()
-                
+
                 if 'epub_drm' in formats:
                     s.drm = SearchResult.DRM_LOCKED
                     s.formats = 'EPUB'
@@ -84,7 +83,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 elif 'pdf' in formats:
                     s.drm = SearchResult.DRM_LOCKED
                     s.formats = 'PDF'
-                
+
                     counter -= 1
                     yield s
                 else:
@@ -93,6 +92,6 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                         formats.remove('MOBI_nieb')
                         formats.append('MOBI')
                     s.formats = ', '.join(formats).upper()
-                
+
                     counter -= 1
                     yield s
