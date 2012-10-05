@@ -459,9 +459,10 @@ class EditMetadataAction(InterfaceAction):
                 if src_value:
                   src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
                   db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
-              if db.field_metadata[key]['datatype'] == 'text' \
-                and not db.field_metadata[key]['is_multiple'] \
-                and not dest_value:
+              if (db.field_metadata[key]['datatype'] == 'enumeration' or
+                        (db.field_metadata[key]['datatype'] == 'text' and
+                         not db.field_metadata[key]['is_multiple'])
+                    and not dest_value):
                 db.set_custom(dest_id, src_value, num=colnum)
               if db.field_metadata[key]['datatype'] == 'text' \
                 and db.field_metadata[key]['is_multiple']:
