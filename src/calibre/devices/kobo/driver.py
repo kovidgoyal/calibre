@@ -1285,7 +1285,6 @@ class KOBOTOUCH(KOBO):
                           }
 
     def initialize(self):
-        debug_print("KoboTouch:initialize")
         super(KOBOTOUCH, self).initialize()
         self.bookshelvelist = []
 
