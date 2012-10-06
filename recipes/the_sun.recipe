@@ -8,13 +8,11 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'The Sun UK'
     description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 25/7/12
+    # last updated 6/10/12 added starsons remove article code
     language = 'en_GB'
     oldest_article = 1
-    max_articles_per_feed = 12
+    max_articles_per_feed = 15
     remove_empty_feeds = True
-    no_stylesheets = True
-
 
     masthead_url = 'http://www.thesun.co.uk/sol/img/global/Sun-logo.gif'
     encoding = 'UTF-8'
@@ -23,13 +21,9 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
 
 
-    #preprocess_regexps = [
-     #   (re.compile(r'<div class="foot-copyright".*?</div>', re.IGNORECASE | re.DOTALL), lambda match: '')]
-
-
     extra_css  = '''
     body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-                '''
+           '''
     keep_only_tags = [
         dict(name='div',attrs={'class' : 'intro'}),
                                 dict(name='h3'),
@@ -52,6 +46,15 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     (u'Showbiz', u'http://www.thesun.co.uk/sol/homepage/showbiz/rss'),
     (u'Woman', u'http://www.thesun.co.uk/sol/homepage/woman/rss'),
     ]
+# starsons code
+    def parse_feeds (self):
+      feeds = BasicNewsRecipe.parse_feeds(self)
+      for feed in feeds:
+        for article in feed.articles[:]:
+          # print 'article.title is: ', article.title
+          if 'Web porn harms kids' in article.title.upper() or 'The-Sun-says' in article.url:
+            feed.articles.remove(article)
+      return feeds
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
@@ -69,6 +72,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         cov2 = str(cov)
         cov2=cov2[27:-18]
         #cov2 now is pic url, now  go back to original function
+        # print "**** cov2 =",cov2,"****"
         br = browser()
         br.set_handle_redirect(False)
         try:
