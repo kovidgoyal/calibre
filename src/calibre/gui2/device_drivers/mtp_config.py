@@ -146,7 +146,7 @@ class SendToConfig(QWidget): # {{{
     def browse(self):
         b = Browser(self.device.filesystem_cache, show_files=False,
                 parent=self)
-        if b.exec_() == b.Accepted:
+        if b.exec_() == b.Accepted and b.current_item is not None:
             sid, path = b.current_item
             self.t.setText('/'.join(path[1:]))
 
@@ -250,7 +250,7 @@ class Rule(QWidget):
     def browse(self):
         b = Browser(self.device.filesystem_cache, show_files=False,
                 parent=self)
-        if b.exec_() == b.Accepted:
+        if b.exec_() == b.Accepted and b.current_item is not None:
             sid, path = b.current_item
             self.folder.setText('/'.join(path[1:]))
 

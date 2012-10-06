@@ -634,7 +634,7 @@ class DevicePlugin(Plugin):
         of prefs['something']. Your
         method should call device_prefs.set_overrides(pref=val, pref=val, ...).
         Currently used for:
-            metadata management (prefs['manage_device_metadata'])
+        metadata management (prefs['manage_device_metadata'])
         '''
         device_prefs.set_overrides()
 

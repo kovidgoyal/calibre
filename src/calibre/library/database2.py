@@ -3664,7 +3664,7 @@ books_series_link      feeds
                 if not ext:
                     continue
                 ext = ext[1:].lower()
-                if ext not in BOOK_EXTENSIONS:
+                if ext not in BOOK_EXTENSIONS and ext != 'opf':
                     continue
 
                 key = os.path.splitext(path)[0]
