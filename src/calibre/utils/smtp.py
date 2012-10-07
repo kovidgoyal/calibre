@@ -211,23 +211,25 @@ def main(args=sys.argv):
         msg = compose_mail(args[1], args[2], args[3], subject=opts.subject,
                            attachment=opts.attachment)
         from_, to = args[1:3]
-        efrom, eto = map(extract_email_address, (from_, to))
-        eto = [eto]
+        eto = [extract_email_address(x.strip()) for x in to.split(',')]
+        efrom = extract_email_address(from_)
     else:
         msg = sys.stdin.read()
-        from email.parser import Parser
+        from email import message_from_string
         from email.utils import getaddresses
-        eml = Parser.parsestr(msg, headersonly=True)
+        eml = message_from_string(msg)
         tos = eml.get_all('to', [])
-        ccs = eml.get_all('cc', [])
-        eto = getaddresses(tos + ccs)
+        ccs = eml.get_all('cc', []) + eml.get_all('bcc', [])
+        all_tos = []
+        for x in tos + ccs:
+            all_tos.extend(y.strip() for y in x.split(','))
+        eto = list(map(extract_email_address, all_tos))
         if not eto:
             raise ValueError('Email from STDIN does not specify any recipients')
         efrom = getaddresses(eml.get_all('from', []))
         if not efrom:
             raise ValueError('Email from STDIN does not specify a sender')
-        efrom = efrom[0]
-
+        efrom = efrom[0][1]
 
     outbox = None
     if opts.outbox is not None:
