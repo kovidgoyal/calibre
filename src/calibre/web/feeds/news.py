@@ -321,6 +321,15 @@ class BasicNewsRecipe(Recipe):
     #: The string will be used as the disabled message
     recipe_disabled = None
 
+    #: Ignore duplicates of articles that are present in more than one section.
+    #: A duplicate article is an article that has the same title and/or URL.
+    #: To ignore articles with the same title, set this to:
+    #: ignore_duplicate_articles = {'title'}
+    #: To use URLs instead, set it to:
+    #: ignore_duplicate_articles = {'url'}
+    #: To match on title or URL, set it to:
+    #: ignore_duplicate_articles = {'title', 'url'}
+    ignore_duplicate_articles = None
 
     # See the built-in profiles for examples of these settings.
 
@@ -1019,6 +1028,24 @@ class BasicNewsRecipe(Recipe):
             url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
         return self._fetch_article(url, dir,  f, a, num_of_feeds)
 
+    def remove_duplicate_articles(self, feeds):
+        seen_keys = defaultdict(set)
+        remove = []
+        for f in feeds:
+            for article in f:
+                for key in self.ignore_duplicate_articles:
+                    val = getattr(article, key)
+                    seen = seen_keys[key]
+                    if val:
+                        if val in seen:
+                            remove.append((f, article))
+                        else:
+                            seen.add(val)
+
+        for feed, article in remove:
+            self.log.debug('Removing duplicate article: %s from section: %s'%(
+                article.title, feed.title))
+            feed.remove_article(article)
 
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
@@ -1032,6 +1059,9 @@ class BasicNewsRecipe(Recipe):
 
         if not feeds:
             raise ValueError('No articles found, aborting')
+
+        if self.ignore_duplicate_articles is not None:
+            self.remove_duplicate_articles(feeds)
 
         #feeds = FeedCollection(feeds)
 
