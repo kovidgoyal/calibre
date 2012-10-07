@@ -35,7 +35,7 @@ from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
-from calibre.utils.date import isoformat, now
+from calibre.utils.date import isoformat, now, UNDEFINED_DATE
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -657,9 +657,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _metadata_already_on_device(self, book):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
-            return (v.get('uuid', None) == book.get('uuid', None) and
-                    v.get('last_modified', None) == book.get('last_modified', None) and
-                    v.get('thumbnail', None) == book.get('thumbnail', None))
+            # Metadata is the same if the uuids match, if the last_modified dates
+            # match, and if the height of the thumbnails is the same. The last
+            # is there to allow a device to demand a different thumbnail size
+            if (v.get('uuid', None) == book.get('uuid', None) and
+                    v.get('last_modified', None) == book.get('last_modified', None)):
+                v_thumb = v.get('thumbnail', None)
+                b_thumb = book.get('thumbnail', None)
+                if bool(v_thumb) != bool(b_thumb):
+                    return False
+                return not v_thumb or v_thumb[1] == b_thumb[1]
         return False
 
     def _set_known_metadata(self, book, remove=False):
@@ -976,6 +983,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if '_series_sort_' in result:
                         del result['_series_sort_']
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
+
+                    # If the thumbnail is the wrong size, zero the last mod date
+                    # so the metadata will be resent
+                    thumbnail = book.get('thumbnail', None)
+                    if thumbnail and not (thumbnail[0] == self.THUMBNAIL_HEIGHT or
+                                          thumbnail[1] == self.THUMBNAIL_HEIGHT):
+                        book.set('last_modified', UNDEFINED_DATE)
+
                     bl.add_book(book, replace_metadata=True)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
@@ -1198,6 +1213,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.plugboard_func = pb_func
 
     @synchronous('sync_lock')
+    def specialize_global_preferences(self, device_prefs):
+        device_prefs.set_overrides(manage_device_metadata='on_connect')
+
+    @synchronous('sync_lock')
     def startup(self):
         self.listen_socket = None
 
@@ -1276,35 +1295,33 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                              '_calibresmartdeviceapp._tcp', port, {},
                              use_ip_address=ip_addr)
         except:
-            message = 'registration with bonjour failed'
-            self._debug(message)
-            self._close_listen_socket()
-            return message
+            self._debug('registration with bonjour failed')
+            traceback.print_exc()
 
         self._debug('listening on port', port)
         self.port = port
 
         # Now try to open a UDP socket to receive broadcasts on
 
+        message = None
         try:
             self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except:
             message = 'creation of broadcast socket failed. This is not fatal.'
             self._debug(message)
-            return message
-
-        for p in self.BROADCAST_PORTS:
-            port = self._attach_to_port(self.broadcast_socket, p)
-            if port != 0:
-                self._debug('broadcast socket listening on port', port)
-                break
-
-        message = None
-        if port == 0:
-            self.broadcast_socket.close()
             self.broadcast_socket = None
-            message = 'attaching port to broadcast socket failed. This is not fatal.'
-            self._debug(message)
+        else:
+            for p in self.BROADCAST_PORTS:
+                port = self._attach_to_port(self.broadcast_socket, p)
+                if port != 0:
+                    self._debug('broadcast socket listening on port', port)
+                    break
+
+            if port == 0:
+                self.broadcast_socket.close()
+                self.broadcast_socket = None
+                message = 'attaching port to broadcast socket failed. This is not fatal.'
+                self._debug(message)
 
         self.connection_queue = Queue.Queue(1)
         self.connection_listener = ConnectionListener(self)

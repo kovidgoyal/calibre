@@ -15,5 +15,6 @@ class AdvancedUserRecipe1347706704(BasicNewsRecipe):
     remove_tags_before = dict(id='title')
     remove_tags_after = dict(attrs={'class':'entry-content rich-content'})
     use_embedded_content = True
+    extra_css = 'img{border:0;padding:0;margin:0;width:100%}'
 
     feeds          = [(u'FC Knudde', u'http://www.nusport.nl/feeds/rss/fc-knudde.rss')]

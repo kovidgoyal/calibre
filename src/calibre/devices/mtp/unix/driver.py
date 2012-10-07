@@ -25,6 +25,8 @@ def fingerprint(d):
     return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
             d.serial, d.manufacturer, d.product)
 
+APPLE = 0x05ac
+
 class MTP_DEVICE(MTPDeviceBase):
 
     # libusb(x) does not work on OS X. So no MTP support for OS X
@@ -53,7 +55,8 @@ class MTP_DEVICE(MTPDeviceBase):
         devs = set()
         for d in devices_on_system:
             fp = fingerprint(d)
-            if fp not in self.blacklisted_devices:
+            if fp not in self.blacklisted_devices and fp.vendor_id != APPLE:
+                # Do not try to open Apple devices
                 devs.add(fp)
 
         # Clean up ejected devices
@@ -93,7 +96,7 @@ class MTP_DEVICE(MTPDeviceBase):
             p(err)
             return False
         devs = [d for d in devices_on_system if (d.vendor_id, d.product_id)
-                in self.known_devices]
+                in self.known_devices and d.vendor_id != APPLE]
         if not devs:
             p('No known MTP devices connected to system')
             return False
@@ -209,6 +212,9 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += pprint.pformat(storage)
         return ans
 
+    def _filesystem_callback(self, entry):
+        self.filesystem_callback(_('Found object: %s')%entry.get('name', ''))
+
     @property
     def filesystem_cache(self):
         if self._filesystem_cache is None:
@@ -228,7 +234,8 @@ class MTP_DEVICE(MTPDeviceBase):
                     storage.append({'id':sid, 'size':capacity,
                         'is_folder':True, 'name':name, 'can_delete':False,
                         'is_system':True})
-                    items, errs = self.dev.get_filesystem(sid)
+                    items, errs = self.dev.get_filesystem(sid,
+                            self._filesystem_callback)
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
                     raise DeviceError(

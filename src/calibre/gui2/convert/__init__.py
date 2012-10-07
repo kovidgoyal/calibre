@@ -19,6 +19,7 @@ from calibre.ebooks.conversion.config import load_defaults, \
     load_specifics, GuiRecommendations
 from calibre import prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
+from calibre.gui2.font_family_chooser import FontFamilyChooser
 
 def config_widget_for_input_plugin(plugin):
     name = plugin.name.lower().replace(' ', '_')
@@ -144,6 +145,8 @@ class Widget(QWidget):
             return ans
         elif isinstance(g, QFontComboBox):
             return unicode(QFontInfo(g.currentFont()).family())
+        elif isinstance(g, FontFamilyChooser):
+            return g.font_family
         elif isinstance(g, EncodingComboBox):
             ans = unicode(g.currentText()).strip()
             try:
@@ -208,6 +211,8 @@ class Widget(QWidget):
             getattr(g, 'setCursorPosition', lambda x: x)(0)
         elif isinstance(g, QFontComboBox):
             g.setCurrentFont(QFont(val or ''))
+        elif isinstance(g, FontFamilyChooser):
+            g.font_family = val
         elif isinstance(g, EncodingComboBox):
             if val:
                 g.setEditText(val)

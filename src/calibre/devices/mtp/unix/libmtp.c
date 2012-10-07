@@ -357,7 +357,7 @@ Device_storage_info(Device *self, void *closure) {
 
 // Device.get_filesystem {{{
 
-static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uint32_t parent_id, PyObject *ans, PyObject *errs) {
+static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uint32_t parent_id, PyObject *ans, PyObject *errs, PyObject *callback) {
     LIBMTP_file_t *f, *files;
     PyObject *entry;
     int ok = 1;
@@ -372,12 +372,13 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
         entry = build_file_metadata(f, storage_id);
         if (entry == NULL) { ok = 0; }
         else {
+            Py_XDECREF(PyObject_CallFunctionObjArgs(callback, entry, NULL));
             if (PyList_Append(ans, entry) != 0) { ok = 0; }
             Py_DECREF(entry); 
         }
 
         if (ok && f->filetype == LIBMTP_FILETYPE_FOLDER) {
-            if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs)) {
+            if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs, callback)) {
                 ok = 0; 
             }
         }
@@ -394,19 +395,20 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
 
 static PyObject *
 Device_get_filesystem(Device *self, PyObject *args) {
-    PyObject *ans, *errs;
+    PyObject *ans, *errs, *callback;
     unsigned long storage_id;
     int ok = 0;
 
     ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
-    if (!PyArg_ParseTuple(args, "k", &storage_id)) return NULL; 
+    if (!PyArg_ParseTuple(args, "kO", &storage_id, &callback)) return NULL; 
+    if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback is not a callable"); return NULL; }
     ans = PyList_New(0);
     errs = PyList_New(0);
     if (errs == NULL || ans == NULL) { PyErr_NoMemory(); return NULL; }
 
     LIBMTP_Clear_Errorstack(self->device);
-    ok = recursive_get_files(self->device, (uint32_t)storage_id, 0, ans, errs);
+    ok = recursive_get_files(self->device, (uint32_t)storage_id, 0, ans, errs, callback);
     dump_errorstack(self->device, errs);
     if (!ok) {
         Py_DECREF(ans);
@@ -535,7 +537,7 @@ static PyMethodDef Device_methods[] = {
     },
 
     {"get_filesystem", (PyCFunction)Device_get_filesystem, METH_VARARGS,
-     "get_filesystem(storage_id) -> Get the list of files and folders on the device in storage_id. Returns files, errors."
+     "get_filesystem(storage_id, callback) -> Get the list of files and folders on the device in storage_id. Returns files, errors. callback must be a callable that accepts a single argument. It is called with every found object."
     },
 
     {"get_file", (PyCFunction)Device_get_file, METH_VARARGS,

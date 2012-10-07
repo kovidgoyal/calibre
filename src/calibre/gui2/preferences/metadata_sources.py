@@ -296,6 +296,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('wait_after_first_cover_result', msprefs)
         r('swap_author_names', msprefs)
         r('fewer_tags', msprefs)
+        r('find_first_edition_date', msprefs)
 
         self.configure_plugin_button.clicked.connect(self.configure_plugin)
         self.sources_model = SourcesModel(self)

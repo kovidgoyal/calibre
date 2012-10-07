@@ -294,6 +294,8 @@ class KINDLE2(KINDLE):
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
+    # SUPPORTS_SUB_DIRS = False # Apparently the Paperwhite doesn't like files placed in subdirectories
+    # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Send page number information when sending books') +

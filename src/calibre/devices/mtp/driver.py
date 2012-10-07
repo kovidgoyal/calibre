@@ -155,9 +155,13 @@ class MTP_DEVICE(BASE):
     # }}}
 
     # Get list of books from device, with metadata {{{
+    def filesystem_callback(self, msg):
+        self.report_progress(0, msg)
+
     def books(self, oncard=None, end_session=True):
         from calibre.devices.mtp.books import JSONCodec
         from calibre.devices.mtp.books import BookList, Book
+        self.report_progress(0, _('Listing files, this can take a while'))
         self.get_driveinfo() # Ensure driveinfo is loaded
         sid = {'carda':self._carda_id, 'cardb':self._cardb_id}.get(oncard,
                 self._main_id)
@@ -172,7 +176,7 @@ class MTP_DEVICE(BASE):
         steps = len(all_books) + 2
         count = 0
 
-        self.report_progress(0, _('Reading metadata from device'))
+        self.report_progress(0, _('Reading ebook metadata'))
         # Read the cache if it exists
         storage = self.filesystem_cache.storage(sid)
         cache = storage.find_path((self.METADATA_CACHE,))

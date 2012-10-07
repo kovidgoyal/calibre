@@ -670,7 +670,7 @@ from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
         TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
-from calibre.devices.kobo.driver import KOBO
+from calibre.devices.kobo.driver import KOBO, KOBOTOUCH
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
@@ -724,7 +724,7 @@ plugins += [
     SNE,
     ALEX, ODYSSEY,
     PALMPRE,
-    KOBO,
+    KOBO, KOBOTOUCH,
     AZBOOKA,
     FOLDER_DEVICE_FOR_CONFIG,
     AVANT,

@@ -21,7 +21,7 @@ from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
     info_dialog, error_dialog, open_url, available_height)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isbsd, isosx, filesystem_encoding
+from calibre.constants import islinux, isbsd, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
@@ -209,9 +209,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
         self.view_resized_timer.setSingleShot(True)
         self.resize_in_progress = False
-        qs = [Qt.CTRL+Qt.Key_Q]
-        if isosx:
-            qs += [Qt.CTRL+Qt.Key_W]
+        qs = [Qt.CTRL+Qt.Key_Q,Qt.CTRL+Qt.Key_W]
         self.action_quit.setShortcuts(qs)
         self.action_quit.triggered.connect(self.quit)
         self.action_focus_search = QAction(self)

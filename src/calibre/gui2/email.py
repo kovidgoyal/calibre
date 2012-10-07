@@ -101,8 +101,10 @@ class Sendmail(object):
                 from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
             with lopen(attachment, 'rb') as f:
                 msg = compose_mail(from_, to, text, subject, f, aname)
-            efrom, eto = map(extract_email_address, (from_, to))
-            eto = [eto]
+            efrom = extract_email_address(from_)
+            eto = []
+            for x in to.split(','):
+                eto.append(extract_email_address(x.strip()))
             sendmail(msg, efrom, eto, localhost=None,
                         verbose=1,
                         relay=opts.relay_host,

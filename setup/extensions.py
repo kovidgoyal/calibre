@@ -191,6 +191,12 @@ if iswindows:
             # needs_ddk=True,
             cflags=['/X']
             ),
+        Extension('winfonts',
+                ['calibre/utils/fonts/winfonts.cpp'],
+                libraries=['Gdi32', 'User32'],
+                cflags=['/X']
+                ),
+
         ])
 
 if isosx:
