@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-05 05:21+0000\n"
-"PO-Revision-Date: 2012-10-02 15:21+0000\n"
+"PO-Revision-Date: 2012-10-06 23:08+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-06 04:45+0000\n"
+"X-Launchpad-Export-Date: 2012-10-07 04:38+0000\n"
 "X-Generator: Launchpad (build 16061)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1741,7 +1741,7 @@ msgid ""
 msgstr ""
 "Kobo aggiorna regolarmente la versione del firmware e del database. Con "
 "questa opzione, calibre proverà a eseguire le funzionalità complete di "
-"lettura-scrittura. Qui server coraggio! Abilitala solo se sai come "
+"lettura-scrittura. Qui serve coraggio! Abilitala solo se sai come "
 "ripristinare le impostazioni di fabbrica del tuo Kobo e provare il software."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:618
@@ -1831,39 +1831,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1202
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr ""
+msgstr "Il Kobo Touch dal firmware V2.0.0 supporta le librerie."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1204
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "Specifica una colonna del tipo di tag per la gestione automatica"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1205
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Creare librerie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1206
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
+"Crea nuove librerie sul Kobo Touch se non esistono. Disponibile solo per "
+"firmware V2.0.0 o successivi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1207
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Elimina librerie vuote"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1208
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
+"Elimina qualsiasi libreria vuota dal Kobo Touch al termine della "
+"sincronizzazione. Disponibile solo per firmware V2.0.0 o successivi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1209
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Carica le copertine dei libri"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Always upload covers"
-msgstr ""
+msgstr "Carica sempre le copertine"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid ""
@@ -1871,6 +1875,9 @@ msgid ""
 "already on the device. Select this option if you want covers uploaded the "
 "first time you send the book to the device."
 msgstr ""
+"Se l'opzione Carica le copertine è selezionata, il driver sostituirà solo le "
+"copertine già presenti sul dispositivo. Selezion questa opzione se vuoi che "
+"le copertine siano caricate la prima volta che invii un libro al dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
 msgid ""
@@ -1880,10 +1887,15 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.0.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo aggiorna regolarmente la versione del firmware e del database. Con "
+"questa opzione, calibre proverà a eseguire le funzionalità complete di "
+"lettura-scrittura. Qui serve coraggio! Abilitala solo se sai come "
+"ripristinare le impostazioni di fabbrica del tuo Kobo e provare il software. "
+"Questo driver supporta i firmware V2.0.x e DBVersion fino a "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1238
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "Titolo da provare in fase di debug"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
 msgid ""
@@ -1891,6 +1903,10 @@ msgid ""
 "debugging. The test is to see if the string is contained in the title of a "
 "book. The better the match, the less extraneous output."
 msgstr ""
+"Parte del titolo di un libro che può essere utilizzato per le prove di "
+"debug. Il test consiste nel vedere se la stringa è contenuta nel titolo di "
+"un libro. Migliore è la corrispondenza, minori saranno i risultati "
+"indesiderati."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1969,11 +1985,11 @@ msgstr "Recupero informazioni del dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:164
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Elencazione dei file in corso, potrebbe richiedere del tempo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:179
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Lettura dei metadati dell'ebook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:212
 #, python-format
@@ -2041,7 +2057,7 @@ msgstr "Dispositivo MTP sconosciuto"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Oggetto trovato: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
@@ -2060,7 +2076,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "ID trovato: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -16440,7 +16456,7 @@ msgstr "Il dispositivo {0} non supporta il formato {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "Il dispositivo {0} supporta solo il(i) formato(i) {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -20059,6 +20075,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Titolo del catalogo generato utilizzato come titolo nei metadati.\n"
+"Predefinito: '%default'\n"
+"Si applica a: formati di output AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:47
 #, python-format
@@ -20833,6 +20852,15 @@ msgid ""
 "ouput.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog catalogo /percorso/di/destinazione.(CSV|EPUB|MOBI|XML ...) "
+"[opzioni]\n"
+"\n"
+"    Esporta un catalogo nel formato specificato dall'estensione di "
+"percorso/di/destinazione.\n"
+"    Le opxioni controllano il modo in cui le voci sono visualizzate nel "
+"catalogo generato.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:782
 msgid ""

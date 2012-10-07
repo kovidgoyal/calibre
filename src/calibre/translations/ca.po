@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-05 05:21+0000\n"
-"PO-Revision-Date: 2012-09-24 11:33+0000\n"
+"PO-Revision-Date: 2012-10-06 10:45+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-06 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-10-07 04:37+0000\n"
 "X-Generator: Launchpad (build 16061)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1835,38 +1835,44 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1202
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
 msgstr ""
+"El Kobo Touch és permet prestatgeries des del microprogramari V2.0.0."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1204
 msgid "Specify a tags type column for automatic management"
 msgstr ""
+"Especifiqueu una columna de tipus d'etiqueta per a la gestió automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1205
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Creació de prestatgeries"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1206
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
+"Crea prestatgeries noves al Kobo Touch si no n'hi ha. Només per al "
+"microprogramari V2.0.0 o posterior."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1207
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Suprimeix les prestatgeries buides."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1208
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
+"Suprimeix les prestatgeries buides del Kobo Touch després de sincronitzar. "
+"Només per al microprogramari V2.0.0 o posterior."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1209
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Puja portades per als llibres"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Always upload covers"
-msgstr ""
+msgstr "Puja portades sempre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid ""
@@ -1874,6 +1880,10 @@ msgid ""
 "already on the device. Select this option if you want covers uploaded the "
 "first time you send the book to the device."
 msgstr ""
+"Si s'ha seleccionat l'opció de pujar portades, el controlador només "
+"reemplaçarà portades que ja estiguin al dispositiu. Seleccioneu aquesta "
+"opció si voleu que es pugin les portades el primer cop que envieu un llibre "
+"al dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
 msgid ""
@@ -1883,10 +1893,15 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.0.x "
 "and DBVersion up to "
 msgstr ""
+"El Kobo actualitza regularment el microprogramari i la versió de la base de "
+"dades. Amb aquesta opció el calibre intentarà realitzar funcions completes "
+"de lectura i escriptura. Compte: Habiliteu-ho només si sabeu com tornar el "
+"Kobo a la configuració de fàbrica i provar programari. Aquest controlador és "
+"compatible amb el microprogramari V2.0.x i la versió de base de dades fins a "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1238
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "Títol que es provarà en la depuració"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
 msgid ""
@@ -1894,6 +1909,9 @@ msgid ""
 "debugging. The test is to see if the string is contained in the title of a "
 "book. The better the match, the less extraneous output."
 msgstr ""
+"Part del títol d'un llibre que es pot utilitzar en fer algunes proves per a "
+"la depuració. El que es mira és si la cadena està al títol del llibre. Com "
+"millor sigui la coincidència millor serà la sortida."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1972,11 +1990,11 @@ msgstr "Obté informació del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:164
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "S'està generant la llista de fitxers; pot trigar una estona"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:179
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "S'està llegint les metadades dels llibres"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:212
 #, python-format
@@ -2044,11 +2062,11 @@ msgstr "Dispositiu MTP desconegut"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "No s'ha trobat l'objecte: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "Els dispositius MTP no són compatibles amb Windows XP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2063,7 +2081,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "S'ha trobat un identificador: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -6299,7 +6317,7 @@ msgstr "Inicia/atura el servidor de continguts"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%s, port %d]"
-msgstr ""
+msgstr " [%s, port %d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:99
 msgid "Stop Content Server"
@@ -10174,7 +10192,7 @@ msgstr "&Ignora %s al calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Show device information"
-msgstr ""
+msgstr "Mostra la informació del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
@@ -12787,6 +12805,14 @@ msgid ""
 "virus manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Inicia connexions amb un dispositiu sense fils. Actualment només ho "
+"utiliza\n"
+"       el <a href=\"http://www.multipie.co.uk/calibre-companion/\">Calibre "
+"Companion</a>.\n"
+"       <p>És possible que tingueu missatges del tallafocs o de l'antivirus "
+"preguntant si voleu permetre que el calibre es connecti a la xarxa. <b>Si us "
+"plau, contesteu sí</b>. Si no ho feu les connexions sense fils no "
+"funcionaran."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Calibre IP addresses:"
@@ -16578,7 +16604,7 @@ msgstr "El dispositiu {0} no és compatible amb el format {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "El dispositius {0} només és compatible amb el(s) format(s) {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
