@@ -1695,7 +1695,9 @@ class DeviceMixin(object): # {{{
                 book.in_library = None
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     id_ = db_book_uuid_cache[book.uuid]
-                    if update_metadata:
+                    if (update_metadata and
+                            db.metadata_last_modified(id_, index_is_id=True) !=
+                                        getattr(book, 'last_modified', None)):
                         mi = db.get_metadata(id_, index_is_id=True,
                                              get_cover=get_covers)
                         book.smart_update(mi, replace_metadata=True)
