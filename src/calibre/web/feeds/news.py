@@ -167,9 +167,10 @@ class BasicNewsRecipe(Recipe):
     extra_css              = None
 
     #: If True empty feeds are removed from the output.
-    #: This option has no effect if parse_index is overriden in
+    #: This option has no effect if parse_index is overridden in
     #: the sub class. It is meant only for recipes that return a list
-    #: of feeds using `feeds` or :meth:`get_feeds`.
+    #: of feeds using `feeds` or :meth:`get_feeds`. It is also used if you use
+    #: the ignore_duplicate_articles option.
     remove_empty_feeds = False
 
     #: List of regular expressions that determines which links to follow
@@ -1047,6 +1048,10 @@ class BasicNewsRecipe(Recipe):
                 article.title, feed.title))
             feed.remove_article(article)
 
+        if self.remove_empty_feeds:
+            feeds = [f for f in feeds if len(f) > 0]
+        return feeds
+
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
         try:
@@ -1061,7 +1066,7 @@ class BasicNewsRecipe(Recipe):
             raise ValueError('No articles found, aborting')
 
         if self.ignore_duplicate_articles is not None:
-            self.remove_duplicate_articles(feeds)
+            feeds = self.remove_duplicate_articles(feeds)
 
         #feeds = FeedCollection(feeds)
 
