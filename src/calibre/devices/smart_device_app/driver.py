@@ -827,6 +827,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can stream metadata', self.client_can_stream_metadata)
             self.client_can_receive_book_binary = result.get('canReceiveBookBinary', False)
             self._debug('Device can receive book binary', self.client_can_stream_metadata)
+            self.client_can_delete_multiple = result.get('canDeleteMultipleBooks', False)
+            self._debug('Device can delete multiple books', self.client_can_delete_multiple)
 
             self.client_device_kind = result.get('deviceKind', '')
             self._debug('Client device kind', self.client_device_kind)
@@ -1124,14 +1126,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         else:
             self._debug()
 
-        for path in paths:
-            # the path has the prefix on it (I think)
-            path = self._strip_prefix(path)
-            opcode, result = self._call_client('DELETE_BOOK', {'lpath': path})
-            if opcode == 'OK':
+        if self.client_can_delete_multiple:
+            new_paths = []
+            for path in paths:
+                new_paths.append(self._strip_prefix(path))
+            opcode, result = self._call_client('DELETE_BOOK', {'lpaths': new_paths})
+            for i in range(0, len(new_paths)):
+                opcode, result = self._receive_from_client(False)
                 self._debug('removed book with UUID', result['uuid'])
-            else:
-                raise ControlError(desc='Protocol error - delete books')
+            self._debug('removed', len(new_paths), 'books')
+        else:
+            for path in paths:
+                # the path has the prefix on it (I think)
+                path = self._strip_prefix(path)
+                opcode, result = self._call_client('DELETE_BOOK', {'lpath': path})
+                if opcode == 'OK':
+                    self._debug('removed book with UUID', result['uuid'])
+                else:
+                    raise ControlError(desc='Protocol error - delete books')
 
     @synchronous('sync_lock')
     def remove_books_from_metadata(self, paths, booklists):
