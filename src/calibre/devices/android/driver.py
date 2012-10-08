@@ -40,6 +40,7 @@ class ANDROID(USBMS):
                        0xca4  : HTC_BCDS,
                        0xca9  : HTC_BCDS,
                        0xcac  : HTC_BCDS,
+                       0xcba  : HTC_BCDS,
                        0xccf  : HTC_BCDS,
                        0xcd6  : HTC_BCDS,
                        0xce5  : HTC_BCDS,
