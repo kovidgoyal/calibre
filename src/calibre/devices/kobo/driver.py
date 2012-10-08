@@ -12,19 +12,17 @@ Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
 '''
 
-import os, time, calendar
+import os, time
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.kobo.books import KTCollectionsBookList
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
-from calibre.devices.kobo.bookmark import Bookmark
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryFile
-
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs
 
@@ -994,6 +992,7 @@ class KOBO(USBMS):
         return USBMS.create_annotations_path(self, mdata)
 
     def get_annotations(self, path_map):
+        from calibre.devices.kobo.bookmark import Bookmark
         EPUB_FORMATS = [u'epub']
         epub_formats = set(EPUB_FORMATS)
 
@@ -1056,6 +1055,7 @@ class KOBO(USBMS):
         return bookmarked_books
 
     def generate_annotation_html(self, bookmark):
+        import calendar
         from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
         # Returns <div class="user_annotations"> ... </div>
         #last_read_location = bookmark.last_read_location
