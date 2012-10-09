@@ -1,10 +1,10 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
-__author__    = 'iusvar'
+__copyright__ = 'iusvar'
 __description__ = 'Pubblico giornale'
 
 '''
-http://pubblicogiornale.it/
+[url]http://pubblicogiornale.it/[/url]
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -16,6 +16,14 @@ class Pubblicogiornale(BasicNewsRecipe):
     publisher = 'PUBBLICO EDIZIONI Srl'
     category = 'News'
     language = 'it'
-    __author__ = 'iusvar'
+    __author__    = 'iusvar'
 
-    feeds = [(u'Pubblico giornale', u'http://pubblicogiornale.it/feed/')]
+    feeds = [
+      (u'Politica',  u'http://pubblicogiornale.it/category/politica/feed/'),
+      (u'Mondo', u'http://pubblicogiornale.it/category/mondo/feed/'),
+      (u'Economia',  u'http://pubblicogiornale.it/category/economia-2/feed/'),
+      (u'Sport', u'http://pubblicogiornale.it/category/sport-2/feed/'),
+      (u'Cultura', u'http://pubblicogiornale.it/category/cultura-2/feed/'),
+      (u'Rete', u'http://pubblicogiornale.it/category/rete/feed/'),
+      (u'Illustrazioni',u'http://pubblicogiornale.it/category/illustrazioni/feed/')
+]
