@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-05 05:21+0000\n"
-"PO-Revision-Date: 2012-10-04 20:31+0000\n"
+"PO-Revision-Date: 2012-10-08 20:22+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-06 04:42+0000\n"
-"X-Generator: Launchpad (build 16061)\n"
+"X-Launchpad-Export-Date: 2012-10-09 04:50+0000\n"
+"X-Generator: Launchpad (build 16112)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -9287,7 +9287,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:196
 msgid "Unused Search & Replace definition"
-msgstr ""
+msgstr "Définition inutilisée de Rechercher & Remplacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:197
 msgid ""
@@ -9295,6 +9295,9 @@ msgid ""
 "of definitions. Do you wish to continue with the conversion (the definition "
 "will not be used)?"
 msgstr ""
+"La définition de rechercher/remplacer en cours d'édition n'a pas été ajoutée "
+"à la liste des définitions. Voulez-vous continuer avec la conversion (la "
+"définition ne sera pas utilisée)?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:110
@@ -9312,10 +9315,12 @@ msgid ""
 "The list of search/replace definitions that will be applied to this "
 "conversion."
 msgstr ""
+"La liste des définitions de rechercher/remplacer qui seront appliquées à "
+"cette conversion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:146
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "Éditer Définition de Rechercher & Remplacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:147
 msgid "&Replacement Text"
@@ -9388,6 +9393,14 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p>La recherche et le remplacement utilisent les <i>expressions "
+"régulières</i>. Voir le <a href=\\\"http://manual.calibre-"
+"ebook.com/regexp.html\\\">tutorial des expressions régulières</a> pour "
+"débuter avec les expressions régulières. Cliquer sur le bouton de "
+"l'assistant ci-dessous vous autorisera à tester votre expression rationnelle "
+"avec le document courant en entrée.  Une fois que vous êtes content de "
+"l'expression, cliquer sur le bouton Ajouter pour l'ajouter à la liste des "
+"expressions régulières."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:184
 msgid "Convert"
@@ -9969,7 +9982,7 @@ msgstr "Gérer le %s ?"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:859
 #, python-format
 msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
-msgstr ""
+msgstr "Le <b>%s</b> a été détecté. Voulez-vous qu'il soit géré par Calibre?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:882
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1458
@@ -10177,6 +10190,8 @@ msgid ""
 "<b>Save &template</b> to control the filename and\n"
 "        location of files sent to the device:"
 msgstr ""
+"<b>Sauvegarder le mo&dèle</b> pour contrôler le nom de fichier et\n"
+"        l'emplacement des fichiers envoyés à l'appareil :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
@@ -10194,6 +10209,9 @@ msgid ""
 "A <b>list of &folders</b> on the device to\n"
 "        which to send ebooks. The first one that exists will be used:"
 msgstr ""
+"Une <b>liste de &dossiers</b> de l'appareil dans\n"
+"        lesquels envoyer des livres électroniques. Le premier existant sera "
+"utilisé :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
@@ -10205,6 +10223,9 @@ msgid ""
 "Select the devices to be <b>ignored</b>. calibre <b>will not</b>\n"
 "            connect to devices with a checkmark next to their names."
 msgstr ""
+"Sélectionner les appareils à <b>ignorer</b> . Calibre  <b>ne se\n"
+"        connectera pas</b> aux appareils avec une case cochée à coté de leur "
+"nom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
@@ -10230,6 +10251,10 @@ msgid ""
 "over\n"
 "            the folders specified above."
 msgstr ""
+"Vous pouvez créer des règles qui contrôlent où les livres  électroniques\n"
+"            d'un format spécifique sont envoyés sur l'appareil. Celle-ci ont "
+"précédence\n"
+"            sur les dossiers spécifiés ci-dessus."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
@@ -10255,6 +10280,8 @@ msgid ""
 "If you want to un-ignore a previously ignored MTP device, use the \"Ignored "
 "devices\" tab."
 msgstr ""
+"Si vous voulez \"dés-ignorer\"  un périphérique MTP ignoré précédemment, "
+"utilisez l'onglet \"Périphériques ignorés\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
@@ -12257,6 +12284,13 @@ msgid ""
 "has been corrupted and you get a blank list of books.<p>Do you want to "
 "restore the database?"
 msgstr ""
+"Votre liste de livres, avec toutes leur métadonnées, est stockée dans un "
+"fichier unique, appelé une base de données. En plus, les métadonnées de "
+"chaque livre sont stockées dans le dossier de ce livre comme sauvegarde. "
+"<p>Cette opération va reconstruire la base de données à partir des "
+"métadonnées individuelles de chaque livre. Ceci est utile si la base de "
+"données a été corrompue et que vous obtenez une liste de livres vide. "
+"<p>Voulez vous restaurer la base de données ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:129
@@ -12815,6 +12849,10 @@ msgid ""
 "interface when calibre starts. You should not do this if you are using a "
 "network that is not secure and you are not setting a password."
 msgstr ""
+"Cochez cette case si vous souhaitez que Calibre démarre automatiquement "
+"l'interface de périphérique intelligent au démarrage de Calibre. Vous ne "
+"devriez pas faire ceci si vous utilisez un réseau non sécurisé et si vous "
+"n'utilisez pas de mot de passe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:57
 msgid ""
@@ -12822,12 +12860,19 @@ msgid ""
 "will not need to do this. However, if your device consistently fails to "
 "connect to calibre, try checking this box and entering a number."
 msgstr ""
+"Cochez cette case si vous souhaitez que Calibre utilise un numéro de port "
+"réseau fixe. Normalement vous n'avez pas besoin de faire ceci. Cependant, si "
+"votre périphérique échoue continuellement à se connecter à Calibre, essayez "
+"de cocher cette case et d'entrer un nombre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:63
 msgid ""
 "Try 9090. If calibre says that it fails to connect to the port, try another "
 "number. You can use any number between 8,000 and 32,000."
 msgstr ""
+"Essayez 9090. Si Calibre indique qu'il échoue à se connecter à ce port, "
+"essayez un autre numéro. Vous pouvez utiliser n'importe quel nombre compris "
+"entre 8.000 et 32.000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:69
 msgid ""
@@ -12838,6 +12883,13 @@ msgid ""
 "computer's control panel to get a complete list of your computer's network "
 "interfaces and IP addresses."
 msgstr ""
+"Ce sont les adresses IP pour cet ordinateur. Si vous décidez de connecter "
+"votre périphérique à Calibre en utilisant une adresse IP fixe, une de ces "
+"adresses doit être celle que vous utilisez. Il est improbable mais possible "
+"que l'adresse IP correcte ne soit pas listée ici, dans ce cas vous devrez "
+"aller sur le panneau de contrôle de votre ordinateur pour obtenir une liste "
+"complète des interfaces réseau de votre ordinateur et des adresses IP "
+"associées."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:124
@@ -12878,6 +12930,14 @@ msgid ""
 "virus manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Démarrer les connections de périphériques sans fil. Actuellement, "
+"seulement utilisé\n"
+"       par <a href=\"http://www.multipie.co.uk/calibre-companion/\">Calibre "
+"Companion</a>.\n"
+"       <p>Vosu pouvez voir s'afficher des messages de votre anti-virus ou de "
+"votre pare-feu vous demandant si Calibre peut se connecter au réseau. "
+"<b>Veuillez répondre oui</b>. Si vous ne le faites pas, les connections ne "
+"fonctionneront pas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Calibre IP addresses:"
@@ -12909,7 +12969,7 @@ msgstr "&Utiliser un port fixe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:98
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "&Autoriser automatiquement les connections au démarrage de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -13088,7 +13148,7 @@ msgstr "Chercher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:167
 msgid "You must enter some text to search for"
-msgstr ""
+msgstr "Vous devez entrer du texte à rechercher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 msgid "No tag found"
@@ -13096,7 +13156,7 @@ msgstr "Pas d'étiquette trouvée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid "Search for an item in the Tag column"
-msgstr ""
+msgstr "Rechercher un article dans la colonne d’Étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:112
@@ -14262,15 +14322,15 @@ msgstr "%s est déjà démarré."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:370
 msgid "No running calibre found"
-msgstr ""
+msgstr "Aucune session de Calibre n'a été trouvée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:374
 msgid "Shutdown command sent, waiting for shutdown..."
-msgstr ""
+msgstr "Commande d'arrêt envoyée, en attende de l'arrêt..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:379
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "La fermeture du programme Calibre lancé a echouée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -15953,7 +16013,7 @@ msgstr "Couleurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr ""
+msgstr "Récupération des informations de déboguage, veuillez patienter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -15962,7 +16022,7 @@ msgstr "&Copier vers le presse-papier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:43
 msgid "Device already detected"
-msgstr ""
+msgstr "Périphérique déjà détecté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:44
 #, python-format
@@ -15970,6 +16030,9 @@ msgid ""
 "A device (%s) is already detected by calibre. If you wish to debug the "
 "detection of another device, first disconnect this device."
 msgstr ""
+"Un périphérique (%s) est déjà détecté par Calibre. Si vous souhaitez "
+"déboguer la détection d'un autre périphérique, déconnectez d'abord ce "
+"périphérique."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
@@ -15980,6 +16043,8 @@ msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
 msgstr ""
+"Le débogage de la détection de périphérique en cours a échoué. Cliquer sur "
+"Afficher les détails pour plus d'informations."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -16088,6 +16153,8 @@ msgid ""
 "The list of devices that you have asked calibre to ignore. Uncheck a device "
 "to have calibre stop ignoring it."
 msgstr ""
+"La liste des périphériques que vous avez demandé à Calibre d'ignorer. "
+"Décocher un périphérique pour arrêter de l'ignorer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -16211,11 +16278,11 @@ msgstr "Modifier la &police (redémarrage nécessaire)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:251
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "&Style d’interface utilisateur (nécessite un redémarrage) :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:252
 msgid "Show &tooltips in the book list"
-msgstr ""
+msgstr "Afficher les info-&bulles dasn la liste de livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:253
 msgid "Main Interface"
@@ -16265,7 +16332,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid "Show &cover in the book details panel"
-msgstr ""
+msgstr "Afficher la &couverture dans le panneau des détails du livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:267
 msgid ""
@@ -16349,6 +16416,7 @@ msgstr "Catégories avec des articles hiérarchiques:"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:290
 msgid "Use &alternating row colors in the Tag Browser"
 msgstr ""
+"Utiliser les couleurs de lignes &alternatives dans le navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:292
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -16576,6 +16644,10 @@ msgid ""
 "This refers to CPU intensive tasks like  conversion. Lower this number if "
 "you want calibre to use less CPU."
 msgstr ""
+"Le nombre maximum de travaux qui seront lancés de manière simultanée en "
+"arrière-plan. Ceci se réfère aux taches utilisant beaucoup de CPU comme la "
+"conversion. Diminuez ce nombre si vous voulez que Calibre utilise moins de "
+"CPU."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "No proxies used"
@@ -16712,7 +16784,7 @@ msgstr "L’appareil {0} ne prend pas en charge le format {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "Le périphérique {0} su^pporte seulement le(s) format(s) {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -18551,7 +18623,7 @@ msgstr "Définir l’ordre de tri des entrées dans le navigateur d’étiquette
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "Type de correspondance"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
@@ -19169,7 +19241,7 @@ msgstr "&Outrepasser les paramètres de marge définis dans le livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:382
 msgid "&Top margin"
-msgstr ""
+msgstr "Marge su&périeure"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:384
 msgid "&Side margin"

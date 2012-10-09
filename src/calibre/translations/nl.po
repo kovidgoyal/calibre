@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-05 05:21+0000\n"
-"PO-Revision-Date: 2012-09-28 21:45+0000\n"
+"PO-Revision-Date: 2012-10-08 08:10+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-06 04:41+0000\n"
-"X-Generator: Launchpad (build 16061)\n"
+"X-Launchpad-Export-Date: 2012-10-09 04:50+0000\n"
+"X-Generator: Launchpad (build 16112)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1854,15 +1854,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1202
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr ""
+msgstr "De Kobo Touch ondersteunt vanaf firmware V2.0.0 boekenplanken"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1204
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "Specificeer een label type kolom voor automatisch beheer"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1205
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Boekenplanken maken"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1206
 msgid ""
@@ -1872,7 +1872,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1207
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Verwijder lege boekenplanken"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1208
 msgid ""
@@ -1882,11 +1882,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1209
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Omslagen voor boeken uploaden"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Always upload covers"
-msgstr ""
+msgstr "Omslagen altijd uploaden"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid ""
@@ -1906,7 +1906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1238
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "Titel om te testen tijdens debugging"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
 msgid ""
@@ -1992,11 +1992,11 @@ msgstr "Apparaatinformatie ophalen..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:164
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Bestenden opsommen, dit kan een tijd duren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:179
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Ebook metadata lezen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:212
 #, python-format
@@ -2064,11 +2064,11 @@ msgstr "Onbekend MTP apparaat"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Gevonden object: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "MTP apparaten worden niet ondersteund in Windows XP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2083,7 +2083,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "Gevonden id: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2270,7 +2270,7 @@ msgstr "Draadloze apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Communiceer met Smart Device apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:264
 msgid "All by something"
@@ -2333,6 +2333,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
 msgstr ""
+"Komma-gescheiden lijst van metadata velden om te gebruiken als collecties op "
+"het apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:283
 msgid "Possibilities include: series, tags, authors, etc"
@@ -6182,6 +6184,8 @@ msgid ""
 "The %(fmt)s format will be <b>permanently deleted</b> from %(title)s. Are "
 "you sure?"
 msgstr ""
+"Het %(fmt)s formaat zal <b>definitief verwijderd</b> worden van %(title)s. "
+"Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid "Choose formats to be deleted"
@@ -7056,7 +7060,7 @@ msgstr "Tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:48
 msgid "View specific format"
-msgstr "Specifiek formaat onen"
+msgstr "Specifiek formaat tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
@@ -7797,6 +7801,8 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata."
 msgstr ""
+"Persoonlijke kolom met extra informatie om te worden samen gevoegd met het "
+"commentaar (in metadata)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:288
 msgid "Merge additional content before Comments metadata."
@@ -7818,6 +7824,7 @@ msgstr "N&a"
 msgid ""
 "Separate Comments metadata and additional content with a horizontal rule."
 msgstr ""
+"Splits commentaar (in metadata) en extra informatie met een horizontale lijn."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Include &Separator"
@@ -7846,6 +7853,8 @@ msgstr "E&xtra notitie in bescrhijving:"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Custom column source for text to include in Description section."
 msgstr ""
+"Persoonlijke kolom te gebruiken als basis voor de tekst om toe te voegen het "
+"deel beschrijving."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Thumb width:"
@@ -8861,6 +8870,10 @@ msgid ""
 "both MOBI filetypes. If you wish to use the new format on your device, "
 "convert to AZW3 instead of MOBI."
 msgstr ""
+"<b>WAARSCHUWING:</b> Diverse Kindle apparaten hebben problemen met het "
+"weergeven van de nieuwe of beide MOBI bestandstypes. Als u het nieuwe "
+"formaat wilt gebruiken op uw apparaat, converteer het dan naar AZW3 in "
+"plaats van MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -10099,6 +10112,8 @@ msgstr "Voeg een &nieuwe regel toe"
 #, python-format
 msgid "The <b>%s</b> device has no serial number, it cannot be configured"
 msgstr ""
+"Het <b>%s</b> apparaat heeft geen serienummer, het kan niet worden "
+"geconfigureerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:343
 msgid ""
@@ -10113,6 +10128,8 @@ msgid ""
 "If you want to un-ignore a previously ignored MTP device, use the \"Ignored "
 "devices\" tab."
 msgstr ""
+"Als u een eerder genegeerd MTP apparaat weer wilt gebruiken, gebruik de "
+"\"Genegeerde apparaten\" tab."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
@@ -10559,6 +10576,8 @@ msgid ""
 "You should not create a library inside the Calibre folder as this folder is "
 "automatically deleted during upgrades."
 msgstr ""
+"U moet geen bibliotheek aanmaken binnen een Calibre map omdat deze "
+"automatisch zal worden verwijderd bij upgrades."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:78
 #, python-format
@@ -12632,6 +12651,9 @@ msgid ""
 "Try 9090. If calibre says that it fails to connect to the port, try another "
 "number. You can use any number between 8,000 and 32,000."
 msgstr ""
+"Probeer 9090. Als calibre zegt dat het mislukt om te verbinden met een "
+"poort, probeer een ander nummer. U kan elk nummer tussen 8.000 en 32.000 "
+"gebruken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:69
 msgid ""
@@ -13940,6 +13962,7 @@ msgstr "Het pad is te lang"
 msgid ""
 "Path to Calibre Portable (%s) too long. Must be less than 59 characters."
 msgstr ""
+"Pad naar Calibre Portable (%s) te lang. Moet minder dan 59 tekens zijn."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:772
@@ -16445,7 +16468,7 @@ msgstr "Het {0} apparaat ondersteunt het {1} formaat niet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "Het {o} apparaat ondersteund alleen forma(a)ten: {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -19176,6 +19199,8 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"Schakel naar pagina modus - waar de tekst wordt opgebroken in pagina's net "
+"zoals bij een papieren boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:157
 msgid "Switch to flow mode - where the text is not broken up into pages"
@@ -20230,7 +20255,7 @@ msgstr "Geen genres om te catalogiseren.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:282
 msgid "Check 'Excluded genres' regex in E-book options.\n"
-msgstr ""
+msgstr "Controleer de 'Uitgesloten genres' regex in E-boek opties.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:284
 msgid "No books available to catalog"
@@ -20266,6 +20291,7 @@ msgstr "<p>Inconsistente auteur sorteer waardes voor auteur<br/>"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:550
 msgid "Warning: Inconsistent Author Sort values for Author '{!s}':\n"
 msgstr ""
+"Waarschuwing: Inconsistente auteur sortering waardes voor auteur '{!s}':\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:705
 msgid "Sorting database"
