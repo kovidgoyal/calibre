@@ -522,7 +522,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def show_clock(self):
         self.clock_label.setVisible(True)
-        self.clock_label.setText('99:99 AA')
+        self.clock_label.setText(QTime(22, 33,
+            33).toString(Qt.SystemLocaleShortDate))
         self.clock_timer.start(1000)
         self.clock_label.setStyleSheet(self.info_label_style%(
                 'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
@@ -544,7 +545,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.update_pos_label()
 
     def update_clock(self):
-        self.clock_label.setText(QTime.currentTime().toString('h:mm a'))
+        self.clock_label.setText(QTime.currentTime().toString(Qt.SystemLocaleShortDate))
 
     def update_pos_label(self, *args):
         if self.pos_label.isVisible():
