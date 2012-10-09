@@ -143,6 +143,8 @@ class Document(QWebPage): # {{{
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
         self.fullscreen_clock = opts.fullscreen_clock
+        self.fullscreen_scrollbar = opts.fullscreen_scrollbar
+        self.fullscreen_pos = opts.fullscreen_pos
         self.use_book_margins = opts.use_book_margins
         self.cols_per_screen = opts.cols_per_screen
         self.side_margin = opts.side_margin
