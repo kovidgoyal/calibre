@@ -108,10 +108,12 @@ class MTP_DEVICE(BASE):
         f = storage.find_path((self.DRIVEINFO,))
         dinfo = {}
         if f is not None:
-            stream = self.get_mtp_file(f)
             try:
+                stream = self.get_mtp_file(f)
                 dinfo = json.load(stream, object_hook=from_json)
             except:
+                prints('Failed to load existing driveinfo.calibre file, with error:')
+                traceback.print_exc()
                 dinfo = None
         if dinfo.get('device_store_uuid', None) is None:
             dinfo['device_store_uuid'] = unicode(uuid.uuid4())

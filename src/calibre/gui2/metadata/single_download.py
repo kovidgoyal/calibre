@@ -678,11 +678,12 @@ class CoversModel(QAbstractListModel): # {{{
         good = []
         pmap = {}
         dcovers = sorted(self.covers[1:], key=self.cover_keygen, reverse=True)
+        cmap = {x:self.covers.index(x) for x in self.covers}
         for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
                 if i > 0:
-                    plugin = self.plugin_for_index(i)
+                    plugin = self.plugin_for_index(cmap[x])
                     pmap[plugin] = len(good) - 1
         self.covers = good
         self.plugin_map = pmap
