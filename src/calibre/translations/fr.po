@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-05 05:21+0000\n"
-"PO-Revision-Date: 2012-10-08 20:22+0000\n"
+"PO-Revision-Date: 2012-10-09 21:07+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-09 04:50+0000\n"
+"X-Launchpad-Export-Date: 2012-10-10 04:44+0000\n"
 "X-Generator: Launchpad (build 16112)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -1859,39 +1859,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1202
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr ""
+msgstr "Le Kobo Touch à partir du micrologiciel v2.00 supporte les rayons"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1204
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "Spécifier une colonne de type étiquettes pour la gestion automatique"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1205
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Créer les rayons"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1206
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
+"Créer de nouveaux rayons sur le Kobo Touch si ils n'existent pas. Ceci n'est "
+"valable que pour le micrologiciel v2.00 ou plus récent."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1207
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Supprimer les rayons vides"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1208
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
+"Supprimer tous les rayons vides du Kobo Touch lorsque la synchronisation est "
+"finie. Ceci n'est valable que pour le micrologiciel v2.00 ou plus récent."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1209
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Télécharger les couvertures des livres"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Always upload covers"
-msgstr ""
+msgstr "Toujours télécharger les couvertures"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid ""
@@ -1899,6 +1903,10 @@ msgid ""
 "already on the device. Select this option if you want covers uploaded the "
 "first time you send the book to the device."
 msgstr ""
+"Si l'option de téléchargement des couvertures est sélectionnée, le pilote "
+"remplacera seulement les couvertures sur l’appareil. Sélectionnez cette "
+"option si vous souhaitez télécharger les couvertures la première fois que "
+"vous envoyez des livres à l'appareil."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
 msgid ""
@@ -1908,10 +1916,16 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.0.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo met à jour de manière régulière le micrologiciel et la version de la "
+"base de données. Avec cette option Calibre tentera d'effectuer une lecture-"
+"écriture complète - Ici sont les dragons!! Activer seulement si vous êtes à "
+"l'aise avec la restauration de votre Kobo aux paramètres par défauts et le "
+"test de logiciel. Ce pilote supporte le micrologiciel v2.0.x et la DB "
+"jusqu'à la version "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1238
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "Titre à tester lors du débogage"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
 msgid ""
@@ -1919,6 +1933,10 @@ msgid ""
 "debugging. The test is to see if the string is contained in the title of a "
 "book. The better the match, the less extraneous output."
 msgstr ""
+"Partie du titre d'un livre qui peut être utilisée lors de quelques tests de "
+"débogage. Le test consiste à voir si la chaine est contenue dans le titre "
+"d'un livre. Plus la correspondance sera bonne, moins il y aura de sortie "
+"superflue."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1997,11 +2015,11 @@ msgstr "Lit les informations de l’appareil…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:164
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Listage des fichiers, ceci peut prendre un certain temps"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:179
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Lecture des métadonnées du livre électronique"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:212
 #, python-format
@@ -2069,7 +2087,7 @@ msgstr "Périphérique MTP inconnu"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Objet trouvé : %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
@@ -2088,7 +2106,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "Id trouvée : %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -4401,6 +4419,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Chemin vers un fichier contenant les expressions régulières de recherche et "
+"remplacement. Le fichier doit contenir en alternances des lignes "
+"d'expressions régulières suivies par des motifs de remplacement (qui peuvent "
+"être une ligne vide). L'expression régulière doit être écrite dans la "
+"syntaxe des regexp python et le fichier doit être encodé en UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:756
 msgid "Could not find an ebook inside the archive"
@@ -7884,6 +7907,8 @@ msgid ""
 "Books matching any of the exclusion rules will be excluded from the "
 "generated catalog. "
 msgstr ""
+"Les livres correspondant à n'importe laquelle des règles d'exclusion seront "
+"exclus du catalogue généré. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:277
 msgid "Excluded books"
@@ -7896,6 +7921,11 @@ msgid ""
 "The default pattern \\[.+\\]|\\+ excludes tags of the form [tag], e.g., "
 "[Test book], and '+', the default tag for a read book."
 msgstr ""
+"Une expression régulière décrivant les genres à exclure du catalogue généré. "
+"Les genres sont dérivés des étiquettes appliquées à vos livres.\n"
+"Le motif par défaut \\[.+\\]|\\+ exclut les étiquettes de la forme "
+"[étiquette], par ex., [Livre test], et '+', l'étiquette par défaut pour un "
+"livre lu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:280
 msgid "Excluded genres"
@@ -7989,6 +8019,8 @@ msgstr "Largeur des vigne&ttes :"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Size hint for cover thumbnails included in Descriptions section."
 msgstr ""
+"Indice de taille pour les vignettes de couvertures incluses dans la section "
+"Descriptions."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid " inch"
@@ -8600,6 +8632,8 @@ msgstr "Comment gérer le CSS basé sur des classes"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
 msgstr ""
+"Utiliser le &titre du livre comme nom de fichier pour le fichier HTML à "
+"l'intérieur de l'archive"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -9001,6 +9035,10 @@ msgid ""
 "both MOBI filetypes. If you wish to use the new format on your device, "
 "convert to AZW3 instead of MOBI."
 msgstr ""
+"<b>ATTENTION :</b> Plusieurs types de Kindle ont des difficultées à afficher "
+"le nouveau ou les 2 types de fichiers MOBI. SI vous souhaitez utiliser le "
+"nouveau format sur votre appareil, convertissez au format AZW3 au lieu de "
+"MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -9183,6 +9221,8 @@ msgstr ""
 msgid ""
 "Failed to generate markup for testing. Click \"Show Details\" to learn more."
 msgstr ""
+"Échec de la génération du balisage pour le test. Cliquer sur \"Afficher les "
+"détails\" pour en apprendre davantage."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
@@ -9265,12 +9305,12 @@ msgstr "Recherche par expression régulières"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Charger le fichier de définitions Rechercher-Remplacer de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:122
 msgid "Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Fichier de définitions Rechercher-Remplacer de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:113
 msgid "Failed to read"
@@ -9280,10 +9320,13 @@ msgstr "Échec lors de la lecture"
 #, python-format
 msgid "Failed to load patterns from %s, click Show details to learn more."
 msgstr ""
+"Échec du chargement des motifs à partir de %s, cliquer sur Afficher les "
+"détails pour en apprendre davantage."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:120
 msgid "Save Calibre Search-Replace definitions file"
 msgstr ""
+"Sauvegarder le fichier de définitions Rechercher-Remplacer de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:196
 msgid "Unused Search & Replace definition"
@@ -17126,7 +17169,7 @@ msgstr "Rechercher en même temps que vous &tapez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr ""
+msgstr "Les caractères non accentués correspondent aux caractères accentués"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
@@ -17236,7 +17279,7 @@ msgstr "Effacer les &historiques de recherche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:194
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "Que chercher lorsque l'on recherche des livres semnblables"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:195
 msgid ""
@@ -18598,7 +18641,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Modifier le navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -18864,7 +18907,7 @@ msgstr "Erreur lors de la conversion"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:648
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>Échec de la conversion de : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:649
 msgid ""
@@ -19106,7 +19149,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:57
 msgid "Show a clock in fullscreen mode."
-msgstr ""
+msgstr "Afficher une horloge en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:66
 msgid "Font options"
@@ -19142,26 +19185,26 @@ msgstr "Nom du thème"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:134
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Choisissez un nom pour ce thème"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:143
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "Sauvegarder les réglages sous le thème nommé : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:159
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "Charger les réglages à partir du thème : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:166
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "Supprimer le thème nommé : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:222
 msgid "Choose text color"
-msgstr ""
+msgstr "Choisir la couleur du texte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:242
 msgid "Still editing"
@@ -19245,15 +19288,15 @@ msgstr "Marge su&périeure"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:384
 msgid "&Side margin"
-msgstr ""
+msgstr "Marge &latérale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:386
 msgid "&Bottom margin"
-msgstr ""
+msgstr "Marge &inférieure"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:388
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "&Disposition du texte en mode page"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:389
 msgid "Maximum text width in &fullscreen:"
@@ -19261,33 +19304,33 @@ msgstr "Largeur maximale du texte en plein écran:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:392
 msgid "Show &clock in full screen mode"
-msgstr ""
+msgstr "Afficher l'&horloge en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:393
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "Options d&u mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "Background color:"
-msgstr ""
+msgstr "Couleur de l'arrière-plan :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Sample"
-msgstr ""
+msgstr "Échantillon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Change"
-msgstr ""
+msgstr "Changement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "Text color:"
-msgstr ""
+msgstr "Couleur du texte :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:402
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Couleurs et arrière-plans :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:403
 msgid "Page flip &duration:"
@@ -19303,7 +19346,7 @@ msgstr "La &roulette de la souris tourne les pages"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "Line &scrolling stops at page breaks"
-msgstr ""
+msgstr "Le défilement de la ligne s'arrête aux sauts de page"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "&Resize images larger than the viewer window (needs restart)"
@@ -19343,7 +19386,7 @@ msgstr "Se souvenir de la page courante lors de l’arrêt de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:415
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "Options di&verses"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:416
 msgid "&General"
@@ -19374,18 +19417,20 @@ msgstr "&Feuille de style utilisateur"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "You can save and load the viewer settings as <i>themes</i>"
 msgstr ""
+"Vous pouvez sauver et charger les réglages de l'afficheur en tant que "
+"<i>thèmes</i>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "Sauver les réglages acutels en tant que thèmes :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "Charge un thème sauvegardé précédement :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Supprimer un thème sauvegardé :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:428
 msgid "&Theming"
@@ -19401,7 +19446,7 @@ msgstr "&Rechercher dans le dictionnaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:487
 msgid "View &image..."
-msgstr ""
+msgstr "Voir l'&image..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:490
 msgid "&Search for next occurrence"
@@ -19438,11 +19483,11 @@ msgstr "Fin de la section"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:37
 msgid "Zoom &in"
-msgstr ""
+msgstr "Zoom &avant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 msgid "Zoom &out"
-msgstr ""
+msgstr "Zoom a&rrière"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
 msgid "&Save as"
@@ -19759,7 +19804,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:230
 msgid "Load theme"
-msgstr ""
+msgstr "Charger un thème"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:231
 msgid "Load a theme"
