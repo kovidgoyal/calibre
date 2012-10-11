@@ -6,15 +6,19 @@ __docformat__ = 'restructuredtext en'
 '''
 Convert an ODT file into a Open Ebook
 '''
-import os
+import os, logging
 
 from lxml import etree
+from cssutils import CSSParser
+from cssutils.css import CSSRule
+
 from odf.odf2xhtml import ODF2XHTML
 from odf.opendocument import load as odLoad
 from odf.draw import Frame as odFrame, Image as odImage
 from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
+from calibre.ebooks.oeb.base import _css_logger
 
 class Extract(ODF2XHTML):
 
@@ -29,14 +33,14 @@ class Extract(ODF2XHTML):
 
     def fix_markup(self, html, log):
         root = etree.fromstring(html)
-        self.epubify_markup(root, log)
         self.filter_css(root, log)
-        self.extract_css(root)
+        self.extract_css(root, log)
+        self.epubify_markup(root, log)
         html = etree.tostring(root, encoding='utf-8',
                 xml_declaration=True)
         return html
 
-    def extract_css(self, root):
+    def extract_css(self, root, log):
         ans = []
         for s in root.xpath('//*[local-name() = "style" and @type="text/css"]'):
             ans.append(s.text)
@@ -51,9 +55,21 @@ class Extract(ODF2XHTML):
             etree.SubElement(head, ns+'link', {'type':'text/css',
                 'rel':'stylesheet', 'href':'odfpy.css'})
 
-        with open('odfpy.css', 'wb') as f:
-            f.write((u'\n\n'.join(ans)).encode('utf-8'))
+        css = u'\n\n'.join(ans)
+        parser = CSSParser(loglevel=logging.WARNING,
+                            log=_css_logger)
+        self.css = parser.parseString(css, validate=False)
 
+        with open('odfpy.css', 'wb') as f:
+            f.write(css.encode('utf-8'))
+
+    def get_css_for_class(self, cls):
+        if not cls: return None
+        for rule in self.css.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+            for sel in rule.selectorList:
+                q = sel.selectorText
+                if q == '.' + cls:
+                    return rule
 
     def epubify_markup(self, root, log):
         from calibre.ebooks.oeb.base import XPath, XHTML
@@ -84,16 +100,54 @@ class Extract(ODF2XHTML):
                 div.attrib['style'] = style
                 img.attrib['style'] = 'max-width: 100%; max-height: 100%'
 
-        # A div/div/img construct causes text-align:center to not work in ADE
-        # so set the display of the second div to inline. This should have no
-        # effect (apart from minor vspace issues) in a compliant HTML renderer
-        # but it fixes the centering of the image via a text-align:center on
-        # the first div in ADE
+        # Handle anchored images. The default markup + CSS produced by
+        # odf2xhtml works with WebKit but not with ADE. So we convert the
+        # common cases of left/right/center aligned block images to work on
+        # both webkit and ADE. We detect the case of setting the side margins
+        # to auto and map it to an appropriate text-align directive, which
+        # works in both WebKit and ADE.
+        # https://bugs.launchpad.net/bugs/1063207
+        # https://bugs.launchpad.net/calibre/+bug/859343
         imgpath = XPath('descendant::h:div/h:div/h:img')
         for img in imgpath(root):
             div2 = img.getparent()
             div1 = div2.getparent()
-            if len(div1) == len(div2) == 1:
+            if (len(div1), len(div2)) != (1, 1): continue
+            cls = div1.get('class', '')
+            first_rules = filter(None, [self.get_css_for_class(x) for x in
+                cls.split()])
+            has_align = False
+            for r in first_rules:
+                if r.style.getProperty(u'text-align') is not None:
+                    has_align = True
+            ml = mr = None
+            if not has_align:
+                aval = None
+                cls = div2.get(u'class', u'')
+                rules = filter(None, [self.get_css_for_class(x) for x in
+                    cls.split()])
+                for r in rules:
+                    ml = r.style.getPropertyCSSValue(u'margin-left') or ml
+                    mr = r.style.getPropertyCSSValue(u'margin-right') or mr
+                    ml = getattr(ml, 'value', None)
+                    mr = getattr(mr, 'value', None)
+                if ml == mr == u'auto':
+                    aval = u'center'
+                elif ml == u'auto' and mr != u'auto':
+                    aval = 'right'
+                elif ml != u'auto' and mr == u'auto':
+                    aval = 'left'
+                if aval is not None:
+                    style = div1.attrib.get('style', '').strip()
+                    if style and not style.endswith(';'):
+                        style = style + ';'
+                    style += 'text-align:%s'%aval
+                    has_align = True
+                    div1.attrib['style'] = style
+
+            if has_align:
+                # This is needed for ADE, without it the text-align has no
+                # effect
                 style = div2.attrib['style']
                 div2.attrib['style'] = 'display:inline;'+style
 

@@ -143,6 +143,8 @@ class Document(QWebPage): # {{{
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
         self.fullscreen_clock = opts.fullscreen_clock
+        self.fullscreen_scrollbar = opts.fullscreen_scrollbar
+        self.fullscreen_pos = opts.fullscreen_pos
         self.use_book_margins = opts.use_book_margins
         self.cols_per_screen = opts.cols_per_screen
         self.side_margin = opts.side_margin
@@ -477,7 +479,7 @@ class DocumentView(QWebView): # {{{
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
-                d.OpenImageInNewWindow, d.OpenLink]))
+                d.OpenImageInNewWindow, d.OpenLink, d.Reload]))
         self.dictionary_action = QAction(QIcon(I('dictionary.png')),
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)

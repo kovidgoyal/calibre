@@ -68,7 +68,12 @@ def serialize_collection(mapping_of_recipe_classes):
             key=lambda key: force_unicode(
                 getattr(mapping_of_recipe_classes[key], 'title', 'zzz'),
                 'utf-8')):
-        recipe = serialize_recipe(urn, mapping_of_recipe_classes[urn])
+        try:
+            recipe = serialize_recipe(urn, mapping_of_recipe_classes[urn])
+        except:
+            import traceback
+            traceback.print_exc()
+            continue
         collection.append(recipe)
     collection.set('count', str(len(collection)))
     return etree.tostring(collection, encoding='utf-8', xml_declaration=True,

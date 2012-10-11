@@ -33,11 +33,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 0)
+    version = (2, 0, 1)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 33
+    supported_dbversion = 62
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -59,7 +59,8 @@ class KOBO(USBMS):
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
-    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
+    # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work. 
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo', ''])
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
@@ -1044,6 +1045,7 @@ class KOBO(USBMS):
             extension =  os.path.splitext(path_map[id])[1]
             ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
             ContentID = self.contentid_from_path(path_map[id], ContentType)
+            debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
             bookmark_ext = extension
 
@@ -1066,7 +1068,10 @@ class KOBO(USBMS):
             try:
                 last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
             except:
-                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+                try:
+                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+                except:
+                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%SZ"))))
         else:
             #self.datetime = time.gmtime()
             last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
@@ -1157,6 +1162,7 @@ class KOBO(USBMS):
 
         if bm.type == 'kobo_bookmark':
             mi = db.get_metadata(db_id, index_is_id=True)
+            debug_print("KOBO:add_annotation_to_library - Title: ",  mi.title)
             user_notes_soup = self.generate_annotation_html(bm.value)
             if mi.comments:
                 a_offset = mi.comments.find('<div class="user_annotations">')
@@ -1750,6 +1756,9 @@ class KOBOTOUCH(KOBO):
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
+            elif extension == '':
+                ContentID = path
+                ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
             else:
                 ContentID = path
                 ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
