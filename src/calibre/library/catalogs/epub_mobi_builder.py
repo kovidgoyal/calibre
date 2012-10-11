@@ -4339,7 +4339,8 @@ class CatalogBuilder(object):
     def get_prefix_rules(self):
         """ Convert opts.prefix_rules to dict.
 
-        Convert opts.prefix_rules to dict format.
+        Convert opts.prefix_rules to dict format. The model for a prefix rule is
+        ('<rule name>','<source field>','<pattern>','<prefix>')
 
         Input:
          opts.prefix_rules (tuples): (name, field, pattern, prefix)
