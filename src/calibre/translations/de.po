@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-10 06:10+0000\n"
-"Last-Translator: Armin Geller <Unknown>\n"
+"PO-Revision-Date: 2012-10-11 21:25+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-11 04:43+0000\n"
-"X-Generator: Launchpad (build 16118)\n"
+"X-Launchpad-Export-Date: 2012-10-12 04:44+0000\n"
+"X-Generator: Launchpad (build 16130)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1865,11 +1865,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Buchcover hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Always upload covers"
-msgstr ""
+msgstr "Buchcover immer hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
 msgid ""
@@ -1975,7 +1975,7 @@ msgstr "Geräte-Information beziehen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Dateien werden aufgelistet, dies kann einen Moment dauern"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
@@ -2047,7 +2047,7 @@ msgstr "Unbekanntes MTP-Gerät."
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Objekt gefunden: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
@@ -2066,7 +2066,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "ID gefunden: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -6344,7 +6344,7 @@ msgstr "Den Inhalte-Server starten/anhalten"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%s, port %d]"
-msgstr ""
+msgstr " [%s, Port %d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:99
 msgid "Stop Content Server"
@@ -7005,7 +7005,7 @@ msgid ""
 "            </ol>"
 msgstr ""
 "            <h2>Über Buch optimieren</h2>\n"
-"             <p>Tweak Book ermöglicht Feintuning beim Aussehen eines "
+"             <p>Buch optimieren ermöglicht Feintuning beim Aussehen eines "
 "Ebooks,\n"
 "             indem interne Änderungen vorgenommen werden. Um Buch optimieren "
 "zu verwenden,\n"
@@ -10705,6 +10705,8 @@ msgstr ""
 msgid ""
 "You can only create libraries inside %s at the top level, not in sub-folders"
 msgstr ""
+"Sie können Bibliotheken nur innerhalb der obersten Ebene von %s erstellen, "
+"nicht in Unterordnern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 msgid "No existing library found"
@@ -16710,7 +16712,7 @@ msgstr "Das Gerät {0} unterstützt das Format {1} nicht."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "Das {0}-Gerät unterstützt nur das/die {1}-Format(e)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -23243,7 +23245,7 @@ msgstr "Englisch (Hongkong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "English (Hungary)"
-msgstr ""
+msgstr "Englisch (Ungarn)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:165
 msgid "English (Indonesia)"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-10 12:12+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-10-11 08:15+0000\n"
+"Last-Translator: Jean-Charles Ripault <jcripault@gmail.com>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-11 04:42+0000\n"
-"X-Generator: Launchpad (build 16118)\n"
+"X-Launchpad-Export-Date: 2012-10-12 04:43+0000\n"
+"X-Generator: Launchpad (build 16130)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2067,7 +2067,7 @@ msgstr "Tous les livres ont été supprimés"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "Suppression des livres des métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:456
 #, python-format
@@ -19164,11 +19164,11 @@ msgstr "Afficher une horloge en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:59
 msgid "Show reading position in fullscreen mode."
-msgstr ""
+msgstr "Montrer la position de lecture en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
-msgstr ""
+msgstr "Afficher la barre de défilement en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:70
 msgid "Font options"
@@ -19327,11 +19327,11 @@ msgstr "Afficher l'&horloge en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Show reading &position in full screen mode"
-msgstr ""
+msgstr "Afficher la &position de lecture en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "Afficher la barre de défilement en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "F&ull  screen options"
@@ -19522,7 +19522,7 @@ msgstr "Enregi&strer sous"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:63
 msgid "Choose a file to save to"
-msgstr ""
+msgstr "Choisissez un fichier dans lequel enregistrer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:88
 #, python-format
@@ -19604,6 +19604,8 @@ msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
 msgstr ""
+"Passer en mode \"Page\" - dans lequel le texte est découpé en pages comme "
+"dans un livre papier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:160
 msgid "Switch to flow mode - where the text is not broken up into pages"
