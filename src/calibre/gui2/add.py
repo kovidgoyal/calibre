@@ -382,12 +382,25 @@ class Adder(QObject): # {{{
         if not duplicates:
             return self.duplicates_processed()
         self.pd.hide()
-        files = [_('%(title)s by %(author)s')%dict(title=x[0].title,
-            author=x[0].format_field('authors')[1]) for x in duplicates]
+        duplicate_message = []
+        for x in duplicates:
+            duplicate_message.append('Already in Calibre database:')
+            matching_books = self.db.books_with_same_title(x[0])
+            for book_id in matching_books:
+                book_mi = self.db.get_metadata(book_id, True)
+                duplicate_message.append(('\t%(title)s by %(author)s')%
+                        dict(title=book_mi.title,
+                        author=book_mi.format_field('authors')[1]))
+            duplicate_message.append('You are trying to add:')
+            duplicate_message.append(('\t%(title)s by %(author)s')%
+                    dict(title=x[0].title,
+                    author=x[0].format_field('authors')[1]))
+# Maybe we can change the question dialog to include a checkbox for selectively
+# adding found duplicates.
         if question_dialog(self._parent, _('Duplicates found!'),
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
-                        '\n'.join(files)):
+                        '\n'.join(duplicate_message)):
             pd = QProgressDialog(_('Adding duplicates...'), '', 0, len(duplicates),
                     self._parent)
             pd.setCancelButton(None)
