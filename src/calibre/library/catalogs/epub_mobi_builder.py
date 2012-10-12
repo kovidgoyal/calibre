@@ -569,10 +569,12 @@ class CatalogBuilder(object):
          prefix (str): matched a prefix_rule
          None: no match
         """
-        def _log_prefix_rule_match_info(rule, record):
-            self.opts.log.info("  %s '%s' by %s (Prefix rule '%s')" %
+        def _log_prefix_rule_match_info(rule, record, field_contents):
+            self.opts.log.info("  %s '%s' by %s (%s: '%s' contains '%s')" %
                                (rule['prefix'],record['title'],
-                                record['authors'][0], rule['name']))
+                                record['authors'][0], rule['name'],
+                                self.db.metadata_for_field(rule['field'])['name'],
+                                field_contents))
 
         # Compare the record to each rule looking for a match
         for rule in self.prefix_rules:
@@ -592,11 +594,15 @@ class CatalogBuilder(object):
                     field_contents = None
 
                 if field_contents is not None:
+                    if self.db.metadata_for_field(rule['field'])['datatype'] == 'bool':
+                        # For Yes/No fields, need to translate field_contents to
+                        # locale version
+                        field_contents = _(repr(field_contents))
                     try:
                         if re.search(rule['pattern'], unicode(field_contents),
                                 re.IGNORECASE) is not None:
                             if self.opts.verbose:
-                                _log_prefix_rule_match_info(rule, record)
+                                _log_prefix_rule_match_info(rule, record, field_contents)
                             return rule['prefix']
                     except:
                         if self.opts.verbose:
@@ -604,7 +610,7 @@ class CatalogBuilder(object):
                         pass
                 elif field_contents is None and rule['pattern'] == 'None':
                     if self.opts.verbose:
-                        _log_prefix_rule_match_info(rule, record)
+                        _log_prefix_rule_match_info(rule, record, field_contents)
                     return rule['prefix']
 
         return None
@@ -4340,7 +4346,7 @@ class CatalogBuilder(object):
         """ Convert opts.prefix_rules to dict.
 
         Convert opts.prefix_rules to dict format. The model for a prefix rule is
-        ('<rule name>','<source field>','<pattern>','<prefix>')
+        ('<rule name>','<#source_field_lookup>','<pattern>','<prefix>')
 
         Input:
          opts.prefix_rules (tuples): (name, field, pattern, prefix)
