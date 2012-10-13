@@ -590,8 +590,15 @@ class CatalogBuilder(object):
                 field_contents = self.db.get_field(record['id'],
                                     rule['field'],
                                     index_is_id=True)
+
                 if field_contents == '':
                     field_contents = None
+
+                if (self.db.metadata_for_field(rule['field'])['datatype'] == 'bool'  and
+                    field_contents is None):
+                    # Handle condition where field is a bool and contents is None,
+                    # which is displayed as No
+                    field_contents = _('False')
 
                 if field_contents is not None:
                     if self.db.metadata_for_field(rule['field'])['datatype'] == 'bool':
@@ -4300,7 +4307,7 @@ class CatalogBuilder(object):
 
         # Report excluded books
         if self.opts.verbose and excluded_tags:
-            self.opts.log.info(" Excluded books:")
+            self.opts.log.info(" Books excluded by tag:")
             data = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
                 matched = list(set(record['tags']) & set(excluded_tags))
@@ -4618,13 +4625,28 @@ class CatalogBuilder(object):
             else:
                 continue
         if exclusion_pairs:
+            if self.opts.verbose:
+                self.opts.log.info(" Books excluded by custom field contents:")
+
             for record in data_set:
                 for exclusion_pair in exclusion_pairs:
                     field,pat = exclusion_pair
                     field_contents = self.db.get_field(record['id'],
                                                 field,
                                                 index_is_id=True)
-                    if field_contents:
+
+                    if (self.db.metadata_for_field(field)['datatype'] == 'bool'  and
+                        field_contents is None):
+                        # Handle condition where field is a bool and contents is None,
+                        # which is displayed as No
+                        field_contents = _('False')
+
+                    if field_contents is not None:
+                        if self.db.metadata_for_field(field)['datatype'] == 'bool':
+                            # For Yes/No fields, need to translate field_contents to
+                            # locale version
+                            field_contents = _(repr(field_contents))
+
                         matched = re.search(pat, unicode(field_contents),
                                 re.IGNORECASE)
                         if matched is not None:
@@ -4632,8 +4654,11 @@ class CatalogBuilder(object):
                                 field_md = self.db.metadata_for_field(field)
                                 for rule in self.opts.exclusion_rules:
                                     if rule[1] == '#%s' % field_md['label']:
-                                        self.opts.log.info("  - '%s' by %s (Exclusion rule '%s')" %
-                                            (record['title'], record['authors'][0], rule[0]))
+                                        self.opts.log.info("  - '%s' by %s (%s: '%s' contains '%s')" %
+                                            (record['title'], record['authors'][0],
+                                             rule[0],
+                                             self.db.metadata_for_field(field)['name'],
+                                             field_contents))
                             exclusion_set.append(record)
                             if record in filtered_data_set:
                                 filtered_data_set.remove(record)
