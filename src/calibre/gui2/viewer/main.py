@@ -112,6 +112,8 @@ class Metadata(QLabel):
 
 class DoubleSpinBox(QDoubleSpinBox):
 
+    value_changed = pyqtSignal(object, object)
+
     def __init__(self, *args, **kwargs):
         QDoubleSpinBox.__init__(self, *args, **kwargs)
         self.tt = _('Position in book')
@@ -123,6 +125,7 @@ class DoubleSpinBox(QDoubleSpinBox):
         self.setToolTip(self.tt +
                 ' [{0:.0%}]'.format(float(val)/self.maximum()))
         self.blockSignals(False)
+        self.value_changed.emit(self.value(), self.maximum())
 
 class Reference(QLineEdit):
 
@@ -185,6 +188,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos.setDecimals(1)
         self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
+        self.pos.value_changed.connect(self.update_pos_label)
         self.splitter.setCollapsible(0, False)
         self.splitter.setCollapsible(1, False)
         self.pos.setMinimumWidth(150)
@@ -302,9 +306,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.clock_label = QLabel('99:99', self)
         self.clock_label.setVisible(False)
         self.clock_label.setFocusPolicy(Qt.NoFocus)
-        self.clock_label_style = '''
+        self.info_label_style = '''
             QLabel {
-                text-align: right;
+                text-align: center;
                 border-width: 1px;
                 border-style: solid;
                 border-radius: 8px;
@@ -314,6 +318,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 font-size: larger;
                 padding: 5px;
         }'''
+        self.original_frame_style = self.frame.frameStyle()
+        self.pos_label = QLabel('2000/4000', self)
+        self.pos_label.setVisible(False)
+        self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
         self.esc_full_screen_action = a = QAction(self)
@@ -480,11 +488,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.window_mode_changed = 'fullscreen'
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
+        if not self.view.document.fullscreen_scrollbar:
+            self.vertical_scrollbar.setVisible(False)
+            self.frame.layout().setSpacing(0)
         self._original_frame_margins = (
             self.centralwidget.layout().contentsMargins(),
             self.frame.layout().contentsMargins())
         self.frame.layout().setContentsMargins(0, 0, 0, 0)
         self.centralwidget.layout().setContentsMargins(0, 0, 0, 0)
+        self.frame.setFrameStyle(self.frame.NoFrame|self.frame.Plain)
 
         super(EbookViewer, self).showFullScreen()
 
@@ -505,27 +517,54 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.document.switch_to_fullscreen_mode()
         if self.view.document.fullscreen_clock:
             self.show_clock()
+        if self.view.document.fullscreen_pos:
+            self.show_pos_label()
 
     def show_clock(self):
         self.clock_label.setVisible(True)
-        self.clock_label.setText('99:99 AA')
+        self.clock_label.setText(QTime(22, 33,
+            33).toString(Qt.SystemLocaleShortDate))
         self.clock_timer.start(1000)
-        self.clock_label.setStyleSheet(self.clock_label_style%(
+        self.clock_label.setStyleSheet(self.info_label_style%(
                 'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
         self.clock_label.resize(self.clock_label.sizeHint())
         sw = QApplication.desktop().screenGeometry(self.view)
-        self.clock_label.move(sw.width() - self.vertical_scrollbar.width() - 15
+        vswidth = (self.vertical_scrollbar.width() if
+                self.vertical_scrollbar.isVisible() else 0)
+        self.clock_label.move(sw.width() - vswidth - 15
                 - self.clock_label.width(), sw.height() -
                 self.clock_label.height()-10)
         self.update_clock()
 
+    def show_pos_label(self):
+        self.pos_label.setVisible(True)
+        self.pos_label.setStyleSheet(self.info_label_style%(
+                'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
+        sw = QApplication.desktop().screenGeometry(self.view)
+        self.pos_label.move(15, sw.height() - self.pos_label.height()-10)
+        self.update_pos_label()
+
     def update_clock(self):
-        self.clock_label.setText(QTime.currentTime().toString('h:mm a'))
+        self.clock_label.setText(QTime.currentTime().toString(Qt.SystemLocaleShortDate))
+
+    def update_pos_label(self, *args):
+        if self.pos_label.isVisible():
+            try:
+                value, maximum = args
+            except:
+                value, maximum = self.pos.value(), self.pos.maximum()
+            text = '%g/%g'%(value, maximum)
+            self.pos_label.setText(text)
+            self.pos_label.resize(self.pos_label.sizeHint())
 
     def showNormal(self):
         self.view.document.page_position.save()
         self.clock_label.setVisible(False)
+        self.pos_label.setVisible(False)
+        self.frame.setFrameStyle(self.original_frame_style)
+        self.frame.layout().setSpacing(-1)
         self.clock_timer.stop()
+        self.vertical_scrollbar.setVisible(True)
         self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
         self.tool_bar.setVisible(True)

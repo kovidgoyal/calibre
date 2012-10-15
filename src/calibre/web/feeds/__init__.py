@@ -265,6 +265,12 @@ class Feed(object):
         if i > -1:
             self.articles[i:i+1] = []
 
+    def remove_article(self, article):
+        try:
+            self.articles.remove(article)
+        except ValueError:
+            pass
+
 class FeedCollection(list):
 
     def __init__(self, feeds):

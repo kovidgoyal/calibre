@@ -19,6 +19,113 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.2
+  date: 2012-10-11
+
+  new features:
+    - title: "Wireless driver: Speed up deleting of multiple books"
+
+    - title: "E-book viewer: Add options to hide the scrollbar and show reading position in full screen mode."
+      tickets: [1047450]
+
+    - title: "News download: Add a field to allow recipe authors to tell calibre to remove duplicate articles that a re present in more than one section from the download."
+
+    - title: "Metadata download: Turn off the use of the published date for the earliest edition a book as the published date. The earliest edition was identified via worldcat.org, which has rather poor data, leading to the occasional incorrect result. If you want this feature back, you can turn it on again via Preferences->Metadata download."
+ 
+  bug fixes:
+    - title: "ODT Input: More workarounds for the image positioning markup produced by newer versions of LibreOffice."
+      tickets: [1063207]
+
+    - title: "Metadata download dialog: Fix selected cover being changed when covers are re-sorted after download completes"
+
+    - title: "MTP driver: Ignore errors when getting the driveinfo.calibre file from the device and simply regenerate it"
+
+    - title: "E-book viewer: Use the system locale settings to display the 24/12 hour clock in full screen mode"
+      tickets: [1063209]
+
+    - title: "Content Server: Make OPDS initial page respect the fields to display tweak"
+
+    - title: "Fix regression that caused calibre to not use OPF files when adding books recursively from directories with multiple books per directory"
+
+    - title: "KF8 Output: Fix handling of input documents that have URL unsafe characters in the file names of their images."
+      tickets: [1062477]
+
+    - title: "Fix enumeration type custom column not being merged."
+      tickets: [1061602]
+
+  improved recipes:
+    - Pubblico Giornale
+    - Der Spiegel
+    - Shortlist
+    - FHM UK
+    - Countryfile
+    - Cosmo UK
+    - The Sun UK
+    - NME
+
+  new recipes:
+    - title: PVP Online, Mobile Nations, The Verge and Television Without Pity 
+      author: Krittika Goyal
+
+- version: 0.9.1
+  date: 2012-10-05
+
+  new features:
+    - title: "New driver for the Kobo Touch version 2.0+ firmware and Kobo Glo and Mini. See http://www.mobileread.com/forums/showthread.php?t=192863 for details"
+      tickets: [1024983,1059585]
+
+    - title: "Driver for Motorola Defy XT"
+      tickets: [1061903]
+
+    - title: "Wireless driver: Always use automatic metadata management, regardless of the setting in Preferences->Devices"
+
+    - title: "Sending books by email: Allow sending to multiple email addresses at once separated by commas."
+      tickets: [1052332]
+
+    - title: "KF8 Output: Add the css passed in through the extra css conversion option to the generated inline ToC."
+      tickets: [1052343]
+
+    - title: "Windows: No longer use fontconfig to scan the system for available fonts. Instead use the Windows API. Should fix crashes/instability caused by fonts that fontconfig cannot handle"
+
+    - title: "When editing a blank (undefined) published date in the edit metadata dialog, have the calendar popup jump to the current date instead of the date 1-1-101"
+      tickets: [1058531]
+
+    - title: "FB2 Input: Add support for th, code and strikethrough tags and also rowspan, colspan and align attributes."
+      tickets: [1059351,1058591]
+ 
+  bug fixes:
+    - title: "Get Books: Update Woblink"
+
+    - title: "Position the next selected book better after deleting multiple books from the library view"
+      tickets: [1051135]
+
+    - title: "Allow using the Enter key to select the cover in the metadata download dialog"
+      tickets: [1060472]
+
+    - title: "PDF Output: Handle embedded fonts better on linux"
+
+    - title: "HTML Input: Guess mimetype correctly for references to image files without file extensions."
+      tickets: [1059349]
+
+    - title: "Catalog generation: Workaround for bug in the ICU library on older OS X systems that caused catalog generation to fail when certain non-ascii characters are present in the metadata."
+      tickets: [1057862]
+
+    - title: "Wireless driver: Do not abort if BonJour registration fails, as we can still use broadcast to connect"
+
+    - title: "KF8 Output: Fix invalid output being generated for some files with very large blocks of contiguous non-ascii text"
+
+  improved recipes:
+    - FC Knudde 
+    - Stamgaten
+    - Foreign Policy
+    - Washington Post
+    - Twitch Films
+    - Nature News
+
+  new recipes:
+    - title: IOL News and The New Age 
+      author: Darko Miletic
+
 - version: 0.9.0
   date: 2012-09-28
 

@@ -72,7 +72,7 @@ class DerSpiegel(BasicNewsRecipe):
             for article in section.findNextSiblings(['dd','dt']):
                 if article.name == 'dt':
                     break
-                link = article.find('a')
+                link = article.find('a', href=True)
                 title = self.tag_to_string(link).strip()
                 if title in self.empty_articles:
                     continue

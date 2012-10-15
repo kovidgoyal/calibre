@@ -40,6 +40,7 @@ class ANDROID(USBMS):
                        0xca4  : HTC_BCDS,
                        0xca9  : HTC_BCDS,
                        0xcac  : HTC_BCDS,
+                       0xcba  : HTC_BCDS,
                        0xccf  : HTC_BCDS,
                        0xcd6  : HTC_BCDS,
                        0xce5  : HTC_BCDS,
@@ -54,6 +55,7 @@ class ANDROID(USBMS):
 
             # Motorola
             0x22b8 : { 0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
+                       0x2de8 : [0x229],
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],

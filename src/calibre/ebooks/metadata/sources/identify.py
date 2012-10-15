@@ -120,6 +120,8 @@ class ISBNMerge(object):
                             self.log.debug(xw.tb)
                         else:
                             isbns, min_year = xw.isbns, xw.min_year
+                            if not msprefs['find_first_edition_date']:
+                                min_year = None
                 if not isbns:
                     isbns = frozenset([isbn])
                 if isbns in self.pools:

@@ -12,19 +12,17 @@ Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
 '''
 
-import os, time, calendar
+import os, time
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.kobo.books import KTCollectionsBookList
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
-from calibre.devices.kobo.bookmark import Bookmark
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryFile
-
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs
 
@@ -35,11 +33,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 0)
+    version = (2, 0, 1)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 33
+    supported_dbversion = 62
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -61,7 +59,8 @@ class KOBO(USBMS):
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
-    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
+    # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work. 
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo', ''])
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
@@ -994,6 +993,7 @@ class KOBO(USBMS):
         return USBMS.create_annotations_path(self, mdata)
 
     def get_annotations(self, path_map):
+        from calibre.devices.kobo.bookmark import Bookmark
         EPUB_FORMATS = [u'epub']
         epub_formats = set(EPUB_FORMATS)
 
@@ -1045,6 +1045,7 @@ class KOBO(USBMS):
             extension =  os.path.splitext(path_map[id])[1]
             ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
             ContentID = self.contentid_from_path(path_map[id], ContentType)
+            debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
             bookmark_ext = extension
 
@@ -1056,6 +1057,7 @@ class KOBO(USBMS):
         return bookmarked_books
 
     def generate_annotation_html(self, bookmark):
+        import calendar
         from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
         # Returns <div class="user_annotations"> ... </div>
         #last_read_location = bookmark.last_read_location
@@ -1066,7 +1068,10 @@ class KOBO(USBMS):
             try:
                 last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
             except:
-                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+                try:
+                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+                except:
+                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%SZ"))))
         else:
             #self.datetime = time.gmtime()
             last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
@@ -1157,6 +1162,7 @@ class KOBO(USBMS):
 
         if bm.type == 'kobo_bookmark':
             mi = db.get_metadata(db_id, index_is_id=True)
+            debug_print("KOBO:add_annotation_to_library - Title: ",  mi.title)
             user_notes_soup = self.generate_annotation_html(bm.value)
             if mi.comments:
                 a_offset = mi.comments.find('<div class="user_annotations">')
@@ -1285,7 +1291,6 @@ class KOBOTOUCH(KOBO):
                           }
 
     def initialize(self):
-        debug_print("KoboTouch:initialize")
         super(KOBOTOUCH, self).initialize()
         self.bookshelvelist = []
 
@@ -1751,6 +1756,9 @@ class KOBOTOUCH(KOBO):
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
+            elif extension == '':
+                ContentID = path
+                ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
             else:
                 ContentID = path
                 ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
