@@ -8,31 +8,21 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-11 21:25+0000\n"
-"Last-Translator: Dennis Baudys <Unknown>\n"
+"PO-Revision-Date: 2012-10-14 11:57+0000\n"
+"Last-Translator: Benjamin Altpeter <benjamin@oldpeter.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-12 04:44+0000\n"
-"X-Generator: Launchpad (build 16130)\n"
+"X-Launchpad-Export-Date: 2012-10-15 05:12+0000\n"
+"X-Generator: Launchpad (build 16137)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
-msgid ""
-"Create a PMLZ archive containing the PML file and all images in the "
-"directory pmlname_img or images. This plugin is run every time you add a PML "
-"file to the library."
-msgstr ""
-"Erstelle im Verzeichnis \"pmlname_img\" oder \"images\" ein PMLZ-Archiv, "
-"welches die PML-Datei und alle Bilder enthält. Dieses Plugin wird immer dann "
-"ausgeführt, wenn Sie eine PML-Datei zur Bibliothek hinzufügen."
-
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "Macht absolut gar nichts"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
@@ -239,7 +229,7 @@ msgstr "Katalogerstellung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr "Benutzeroberflächenaktion"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -254,11 +244,21 @@ msgstr "Einstellungen"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "Händler"
+msgstr "Laden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr "Ein Geschäft für elektronische Bücher"
+msgstr "Ein eBook-Laden."
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
+msgid ""
+"Create a PMLZ archive containing the PML file and all images in the "
+"directory pmlname_img or images. This plugin is run every time you add a PML "
+"file to the library."
+msgstr ""
+"Erstelle ein PMLZ-Archiv mit der PML-Datei und allen Bildern im Verzeichnis "
+"pmlname_img oder images. Dieses Plugin wird immer dann ausgeführt, wenn Sie "
+"eine PML-Datei zur Bibliothek hinzufügen."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:51
 msgid ""
@@ -266,13 +266,13 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
-"Erstellt ein TXTZ-Archiv, wenn eine TXT-Datei importiert wurde, die Markdown-"
+"Erstelle ein TXTZ-Archiv, wenn eine TXT-Datei importiert wurde, die Markdown-"
 " oder Textverweise zu Abbildungen enthält. Sowohl die referenzierten "
 "Abbildungen als auch die TXT-Datei werden dem Archiv hinzugefügt."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Umschlagbild aus Comic-Dateien extrahieren"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-07-21 12:23+0000\n"
+"PO-Revision-Date: 2012-10-15 04:13+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-10-12 04:58+0000\n"
-"X-Generator: Launchpad (build 16130)\n"
+"X-Launchpad-Export-Date: 2012-10-15 05:13+0000\n"
+"X-Generator: Launchpad (build 16137)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -612,13 +612,13 @@ msgstr "控制 calibre 如何從網路下載電子書元數據"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "忽略裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
-msgstr ""
+msgstr "控制哪些裝置連接到電腦時 calibre 可以忽略它們。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -1606,7 +1606,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1237
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "嘗試支援新的韌體"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:89
 msgid ""
@@ -1714,11 +1714,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Upload covers for books"
-msgstr ""
+msgstr "上傳書籍封面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Always upload covers"
-msgstr ""
+msgstr "永遠上傳封面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
 msgid ""
@@ -1810,7 +1810,7 @@ msgstr "與 Ex124G 連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP 裝置"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:31
 msgid "Communicate with MTP devices"
@@ -1824,83 +1824,83 @@ msgstr "取得裝置資訊..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "列出檔案，這可能會花上一陣子"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "讀取電子書元數據"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "從 %s 讀取元數據"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:233
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "更新裝置上的元數據快取"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:235
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "結束從裝置讀取元數據"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
 msgid "Transferred %s to device"
-msgstr ""
+msgstr "傳輸 %s 到裝置"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:395
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "傳輸到裝置結束…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:416
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "已加入 %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
 msgid "Adding complete"
-msgstr ""
+msgstr "加入完成"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:434
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "從裝置刪除書籍…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:440
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "已刪除 %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:441
 msgid "All books deleted"
-msgstr ""
+msgstr "已刪除所有書籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "從元數據移除書籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:456
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "已移除 %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
 msgid "All books removed"
-msgstr ""
+msgstr "已移除所有書籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "不明的 MTP 裝置"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:216
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "找到物件：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "MTP 裝置不支援 Windows XP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2067,7 +2067,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
 msgid "Wireless Device"
-msgstr ""
+msgstr "無線裝置"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
