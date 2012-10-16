@@ -212,7 +212,7 @@ class ANDROID(USBMS):
             'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
             'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
             'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
-            'COBY_MID', 'VS', 'AINOL']
+            'COBY_MID', 'VS', 'AINOL', 'TOPWISE']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -243,7 +243,7 @@ class ANDROID(USBMS):
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0', 'XT875',
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
-            'NOVO7']
+            'NOVO7', 'ADVANCED']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
