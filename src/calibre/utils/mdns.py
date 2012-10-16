@@ -16,8 +16,14 @@ def get_all_ips():
     all_ips = defaultdict(list)
     if hasattr(netifaces, 'AF_INET'):
         for x in netifaces.interfaces():
-            for c in netifaces.ifaddresses(x).get(netifaces.AF_INET, []):
-                all_ips[x].append(c)
+            try:
+                for c in netifaces.ifaddresses(x).get(netifaces.AF_INET, []):
+                    all_ips[x].append(c)
+            except ValueError:
+                from calibre import prints
+                prints('Failed to get IP addresses for interface', x)
+                import traceback
+                traceback.print_exc()
     return dict(all_ips)
 
 def _get_external_ip():
