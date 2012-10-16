@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-07-30 13:09+0000\n"
+"PO-Revision-Date: 2012-10-15 15:27+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-10-12 04:53+0000\n"
-"X-Generator: Launchpad (build 16130)\n"
+"X-Launchpad-Export-Date: 2012-10-16 04:45+0000\n"
+"X-Generator: Launchpad (build 16137)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
@@ -633,13 +633,15 @@ msgstr "Nadzirajte, kako calibre prenese metapodatke o e-knjigi z medmrežja"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "Prezrte naprave"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
 msgstr ""
+"Nadzirajte, katere naprave naj program calibre prezre, ko so povezane z "
+"računalnikom."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -1508,7 +1510,7 @@ msgstr "Povezovanje z bralnikom e-knjig Kindle."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:185
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Zadnja prebrana stran: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:191
 #, python-format
@@ -1652,7 +1654,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1237
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Poskusi podpirati novejše strojno programje"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:89
 msgid ""
@@ -1867,24 +1869,24 @@ msgstr "Pridobi podatke o napravi ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Izpisovanje datotek, lahko vzame več časa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Branje metapodatkov e-knjig"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "Branje metapodatkov - %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:233
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "Posodabljanje predpomnilnik metapodatkov na napravi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:235
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "Branje metapodatkov z naprave je končano"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
@@ -1902,11 +1904,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
 msgid "Adding complete"
-msgstr ""
+msgstr "Dodajanje dokončano"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:434
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "Brisanje knjig z naprave ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:440
 #, python-format
@@ -1915,11 +1917,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:441
 msgid "All books deleted"
-msgstr ""
+msgstr "Vse knjige izbrisane"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "Odstranjevanje knjig z metapodatkov"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:456
 #, python-format
@@ -1928,12 +1930,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
 msgid "All books removed"
-msgstr ""
+msgstr "Vse knjige odstranjene"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Nezanana naprava MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:216
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
@@ -2115,7 +2117,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
 msgid "Wireless Device"
-msgstr ""
+msgstr "Brezžična naprava"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
@@ -2135,7 +2137,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:270
 msgid "Security password"
-msgstr ""
+msgstr "Varnostno geslo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:271
 msgid "Enter a password that the device app must use to connect to calibre"
@@ -2153,7 +2155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:276
 msgid "Port number: "
-msgstr ""
+msgstr "Številka vrat: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:277
 msgid ""
@@ -2193,7 +2195,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
 msgid "Use this IP address"
-msgstr ""
+msgstr "Uporabi ta naslov IP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:297
 msgid ""
@@ -3113,7 +3115,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid "The default font size"
-msgstr ""
+msgstr "Privzeta velikost pisave"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:110
 msgid "The default font size for monospaced text"

@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-06-15 15:18+0000\n"
-"Last-Translator: Jane Dong <jane.dong.0328@gmail.com>\n"
+"PO-Revision-Date: 2012-10-15 05:31+0000\n"
+"Last-Translator: mozillazg <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-10-12 04:59+0000\n"
-"X-Generator: Launchpad (build 16130)\n"
+"X-Launchpad-Export-Date: 2012-10-16 04:45+0000\n"
+"X-Generator: Launchpad (build 16137)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -614,13 +614,13 @@ msgstr "控制 calibre 从网络上下载元数据的方式。"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "忽略的设备"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
-msgstr ""
+msgstr "控制当哪些设备连接到计算机时，将被 calibre 忽略 。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
