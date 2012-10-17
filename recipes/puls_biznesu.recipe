@@ -1,0 +1,31 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class PB_PL(BasicNewsRecipe):
+    title          = u'Puls Biznesu'
+    __author__        = 'fenuks'
+    language       = 'pl'
+    description = u'Puls Biznesu - biznes, ekonomia, giełda, inwestycje'
+    category = u'newspaper'
+    publication_type = u'newspaper'
+    encoding = 'utf-8'
+    #masthead_url = 'http://www.pb.pl/img/pb.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_tags_after = dict(name='div', attrs={'class':'news_content'})
+    feeds          = [(u'Wszystkie', u'http://www.pb.pl/atom'), (u'Puls inwestora', u'http://pulsinwestora.pb.pl/atom'), (u'Puls Firmy', u'http://firma.pb.pl/atom'), (u'PB Weekend', u'http://weekend.pb.pl/atom'), (u'Forum MPS', u'http://forummsp.pb.pl/atom'), (u'Moto', u'http://moto.pb.pl/atom'), (u'Kariera i praca', u'http://kariera.pb.pl/atom'),(u'Nieruchomości', u'http://nieruchomosci.pb.pl/atom'), (u'Samorządy', u'http://samorzady.pb.pl/atom'), (u'Tech', u'http://tech.pb.pl/atom'), (u'Energetyka', u'http://energetyka.pb.pl/atom'), (u'Retailing', u'http://retailing.pb.pl/atom'), (u'Puls medycyny', u'http://pulsmedycyny.pl/atom'), (u'Logistyka', u'http://logistyka.pb.pl/atom')]
+
+    def print_version(self, url):
+        article_id = re.search(r'(?P<id>\d+,\d+)', url)
+        if article_id:
+            return 'http://www.pb.pl/actionprint/' + article_id.group('id')
+        else:
+            return url
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://archiwum.pb.pl/')
+        cover = soup.find(name='img', attrs={'class':'cover_picture'})
+        self.cover_url= cover['src']
+        return getattr(self, 'cover_url', self.cover_url)
