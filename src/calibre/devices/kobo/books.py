@@ -58,6 +58,7 @@ class Book(Book_):
                                 self.datetime = time.gmtime()
 
         self.contentID = None
+        self.current_collections = []
 
         if thumbnail_name is not None:
             self.thumbnail = ImageWrapper(thumbnail_name)
@@ -250,4 +251,3 @@ class KTCollectionsBookList(CollectionsBookList):
 #        debug_print("KTCollectionsBookList:is_debugging - is_debugging=", is_debugging)
 
         return is_debugging
-
