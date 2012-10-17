@@ -8,21 +8,21 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-14 11:57+0000\n"
-"Last-Translator: Benjamin Altpeter <benjamin@oldpeter.de>\n"
+"PO-Revision-Date: 2012-10-16 14:41+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-15 05:12+0000\n"
-"X-Generator: Launchpad (build 16137)\n"
+"X-Launchpad-Export-Date: 2012-10-17 04:34+0000\n"
+"X-Generator: Launchpad (build 16152)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "Macht absolut gar nichts"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
@@ -229,7 +229,7 @@ msgstr "Katalogerstellung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr ""
+msgstr "Benutzeroberflächenaktion"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -9945,12 +9945,13 @@ msgstr "Fehler bei der Kommunikation mit dem Gerät"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:858
 #, python-format
 msgid "Manage the %s?"
-msgstr ""
+msgstr "%s verwalten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:859
 #, python-format
 msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
 msgstr ""
+"<b>%s</b> wurde erkannt. Möchten Sie das Gerät mit Calibre verwalten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:882
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1458
@@ -10189,6 +10190,9 @@ msgid ""
 "Select the devices to be <b>ignored</b>. calibre <b>will not</b>\n"
 "            connect to devices with a checkmark next to their names."
 msgstr ""
+"Wählen Sie die <b>zu ignorierenden</b> Geräte aus. Calibre wird sich\n"
+"            <b>nicht</b> mit Geräten verbinden, vor deren Namen ein Haken "
+"gesetzt ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
@@ -16091,6 +16095,8 @@ msgid ""
 "The list of devices that you have asked calibre to ignore. Uncheck a device "
 "to have calibre stop ignoring it."
 msgstr ""
+"Die Liste der Geräte, die von Calibre ignoriert werden sollen. Entfernen Sie "
+"den Haken vor einem Gerät, damit Calibre es wieder verwaltet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -19076,7 +19082,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
-msgstr ""
+msgstr "Den Rollbalken im Vollbildmodus anzeigen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:70
 msgid "Font options"
@@ -19239,7 +19245,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "&Rollbalken im Vollbildmodus anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "F&ull  screen options"
