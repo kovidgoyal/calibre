@@ -1,28 +1,53 @@
+__license__   = 'GPL v3'
+__copyright__ = ''
+'''
+Fetch RSS-Feeds spektrum.de
+'''
 from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     title          = u'Spektrum (der Wissenschaft)'
-    __author__  = 'schuster'
+    __author__  = 'Armin Geller, Bratzzo, Rainer Zenz' # Update Bratzzo & AGE 2012-10-12
+    
     oldest_article = 7
-    max_articles_per_feed = 100
-    language               = 'de'
-    cover_url = 'http://upload.wikimedia.org/wikipedia/de/3/3b/Spektrum_der_Wissenschaft_Logo.svg'
+    max_articles_per_feed = 100 #100
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    language = 'de_DE'
+    # conversion_options = {'base_font_size': 20}
 
-    remove_tags = [dict(attrs={'class':['hauptnaviPkt gainlayout', 'hauptnaviButton', 'suchButton', 'suchbegriffKasten', 'loginButton', 'subnavigation', 'artikelInfoLeiste gainlayout', 'artikelTools', 'nurLetzteSeite', 'link', 'boxUnterArtikel', 'leserbriefeBlock', 'boxTitel', 'boxInhalt', 'sehrklein', 'boxabstand', 'werbeboxinhalt', 'rbabstand', 'bildlinks', 'rechtebox', 'denkmalbox', 'denkmalfrage']}),
-	dict(id=['pflip', 'verlagsleiste', 'bereich', 'bannerVertikal', 'headerLogoLink', 'kopf', 'topNavi', 'headerSchnellsuche', 'headerSchnellsucheWarten', 'navigation', 'navigationL', 'navigationR', 'inhalt', 'rechtespalte', 'sdwboxenshop', 'shopboxen', 'fuss']),
-	dict(name=['naservice'])]
+    # cover_url = 'http://upload.wikimedia.org/wikipedia/de/3/3b/Spektrum_der_Wissenschaft_Logo.svg' # old logo   
+    # cover_url = 'http://spektrumverlag.de/sixcms/media.php/776/thumbnails/sdwv_faecher.jpg.459370.jpg'
+    # cover_url = 'http://spektrumverlag.de/sixcms/media.php/776/thumbnails/sdwv_logo.jpg.432645.jpg'
+    cover_url = 'http://upload.wikimedia.org/wikipedia/de/5/59/Spektrum-cover.jpg' # from Rainer Zenz
 
-    def print_version(self,url):
-        newurl = url.replace('artikel/', 'sixcms/detail.php?id=')
-        return newurl + '&_druckversion=1'
+    extra_css      =  '''
+                      h1 {font-size: 2em;}
+                      h2 {font-size: 1em; font-style: italic; font-weight: bold;}
+                      h3 {font-size: 1em;}
+                      h4, h5, h6, .heading, .hgroup {font-size: 1em;}
+                      '''
 
+    feeds = [
+              (u'Spektrum.de', u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
+              (u'Gehirn & Geist', u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
+              (u'epoc', u'http://www.spektrum.de/alias/rss/epoc-rss-feed/982625'),
+              (u'Spektrum der Wissenschaft', u'http://www.spektrum.de/alias/rss/spektrum-der-wissenschaft-rss-feed/982623'),
+              (u'Sterne und Weltraum', u'http://www.spektrum.de/alias/rss/sterne-und-weltraum-rss-feed/865248'),
+              (u'Editional', u'http://www.spektrum.de/alias/rss/spektrum-de-editorial/996044'),
+              (u'Pressemitteilungen', u'http://www.spektrum.de/alias/rss/pressemitteilungen/995265'),
+             ]
 
+    keep_only_tags = [ 
+                        dict(name='div', attrs={'class':'border-h clearfix article-top'}),
+                        dict(name='div', attrs={'class':'clearfix'}),
+                        dict(name='div', attrs={'class':'bilderrahmenlinks'}),
+                        dict(name='div', attrs={'class':'relcontainer'}),
+                      ]
 
-    feeds          = [(u'Spektrum der Wissenschaft', u'http://www.spektrum.de/artikel/982623'),
-                          (u'SpektrumDirekt', u'http://www.spektrumdirekt.de/artikel/996406'),
-                          (u'Sterne und Weltraum', u'http://www.astronomie-heute.de/artikel/865248'),
-                          (u'Gehirn & Geist', u'http://www.gehirn-und-geist.de/artikel/982626'),
-                          (u'epoc', u'http://www.epoc.de/artikel/982625')
+    remove_tags_after=dict(name='div', attrs={'class':['sidebar-box-head']})
 
-]
-
-    filter_regexps = [r'ads\.doubleclick\.net']
+    remove_tags = [
+                    dict(attrs={'id':['recommend-article', 'dossierbox', 'cover', 'toc']}),
+                    dict(attrs={'class':['sidebar-box-full clearfix', 'linktotop' ]}),
+                  ]
