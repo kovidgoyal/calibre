@@ -172,12 +172,9 @@ class BookHeader(object):
                 self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
-            # There exists some broken DRM removal tool that removes DRM but
-            # leaves the DRM fields in the header yielding a header size of
-            # 0xF8. The actual value of max_header_length should be 0xE8 but
-            # it's changed to accommodate this silly tool. Hopefully that will
-            # not break anything else.
-            max_header_length = 0xF8
+            # Some KF8 files have header length == 256. See
+            # https://bugs.launchpad.net/bugs/1067310
+            max_header_length = 0x100
 
             if (ident == 'TEXTREAD' or self.length < 0xE4 or
                     self.length > max_header_length or
