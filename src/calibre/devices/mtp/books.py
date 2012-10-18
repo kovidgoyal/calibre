@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.devices.interface import BookList as BL
+from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.date import utcnow
@@ -62,6 +63,12 @@ class Book(Metadata):
     def __hash__(self):
         return hash((self.storage_id, self.mtp_relpath))
 
+    @property
+    def title_sorter(self):
+        ans = getattr(self, 'title_sort', None)
+        if not ans or self.is_null('title_sort') or ans == _('Unknown'):
+            ans = ''
+        return ans or title_sort(self.title or '')
 
 class JSONCodec(JsonCodec):
     pass
