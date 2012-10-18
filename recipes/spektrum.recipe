@@ -5,40 +5,44 @@ Fetch RSS-Feeds spektrum.de
 '''
 from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
-    title          = u'Spektrum (der Wissenschaft)'
-    __author__  = 'Armin Geller, Bratzzo, Rainer Zenz' # Update Bratzzo & AGE 2012-10-12
-    
-    oldest_article = 7
-    max_articles_per_feed = 100 #100
-    no_stylesheets = True
-    remove_javascript = True
-    remove_empty_feeds = True
-    language = 'de_DE'
-    # conversion_options = {'base_font_size': 20}
+    title                 = u'Spektrum der Wissenschaft'
+    __author__            = 'Armin Geller, Bratzzo, Rainer Zenz' # Update Bratzzo & AGE 2012-10-12
+    description           = u'German  online portal of Spektrum der Wissenschaft'
+    publisher             = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
+    category              = 'science news, Germany'
 
-    # cover_url = 'http://upload.wikimedia.org/wikipedia/de/3/3b/Spektrum_der_Wissenschaft_Logo.svg' # old logo   
-    # cover_url = 'http://spektrumverlag.de/sixcms/media.php/776/thumbnails/sdwv_faecher.jpg.459370.jpg'
-    # cover_url = 'http://spektrumverlag.de/sixcms/media.php/776/thumbnails/sdwv_logo.jpg.432645.jpg'
-    cover_url = 'http://upload.wikimedia.org/wikipedia/de/5/59/Spektrum-cover.jpg' # from Rainer Zenz
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    remove_javascript     = True
+    remove_empty_feeds    = True
+    language              = 'de_DE'
+
+    #conversion_options    = {'base_font_size': 20}
+
+    # cover_url = 'http://upload.wikimedia.org/wikipedia/de/3/3b/Spektrum_der_Wissenschaft_Logo.svg' # old logo
+    cover_url             = 'http://upload.wikimedia.org/wikipedia/de/5/59/Spektrum-cover.jpg' # from Rainer Zenz
+
+    masthead_url          = 'http://www.spektrum.de/fm/861/spektrum.de.png'
 
     extra_css      =  '''
-                      h1 {font-size: 2em;}
-                      h2 {font-size: 1em; font-style: italic; font-weight: bold;}
-                      h3 {font-size: 1em;}
-                      h4, h5, h6, .heading, .hgroup {font-size: 1em;}
+                      h1 {font-size: 1.6em; text-align: left}
+                      h2 {font-size: 1em; font-style: italic; font-weight: normal}
+                      h3 {font-size: 1.3em;text-align: left}
+                      h4, h5, h6, .heading, .hgroup {font-size: 1em;text-align: left}
                       '''
 
     feeds = [
               (u'Spektrum.de', u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
-              (u'Gehirn & Geist', u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
-              (u'epoc', u'http://www.spektrum.de/alias/rss/epoc-rss-feed/982625'),
               (u'Spektrum der Wissenschaft', u'http://www.spektrum.de/alias/rss/spektrum-der-wissenschaft-rss-feed/982623'),
+              (u'Gehirn & Geist', u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
+              (u'Epoc', u'http://www.spektrum.de/alias/rss/epoc-rss-feed/982625'),
               (u'Sterne und Weltraum', u'http://www.spektrum.de/alias/rss/sterne-und-weltraum-rss-feed/865248'),
               (u'Editional', u'http://www.spektrum.de/alias/rss/spektrum-de-editorial/996044'),
               (u'Pressemitteilungen', u'http://www.spektrum.de/alias/rss/pressemitteilungen/995265'),
              ]
 
-    keep_only_tags = [ 
+    keep_only_tags = [
                         dict(name='div', attrs={'class':'border-h clearfix article-top'}),
                         dict(name='div', attrs={'class':'clearfix'}),
                         dict(name='div', attrs={'class':'bilderrahmenlinks'}),
