@@ -9,13 +9,14 @@ class RichmondTimesDispatch(BasicNewsRecipe):
                             and is also a default paper for rural regions of the state.  \
                             The RTD has published in some form for more than 150 years."
     __author__          = '_reader'
-    __date__            = '05 July 2012'
-    __version__         = '1.4'
+    __date__            = '17 October 2012'
+    __version__         = '1.6'
     cover_url           = 'http://static2.dukecms.com/va_tn/timesdispatch_com/site-media/img/icons/logo252x97.png'
     masthead_url            = 'http://static2.dukecms.com/va_tn/timesdispatch_com/site-media/img/icons/logo252x97.png'
     language            = 'en'
     oldest_article      = 1.5 #days
     max_articles_per_feed   = 100
+    ignore_duplicate_articles = { 'title', 'url' }
     needs_subscription  = False
     publisher           = 'timesdispatch.com'
     category            = 'news, commentary'
@@ -70,6 +71,7 @@ class RichmondTimesDispatch(BasicNewsRecipe):
     ('Local Business',  'http://www2.timesdispatch.com/list/feed/rss/local-business'),
     ('Politics',        'http://www2.timesdispatch.com/list/feed/rss/politics'),
     ('Virginia Politics',   'http://www2.timesdispatch.com/list/feed/rss/virginia-politics'),
+    ('History',   'http://www2.timesdispatch.com/feed/rss/special_section/news/history'),
     ('Sports',      'http://www2.timesdispatch.com/list/feed/rss/sports2'),
     ('Health',      'http://www2.timesdispatch.com/feed/rss/lifestyles/health_med_fit/'),
     ('Entertainment/Life',  'http://www2.timesdispatch.com/list/feed/rss/entertainment'),
@@ -78,13 +80,15 @@ class RichmondTimesDispatch(BasicNewsRecipe):
     ('Music',       'http://www2.timesdispatch.com/list/feed/rss/music'),
     ('Dining & Food',   'http://www2.timesdispatch.com/list/feed/rss/dining'),
     ('Home & Garden',   'http://www2.timesdispatch.com/list/feed/rss/home-and-garden/'),
-    #inactive('Travel',     'http://www2.timesdispatch.com/feed/rss/travel/'),
+    ('Travel',     'http://www2.timesdispatch.com/feed/rss/travel/'),
     ('Opinion',     'http://www2.timesdispatch.com/feed/rss/news/opinion/'),
     ('Editorials',      'http://www2.timesdispatch.com/list/feed/rss/editorial-desk'),
     ('Columnists and Blogs',    'http://www2.timesdispatch.com/list/feed/rss/news-columnists-blogs'),
     ('Opinion Columnists',  'http://www2.timesdispatch.com/list/feed/rss/opinion-editorial-columnists'),
     ('Letters to the Editor',   'http://www2.timesdispatch.com/list/feed/rss/opinion-letters'),
     ('Traffic',     'http://www2.timesdispatch.com/list/feed/rss/traffic'),
+    ('Drives',     'http://www2.timesdispatch.com/feed/rss/classifieds/transportation/'),
+
         ]
 
     def print_version(self,url):
