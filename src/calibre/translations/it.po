@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-06 23:08+0000\n"
+"PO-Revision-Date: 2012-10-17 09:54+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-12 04:47+0000\n"
-"X-Generator: Launchpad (build 16130)\n"
+"X-Launchpad-Export-Date: 2012-10-18 04:39+0000\n"
+"X-Generator: Launchpad (build 16160)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -16327,6 +16327,7 @@ msgstr "Pre&ferisci meno tag"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
 msgstr ""
+"Usa la data di pubblicazione della \"prima edizione\" (da worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -18787,11 +18788,11 @@ msgstr "Mostra un orologio nella modalità a schermo intero."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:59
 msgid "Show reading position in fullscreen mode."
-msgstr ""
+msgstr "Mostra la posizione di lettura nella modalità a schermo intero."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
-msgstr ""
+msgstr "Mostra la barra di scorrimento nella modalità a schermo intero."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:70
 msgid "Font options"
@@ -18950,11 +18951,11 @@ msgstr "Mostra orologio nella modalità a s&chermo intero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Show reading &position in full screen mode"
-msgstr ""
+msgstr "Mostra la &posizione di lettura nella modalità a schermo intero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "Mostra la barra di &scorrimento nella modalità a schermo intero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "F&ull  screen options"
@@ -20085,6 +20086,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"I campi da fornire in fase di catalogazione dei libri nel database. Dovrebbe "
+"essere un elenco di campi separati da virgole.\n"
+"Campi disponibili: %(fields)s,\n"
+"oltre ai campi creati dall'utente.\n"
+"Esempio: %(opt)s=titolo,autori,tag\n"
+"Predefinito: '%%default'\n"
+"Si applica a: formati di output CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:45
 #, python-format

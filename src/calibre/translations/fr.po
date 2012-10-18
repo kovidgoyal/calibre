@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-14 17:08+0000\n"
+"PO-Revision-Date: 2012-10-17 21:15+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-15 05:11+0000\n"
-"X-Generator: Launchpad (build 16137)\n"
+"X-Launchpad-Export-Date: 2012-10-18 04:39+0000\n"
+"X-Generator: Launchpad (build 16160)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -16691,6 +16691,8 @@ msgstr "Préférer moins d’étiquettes"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
 msgstr ""
+"Utiliser la date de publication de la \"première édition\" (à partir de "
+"worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -19141,6 +19143,8 @@ msgstr "Activer le tournage de pages à l’aide de la roulette de la souris"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:47
 msgid "Prevent the up and down arrow keys from scrolling past page breaks"
 msgstr ""
+"Empêche les touches flèches Haut et Bas de faire défiler le texte au-delà "
+"des sauts de page"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:50
 msgid ""
@@ -19383,7 +19387,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:417
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "Options de &Tournage de page"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:418
 msgid "H&yphenate (break line in the middle of large words)"
@@ -19461,7 +19465,7 @@ msgstr "Supprimer un thème sauvegardé :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:436
 msgid "&Theming"
-msgstr ""
+msgstr "&Thème"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"

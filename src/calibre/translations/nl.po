@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-11 03:51+0000\n"
-"PO-Revision-Date: 2012-10-08 08:10+0000\n"
+"PO-Revision-Date: 2012-10-17 08:55+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-12 04:42+0000\n"
-"X-Generator: Launchpad (build 16130)\n"
+"X-Launchpad-Export-Date: 2012-10-18 04:38+0000\n"
+"X-Generator: Launchpad (build 16160)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1869,6 +1869,8 @@ msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
+"Maak, als deze niet bestaan, nieuwe boekenplanken op de Kobo Touch. Dit geld "
+"enkel voor firmware v2.0.0 of later."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1213
 msgid "Delete Empty Bookshelves"
@@ -1879,6 +1881,8 @@ msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
+"Verwijder alle lege boekenplanken van de Kobo Touch zodra de synchronisatie "
+"is voltooid. Dit is enkel voor firmware v2.0.0 of later."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Upload covers for books"
@@ -16338,6 +16342,7 @@ msgstr "Pre&fereer minder labels"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
 msgstr ""
+"Gebruik pulicatiedatum van de \"eerste editie\" (o.b.v. worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -18621,6 +18626,9 @@ msgid ""
 "New version <b>%(ver)s</b> of %(app)s is available for download. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"Nieuwe versie <b>%(ver)s</b> van %(app)s is beschikbaar voor download. "
+"Bekijk de <a href=\"http://calibre-ebook.com/whats-new\">nieuwe functies</a> "
+"(Engels)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:84
 msgid "Update available!"
@@ -18792,11 +18800,11 @@ msgstr "Toon een klok in de volledig-scherm modus."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:59
 msgid "Show reading position in fullscreen mode."
-msgstr ""
+msgstr "Toon lees-positie in volledig-scherm-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
-msgstr ""
+msgstr "Toon de bladerbalk in volledige-scherm-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:70
 msgid "Font options"
@@ -18950,11 +18958,11 @@ msgstr "Toon &klok in volledige-venster modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Show reading &position in full screen mode"
-msgstr ""
+msgstr "Toon lees-&positie in volledig-scherm-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "Toon &bladerbalk in volledig-scherm-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "F&ull  screen options"
