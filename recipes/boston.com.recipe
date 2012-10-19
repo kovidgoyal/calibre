@@ -15,7 +15,8 @@ class BusinessStandard(BasicNewsRecipe):
     no_stylesheets         = True
     delay                  = 1
     use_embedded_content   = False
-    encoding               = 'cp1252'
+    auto_cleanup = True
+    encoding               = 'utf-8'
     publisher              = 'Boston'
     category               = 'news, boston, usa, world'
     language               = 'en'
@@ -30,23 +31,23 @@ class BusinessStandard(BasicNewsRecipe):
                             ,'publisher'       : publisher
                          }
 
-    keep_only_tags   = [dict(attrs={'id':['INDblogEntry','blogEntry','articleHeader','articleGraphs','galleryShell']})]
-    remove_tags      = [
-                          dict(name=['object','link','script','iframe'])
-                         ,dict(attrs={'id':['blogheadTools','bdc_emailWidget','tools','relatedContent']})
-                       ]
+    #keep_only_tags   = [dict(attrs={'id':['INDblogEntry','blogEntry','articleHeader','articleGraphs','galleryShell']})]
+    #remove_tags      = [
+                          #dict(name=['object','link','script','iframe'])
+                         #,dict(attrs={'id':['blogheadTools','bdc_emailWidget','tools','relatedContent']})
+                       #]
 
     feeds = [
                (u'Top Stories'  , u'http://feeds.boston.com/boston/topstories'              )
-              ,(u'Patriots news', u'http://feeds.boston.com/boston/sports/football/patriots')
+              ,(u'Patriots news', u'http://feeds.boston.com/boston/sports/football/patriots/patriots_rss')
               ,(u'National news', u'http://feeds.boston.com/boston/news/nation'             )
               ,(u'World news'   , u'http://feeds.boston.com/boston/news/world'              )
             ]
 
-    def print_version(self, url):
-        return url + '?page=full'
+    #def print_version(self, url):
+        #return url + '?page=full'
 
-    def get_article_url(self, article):
-        rawarticle = article.get('guid', None)
-        return rawarticle.rpartition('?')[0]
+    #def get_article_url(self, article):
+        #rawarticle = article.get('guid', None)
+        #return rawarticle.rpartition('?')[0]
 
