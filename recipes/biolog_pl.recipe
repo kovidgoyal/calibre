@@ -13,6 +13,7 @@ class Biolog_pl(BasicNewsRecipe):
     masthead_url= 'http://www.biolog.pl/naukowy,portal,biolog.png'
     cover_url='http://www.biolog.pl/naukowy,portal,biolog.png'
     no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
     #keeps_only_tags=[dict(id='main')]
     remove_tags_before=dict(id='main')
     remove_tags_after=dict(name='a', attrs={'name':'komentarze'})

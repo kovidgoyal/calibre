@@ -19,7 +19,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     max_articles_per_feed = 100
     preprocess_regexps = [(re.compile(ur'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>'), lambda match: '') ]
     keep_only_tags=[dict(attrs={'class':['news', 'entry single']})]
-    remove_tags = [dict(name='div', attrs={'class':['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master']})]
+    remove_tags = [dict(attrs={'class':['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master']}), dict(id='komentarze')]
     #remove_tags = [dict(name='div', attrs={'class':['komentarze', 'block', 'portalInfo', 'menuBar', 'topBar']})]
     feeds = [(u'Aktualności', 'http://feeds.feedburner.com/dobreprogramy/Aktualnosci'),
                  ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]

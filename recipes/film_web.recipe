@@ -13,12 +13,12 @@ class FilmWebPl(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets= True
     remove_empty_feeds=True
+    ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(u'\(kliknij\,\ aby powiększyć\)', re.IGNORECASE), lambda m: ''), ]#(re.compile(ur' | ', re.IGNORECASE), lambda m: '')]
     extra_css      = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
     remove_tags= [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'}), dict(attrs={'class':'userSurname anno'})]
     keep_only_tags= [dict(name='h1', attrs={'class':['hdrBig', 'hdrEntity']}), dict(name='div', attrs={'class':['newsInfo', 'newsInfoSmall', 'reviewContent description']})]
-    feeds          = [(u'Wszystkie newsy', u'http://www.filmweb.pl/feed/news/latest'),
-                         (u'News / Filmy w produkcji', 'http://www.filmweb.pl/feed/news/category/filminproduction'),
+    feeds          = [(u'News / Filmy w produkcji', 'http://www.filmweb.pl/feed/news/category/filminproduction'),
                          (u'News / Festiwale, nagrody i przeglądy', u'http://www.filmweb.pl/feed/news/category/festival'),
                          (u'News / Seriale', u'http://www.filmweb.pl/feed/news/category/serials'),
                          (u'News / Box office', u'http://www.filmweb.pl/feed/news/category/boxoffice'),
@@ -40,7 +40,6 @@ class FilmWebPl(BasicNewsRecipe):
         skip_tag = soup.find('a', attrs={'class':'welcomeScreenButton'})
         if skip_tag is not None:
             return self.index_to_soup(skip_tag['href'], raw=True)
-
 
     def preprocess_html(self, soup):
         for a in soup('a'):

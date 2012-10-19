@@ -55,7 +55,8 @@ def get_connected_device():
             break
     return dev
 
-def debug(ioreg_to_tmp=False, buf=None, plugins=None):
+def debug(ioreg_to_tmp=False, buf=None, plugins=None,
+        disabled_plugins=None):
     '''
     If plugins is None, then this method calls startup and shutdown on the
     device plugins. So if you are using it in a context where startup could
@@ -63,7 +64,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
     device plugins as the plugins parameter.
     '''
     import textwrap
-    from calibre.customize.ui import device_plugins
+    from calibre.customize.ui import device_plugins, disabled_device_plugins
     from calibre.debug import print_basic_debug_info
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
     from calibre.constants import iswindows, isosx
@@ -84,6 +85,9 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
                 d.startup()
             except:
                 out('Startup failed for device plugin: %s'%d)
+
+    if disabled_plugins is None:
+        disabled_plugins = list(disabled_device_plugins())
 
     try:
         print_basic_debug_info(out=buf)
@@ -113,9 +117,10 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None):
             ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
             ioreg += Device.run_ioreg()
         connected_devices = []
-        out('Available plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
-            devplugins])))
-        out(' ')
+        if disabled_plugins:
+            out('\nDisabled plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
+                disabled_plugins])))
+            out(' ')
         found_dev = False
         for dev in devplugins:
             if not dev.MANAGES_DEVICE_PRESENCE: continue

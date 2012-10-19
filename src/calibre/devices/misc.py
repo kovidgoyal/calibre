@@ -407,4 +407,59 @@ class EX124G(USBMS):
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
 
+class WAYTEQ(USBMS):
+
+    name           = 'WayteQ device interface'
+    gui_name       = 'WayteQ xBook'
+    description    = _('Communicate with the WayteQ Reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'chm', 'djvu', 'doc']
+
+    VENDOR_ID   = [0x05e3]
+    PRODUCT_ID  = [0x0726]
+    BCD         = [0x0222]
+
+    EBOOK_DIR_MAIN = 'Documents'
+    SCAN_FROM_ROOT = True
+
+    VENDOR_NAME = 'ROCKCHIP'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'RK28_SDK_DEMO'
+    SUPPORTS_SUB_DIRS = True
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return 'Documents'
+        return self.EBOOK_DIR_CARD_A
+
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2: return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
+
+    def linux_swap_drives(self, drives):
+        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
+        drives = list(drives)
+        t = drives[0]
+        drives[0] = drives[1]
+        drives[1] = t
+        return tuple(drives)
+
+    def osx_sort_names(self, names):
+        if len(names) < 2: return names
+        main = names.get('main', None)
+        card = names.get('carda', None)
+
+        if main is not None and card is not None:
+            names['main'] = card
+            names['carda'] = main
+
+        return names
+
 

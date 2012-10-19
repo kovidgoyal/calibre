@@ -11,10 +11,9 @@ class BaltimoreSun(BasicNewsRecipe):
 
     title       = 'The Baltimore Sun'
     __author__ = 'Josh Hall'
-
     description = 'Complete local news and blogs from Baltimore'
     language    = 'en'
-    version     = 2
+    version     = 2.1
     oldest_article = 1
     max_articles_per_feed = 100
     use_embedded_content = False
@@ -22,6 +21,7 @@ class BaltimoreSun(BasicNewsRecipe):
     remove_javascript    = True
     recursions           = 1
 
+    ignore_duplicate_articles = {'title'}
     keep_only_tags = [dict(name='div', attrs={'class':["story","entry-asset asset hentry"]}),
                       dict(name='div', attrs={'id':["pagebody","story","maincontentcontainer"]}),
                            ]
@@ -201,3 +201,5 @@ class BaltimoreSun(BasicNewsRecipe):
             tag.extract()
         for tag in soup.findAll('font', dict(attrs={'id':["cr-other-headlines"]})):
             tag.extract()
+
+        return soup

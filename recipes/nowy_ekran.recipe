@@ -1,0 +1,16 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class NowyEkran(BasicNewsRecipe):
+    title          = u'Nowy ekran'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets= True
+    __author__        = 'fenuks'
+    description   = u'Niezależny serwis społeczności blogerów'
+    category       = 'blog'
+    language       = 'pl'
+    masthead_url='http://s.nowyekran.pl/gfx/ekran-big.gif'
+    cover_url= 'http://s.nowyekran.pl/gfx/ekran-big.gif'
+    remove_tags_before = dict(name='div', attrs={'class':'post_detal'})
+    remove_tags_after = dict(name='div', attrs={'class':'post_footer'})
+    remove_tags=[dict(name='span', attrs={'class':'ico ico_comments'}), dict(name='div', attrs={'class':'post_footer'}), dict(name='a', attrs={'class':'getpdf'})]
+    feeds          = [(u'Najnowsze notki', u'http://www.nowyekran.pl/RSS/')]

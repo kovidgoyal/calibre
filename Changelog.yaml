@@ -19,6 +19,103 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.3
+  date: 2012-10-19
+
+  new features:
+    - title: "Conversion: Add support for CSS 3 selectors by switching to the new cssselect module"
+
+    - title: "Drivers for the WayteQ xBook and the Topwise Android tablet"
+      tickets: [1066083,1067105]
+
+    - title: "Add an output profile for the Kindle PaperWhite"
+
+    - title: "Kobo driver: Improve performance when a large number of shelves are created on the device."
+      tickets: [1066633]
+
+    - title: "Catalogs: Put catalog sections at top level of ToC for EPUB/AZW3 catalogs."
+
+    - title: "Adding books: When duplicates are found, show the list of possible duplicates in calibre with title and author."
+ 
+  bug fixes:
+    - title: "KF8 Input: Fix conversion/viewing of KF8 files generated with the unreleased? kindlegen 2.7."
+      tickets: [1067310]
+
+    - title: "Kindle driver: Increase the size of the cover thumbnails sent by calibre to the device. This fixes the problem of cover thumbnails not showing up on the PaperWhite"
+
+    - title: "MTP driver: Fix sorting on the title column of the device view."
+      tickets: [1067562]
+
+    - title: "Catalogs: Fix regression that caused authors and titles to be be incorrectly listed under symbols on OSX < 10.8."
+
+    - title: "Catalogs: Fix error when generating catalog in non English locale and the user has specified a prefix rule using a Yes/no column."
+      tickets: [1065452]
+
+    - title: "E-book viewer: Remove the reload entry from the context menu as it is not supported in paged mode."
+      tickets: [1065615]
+
+  improved recipes:
+    - Richmond Times Dispatch
+    - Various Polish news sources
+    - Aksiyon dergisi
+    - Spektrum der Wissenschaft
+    - Zeit Online
+    - Baltimore Sun
+    - LWN Weekly
+    - The Sun
+
+  new recipes:
+    - title: Various Polish news sources
+      author: fenuks
+
+- version: 0.9.2
+  date: 2012-10-11
+
+  new features:
+    - title: "Wireless driver: Speed up deleting of multiple books"
+
+    - title: "E-book viewer: Add options to hide the scrollbar and show reading position in full screen mode."
+      tickets: [1047450]
+
+    - title: "News download: Add a field to allow recipe authors to tell calibre to remove duplicate articles that a re present in more than one section from the download."
+
+    - title: "Metadata download: Turn off the use of the published date for the earliest edition a book as the published date. The earliest edition was identified via worldcat.org, which has rather poor data, leading to the occasional incorrect result. If you want this feature back, you can turn it on again via Preferences->Metadata download."
+ 
+  bug fixes:
+    - title: "ODT Input: More workarounds for the image positioning markup produced by newer versions of LibreOffice."
+      tickets: [1063207]
+
+    - title: "Metadata download dialog: Fix selected cover being changed when covers are re-sorted after download completes"
+
+    - title: "MTP driver: Ignore errors when getting the driveinfo.calibre file from the device and simply regenerate it"
+
+    - title: "E-book viewer: Use the system locale settings to display the 24/12 hour clock in full screen mode"
+      tickets: [1063209]
+
+    - title: "Content Server: Make OPDS initial page respect the fields to display tweak"
+
+    - title: "Fix regression that caused calibre to not use OPF files when adding books recursively from directories with multiple books per directory"
+
+    - title: "KF8 Output: Fix handling of input documents that have URL unsafe characters in the file names of their images."
+      tickets: [1062477]
+
+    - title: "Fix enumeration type custom column not being merged."
+      tickets: [1061602]
+
+  improved recipes:
+    - Pubblico Giornale
+    - Der Spiegel
+    - Shortlist
+    - FHM UK
+    - Countryfile
+    - Cosmo UK
+    - The Sun UK
+    - NME
+
+  new recipes:
+    - title: PVP Online, Mobile Nations, The Verge and Television Without Pity 
+      author: Krittika Goyal
+
 - version: 0.9.1
   date: 2012-10-05
 

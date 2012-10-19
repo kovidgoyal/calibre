@@ -2,74 +2,52 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
-Fetch Die Zeit.
+Fetch Zeit-Online.de
 '''
-
 from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import date
 
 class ZeitDe(BasicNewsRecipe):
 
-    title = 'Zeit Online'
-    description = 'Zeit Online'
-    language = 'de'
-    encoding = 'UTF-8'
+    __author__            = 'Armin Geller'    # AGe 2012-10-13
+    title                 = u'Zeit Online'
+    description           = u'German  online portal of newspaper Die Zeit'
+    publisher             = 'ZEIT ONLINE GmbH'
+    category              = 'news, Germany'
+    timefmt               = ' [%a, %d %b %Y]'
+    publication_type      = 'newspaper'
+    language              = 'de_DE'
+    encoding              = 'UTF-8'
 
-    __author__ = 'Martin Pitt, Sujata Raman, Ingo Paschke and Marc Toensing'
-    no_stylesheets = True
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds    = True
+    auto_cleanup          = True
+    # no_stylesheets = True
+    # conversion_options = {'base_font_size': 10}
 
-    max_articles_per_feed = 40
+    masthead_url          = 'http://images.zeit.de/static/img/logo_247x30.png'
 
-    remove_tags = [
-                        dict(name='iframe'),
-                        dict(name='div', attrs={'class':["response","pagination block","pagenav","inline link", "copyright"] }),
-                        dict(name='p', attrs={'class':["ressortbacklink", "copyright"] }),
-                        dict(name='div', attrs={'id':["place_5","place_4","comments"]})
-                      ]
-
-    keep_only_tags = [dict(id=['main'])]
+    year = str(date.today().isocalendar()[0]) # [0]=year [1]=week number [2]=week day
+    week = str(date.today().isocalendar()[1]+1)
+    cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/'  + year + '/0'+ week + '_001.jpg'
 
     feeds =  [
-               ('Seite 1', 'http://newsfeed.zeit.de/index_xml'),
-               ('Politik', 'http://newsfeed.zeit.de/politik/index'),
-               ('Wirtschaft', 'http://newsfeed.zeit.de/wirtschaft/index'),
-               ('Meinung', 'http://newsfeed.zeit.de/meinung/index'),
-               ('Gesellschaft', 'http://newsfeed.zeit.de/gesellschaft/index'),
-               ('Kultur', 'http://newsfeed.zeit.de/kultur/index'),
-               ('Wissen', 'http://newsfeed.zeit.de/wissen/index'),
-               ('Digital', 'http://newsfeed.zeit.de/digital/index'),
-               ('Studium', 'http://newsfeed.zeit.de/studium/index'),
-               ('Karriere', 'http://newsfeed.zeit.de/karriere/index'),
-               ('Lebensart', 'http://newsfeed.zeit.de/lebensart/index'),
-               ('Reisen', 'http://newsfeed.zeit.de/reisen/index'),
-               ('Auto', 'http://newsfeed.zeit.de/auto/index'),
-               ('Sport', 'http://newsfeed.zeit.de/sport/index'),
+               (u'Startseite – Die wichtigsten Themen auf einen Blick', u'http://newsfeed.zeit.de/index_xml'),
+               (u'Politik – Ausland und Deutschland', u'http://newsfeed.zeit.de/politik/index'),
+               (u'Wirtschaft – Wirtschaft und Unternehmen', u'http://newsfeed.zeit.de/wirtschaft/index'),
+               (u'Meinung – Autoren kommentieren', u'http://newsfeed.zeit.de/meinung/index'),
+               (u'Gesellschaft – Gesellschaft und soziales Leben', u'http://newsfeed.zeit.de/gesellschaft/index'),
+               (u'Kultur – Literatur, Kunst, Film und Musik', u'http://newsfeed.zeit.de/kultur/index'),
+               (u'Wissen – Wissenschaft, Gesundheit, Umwelt und Geschichte', u'http://newsfeed.zeit.de/wissen/index'),
+               (u'Digital – Hardware, Software, Internet, Datenschutz', u'http://newsfeed.zeit.de/digital/index'),
+               (u'Studium – ZEIT ONLINE für Studenten', u'http://newsfeed.zeit.de/studium/index'),
+               (u'Karriere – Für Ein-, Um- und Aufsteiger', u'http://newsfeed.zeit.de/karriere/index'),
+               (u'Lebensart – Freizeit und Leben', u'http://newsfeed.zeit.de/lebensart/index'),
+               (u'Reisen – All inclusive und individuell', u'http://newsfeed.zeit.de/reisen/index'),
+               (u'Auto – Modelle und Trends', u'http://newsfeed.zeit.de/auto/index'),
+               (u'Sport – Sieg und Niederlage', u'http://newsfeed.zeit.de/sport/index')
              ]
 
-    extra_css = '.excerpt{font-size:1em}.reaktion,.taglist,.comments,.reponse,.responsetitle,.responsebody,.reponse,.inline,.date{display:none;}li.date{display:block}'
-
-    #filter_regexps = [r'ad.de.doubleclick.net/']
-
-    def get_article_url(self, article):
-        ans = article.get('link',None)
-        ans += "?page=all&print=true"
-
-        if 'video' in ans or 'quiz' in ans or 'blog' in ans :
-              ans = None
-        return ans
-
-    def preprocess_html(self, soup):
-        for tag in soup.findAll(name=['ul','li']):
-            tag.name = 'div'
-
-        soup.html['xml:lang'] = self.language.replace('_', '-')
-        soup.html['lang']     = self.language.replace('_', '-')
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
-        soup.head.insert(0,mtag)
-        return soup
-
-    def get_cover_url(self):
-        try:
-            inhalt = self.index_to_soup('http://www.zeit.de/inhalt')
-            return inhalt.find('div', attrs={'class':'singlearchive clearfix'}).img['src'].replace('icon_','')
-        except:
-            return 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
+    def print_version(self, url):
+        return url + '/komplettansicht?print=true'

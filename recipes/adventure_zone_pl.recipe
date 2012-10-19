@@ -3,7 +3,7 @@ import re
 class Adventure_zone(BasicNewsRecipe):
     title          = u'Adventure Zone'
     __author__        = 'fenuks'
-    description   = 'Adventure zone - adventure games from A to Z'
+    description   = u'Adventure zone - adventure games from A to Z'
     category       = 'games'
     language       = 'pl'
     no_stylesheets = True
@@ -11,7 +11,9 @@ class Adventure_zone(BasicNewsRecipe):
     max_articles_per_feed = 100
     index='http://www.adventure-zone.info/fusion/'
     use_embedded_content=False
-    preprocess_regexps     = [(re.compile(r"<td class='capmain'>Komentarze</td>", re.IGNORECASE), lambda m: '')]
+    preprocess_regexps     = [(re.compile(r"<td class='capmain'>Komentarze</td>", re.IGNORECASE), lambda m: ''),
+    (re.compile(r'\<table .*?\>'), lambda match: ''),
+    (re.compile(r'\<tbody\>'), lambda match: '')]
     remove_tags_before= dict(name='td', attrs={'class':'main-bg'})
     remove_tags= [dict(name='img', attrs={'alt':'Drukuj'})]
     remove_tags_after= dict(id='comments')
@@ -52,6 +54,11 @@ class Adventure_zone(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         footer=soup.find(attrs={'class':'news-footer middle-border'})
+        r = soup.find(name='td', attrs={'class':'capmain'})
+        if r:
+            r.name='h1'
+        for item in soup.findAll(name=['tr', 'td']):
+            item.name='div'
         if footer and len(footer('a'))>=2:
             footer('a')[1].extract()
         for item in soup.findAll(style=True):

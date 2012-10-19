@@ -33,11 +33,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 0)
+    version = (2, 0, 2)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 33
+    supported_dbversion = 65
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -59,7 +59,8 @@ class KOBO(USBMS):
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
-    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
+    # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work. 
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo', ''])
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
@@ -216,7 +217,7 @@ class KOBO(USBMS):
                                 # print 'update_metadata_item returned true'
                                 changed = True
                         else:
-                             debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
+                            debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
                             bl[idx].device_collections = playlist_map.get(lpath,[])
@@ -840,6 +841,14 @@ class KOBO(USBMS):
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)
 
+
+    def get_collections_attributes(self):
+        collections = []
+        opts = self.settings()
+        if opts.extra_customization and len(opts.extra_customization[self.OPT_COLLECTIONS]) > 0:
+            collections = [x.lower().strip() for x in opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        return collections
+
     def sync_booklists(self, booklists, end_session=True):
 #        debug_print('KOBO: started sync_booklists')
         paths = self.get_device_paths()
@@ -852,12 +861,7 @@ class KOBO(USBMS):
                     blists[i] = booklists[i]
             except IndexError:
                 pass
-        opts = self.settings()
-        if opts.extra_customization:
-            collections = [x.lower().strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
-        else:
-            collections = []
+        collections = self.get_collections_attributes()
 
         #debug_print('KOBO: collection fields:', collections)
         for i, blist in blists.items():
@@ -1044,6 +1048,7 @@ class KOBO(USBMS):
             extension =  os.path.splitext(path_map[id])[1]
             ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
             ContentID = self.contentid_from_path(path_map[id], ContentType)
+            debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
             bookmark_ext = extension
 
@@ -1066,7 +1071,10 @@ class KOBO(USBMS):
             try:
                 last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
             except:
-                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+                try:
+                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+                except:
+                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%SZ"))))
         else:
             #self.datetime = time.gmtime()
             last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
@@ -1157,6 +1165,7 @@ class KOBO(USBMS):
 
         if bm.type == 'kobo_bookmark':
             mi = db.get_metadata(db_id, index_is_id=True)
+            debug_print("KOBO:add_annotation_to_library - Title: ",  mi.title)
             user_notes_soup = self.generate_annotation_html(bm.value)
             if mi.comments:
                 a_offset = mi.comments.find('<div class="user_annotations">')
@@ -1441,6 +1450,7 @@ class KOBOTOUCH(KOBO):
 
                     if lpath in playlist_map:
                         bl[idx].device_collections = playlist_map.get(lpath,[])
+                        bl[idx].current_collections = bl[idx].device_collections
                         changed = True
 
                     if show_debug:
@@ -1477,6 +1487,7 @@ class KOBOTOUCH(KOBO):
 
                     # print 'Update booklist'
                     book.device_collections = playlist_map.get(lpath,[])# if lpath in playlist_map else []
+                    book.current_collections = bl[idx].device_collections
                     book.contentID = ContentID
 #                    debug_print('KoboTouch:update_booklist - title=', title, 'book.device_collections', book.device_collections)
 
@@ -1750,6 +1761,9 @@ class KOBOTOUCH(KOBO):
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
+            elif extension == '':
+                ContentID = path
+                ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
             else:
                 ContentID = path
                 ContentID = ContentID.replace(self._main_prefix, "file:///mnt/onboard/")
@@ -1935,6 +1949,7 @@ class KOBOTOUCH(KOBO):
             if self.supports_bookshelves():
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves.")
                 if bookshelf_attribute:
+                    debug_print("KoboTouch:update_device_database_collections - bookshelf_attribute=", bookshelf_attribute)
                     for book in booklists:
                         if book.application_id is not None:
 #                            debug_print("KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s" % book.title)
@@ -1949,11 +1964,7 @@ class KOBOTOUCH(KOBO):
 
     def rebuild_collections(self, booklist, oncard):
         debug_print("KoboTouch:rebuild_collections")
-        collections_attributes = []
-        opts = self.settings()
-        if opts.extra_customization:
-            collections_attributes = [x.strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        collections_attributes = self.get_collections_attributes()
 
         debug_print('KoboTouch:rebuild_collections: collection fields:', collections_attributes)
         self.update_device_database_collections(booklist, collections_attributes, oncard)
@@ -2077,12 +2088,17 @@ class KOBOTOUCH(KOBO):
 
     def remove_book_from_device_bookshelves(self, connection, book):
         show_debug = self.is_debugging_title(book.title)# or True
+        
+        remove_shelf_list = set(book.current_collections) - set(book.device_collections) - set(["Im_Reading", "Read", "Closed"])
 
         if show_debug:
-            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.in_library="%s"'%book.application_id)
+            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.application_id="%s"'%book.application_id)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.contentID="%s"'%book.contentID)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.device_collections=', book.device_collections)
-
+            debug_print('KoboTouch:remove_book_from_device_bookshelves - remove_shelf_list=', remove_shelf_list)
+        
+        if len(remove_shelf_list) == 0:
+            return
 
         query = 'DELETE FROM ShelfContent WHERE ContentId = ?'
 

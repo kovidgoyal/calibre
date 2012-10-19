@@ -511,6 +511,7 @@ class BooksView(QTableView): # {{{
             except:
                 # Ignore invalid tweak values as users seem to often get them
                 # wrong
+                print('Ignoring invalid sort_columns_at_startup tweak, with error:')
                 import traceback
                 traceback.print_exc()
             old_state['sort_history'] = sh

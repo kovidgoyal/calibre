@@ -64,8 +64,12 @@ def shorten_title(doc):
             if e.text_content():
                 add_match(candidates, e.text_content(), orig)
 
-    for item in ['#title', '#head', '#heading', '.pageTitle', '.news_title', '.title', '.head', '.heading', '.contentheading', '.small_header_red']:
-        for e in doc.cssselect(item):
+    from cssselect import HTMLTranslator
+    css_to_xpath = HTMLTranslator().css_to_xpath
+    for item in ('#title', '#head', '#heading', '.pageTitle', '.news_title',
+            '.title', '.head', '.heading', '.contentheading',
+            '.small_header_red'):
+        for e in doc.xpath(css_to_xpath(item)):
             if e.text:
                 add_match(candidates, e.text, orig)
             if e.text_content():

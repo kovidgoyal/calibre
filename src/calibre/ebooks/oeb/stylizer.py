@@ -20,16 +20,17 @@ except ImportError:
 from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
         cssutils_log, CSSParser, profiles, replaceUrls)
 from lxml import etree
-from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
+from cssselect import HTMLTranslator
+
 from calibre import force_unicode
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
-from calibre.ebooks.cssselect import css_to_xpath_no_case
 
 cssutils_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
+css_to_xpath = HTMLTranslator().css_to_xpath
 
 def html_css_stylesheet():
     global _html_css_stylesheet
@@ -96,70 +97,86 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
+def xpath_lower_case(arg):
+    'An ASCII lowercase function for XPath'
+    return ("translate(%s, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
+            "'abcdefghijklmnopqrstuvwxyz')")%arg
+is_non_whitespace = re.compile(r'^[^ \t\r\n\f]+$').match
+
+class CaseInsensitiveAttributesTranslator(HTMLTranslator):
+    'Treat class and id CSS selectors case-insensitively'
+
+    def xpath_class(self, class_selector):
+        """Translate a class selector."""
+        x = self.xpath(class_selector.selector)
+        if is_non_whitespace(class_selector.class_name):
+            x.add_condition(
+                "%s and contains(concat(' ', normalize-space(%s), ' '), %s)"
+                % ('@class', xpath_lower_case('@class'), self.xpath_literal(
+                    ' '+class_selector.class_name.lower()+' ')))
+        else:
+            x.add_condition('0')
+        return x
+
+    def xpath_hash(self, id_selector):
+        """Translate an ID selector."""
+        x = self.xpath(id_selector.selector)
+        return self.xpath_attrib_equals(x, xpath_lower_case('@id'),
+                (id_selector.id.lower()))
+
+ci_css_to_xpath = CaseInsensitiveAttributesTranslator().css_to_xpath
 
 class CSSSelector(object):
 
-    LOCAL_NAME_RE = re.compile(r"(?<!local-)name[(][)] *= *'[^:]+:")
-
-    def __init__(self, css, namespaces=XPNSMAP):
-        if isinstance(css, unicode):
-            # Workaround for bug in lxml on windows/OS X that causes a massive
-            # memory leak with non ASCII selectors
-            css = css.encode('ascii', 'ignore').decode('ascii')
-        try:
-            path = self.LOCAL_NAME_RE.sub(r"local-name() = '", css_to_xpath(css))
-            self.sel1 = etree.XPath(css_to_xpath(css), namespaces=namespaces)
-        except:
-            self.sel1 = lambda x: []
-        try:
-            path = self.LOCAL_NAME_RE.sub(r"local-name() = '",
-                    css_to_xpath_no_case(css))
-            self.sel2 = etree.XPath(path, namespaces=namespaces)
-        except:
-            self.sel2 = lambda x: []
-        self.sel2_use_logged = False
+    def __init__(self, css, log=None, namespaces=XPNSMAP):
+        self.namespaces = namespaces
+        self.sel = self.build_selector(css, log)
         self.css = css
+        self.used_ci_sel = False
+
+    def build_selector(self, css, log, func=css_to_xpath):
+        try:
+            return etree.XPath(func(css), namespaces=self.namespaces)
+        except:
+            if log is not None:
+                log.exception('Failed to parse CSS selector: %r'%css)
+        return None
 
     def __call__(self, node, log):
+        if self.sel is None:
+            return []
         try:
-            ans = self.sel1(node)
-        except (AssertionError, ExpressionError, etree.XPathSyntaxError,
-                    NameError, # thrown on OS X instead of SelectorSyntaxError
-                    SelectorSyntaxError):
+            ans = self.sel(node)
+        except:
+            log.exception(u'Failed to run CSS selector: %s'%self.css)
             return []
 
         if not ans:
-            try:
-                ans = self.sel2(node)
-            except:
-                return []
-            else:
-                if ans and not self.sel2_use_logged:
-                    self.sel2_use_logged = True
-                    log.warn('Interpreting class and tag selectors case'
-                        ' insensitively in the CSS selector: %s'%self.css)
+            # Try a case insensitive version
+            if not hasattr(self, 'ci_sel'):
+                self.ci_sel = self.build_selector(self.css, log, ci_css_to_xpath)
+                if self.ci_sel is not None:
+                    try:
+                        ans = self.ci_sel(node)
+                    except:
+                        log.exception(u'Failed to run case-insensitive CSS selector: %s'%self.css)
+                        return []
+                    if ans:
+                        if not self.used_ci_sel:
+                            log.warn('Interpreting class and id values '
+                                'case-insensitively in selector: %s'%self.css)
+                        self.used_ci_sel = True
         return ans
-
-
-    def __repr__(self):
-        return '<%s %s for %r>' % (
-            self.__class__.__name__,
-            hex(abs(id(self)))[2:],
-            self.css)
 
 _selector_cache = {}
 
 MIN_SPACE_RE = re.compile(r' *([>~+]) *')
 
-def get_css_selector(raw_selector):
+def get_css_selector(raw_selector, log):
     css = MIN_SPACE_RE.sub(r'\1', raw_selector)
-    if isinstance(css, unicode):
-        # Workaround for bug in lxml on windows/OS X that causes a massive
-        # memory leak with non ASCII selectors
-        css = css.encode('ascii', 'ignore').decode('ascii')
     ans = _selector_cache.get(css, None)
     if ans is None:
-        ans = CSSSelector(css)
+        ans = CSSSelector(css, log)
         _selector_cache[css] = ans
     return ans
 
@@ -272,7 +289,7 @@ class Stylizer(object):
             fl = pseudo_pat.search(text)
             if fl is not None:
                 text = text.replace(fl.group(), '')
-            selector = get_css_selector(text)
+            selector = get_css_selector(text, self.oeb.log)
             matches = selector(tree, self.logger)
             if fl is not None:
                 fl = fl.group(1)
