@@ -1,4 +1,4 @@
-import random
+import re, random
 
 from calibre import browser
 from calibre.web.feeds.recipes import BasicNewsRecipe
@@ -8,7 +8,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'The Sun UK'
     description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 12/10/12 added starsons remove article code
+    # last updated 19/10/12 better cover fetch
     language = 'en_GB'
     oldest_article = 1
     max_articles_per_feed = 15
@@ -19,7 +19,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     remove_javascript     = True
     no_stylesheets = True
 
-    ignore_duplicate_articles = {'title'}
+    ignore_duplicate_articles = {'title','url'}
 
 
     extra_css  = '''
@@ -72,9 +72,10 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         #cov2 now contains url of the page containing pic
         soup = self.index_to_soup(cov2)
         cov = soup.find(attrs={'id' : 'large'})
-        cov2 = str(cov)
-        cov2=cov2[27:-18]
-        #cov2 now is pic url, now  go back to original function
+        cov=str(cov)
+        cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+        cov2 = str(cov2)
+        cov2=cov2[2:len(cov2)-2]
         br = browser()
         br.set_handle_redirect(False)
         try:
