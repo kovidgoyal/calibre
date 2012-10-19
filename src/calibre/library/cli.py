@@ -692,7 +692,22 @@ datatype is one of: {0}
             help=_('A dictionary of options to customize how '
                 'the data in this column will be interpreted. This is a JSON '
                 ' string. For enumeration columns, use '
-                '--display=\'{"enum_values":["val1", "val2"]}\''))
+                '--display="{\\"enum_values\\":[\\"val1\\", \\"val2\\"]}"'
+                ''
+                'There are many options that can go into the display variable.'
+                'The options by column type are:'
+                'composite: composite_template, composite_sort, make_category,'
+                '    contains_html, use_decorations'
+                'datetime: date_format'
+                'enumeration: enum_values, enum_colors, use_decorations'
+                'int, float: number_format'
+                'text: is_names. use_decorations'
+                ''
+                'The best way to find legal combinations is to create a custom'
+                'column of the appropriate type in the GUI then look at the'
+                'backup OPF for a book (ensure that a new OPF has been created'
+                'since the column was added). You will see the JSON for the'
+                '"display" for the new column in the OPF.'))
     return parser
 
 
@@ -705,6 +720,7 @@ def command_add_custom_column(args, dbpath):
         print
         print >>sys.stderr, _('You must specify label, name and datatype')
         return 1
+    print opts.display
     do_add_custom_column(get_db(dbpath, opts), args[0], args[1], args[2],
             opts.is_multiple, json.loads(opts.display))
     # Re-open the DB so that  field_metadata is reflects the column changes
