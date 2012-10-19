@@ -975,7 +975,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
-                        as_unicode(r), det_msg=worker.traceback, show=True)
+                        as_unicode(r) or _('Unknown error'),
+                        det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf,

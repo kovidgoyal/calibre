@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class Gildia(BasicNewsRecipe):
     title          = u'Gildia.pl'
@@ -11,6 +12,8 @@ class Gildia(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_empty_feeds=True
     no_stylesheets=True
+    ignore_duplicate_articles = {'title', 'url'}
+    preprocess_regexps = [(re.compile(ur'</?sup>'), lambda match: '') ]
     remove_tags=[dict(name='div', attrs={'class':'backlink'}), dict(name='div', attrs={'class':'im_img'}), dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'})]
     keep_only_tags=dict(name='div', attrs={'class':'widetext'})
     feeds          = [(u'Gry', u'http://www.gry.gildia.pl/rss'), (u'Literatura', u'http://www.literatura.gildia.pl/rss'), (u'Film', u'http://www.film.gildia.pl/rss'), (u'Horror', u'http://www.horror.gildia.pl/rss'), (u'Konwenty', u'http://www.konwenty.gildia.pl/rss'), (u'Plansz\xf3wki', u'http://www.planszowki.gildia.pl/rss'), (u'Manga i anime', u'http://www.manga.gildia.pl/rss'), (u'Star Wars', u'http://www.starwars.gildia.pl/rss'), (u'Techno', u'http://www.techno.gildia.pl/rss'), (u'Historia', u'http://www.historia.gildia.pl/rss'), (u'Magia', u'http://www.magia.gildia.pl/rss'), (u'Bitewniaki', u'http://www.bitewniaki.gildia.pl/rss'), (u'RPG', u'http://www.rpg.gildia.pl/rss'), (u'LARP', u'http://www.larp.gildia.pl/rss'), (u'Muzyka', u'http://www.muzyka.gildia.pl/rss'), (u'Nauka', u'http://www.nauka.gildia.pl/rss')]
@@ -18,10 +21,9 @@ class Gildia(BasicNewsRecipe):
 
     def skip_ad_pages(self, soup):
         content = soup.find('div', attrs={'class':'news'})
-        skip_tag= content.findAll(name='a')
-        if skip_tag is not None:
-            for link in skip_tag:
-                if 'recenzja' in link['href']:
+        if 'recenzj' in soup.title.string.lower():
+            for link in content.findAll(name='a'):
+                if 'recenzj' in link['href']:
                     self.log.warn('odnosnik')
                     self.log.warn(link['href'])
                     return self.index_to_soup(link['href'], raw=True)

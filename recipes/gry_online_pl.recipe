@@ -12,8 +12,8 @@ class GryOnlinePl(BasicNewsRecipe):
     cover_url='http://www.gry-online.pl/im/gry-online-logo.png'
     max_articles_per_feed = 100
     no_stylesheets= True
-    keep_only_tags=[dict(name='div', attrs={'class':'gc660'})]
-    remove_tags=[dict({'class':['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2']})]
+    keep_only_tags=[dict(name='div', attrs={'class':['gc660', 'gc660 S013']})]
+    remove_tags=[dict({'class':['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'S013-npb', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2']})]
     feeds          = [(u'Newsy', 'http://www.gry-online.pl/rss/news.xml'), ('Teksty', u'http://www.gry-online.pl/rss/teksty.xml')]
 
 

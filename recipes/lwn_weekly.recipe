@@ -8,15 +8,18 @@ lwn.net
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+import sys
 
 class WeeklyLWN(BasicNewsRecipe):
     title = 'LWN.net Weekly Edition'
     description = 'Weekly summary of what has happened in the free software world.'
     __author__ = 'Davide Cavalca'
     language = 'en'
-    site_url = 'http://lwn.net'
+    site_url = u'http://lwn.net'
 
     extra_css = 'pre,code,samp,kbd,tt { font-size: 80% }\nblockquote {margin-left:0 }\n* { color: black }\n'
+    no_stylesheets = True
+    remove_javascript = True
 
     cover_url = site_url + '/images/lcorner.png'
     #masthead_url = 'http://lwn.net/images/lcorner.png'
@@ -28,10 +31,13 @@ class WeeklyLWN(BasicNewsRecipe):
 
     preprocess_regexps = [
         # Remove the <hr> and "Log in to post comments"
-        (re.compile(r'<hr.*?comments[)]', re.DOTALL), lambda m: ''),
+        (re.compile(r'<hr [^>]+>\s*\n\s*.*?comments[)]'), lambda m: ''),
     ]
 
-    conversion_options = { 'linearize_tables' : True }
+    conversion_options = {
+        'linearize_tables' : True,
+        'no_inline_navbars': True,
+    }
 
     oldest_article = 7.0
     needs_subscription = 'optional'
@@ -60,8 +66,6 @@ class WeeklyLWN(BasicNewsRecipe):
         if url[-len(print_param):] != print_param:
             url += print_param
 
-        #import sys
-        #print >>sys.stderr, "*** print_version(url):", url
         return url
 
     def parse_index(self):
@@ -70,61 +74,69 @@ class WeeklyLWN(BasicNewsRecipe):
         else:
             index_url = self.print_version('/free/bigpage')
         soup = self.index_to_soup(index_url)
-        body = soup.body
+        curr = soup.body
 
         articles = {}
         ans = []
-        url_re = re.compile('^/Articles/')
+
+        section = soup.title.string
+        subsection = None
 
         while True:
-            tag_title = body.findNext(attrs={'class':'SummaryHL'})
-            if tag_title == None:
+            curr = curr.findNext(attrs = {'class': ['SummaryHL', 'Cat1HL', 'Cat2HL'] })
+
+            if curr == None:
                 break
 
-            tag_section = tag_title.findPrevious(attrs={'class':'Cat1HL'})
-            if tag_section == None:
-                section = 'Front Page'
-            else:
-                section = tag_section.string
+            text = curr.contents[0].string
 
-            tag_section2 = tag_title.findPrevious(attrs={'class':'Cat2HL'})
-            if tag_section2 != None:
-                if tag_section2.findPrevious(attrs={'class':'Cat1HL'}) == tag_section:
-                    section = "%s: %s" %(section, tag_section2.string)
+            if 'Cat2HL' in curr.attrMap['class']:
+                subsection = text
 
-            if section not in articles.keys():
-                articles[section] = []
-            if section not in ans:
-                ans.append(section)
+            elif 'Cat1HL' in curr.attrMap['class']:
+                section = text
+                subsection = None
 
-            body = tag_title
-            while True:
-                tag_url = body.findNext(name='a', attrs={'href':url_re})
-                if tag_url == None:
-                    break
-                body = tag_url
-                if tag_url.string == None:
-                    continue
-                elif tag_url.string == 'Full Story':
-                    break
-                elif tag_url.string.startswith('Comments ('):
-                    break
+            elif 'SummaryHL' in curr.attrMap['class']:
+                article_title = text
+
+                if subsection:
+                    section_title = "%s: %s" % (section, subsection)
                 else:
+                    section_title = section
+
+                # Most articles have anchors in their titles, *except* the security vulnerabilities
+                article_anchor = curr.findNext(name = 'a', attrs = { 'href': re.compile('^/Articles/') } )
+
+                if article_anchor:
+                    article_url = article_anchor.get('href')
+                    if not article_url:
+                        print >>sys.stderr, 'article_url is None for article_anchor "%s": "%s"' \
+                                % (str(article_anchor), article_title)
+                        continue
+
+                else:
+                    print >>sys.stderr, 'article_anchor is None for "%s"; skipping' % article_title
+                    article_url = None
                     continue
 
-            if tag_url == None:
-                break
+                if section_title not in articles:
+                    articles[section_title] = []
+                if section_title not in ans:
+                    ans.append(section_title)
 
+                articles[section_title].append({
+                        'url': article_url,
+                        'title': article_title,
+                        'description': '', 'content': '', 'date': '',
+                    })
 
-            article = dict(
-                title=self.tag_to_string(tag_title),
-                url=tag_url['href'],
-                description='', content='', date='')
-            articles[section].append(article)
+            else:
+                print >>sys.stderr, "lwn_weekly.recipe: something bad happened; should not be able to reach this"
 
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
-        if not ans:
-            raise Exception('Could not find any articles.')
+        ans = [(section, articles[section]) for section in ans if section in articles]
+        #from pprint import pprint
+        #pprint(ans)
 
         return ans
 

@@ -12,9 +12,8 @@ class Dzieje(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_javascript=True
     no_stylesheets= True
-    remove_tags_before= dict(name='h1', attrs={'class':'title'})
-    remove_tags_after= dict(id='dogory')
-    remove_tags=[dict(id='dogory')]
+    keep_only_tags = [dict(name='h1', attrs={'class':'title'}), dict(id='content-area')]
+    remove_tags = [dict(attrs={'class':'field field-type-computed field-field-tagi'}), dict(id='dogory')]
     feeds          = [(u'Dzieje', u'http://dzieje.pl/rss.xml')]
 
 

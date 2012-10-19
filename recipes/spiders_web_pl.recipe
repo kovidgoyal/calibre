@@ -11,5 +11,5 @@ class SpidersWeb(BasicNewsRecipe):
     no_stylesheers=True
     max_articles_per_feed = 100
     keep_only_tags=[dict(id='Post')]
-    remove_tags=[dict(name='div', attrs={'class':['Comments', 'Shows', 'Post-Tags']})]
+    remove_tags=[dict(name='div', attrs={'class':['Comments', 'Shows', 'Post-Tags']}), dict(id='Author-Column')]
     feeds          = [(u'Wpisy', u'http://www.spidersweb.pl/feed')]

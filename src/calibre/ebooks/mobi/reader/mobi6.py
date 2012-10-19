@@ -753,13 +753,13 @@ class MobiReader(object):
         processed_records = list(range(offset-1, self.book_header.records +
             offset))
 
-        self.mobi_html = ''
+        self.mobi_html = b''
 
         if self.book_header.compression_type == 'DH':
             huffs = [self.sections[i][0] for i in
-                range(self.book_header.huff_offset,
+                xrange(self.book_header.huff_offset,
                     self.book_header.huff_offset + self.book_header.huff_number)]
-            processed_records += list(range(self.book_header.huff_offset,
+            processed_records += list(xrange(self.book_header.huff_offset,
                 self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
             unpack = huff.unpack

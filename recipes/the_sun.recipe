@@ -8,7 +8,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'The Sun UK'
     description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 6/10/12 added starsons remove article code
+    # last updated 12/10/12 added starsons remove article code
     language = 'en_GB'
     oldest_article = 1
     max_articles_per_feed = 15
@@ -19,6 +19,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     remove_javascript     = True
     no_stylesheets = True
 
+    ignore_duplicate_articles = {'title'}
 
 
     extra_css  = '''
@@ -51,8 +52,10 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
       feeds = BasicNewsRecipe.parse_feeds(self)
       for feed in feeds:
         for article in feed.articles[:]:
-          # print 'article.title is: ', article.title
-          if 'Web porn harms kids' in article.title.upper() or 'The-Sun-says' in article.url:
+          print 'article.title is: ', article.title
+          if 'Try out The Sun' in article.title.upper() or 'Try-out-The-Suns' in article.url:
+            feed.articles.remove(article)
+          if 'Web porn harms kids' in article.title.upper() or 'Sun-says-Web-porn' in article.url:
             feed.articles.remove(article)
       return feeds
 
@@ -72,7 +75,6 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         cov2 = str(cov)
         cov2=cov2[27:-18]
         #cov2 now is pic url, now  go back to original function
-        # print "**** cov2 =",cov2,"****"
         br = browser()
         br.set_handle_redirect(False)
         try:

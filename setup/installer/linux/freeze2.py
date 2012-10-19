@@ -16,7 +16,7 @@ SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
         '_dbus_glib_bindings.so', 'netifaces.so', '_psutil_posix.so',
-        '_psutil_linux.so', 'psutil']
+        '_psutil_linux.so', 'psutil', 'cssselect']
 
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')

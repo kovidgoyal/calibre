@@ -649,6 +649,7 @@ class CatalogBuilder(object):
 
         cl_list = [None] * len(item_list)
         last_ordnum = 0
+        last_c = u''
 
         for idx, item in enumerate(item_list):
             if key:

@@ -13,11 +13,11 @@ class CGM(BasicNewsRecipe):
     use_embedded_content   = False
     remove_empty_feeds= True
     max_articles_per_feed = 100
-    no_stylesheers=True
+    no_stylesheets = True
     extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;} h2 {color:black;}'
     remove_tags_before=dict(id='mainContent')
     remove_tags_after=dict(name='div', attrs={'class':'fbContainer'})
-    remove_tags=[dict(name='div', attrs={'class':'fbContainer'}),
+    remove_tags=[dict(name='div', attrs={'class':['fbContainer', 'socials']}),
           dict(name='p', attrs={'class':['tagCloud', 'galleryAuthor']}),
           dict(id=['movieShare', 'container'])]
     feeds          = [(u'Informacje', u'http://www.cgm.pl/rss.xml'), (u'Polecamy', u'http://www.cgm.pl/rss,4,news.xml'),

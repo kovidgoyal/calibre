@@ -19,7 +19,7 @@ class Swiat_Obrazu(BasicNewsRecipe):
         return url + ',drukuj'
 
     def image_url_processor(self, baseurl, url):
-        if 'http://' not in url or 'https://' not in url:
+        if 'http://' not in url and 'https://' not in url:
             return 'http://www.swiatobrazu.pl' + url[5:]
         else:
             return url

@@ -11,7 +11,7 @@ from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
                      QDialogButtonBox)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
-    device_plugins)
+    device_plugins, disabled_device_plugins)
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed,
                                     InitialConnectionError)
@@ -130,6 +130,7 @@ class DeviceManager(Thread): # {{{
         self.setDaemon(True)
         # [Device driver, Showing in GUI, Ejected]
         self.devices        = list(device_plugins())
+        self.disabled_device_plugins = list(disabled_device_plugins())
         self.managed_devices = [x for x in self.devices if
                 not x.MANAGES_DEVICE_PRESENCE]
         self.unmanaged_devices = [x for x in self.devices if
@@ -425,7 +426,8 @@ class DeviceManager(Thread): # {{{
 
     def _debug_detection(self):
         from calibre.devices import debug
-        raw = debug(plugins=self.devices)
+        raw = debug(plugins=self.devices,
+                disabled_plugins=self.disabled_device_plugins)
         return raw
 
     def debug_detection(self, done):

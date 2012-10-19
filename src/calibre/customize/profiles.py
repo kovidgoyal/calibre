@@ -654,6 +654,17 @@ class KindleDXOutput(OutputProfile):
         return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
                 'ttt '.join(tags)+'ttt ')
 
+class KindlePaperWhiteOutput(KindleOutput):
+
+    name = 'Kindle PaperWhite'
+    short_name = 'kindle_pw'
+    description = _('This profile is intended for the Amazon Kindle PaperWhite')
+
+    # Screen size is a best guess
+    screen_size               = (658, 940)
+    dpi                       = 212.0
+    comic_screen_size = screen_size
+
 class KindleFireOutput(KindleDXOutput):
 
     name = 'Kindle Fire'
@@ -766,6 +777,6 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput, PocketBook900Output, GenericEink,
-        GenericEinkLarge, KindleFireOutput]
+        GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
