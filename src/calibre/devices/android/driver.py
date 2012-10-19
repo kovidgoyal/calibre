@@ -168,7 +168,7 @@ class ANDROID(USBMS):
             # Xperia
             0x13d3 : { 0x3304 : [0x0001, 0x0002] },
 
-            # CREEL?? Also Nextbook
+            # CREEL?? Also Nextbook and Wayteq
             0x5e3 : { 0x726 : [0x222] },
 
             # ZTE
