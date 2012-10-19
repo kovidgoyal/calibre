@@ -7,7 +7,6 @@ lwn.net
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 import re
 import sys
 

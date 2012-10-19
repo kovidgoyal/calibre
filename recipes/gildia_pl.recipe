@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class Gildia(BasicNewsRecipe):
     title          = u'Gildia.pl'
