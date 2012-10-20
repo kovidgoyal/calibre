@@ -125,11 +125,17 @@ class CaseInsensitiveAttributesTranslator(HTMLTranslator):
                 (id_selector.id.lower()))
 
 ci_css_to_xpath = CaseInsensitiveAttributesTranslator().css_to_xpath
-NULL_NAMESPACE_REGEX = re.compile(ur'''name\(\) = ['"]h:''')
+
+NULL_NAMESPACE_REGEX = re.compile(ur'''(name\(\) = ['"])h:''')
 def fix_namespace(raw):
-    ans = NULL_NAMESPACE_REGEX.sub(lambda
-            m:m.group().replace(u'h:', u''), raw)
-    return ans
+    '''
+    cssselect uses name() = 'h:p' to select tags for some CSS selectors (e.g.
+    h|p+h|p).
+    However, since for us the XHTML namespace is the default namespace (with no
+    prefix), name() is the same as local-name(). So this is a hack to
+    workaround the problem.
+    '''
+    return NULL_NAMESPACE_REGEX.sub(ur'\1', raw)
 
 class CSSSelector(object):
 
