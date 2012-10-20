@@ -178,18 +178,41 @@ def normalize(x):
 
 def calibre_cover(title, author_string, series_string=None,
         output_format='jpg', title_size=46, author_size=36, logo_path=None):
+    from calibre.utils.config_base import tweaks
     title = normalize(title)
     author_string = normalize(author_string)
     series_string = normalize(series_string)
     from calibre.utils.magick.draw import create_cover_page, TextLine
-    lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
+    text = title + author_string + (series_string or u'')
+    font_path = tweaks['generate_cover_title_font']
+    if font_path is None:
+        font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+
+    from calibre.utils.fonts.utils import get_font_for_text
+    font = open(font_path, 'rb').read()
+    c = get_font_for_text(text, font)
+    cleanup = False
+    if c is not None and c != font:
+        from calibre.ptempfile import PersistentTemporaryFile
+        pt = PersistentTemporaryFile('.ttf')
+        pt.write(c)
+        pt.close()
+        font_path = pt.name
+        cleanup = True
+
+    lines = [TextLine(title, title_size, font_path=font_path),
+            TextLine(author_string, author_size, font_path=font_path)]
     if series_string:
-        lines.append(TextLine(series_string, author_size))
+        lines.append(TextLine(series_string, author_size, font_path=font_path))
     if logo_path is None:
         logo_path = I('library.png')
-    return create_cover_page(lines, logo_path, output_format='jpg',
+    try:
+        return create_cover_page(lines, logo_path, output_format='jpg',
             texture_opacity=0.3, texture_data=I('cover_texture.png',
                 data=True))
+    finally:
+        if cleanup:
+            os.remove(font_path)
 
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
 

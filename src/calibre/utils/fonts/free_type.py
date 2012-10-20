@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import threading
+import threading, unicodedata
 from functools import wraps
 from future_builtins import map
 
@@ -20,6 +20,10 @@ class ThreadingViolation(Exception):
                 'You cannot use the MTP driver from a thread other than the '
                 ' thread in which startup() was called')
 
+def get_printable_characters(text):
+    return u''.join(x for x in unicodedata.normalize('NFC', text)
+            if unicodedata.category(x)[0] not in {'C', 'Z', 'M'})
+
 def same_thread(func):
     @wraps(func)
     def check_thread(self, *args, **kwargs):
@@ -27,6 +31,8 @@ def same_thread(func):
             raise ThreadingViolation()
         return func(self, *args, **kwargs)
     return check_thread
+
+FreeTypeError = getattr(plugins['freetype'][0], 'FreeTypeError', Exception)
 
 class Face(object):
 
@@ -42,9 +48,14 @@ class Face(object):
             setattr(self, x, val)
 
     @same_thread
-    def supports_text(self, text):
+    def supports_text(self, text, has_non_printable_chars=True):
+        '''
+        Returns True if all the characters in text have glyphs in this font.
+        '''
         if not isinstance(text, unicode):
             raise TypeError('%r is not a unicode object'%text)
+        if has_non_printable_chars:
+            text = get_printable_characters(text)
         chars = tuple(frozenset(map(ord, text)))
         return self.face.supports_text(chars)
 
@@ -71,6 +82,17 @@ def test():
     if font.supports_text('abc'):
         raise RuntimeError('Incorrectly claiming that text is supported')
 
+def test_find_font():
+    from calibre.utils.fonts import fontconfig
+    abcd = '诶比西迪'
+    family = fontconfig.find_font_for_text(abcd)[0]
+    print ('Family for Chinese text:', family)
+    family = fontconfig.find_font_for_text(abcd)[0]
+    abcd = 'لوحة المفاتيح العربية'
+    print ('Family for Arabic text:', family)
+
+
 if __name__ == '__main__':
     test()
+    test_find_font()
 
