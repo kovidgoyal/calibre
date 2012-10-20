@@ -17,7 +17,7 @@ static PyObject *FreeTypeError = NULL;
 
 typedef struct {
     PyObject_HEAD
-    FT_Face *face;
+    FT_Face face;
     // Every face must keep a reference to the FreeType library object to
     // ensure it is garbage collected before the library object, to prevent
     // segfaults.
@@ -26,7 +26,7 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    FT_Library *library;
+    FT_Library library;
 } FreeType;
 
 // Face.__init__() {{{
@@ -35,8 +35,7 @@ Face_dealloc(Face* self)
 {
     if (self->face != NULL) {
         Py_BEGIN_ALLOW_THREADS;
-        FT_Done_Face(*(self->face));
-        free(self->face);
+        FT_Done_Face(self->face);
         Py_END_ALLOW_THREADS;
     }
     self->face = NULL;
@@ -56,17 +55,15 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
     PyObject *ft;
 
     if (!PyArg_ParseTuple(args, "Os#", &ft, &data, &sz)) return -1;
-    self->face = (FT_Face*)calloc(1, sizeof(FT_Face));
-    if (self->face == NULL) { PyErr_NoMemory(); return -1; }
     self->library = ft;
     Py_XINCREF(ft);
 
     Py_BEGIN_ALLOW_THREADS;
-    error = FT_New_Memory_Face( *(( (FreeType*)ft )->library),
-            (const FT_Byte*)data, (FT_Long)sz, 0, self->face);
+    error = FT_New_Memory_Face( ( (FreeType*)ft )->library,
+            (const FT_Byte*)data, (FT_Long)sz, 0, &self->face);
     Py_END_ALLOW_THREADS;
     if (error) {
-        free(self->face); self->face = NULL;
+        self->face = NULL;
         if ( error == FT_Err_Unknown_File_Format || error == FT_Err_Invalid_Stream_Operation)
             PyErr_SetString(FreeTypeError, "Not a supported font format");
         else
@@ -78,22 +75,30 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
 
 // }}}
 
+static PyObject *
+family_name(Face *self, void *closure) {
+    return Py_BuildValue("s", self->face->family_name);
+} 
+
+static PyObject *
+style_name(Face *self, void *closure) {
+    return Py_BuildValue("s", self->face->style_name);
+} 
+
 static PyObject*
 supports_text(Face *self, PyObject *args) {
     PyObject *chars, *fast, *ret = Py_True;
     Py_ssize_t sz, i;
     FT_ULong code;
-    FT_Face face;
 
     if (!PyArg_ParseTuple(args, "O", &chars)) return NULL;
     fast = PySequence_Fast(chars, "List of chars is not a sequence");
     if (fast == NULL) return NULL;
     sz = PySequence_Fast_GET_SIZE(fast);
-    face = *(self->face);
 
     for (i = 0; i < sz; i++) {
         code = (FT_ULong)PyNumber_AsSsize_t(PySequence_Fast_GET_ITEM(fast, i), NULL);
-        if (FT_Get_Char_Index(face, code) == 0) {
+        if (FT_Get_Char_Index(self->face, code) == 0) {
             ret = Py_False;
             break;
         }
@@ -103,6 +108,20 @@ supports_text(Face *self, PyObject *args) {
     Py_XINCREF(ret);
     return ret;
 }
+
+static PyGetSetDef Face_getsetters[] = {
+    {(char *)"family_name", 
+     (getter)family_name, NULL,
+     (char *)"The family name of this font.",
+     NULL},
+
+    {(char *)"style_name", 
+     (getter)style_name, NULL,
+     (char *)"The style name of this font.",
+     NULL},
+
+    {NULL}  /* Sentinel */
+};
 
 static PyMethodDef Face_methods[] = {
     {"supports_text", (PyCFunction)supports_text, METH_VARARGS,
@@ -118,8 +137,7 @@ dealloc(FreeType* self)
 {
     if (self->library != NULL) {
         Py_BEGIN_ALLOW_THREADS;
-        FT_Done_FreeType(*(self->library));
-        free(self->library);
+        FT_Done_FreeType(self->library);
         Py_END_ALLOW_THREADS;
     }
     self->library = NULL;
@@ -131,13 +149,10 @@ static int
 init(FreeType *self, PyObject *args, PyObject *kwds)
 {
     FT_Error error = 0;
-    self->library = (FT_Library*)calloc(1, sizeof(FT_Library));
-    if (self->library == NULL) { PyErr_NoMemory(); return -1; }
     Py_BEGIN_ALLOW_THREADS;
-    error = FT_Init_FreeType(self->library);
+    error = FT_Init_FreeType(&self->library);
     Py_END_ALLOW_THREADS;
     if (error) {
-        free(self->library);
         self->library = NULL;
         PyErr_Format(FreeTypeError, "Failed to initialize the FreeType library with error: %d", error);
         return -1;
@@ -178,7 +193,7 @@ static PyTypeObject FaceType = { // {{{
     0,		               /* tp_iternext */
     Face_methods,             /* tp_methods */
     0,             /* tp_members */
-    0,                         /* tp_getset */
+    Face_getsetters,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */

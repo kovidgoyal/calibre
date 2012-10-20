@@ -33,6 +33,13 @@ class Face(object):
     def __init__(self, face):
         self.start_thread = threading.current_thread()
         self.face = face
+        for x in ('family_name', 'style_name'):
+            val = getattr(self.face, x)
+            try:
+                val = val.decode('utf-8')
+            except UnicodeDecodeError:
+                val = repr(val).decode('utf-8')
+            setattr(self, x, val)
 
     @same_thread
     def supports_text(self, text):
