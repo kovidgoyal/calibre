@@ -84,6 +84,7 @@ qt_inc = pyqt.qt_inc_dir
 qt_lib = pyqt.qt_lib_dir
 ft_lib_dirs = []
 ft_libs = []
+ft_inc_dirs = []
 jpg_libs = []
 jpg_lib_dirs = []
 fc_inc = '/usr/include/fontconfig'
@@ -116,6 +117,7 @@ if iswindows:
     jpg_libs = ['jpeg']
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
+    ft_inc_dirs = [sw_inc_dir]
 
     magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.7.6')]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
@@ -135,6 +137,8 @@ elif isosx:
     png_inc_dirs = consolidate('PNG_INC_DIR', '/sw/include')
     png_lib_dirs = consolidate('PNG_LIB_DIR', '/sw/lib')
     png_libs = ['png12']
+    ft_libs = ['freetype']
+    ft_inc_dirs = ['/sw/include/freetype2']
 else:
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
@@ -150,6 +154,10 @@ else:
     if not magick_libs:
         magick_libs = ['MagickWand', 'MagickCore']
     png_libs = ['png']
+    ft_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
+            '/usr/include/freetype2')
+    ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
+    ft_libs = pkgconfig_libs('freetype2', '', '')
 
 
 fc_inc = os.environ.get('FC_INC_DIR', fc_inc)

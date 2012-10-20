@@ -55,7 +55,7 @@ class Fonts(object):
         files = self.backend.files_for_family(family, normalize=normalize)
         ans = {}
         for ft, val in files.iteritems():
-            name, f = val
+            f, name = val
             ext = f.rpartition('.')[-1].lower()
             ans[ft] = (ext, name, open(f, 'rb').read())
         return ans

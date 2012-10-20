@@ -17,7 +17,7 @@ from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, win_ddk_lib_dirs)
+        icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -118,6 +118,12 @@ extensions = [
                     'calibre/utils/lzx/lzxd.h',
                     'calibre/utils/lzx/mspack.h'],
             inc_dirs=['calibre/utils/lzx']),
+
+    Extension('freetype',
+        ['calibre/utils/fonts/freetype.cpp'],
+        inc_dirs = ft_inc_dirs,
+        libraries=ft_libs,
+        lib_dirs=ft_lib_dirs),
 
     Extension('fontconfig',
         ['calibre/utils/fonts/fontconfig.c'],

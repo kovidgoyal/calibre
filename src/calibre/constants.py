@@ -89,6 +89,7 @@ class Plugins(collections.Mapping):
                 'chm_extra',
                 'icu',
                 'speedup',
+                'freetype',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
