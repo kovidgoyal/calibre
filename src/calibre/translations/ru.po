@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-11 18:04+0000\n"
-"Last-Translator: Baz <_baz_@rambler.ru>\n"
+"PO-Revision-Date: 2012-10-19 19:34+0000\n"
+"Last-Translator: Ida Leter <iatheia@yandex.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:52+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:49+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -878,7 +878,7 @@ msgstr "Профиль для Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Этот профиль предназначен для Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1570,7 +1570,7 @@ msgstr "<b>Размещение %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Связь с  Kindle 2/3/4/Touch/PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1951,7 +1951,7 @@ msgstr "Установить связь с Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Связь с WayteQ Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -7150,11 +7150,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Already in calibre:"
-msgstr ""
+msgstr "Уже в calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:395
 msgid "You are trying to add:"
-msgstr ""
+msgstr "Вы пытаетесь добавить:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
@@ -7165,7 +7165,7 @@ msgstr "Есть повторения!"
 msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
-msgstr ""
+msgstr "Книги с тем же названием уже в calibre. Всё равно добавить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "Adding duplicates..."
@@ -16523,6 +16523,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"Этот плагин был отключен"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -19250,7 +19253,7 @@ msgstr "Не могу открыть электронную книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Unknown error"
-msgstr ""
+msgstr "Неизвестная ошибка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
 msgid "Options to control the ebook viewer"
@@ -24525,34 +24528,3 @@ msgstr ""
 "использовать окончания, то вы должны будете нажать Tab для выбора перед \n"
 "нажатием Ввода. Какой режим вы предпочитаете будет зависеть от состояния \n"
 "метаданных в библиотеке и вашего личного стиля редактирования."
-
-#~ msgid "Performance"
-#~ msgstr "Производительность"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Количество одновременно выполняемых поисков"
-
-#~ msgid "Search:"
-#~ msgstr "Поиск:"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Количество одновременных загрузок обложки"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Количество одновременных обновлений кеша"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Соединиться с электронной книгой Kindle 2/3/4/Touch."
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Принять форматирование печати"
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Считать каждую строку абзацем"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Колиество одновременно загружаемых подробностей"
-
-#, python-format
-#~ msgid " [%s, port %d]"
-#~ msgstr " [%s, порт %d]"

@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:57+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:54+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22662,24 +22662,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Tratar cada &linha como um parágrafo"
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Assumir formatação de impressão"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Comunicação com o leitor de eBook Kindle 2/3/4/Touch"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Número de consultas simultâneas"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Número de downloads simultâneos em segundo plano"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Número de atualizações simultâneas na cache"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Número de downloads simultâneos detalhados"

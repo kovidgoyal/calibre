@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:45+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:43+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -24225,30 +24225,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Nyomtatási formátum értelmezése"
-
-#~ msgid "Search:"
-#~ msgstr "Keresés:"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Egyidejű keresések száma"
-
-#~ msgid "Performance"
-#~ msgstr "Teljesítmény"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Egyidejű borító letöltések száma"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Egyidejű gyorsítótár frissítések száma"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Egyidejű részlet letöltések száma"
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Minden sort kü&lön bekezdésként kezeljen"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Kapcsolódás a  Kindle 2/3/4/Touch eBook olvasóhoz."

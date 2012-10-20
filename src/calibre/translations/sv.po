@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:51+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -23589,27 +23589,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Behandla varje rad som ett stycke"
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Antag att texten är formaterad för utskrift"
-
-#~ msgid "Search:"
-#~ msgstr "Sök:"
-
-#~ msgid "Performance"
-#~ msgstr "Prestanda"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Antal samtidiga omslagsnedladdningar"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Antal samtidiga cache uppdateringar"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Antal samtidiga detaljnedladdningar"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Antalet samtidiga sökningar"

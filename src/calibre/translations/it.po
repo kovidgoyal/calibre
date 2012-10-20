@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-17 09:54+0000\n"
+"PO-Revision-Date: 2012-10-19 10:31+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:46+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:44+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -889,7 +889,7 @@ msgstr "Questo profilo è adatto al Kindle DX di Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Questo profilo è pensato per il Kindle PaperWhite di Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1590,7 +1590,7 @@ msgstr "<b>Posizione %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Comunica con il lettore di ebook Kindle 2/3/4/Touch/PaperWhite."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1976,7 +1976,7 @@ msgstr "Comunica con l'Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Comunica con il lettore WayteQ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -6328,7 +6328,7 @@ msgstr "Avvia/ferma il server dei contenuti"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, porta %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -7213,11 +7213,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Already in calibre:"
-msgstr ""
+msgstr "Già in calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:395
 msgid "You are trying to add:"
-msgstr ""
+msgstr "Stai provando ad aggiungere:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
@@ -7229,6 +7229,8 @@ msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
 msgstr ""
+"Libri con lo stesso titolo del seguente esistono già in calibre. Vuioi "
+"aggiungerli comunque?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "Adding duplicates..."
@@ -16572,6 +16574,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"Questo plugin è stato disabilitato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -19320,7 +19325,7 @@ msgstr "Impossibile aprire il libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Unknown error"
-msgstr ""
+msgstr "Errore sconosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
 msgid "Options to control the ebook viewer"
@@ -23931,34 +23936,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Considera ogni linea come un paragrafo"
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Individuare il formato di stampa"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Numero di ricerche simultanee"
-
-#~ msgid "Performance"
-#~ msgstr "Prestazioni"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Numero di scaricamenti simultanei di copertine"
-
-#~ msgid "Search:"
-#~ msgstr "Cerca:"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Numero di aggiornamenti simultanei della cache"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Comunica con il lettore di ebook Kindle 2/3/4/Touch."
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Numero di scaricamenti dei dettagli contemporanei"
-
-#, python-format
-#~ msgid " [%s, port %d]"
-#~ msgstr " [%s, porta %d]"

@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:52+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:50+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "Language: sr\n"
 
@@ -22492,27 +22492,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Повежи се са Kindle 2/3/4/Touch eBook читачем."
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Третирај сваки &ред као пасус."
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Подразумевај да се форматира за штампање."
-
-#~ msgid "Search:"
-#~ msgstr "Тражи:"
-
-#~ msgid "Performance"
-#~ msgstr "Учинак"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Број истовремено преузимања корица"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Број истовремено преузетих детаља"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Број истовремених претрага"

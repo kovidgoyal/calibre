@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-15 04:13+0000\n"
+"PO-Revision-Date: 2012-10-19 08:56+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:58+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:55+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "Language: zh_TW\n"
 
@@ -2088,15 +2088,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:267
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "啟動時建立連線"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:268
 msgid "Check this box to allow connections when calibre starts"
-msgstr ""
+msgstr "核取此方法允許 calibre 啟動時連線"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:270
 msgid "Security password"
-msgstr ""
+msgstr "安全式密碼"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:271
 msgid "Enter a password that the device app must use to connect to calibre"
@@ -6219,7 +6219,7 @@ msgstr "取消(_C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "重建書籍(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
@@ -21754,21 +21754,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Assume print formatting"
-#~ msgstr "猜測列印格式"
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "將每一行視為段落(&L)"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "同步快取更新的數量"
-
-#~ msgid "Search:"
-#~ msgstr "搜尋："
-
-#~ msgid "Performance"
-#~ msgstr "效能"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "與 Kindle 2/3/4/Touch 電子書閱讀器連接。"

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-11 04:30+0000\n"
+"PO-Revision-Date: 2012-10-19 04:58+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:55+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:53+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "Language: uk\n"
 
@@ -876,7 +876,7 @@ msgstr "Цей профіль призначено для Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Цей профіль призначено для Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1575,6 +1575,8 @@ msgstr "<b>Розташування %(dl)d &bull; %(typ)s</b><br />"
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
 msgstr ""
+"Обмін даними з пристроєм для читання електронних книг Kindle "
+"2/3/4/Touch/PaperWhite."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1967,7 +1969,7 @@ msgstr "З’єднатися з  Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Обмін даними з пристроєм для читання WayteQ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -6322,7 +6324,7 @@ msgstr "Запустити/Зупинити сервер даних"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, порт %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -7237,11 +7239,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Already in calibre:"
-msgstr ""
+msgstr "Вже у calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:395
 msgid "You are trying to add:"
-msgstr ""
+msgstr "Ви намагаєтеся додати:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
@@ -7253,6 +7255,8 @@ msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
 msgstr ""
+"Книги з наведеними нижче назвами вже записано до бібліотеки calibre. Додати "
+"їхні записи попри це?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "Adding duplicates..."
@@ -16724,6 +16728,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"Цей додаток було вимкнено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -19497,7 +19504,7 @@ msgstr "Не вдалося відкрити ел. книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Unknown error"
-msgstr ""
+msgstr "Невідома помилка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
 msgid "Options to control the ebook viewer"
@@ -24850,34 +24857,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid "Performance"
-#~ msgstr "Швидкодія"
-
-#~ msgid "Search:"
-#~ msgstr "Пошук:"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Кількість одночасних пошуків"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Кількість одночасних оновлень кешу"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Кількість одночасних отримань зображень обкладинок"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Кількість одночасних отримань подробиць"
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Вва&жати кожен з рядків абзацу"
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Припускати форматування для друку"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Встановити з’єднання з пристроєм для читання Kindle 2/3/4/Touch."
-
-#, python-format
-#~ msgid " [%s, port %d]"
-#~ msgstr " [%s, порт %d]"

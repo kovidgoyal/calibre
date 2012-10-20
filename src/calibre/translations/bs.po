@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:39+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:38+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -21349,21 +21349,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Performance"
-#~ msgstr "Performanse"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Broj istovremenih pretraga"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Broj istovremenih ažuriranja keša"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Broj istovremenih preuzimanja korica"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Broj istvoremenih preuzimanja detalja"
-
-#~ msgid "Search:"
-#~ msgstr "Pretraga:"

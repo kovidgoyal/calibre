@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-19 04:43+0000\n"
+"X-Launchpad-Export-Date: 2012-10-20 04:41+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -24769,34 +24769,3 @@ msgstr ""
 "drücken. Welche Technik Sie bevorzugen hängt von dem Zustand der Metadaten "
 "in Ihrer\n"
 "Bibliothek und Ihrem persönlichen Änderungsstil ab."
-
-#~ msgid "Treat each &line as a paragraph"
-#~ msgstr "Jede Zei&le als Absatz behandeln"
-
-#~ msgid "Assume print formatting"
-#~ msgstr "Druck-Formatierung übernehmen"
-
-#~ msgid "Number of simultaneous searches"
-#~ msgstr "Anzahl gleichzeitiger Suchen"
-
-#~ msgid "Performance"
-#~ msgstr "Leistung"
-
-#~ msgid "Search:"
-#~ msgstr "Suchen:"
-
-#~ msgid "Number of simultaneous details downloads"
-#~ msgstr "Anzahl der gleichzeitigen Detail-Downloads"
-
-#~ msgid "Number of simultaneous cache updates"
-#~ msgstr "Anzahl der gleichzeitigen Cacheaktualisierungen"
-
-#~ msgid "Number of simultaneous cover downloads"
-#~ msgstr "Anzahl der gleichzeitigen Umschlagdownloads"
-
-#~ msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-#~ msgstr "Kommuniziere mit dem Kindle 2/3/4/Touch eBook-Reader."
-
-#, python-format
-#~ msgid " [%s, port %d]"
-#~ msgstr " [%s, Port %d]"
