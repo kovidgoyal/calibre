@@ -125,6 +125,11 @@ class CaseInsensitiveAttributesTranslator(HTMLTranslator):
                 (id_selector.id.lower()))
 
 ci_css_to_xpath = CaseInsensitiveAttributesTranslator().css_to_xpath
+NULL_NAMESPACE_REGEX = re.compile(ur'''name\(\) = ['"]h:''')
+def fix_namespace(raw):
+    ans = NULL_NAMESPACE_REGEX.sub(lambda
+            m:m.group().replace(u'h:', u''), raw)
+    return ans
 
 class CSSSelector(object):
 
@@ -136,7 +141,7 @@ class CSSSelector(object):
 
     def build_selector(self, css, log, func=css_to_xpath):
         try:
-            return etree.XPath(func(css), namespaces=self.namespaces)
+            return etree.XPath(fix_namespace(func(css)), namespaces=self.namespaces)
         except:
             if log is not None:
                 log.exception('Failed to parse CSS selector: %r'%css)
