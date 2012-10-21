@@ -270,7 +270,7 @@ class AuthorsEdit(EditWithComplete):
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
+                        _('Could not open "%s". Is it being used by another'
                         ' program?')%fname, det_msg=traceback.format_exc(),
                         show=True)
                 return False
