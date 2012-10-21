@@ -50,9 +50,9 @@ class Extension(object):
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
 
-pdfreflow_libs = []
+woff_libs = ['z']
 if iswindows:
-    pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
+    woff_libs = ['zlib']
 
 icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 icu_cflags = []
@@ -131,6 +131,16 @@ extensions = [
         libraries=['fontconfig'],
         lib_dirs=[fc_lib],
         error=fc_error),
+
+    Extension('woff',
+        ['calibre/utils/fonts/woff/main.c',
+         'calibre/utils/fonts/woff/woff.c'],
+        headers=[
+        'calibre/utils/fonts/woff/woff.h',
+        'calibre/utils/fonts/woff/woff-private.h'],
+        libraries=woff_libs
+        ),
+
 
     Extension('msdes',
                 ['calibre/utils/msdes/msdesmodule.c',

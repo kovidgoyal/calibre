@@ -114,6 +114,10 @@ def test_wpd():
     else:
         wpd.uninit()
 
+def test_woff():
+    from calibre.utils.fonts.woff import test
+    test()
+
 def test():
     test_plugins()
     test_lxml()
@@ -124,6 +128,7 @@ def test():
     test_imaging()
     test_unrar()
     test_icu()
+    test_woff()
     if iswindows:
         test_win32()
         test_winutil()
