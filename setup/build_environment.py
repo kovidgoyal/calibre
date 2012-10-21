@@ -95,6 +95,9 @@ chmlib_inc_dirs = chmlib_lib_dirs = []
 sqlite_inc_dirs = []
 icu_inc_dirs = []
 icu_lib_dirs = []
+zlib_inc_dirs = []
+zlib_lib_dirs = []
+zlib_libs = ['z']
 
 if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
@@ -118,6 +121,9 @@ if iswindows:
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
     ft_inc_dirs = [sw_inc_dir]
+    zlib_inc_dirs = [sw_inc_dir]
+    zlib_lib_dirs = [sw_lib_dir]
+    zlib_libs = ['zlib']
 
     magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.7.6')]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]

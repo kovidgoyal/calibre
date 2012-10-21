@@ -33,7 +33,7 @@ def test_lxml():
         raise RuntimeError('lxml failed')
 
 def test_freetype():
-    from calibre.utils.fonts.freetype import test
+    from calibre.utils.fonts.free_type import test
     test()
     print ('FreeType OK!')
 
@@ -117,6 +117,7 @@ def test_wpd():
 def test_woff():
     from calibre.utils.fonts.woff import test
     test()
+    print ('WOFF ok!')
 
 def test():
     test_plugins()
