@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2011-09-18 08:58+0000\n"
+"PO-Revision-Date: 2012-10-20 21:35+0000\n"
 "Last-Translator: Nelly Hoang <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-20 04:38+0000\n"
+"X-Launchpad-Export-Date: 2012-10-21 04:40+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -387,6 +387,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Изпрати книги чрез и-мейл или мрежата, също така се свържи с iTunes или "
+"папките на компютъра, сякаш са устройства"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -500,7 +502,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:998
 msgid "Input Options"
-msgstr ""
+msgstr "Настройки за въвеждане"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1011
@@ -669,6 +671,7 @@ msgstr "Клавиатура"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1167
 msgid "Customize the keyboard shortcuts used by calibre"
 msgstr ""
+"Персонализирайте клавишните комбинации за бърз достъп, използвани от calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1172
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -1050,6 +1053,16 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Ако не желаете calibre да разпознава вашето Apple i-устройство, когато то "
+"бъде свързано с вашия компютър, натиснете <b>Disable Apple "
+"Driver</b>.</p><p>За да прехвърлите книги на вашето i-устройство, настиснете "
+"<b>Disable Apple Driver</b>, а след това използвайте метода 'Connect to "
+"iTunes', препоръчан в <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, използвайки <em>Connect/Share</em>|<em>Connect to "
+"iTunes</em> менюто.</p><p>Включването на Apple драйвера за директна връзка "
+"към i-устройството е неподдържан потребителски режим за "
+"напреднали.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
 msgid "Disable Apple driver"
@@ -1092,6 +1105,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Тази настройка трябва да съвпада с вашата  iTunes "
+"<i>Preferences</i>|<i>Advanced</i> настройка.</p><p>Забраняването й, ще "
+"доведе до съхраняване на копия на книгите, прехвърлени към iTunes във "
+"директорията с конфигурациите на calibre .</p><p>Разрешаването и указва, че "
+"iTunes е конфигуриран да запазва копия във вашата iTunes Media папка.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
 msgid "Apple device"

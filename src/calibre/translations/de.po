@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-16 14:41+0000\n"
-"Last-Translator: Dennis Baudys <Unknown>\n"
+"PO-Revision-Date: 2012-10-20 14:01+0000\n"
+"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-20 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-10-21 04:40+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -273,7 +273,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "Umschlagbild aus Comic-Dateien extrahieren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -6065,7 +6065,7 @@ msgstr "Auf einmal konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:37
 msgid "Create a catalog of the books in your calibre library"
-msgstr "Einen Katalog der Bücher in Ihrer Calibre-Bibliothek erstellen"
+msgstr "Einen Katalog Ihrer Calibre-Bibliothek erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:639
@@ -7276,11 +7276,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Already in calibre:"
-msgstr ""
+msgstr "Bereits in Calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:395
 msgid "You are trying to add:"
-msgstr ""
+msgstr "Sie versuchen folgendes hinzuzufügen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
@@ -7292,6 +7292,8 @@ msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
 msgstr ""
+"Bücher mit dem geleichen, folgenden Titel existieren bereits in Calibre. "
+"Trotzdem hinzufügen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "Adding duplicates..."
@@ -12900,6 +12902,14 @@ msgid ""
 "virus manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Wireless-Geräte Verbindung starten. Derzeit nur verwendet bei\n"
+"       <a href=\"http://www.multipie.co.uk/calibre-companion/\">Calibre "
+"Companion</a>.\n"
+"       <p>Sie sehen möglicherweise einige Nachrichten von Ihrer Firewall "
+"oder dem Anti-Viren Programm, in denen Sie gefragt werden, ob es OK ist, "
+"dass Calibre sich mit dem Netzwerk verbindet.<b>Bitte antworten Sie mit "
+"Ja</b>. \n"
+"Wenn Sie das nicht tun, wird die dratlose Verbindung nicht funktionieren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Calibre IP addresses:"
@@ -16576,7 +16586,7 @@ msgstr "&Weniger Schlagworte bevorzugen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
-msgstr ""
+msgstr "Erscheinungs-Datum der Erstausgabe (von worldcat.org) verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -16823,6 +16833,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"Dieses Plugin wurde deaktiviert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -19047,7 +19060,7 @@ msgstr "Uhr im Vollbildmodus anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:59
 msgid "Show reading position in fullscreen mode."
-msgstr ""
+msgstr "Lese-Position im Vollbildmodus anzeigen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
@@ -19210,7 +19223,7 @@ msgstr "Uhr im Vollbildmodus anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Show reading &position in full screen mode"
-msgstr ""
+msgstr "Lese-&Position im Vollbildmodus anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Show &scrollbar in full screen mode"
@@ -19613,7 +19626,7 @@ msgstr "Konnte E-Book nicht öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Unknown error"
-msgstr ""
+msgstr "Unbekannter Fehler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
 msgid "Options to control the ebook viewer"
