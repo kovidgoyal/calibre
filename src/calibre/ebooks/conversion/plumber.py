@@ -193,6 +193,17 @@ OptionRecommendation(name='line_height',
             )
         ),
 
+OptionRecommendation(name='embed_font_family',
+        recommended_value=None, level=OptionRecommendation.LOW,
+        help=_(
+            'Embed the specified font family into the book. This specifies '
+            'the "base" font used for the book. If the input document '
+            'specifies its own fonts, they may override this base font. '
+            'You can use the filter style information option to remove fonts from the '
+            'input document. Note that font embedding only works '
+            'with some output formats, principally EPUB and AZW3.')
+        ),
+
 OptionRecommendation(name='linearize_tables',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Some badly designed documents use tables to control the '
