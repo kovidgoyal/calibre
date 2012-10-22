@@ -99,7 +99,6 @@ class FontFamilyDelegate(QStyledItemDelegate):
         else:
             r.setLeft(r.left() + 4)
 
-        old = painter.font()
         painter.setFont(font)
         painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, text)
 
@@ -112,8 +111,6 @@ class FontFamilyDelegate(QStyledItemDelegate):
             else:
                 r.setLeft(r.left() + w)
             painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, sample)
-
-        painter.setFont(old)
 
 class FontFamilyChooser(QComboBox):
 
