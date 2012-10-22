@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-06 10:45+0000\n"
+"PO-Revision-Date: 2012-10-21 14:25+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-20 04:38+0000\n"
+"X-Launchpad-Export-Date: 2012-10-22 04:38+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -887,7 +887,7 @@ msgstr "Aquest perfil és adient per a l'Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Aquest perfil és adient per al Kindle Amazon PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1594,7 +1594,7 @@ msgstr "<b>Posició %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Comunica't amb un lector Kindle 2/3/4/Touch/PaperWhite."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1981,7 +1981,7 @@ msgstr "Comunica't amb l'Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Comunica't amb un lector WayteQ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -6327,7 +6327,7 @@ msgstr "Inicia/atura el servidor de continguts"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, port %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -7240,11 +7240,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Already in calibre:"
-msgstr ""
+msgstr "Ja està al calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:395
 msgid "You are trying to add:"
-msgstr ""
+msgstr "Esteu intentant afegir:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
@@ -7256,6 +7256,7 @@ msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
 msgstr ""
+"Ja hi ha llibres del mateix títol al calibre. S'han d'afegir igualment?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "Adding duplicates..."
@@ -9075,6 +9076,9 @@ msgid ""
 "the output profile to the default output profile. Otherwise the output "
 "profile will override these settings."
 msgstr ""
+"<b>Nota:</b> Els paràmetres de mida de paper només tindran efecte si heu "
+"establert el perfil de sortida al perfil per defecte. En cas contrari el "
+"perfil de sortida tindrà prioritat sobre aquests paràmetres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -16474,7 +16478,7 @@ msgstr "Prefereix &menys etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
-msgstr ""
+msgstr "Utilitza la data de la «primera edició» (des de worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -16720,6 +16724,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"S'ha inhabilitat aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -18929,11 +18936,11 @@ msgstr "Mostra un rellotge al mode de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:59
 msgid "Show reading position in fullscreen mode."
-msgstr ""
+msgstr "Mostra la posició de lectura en mode de pantalla complerta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
-msgstr ""
+msgstr "Mostra la barra de desplaçament en mode de pantalla complerta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:70
 msgid "Font options"
@@ -19092,11 +19099,11 @@ msgstr "Mostra un &rellotge al mode de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:399
 msgid "Show reading &position in full screen mode"
-msgstr ""
+msgstr "Mostra la &posició de lectura en mode de pantalla complerta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "Mostra la barra de de&splaçament en mode de pantalla complerta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "F&ull  screen options"
@@ -19491,7 +19498,7 @@ msgstr "No s'ha pogut obrir el llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Unknown error"
-msgstr ""
+msgstr "Error desconegut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
 msgid "Options to control the ebook viewer"
@@ -20288,6 +20295,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Desa la sortida dels diferents estadis de la cua de conversió a la carpeta "
+"especificada. Útil si no esteu segur de l'estadi del procés de conversió hi "
+"ha un error.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:58
 #, python-format
@@ -20297,6 +20309,11 @@ msgid ""
 "'+', the default tag for read books.\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Expressió regex que descriu les etiquetes que s'exclouran com a gèneres.\n"
+"Per defecte: «%default» exclou les etiquetes entre claudàtors, per exemple "
+"«[Projecte Gutemberg]», i «+», l'etiqueta per defecte per als llibres "
+"llegits.\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:66
 msgid ""
@@ -20311,6 +20328,16 @@ msgid ""
 "When multiple rules are defined, all rules will be applied.\n"
 "Default: \n"
 msgstr ""
+"Especifica les regles utilitzades per excloure llibres del catàleg generat.\n"
+"El model per a una regla d'exclusió pot ser\n"
+"('<nom de la regla>','Etiquetes','<llista d'etiquetes separada per comes>')\n"
+"o bé ('nom de la regla','<columna personalitzada>','<patró>').\n"
+"Per exemple:\n"
+"(('Llibres emmagatzemats','#estat','Emmagatzemat'),)\n"
+"Exclourà els llibres amb una valor d'«Emmagatzemat» a la columna\n"
+"personalitzada «estat».\n"
+"Se es defineix múltiples regles, s'apliquen totes.\n"
+"Per defecte: \n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:80
 #, python-format
@@ -20319,6 +20346,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Autors» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:87
 #, python-format
@@ -20327,6 +20357,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Descripcions» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:94
 #, python-format
@@ -20335,6 +20368,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Gèneres» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:101
 #, python-format
@@ -20343,6 +20379,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Títols» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:108
 #, python-format
@@ -20351,6 +20390,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Sèrie» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:115
 #, python-format
@@ -20370,7 +20412,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Camp personalitzar que conté una nota de text per inserir a la capçalera de "
+"Camp personalitzat que conté una nota de text per inserir a la capçalera de "
 "«Descripció».\n"
 "Per defecte: «%default»\n"
 "S'aplica als formats de sortida AZW3, ePub i MOBI"
@@ -20385,6 +20427,14 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"#<camp personalitzat>:[before|after]:[True|False] per especificar:\n"
+" <camp personalitzat> Camp personalitzat que conté les notes per fusionar "
+"amb «Comentaris»\n"
+" [before|after] Posició de les notes respecte als comentaris\n"
+" [True|False] S'insereix una línia horitzontal entre les notes i els "
+"comentaris.\n"
+"Valor predeterminado: «%default»\n"
+"S'aplica als formats de sortida: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:139
 #, python-format
@@ -20396,6 +20446,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Especifica el perfil de sortida. Alguns cops cal un perfil de sortida per "
+"optimitzar el catàleg per al dispositiu. Per exemple, «kindle» o «kindle_dx» "
+"crea un índex estructurat amb seccions i articles.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida AZW3, ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:146
 msgid ""
@@ -20406,6 +20461,14 @@ msgid ""
 "When multiple rules are defined, the first matching rule will be used.\n"
 "Default:\n"
 msgstr ""
+"Especifica les regles que s'utilitzen per incloure prefixos que indiquen "
+"llibres llegits, elements de la llista de desitjos i altres prefixos "
+"especificats per l'usuari.\n"
+"El model per a una regla de prefix és ('<nom de la regla>','<camp "
+"d'origen>','<patró>','<prefix>').\n"
+"Se es defineix múltiples regles, s'utilitza la primera regla amb una "
+"coincidència.\n"
+"Per defecte:\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:155
 #, python-format
@@ -20922,6 +20985,17 @@ msgid ""
 "with\n"
 "the --field option.\n"
 msgstr ""
+"\n"
+"%prog set_metadata [opcions] id /camí/a/les/metadades.opf\n"
+"Estableix les metadades desades a la base de dades del calibre per al llibre "
+"identificat\n"
+"per «id» del fitxer OPF «metadata.opf». «id» és un nombre d'identificació de "
+"l'ordre\n"
+"«list». Podeu fer-vos una idea del format OPF utilitzant l'opció «--as-opf» "
+"amb l'ordre\n"
+"«show_metadata». També podeu seleccionar les metadades de camps individuals "
+"amb\n"
+"l'opció «--field».\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:524
 msgid ""
@@ -20932,6 +21006,13 @@ msgid ""
 "so on). For identifiers, the syntax is {0} {2}. For boolean (yes/no) fields "
 "use true and false or yes and no."
 msgstr ""
+"El camp a establir. El format és nom_del_camp:valor, per exemple: {0} "
+"tags:etiqueta1,etiqueta2. Utilitzeu {1} per obtenir una llista de tots els "
+"noms de camp. Podeu especificar aquesta opció diversos cops per establir "
+"múltiples camps. Nota: per als idiomes heu d'utilitzar els codis ISO639 (per "
+"exemple «ca» per al català, «en» per a l'anglès...). Per als identificadors "
+"la sintaxi és {0} {2}. Per als camps booleans (sí/no) utilitzeu «true» i "
+"«false» o «yes» i «no»."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:534
 msgid ""
@@ -21243,6 +21324,20 @@ msgid ""
 "up\n"
 "automatically, every time metadata is changed.\n"
 msgstr ""
+"%prog backup_metadata [opcions]\n"
+"\n"
+"Fa una còpia de seguretat de les metadades de la base de dades en fitxers "
+"OPF\n"
+"individuals a cada carpeta de llibre. Això normalment es fa automàticament "
+"però\n"
+"podeu executar aquesta ordre per forçar que es tornin a regenerar els "
+"fitxers\n"
+"OPF amb l'opció «--all».\n"
+"\n"
+"Tingueu en compte que normalment no hi ha necessitat de fer això, ja que es "
+"fa\n"
+"una còpia de seguretat dels fitxers OPF cada cop que es canvien les "
+"metadades.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1016
 msgid ""
@@ -22220,6 +22315,15 @@ msgid ""
 "suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to "
 "this function when using template program mode."
 msgstr ""
+"template(x) -- avalua «x» com a plantilla. L'avaluació es fa al seu context, "
+"és a dir, les variables no es comparteixen entre la crida a la funció i "
+"l'avaluació de la plantilla. Com que els caràcters «{» i «}» són especials, "
+"heu d'utilitzar «[[» per al caràcter «{» i «]]» per al caràcter «}»; es "
+"converteixen automàticament. Per exemple «template('[[ordre_de_títol]]')» "
+"avalua la plantilla «{ordre_de_títol}» i s'obté el seu valor. També heu de "
+"tenir en compte que els prefixos i sufixos (la sintaxi «prefix|sufix») no es "
+"pot utilitzar a l'argument d'aquesta funció en el mode de programació de "
+"plantilles."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:234
 msgid ""
@@ -22231,6 +22335,14 @@ msgid ""
 "also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used "
 "in the argument to this function when using template program mode."
 msgstr ""
+"eval(plantilla) -- avalua la plantilla passant les variables locals (les "
+"definides amb «assign») en lloc de les metadades del llibre. Això permet "
+"utilitzar el processador de plantilles per construir resultats complexos amb "
+"les variables locals. Com que els caràcters «{» i «}» són especials, heu "
+"d'utilitzar «[[» per al caràcter «{» i «]]» per al caràcter «}»; es "
+"converteixen automàticament. També heu de tenir en compte que els prefixos i "
+"sufixos (la sintaxi «prefix|sufix») no es pot utilitzar a l'argument "
+"d'aquesta funció en el mode de programació de plantilles."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:253
 msgid ""
@@ -22503,6 +22615,12 @@ msgid ""
 "template program mode using the template \"{:'approximate_formats()'}\". "
 "Note that format names are always uppercase, as in EPUB."
 msgstr ""
+"approximate_formats() -- s'obté una llista de formats separada per comes que "
+"en algun moment es van associar al llibre. No hi ha cap garantia que aquesta "
+"llista sigui correcta, tot i que probablement ho és. Aquesta funció es pot "
+"cridar en el mode de programació de plantilles amb la plantilla "
+"«{:'approximate_formats()'}». Tingueu en compte que els noms de format han "
+"d'estar en majúscules, com a «EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:620
 msgid ""
@@ -22539,6 +22657,11 @@ msgid ""
 "function to get the path for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_paths() -- s'obté una llista separada per comes d'elements separats "
+"per dos punts que representen el camí complert als formats del llibre. Es "
+"pot utilitzar la funció «select» per aconseguir el camí a un format concret. "
+"Tingueu en compte que els noms de format han d'estar en majúscules, com a "
+"«EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:671
 msgid ""
@@ -22884,6 +23007,9 @@ msgid ""
 "This function can be called in template program mode using the template "
 "\"{:'current_library_path()'}\"."
 msgstr ""
+"current_library_path() -- s'obté el camí a la biblioteca actual del calibre. "
+"Aquesta funció es pot invocar al mode de programació de plantilles "
+"utilitzant la plantilla «{:'current_library_path()'}»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1200
 msgid ""
@@ -22893,6 +23019,11 @@ msgid ""
 "the same output as the above template: program: "
 "finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 msgstr ""
+"finish_formatting(val, fmt, prefix, suffix) -- s'aplica al format, prefix i "
+"sufix a un valor igual que en una plantilla com «{series_index:05.2f| - |- "
+"}». Per exemple, el programa següent dóna la mateixa sortida que la "
+"plantilla anterior: «program: finish_formatting(field(\"series_index\"), "
+"\"05.2f\", \" - \", \" - \")»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -23570,6 +23701,47 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"L'algorisme que s'utilitza per assignar un nombre de sèrie a un llibre "
+"afegit a una sèrie\n"
+"existent. El nous nombres de sèrie assignats amb aquest ajustament són "
+"sempre\n"
+"enters, excepte quan s'especifiqui una constant no entera.\n"
+"El valors possibles són:\n"
+"next - El primer enter disponible més gran que el major nombre existent\n"
+"first_free - El primer enter disponible més gran que 0\n"
+"next_free - El primer enter disponible més gran que el menor nombre "
+"existent\n"
+"last_free - El primer enter disponible més petit que el major nombre "
+"existent\n"
+"S'obté el més gran existent +1 si no hi ha cap nombre lliure\n"
+"const - Assigna sempre el nombre 1\n"
+"no_change - No es canvia l'índex de la sèria\n"
+"a number - Assigna sempre un nombre concret. El nombre no està entre "
+"cometes.\n"
+"Tingueu en compte que aquí es pot utilitzar «0.0».\n"
+"Exemples:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"Establiu l'ajustament «use_series_auto_increment_tweak_when_importing» a "
+"«True»\n"
+"per utilitzar els valors de més amunt en importar/afegir llibres. Si aquest "
+"ajustament\n"
+"s'estableix a «False» (per defecte) el nombre de sèrie s'establirà a «1» si "
+"no s'especifica\n"
+"un valor en importar. Si s'estableix a «True» l'índex de la sèrie anirà "
+"d'acord amb l'establert\n"
+"a «series_index_auto_increment».\n"
+"Tingueu en compte que l'ajustament "
+"«use_series_auto_increment_tweak_when_importing»\n"
+"s'utilitza només quan no es dóna un valor en importar. Si l'expressió "
+"regular de la importació\n"
+"dóna un valor per a «series_index» o si esteu llegint metadades de llibres i "
+"el connector\n"
+"d'importació dóna un valor, aquest valor és el que s'utilitzarà "
+"independentment del que\n"
+"estableixi aquest ajustament."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid "Add separator after completing an author name"
@@ -24678,6 +24850,20 @@ msgid ""
 "default_tweak_format = 'EPUB'\n"
 "default_tweak_format = 'remember'"
 msgstr ""
+"L'eina d'ajustaments del calibre permet l'edició directa d'un format de "
+"llibre.\n"
+"Si hi ha múltiples formats, el calibre us deixarà triar, seleccionant el "
+"vostre\n"
+"format de sortida preferit, si està disponible. Establiu aquest ajustament a "
+"un\n"
+"valor específic d'«EPUB» o «AZW3» per utilitzar sempre per defecte aquest\n"
+"format en lloc de la vostra preferència de format de sortida.\n"
+"Establiu-ho a «remember» per utilitzar el format que hagueu triat el darrer\n"
+"cop que hagueu utilitzar l'eina d'ajustaments.\n"
+"Exemples:\n"
+"default_tweak_format = None (utilitzarà el format de sortida)\n"
+"default_tweak_format = 'EPUB'\n"
+"default_tweak_format = 'remember'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:508
 msgid "Do not preselect a completion when editing authors/tags/series/etc."
@@ -24693,3 +24879,11 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
+"Significa que podeu fer canvis i prémer la tecla de retorn i els canvis no "
+"se\n"
+"sobreescriuran per una compleció coincident. Si tot i això voleu utilitzar "
+"les\n"
+"complecions haureu de prémer la tecla de tabulació per seleccionar-ne una\n"
+"abans de prémer la tecla de retorn. La tècnica que preferiu depèn de "
+"l'estat\n"
+"de les metadades de la biblioteca i el vostre estil d'edició personal."

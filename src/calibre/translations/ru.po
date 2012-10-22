@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-19 19:34+0000\n"
-"Last-Translator: Ida Leter <iatheia@yandex.ru>\n"
+"PO-Revision-Date: 2012-10-21 09:03+0000\n"
+"Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-20 04:49+0000\n"
+"X-Launchpad-Export-Date: 2012-10-22 04:39+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -1784,7 +1784,7 @@ msgid ""
 "/><hr />"
 msgstr ""
 "<b>Глава %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
-"/><b>Прогресс главы:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr "
+"/><b>Прогресс Главы:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr "
 "/>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1126
@@ -1876,7 +1876,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1247
 msgid "Title to test when debugging"
-msgstr "Заголовок для теста при отладке"
+msgstr "Название для теста при отладке"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -1884,9 +1884,9 @@ msgid ""
 "debugging. The test is to see if the string is contained in the title of a "
 "book. The better the match, the less extraneous output."
 msgstr ""
-"Часть заголовка книги которая может быть использована для проведении "
+"Часть названия книги которая может быть использована для проведении "
 "некоторых тестов при отладке. Протестируйте что бы видеть содержится ли "
-"строка в заголовке книги. Чем лучше совпадение, тем меньше лишней информации."
+"строка в названии книги. Чем лучше совпадение, тем меньше лишней информации."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -2757,8 +2757,8 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
-"Список встроеных функций. Вы можете создать книгу с помощью встроеной "
-"функции вроде этой: ebook-convert \"Recipe Name.recipe\" output.epub"
+"Список встроеных обработчиков. Вы можете создать книгу с помощью встроеного "
+"обработчика вроде этого: ebook-convert \"Recipe Name.recipe\" output.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:335
 msgid "Output saved to"
@@ -2985,7 +2985,7 @@ msgstr ""
 "Указать разделение элементов. Значение \"nothing\" включит книгу в один "
 "раздел. Значение \"files\" включит каждый файл в отдельный раздел; "
 "используйте это если имеются проблемы с устройством. Значение \"Table of "
-"Contents\" включает записи оглавления в заголовки и создаёт разделы; если не "
+"Contents\" включает записи оглавления в названия и создаёт разделы; если не "
 "получится, отрегулируйте \"Распознавание структуры\" и/или настройки "
 "оглавления (включите \"Принудительная автоматическая генерации Оглавления\")."
 
@@ -3106,7 +3106,7 @@ msgid ""
 "archive to be based on the book title."
 msgstr ""
 "Если установить эту настройку, то имя html файла внутри htmlz архива будет "
-"основываться на заголовке книги."
+"основываться на названии книги."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -3129,7 +3129,7 @@ msgid ""
 "title. Default is %default"
 msgstr ""
 "Указать формат верхнего колонтитула. %a будет заменено на автора и %t на "
-"заголовок. По умолчанию: %default"
+"название. По умолчанию: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:109
 #, python-format
@@ -3198,7 +3198,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:277
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:57
 msgid "Title for any generated in-line table of contents."
-msgstr "Заголовок для любых сгенерированных in-line оглавлений."
+msgstr "Имя для любых сгенерированных in-line оглавлений."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:281
@@ -3404,8 +3404,8 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
-"Полезно при обработке доставки. Устанавливает max_articles_per_feed равным 2 "
-"и загружает максимум 2 подписки."
+"Полезно при создании обработчика. Устанавливает max_articles_per_feed равным "
+"2 и загружается максимум 2 подписки."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:40
 msgid "Username for sites that require a login to access content."
@@ -3418,7 +3418,8 @@ msgstr "Пароль для сайтов, которые в этом нужда�
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:47
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
-msgstr "Не загружать последнюю версию встроенных рецептов с сервера calibre"
+msgstr ""
+"Не загружать последнюю версию встроенных обработчиков с сервера calibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rtf_input.py:246
 #, python-format
@@ -3471,7 +3472,7 @@ msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
-"Скрывать или нет заголовки глав. Полезно для вывода только изображений "
+"Скрывать или нет названия глав. Полезно для вывода только изображений "
 "(например, комиксов)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:45
@@ -3835,7 +3836,7 @@ msgid ""
 "See the XPath Tutorial in the calibre User Manual for further help on using "
 "this feature."
 msgstr ""
-"Выражение XPath для определения заголовков глав. По-умолчанию бурутся во "
+"Выражение XPath для определения названий глав. По-умолчанию бурутся во "
 "внимание теги <h1> или <h2>, которые содержат слова "
 "\"chapter\",\"book\",\"section\", \"prologue\", \"epilogue\", или \"part\", "
 "а также любые теги, у которых класс стиля=\"chapter\" (class=\"chapter\"). "
@@ -4089,7 +4090,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:493
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
-msgstr "Указать заголовок."
+msgstr "Указать название."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:497
 msgid "Set the authors. Multiple authors should be separated by ampersands."
@@ -4098,7 +4099,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:502
 msgid "The version of the title to be used for sorting. "
-msgstr "Версия заголовка, используемая для сортировки. "
+msgstr "Версия названия, используемая для сортировки. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:506
 msgid "String to be used when sorting by author. "
@@ -4679,7 +4680,7 @@ msgstr "Нет"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:375
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:585
 msgid "Title"
-msgstr "Заголовок"
+msgstr "Название"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:770
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
@@ -4797,8 +4798,8 @@ msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
-"Версия заголовка для сортировки. Если не указан, а заголовок указан, будет "
-"авто-сгенерирован из заголовока."
+"Версия имени для сортировки. Если отсутствует, а имя указано, то будет "
+"автоматически сгенерировано из имени."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
@@ -6246,7 +6247,7 @@ msgstr "Запуск/остановка сервнра содержимого"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, порт %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -6474,7 +6475,7 @@ msgid ""
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
 "Форматы книг будут объединены из выбранных книг в <b>первую выбранную "
-"книгу</b> (%s). Метаданные первой книги не изменятся. Автор, Заголовок, ISBN "
+"книгу</b> (%s). Метаданные первой книги не изменятся. Автор, Название, ISBN "
 "и все другие метаданные <i>не</i> будут объединены.<br><br>После "
 "объединения, вторая и следующие книги со всеми метаданными будут "
 "<b>удалены</b>. <br><br>Все книжные форматы первой выбранной книги будут "
@@ -7150,7 +7151,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Already in calibre:"
-msgstr "Уже в calibre"
+msgstr "Уже в calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:395
 msgid "You are trying to add:"
@@ -7165,7 +7166,7 @@ msgstr "Есть повторения!"
 msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
-msgstr "Книги с тем же названием уже в calibre. Всё равно добавить?"
+msgstr "Книги с тем же названием уже есть в calibre. Всё равно добавить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "Adding duplicates..."
@@ -7681,7 +7682,7 @@ msgstr "&Авторы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:269
 msgid "&Titles"
-msgstr "&Заголовки"
+msgstr "&Названия"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:270
 msgid "&Series"
@@ -8019,7 +8020,7 @@ msgstr "Использовать сортировочное имя автора 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:81
 msgid "&Title for Table of Contents:"
-msgstr "&Заголовок оглавления"
+msgstr "&Название оглавления"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:90
@@ -8430,7 +8431,7 @@ msgstr "Как обрабатывать CSS основанные на класс
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
-msgstr "Использовать заголовок книги как имя HTML файла внутри архива"
+msgstr "Использовать название книги как имя HTML файла внутри архива"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -8736,12 +8737,12 @@ msgstr "Использовать обложку из &исходного фай�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:164
 msgid "&Title: "
-msgstr "&Заголовок: "
+msgstr "&Название: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:75
 msgid "Change the title of this book"
-msgstr "Изменить заголовок книги"
+msgstr "Изменить название книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
@@ -10223,8 +10224,8 @@ msgstr "Формат &каталога:"
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
-"Название файла каталога (уже существующий файл каталога с таким же "
-"заголовком будет заменен)"
+"Название файла каталога (уже существующий файл каталога с таким же названием "
+"будет заменен)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:96
 msgid "&Send catalog to device automatically"
@@ -10345,11 +10346,11 @@ msgstr ""
 "        Имеющиеся типы проверок:\n"
 "        </p>\n"
 "        <ul>\n"
-"        <li><b>Неверные заголовки</b>: Это файлы и папки входящие в\n"
-"        библиотеку в которых заголовки книг должны, но не имеют\n"
-"        правильную форму для заголовка.</li>\n"
-"        <li><b>Дополнительные заголовки</b>: Это дополнительные файлы\n"
-"        в вашей библиотеке, которые имеют правильные заголовки, но не\n"
+"        <li><b>Неверные названия</b>: Это файлы и папки входящие в\n"
+"        библиотеку в которых названия книг должны, но не имеют\n"
+"        правильную форму для названия.</li>\n"
+"        <li><b>Дополнительные названия</b>: Это дополнительные файлы\n"
+"        в вашей библиотеке, которые имеют правильные названия, но не\n"
 "        имеют соответствующих записей в базе данных.</li>\n"
 "        <li><b>Неправильные авторы</b>: Это лишние файлы в библиотеке,\n"
 "        в которой должны быть только папки авторов.</li>\n"
@@ -11007,7 +11008,7 @@ msgstr "Спрятать напоминающие %d сообщения об о�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"
-msgstr "Заглавие/автор"
+msgstr "Название/Автор"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Standard metadata"
@@ -11344,24 +11345,24 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
-"Заставляет заголовок быть в титульном регистре (первые буквы заглавные).\n"
-"Если включена опция поменять автора и заголовок, то она сработает перед этим."
+"Заставляет название быть в титульном регистре (первые буквы заглавные).\n"
+"Если включена опция поменять автора и название, то она сработает перед этим."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 msgid "Change title to title &case"
-msgstr "Преобразовать заголовок к титульному регистру"
+msgstr "Преобразовать название к титульному регистру"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
 msgstr ""
-"Обновить сортировочный заголовок, используя текущий заголовок. \r\n"
-"Это будет применено только после других изменений заголовка."
+"Обновить сортировочное название, используя текущее название. \r\n"
+"Это будет применено только после других изменений названия."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Update &title sort"
-msgstr "Обновить сортировочный заголовок"
+msgstr "Обновить сортировочное название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:601
 msgid ""
@@ -12300,7 +12301,7 @@ msgstr "&Расписание"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:216
 msgid "Add &title as tag"
-msgstr "Добавить &заглавие как тег"
+msgstr "Добавить название как тег"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "&Extra  tags:"
@@ -12311,8 +12312,8 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
-"Максимальное количество копий (использований) этой функции для сохранения. "
-"Установите 0 что бы сохранить все (опция отключена)."
+"Максимальное количество копий (использований) этого обработчика для "
+"сохранения. Установите 0 что бы сохранить все (опция отключена)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "&Keep at most:"
@@ -12333,7 +12334,7 @@ msgstr ""
 "каждого нового номера самый старый будет удалён, если общее их количество "
 "больше указанного значения.\n"
 "<p>Эта функция работает, только если включена расположенная выше опция "
-"«Добавить заглавие как тег».\n"
+"«Добавить название как тег».\n"
 "<p>Расположенная ниже настройка удаления изданий старше указанного числа "
 "дней имеет приоритет над данной опцией."
 
@@ -12507,7 +12508,7 @@ msgstr "&Расширенный поиск"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:182
 msgid "Enter the title."
-msgstr "Введите заглавие."
+msgstr "Введите название."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:197
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:221
@@ -12966,24 +12967,25 @@ msgstr "&Тест"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:112
 msgid "No recipes"
-msgstr "Нет функций"
+msgstr "Нет обработчиков"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "No custom recipes created."
-msgstr "Нет функций созданных пользователем."
+msgstr "Нет обработчиков созданных пользователем."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:144
 msgid "No recipe selected"
-msgstr "Нет выбранных параметров"
+msgstr "Нет выбранных обработчиков"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 #, python-format
 msgid "The attached file: %(fname)s is a recipe to download %(title)s."
-msgstr "Присоединённый файл: %(fname)s - функция для загрузки %(title)s."
+msgstr ""
+"Присоединённый файл: %(fname)s - это обработчик для загрузки %(title)s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:152
 msgid "Recipe for "
-msgstr "Параметры для "
+msgstr "Обработчик для "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:180
@@ -12998,11 +13000,11 @@ msgstr "Переключиться в обычный режим"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:193
 msgid "Feed must have a title"
-msgstr "Поле должно быть заголовком"
+msgstr "Лента должна иметь название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:194
 msgid "The feed must have a title"
-msgstr "Поле должно быть заголовком"
+msgstr "Лента должна иметь название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:198
 msgid "Feed must have a URL"
@@ -13015,7 +13017,7 @@ msgstr "Поле %s должно иметь URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:205
 msgid "This feed has already been added to the recipe"
-msgstr "Поле уже было добавлено в параметры"
+msgstr "Поле уже было добавлено в обработчик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:247
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:256
@@ -13028,32 +13030,32 @@ msgstr "Неверное значение"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:344
 #, python-format
 msgid "<p>Could not create recipe. Error:<br>%s"
-msgstr "<p>Не могу создать параметр. Ошибка:<br> %s"
+msgstr "<p>Не могу создать обработчик. Ошибка:<br> %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:320
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:347
 msgid "Replace recipe?"
-msgstr "Заменить параметр"
+msgstr "Заменить обработчик?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:262
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:321
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:348
 #, python-format
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr "Выбранное имя параметра %s уже существует. Хотите заменить его?"
+msgstr "Выбранное имя обработчика %s уже существует. Хотите заменить его?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:288
 msgid "Choose builtin recipe"
-msgstr "Выберите встроеную функцию"
+msgstr "Выберите встроеный обработчик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:334
 msgid "Choose a recipe file"
-msgstr "Выбрать файл параметра"
+msgstr "Выберите файл обработчика"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:335
 msgid "Recipes"
-msgstr "Состав"
+msgstr "Обработчики"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:375
 msgid ""
@@ -13061,7 +13063,7 @@ msgid ""
 "Add/Update recipe button. Continue?"
 msgstr ""
 "Вы потеряете все несохранённые изменения. Для сохранения изменений нажмите "
-"кнопку Добавить/Обновить. Продолжить?"
+"кнопку Добавить/Обновить обработчик. Продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:257
 msgid "Add custom news source"
@@ -13069,31 +13071,31 @@ msgstr "Добавить  источник новостей"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:258
 msgid "Available user recipes"
-msgstr "Доступные пользователю параметры"
+msgstr "Доступные пользовательские обработчики"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:259
 msgid "Add/Update &recipe"
-msgstr "Добавить/Обновить параметры"
+msgstr "Добавить/Обновить обработчик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "&Remove recipe"
-msgstr "Удалить параметры"
+msgstr "Удалить обработчик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:261
 msgid "&Share recipe"
-msgstr "Совместный параметр"
+msgstr "Поделиться обработчиком"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr "Показать файлы пользовательских функций"
+msgstr "Показать файлы пользовательских обработчиков"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
-msgstr "Настроить встроенный параметр"
+msgstr "Настроить встроенный обработчик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:264
 msgid "&Load recipe from file"
-msgstr "Загрузить параметр из файла"
+msgstr "Загрузить обработчик из файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:266
 msgid ""
@@ -13114,13 +13116,14 @@ msgstr ""
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
 "font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Создайте параметр основных "
-"новостей, добавляемых в RSS ленту.<br />Для большинства лент, вы можете "
-"использовать для просесса загрузки \"Расширенный режим\".</p></body></html>"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Создайте основной "
+"обработчик новостей, добавляя RSS ленты в него.<br />Для большинства лент, "
+"вы можете использовать \"Расширенный режим\" для дополнительной "
+"настройки.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:270
 msgid "Recipe &title:"
-msgstr "Параметр заголовка"
+msgstr "Название обработчика:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:271
 msgid "&Oldest article:"
@@ -13140,20 +13143,20 @@ msgstr "Максимальное количество статей загруж�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:276
 msgid "Feeds in recipe"
-msgstr "Поля в параметре"
+msgstr "Поля в обработчике"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:278
 msgid "Remove feed from recipe"
-msgstr "Удалить поле из параметра"
+msgstr "Удалить поле из обработчика"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:284
 msgid "Add feed to recipe"
-msgstr "Добавить поле в параметр"
+msgstr "Добавить поле в обработчик"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "&Feed title:"
-msgstr "Поле заглавия:"
+msgstr "Название ленты:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:283
 msgid "Feed &URL:"
@@ -13168,13 +13171,13 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://manual.calibre-ebook.com/news.html\">User Recipes</a>"
 msgstr ""
-"Для получения помощи с написанием расширеных функций сбора новостей, "
+"Для получения помощи с написанием расширеных обработчиков сбора новостей, "
 "пожалуйста посетите <a href=\"http://manual.calibre-"
-"ebook.com/news.html\">Пользовательские Функции</a>"
+"ebook.com/news.html\">Пользовательские Обработчики</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:287
 msgid "Recipe source code (python)"
-msgstr "Параметр кода источника (python)"
+msgstr "Обработчик исходного кода (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 #, python-format
@@ -13302,7 +13305,7 @@ msgstr "Имя файла:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:137
 msgid "Title:"
-msgstr "Заголовок:"
+msgstr "Название:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P<title>)"
@@ -13650,7 +13653,7 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
-"<p>Найти список книг по заголовку, автору, издателю, тэгам, комментариям и "
+"<p>Найти список книг по названию, автору, издателю, тэгам, комментариям и "
 "т.д.<br><br>Слова разделённые пробелами учитываются как одновременные "
 "условия - добавляются через И (AND)"
 
@@ -14070,23 +14073,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:140
 msgid "Title &sort:"
-msgstr "Сортировочный заголовок:"
+msgstr "Сортировочное название:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:149
 msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
 msgstr ""
-" Зелёный цвет показывает что текущий заголовок совпадает с сортировочным "
-"заголовком."
+" Зелёный цвет показывает что текущее название совпадает с сортировочным "
+"названием."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:152
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
 msgstr ""
-" Красный цвет предупреждает о том, что текущий заголовок не совпадает с "
-"сортировочным заголовком."
+" Красный цвет предупреждает о том, что текущее название не совпадает с "
+"сортировочным названием."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:226
 msgid "Authors changed"
@@ -14212,11 +14215,11 @@ msgstr "Не допустимое изображение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:952
 msgid "Specify title and author"
-msgstr "Укажите заглавие и автора"
+msgstr "Укажите название и автора"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:953
 msgid "You must specify a title and author before generating a cover"
-msgstr "Нужно указать заглавие и автора перед созданием обложки"
+msgstr "Нужно указать название и автора перед созданием обложки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:972
 msgid "Invalid cover"
@@ -14401,10 +14404,9 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
-"Автоматически создать сортировочный заголовок, исходя из текущего "
-"заголовка.\n"
-"Использование этой кнопки изменит цвет сортировочного заголовка с красного "
-"на зелёный."
+"Автоматически создать сортировочное название, исходя из текущего названия.\n"
+"Использование этой кнопки изменит цвет сортировочного названия с красного на "
+"зелёный."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:126
 msgid ""
@@ -14578,7 +14580,7 @@ msgid ""
 msgstr ""
 "Не удалось найти ни одной книги, соответствующей заданным критериям поиска. "
 "Попробуйте сделать их <b>менее конкретными</b>. Например, используйте только "
-"фамилию автора и одно характерное слово из заглавия.<p>Чтобы просмотреть "
+"фамилию автора и одно характерное слово из названия.<p>Чтобы просмотреть "
 "полный отчёт, щёлкните «Показать подробности»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:632
@@ -14722,16 +14724,16 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
-"Автообъединение: если найдены книги с такими же заглавиями и авторами, "
+"Автообъединение: если найдены книги с такими же названиями и авторами, "
 "автоматически добавлять входные форматы в \n"
 "существующие записи книг. Поле справа настраивает поведение программы, если "
 "в существующей записи уже есть\n"
 "входной формат. Заметьте, что эта опция влияет также на действие «Копировать "
 "в библиотеку».\n"
 "\n"
-"При сравнении заголовков игнорируются расположенные впереди артикли "
-"(\"the\", \"a\", \"an\"), пунктуация, регистр, и т.п. Автор должен совпадать "
-"в точности."
+"При сравнении названий игнорируются расположенные впереди артикли (\"the\", "
+"\"a\", \"an\"), пунктуация, регистр, и т.п. Автор должен совпадать в "
+"точности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automerge added books if they already exist in the calibre library:"
@@ -14756,7 +14758,7 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
-"Автообъединение: если найдены книги с похожими заглавиями и авторами, "
+"Автообъединение: если найдены книги с похожими названиями и авторами, "
 "автоматически добавлять входные\n"
 "форматы в существующие записи книг. Это поле настраивает поведение "
 "программы, если в существующей\n"
@@ -14769,8 +14771,8 @@ msgstr ""
 "Создать новую запись для каждого дублирующего формата - означает, что новая "
 "запись книги будет создаваться для каждого дубликата файла\n"
 "\n"
-"При сравнении заголовков игноруруются расположенные впереди артикли "
-"(\"the\", \"a\", \"an\"), пунктуация, регистр, и т.п. \n"
+"При сравнении названий игноруруются расположенные впереди артикли (\"the\", "
+"\"a\", \"an\"), пунктуация, регистр, и т.п. \n"
 "Автор должен совпадать в точности."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
@@ -15384,7 +15386,7 @@ msgstr ""
 "сервере. Это может быть использовано для создания ссылок с языком шаблонов. "
 "Например, шаблон "
 "<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
-"[|}{series_index:| [|]]}</pre>создаст поле отображающее заголовок жирными "
+"[|}{series_index:| [|]]}</pre>создаст поле отображающее название жирными "
 "большими буквами, вместе с серией, например <br>\"<big><b>An Oblique "
 "Approach</b></big> [Belisarius [1]]\". The template <pre>&lt;a "
 "href=\"http://www.beam-ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam "
@@ -15787,9 +15789,9 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
-"Тема письма при отправке. Если пусто, то заголовок используется в качестве "
+"Тема письма при отправке. Если пусто, то название используется в качестве "
 "темы. Здесь можно использовать те же шаблоны, что и для \"Сохранения на "
-"диск\", вроде {title} и {author_sort} (заголовок и сортировочное имя автора)."
+"диск\", вроде {title} и {author_sort} (название и сортировочное имя автора)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -16459,8 +16461,8 @@ msgstr ""
 "необязательно. Вы можете использовать любой шаблон в исходном поле и везде в "
 "calibre.\n"
 "\n"
-"Одно из возможных применений связи - это создание альтернативного заголовка "
-"с информацией о серии. Ещё можно изменить сортировку по автору так, что бы "
+"Одно из возможных применений связи - это создание альтернативного названия с "
+"информацией о серии. Ещё можно изменить сортировку по автору так, что бы "
 "пользователи mobi могли использовать ';' как требует kindle. В третьих, "
 "можно указать язык."
 
@@ -16803,7 +16805,7 @@ msgid ""
 msgstr ""
 "При вводе поискового запроса без префикса, по умолчанию, Calibre ищет "
 "совпадения во всех метаданных. Например, при вводе «Азимов» поиск будет "
-"произведён не только по авторам, но и по заголовкам, тегам, сериям, "
+"произведён не только по авторам, но и по названиям, тегам, сериям, "
 "комментариям и т.д. Используйте данные настройки если хотите изменить это "
 "поведение."
 
@@ -18482,7 +18484,7 @@ msgstr "Преобразование не удалось"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:675
 msgid "Recipe Disabled"
-msgstr "Функция отключена"
+msgstr "Обработчик отключён"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:708
 msgid "<b>Failed</b>"
@@ -20020,7 +20022,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Заголовок созданного каталога используется как заголовок метаданных.\n"
+"Название созданного каталога используется как название в метаданных.\n"
 "По умолчанию: '%default'\n"
 "Относится к: выходным форматам AZW3, ePub, MOBI"
 
@@ -20115,7 +20117,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Включить раздел 'Заголовки' в каталог.\n"
+"Включить раздел 'Названия' в каталог.\n"
 "По умолчанию: '%default'\n"
 "Относится к: выходным форматам AZW3, ePub, MOBI"
 
@@ -20293,7 +20295,7 @@ msgstr "Сортировка базы данных"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:793
 msgid "Sorting titles"
-msgstr "Сортировка заголовков"
+msgstr "Сортировка названий"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:805
 msgid ""
@@ -20353,7 +20355,7 @@ msgstr "Серии начинающиеся с '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3148
 msgid "NCX for Titles"
-msgstr "NCX для Заголовков"
+msgstr "NCX для Названий"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3232
 #, python-format
@@ -20363,7 +20365,7 @@ msgstr "Названия начинающиеся на %s"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3234
 #, python-format
 msgid "Titles beginning with '%s'"
-msgstr "Заголовки начинающиеся с '%s'"
+msgstr "Названия начинающиеся с '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3276
 msgid "NCX for Authors"
@@ -20413,7 +20415,7 @@ msgstr "Недопустимые названия"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:27
 msgid "Extra titles"
-msgstr "Дополнительные заголовки"
+msgstr "Дополнительные названия"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:28
 msgid "Invalid authors"
@@ -20588,7 +20590,7 @@ msgstr "Добавить пустую книгу (книгу без формат
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:318
 msgid "Set the title of the added book(s)"
-msgstr "Установите заголовок добавляемой книги(книг)"
+msgstr "Установите название добавляемой книги (книг)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:320
 msgid "Set the authors of the added book(s)"
@@ -21141,7 +21143,7 @@ msgstr ""
 "ВНИМАНИЕ: Эта команда полностью перестоздаёт вашу базу данных. \n"
 "Вы потеряете все сохранённые поиски, пользовательские категории, \n"
 "связи метаданных, настройки преобразования каждой книги, \n"
-"и пользовательские функции. Восстановленные метаданные будут \n"
+"и пользовательские обработчики. Восстановленные метаданные будут \n"
 "полностью зависеть от того, что будет найдено в файлах OPF.\n"
 "    "
 
@@ -21279,7 +21281,7 @@ msgstr "Сортировочная серия"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Title Sort"
-msgstr "Сортировочный заголовок"
+msgstr "Сортировочное название"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:122
 msgid "Starting restoring preferences and column metadata"
@@ -21411,7 +21413,7 @@ msgid ""
 msgstr ""
 "Шаблон для управления названием файла и структурой папки с сохранёнными "
 "файлами. По умолчанию \"%(templ)s\" будет сохранять книги в подпапку с "
-"именем автора и названиями файлов включающими заголовок и автора. Доступные "
+"именем автора и названиями файлов включающими название и автора. Доступные "
 "настройки: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:101
@@ -21424,7 +21426,7 @@ msgid ""
 msgstr ""
 "Шаблон для управления названием файла и структурой папки с файлами "
 "отправляемыми на устройство. По умолчанию \"%(templ)s\" будет сохранять "
-"книги в подпапку с именем автора и названиями файлов включающими заголовок и "
+"книги в подпапку с именем автора и названиями файлов включающими название и "
 "автора. Доступные настройки: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:108
@@ -21866,7 +21868,7 @@ msgid ""
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
 "При поиске в тексте без использования поисковых префиксов, например, Red "
-"(красный) вместо title:Red (заголовок:красный), ограничить столбцы поиска "
+"(красный) вместо title:Red (название:красный), ограничить столбцы поиска "
 "указанными ниже."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:420
@@ -23073,7 +23075,7 @@ msgstr "Не удалось загрузить %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:785
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
-msgstr "Рецепт \"%s\" требует имя пользожателя и пароль"
+msgstr "Обработчик \"%s\" требует имя пользователя и пароль"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:892
 msgid "Download finished"
@@ -23680,7 +23682,7 @@ msgstr ""
 "или укажите список столбцов и порядок в паре. Столбец - это поиск или \n"
 "поисковое имя, которое можно найти во всплывающей подсказке для столбца\n"
 "Порядок 0 для восходящего, 1 для нисходящего.\n"
-"Например, установите [('authors',0),('title',0)] для сортировки по заголовку "
+"Например, установите [('authors',0),('title',0)] для сортировки по названию "
 "в авторах."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:143
@@ -23756,7 +23758,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:177
 msgid "Control sorting of titles and series in the library display"
-msgstr "Сортировка заголовков и серий при отображении библиотеки"
+msgstr "Сортировка названий и серий при отображении библиотеки"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:178
 msgid ""
@@ -23777,26 +23779,26 @@ msgid ""
 "return\n"
 "without changing anything is sufficient to change the sort."
 msgstr ""
-"Управляет сортировкой заголовка и серии при просмотре библиотеки. \n"
+"Управляет сортировкой названия и серии при просмотре библиотеки. \n"
 "Если установлено 'library_order' (по умолчанию), то поле сортировочного \n"
-"заголовка будет использовано вместо обычного заголовка. Если вы вручую \n"
-"отредактировали поле сортировочного заголовка, то начальные артикли \n"
+"названия будет использовано вместо обычного названия. Если вы вручую \n"
+"отредактировали поле сортировочного названия, то начальные артикли \n"
 "вроде The и A будут игнорироваться. Если установлено 'strictly_alphabetic',  "
 "\n"
-"то заголовки будут отсортированы как есть (по заголовку вместо \n"
-"сортировочного заголовка). Например, с library_order, 'The Client' будет \n"
+"то названия будут отсортированы как есть (по названию вместо \n"
+"сортировочного названия). Например, с library_order, 'The Client' будет \n"
 "отсортировано по 'C'. С strictly_alphabetic, 'the book' будет \n"
 "отсортировано по 'T'.\n"
-"Эта настройка влияет на отображение библиотеки. Это не действует \n"
-"на устройства. Кроме того, заголовки книг добавленные до изменения \n"
-"настройки будут сохранять свой порядок пока заголовок не изменится. \n"
-"Что бы изменить сортировку достаточно двойного нажатия на заголовке \n"
+"Эта настройка влияет на отображение библиотеки и не влияет\n"
+"на устройства. Кроме того, названия книг добавленные до изменения \n"
+"настройки будут сохранять свой порядок пока название не изменится. \n"
+"Что бы изменить сортировку достаточно двойного нажатия на названии \n"
 "и затем \"вернуться\", не применяя ничего."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:191
 msgid "Control formatting of title and series when used in templates"
 msgstr ""
-"Управлять форматированием заголовков и серий при использовании шаблонов"
+"Управлять форматированием названий и серий при использовании шаблонов"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:192
 msgid ""
@@ -23817,13 +23819,12 @@ msgid ""
 "formatter function raw_field will return the base value for title and\n"
 "series regardless of the setting of this tweak."
 msgstr ""
-"Управляет тем, как названия заголовков и серий форматируются при сохранении "
-"\n"
+"Управляет тем, как названия и серии форматируются при сохранении \n"
 "на диск или отправке на устройство. Поведение зависит от поля, которое \n"
-"обрабатывается. Если обрабатывается заголовок, то при установке этой опции \n"
-"равной 'library_order', заголовок будет заменён сортировочным заголовком. \n"
-"Если установлено 'strictly_alphabetic', то заголовок останется без "
-"изменения. \n"
+"обрабатывается. Если обрабатывается название, то при установке этой опции \n"
+"равной 'library_order', название будет заменено сортировочным названием. \n"
+"Если установлено 'strictly_alphabetic', то название останется без изменения. "
+"\n"
 "Если обрабатываются серии, то если установлено 'library_order', артикли "
 "вроде \n"
 "'The' и 'An' будут перенесены в конец. Если установлено "
@@ -23835,7 +23836,7 @@ msgstr ""
 "установлена в strictly_alphabetic, оно останется \"The Lord of the Rings\". "
 "\n"
 "Помните, что функция форматирования raw_field вернёт основное значение для \n"
-"заголовка и серий независимо от этой настройки."
+"названия и серий независимо от этой настройки."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:206
 msgid "Set the list of words considered to be \"articles\" for sort strings"
@@ -23861,8 +23862,7 @@ msgid ""
 "(present only for legacy reasons)."
 msgstr ""
 "Установить список слов, которые будут считаться 'разделами' при вычислении \n"
-"строк сортировочного заголовка. Разделы различаются по языку. По умолчанию, "
-"\n"
+"строк сортировочного названия. Разделы различаются по языку. По умолчанию, \n"
 "calibre использует сочетание разделов Английского и текущего языка "
 "интерфейса. \n"
 "Кроме того используется язык на котором написана книга, если он доступен. \n"
@@ -24073,9 +24073,9 @@ msgstr ""
 "сортироваться \n"
 "по индексу серии ('series_index'), и что все остальные коллекции будут "
 "сортироваться \n"
-"по заголовку. Если в коллекции поле метаданных не имеет имени, и если оно "
+"по названию. Если в коллекции поле метаданных не имеет имени, и если оно "
 "основано \n"
-"на серииях, то будет сортироваться по порядку серии, а иначе по заголовку.\n"
+"на серииях, то будет сортироваться по порядку серии, а иначе по названию.\n"
 "[(['pubdate', 'tags'],'#mydate'), (['series'],'series_index'), (['*'], "
 "'title')]\n"
 "Помните, что кавычки и скобки необходимы. Синтаксис таков:\n"
@@ -24197,7 +24197,7 @@ msgid ""
 "default font (Liberation Serif) does not contain glyphs for the language of\n"
 "the books in your library."
 msgstr ""
-"Полный путь к файлам шрифтов .ttf для использования в заголовке, авторе и "
+"Полный путь к файлам шрифтов .ttf для использования в названии, авторе и "
 "нижнем поле при создании обложки по умолчанию или титульного изображения. "
 "Полезно если шрифт по умолчанию (Liberation Serif) не содержит символов "
 "подходящих для книг в вашей библиотеке."

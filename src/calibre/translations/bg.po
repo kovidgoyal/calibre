@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-20 21:35+0000\n"
-"Last-Translator: Nelly Hoang <Unknown>\n"
+"PO-Revision-Date: 2012-10-21 17:37+0000\n"
+"Last-Translator: martin <rockfire@abv.bg>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-21 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-10-22 04:38+0000\n"
 "X-Generator: Launchpad (build 16165)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -406,7 +406,7 @@ msgstr "Намерете лесно книги, подобни на по нас�
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:867
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "Премини между различите calibre библиотеки и извършете поддръжка"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Copy books from the devce to your calibre library"
@@ -424,6 +424,8 @@ msgstr "Копирайте книга от една calibre библиотека
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:888
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Направете малки подобрения на epub или htmlz файлове във Вашата calibre "
+"библиотека"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid ""
@@ -572,7 +574,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Полета за поставяне на метаданни"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1073
 msgid "Change metadata fields before saving/sending"
@@ -638,13 +640,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "Игнорирани устройства"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
 msgstr ""
+"Контролирай кои устройства calibre ще игнорира, когато са свързани към "
+"компютъра"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:295
@@ -684,11 +688,11 @@ msgstr "Разнообразни разширени настройки за ко
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:108
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "Опции специфични за изходния формат"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Опции специфични за входния формат"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:133
 msgid "Conversion Input"
@@ -829,7 +833,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
-msgstr ""
+msgstr "Предназначен за iPad 3 или подобни устройства с резолюция 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:443
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -879,11 +883,11 @@ msgstr "Този профил е предназначен за Amazon Kindle DX.
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Този профил е предназначен за Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Този профил е предназначен за Amazon Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:741
 msgid "This profile is intended for the B&N Nook Color."
@@ -896,7 +900,7 @@ msgstr "Този профил е предназначен за Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:767
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Този профил е предназначен за серията устройства PocketBook Pro 900"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -930,6 +934,11 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    %prog options\n"
+"\n"
+"    Персонализиране на calibre, чрез зареждане на външни приставки "
+"(плъгини).\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:597
 msgid "Add a plugin by specifying the path to the zip file containing it."
