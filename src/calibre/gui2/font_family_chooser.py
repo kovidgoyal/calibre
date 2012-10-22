@@ -55,6 +55,12 @@ def writing_system_for_font(font):
 class FontFamilyDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
+        try:
+            return self.do_size_hint(option, index)
+        except:
+            return QSize(300, 50)
+
+    def do_size_hint(self, option, index):
         text = index.data(Qt.DisplayRole).toString()
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
@@ -62,6 +68,14 @@ class FontFamilyDelegate(QStyledItemDelegate):
         return QSize(m.width(text), m.height())
 
     def paint(self, painter, option, index):
+        painter.save()
+        try:
+            self.do_paint(painter, option, index)
+        except:
+            pass
+        painter.restore()
+
+    def do_paint(self, painter, option, index):
         text = unicode(index.data(Qt.DisplayRole).toString())
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
@@ -75,7 +89,6 @@ class FontFamilyDelegate(QStyledItemDelegate):
         r = option.rect
 
         if option.state & QStyle.State_Selected:
-            painter.save()
             painter.setBrush(option.palette.highlight())
             painter.setPen(Qt.NoPen)
             painter.drawRect(option.rect)
@@ -101,9 +114,6 @@ class FontFamilyDelegate(QStyledItemDelegate):
             painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, sample)
 
         painter.setFont(old)
-
-        if (option.state & QStyle.State_Selected):
-            painter.restore()
 
 class FontFamilyChooser(QComboBox):
 
@@ -138,7 +148,10 @@ class FontFamilyChooser(QComboBox):
 
     def sizeHint(self):
         ans = QComboBox.sizeHint(self)
-        ans.setWidth(QFontMetrics(self.font()).width('m'*14))
+        try:
+            ans.setWidth(QFontMetrics(self.font()).width('m'*14))
+        except:
+            pass
         return ans
 
     @dynamic_property
@@ -157,12 +170,15 @@ class FontFamilyChooser(QComboBox):
             self.setCurrentIndex(idx)
         return property(fget=fget, fset=fset)
 
-
-if __name__ == '__main__':
+def test():
     app = QApplication([])
+    app
     d = QDialog()
     d.setLayout(QVBoxLayout())
     d.layout().addWidget(FontFamilyChooser(d))
     d.layout().addWidget(QFontComboBox(d))
     d.exec_()
+
+if __name__ == '__main__':
+    test()
 

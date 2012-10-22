@@ -249,4 +249,32 @@ def samefile(src, dst):
             os.path.normcase(os.path.abspath(dst)))
     return samestring
 
+def windows_is_file_opened(path):
+    import win32file, winerror
+    from pywintypes import error
+    if isbytestring(path): path = path.decode(filesystem_encoding)
+    try:
+        h = win32file.CreateFile(path, win32file.GENERIC_READ, 0, None,
+            win32file.OPEN_EXISTING, 0, 0)
+    except error as e:
+        if getattr(e, 'winerror', 0) == winerror.ERROR_SHARING_VIOLATION:
+            return True
+    else:
+        win32file.CloseHandle(h)
+    return False
+
+def windows_is_folder_in_use(path):
+    '''
+    Returns the path to a file that is used in another process in the specified
+    folder, or None if no such file exists. Note
+    that this function is not a guarantee. A file may well be opened in the
+    folder after this function returns. However, it is useful to handle the
+    common case of a sharing violation gracefully most of the time.
+    '''
+    if isbytestring(path): path = path.decode(filesystem_encoding)
+    for x in os.listdir(path):
+        f = os.path.join(path, x)
+        if windows_is_file_opened(f):
+            return f
+    return None
 

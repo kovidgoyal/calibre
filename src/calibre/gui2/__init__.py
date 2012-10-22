@@ -12,7 +12,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import prints
+from calibre import prints, load_builtin_fonts
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
         plugins, config_dir, filesystem_encoding, DEBUG)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
@@ -779,6 +779,7 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+        load_builtin_fonts()
         self.setup_styles(force_calibre_style)
 
     if DEBUG:

@@ -126,6 +126,17 @@ class CaseInsensitiveAttributesTranslator(HTMLTranslator):
 
 ci_css_to_xpath = CaseInsensitiveAttributesTranslator().css_to_xpath
 
+NULL_NAMESPACE_REGEX = re.compile(ur'''(name\(\) = ['"])h:''')
+def fix_namespace(raw):
+    '''
+    cssselect uses name() = 'h:p' to select tags for some CSS selectors (e.g.
+    h|p+h|p).
+    However, since for us the XHTML namespace is the default namespace (with no
+    prefix), name() is the same as local-name(). So this is a hack to
+    workaround the problem.
+    '''
+    return NULL_NAMESPACE_REGEX.sub(ur'\1', raw)
+
 class CSSSelector(object):
 
     def __init__(self, css, log=None, namespaces=XPNSMAP):
@@ -136,7 +147,7 @@ class CSSSelector(object):
 
     def build_selector(self, css, log, func=css_to_xpath):
         try:
-            return etree.XPath(func(css), namespaces=self.namespaces)
+            return etree.XPath(fix_namespace(func(css)), namespaces=self.namespaces)
         except:
             if log is not None:
                 log.exception('Failed to parse CSS selector: %r'%css)

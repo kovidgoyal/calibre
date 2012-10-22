@@ -7,7 +7,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     description = 'News as provided by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
-    # last updated 8/6/12
+    # last updated 19/10/12
     language = 'en_GB'
     #cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
 
@@ -15,10 +15,12 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 
 
     oldest_article = 1
-    max_articles_per_feed = 12
+    max_articles_per_feed = 1
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
+    ignore_duplicate_articles = {'title'}
+
    # auto_cleanup = True
     #conversion_options = { 'linearize_tables' : True }
 
@@ -60,11 +62,12 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 
            # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
   ]
-    extra_css  = '''
-                           h1{ font-size:medium;}
-    body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-                           img { display:block}
-                     '''#
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
@@ -75,8 +78,10 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 #cov2 now contains url of the page containing pic
         soup = self.index_to_soup(cov2)
         cov = soup.find(attrs={'id' : 'large'})
-        cov2 = str(cov)
-        cov2=cov2[27:-18]
+        cov=str(cov)
+        cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+        cov2 = str(cov2)
+        cov2=cov2[2:len(cov2)-2]
         #cov2 now is pic url, now  go back to original function
         br = browser()
         br.set_handle_redirect(False)

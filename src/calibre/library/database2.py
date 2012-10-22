@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy
+        json, uuid, hashlib, copy, errno
 from collections import defaultdict
 import threading, random
 from itertools import repeat
@@ -30,7 +30,8 @@ from calibre.ptempfile import (PersistentTemporaryFile,
         base_dir, SpooledTemporaryFile)
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
-from calibre.utils.filenames import ascii_filename, samefile
+from calibre.utils.filenames import (ascii_filename, samefile,
+            windows_is_folder_in_use)
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
         parse_only_date, UNDEFINED_DATE)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
@@ -649,6 +650,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         spath = os.path.join(self.library_path, *current_path.split('/'))
 
         if current_path and os.path.exists(spath): # Migrate existing files
+            if iswindows:
+                uf = windows_is_folder_in_use(spath)
+                if uf is not None:
+                    err = IOError(errno.EACCES,
+                            _('File is open in another process'))
+                    err.filename = uf
+                    raise err
             cdata = self.cover(id, index_is_id=True)
             if cdata is not None:
                 with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:

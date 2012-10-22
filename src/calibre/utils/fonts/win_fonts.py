@@ -19,6 +19,23 @@ class WinFonts(object):
 
     def __init__(self, winfonts):
         self.w = winfonts
+        # Windows thinks the Liberation font files are not valid, so we use
+        # this hack to make them available
+        self.app_font_families = {}
+
+        for f in ('Serif', 'Sans', 'Mono'):
+            base = 'fonts/liberation/Liberation%s-%s.ttf'
+            self.app_font_families['Liberation %s'%f] = m = {}
+            for weight, is_italic in product( (self.w.FW_NORMAL, self.w.FW_BOLD), (False, True) ):
+                name = {(self.w.FW_NORMAL, False):'Regular',
+                        (self.w.FW_NORMAL, True):'Italic',
+                        (self.w.FW_BOLD, False):'Bold',
+                        (self.w.FW_BOLD, True):'BoldItalic'}[(weight,
+                            is_italic)]
+                m[(weight, is_italic)] = base%(f, name)
+
+        # import pprint
+        # pprint.pprint(self.app_font_families)
 
     def font_families(self):
         names = set()
@@ -30,7 +47,7 @@ class WinFonts(object):
                     not font['name'].startswith('@')
                 ):
                 names.add(font['name'])
-        return sorted(names)
+        return sorted(names.union(frozenset(self.app_font_families)))
 
     def get_normalized_name(self, is_italic, weight):
         if is_italic:
@@ -43,12 +60,18 @@ class WinFonts(object):
         family = type(u'')(family)
         ans = {}
         for weight, is_italic in product( (self.w.FW_NORMAL, self.w.FW_BOLD), (False, True) ):
-            try:
-                data = self.w.font_data(family, is_italic, weight)
-            except Exception as e:
-                prints('Failed to get font data for font: %s [%s] with error: %s'%
-                        (family, self.get_normalized_name(is_italic, weight), e))
-                continue
+            if family in self.app_font_families:
+                m = self.app_font_families[family]
+                path = m.get((weight, is_italic), None)
+                if path is None: continue
+                data = P(path, data=True)
+            else:
+                try:
+                    data = self.w.font_data(family, is_italic, weight)
+                except Exception as e:
+                    prints('Failed to get font data for font: %s [%s] with error: %s'%
+                            (family, self.get_normalized_name(is_italic, weight), e))
+                    continue
 
             ok, sig = is_truetype_font(data)
             if not ok:
@@ -122,7 +145,7 @@ def test_ttf_reading():
         get_font_characteristics(raw)
         print()
 
-if __name__ == '__main__':
+def test():
     base = os.path.abspath(__file__)
     d = os.path.dirname
     pluginsd = os.path.join(d(d(d(base))), 'plugins')
@@ -143,3 +166,5 @@ if __name__ == '__main__':
             prints('  ', font, data[0], data[1], len(data[2]))
         print ()
 
+if __name__ == '__main__':
+    test()

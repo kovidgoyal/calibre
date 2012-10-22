@@ -17,7 +17,8 @@ from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, win_ddk_lib_dirs)
+        icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -49,10 +50,6 @@ class Extension(object):
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
-
-pdfreflow_libs = []
-if iswindows:
-    pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
 icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 icu_cflags = []
@@ -119,12 +116,30 @@ extensions = [
                     'calibre/utils/lzx/mspack.h'],
             inc_dirs=['calibre/utils/lzx']),
 
+    Extension('freetype',
+        ['calibre/utils/fonts/freetype.cpp'],
+        inc_dirs = ft_inc_dirs,
+        libraries=ft_libs,
+        lib_dirs=ft_lib_dirs),
+
     Extension('fontconfig',
         ['calibre/utils/fonts/fontconfig.c'],
         inc_dirs = [fc_inc],
         libraries=['fontconfig'],
         lib_dirs=[fc_lib],
         error=fc_error),
+
+    Extension('woff',
+        ['calibre/utils/fonts/woff/main.c',
+         'calibre/utils/fonts/woff/woff.c'],
+        headers=[
+        'calibre/utils/fonts/woff/woff.h',
+        'calibre/utils/fonts/woff/woff-private.h'],
+        libraries=zlib_libs,
+        lib_dirs=zlib_lib_dirs,
+        inc_dirs=zlib_inc_dirs,
+        ),
+
 
     Extension('msdes',
                 ['calibre/utils/msdes/msdesmodule.c',
