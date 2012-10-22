@@ -23,16 +23,15 @@ class Time(BasicNewsRecipe):
 
     keep_only_tags = [
             {
-                'class':['tout1', 'entry-content', 'external-gallery-img', 'image-meta']
+                'class':['primary-col', 'tout1']
             },
         ]
     remove_tags = [
-            {'class':['thumbnail', 'button']},
+            {'class':['button', 'entry-sharing group', 'wp-paginate',
+                'moving-markup', 'entry-comments']},
 
             ]
-
-    recursions = 10
-    match_regexps = [r'/[0-9,]+-(2|3|4|5|6|7|8|9)(,\d+){0,1}.html',r'http://www.time.com/time/specials/packages/article/.*']
+    extra_css = '.entry-date { padding-left: 2ex }'
 
     preprocess_regexps = [(re.compile(
         r'<meta .+/>'), lambda m:'')]
@@ -45,7 +44,7 @@ class Time(BasicNewsRecipe):
             br.select_form(predicate=lambda f: 'action' in f.attrs and f.attrs['action'] == 'https://auth.time.com/login.php')
             br['username']   = self.username
             br['password'] = self.password
-            br['magcode'] = ['TD']
+            # br['magcode'] = ['TD']
             br.find_control('turl').readonly = False
             br['turl'] = 'http://www.time.com/time/magazine'
             br.find_control('rurl').readonly = False
@@ -104,7 +103,14 @@ class Time(BasicNewsRecipe):
                         method='text').strip()
             if not title: continue
             url = a[0].get('href')
-            url = re.sub('/magazine/article/0,9171','/subscriber/printout/0,8816', url)
+            if url.startswith('/'):
+                url = 'http://www.time.com'+url
+            if '/article/0,' in url:
+                soup = self.index_to_soup(url)
+                a = soup.find('a', href=lambda x:x and '/printout/' in x)
+                url = a['href'].replace('/printout', '/subscriber/printout')
+            else:
+                url += 'print/' if url.endswith('/') else '/print/'
             if url.startswith('/'):
                 url = 'http://www.time.com'+url
             desc = ''
@@ -112,10 +118,18 @@ class Time(BasicNewsRecipe):
             if p:
                 desc = html.tostring(p[0], encoding=unicode,
                         method='text')
-            self.log('\t', title, ':\n\t\t', desc)
+            self.log('\t', title, ':\n\t\t', url)
             yield {
                     'title' : title,
                     'url'   : url,
                     'date'  : '',
                     'description' : desc
                     }
+
+    def preprocess_html(self, soup):
+        for fig in soup.findAll('figure'):
+            img = fig.find('img')
+            if img is not None:
+                fig.replaceWith(img)
+        return soup
+
