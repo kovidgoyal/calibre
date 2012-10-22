@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy, errno
+        json, uuid, hashlib, copy
 from collections import defaultdict
 import threading, random
 from itertools import repeat
@@ -31,7 +31,7 @@ from calibre.ptempfile import (PersistentTemporaryFile,
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import (ascii_filename, samefile,
-            windows_is_folder_in_use)
+        WindowsAtomicFolderMove)
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
         parse_only_date, UNDEFINED_DATE)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
@@ -641,45 +641,43 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if name and name != fname:
                 changed = True
                 break
-        tpath = os.path.join(self.library_path, *path.split('/'))
-        if not os.path.exists(tpath):
-            os.makedirs(tpath)
         if path == current_path and not changed:
             return
-
         spath = os.path.join(self.library_path, *current_path.split('/'))
+        tpath = os.path.join(self.library_path, *path.split('/'))
 
-        if current_path and os.path.exists(spath): # Migrate existing files
-            if iswindows:
-                uf = windows_is_folder_in_use(spath)
-                if uf is not None:
-                    err = IOError(errno.EACCES,
-                            _('File is open in another process'))
-                    err.filename = uf
-                    raise err
-            cdata = self.cover(id, index_is_id=True)
-            if cdata is not None:
-                with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
-                    f.write(cdata)
-            for format in formats:
-                copy_function = functools.partial(self.copy_format_to, id,
-                        format, index_is_id=True)
-                try:
-                    self.add_format(id, format, None, index_is_id=True,
-                        path=tpath, notify=False, copy_function=copy_function)
-                except NoSuchFormat:
-                    continue
-        self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
-        self.dirtied([id], commit=False)
-        self.conn.commit()
-        self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
-        # Delete not needed directories
-        if current_path and os.path.exists(spath):
-            if not samefile(spath, tpath):
-                self.rmtree(spath, permanent=True)
-                parent = os.path.dirname(spath)
-                if len(os.listdir(parent)) == 0:
-                    self.rmtree(parent, permanent=True)
+        wam = WindowsAtomicFolderMove(spath) if iswindows else None
+        try:
+            if not os.path.exists(tpath):
+                os.makedirs(tpath)
+
+            if current_path and os.path.exists(spath): # Migrate existing files
+                self.copy_cover_to(id, os.path.join(tpath, 'cover.jpg'),
+                        index_is_id=True, windows_atomic_move=wam)
+                for format in formats:
+                    copy_function = functools.partial(self.copy_format_to, id,
+                            format, index_is_id=True, windows_atomic_move=wam)
+                    try:
+                        self.add_format(id, format, None, index_is_id=True,
+                            path=tpath, notify=False, copy_function=copy_function)
+                    except NoSuchFormat:
+                        continue
+            self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
+            self.dirtied([id], commit=False)
+            self.conn.commit()
+            self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
+            # Delete not needed directories
+            if current_path and os.path.exists(spath):
+                if not samefile(spath, tpath):
+                    if wam is not None:
+                        wam.delete_originals()
+                    self.rmtree(spath, permanent=True)
+                    parent = os.path.dirname(spath)
+                    if len(os.listdir(parent)) == 0:
+                        self.rmtree(parent, permanent=True)
+        finally:
+            if wam is not None:
+                wam.close_handles()
 
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
@@ -1348,26 +1346,77 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     return None
                 return fmt_path
 
-    def copy_format_to(self, index, fmt, dest, index_is_id=False):
+    def copy_format_to(self, index, fmt, dest, index_is_id=False,
+            windows_atomic_move=None):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
         dest can also be a path, in which case the format is copied to it, iff
         the path is different from the current path (taking case sensitivity
         into account).
+
+        windows_atomic_move is an internally used parameter. You should not use
+        it in any code outside this module.
         '''
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
-        if hasattr(dest, 'write'):
-            with lopen(path, 'rb') as f:
-                shutil.copyfileobj(f, dest)
-            if hasattr(dest, 'flush'):
-                dest.flush()
-        elif dest and not samefile(dest, path):
-            with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
-                shutil.copyfileobj(f, d)
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+        else:
+            if hasattr(dest, 'write'):
+                with lopen(path, 'rb') as f:
+                    shutil.copyfileobj(f, dest)
+                if hasattr(dest, 'flush'):
+                    dest.flush()
+            elif dest and not samefile(dest, path):
+                with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                    shutil.copyfileobj(f, d)
+
+    def copy_cover_to(self, index, dest, index_is_id=False,
+            windows_atomic_move=None):
+        '''
+        Copy the format cover to the file like object ``dest``. Returns False
+        if no cover exists or dest is the same file as the current cover.
+        dest can also be a path in which case the cover is
+        copied to it iff the path is different from the current path (taking
+        case sensitivity into account).
+
+        windows_atomic_move is an internally used parameter. You should not use
+        it in any code outside this module.
+        '''
+        id = index if index_is_id else self.id(index)
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if os.access(path, os.R_OK) and dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+                return True
+        else:
+            if os.access(path, os.R_OK):
+                try:
+                    f = lopen(path, 'rb')
+                except (IOError, OSError):
+                    time.sleep(0.2)
+                f = lopen(path, 'rb')
+                with f:
+                    if hasattr(dest, 'write'):
+                        shutil.copyfileobj(f, dest)
+                        if hasattr(dest, 'flush'):
+                            dest.flush()
+                        return True
+                    elif dest and not samefile(dest, path):
+                        with lopen(dest, 'wb') as d:
+                            shutil.copyfileobj(f, d)
+                        return True
+        return False
 
     def format(self, index, format, index_is_id=False, as_file=False,
             mode='r+b', as_path=False, preserve_filename=False):
