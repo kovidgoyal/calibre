@@ -118,7 +118,7 @@ class FontFamilyChooser(QComboBox):
         QComboBox.__init__(self, parent)
         from calibre.utils.fonts import fontconfig
         try:
-            self.families = fontconfig.find_font_families()
+            ok, self.families = fontconfig.find_font_families_no_delay()
         except:
             self.families = []
             print ('WARNING: Could not load fonts')

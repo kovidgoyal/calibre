@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from calibre.constants import plugins, islinux, isbsd
+from calibre.constants import plugins, islinux, isbsd, isosx
 
 _fc, _fc_err = plugins['fontconfig']
 
@@ -43,6 +43,11 @@ class FontConfig(Thread):
             self.failed = True
         if not self.failed and hasattr(_fc, 'add_font_dir'):
             _fc.add_font_dir(P('fonts/liberation'))
+
+    def is_scanning(self):
+        if isosx:
+            return self.is_alive()
+        return False
 
     def wait(self):
         if not (islinux or isbsd):

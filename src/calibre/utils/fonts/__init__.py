@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.constants import iswindows
+from calibre.constants import iswindows, isosx
 
 class Fonts(object):
 
@@ -22,6 +22,12 @@ class Fonts(object):
         if iswindows:
             return self.backend.font_families()
         return self.backend.find_font_families(allowed_extensions=allowed_extensions)
+
+    def find_font_families_no_delay(self, allowed_extensions={'ttf', 'otf'}):
+        if isosx:
+            if self.backend.is_scanning():
+                return False, []
+        return True, self.find_font_families(allowed_extensions=allowed_extensions)
 
     def files_for_family(self, family, normalize=True):
         '''
