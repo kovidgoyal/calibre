@@ -44,6 +44,17 @@ fontconfig_initialize(PyObject *self, PyObject *args) {
     Py_RETURN_FALSE;
 }
 
+static PyObject*
+fontconfig_add_font_dir(PyObject *self, PyObject *args) {
+    FcChar8 *path;
+
+    if (!PyArg_ParseTuple(args, "s", &path)) return NULL;
+
+    if (FcConfigAppFontAddDir(NULL, path))
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
 static void
 fontconfig_cleanup_find(FcPattern *p, FcObjectSet *oset, FcFontSet *fs) {
     if (p != NULL) FcPatternDestroy(p);
@@ -312,6 +323,11 @@ PyMethodDef fontconfig_methods[] = {
             "Returns a list of tuples. Each tuple is of the form "
             "(fullname, path, style, family, weight, slant). "
 
+    },
+
+    {"add_font_dir", fontconfig_add_font_dir, METH_VARARGS,
+    "add_font_dir(path_to_dir)\n\n"
+    		"Add the fonts in the specified directory to the list of application specific fonts."
     },
 
     {NULL, NULL, 0, NULL}

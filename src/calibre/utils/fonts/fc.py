@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from calibre.constants import plugins, iswindows, islinux, isbsd
+from calibre.constants import plugins, islinux, isbsd
 
 _fc, _fc_err = plugins['fontconfig']
 
@@ -35,18 +35,14 @@ class FontConfig(Thread):
             if isinstance(config_dir, unicode):
                 config_dir = config_dir.encode(sys.getfilesystemencoding())
             config = os.path.join(config_dir, 'fonts.conf')
-        if iswindows and getattr(sys, 'frozen', False):
-            config_dir = os.path.join(os.path.dirname(sys.executable),
-                'fontconfig')
-            if isinstance(config_dir, unicode):
-                config_dir = config_dir.encode(sys.getfilesystemencoding())
-            config = os.path.join(config_dir, 'fonts.conf')
         try:
             _fc.initialize(config)
         except:
             import traceback
             traceback.print_exc()
             self.failed = True
+        if not self.failed and hasattr(_fc, 'add_font_dir'):
+            _fc.add_font_dir(P('fonts/liberation'))
 
     def wait(self):
         if not (islinux or isbsd):
@@ -162,7 +158,7 @@ def test():
     from pprint import pprint;
     pprint(fontconfig.find_font_families())
     pprint(fontconfig.files_for_family('liberation serif'))
-    m = 'times new roman' if iswindows else 'liberation serif'
+    m = 'liberation serif'
     pprint(fontconfig.match(m+':slant=italic:weight=bold', verbose=True))
 
 if __name__ == '__main__':

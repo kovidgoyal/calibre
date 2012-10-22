@@ -111,9 +111,9 @@ fontconfig = Fonts()
 def test():
     import os
     print(fontconfig.find_font_families())
-    m = 'times new roman' if iswindows else 'liberation serif'
+    m = 'Liberation Serif'
     for ft, val in fontconfig.files_for_family(m).iteritems():
-        print val[0], ft, val[1], os.path.getsize(val[1])
+        print val[0], ft, val[1], os.path.getsize(val[0])
 
 if __name__ == '__main__':
     test()
