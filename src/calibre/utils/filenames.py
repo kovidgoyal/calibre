@@ -300,6 +300,11 @@ class WindowsAtomicFolderMove(object):
         if handle is None:
             raise ValueError(u'The file %r did not exist when this move'
                     ' operation was started'%path)
+        try:
+            win32file.CreateHardLink(dest, path)
+            return
+        except:
+            pass
         with lopen(dest, 'wb') as f:
             while True:
                 hr, raw = win32file.ReadFile(handle, 1024*1024)

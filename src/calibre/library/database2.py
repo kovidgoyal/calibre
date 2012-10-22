@@ -646,7 +646,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         spath = os.path.join(self.library_path, *current_path.split('/'))
         tpath = os.path.join(self.library_path, *path.split('/'))
 
-        wam = WindowsAtomicFolderMove(spath) if iswindows else None
+        wam = WindowsAtomicFolderMove(spath) if iswindows and current_path else None
         try:
             if not os.path.exists(tpath):
                 os.makedirs(tpath)
@@ -1375,6 +1375,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if hasattr(dest, 'flush'):
                     dest.flush()
             elif dest and not samefile(dest, path):
+                try:
+                    os.link(path, dest)
+                    return
+                except:
+                    pass
                 with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
                     shutil.copyfileobj(f, d)
 
