@@ -139,3 +139,5 @@ class MainWindow(QMainWindow):
                     show=True)
         except BaseException:
             pass
+        except:
+            pass
