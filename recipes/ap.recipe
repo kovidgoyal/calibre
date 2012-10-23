@@ -10,6 +10,8 @@ class AssociatedPress(BasicNewsRecipe):
     use_embedded_content   = False
     language = 'en'
     no_stylesheets = True
+    auto_cleanup = True
+#    auto_cleanup_keep = '//td[@class="ap-smallphoto-td-image"]'
     max_articles_per_feed = 15
 
 
@@ -20,13 +22,13 @@ class AssociatedPress(BasicNewsRecipe):
     ]
 
 
-    keep_only_tags = [ dict(name='div', attrs={'class':['body']}),
-                       dict(name='div', attrs={'class':['entry-content']}),
-                       ]
-    remove_tags = [dict(name='table', attrs={'class':['ap-video-table','ap-htmlfragment-table','ap-htmltable-table']}),
-                   dict(name='span', attrs={'class':['apCaption','tabletitle']}),
-                   dict(name='td', attrs={'bgcolor':['#333333']}),
-                  ]
+    #keep_only_tags = [ dict(name='table', attrs={'class':['ap-story-table hnews hentry item']}),
+                       ##dict(name='div', attrs={'class':['entry-content']}),
+                       #]
+    #remove_tags = [dict(name='td', attrs={'class':['ap-mediabox-td']}),
+                   #dict(name='table', attrs={'class':['ap-htmltable-table', 'ap-htmltable-table', 'ap-mediabox-table']}),
+                   ##dict(name='td', attrs={'bgcolor':['#333333']}),
+                  #]
     extra_css = '''
                .headline{font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:bold;}
                .bline{color:#003366;}
