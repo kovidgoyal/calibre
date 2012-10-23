@@ -151,6 +151,7 @@ class FontFamilyDialog(QDialog):
                     break
         self.view.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
         self.view.setSelectionMode(self.view.SingleSelection)
+        self.view.setAlternatingRowColors(True)
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         self.bb.accepted.connect(self.accept)
