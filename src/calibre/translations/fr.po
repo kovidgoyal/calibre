@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-19 03:39+0000\n"
-"PO-Revision-Date: 2012-10-19 05:19+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2012-10-22 21:45+0000\n"
+"Last-Translator: thomas <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-20 04:41+0000\n"
-"X-Generator: Launchpad (build 16165)\n"
+"X-Launchpad-Export-Date: 2012-10-23 04:48+0000\n"
+"X-Generator: Launchpad (build 16179)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1864,7 +1864,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1211
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr "Le Kobo Touch à partir du micrologiciel v2.00 supporte les rayons"
+msgstr "Le Kobo Touch à partir du micrologiciel v2.00 supporte les étagères"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1213
 msgid "Specify a tags type column for automatic management"
@@ -1872,27 +1872,27 @@ msgstr "Spécifier une colonne de type étiquettes pour la gestion automatique"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1214
 msgid "Create Bookshelves"
-msgstr "Créer les rayons"
+msgstr "Créer les étagères"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
-"Créer de nouveaux rayons sur le Kobo Touch si ils n'existent pas. Ceci n'est "
-"valable que pour le micrologiciel v2.00 ou plus récent."
+"Créer de nouvelles étagères sur le Kobo Touch si elles n'existent pas. Ceci "
+"n'est valable que pour le micrologiciel v2.00 ou plus récent."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Delete Empty Bookshelves"
-msgstr "Supprimer les rayons vides"
+msgstr "Supprimer les étagères vides"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
-"Supprimer tous les rayons vides du Kobo Touch lorsque la synchronisation est "
-"finie. Ceci n'est valable que pour le micrologiciel v2.00 ou plus récent."
+"Supprimer toutes les étagères vides du Kobo Touch lorsque la synchronisation "
+"est finie. Ceci n'est valable que pour le micrologiciel v2.00 ou plus récent."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "Upload covers for books"
@@ -2010,11 +2010,11 @@ msgstr "Communique avec la liseuse WayteQ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
-msgstr "Périférique MTP"
+msgstr "Périphérique MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:31
 msgid "Communicate with MTP devices"
-msgstr "Communicate with MTP devices"
+msgstr "Communiquer avec les périphériques MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:912
@@ -2423,7 +2423,7 @@ msgstr "Port invalide dans les options : %s"
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1279
 #, python-format
 msgid "Failed to connect to port %d. Try a different value."
-msgstr "Echec de connextion au port %d. Essayez une valeur différente."
+msgstr "Échec de connexion au port %d. Essayez une valeur différente."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1291
 msgid "Failed to allocate a random port"
@@ -2563,8 +2563,8 @@ msgstr ""
 "Impossible d’accéder à la mémoire principale de votre appareil. Vous devez "
 "contacter le fabricant du matériel pour obtenir une prise en charge. Les "
 "solutions courantes sont : essayer un autre câble USB ou un autre port USB "
-"sur vôtre ordinateur. Si votre appareil a un réglage du type « Restaurer les "
-"paramètres d’origine », utiliser le. Erreur rencontrée : %s"
+"sur votre ordinateur. Si votre appareil a un réglage du type « Restaurer les "
+"paramètres d’origine », utiliser-le. Erreur rencontrée : %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:114
 #, python-format
@@ -2659,7 +2659,7 @@ msgstr "Répertoire de la carte A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr "Echanger la mémoire principale et la carte A"
+msgstr "Échanger la mémoire principale et la carte A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
@@ -3086,7 +3086,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:158
 msgid "for a complete list with descriptions."
-msgstr "pour une liste compléte avec les descriptions."
+msgstr "pour une liste complète avec les descriptions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_input.py:32
 msgid ""
@@ -3302,7 +3302,7 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
-"Ingnorer les marges dans le document d’entrée. Si cette valeur est fausse, "
+"Ignorer les marges dans le document d’entrée. Si cette valeur est fausse, "
 "alors le module d’extension de sortie MOBI va tenter de convertir les marges "
 "spécifiées dans le document d’entrée, sinon il va les ignorer."
 
@@ -3835,9 +3835,9 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
-"La hauteur de ligne en pts. Controle l’espacement entre les lignes "
-"consecutives du texte. Ne s’applique qu’aux éléments qui ne définissent pas "
-"leur propre hauteur de ligne. Dans la plupart des cas, l’otion hauteur de "
+"La hauteur de ligne en pts. Contrôle l’espacement entre les lignes "
+"consécutives du texte. Ne s’applique qu’aux éléments qui ne définissent pas "
+"leur propre hauteur de ligne. Dans la plupart des cas, l’option hauteur de "
 "ligne minimum est plus utile. Par défaut, aucune modification de hauteur de "
 "ligne n’est effectuée."
 
@@ -3953,13 +3953,14 @@ msgid ""
 "See the XPath Tutorial in the calibre User Manual for further help on using "
 "this feature."
 msgstr ""
-"A expression XPath pour détecter les titres de chapitres. Par défaut, les "
+"Une expression XPath pour détecter les titres de chapitres. Par défaut, les "
 "étiquettes <h1> et <h2> qui contiennent les mots \"chapter\", \"book\", "
 "\"section\", \"prologue\", \"epilogue\", ou \"part\" ainsi que les "
-"étiquettes qui ont class=\"chapter\". L’expression utilisé doit être évalué "
-"comme une liste d’éléments. Pour désactiver la détection de chapitre, "
-"utiliser l’expression \"/\". Regarder le tutorial XPath dans le Manuel "
-"Utilisateur de calibre pour plus d’aide sur l’utilisation de cette fonction."
+"étiquettes qui ont class=\"chapter\". L’expression utilisée doit être "
+"évaluée comme une liste d’éléments. Pour désactiver la détection de "
+"chapitre, utiliser l’expression \"/\". Regarder le tutoriel XPath dans le "
+"Manuel Utilisateur de calibre pour plus d’aide sur l’utilisation de cette "
+"fonction."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
 msgid ""
@@ -4024,7 +4025,7 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
-"Certains documents spécifie la marge de la page en spécifiant une marge "
+"Certains documents spécifient la marge de la page en spécifiant une marge "
 "gauche et droite sur chacun des paragraphes. calibre va tenter de détecter "
 "et de supprimer ces marges. Cela peut des fois provoquer le retrait de "
 "certaines marges qui ne devaient pas être retirés. Dans ce cas, vous pouvez "
@@ -4162,7 +4163,7 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
-"Convertis les guillemets, les tirets et les points de suspension en leurs "
+"Convertit les guillemets, les tirets et les points de suspension en leurs "
 "équivalents typographiques corrects. Pour plus de détails, voir "
 "http://daringfireball.net/projects/smartypants"
 
@@ -5180,7 +5181,7 @@ msgstr "Télécharge les métadonnées et les couvertures à partir de OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:58
 msgid "Sample Book"
-msgstr "Livre example"
+msgstr "Livre exemple"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -6013,9 +6014,9 @@ msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
-"Echec de la modification du nom de la bibliothèque à %s. La cause la plus "
-"commune de cet échec est due à l’ouverture d’un des fichiers de la "
-"bibliothèque dans un autre programme."
+"Un problème a eu lieu lors du renommage de la bibliothèque à %s. La cause la "
+"plus probable est que l'un des fichiers de la bibliothèque est ouvert par un "
+"autre programme."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:342
 msgid "Library removed"
@@ -6260,7 +6261,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:301
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:242
 msgid "Are you sure?"
-msgstr "Êtes-vous sûr ?"
+msgstr "Êtes-vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:32
 #, python-format
@@ -6283,13 +6284,13 @@ msgstr "Supprimé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:78
 msgid "Failed to delete"
-msgstr "Echec de la supression"
+msgstr "Échec de la supression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:79
 msgid ""
 "Failed to delete some books, click the Show Details button for details."
 msgstr ""
-"Echec de la suppression de quelques livres, cliquer qur le bouton Afficher "
+"Échec de la suppression de quelques livres, cliquer sur le bouton Afficher "
 "les Détails pour les détails."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
@@ -6343,7 +6344,7 @@ msgid ""
 "Choose formats <b>not</b> to be deleted.<p>Note that this will never remove "
 "all formats from a book."
 msgstr ""
-"Choisir les formats <b>a ne pas</b> supprimer.<p>Noter que ceci ne "
+"Choisir les formats <b>à ne pas</b> supprimer.<p>Noter que ceci ne "
 "supprimera jamais tous les formats d’un livre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:207
@@ -6526,15 +6527,15 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Edit metadata"
-msgstr "Editer les métadonnées"
+msgstr "Modifier les métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:33
 msgid "Edit metadata individually"
-msgstr "Editer les métadonnées individuellement"
+msgstr "Modifier les métadonnées individuellement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:36
 msgid "Edit metadata in bulk"
-msgstr "Editer les métadonnées par lot"
+msgstr "Modifier les métadonnées par lot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:39
 msgid "Download metadata and covers"
@@ -7047,7 +7048,7 @@ msgid ""
 "information."
 msgstr ""
 "En utilisant la recherche intégrée vous pouvez facilement trouver quel "
-"magasin possède le livre que vous chercher, au meilleur prix. Vous obtenez "
+"magasin possède le livre que vous cherchez, au meilleur prix. Vous obtenez "
 "aussi le statut DRM et d’autres informations utiles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
@@ -7156,7 +7157,7 @@ msgstr "En cours d'explosion, veuillez patienter..."
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:187
 msgid "Failed to unpack"
-msgstr "Echec de décompression"
+msgstr "Échec de décompression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:178
 #, python-format
@@ -7173,7 +7174,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:222
 msgid "Failed to rebuild file"
-msgstr "Echec de la reconstruction du fichier."
+msgstr "Échec de la reconstruction du fichier."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:223
 #, python-format
@@ -7276,7 +7277,7 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
-"Vous essayer d’ouvrir %d livres. Ouvrir trop de livre en même temps peut "
+"Vous essayer d’ouvrir %d livres. Ouvrir trop de livres en même temps peut "
 "provoquer des ralentissements et avoir des effets négatifs sur les temps de "
 "réponses de l’ordinateur. Une fois démarré le processus ne peut pas être "
 "arrêté avant la fin. Voulez-vous continuer ?"
@@ -7841,7 +7842,7 @@ msgstr "Etes-vous sûr de vouloir supprimer les règles #%(first)d-%(last)d ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:642
 msgid "Delete Rule"
-msgstr "Supprimer la Régle"
+msgstr "Supprimer la Règle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:791
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:601
@@ -8106,7 +8107,7 @@ msgstr "Répéter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:105
 msgid "Remove formatting"
-msgstr "Annuler le formattage"
+msgstr "Supprimer la mise en forme"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:174
@@ -8617,7 +8618,7 @@ msgstr "Supprimer les lignes blanches entre les paragraphes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:121
 msgid "Ensure scene breaks are consistently formatted"
-msgstr "Garantir une mise en forme consistente des ruptures de scéne"
+msgstr "Garantir une mise en forme cohérente des ruptures de scène"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
@@ -8800,7 +8801,7 @@ msgstr "Espacement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:222
 msgid "Convert floating images/text into static images/text"
-msgstr "Converti images/texte flottant en images/texte fixe"
+msgstr "Convertit images/texte flottant en images/texte fixe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:223
 msgid "F&loats"
@@ -9364,13 +9365,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:110
 msgid "Invalid regular expression"
-msgstr "Expression rationnelle incorrecte"
+msgstr "Expression régulière incorrecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:209
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:111
 #, python-format
 msgid "Invalid regular expression: %s"
-msgstr "Expression rationnelle incorrecte : %s"
+msgstr "Expression régulière incorrecte: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:293
 msgid ""
@@ -9647,11 +9648,11 @@ msgstr "Commun"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
-msgstr "Conservers les e&spaces"
+msgstr "Conserver les e&spaces"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
-msgstr "Ôter les alinéas en début de ligne"
+msgstr "Supprimer les indentations en début de ligne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
@@ -9802,7 +9803,7 @@ msgstr "Avec la &valeur :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
-msgstr "(Une expression rationnelle)"
+msgstr "(Une expression régulière)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:89
 msgid ""
@@ -9910,7 +9911,7 @@ msgstr "Effacer les series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:823
 msgid "Automatically number books"
-msgstr "Nummérotation automatique des livres"
+msgstr "Numérotation automatique des livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:826
 msgid "Force numbers to start with "
@@ -10151,7 +10152,7 @@ msgstr "Envoie les catalogues vers l’appareil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1367
 msgid "Sending news to device."
-msgstr "Envoi les informations vers l’appareil."
+msgstr "Envoie les informations vers l’appareil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1421
 msgid "Sending books to device."
@@ -10291,7 +10292,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
 msgid "Send the %s format to the folder:"
-msgstr "Evoyer le format %s dans le dossier :"
+msgstr "Envoyer le format %s dans le dossier :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:220
 msgid "Folder on the device"
@@ -10299,7 +10300,7 @@ msgstr "Dossier sur l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:228
 msgid "&Remove rule"
-msgstr "&Régle de suppresion"
+msgstr "&Règle de suppression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
@@ -10455,7 +10456,7 @@ msgstr "Mes Livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:190
 msgid "No help available"
-msgstr "Aucun aide disponible"
+msgstr "Aucune aide disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:191
 msgid "No help available for this output format."
@@ -10743,7 +10744,7 @@ msgid ""
 "sure?"
 msgstr ""
 "Les fichiers et répertoires marqués seront <b>définitivement supprimés</b>. "
-"Êtes-vous sûr ?"
+"Êtes-vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
@@ -10926,7 +10927,7 @@ msgstr "&OK"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:109
 msgid "Edit Comments"
-msgstr "Editer les commentaires"
+msgstr "Modifier les commentaires"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:76
 msgid "Where do you want to delete from?"
@@ -11029,7 +11030,7 @@ msgstr "Vous devez sélectionner au moins un élément dans la liste."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:240
 msgid "Are you sure you want to delete the following items?"
-msgstr "Êtes-vous sûr de vouloir supprimer les éléments suivants?"
+msgstr "Êtes-vous sûr(e) de vouloir supprimer les éléments suivants ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
@@ -11038,7 +11039,7 @@ msgstr "Éditeur de catégories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:78
 msgid "Items in use"
-msgstr "Articles en cours d’utlisation"
+msgstr "Articles en cours d’utilisation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:77
@@ -11208,7 +11209,7 @@ msgstr "Travaux en cours"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:73
 msgid "Find next match"
-msgstr "Trouver la prochaine occurence"
+msgstr "Trouver la prochaine occurrence"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Search"
@@ -11216,7 +11217,7 @@ msgstr "&Rechercher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:75
 msgid "Find previous match"
-msgstr "Trouver la précédente occurence"
+msgstr "Trouver la précédente occurrence"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:76
 msgid "&Stop selected jobs"
@@ -11224,7 +11225,7 @@ msgstr "Arrêter les travaux sélectionnés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:77
 msgid "&Hide selected jobs"
-msgstr "&Cacher les taches sélectionnées"
+msgstr "&Cacher les tâches sélectionnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:78
 msgid "Show job &details"
@@ -11326,7 +11327,7 @@ msgstr "Ajouter initialement au champ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:311
 msgid "Append to field"
-msgstr "Ajouter au champs"
+msgstr "Ajouter au champ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:321
 #, python-format
@@ -11472,7 +11473,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "Edit Meta information"
-msgstr "Editer les informations sur les Métadonnées"
+msgstr "Modifier les informations sur les Métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:550
 msgid "A&utomatically set author sort"
@@ -12376,7 +12377,7 @@ msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
 "La recherche sauvegardée actuelle sera <b>définitivement supprimée</b>. Êtes-"
-"vous sûr ?"
+"vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Saved Search Editor"
@@ -13131,7 +13132,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:83
 msgid "Are your sure?"
-msgstr "Êtes-vous sûr ?"
+msgstr "Êtes-vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:84
 msgid ""
@@ -14073,12 +14074,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:883
 msgid "Failed to set data"
-msgstr "Echec de lamise en place des données"
+msgstr "Échec de la mise en place des données"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:884
 msgid "Could not set data, click Show Details to see why."
 msgstr ""
-"Echec de lamise en place des données, cliquer sur Afficher les détails pour "
+"Échec de la mise en place des données, cliquer sur Afficher les détails pour "
 "voir pourquoi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1066
@@ -14279,7 +14280,7 @@ msgstr "La création de la bibliothèque a échoué"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:142
 #, python-format
 msgid "Failed to create calibre library at: %r."
-msgstr "Echec de la création de la bibliothèque à : %r."
+msgstr "Échec de la création de la bibliothèque à : %r."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:208
@@ -15325,7 +15326,7 @@ msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
-"Choisir une mise en page différente pour la boite de dialogue Editer Les "
+"Choisir une mise en page différente pour la boite de dialogue Modifier Les "
 "Métadonnées. La mise en page compacte des métadonnées favorise l’édition des "
 "métadonnées personnalisées, en plus des modifications de couvertures et de "
 "formats."
@@ -15628,7 +15629,7 @@ msgstr "Ajouter une colonne définie par l’utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:94
 msgid "Edit settings of a user-defined column"
-msgstr "Editer les paramètres d’une colonne définie par l’utilisateur"
+msgstr "Modifier les paramètres d’une colonne définie par l’utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:96
 msgid "Move column down"
@@ -17920,8 +17921,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:116
 msgid "Edit tweaks for any custom plugins you have installed"
 msgstr ""
-"Editer les réglages pour n’importe lequels des modules d’extension "
-"personnalisés que vous avez installlé"
+"Modifier les réglages pour n’importe lequel des modules d’extension "
+"personnalisés que vous avez installé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:117
 msgid "&Plugin tweaks"
@@ -17929,7 +17930,7 @@ msgstr "Réglages du &module d’extension"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:119
 msgid "Edit tweak"
-msgstr "Editer les réglages"
+msgstr "Modifier les réglages"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:120
 msgid "Restore this tweak to its default value"
@@ -18921,6 +18922,25 @@ msgid ""
 "                your ebook reader may have trouble with the EPUB.\n"
 "                        "
 msgstr ""
+"\n"
+"                Beaucoup de vieille liseuses ne peuvent pas afficher les\n"
+"                fichiers EPUB possédant des parties excédant une certaine "
+"taille.\n"
+"\t\t\t\tLors de la conversion au format EPUB, calibre essaie donc\n"
+"\t\t\t\tde le séparer en plusieurs éléments de petite taille. Dans\n"
+"\t\t\t\tle cas de certains fichier consistant en de long blocs de texte\n"
+"\t\t\t\tnon différentiés, cette séparation échoue.\n"
+"\t\t\t\t<p>Vous pouvez <b>contourner ce problème</b> soit en augmentant la "
+"taille\n"
+"\t\t\t\tmaximum de séparation dand la section EPUB Sortie dans la boîte de "
+"dialoge\n"
+"\t\t\t\tde conversion, ou bien en activant Heuristic Processing, également "
+"dans la \n"
+"\t\t\t\tboîte de dialogue de conversion. Notez bien que de définir une "
+"taille maximum \n"
+"\t\t\t\ttrop grande peut créer des problèmes d'affichage de l'EPUB dans "
+"votre liseuse.\n"
+"                        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:663
 msgid "Conversion Failed"
@@ -19789,7 +19809,7 @@ msgstr "Trouver le suivant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:218
 msgid "Find next occurrence"
-msgstr "Trouver la prochaine occurence"
+msgstr "Trouver la prochaine occurrence"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:222
 msgid "Reference Mode"
@@ -21217,6 +21237,14 @@ msgid ""
 "so on). For identifiers, the syntax is {0} {2}. For boolean (yes/no) fields "
 "use true and false or yes and no."
 msgstr ""
+"Le champ à fixer. Le format est nom_champ:valeur, par exemple: {0} "
+"tags:tag1,tag2. Utilisez {1} pour récupérer une liste de tous les noms de "
+"champs. Vous pouvez spécifier cette option plusieurs fois pour fixer "
+"plusieurs champs. Note: pour le champs \"languages\" (langues), vous devez "
+"utiliser les codes de langues ISO639 (par exemple, en pour Anglais, fr pour "
+"Français, et ainsi de suite). Pour les identifiants (identifiers), la "
+"syntaxe est {0} {2}. Pour les champs booléens (oui/non), utilisez \"true\" "
+"(vrai) ou \"false\" (faux) ou \"yes\" (oui) et \"no\" (non)."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:534
 msgid ""
