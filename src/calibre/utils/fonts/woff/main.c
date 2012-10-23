@@ -2,7 +2,7 @@
  * main.c
  * Copyright (C) 2012 Kovid Goyal <kovid at kovidgoyal.net>
  *
- * Distributed under terms of the GPL3 license.
+ * Distributed under terms of the GPL2+ license.
  */
 
 
