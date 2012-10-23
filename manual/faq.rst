@@ -69,8 +69,8 @@ If you have a hand edited TOC in the input document, you can use the TOC detecti
 
 Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
 
-The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/etc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is caused by a bug in the Amazon software. You can work around it by going
 to Preferences->Output Options->MOBI output and setting the "Enable sharing
