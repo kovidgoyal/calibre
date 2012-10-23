@@ -31,7 +31,7 @@ from calibre.ptempfile import (PersistentTemporaryFile,
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import (ascii_filename, samefile,
-        WindowsAtomicFolderMove)
+        WindowsAtomicFolderMove, hardlink_file)
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
         parse_only_date, UNDEFINED_DATE)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
@@ -653,10 +653,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             if current_path and os.path.exists(spath): # Migrate existing files
                 self.copy_cover_to(id, os.path.join(tpath, 'cover.jpg'),
-                        index_is_id=True, windows_atomic_move=wam)
+                        index_is_id=True, windows_atomic_move=wam,
+                        use_hardlink=True)
                 for format in formats:
                     copy_function = functools.partial(self.copy_format_to, id,
-                            format, index_is_id=True, windows_atomic_move=wam)
+                            format, index_is_id=True, windows_atomic_move=wam,
+                            use_hardlink=True)
                     try:
                         self.add_format(id, format, None, index_is_id=True,
                             path=tpath, notify=False, copy_function=copy_function)
@@ -1347,13 +1349,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 return fmt_path
 
     def copy_format_to(self, index, fmt, dest, index_is_id=False,
-            windows_atomic_move=None):
+            windows_atomic_move=None, use_hardlink=False):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
         dest can also be a path, in which case the format is copied to it, iff
         the path is different from the current path (taking case sensitivity
         into account).
+
+        If use_hardlink is True, a hard link will be created instead of the
+        file being copied. Use with care, because a hard link means that
+        modifying any one file will cause both files to be modified.
 
         windows_atomic_move is an internally used parameter. You should not use
         it in any code outside this module.
@@ -1375,22 +1381,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if hasattr(dest, 'flush'):
                     dest.flush()
             elif dest and not samefile(dest, path):
-                try:
-                    os.link(path, dest)
-                    return
-                except:
-                    pass
+                if use_hardlink:
+                    try:
+                        hardlink_file(path, dest)
+                        return
+                    except:
+                        pass
                 with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
                     shutil.copyfileobj(f, d)
 
     def copy_cover_to(self, index, dest, index_is_id=False,
-            windows_atomic_move=None):
+            windows_atomic_move=None, use_hardlink=False):
         '''
-        Copy the format cover to the file like object ``dest``. Returns False
+        Copy the cover to the file like object ``dest``. Returns False
         if no cover exists or dest is the same file as the current cover.
         dest can also be a path in which case the cover is
         copied to it iff the path is different from the current path (taking
         case sensitivity into account).
+
+        If use_hardlink is True, a hard link will be created instead of the
+        file being copied. Use with care, because a hard link means that
+        modifying any one file will cause both files to be modified.
 
         windows_atomic_move is an internally used parameter. You should not use
         it in any code outside this module.
@@ -1418,6 +1429,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             dest.flush()
                         return True
                     elif dest and not samefile(dest, path):
+                        if use_hardlink:
+                            try:
+                                hardlink_file(path, dest)
+                                return
+                            except:
+                                pass
                         with lopen(dest, 'wb') as d:
                             shutil.copyfileobj(f, d)
                         return True

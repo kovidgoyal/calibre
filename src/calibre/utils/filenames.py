@@ -326,3 +326,10 @@ class WindowsAtomicFolderMove(object):
             win32file.DeleteFile(path)
         self.close_handles()
 
+def hardlink_file(src, dest):
+    if iswindows:
+        import win32file
+        win32file.CreateHardLink(dest, src)
+        return
+    os.link(src, dest)
+
