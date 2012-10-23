@@ -8,8 +8,10 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
-        QStyledItemDelegate, QSize, QStyle, QComboBox, QStringListModel,
-        QDialog, QVBoxLayout, QApplication, QFontComboBox)
+        QStyledItemDelegate, QSize, QStyle, QStringListModel, pyqtSignal,
+        QDialog, QVBoxLayout, QApplication, QFontComboBox, QPushButton,
+        QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
+        QHBoxLayout, QLabel, QModelIndex)
 
 from calibre.utils.icu import sort_key
 
@@ -68,6 +70,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         return QSize(m.width(text), m.height())
 
     def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
         painter.save()
         try:
             self.do_paint(painter, option, index)
@@ -89,9 +92,6 @@ class FontFamilyDelegate(QStyledItemDelegate):
         r = option.rect
 
         if option.state & QStyle.State_Selected:
-            painter.setBrush(option.palette.highlight())
-            painter.setPen(Qt.NoPen)
-            painter.drawRect(option.rect)
             painter.setPen(QPen(option.palette.highlightedText(), 0))
 
         if (option.direction == Qt.RightToLeft):
@@ -112,13 +112,18 @@ class FontFamilyDelegate(QStyledItemDelegate):
                 r.setLeft(r.left() + w)
             painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, sample)
 
-class FontFamilyChooser(QComboBox):
+class Typefaces(QWidget):
+    pass
 
-    def __init__(self, parent=None):
-        QComboBox.__init__(self, parent)
+class FontFamilyDialog(QDialog):
+
+    def __init__(self, current_family, parent=None):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Choose font family'))
+        self.setWindowIcon(QIcon(I('font.png')))
         from calibre.utils.fonts import fontconfig
         try:
-            ok, self.families = fontconfig.find_font_families_no_delay()
+            self.families = fontconfig.find_font_families()
         except:
             self.families = []
             print ('WARNING: Could not load fonts')
@@ -131,41 +136,81 @@ class FontFamilyChooser(QComboBox):
         self.families.sort(key=sort_key)
         self.families.insert(0, _('None'))
 
+        self.l = l = QGridLayout()
+        self.setLayout(l)
+        self.view = QListView(self)
         self.m = QStringListModel(self.families)
-        self.setModel(self.m)
+        self.view.setModel(self.m)
         self.d = FontFamilyDelegate(self)
-        self.setItemDelegate(self.d)
-        self.setCurrentIndex(0)
+        self.view.setItemDelegate(self.d)
+        self.view.setCurrentIndex(self.m.index(0))
+        if current_family:
+            for i, val in enumerate(self.families):
+                if icu_lower(val) == icu_lower(current_family):
+                    self.view.setCurrentIndex(self.m.index(i))
+                    break
+        self.view.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        self.view.setSelectionMode(self.view.SingleSelection)
 
-    def event(self, e):
-        if e.type() == e.Resize:
-            view = self.view()
-            view.window().setFixedWidth(self.width() * 5/3)
-        return QComboBox.event(self, e)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        self.ml = QLabel(_('Choose a font family from the list below:'))
 
-    def sizeHint(self):
-        ans = QComboBox.sizeHint(self)
-        try:
-            ans.setWidth(QFontMetrics(self.font()).width('m'*14))
-        except:
-            pass
-        return ans
+        self.faces = Typefaces(self)
+
+        l.addWidget(self.ml, 0, 0, 1, 2)
+        l.addWidget(self.view, 1, 0, 1, 1)
+        l.addWidget(self.faces, 1, 1, 1, 1)
+        l.addWidget(self.bb, 2, 0, 1, 2)
+
+        self.resize(600, 500)
+
+    @property
+    def font_family(self):
+        idx = self.view.currentIndex().row()
+        if idx == 0: return None
+        return self.families[idx]
+
+class FontFamilyChooser(QWidget):
+
+    family_changed = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QHBoxLayout()
+        self.setLayout(l)
+        self.button = QPushButton(self)
+        self.button.setIcon(QIcon(I('font.png')))
+        l.addWidget(self.button)
+        self.default_text = _('Choose &font family')
+        self.font_family = None
+        self.button.clicked.connect(self.show_chooser)
+        self.clear_button = QToolButton(self)
+        self.clear_button.setIcon(QIcon(I('clear_left.png')))
+        self.clear_button.clicked.connect(self.clear_family)
+        l.addWidget(self.clear_button)
+
+    def clear_family(self):
+        self.font_family = None
 
     @dynamic_property
     def font_family(self):
         def fget(self):
-            idx=  self.currentIndex()
-            if idx == 0: return None
-            return self.families[idx]
+            return self._current_family
         def fset(self, val):
             if not val:
-                idx = 0
-            try:
-                idx = self.families.index(type(u'')(val))
-            except ValueError:
-                idx = 0
-            self.setCurrentIndex(idx)
+                val = None
+            self._current_family = val
+            self.button.setText(val or self.default_text)
+            self.family_changed.emit(val)
         return property(fget=fget, fset=fset)
+
+    def show_chooser(self):
+        d = FontFamilyDialog(self.font_family, self)
+        if d.exec_() == d.Accepted:
+            self.font_family = d.font_family
+
 
 def test():
     app = QApplication([])
