@@ -191,6 +191,9 @@ class FontFamilyChooser(QWidget):
         self.clear_button.setIcon(QIcon(I('clear_left.png')))
         self.clear_button.clicked.connect(self.clear_family)
         l.addWidget(self.clear_button)
+        self.setToolTip = self.button.setToolTip
+        self.toolTip = self.button.toolTip
+        self.clear_button.setToolTip(_('Clear the font family'))
 
     def clear_family(self):
         self.font_family = None
@@ -211,7 +214,6 @@ class FontFamilyChooser(QWidget):
         d = FontFamilyDialog(self.font_family, self)
         if d.exec_() == d.Accepted:
             self.font_family = d.font_family
-
 
 def test():
     app = QApplication([])
