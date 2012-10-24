@@ -76,6 +76,14 @@ class FamilyMap(dict):
                                     family.encode('utf-8')
 
 def extract_fonts(opf, log):
+    '''
+    Extract embedded fonts from the ebook and add them explicitly to the Qt
+    font database to workaround https://bugs.webkit.org/show_bug.cgi?id=29433
+
+    Only works if the font-face and font-family rules are all contained in the
+    CSS files (Also processing the HTML files would be too much of a
+    performance hit, to do robustly).
+    '''
     css_files = {}
     font_family_map = FamilyMap(log)
     pat = re.compile(br'^\s*@font-face\s*{[^}]+}', re.M)
