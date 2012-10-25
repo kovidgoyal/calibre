@@ -11,13 +11,13 @@ msgstr ""
 "PO-Revision-Date: 2012-10-24 17:46+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-25 05:18+0000\n"
 "X-Generator: Launchpad (build 16179)\n"
-"Language: fr\n"
+"X-Launchpad-Export-Date: 2012-10-25 05:18+0000\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -13769,7 +13769,7 @@ msgstr "Choisir une famille de polices dans la liste ci-dessous :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr "Choisir la %famille de polices"
+msgstr "Choisir la &famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -16995,7 +16995,7 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"\\n\\nCe module d’extension a été désactivé"
+"Ce module d’extension a été désactivé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -20567,8 +20567,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Titre du catalogue généré utilisé comme titre dans les métadonnées.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Titre du catalogue généré utilisé comme titre dans les métadonnées.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:48
@@ -20582,8 +20582,8 @@ msgid ""
 msgstr ""
 "Enregistrer la sortie à différentes étapes du processus de conversion vers "
 "le répertoire spécifié. Utile si vous n'êtes pas sûr de l'étape de la "
-"conversion à laquelle se produit le bogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"conversion à laquelle se produit le bogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:58
@@ -20594,9 +20594,8 @@ msgid ""
 "'+', the default tag for read books.\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Expression rationnelle décrivant les étiquettes à exclure comme genres.\\n\n"
-"Par défaut : '%default' exclue les étiquettes entre crochets, ex. '[<tag>]'\\"
-"n\n"
+"Expression rationnelle décrivant les étiquettes à exclure comme genres.\n"
+"Par défaut : '%default' exclue les étiquettes entre crochets, ex. '[<tag>]'\n"
 "S’applique aux formats de sortie : AZW3,ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:66
@@ -20632,8 +20631,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Inclure la section 'Auteurs' dans le catalogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Inclure la section 'Auteurs' dans le catalogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:87
@@ -20643,8 +20642,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Inclure la section 'Descriptions' dans le catalogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Inclure la section 'Descriptions' dans le catalogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:94
@@ -20654,8 +20653,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Inclure la section 'Genres' dans le catalogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Inclure la section 'Genres' dans le catalogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:101
@@ -20665,8 +20664,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Inclure la section 'Titres' dans le catalogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Inclure la section 'Titres' dans le catalogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:108
@@ -20676,8 +20675,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Inclure la section 'Séries' dans le catalogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Inclure la section 'Séries' dans le catalogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:115
@@ -20687,8 +20686,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Inclure la section 'Ajoutés récemment' dans le catalogue.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Inclure la section 'Ajoutés récemment' dans le catalogue.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:122
@@ -20699,8 +20698,8 @@ msgid ""
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
 "Champ personnalisé contenant une note de texte à insérer dans l'en-tête de "
-"Description.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Description.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:129
@@ -20713,13 +20712,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
-"<custom field> : spécifie [before|after]:[True|False] avec :\\n\n"
+"<custom field> : spécifie [before|after]:[True|False] avec :\n"
 " <custom field> Champ personnalisé contenant des notes à fusionner avec les "
-"Commentaires\\n\n"
-" [before|after] Placement de notes par rapport au Commentaires\\n\n"
+"Commentaires\n"
+" [before|after] Placement de notes par rapport au Commentaires\n"
 " [True|False] - Une règle horizontale est insérée entre les notes et les "
-"Commentaires\\n\n"
-"Par défaut : '%default'\\n\n"
+"Commentaires\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:139
@@ -20735,8 +20734,8 @@ msgstr ""
 "Spécifie le profil de sortie. Dans certains cas, un profil de sortie est "
 "requis pour optimiser le catalogue pour cet appareil. Par exemple, 'kindle' "
 "ou 'kindle_dx' créé une Tables des Matières structurée avec des Sections et "
-"Articles.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Articles.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3,  ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:146
@@ -20764,8 +20763,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Remplace la couverture existante lorsque le catalogue est généré.\\n\n"
-"Par défaut : '%default'\\n\n"
+"Remplace la couverture existante lorsque le catalogue est généré.\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:162
@@ -20777,9 +20776,9 @@ msgid ""
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
 "Indice de taille (en pouces) pour les couvertures de livres dans le "
-"catalogue.\\n\n"
-"Gamme : 1.0 - 2.0\\n\n"
-"Par défaut : '%default'\\n\n"
+"catalogue.\n"
+"Gamme : 1.0 - 2.0\n"
+"Par défaut : '%default'\n"
 "S’applique aux formats de sortie : AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:272
@@ -20797,12 +20796,11 @@ msgstr "Symboles"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:280
 msgid "No genres to catalog.\n"
-msgstr "Pas de genres à cataloguer.\\n\n"
+msgstr "Pas de genres à cataloguer.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:282
 msgid "Check 'Excluded genres' regex in E-book options.\n"
-msgstr ""
-"Vérifier l’expression régulière 'Genres exclus' dans les options E-book.\\n\n"
+msgstr "Vérifier l’expression régulière 'Genres exclus' dans les options E-book.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:284
 msgid "No books available to catalog"
@@ -22939,8 +22937,8 @@ msgstr ""
 "formats qui a un certain moment on été associés avec le livre. Li n'y a "
 "aucune garantie que cette liste est correcte, bien qu'elle le soit "
 "probablement. Cette fonction peut-être appelée en  mode de modèle de "
-"programme en utilisant le modèle \\\"{:'approximate_formats()'}\\\". Notez "
-"que ces noms de formats sont toujours en majuscule, comme dans EPUB."
+"programme en utilisant le modèle \"{:'approximate_formats()'}\". Notez que ces "
+"noms de formats sont toujours en majuscule, comme dans EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:620
 msgid ""
@@ -23328,7 +23326,7 @@ msgid ""
 msgstr ""
 "current_library_path() -- retourne le chemin de la bibliothèque calibre "
 "avctuelle. Cette fonction peut-être appelée en  mode de modèle de programme "
-"en utilisant le modèle \\\"{:'current_library_path()'}\\\"."
+"en utilisant le modèle \"{:'current_library_path()'}\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1200
 msgid ""
