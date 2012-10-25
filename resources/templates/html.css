@@ -236,7 +236,8 @@ th {
 /* inlines */
 
 b, strong {
-  font-weight: bolder;
+  /* ADE doesn't support bolder with embedded fonts */
+  font-weight: bold;
 }
 
 i, cite, em, var, dfn {
