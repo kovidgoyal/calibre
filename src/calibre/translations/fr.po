@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-24 04:12+0000\n"
-"PO-Revision-Date: 2012-10-23 19:31+0000\n"
-"Last-Translator: Franck <Unknown>\n"
+"PO-Revision-Date: 2012-10-24 17:46+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-24 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-10-25 05:18+0000\n"
 "X-Generator: Launchpad (build 16179)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -3849,6 +3849,12 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Inclus la famille de polices spécifiée dans le livre. Ceci précise la police "
+"de \"base\" utilisée pour le livre. Si le document d'entrée spécifie ces "
+"propres polices, elles peuvent primer sur la police de \"base\". Vous pouvez "
+"utilisez l'option de filtre de style pour enlever les polices du document "
+"d'entrée. Notez que l'inclusion de polices fonctionne seulement avec "
+"certains formats de sortie, principalement l'EPUB et l'AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid ""
@@ -8838,7 +8844,7 @@ msgstr "&Taille de la ligne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr ""
+msgstr "Famille de polices inclus&es :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -9270,6 +9276,8 @@ msgstr "Livre libre"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
 msgstr ""
+"Cliquer le bouton Ouvrir ci-dessous pour ouvrir un livre électronique à "
+"utiliser pour les tests."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -13737,7 +13745,7 @@ msgstr "Expression rationnelle (?P<published>) (publié)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Choisir la famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13757,11 +13765,11 @@ msgstr "Aucun"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Choisir une famille de polices dans la liste ci-dessous :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Choisir la %famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -14493,7 +14501,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "Impossible d'ouvrir \"%s\". Est-il utilisé par un autre programme?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -17350,6 +17358,14 @@ msgid ""
 "         By changing the lookup name to a grouped search term you can\n"
 "         search multiple columns at once.</p>"
 msgstr ""
+"<p>Quand vous recherchez des livres similaires en faisant un clic droit sur "
+"le\n"
+"          livre et en sélectionnant \"Livres similaires...\",\n"
+"         calibre construit une recherche utilisant les nom de recherche des "
+"colonnes précisés ci-dessous.\n"
+"         En changeant le nom de recherche en un terme de recherche groupée "
+"vous pouvez\n"
+"         effectuer une recherche dans plusieurs colonnes simultanément.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
@@ -22475,7 +22491,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:284
 msgid "File is open in another process"
-msgstr ""
+msgstr "Le fichier est ouvert dans un autre processus"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -25070,13 +25086,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "A dictionary of options to customize how the data in this column will be "
-#~ "interpreted. This is a JSON  string. For enumeration columns, use --"
-#~ "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
-#~ msgstr ""
-#~ "Un dictionnaire d’options pour personnaliser la manière dont les données "
-#~ "dans cette colonne seront interprétées. Ceci est une chaîne JSON. Pour les "
-#~ "colonnes d’énumération, utiliser --display='{\"enum_values\":[\"val1\", "
-#~ "\"val2\"]}'"

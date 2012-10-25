@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-24 04:12+0000\n"
-"PO-Revision-Date: 2012-10-21 17:37+0000\n"
-"Last-Translator: martin <rockfire@abv.bg>\n"
+"PO-Revision-Date: 2012-10-24 13:23+0000\n"
+"Last-Translator: Nelly Hoang <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-24 04:38+0000\n"
+"X-Launchpad-Export-Date: 2012-10-25 05:15+0000\n"
 "X-Generator: Launchpad (build 16179)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1042,6 +1042,9 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>storage cards</b>. The first one that exists will be used"
 msgstr ""
+"Разделен със запетай лист от директории за изпращане на е-книги до "
+"<b>картите за съхранение</b> на устройството. Първата съществуваща ще бъде "
+"използвана."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:316
 msgid "Communicate with S60 phones."
@@ -1227,11 +1230,11 @@ msgstr "Каталог"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3138
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Комуникира с iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Комуникира с Sanda Bambook eBook четец."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1611,11 +1614,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Kobo поддържа няколко колекции, включващи "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Създай тагове за автоматично управление"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid "Upload covers for books (newer readers)"
@@ -2033,6 +2036,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
+"Списък от полета на метаданните, разделени със запетайки, които да се "
+"превърнат в колекции на устройството. Възможностите включват: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 #, python-format
@@ -2047,7 +2052,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Качи отделни умалени версии на кориците на книгите (по-нови четци)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:78
 msgid ""

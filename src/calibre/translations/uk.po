@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-24 04:12+0000\n"
-"PO-Revision-Date: 2012-10-19 04:58+0000\n"
+"PO-Revision-Date: 2012-10-24 13:07+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-24 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-10-25 05:31+0000\n"
 "X-Generator: Launchpad (build 16179)\n"
 "Language: uk\n"
 
@@ -3782,6 +3782,13 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Вбудувати до електронної книги вказану гарнітуру шрифтів. Таким чином можна "
+"визначити «основний» шрифт, який буде використано у книзі. Якщо у документі "
+"з вхідними даними визначаються власні шрифти, вони матимуть вищий за "
+"основний шрифт пріоритет. Для вилучення шрифтів з вхідних даних ви можете "
+"скористатися пунктом фільтрування даних щодо стилю. Зауважте, що "
+"вбудовування шрифтів працює лише у деяких форматах виведення даних, зокрема "
+"EPUB та AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid ""
@@ -8707,7 +8714,7 @@ msgstr "Розмір &рядка:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr ""
+msgstr "В&будувати гарнітуру шрифтів:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -9139,6 +9146,8 @@ msgstr "Відкрити книгу"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
 msgstr ""
+"Натисніть кнопку «Відкрити», розташовану нижче, щоб відкрити електронну "
+"книгу для тестування."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -13551,7 +13560,7 @@ msgstr "Формальний вираз (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Вибір гарнітури шрифтів"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13571,11 +13580,11 @@ msgstr "Немає"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Виберіть гарнітуру шрифтів з наведеного нижче списку:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Вибрати &гарнітуру шрифтів"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -14301,7 +14310,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "Не вдалося відкрити «%s». Можливо, з ним працює інша програма?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -21167,6 +21176,23 @@ msgid ""
 "that a new OPF has been createdsince the column was added). You will see the "
 "JSON for the\"display\" for the new column in the OPF."
 msgstr ""
+"Набір параметрів для налаштовування обробки даних у цьому стовпчику. Має "
+"бути рядком JSON. Для стовпчиків нумерації скористайтеся --display=\"{\\"
+"\"enum_values\\\":[\\\"значення1\\\", \\\"значення2\\\"]}\"\n"
+"Передбачено багато варіантів передавання значень показаній змінній. Серед "
+"варіантів за типами стовпчиків:\n"
+"мішаний тип: composite_template, composite_sort, "
+"make_category,contains_html, use_decorations\n"
+"дата і час: date_format\n"
+"нумерація: enum_values, enum_colors, use_decorations\n"
+"ціле, десятковий дріб: number_format\n"
+"текст: is_names, use_decorations\n"
+"\n"
+"Найкращим способом визначення відповідних комбінацій є створення нетипового "
+"стовпчика відповідного типу за допомогою графічного інтерфейсу з наступним "
+"вивченням резервної копії OPF книги (переконайтеся, що новий OPF було "
+"створено після додавання стовпчика). У такому OPF можна знайти JSON для "
+"показу (\"display\") нового стовпчика."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:721
 msgid "You must specify label, name and datatype"
@@ -22238,7 +22264,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:284
 msgid "File is open in another process"
-msgstr ""
+msgstr "Файл відкрито іншим процесом"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -24904,12 +24930,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid ""
-#~ "A dictionary of options to customize how the data in this column will be "
-#~ "interpreted. This is a JSON  string. For enumeration columns, use --"
-#~ "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
-#~ msgstr ""
-#~ "Словник параметрів для налаштування способу, у який дані цього стовпчика "
-#~ "оброблятимуться. Це рядок JSON. Для рядків нумерації скористайтеся виразом "
-#~ "display='{\"enum_values\":[\"значення1\", \"значення2\"]}'"

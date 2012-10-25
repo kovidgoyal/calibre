@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-24 04:12+0000\n"
-"PO-Revision-Date: 2012-10-23 19:28+0000\n"
-"Last-Translator: Patrick <Unknown>\n"
+"PO-Revision-Date: 2012-10-24 18:19+0000\n"
+"Last-Translator: Bart Bone <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-24 04:39+0000\n"
+"X-Launchpad-Export-Date: 2012-10-25 05:17+0000\n"
 "X-Generator: Launchpad (build 16179)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -74,7 +74,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:523
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Stel metagegevens van %s-bestanden in"
+msgstr "Stel metagegevens van %s bestanden in"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1211,6 +1211,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>Kan niet communiceren met iTunes.</p><p>Lees <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"dit forum item</a> (Engelstalig) voor meer informatie.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:381
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:384
@@ -1625,7 +1628,7 @@ msgstr "<b>Locatie %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Communiceer met de Kindle 2/3/4/Touch/PaperWhite e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1987,7 +1990,7 @@ msgstr "Communiceer met de Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Communiceer met de WayteQ e-reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -3946,6 +3949,8 @@ msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
 msgstr ""
+"Een XPath uitdrukking. Pagina splitsing wordt toegevoegd voor de aangegeven "
+"elementen. Om uit te schakelen gebruikt u de uitdrukking: /"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:355
 msgid ""
@@ -6325,7 +6330,7 @@ msgstr "Inhoudsserver starten/stoppen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, poort %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -8676,7 +8681,7 @@ msgstr "Rege&l grootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr ""
+msgstr "&Ingesloten lettertype familie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -9054,6 +9059,10 @@ msgid ""
 "the output profile to the default output profile. Otherwise the output "
 "profile will override these settings."
 msgstr ""
+"<b>NB:</b> De onderstaande papierformaat instellingen zijn enkel van "
+"toepassing als u een uitvoerprofiel heeft ingesteld bij standaard "
+"uitvoerprofiel. Anders zal de het uitvoerprofiel uw instellingen "
+"overschrijven."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -9103,6 +9112,7 @@ msgstr "Open boek"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
 msgstr ""
+"Klik op de onderstaande Open knop om een eboek te kiezen voor het testen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -10086,6 +10096,8 @@ msgid ""
 "<b>Save &template</b> to control the filename and\n"
 "        location of files sent to the device:"
 msgstr ""
+"<b>&Sjabloon opslaan</b> om de bestandsnaam en locatie in te\n"
+"        stellen voor bestanden die zijn verzonden naar het apparaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
@@ -10103,6 +10115,8 @@ msgid ""
 "A <b>list of &folders</b> on the device to\n"
 "        which to send ebooks. The first one that exists will be used:"
 msgstr ""
+"Een <b>lijst met &mappen</b> op het apparaat waar de E-boeken\n"
+"        moeten worden geplaatst. De eerste aanwezige map wordt gebruikt:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
@@ -10114,6 +10128,8 @@ msgid ""
 "Select the devices to be <b>ignored</b>. calibre <b>will not</b>\n"
 "            connect to devices with a checkmark next to their names."
 msgstr ""
+"Selecteer de apparaten om te <b>negeren</b>. calibre <b>zal geen</b>\n"
+"            verbinding maken met een apparaat dat hier is aangevinkt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
@@ -10139,6 +10155,10 @@ msgid ""
 "over\n"
 "            the folders specified above."
 msgstr ""
+"U kan regels aanmaken welke aangeven waar E-boeken met van een specifiek\n"
+"            formaat moeten worden geplaatst op het apparaat. Deze regels "
+"hebben voorrang\n"
+"            op de eerder aangegeven mappen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
@@ -13464,7 +13484,7 @@ msgstr "Regexp (?<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Kies lettertype familie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13484,11 +13504,11 @@ msgstr "Geen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Kies een lettertype familie uit onderstaande lijst:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Kies &lettertype familie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -14201,7 +14221,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "Kon \"%s\" niet openen. Wordt het door een ander programma gebruikt?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -15162,6 +15182,10 @@ msgid ""
 "eng for English. You can also use the full language name, in which case "
 "calibre will try to automatically convert it to the language code."
 msgstr ""
+"Voer een 3 letter ISO taalcode in, bijvoorbeeld fra voor Frans, deu voor "
+"Duits, dut voor Nederlands  of eng voor Engels. U kan ook de volledige taal "
+"naam gebruiken. In het laatste geval zal calibre proberen dit zelf te "
+"vertalen naar een taalcode."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:225
 msgid "Enter a number"
@@ -15906,6 +15930,8 @@ msgid ""
 "The list of devices that you have asked calibre to ignore. Uncheck a device "
 "to have calibre stop ignoring it."
 msgstr ""
+"De lijst met apparaten waarvan u heeft aangegeven dat calibre ze moet "
+"negeren. Haal het vinkje weg als u een apparaat toch wilt detecteren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -16621,6 +16647,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"Deze plugin is uitgeschakeld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -19362,7 +19391,7 @@ msgstr "Kan e-book niet openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Unknown error"
-msgstr ""
+msgstr "Onbekende fout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
 msgid "Options to control the ebook viewer"
@@ -20176,6 +20205,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Voeg 'Auteurs' sectie to aan catalogus.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:87
 #, python-format
@@ -20184,6 +20216,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Voeg 'Beschrijvingen' sectie to aan catalogus.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:94
 #, python-format
@@ -20192,6 +20227,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Voeg 'Genres' sectie to aan catalogus.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:101
 #, python-format
@@ -20200,6 +20238,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Voeg 'Titels' sectie to aan catalogus.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:108
 #, python-format
@@ -20208,6 +20249,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Voeg 'Series' sectie to aan catalogus.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:115
 #, python-format
@@ -20216,6 +20260,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Voeg 'Onlangs toegevoegd' sectie to aan catalogus.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:122
 #, python-format
@@ -20279,6 +20326,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Formaat tip (in inches) voor boek omslag in catalogus.\n"
+"Bereik: 1.0 - 2.0\n"
+"Standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:272
 msgid ""
@@ -21941,7 +21992,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:284
 msgid "File is open in another process"
-msgstr ""
+msgstr "Bestand is open in een ander proces."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -22738,6 +22789,9 @@ msgid ""
 "This function can be called in template program mode using the template "
 "\"{:'current_library_path()'}\"."
 msgstr ""
+"current_library_path() -- geef het pad naar de huidige calibre bibliotheek "
+"terug. Deze functie kan worden aangeroepen in sjabloon-programma-modus door "
+"het sjabloon \"{:'current_library_path()'}\" te gebruiken."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1200
 msgid ""
@@ -24398,12 +24452,12 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid ""
-#~ "A dictionary of options to customize how the data in this column will be "
-#~ "interpreted. This is a JSON  string. For enumeration columns, use --"
-#~ "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
-#~ msgstr ""
-#~ "Een woordenboek met opties om data in deze kolom te interpreteren. Dit is "
-#~ "een JSON string. Voor genummerde kolommen gebruikt u --"
-#~ "display='{\"enum_values\":[\"waarde1\", \"waarde2\"]}'"
+"Dit betekend dat u wijzigingen kan maken en op Enter kan drukken zonder dat "
+"uw wijzigingen\n"
+"worden overschreven door een overeenkomstige auto-aanvulling. Echter, als u "
+"de auto-aanvullingen\n"
+"wilt gebruiken zult u nu eerst Tab moeten drukken om de aanvulling te "
+"selecteren voor u\n"
+"Enter drukt. Welke techniek uw voorkeur heeft zal afhankelijk zijn van de "
+"metadata in uw\n"
+"bibliotheek en uw persoonlijke manier van werken."

@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-10-24 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-10-25 05:33+0000\n"
 "X-Generator: Launchpad (build 16179)\n"
 "Language: zh_TW\n"
 
