@@ -45,7 +45,7 @@ class FamilyMap(dict):
         import cssutils
         cssutils.log.setLevel(logging.ERROR)
         try:
-            sheet = cssutils.parseString(css)
+            sheet = cssutils.parseString(css, validate=False)
         except:
             return
         for rule in sheet.cssRules:
