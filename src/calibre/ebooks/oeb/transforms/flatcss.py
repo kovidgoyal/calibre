@@ -103,6 +103,22 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
     else:
         return NullMapper()
 
+class EmbedFontsCSSRules(object):
+
+    def __init__(self, body_font_family, rules):
+        self.body_font_family, self.rules = body_font_family, rules
+        self.href = None
+
+    def __call__(self, oeb):
+        if not self.body_font_family: return None
+        if not self.href:
+            iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
+            rules = [x.cssText for x in self.rules]
+            rules = u'\n\n'.join(rules)
+            sheet = cssutils.parseString(rules, validate=False)
+            self.href = oeb.manifest.add(iid, href, guess_type(href)[0],
+                    data=sheet).href
+        return self.href
 
 class CSSFlattener(object):
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
@@ -148,6 +164,10 @@ class CSSFlattener(object):
 
         self.body_font_family, self.embed_font_rules = self.get_embed_font_info(
                 self.opts.embed_font_family)
+        # Store for use in output plugins/transforms that generate content,
+        # like the AZW3 output inline ToC.
+        self.oeb.store_embed_font_rules = EmbedFontsCSSRules(self.body_font_family,
+                self.embed_font_rules)
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
