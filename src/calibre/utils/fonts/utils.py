@@ -38,8 +38,8 @@ def get_table(raw, name):
 
 def get_font_characteristics(raw):
     '''
-    Return (weight, is_italic, is_bold, is_regular, fs_type). These values are taken
-    from the OS/2 table of the font. See
+    Return (weight, is_italic, is_bold, is_regular, fs_type, panose). These
+    values are taken from the OS/2 table of the font. See
     http://www.microsoft.com/typography/otspec/os2.htm for details
     '''
     os2_table = get_table(raw, 'os/2')[0]
@@ -54,7 +54,6 @@ def get_font_characteristics(raw):
             family_class) = struct.unpack_from(common_fields, os2_table)
     offset = struct.calcsize(common_fields)
     panose = struct.unpack_from(b'>10B', os2_table, offset)
-    panose
     offset += 10
     (range1,) = struct.unpack_from(b'>L', os2_table, offset)
     offset += struct.calcsize(b'>L')
@@ -69,7 +68,21 @@ def get_font_characteristics(raw):
     is_italic = (selection & 0b1) != 0
     is_bold = (selection & 0b100000) != 0
     is_regular = (selection & 0b1000000) != 0
-    return weight, is_italic, is_bold, is_regular, fs_type
+    return weight, is_italic, is_bold, is_regular, fs_type, panose
+
+def panose_to_css_generic_family(panose):
+    proportion = panose[3]
+    if proportion == 9:
+        return 'monospace'
+    family_type = panose[0]
+    if family_type == 3:
+        return 'cursive'
+    if family_type == 4:
+        return 'fantasy'
+    serif_style = panose[1]
+    if serif_style in (11, 12, 13):
+        return 'sans-serif'
+    return 'serif'
 
 def decode_name_record(recs):
     '''
@@ -225,13 +238,33 @@ def remove_embed_restriction(raw):
     verify_checksums(raw)
     return raw
 
+def get_font_for_text(text, candidate_font_data=None):
+    ok = False
+    if candidate_font_data is not None:
+        from calibre.utils.fonts.free_type import FreeType, FreeTypeError
+        ft = FreeType()
+        try:
+            font = ft.load_font(candidate_font_data)
+            ok = font.supports_text(text)
+        except FreeTypeError:
+            ok = True
+    if not ok:
+        from calibre.utils.fonts import fontconfig
+        family, faces = fontconfig.find_font_for_text(text)
+        if family is not None:
+            f = faces.get('bold', faces['normal'])
+            candidate_font_data = f[2]
+    return candidate_font_data
+
 def test():
     import sys, os
     for f in sys.argv[1:]:
         print (os.path.basename(f))
         raw = open(f, 'rb').read()
         print (get_font_names(raw))
-        print (get_font_characteristics(raw))
+        characs = get_font_characteristics(raw)
+        print (characs)
+        print (panose_to_css_generic_family(characs[5]))
         verify_checksums(raw)
         remove_embed_restriction(raw)
 

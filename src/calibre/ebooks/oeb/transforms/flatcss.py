@@ -14,9 +14,11 @@ from lxml import etree
 import cssutils
 from cssutils.css import Property
 
+from calibre import guess_type
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.utils.filenames import ascii_filename
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -101,6 +103,22 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
     else:
         return NullMapper()
 
+class EmbedFontsCSSRules(object):
+
+    def __init__(self, body_font_family, rules):
+        self.body_font_family, self.rules = body_font_family, rules
+        self.href = None
+
+    def __call__(self, oeb):
+        if not self.body_font_family: return None
+        if not self.href:
+            iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
+            rules = [x.cssText for x in self.rules]
+            rules = u'\n\n'.join(rules)
+            sheet = cssutils.parseString(rules, validate=False)
+            self.href = oeb.manifest.add(iid, href, guess_type(href)[0],
+                    data=sheet).href
+        return self.href
 
 class CSSFlattener(object):
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
@@ -144,10 +162,64 @@ class CSSFlattener(object):
                 cssutils.replaceUrls(item.data, item.abshref,
                         ignoreImportRules=True)
 
+        self.body_font_family, self.embed_font_rules = self.get_embed_font_info(
+                self.opts.embed_font_family)
+        # Store for use in output plugins/transforms that generate content,
+        # like the AZW3 output inline ToC.
+        self.oeb.store_embed_font_rules = EmbedFontsCSSRules(self.body_font_family,
+                self.embed_font_rules)
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
         self.flatten_spine()
+
+    def get_embed_font_info(self, family, failure_critical=True):
+        efi = []
+        body_font_family = None
+        if not family:
+            return body_font_family, efi
+        from calibre.utils.fonts import fontconfig
+        from calibre.utils.fonts.utils import (get_font_characteristics,
+                panose_to_css_generic_family, get_font_names)
+        faces = fontconfig.fonts_for_family(family)
+        if not faces or not u'normal' in faces:
+            msg = (u'No embeddable fonts found for family: %r'%self.opts.embed_font_family)
+            if failure_critical:
+                raise ValueError(msg)
+            self.oeb.log.warn(msg)
+            return body_font_family, efi
+
+        for k, v in faces.iteritems():
+            ext, data = v[0::2]
+            weight, is_italic, is_bold, is_regular, fs_type, panose = \
+                get_font_characteristics(data)
+            generic_family = panose_to_css_generic_family(panose)
+            family_name, subfamily_name, full_name = get_font_names(data)
+            if k == u'normal':
+                body_font_family = u"'%s',%s"%(family_name, generic_family)
+                if family_name.lower() != family.lower():
+                    self.oeb.log.warn(u'Failed to find an exact match for font:'
+                            u' %r, using %r instead'%(family, family_name))
+                else:
+                    self.oeb.log(u'Embedding font: %s'%family_name)
+            font = {u'font-family':u'"%s"'%family_name}
+            if is_italic:
+                font[u'font-style'] = u'italic'
+            if is_bold:
+                font[u'font-weight'] = u'bold'
+            fid, href = self.oeb.manifest.generate(id=u'font',
+                href=u'%s.%s'%(ascii_filename(full_name).replace(u' ', u'-'), ext))
+            item = self.oeb.manifest.add(fid, href,
+                    guess_type(full_name+'.'+ext)[0],
+                    data=data)
+            item.unload_data_from_memory()
+            font[u'src'] = u'url(%s)'%item.href
+            rule = '@font-face { %s }'%('; '.join(u'%s:%s'%(k, v) for k, v in
+                font.iteritems()))
+            rule = cssutils.parseString(rule)
+            efi.append(rule)
+
+        return body_font_family, efi
 
     def stylize_spine(self):
         self.stylizers = {}
@@ -170,6 +242,8 @@ class CSSFlattener(object):
                 bs.extend(['page-break-before: always'])
             if self.context.change_justification != 'original':
                 bs.append('text-align: '+ self.context.change_justification)
+            if self.body_font_family:
+                bs.append(u'font-family: '+self.body_font_family)
             body.set('style', '; '.join(bs))
             stylizer = Stylizer(html, item.href, self.oeb, self.context, profile,
                     user_css=self.context.extra_css,
@@ -450,7 +524,8 @@ class CSSFlattener(object):
             items.sort()
             css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
             css = ('@page {\n%s\n}\n'%css) if items else ''
-            rules = [r.cssText for r in stylizer.font_face_rules]
+            rules = [r.cssText for r in stylizer.font_face_rules +
+                    self.embed_font_rules]
             raw = '\n\n'.join(rules)
             css += '\n\n' + raw
             global_css[css].append(item)

@@ -51,7 +51,7 @@ def delete_tree(path, permanent=False):
         try:
             # For completely mysterious reasons, sometimes a file is left open
             # leading to access errors. If we get an exception, wait and hope
-            # that whatever has the file (the O/S?) lets go of it.
+            # that whatever has the file (Antivirus, DropBox?) lets go of it.
             shutil.rmtree(path)
         except:
             import traceback

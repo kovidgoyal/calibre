@@ -17,6 +17,7 @@ class NYPost(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf8'
     use_embedded_content  = False
+    auto_cleanup = True
     language              = 'en'
     masthead_url          = 'http://www.nypost.com/rw/SysConfig/WebPortal/nypost/images/nyp_logo_230x32.gif'
     extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
@@ -28,7 +29,7 @@ class NYPost(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags=[dict(name='div', attrs={'id':'story'})]
+    #keep_only_tags=[dict(name='div', attrs={'id':'story'})]
 
     feeds = [(u'Articles', u'http://www.nypost.com/rss/all_section.xml')]
 

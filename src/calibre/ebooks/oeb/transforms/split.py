@@ -13,7 +13,7 @@ import os, math, functools, collections, re, copy
 
 from lxml.etree import XPath as _XPath
 from lxml import etree
-from lxml.cssselect import CSSSelector
+from cssselect import HTMLTranslator
 
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
         urldefrag, rewrite_links, urlunquote, barename, XHTML, urlnormalize)
@@ -73,6 +73,8 @@ class Split(object):
 
     def find_page_breaks(self, item):
         if self.page_break_selectors is None:
+            from calibre.ebooks.oeb.stylizer import fix_namespace
+            css_to_xpath = HTMLTranslator().css_to_xpath
             self.page_break_selectors = set([])
             stylesheets = [x.data for x in self.oeb.manifest if x.media_type in
                     OEB_STYLES]
@@ -83,7 +85,7 @@ class Split(object):
                     'page-break-after'), 'cssText', '').strip().lower()
                 try:
                     if before and before not in {'avoid', 'auto', 'inherit'}:
-                        self.page_break_selectors.add((CSSSelector(rule.selectorText),
+                        self.page_break_selectors.add((XPath(fix_namespace(css_to_xpath(rule.selectorText))),
                             True))
                         if self.remove_css_pagebreaks:
                             rule.style.removeProperty('page-break-before')
@@ -91,7 +93,7 @@ class Split(object):
                     pass
                 try:
                     if after and after not in {'avoid', 'auto', 'inherit'}:
-                        self.page_break_selectors.add((CSSSelector(rule.selectorText),
+                        self.page_break_selectors.add((XPath(fix_namespace(css_to_xpath(rule.selectorText))),
                             False))
                         if self.remove_css_pagebreaks:
                             rule.style.removeProperty('page-break-after')

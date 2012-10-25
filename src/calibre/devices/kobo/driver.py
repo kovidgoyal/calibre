@@ -33,11 +33,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 1)
+    version = (2, 0, 2)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 62
+    supported_dbversion = 65
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -217,7 +217,7 @@ class KOBO(USBMS):
                                 # print 'update_metadata_item returned true'
                                 changed = True
                         else:
-                             debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
+                            debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
                             bl[idx].device_collections = playlist_map.get(lpath,[])
@@ -841,8 +841,16 @@ class KOBO(USBMS):
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)
 
+
+    def get_collections_attributes(self):
+        collections = []
+        opts = self.settings()
+        if opts.extra_customization and len(opts.extra_customization[self.OPT_COLLECTIONS]) > 0:
+            collections = [x.lower().strip() for x in opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        return collections
+
     def sync_booklists(self, booklists, end_session=True):
-#        debug_print('KOBO: started sync_booklists')
+        debug_print('KOBO: started sync_booklists')
         paths = self.get_device_paths()
 
         blists = {}
@@ -853,12 +861,7 @@ class KOBO(USBMS):
                     blists[i] = booklists[i]
             except IndexError:
                 pass
-        opts = self.settings()
-        if opts.extra_customization:
-            collections = [x.lower().strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
-        else:
-            collections = []
+        collections = self.get_collections_attributes()
 
         #debug_print('KOBO: collection fields:', collections)
         for i, blist in blists.items():
@@ -869,7 +872,7 @@ class KOBO(USBMS):
             self.update_device_database_collections(blist, collections, oncard)
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
-        #debug_print('KOBO: finished sync_booklists')
+        debug_print('KOBO: finished sync_booklists')
 
     def rebuild_collections(self, booklist, oncard):
         collections_attributes = []
@@ -1196,7 +1199,7 @@ class KOBOTOUCH(KOBO):
     author = 'David Forrester'
     description = 'Communicate with the Kobo Touch, Glo and Mini firmware. Based on the existing Kobo driver by %s.' % (KOBO.author)
 
-    supported_dbversion = 62
+    supported_dbversion = 65
     min_supported_dbversion = 53
 
     booklist_class = KTCollectionsBookList
@@ -1282,13 +1285,21 @@ class KOBOTOUCH(KOBO):
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion,
     COVER_FILE_ENDINGS = {
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],
-#                          ' - N3_LIBRARY_FULL.parsed':[(600,800),0, 99,],
-                          ' - N3_LIBRARY_GRID.parsed':[(149,233),0, 99,],
-                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 99,],
-                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
-                          ' - N3_FULL.parsed':[(600,800),0, 52,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 99,],   # Used for Details screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,],   # Used for library lists
+                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
+#                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
+                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver, home screen 
                           }
+    #Following are the sizes used with pre2.1.4 firmware
+#    COVER_FILE_ENDINGS = {
+#                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
+##                          ' - N3_LIBRARY_FULL.parsed':[(600,800),0, 99,],
+#                          ' - N3_LIBRARY_GRID.parsed':[(149,233),0, 99,],   # Used for library lists
+#                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
+#                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
+#                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked. 
+#                          }
 
     def initialize(self):
         super(KOBOTOUCH, self).initialize()
@@ -1419,6 +1430,7 @@ class KOBOTOUCH(KOBO):
                         debug_print('KoboTouch:update_booklist - bookshelves=', bookshelves)
                         debug_print('KoboTouch:update_booklist - series="%s"' % bl[idx].series)
                         debug_print('KoboTouch:update_booklist - the book=', bl[idx])
+                        debug_print('KoboTouch:update_booklist - the authors=', bl[idx].authors)
                         debug_print('KoboTouch:update_booklist - application_id=', bl[idx].application_id)
                     bl_cache[lpath] = None
                     if bl[idx].title_sort is not None:
@@ -1435,19 +1447,15 @@ class KOBOTOUCH(KOBO):
                         else:
                             debug_print("    Strange:  The file: ", prefix, lpath, " does not exist!")
                             debug_print("KoboTouch:update_booklist - book size=", bl[idx].size)
-#                    if lpath in playlist_map and \
-#                        playlist_map[lpath] not in bl[idx].device_collections:
-#                            bl[idx].device_collections = playlist_map.get(lpath,[])
-#                            changed = True
-
 
                     if show_debug:
                         debug_print("KoboTouch:update_booklist - ContentID='%s'"%ContentID)
                     bl[idx].contentID = ContentID
 
                     if lpath in playlist_map:
-                        bl[idx].device_collections = playlist_map.get(lpath,[])
+                        bl[idx].device_collections  = playlist_map.get(lpath,[])
                         changed = True
+                    bl[idx].current_shelves = bookshelves
 
                     if show_debug:
                         debug_print('KoboTouch:update_booklist - updated bl[idx].device_collections=', bl[idx].device_collections)
@@ -1478,11 +1486,14 @@ class KOBOTOUCH(KOBO):
                         debug_print('KoboTouch:update_booklist - class:', book.__class__)
 #                        debug_print('    resolution:', book.__class__.__mro__)
                         debug_print("    contentid:'%s'"%book.contentID)
-                        debug_print(book)
+                        debug_print("    title:'%s'"%book.title)
+                        debug_print("    the book:", book)
                         debug_print("    author_sort:'%s'"%book.author_sort)
+                        debug_print("    bookshelves:", bookshelves)
 
                     # print 'Update booklist'
-                    book.device_collections = playlist_map.get(lpath,[])# if lpath in playlist_map else []
+                    book.device_collections  = playlist_map.get(lpath,[])# if lpath in playlist_map else []
+                    book.current_shelves = bookshelves
                     book.contentID = ContentID
 #                    debug_print('KoboTouch:update_booklist - title=', title, 'book.device_collections', book.device_collections)
 
@@ -1521,15 +1532,15 @@ class KOBOTOUCH(KOBO):
             # return bytestrings if the content cannot the decoded as unicode
             connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-            self.bookshelvelist = self.get_bookshelflist(connection)
-
             cursor = connection.cursor()
 
             cursor.execute('select version from dbversion')
             result = cursor.fetchone()
             self.dbversion = result[0]
-
             debug_print("Database Version=%d"%self.dbversion)
+
+            self.bookshelvelist = self.get_bookshelflist(connection)
+            debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
 
             opts = self.settings()
             if self.dbversion >= 33:
@@ -1618,14 +1629,15 @@ class KOBOTOUCH(KOBO):
 
         #print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
         #      (len(bl_cache), len(bl), need_sync)
+        # Bypassing the KOBO sync_booklists as that does things we don't need to do
         if need_sync: #self.count_found_in_bl != len(bl) or need_sync:
             debug_print("KoboTouch:books - about to sync_booklists")
             if oncard == 'cardb':
-                self.sync_booklists((None, None, bl))
+                USBMS.sync_booklists(self, (None, None, bl))
             elif oncard == 'carda':
-                self.sync_booklists((None, bl, None))
+                USBMS.sync_booklists(self, (None, bl, None))
             else:
-                self.sync_booklists((bl, None, None))
+                USBMS.sync_booklists(self, (bl, None, None))
 
         self.report_progress(1.0, _('Getting list of books on device...'))
         debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
@@ -1944,6 +1956,7 @@ class KOBOTOUCH(KOBO):
             if self.supports_bookshelves():
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves.")
                 if bookshelf_attribute:
+                    debug_print("KoboTouch:update_device_database_collections - bookshelf_attribute=", bookshelf_attribute)
                     for book in booklists:
                         if book.application_id is not None:
 #                            debug_print("KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s" % book.title)
@@ -1958,11 +1971,7 @@ class KOBOTOUCH(KOBO):
 
     def rebuild_collections(self, booklist, oncard):
         debug_print("KoboTouch:rebuild_collections")
-        collections_attributes = []
-        opts = self.settings()
-        if opts.extra_customization:
-            collections_attributes = [x.strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        collections_attributes = self.get_collections_attributes()
 
         debug_print('KoboTouch:rebuild_collections: collection fields:', collections_attributes)
         self.update_device_database_collections(booklist, collections_attributes, oncard)
@@ -2087,11 +2096,17 @@ class KOBOTOUCH(KOBO):
     def remove_book_from_device_bookshelves(self, connection, book):
         show_debug = self.is_debugging_title(book.title)# or True
 
+        remove_shelf_list = set(book.current_shelves) - set(book.device_collections)# - set(["Im_Reading", "Read", "Closed"])
+
         if show_debug:
-            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.in_library="%s"'%book.application_id)
+            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.application_id="%s"'%book.application_id)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.contentID="%s"'%book.contentID)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.device_collections=', book.device_collections)
-
+            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.current_shelves=', book.current_shelves)
+            debug_print('KoboTouch:remove_book_from_device_bookshelves - remove_shelf_list=', remove_shelf_list)
+        
+        if len(remove_shelf_list) == 0:
+            return
 
         query = 'DELETE FROM ShelfContent WHERE ContentId = ?'
 
@@ -2148,14 +2163,14 @@ class KOBOTOUCH(KOBO):
         if not self.supports_bookshelves():
             return bookshelves
 
-        query = 'SELECT Name FROM Shelf'
+        query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
 
         cursor = connection.cursor()
         cursor.execute(query)
-        # count_bookshelves = 0
+#        count_bookshelves = 0
         for i, row in enumerate(cursor):
             bookshelves.append(row[0])
-            # count_bookshelves = i + 1
+#            count_bookshelves = i + 1
 
         cursor.close()
 #        debug_print("KoboTouch:get_bookshelflist - count bookshelves=" + unicode(count_bookshelves))
@@ -2225,6 +2240,7 @@ class KOBOTOUCH(KOBO):
         connection.commit()
         cursor.close()
 
+        # Update the bookshelf list.
         self.bookshelvelist = self.get_bookshelflist(connection)
 
 #        debug_print("KoboTouch:set_bookshelf - end")

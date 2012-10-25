@@ -1368,6 +1368,8 @@ class DeviceBooksModel(BooksModel): # {{{
                 return QVariant(authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size
+                if not isinstance(size, (float, int)):
+                    size = 0
                 return QVariant(human_readable(size))
             elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime

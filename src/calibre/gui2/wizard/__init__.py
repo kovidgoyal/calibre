@@ -85,7 +85,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle Paperwhite/Touch/1-4'
+    name = 'Kindle Touch/1-4'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -117,6 +117,11 @@ class KindleFire(KindleDX):
     id = 'kindle_fire'
     output_profile = 'kindle_fire'
     supports_color = True
+
+class KindlePW(Kindle):
+    name = 'Kindle PaperWhite'
+    id = 'kindle_pw'
+    output_profile = 'kindle_pw'
 
 class Sony505(Device):
 
@@ -550,7 +555,7 @@ class DevicePage(QWizardPage, DeviceUI):
     def nextId(self):
         idx = list(self.device_view.selectionModel().selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.UserRole)
-        if dev in (Kindle, KindleDX):
+        if dev in (Kindle, KindleDX, KindleFire, KindlePW):
             return KindlePage.ID
         if dev is iPhone:
             return StanzaPage.ID

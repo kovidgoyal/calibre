@@ -8,6 +8,8 @@ let g:syntastic_cpp_include_dirs = [
             \'/usr/include/qt4/QtCore', 
             \'/usr/include/qt4/QtGui', 
             \'/usr/include/qt4',
+            \'/usr/include/freetype2',
+            \'/usr/include/fontconfig',
             \'src/qtcurve/common', 'src/qtcurve',
             \'/usr/include/ImageMagick',
             \]

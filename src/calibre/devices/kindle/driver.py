@@ -285,8 +285,8 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2/3/4/Touch Device Interface'
-    description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
+    name           = 'Kindle 2/3/4/Touch/PaperWhite Device Interface'
+    description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader.')
 
     FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
@@ -327,7 +327,9 @@ class KINDLE2(KINDLE):
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
     OPT_APNX_CUST_COL  = 2
-    THUMBNAIL_HEIGHT = 180
+    # x330 on the PaperWhite
+    THUMBNAIL_HEIGHT = 330
+    # x262 on the Touch. Doesn't choke on x330, though.
 
     def formats_to_scan_for(self):
         ans = USBMS.formats_to_scan_for(self) | {'azw3'}

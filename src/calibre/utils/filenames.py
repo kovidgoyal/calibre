@@ -3,7 +3,7 @@ Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
 '''
 
-import os
+import os, errno
 from math import ceil
 
 from calibre import sanitize_file_name, isbytestring, force_unicode
@@ -249,4 +249,87 @@ def samefile(src, dst):
             os.path.normcase(os.path.abspath(dst)))
     return samestring
 
+class WindowsAtomicFolderMove(object):
+
+    '''
+    Move all the files inside a specified folder in an atomic fashion,
+    preventing any other process from locking a file while the operation is
+    incomplete. Raises an IOError if another process has locked a file before
+    the operation starts. Note that this only operates on the files in the
+    folder, not any sub-folders.
+    '''
+
+    def __init__(self, path):
+        self.handle_map = {}
+
+        import win32file, winerror
+        from pywintypes import error
+
+        if isbytestring(path): path = path.decode(filesystem_encoding)
+
+        if not os.path.exists(path):
+            return
+
+        for x in os.listdir(path):
+            f = os.path.normcase(os.path.abspath(os.path.join(path, x)))
+            if not os.path.isfile(f): continue
+            try:
+                h = win32file.CreateFile(f, win32file.GENERIC_READ,
+                        win32file.FILE_SHARE_DELETE, None,
+                        win32file.OPEN_EXISTING, win32file.FILE_FLAG_SEQUENTIAL_SCAN, 0)
+            except error as e:
+                self.close_handles()
+                if getattr(e, 'winerror', 0) == winerror.ERROR_SHARING_VIOLATION:
+                    err = IOError(errno.EACCES,
+                            _('File is open in another process'))
+                    err.filename = f
+                    raise err
+                raise
+            except:
+                self.close_handles()
+                raise
+            self.handle_map[f] = h
+
+    def copy_path_to(self, path, dest):
+        import win32file
+        handle = None
+        for p, h in self.handle_map.iteritems():
+            if samefile_windows(path, p):
+                handle = h
+                break
+        if handle is None:
+            raise ValueError(u'The file %r did not exist when this move'
+                    ' operation was started'%path)
+        try:
+            win32file.CreateHardLink(dest, path)
+            return
+        except:
+            pass
+        with lopen(dest, 'wb') as f:
+            while True:
+                hr, raw = win32file.ReadFile(handle, 1024*1024)
+                if hr != 0:
+                    raise IOError(hr, u'Error while reading from %r'%path)
+                if not raw:
+                    break
+                f.write(raw)
+
+    def close_handles(self):
+        import win32file
+        for h in self.handle_map.itervalues():
+            win32file.CloseHandle(h)
+        self.handle_map = {}
+
+    def delete_originals(self):
+        import win32file
+        for path in self.handle_map.iterkeys():
+            win32file.DeleteFile(path)
+        self.close_handles()
+
+def hardlink_file(src, dest):
+    if iswindows:
+        import win32file
+        win32file.CreateHardLink(dest, src)
+        return
+    os.link(src, dest)
 

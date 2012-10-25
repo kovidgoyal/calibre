@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, tempfile, os, time
+import subprocess, tempfile, os, time, socket
 
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
@@ -62,7 +62,10 @@ class Push(Command):
                 r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre':'winxp',
                 'kovid@ox:calibre':None,
                 r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
+                'kovid@getafix:calibre-src':None,
                 }.iteritems():
+            if '@getafix:' in host and socket.gethostname() == 'getafix':
+                continue
             if vmname is None or is_vm_running(vmname):
                 rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
                 print '\n\nPushing to:', vmname or host, '\n'

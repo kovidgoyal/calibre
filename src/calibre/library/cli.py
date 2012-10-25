@@ -692,7 +692,22 @@ datatype is one of: {0}
             help=_('A dictionary of options to customize how '
                 'the data in this column will be interpreted. This is a JSON '
                 ' string. For enumeration columns, use '
-                '--display=\'{"enum_values":["val1", "val2"]}\''))
+                '--display="{\\"enum_values\\":[\\"val1\\", \\"val2\\"]}"'
+                '\n'
+                'There are many options that can go into the display variable.'
+                'The options by column type are:\n'
+                'composite: composite_template, composite_sort, make_category,'
+                'contains_html, use_decorations\n'
+                'datetime: date_format\n'
+                'enumeration: enum_values, enum_colors, use_decorations\n'
+                'int, float: number_format\n'
+                'text: is_names, use_decorations\n'
+                '\n'
+                'The best way to find legal combinations is to create a custom'
+                'column of the appropriate type in the GUI then look at the'
+                'backup OPF for a book (ensure that a new OPF has been created'
+                'since the column was added). You will see the JSON for the'
+                '"display" for the new column in the OPF.'))
     return parser
 
 

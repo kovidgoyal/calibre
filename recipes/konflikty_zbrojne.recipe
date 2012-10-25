@@ -15,7 +15,6 @@ class Konflikty(BasicNewsRecipe):
     keep_only_tags=[dict(attrs={'class':['title1', 'image']}), dict(id='body')]
 
     feeds          = [(u'Aktualności', u'http://www.konflikty.pl/rss_aktualnosci_10.xml'),
-		(u'Artyku\u0142y', u'http://www.konflikty.pl/rss_artykuly_10.xml'),
 		(u'Historia', u'http://www.konflikty.pl/rss_historia_10.xml'),
 		(u'Militaria', u'http://www.konflikty.pl/rss_militaria_10.xml'),
 		(u'Relacje', u'http://www.konflikty.pl/rss_relacje_10.xml'),

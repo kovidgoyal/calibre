@@ -19,6 +19,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.3
+  date: 2012-10-19
+
+  new features:
+    - title: "Conversion: Add support for CSS 3 selectors by switching to the new cssselect module"
+
+    - title: "Drivers for the WayteQ xBook and the Topwise Android tablet"
+      tickets: [1066083,1067105]
+
+    - title: "Add an output profile for the Kindle PaperWhite"
+
+    - title: "Kobo driver: Improve performance when a large number of shelves are created on the device."
+      tickets: [1066633]
+
+    - title: "Catalogs: Put catalog sections at top level of ToC for EPUB/AZW3 catalogs."
+
+    - title: "Adding books: When duplicates are found, show the list of possible duplicates in calibre with title and author."
+ 
+  bug fixes:
+    - title: "KF8 Input: Fix conversion/viewing of KF8 files generated with the unreleased? kindlegen 2.7."
+      tickets: [1067310]
+
+    - title: "Kindle driver: Increase the size of the cover thumbnails sent by calibre to the device. This fixes the problem of cover thumbnails not showing up on the PaperWhite"
+
+    - title: "MTP driver: Fix sorting on the title column of the device view."
+      tickets: [1067562]
+
+    - title: "Catalogs: Fix regression that caused authors and titles to be be incorrectly listed under symbols on OSX < 10.8."
+
+    - title: "Catalogs: Fix error when generating catalog in non English locale and the user has specified a prefix rule using a Yes/no column."
+      tickets: [1065452]
+
+    - title: "E-book viewer: Remove the reload entry from the context menu as it is not supported in paged mode."
+      tickets: [1065615]
+
+  improved recipes:
+    - Richmond Times Dispatch
+    - Various Polish news sources
+    - Aksiyon dergisi
+    - Spektrum der Wissenschaft
+    - Zeit Online
+    - Baltimore Sun
+    - LWN Weekly
+    - The Sun
+
+  new recipes:
+    - title: Various Polish news sources
+      author: fenuks
+
 - version: 0.9.2
   date: 2012-10-11
 

@@ -66,6 +66,8 @@ class SonyStore(BasicStoreConfig, StorePlugin):
                 detail_url = ''.join(item.xpath('descendant::h3[@class="item"]'
                     '/descendant::a[@class="fn" and @href]/@href'))
                 if not detail_url: continue
+                if detail_url.startswith('/'):
+                    detail_url = 'http:'+detail_url
                 s.detail_item = detail_url
 
                 counter -= 1

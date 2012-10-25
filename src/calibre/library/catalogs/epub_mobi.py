@@ -16,6 +16,7 @@ from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks import calibre_cover
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.localization import get_lang
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
@@ -202,9 +203,12 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
-        build_log.append(u"%s(): Generating %s %sin %s environment" %
-            (self.name,self.fmt,'for %s ' % opts.output_profile if opts.output_profile else '',
-             'CLI' if opts.cli_environment else 'GUI'))
+        build_log.append(u"%s(): Generating %s %sin %s environment, locale: '%s'" %
+            (self.name,
+             self.fmt,
+             'for %s ' % opts.output_profile if opts.output_profile else '',
+             'CLI' if opts.cli_environment else 'GUI',
+             get_lang()))
 
         # If exclude_genre is blank, assume user wants all tags as genres
         if opts.exclude_genre.strip() == '':

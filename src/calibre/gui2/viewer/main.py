@@ -963,7 +963,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.iterator.__exit__()
         self.iterator = EbookIterator(pathtoebook)
         self.open_progress_indicator(_('Loading ebook...'))
-        worker = Worker(target=self.iterator.__enter__)
+        worker = Worker(target=partial(self.iterator.__enter__,
+            extract_embedded_fonts_for_qt=True))
         worker.start()
         while worker.isAlive():
             worker.join(0.1)
@@ -975,7 +976,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
-                        as_unicode(r), det_msg=worker.traceback, show=True)
+                        as_unicode(r) or _('Unknown error'),
+                        det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf,

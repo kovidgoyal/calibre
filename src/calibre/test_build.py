@@ -32,6 +32,11 @@ def test_lxml():
     else:
         raise RuntimeError('lxml failed')
 
+def test_freetype():
+    from calibre.utils.fonts.free_type import test
+    test()
+    print ('FreeType OK!')
+
 def test_fontconfig():
     from calibre.utils.fonts import fontconfig
     families = fontconfig.find_font_families()
@@ -103,21 +108,28 @@ def test_icu():
 def test_wpd():
     wpd = plugins['wpd'][0]
     try:
-        wpd.init()
+        wpd.init('calibre', 1, 1, 1)
     except wpd.NoWPD:
         print ('This computer does not have WPD')
     else:
         wpd.uninit()
 
+def test_woff():
+    from calibre.utils.fonts.woff import test
+    test()
+    print ('WOFF ok!')
+
 def test():
     test_plugins()
     test_lxml()
+    test_freetype()
     test_fontconfig()
     test_sqlite()
     test_qt()
     test_imaging()
     test_unrar()
     test_icu()
+    test_woff()
     if iswindows:
         test_win32()
         test_winutil()
