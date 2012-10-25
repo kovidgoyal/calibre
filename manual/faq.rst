@@ -435,7 +435,7 @@ any |app| developers will ever feel motivated enough to support it. There is how
 that allows you to create collections on your Kindle from the |app| metadata. It is available
 `from here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
 
-.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY Readers.
+.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY or Kobo Readers.
 
 I am getting an error when I try to use |app| with my Kobo Touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
