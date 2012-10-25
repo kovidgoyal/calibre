@@ -101,8 +101,9 @@ def extract_fonts(opf, log):
 
     font_family_map.finalize()
 
-    for path, raw in css_files.iteritems():
-        with open(path, 'wb') as f:
-            nraw = font_family_map.replace_font_families(raw)
-            f.write(nraw)
+    if font_family_map.added_fonts:
+        for path, raw in css_files.iteritems():
+            with open(path, 'wb') as f:
+                nraw = font_family_map.replace_font_families(raw) or raw
+                f.write(nraw)
 
