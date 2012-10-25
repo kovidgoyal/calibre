@@ -26,7 +26,8 @@ class FamilyMap(dict):
     def finalize(self):
         if self.replace_map:
             self.pat = re.compile(br'(font-family.*?)(' +
-                    b'|'.join(self.replace_map.iterkeys())+b')', re.I)
+                    b'|'.join([re.escape(x) for x in
+                        self.replace_map.iterkeys()])+b')', re.I)
 
     def replace_font_families(self, raw):
         if self.replace_map:
