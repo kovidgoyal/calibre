@@ -28,6 +28,8 @@
       type: major
 
     - title: "When changing the title/author of a book, use hard links instead of copying the books' files, for a large speedup. Only works on filesystems that support hardlinks."
+
+    - title: "Linux installer: Resume interrupted downloads and verify the SHA-512 signature of the downloaded file before installing it."
  
   bug fixes:
     - title: "Windows: Check if any of the files of a book are in use before changing the title/author, this prevents the creation of duplicate files if one of the files is open in another program"
