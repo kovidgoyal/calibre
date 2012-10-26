@@ -13,6 +13,7 @@ from PyQt4.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
         QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
         QHBoxLayout, QLabel, QModelIndex)
 
+from calibre.gui2 import error_dialog
 from calibre.utils.icu import sort_key
 
 def writing_system_for_font(font):
@@ -172,6 +173,20 @@ class FontFamilyDialog(QDialog):
         idx = self.view.currentIndex().row()
         if idx == 0: return None
         return self.families[idx]
+
+    def accept(self):
+        ff = self.font_family
+        if ff:
+            from calibre.utils.fonts import fontconfig
+            faces = fontconfig.fonts_for_family(ff) or {}
+            faces = frozenset(faces.iterkeys())
+            if 'normal' not in faces:
+                error_dialog(self, _('Not a useable font'),
+                    _('The %s font family does not have a Regular typeface, so it'
+                        ' cannot be used. It has only the "%s" face(s).')%(
+                            ff, ', '.join(faces)), show=True)
+                return
+        QDialog.accept(self)
 
 class FontFamilyChooser(QWidget):
 
