@@ -646,12 +646,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         spath = os.path.join(self.library_path, *current_path.split('/'))
         tpath = os.path.join(self.library_path, *path.split('/'))
 
-        wam = WindowsAtomicFolderMove(spath) if iswindows and current_path else None
+        source_ok = current_path and os.path.exists(spath)
+        wam = WindowsAtomicFolderMove(spath) if iswindows and source_ok else None
         try:
             if not os.path.exists(tpath):
                 os.makedirs(tpath)
 
-            if current_path and os.path.exists(spath): # Migrate existing files
+            if source_ok: # Migrate existing files
                 self.copy_cover_to(id, os.path.join(tpath, 'cover.jpg'),
                         index_is_id=True, windows_atomic_move=wam,
                         use_hardlink=True)
@@ -669,7 +670,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.commit()
             self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
             # Delete not needed directories
-            if current_path and os.path.exists(spath):
+            if source_ok:
                 if not samefile(spath, tpath):
                     if wam is not None:
                         wam.delete_originals()
