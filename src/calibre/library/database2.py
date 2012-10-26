@@ -1433,7 +1433,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         if use_hardlink:
                             try:
                                 hardlink_file(path, dest)
-                                return
+                                return True
                             except:
                                 pass
                         with lopen(dest, 'wb') as d:
