@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-24 04:12+0000\n"
-"PO-Revision-Date: 2012-10-21 09:03+0000\n"
+"PO-Revision-Date: 2012-10-25 17:27+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-25 05:27+0000\n"
-"X-Generator: Launchpad (build 16179)\n"
+"X-Launchpad-Export-Date: 2012-10-26 04:55+0000\n"
+"X-Generator: Launchpad (build 16194)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -2850,7 +2850,7 @@ msgstr "Не обрабатывать изображения"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:63
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr "Не преобразовать изображение в градации серого (черный и белый)"
+msgstr "Не преобразовывать изображение в оттенки серого (чёрный и белый)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:65
 msgid ""
@@ -3736,6 +3736,12 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Вставить указанное семейство шрифтов в книгу. Указывается \"основной\" шрифт "
+"использованный в книге. Если исходный документ имеет указание шрифта, то он "
+"будет перезаписан этой настройкой. Вы можете использовать настройку фильтра "
+"стилей для удаления шрифта из исходного документа. Помните, что вставка "
+"шрифта работает только с некоторыми выходными форматами, в основном EPUB и "
+"AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid ""
@@ -6662,7 +6668,7 @@ msgstr "Сохранить на диск в одну директорию тол
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:38
 msgid "Save single format to disk..."
-msgstr "Сохранить единый формат диска..."
+msgstr "Сохранить на диск один из форматов ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:81
@@ -6675,7 +6681,7 @@ msgstr "Выберите формат для сохранения на диск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:84
 msgid "Choose destination directory"
-msgstr "Выберете директорию получателя"
+msgstr "Выберите папку назначения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:92
 msgid ""
@@ -8618,7 +8624,7 @@ msgstr "&Размер строки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr ""
+msgstr "Вставить семейство шрифтов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -9045,7 +9051,7 @@ msgstr "Открыть книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
-msgstr ""
+msgstr "Нажмите ниже кнопку Открыть, что бы открыть книгу для проверки."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -13394,7 +13400,7 @@ msgstr "Регулярное выражение (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Выберите семейство шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13414,11 +13420,11 @@ msgstr "Ничего"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Выберите семейство шрифтов из списка ниже:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Выберите семейство шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -14134,7 +14140,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "Не могу открыть \"%s\". Возможно используется другой программой."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -21942,7 +21948,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:284
 msgid "File is open in another process"
-msgstr ""
+msgstr "Файл открыт другим процессом"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
