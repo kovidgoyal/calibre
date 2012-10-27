@@ -65,7 +65,7 @@ You create the custom column in the usual way, using Preferences -> Add your own
 
 Then after restarting |app|, you must tell |app| that the column is to be treated as a hierarchy. Go to Preferences -> Look and Feel -> Tag Browser and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press Apply, and you are done with setting up.
 
-.. image:: images/sg_pref.jpg
+.. image:: images/sg_pref.png
     :align: center
 
 At the point there are no genres in the column. We are left with the last step: how to apply a genre to a book. A genre does not exist in |app| until it appears on at least one book. To learn how to apply a genre for the first time, we must go into some detail about what a genre looks like in the metadata for a book.
