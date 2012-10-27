@@ -7,6 +7,7 @@ swiatczytnikow.pl
 '''
 
 import re
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class swiatczytnikow(BasicNewsRecipe):
     title          = u'Swiat Czytnikow'
