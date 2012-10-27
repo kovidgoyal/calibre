@@ -38,8 +38,10 @@ class TheAtlantic(BasicNewsRecipe):
         self.timefmt = ' [%s]'%ds
 
         cover = soup.find('img', src=True, attrs={'class':'cover'})
+
         if cover is not None:
-            self.cover_url = cover['src'].replace(' ', '%20')
+            self.cover_url = re.sub('\s','%20',re.sub('jpg.*','jpg',cover['src']))
+            self.log(self.cover_url)
 
         feeds = []
         seen_titles = set([])
@@ -47,18 +49,16 @@ class TheAtlantic(BasicNewsRecipe):
             section_title = self.tag_to_string(section.find('h2'))
             self.log('Found section:', section_title)
             articles = []
-            for post in section.findAll('div', attrs={'class':lambda x : x and
-                'post' in x}):
-                h = post.find(['h3', 'h4'])
-                title = self.tag_to_string(h)
+            for post in section.findAll('h3', attrs={'class':'headline'}):
+                a = post.find('a', href=True)
+                title = self.tag_to_string(a)
                 if title in seen_titles:
                     continue
                 seen_titles.add(title)
-                a = post.find('a', href=True)
                 url = a['href']
                 if url.startswith('/'):
                     url = 'http://www.theatlantic.com'+url
-                p = post.find('p', attrs={'class':'dek'})
+                p = post.parent.find('p', attrs={'class':'dek'})
                 desc = None
                 self.log('\tFound article:', title, 'at', url)
                 if p is not None:
@@ -69,19 +69,29 @@ class TheAtlantic(BasicNewsRecipe):
             if articles:
                 feeds.append((section_title, articles))
 
-        poems = []
-        self.log('Found section: Poems')
-        pd = soup.find('h2', text='Poetry').parent.parent
-        for poem in pd.findAll('h4'):
-            title = self.tag_to_string(poem)
-            url   = poem.find('a')['href']
-            if url.startswith('/'):
-                url = 'http://www.theatlantic.com' + url
-            self.log('\tFound article:', title, 'at', url)
-            poems.append({'title':title, 'url':url, 'description':'',
-                    'date':''})
-        if poems:
-            feeds.append(('Poems', poems))
+        rightContent=soup.find('div', attrs = {'class':'rightContent'})
+        for module in rightContent.findAll('div', attrs={'class':'module'}):
+            section_title = self.tag_to_string(module.find('h2'))
+            articles = []
+            for post in module.findAll('div', attrs={'class':'post'}):
+                a = post.find('a', href=True)
+                title = self.tag_to_string(a)
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
+                url = a['href']
+                if url.startswith('/'):
+                    url = 'http://www.theatlantic.com'+url
+                p = post.parent.find('p', attrs={'class':'dek'})
+                desc = None
+                self.log('\tFound article:', title, 'at', url)
+                if p is not None:
+                    desc = self.tag_to_string(p)
+                    self.log('\t\t', desc)
+                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+            if articles:
+                feeds.append((section_title, articles))
+
 
         return feeds
 
@@ -100,4 +110,3 @@ class TheAtlantic(BasicNewsRecipe):
                 table.replaceWith(div)
 
         return soup
-

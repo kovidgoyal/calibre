@@ -19,6 +19,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.4
+  date: 2012-10-26
+
+  new features:
+    - title: "Conversion: Add an option to embed a font family into the book."
+      description: "The embedded font is used as the base font for all text that does not specify its own font family in the input document. Works only with output formats that support font embedding, principally EPUB/AZW3. Option is found under Look & Feel in the conversion dialog. You can ensure that the font is used for all text, regardless of the input document's styles by filtering out font family styles via the Filter Style Information option in the Conversion dialog."
+      type: major
+
+    - title: "When changing the title/author of a book, use hard links instead of copying the books' files, for a large speedup. Only works on filesystems that support hardlinks."
+
+    - title: "Linux installer: Resume interrupted downloads and verify the SHA-512 signature of the downloaded file before installing it."
+ 
+  bug fixes:
+    - title: "Windows: Check if any of the files of a book are in use before changing the title/author, this prevents the creation of duplicate files if one of the files is open in another program"
+
+    - title: "Kobo driver: Fix the ondevice status for some books getting lost."
+      tickets: [1069403]
+
+    - title: "Catalogs: Fix regression that broke use of prefix rules."
+      tickets: [1070086]
+
+    - title: "Tag Browser: Fix sorting incorrect for accented letters"
+      tickets: [1069835]
+
+    - title: "Make the bundled Liberation fonts available on all platforms for embedding"
+
+    - title: "Use mimetype for fonts from the EPUB 3 specification"
+
+    - title: "Get Books: Handle website change that broke the SONY Store plugin"
+
+    - title: "Generate cover: If the default font cannot render characters in the metadata (for example for east asian languages) try to automatically find a font on the system that is capable of rendering the characters"
+
+    - title: "Fix regression that broke certain types of CSS selectors."
+      tickets: [1068937]
+
+    - title: "Use font-weight:bold instead of font-weight:bolder for the <b> and <strong> tags as ADE cant handle bolder when embedded fonts are used"
+
+  improved recipes:
+    - New York Post
+    - PC World
+    - TIME Magazine
+    - Associated Press
+
+  new recipes:
+    - title: Yazihane 
+      author: A Erdogan
+
+
 - version: 0.9.3
   date: 2012-10-19
 

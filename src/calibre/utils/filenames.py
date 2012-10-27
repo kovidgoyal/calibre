@@ -314,6 +314,17 @@ class WindowsAtomicFolderMove(object):
                     break
                 f.write(raw)
 
+    def release_file(self, path):
+        key = None
+        for p, h in self.handle_map.iteritems():
+            if samefile_windows(path, p):
+                key = (p, h)
+                break
+        if key is not None:
+            import win32file
+            win32file.CloseHandle(key[1])
+            self.handle_map.pop(key[0])
+
     def close_handles(self):
         import win32file
         for h in self.handle_map.itervalues():

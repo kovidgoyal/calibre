@@ -184,6 +184,11 @@ class CSSFlattener(object):
         faces = fontconfig.fonts_for_family(family)
         if not faces or not u'normal' in faces:
             msg = (u'No embeddable fonts found for family: %r'%self.opts.embed_font_family)
+            if faces:
+                msg = (u'The selected font %s has no Regular typeface, only'
+                        ' %s faces, it cannot be used.')%(
+                                self.opts.embed_font_family,
+                                ', '.join(faces.iterkeys()))
             if failure_critical:
                 raise ValueError(msg)
             self.oeb.log.warn(msg)
