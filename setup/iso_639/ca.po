@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-10-21 16:27+0000\n"
+"PO-Revision-Date: 2012-10-26 17:42+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-22 04:39+0000\n"
-"X-Generator: Launchpad (build 16165)\n"
+"X-Launchpad-Export-Date: 2012-10-27 04:58+0000\n"
+"X-Generator: Launchpad (build 16194)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -10560,19 +10560,19 @@ msgstr ""
 
 #. name for jah
 msgid "Jah Hut"
-msgstr ""
+msgstr "Jah Hut"
 
 #. name for jaj
 msgid "Zazao"
-msgstr ""
+msgstr "Zazao"
 
 #. name for jak
 msgid "Jakun"
-msgstr ""
+msgstr "Jakun"
 
 #. name for jal
 msgid "Yalahatan"
-msgstr ""
+msgstr "Jalahatan"
 
 #. name for jam
 msgid "Creole English; Jamaican"
@@ -10580,31 +10580,31 @@ msgstr "Anglès crioll; Jamaica"
 
 #. name for jao
 msgid "Yanyuwa"
-msgstr ""
+msgstr "Yanyula"
 
 #. name for jaq
 msgid "Yaqay"
-msgstr ""
+msgstr "Yaqay"
 
 #. name for jar
 msgid "Jarawa (Nigeria)"
-msgstr ""
+msgstr "Jarawa (Nigèria)"
 
 #. name for jas
 msgid "Javanese; New Caledonian"
-msgstr ""
+msgstr "Javanès; Nova Caledònia"
 
 #. name for jat
 msgid "Jakati"
-msgstr ""
+msgstr "Jakati"
 
 #. name for jau
 msgid "Yaur"
-msgstr ""
+msgstr "Yaur"
 
 #. name for jav
 msgid "Javanese"
-msgstr ""
+msgstr "Javanès"
 
 #. name for jax
 msgid "Malay; Jambi"
@@ -10612,11 +10612,11 @@ msgstr "Malai; Jambi"
 
 #. name for jay
 msgid "Yan-nhangu"
-msgstr ""
+msgstr "Jarnango"
 
 #. name for jaz
 msgid "Jawe"
-msgstr ""
+msgstr "Jawe"
 
 #. name for jbe
 msgid "Judeo-Berber"
@@ -10624,27 +10624,27 @@ msgstr "Judeo-berber"
 
 #. name for jbj
 msgid "Arandai"
-msgstr ""
+msgstr "Arandai"
 
 #. name for jbn
 msgid "Nafusi"
-msgstr ""
+msgstr "Djerbi"
 
 #. name for jbo
 msgid "Lojban"
-msgstr ""
+msgstr "Lojban"
 
 #. name for jbr
 msgid "Jofotek-Bromnya"
-msgstr ""
+msgstr "Jofotek-Bromnya"
 
 #. name for jbt
 msgid "Jabutí"
-msgstr ""
+msgstr "Jaboti"
 
 #. name for jbu
 msgid "Jukun Takum"
-msgstr ""
+msgstr "Jukun Takum"
 
 #. name for jcs
 msgid "Jamaican Country Sign Language"
@@ -10652,11 +10652,11 @@ msgstr "Llenguatge de signes del país jamaicà"
 
 #. name for jct
 msgid "Krymchak"
-msgstr ""
+msgstr "Judeocrimeà"
 
 #. name for jda
 msgid "Jad"
-msgstr ""
+msgstr "Jad"
 
 #. name for jdg
 msgid "Jadgali"
@@ -11012,7 +11012,7 @@ msgstr ""
 
 #. name for jvn
 msgid "Javanese; Caribbean"
-msgstr ""
+msgstr "Javanès; Carib"
 
 #. name for jwi
 msgid "Jwira-Pepesa"

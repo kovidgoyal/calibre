@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-10-24 04:12+0000\n"
+"POT-Creation-Date: 2012-10-26 05:12+0000\n"
 "PO-Revision-Date: 2012-09-29 16:04+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-25 05:26+0000\n"
-"X-Generator: Launchpad (build 16179)\n"
+"X-Launchpad-Export-Date: 2012-10-27 04:50+0000\n"
+"X-Generator: Launchpad (build 16194)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -177,12 +177,12 @@ msgstr "Ta opcja zupełnie nic nie zmienia"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:586
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:594
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:605
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2273
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2427
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2857
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3504
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3506
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3643
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2274
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2428
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2858
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3505
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3507
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3644
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:247
@@ -985,26 +985,26 @@ msgstr "Zbyt długa ścieżka biblioteki. Nie może być dłuższa niż %d znak�
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:668
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1061
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1062
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:887
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:910
 msgid "Yes"
 msgstr "Tak"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1216
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1217
 msgid "Main"
 msgstr "Główna"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1218
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1219
 msgid "Card A"
 msgstr "Karta A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1220
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1221
 msgid "Card B"
 msgstr "Karta B"
 
@@ -1215,14 +1215,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1199
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:371
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:384
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3361
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3362
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
 msgstr "Newsy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2770
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3317
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3335
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3318
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3336
 msgid "Catalog"
 msgstr "Katalog"
 
@@ -1277,10 +1277,10 @@ msgstr "Bambook"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:128
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:131
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:348
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1307
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1311
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1315
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1635
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1319
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1323
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1642
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:155
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:147
@@ -13409,6 +13409,10 @@ msgstr ""
 msgid "Choose &font family"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:196
+msgid "Clear the font family"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
 msgid "Cover Browser"
@@ -14824,13 +14828,9 @@ msgstr "Dodawanie"
 msgid ""
 "If set, this option will causes calibre to check if a file\n"
 " being auto-added is already in the calibre library.\n"
-" If it is, a meesage will pop up asking you whether\n"
+" If it is, a message will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
-"Ustawienie tej opcji spowoduje, że calibre będzie sprawdzać\n"
-"czy dodawany plik jest już w bibliotece. Jeśli tak \n"
-"to zostanie wyświetlone okno dialogowe z pytaniem, \n"
-"czy rzeczywiście chcesz dodać ten plik."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Check for &duplicates when auto-adding files"
@@ -18654,7 +18654,7 @@ msgid "Options to customize the ebook viewer"
 msgstr "Opcje odpowiedzialne za personalizacje przeglądarki książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:30
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1106
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1107
 msgid "Remember last used window size"
 msgstr "Zapamiętaj ostatnio użyty rozmiar okienka"
 
@@ -19277,37 +19277,37 @@ msgstr "Zarządzaj zakładkami"
 msgid "Loading ebook..."
 msgstr "Ładowanie książki..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:977
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Could not open ebook"
 msgstr "Nie można otworzyć książki"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:979
 msgid "Unknown error"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1094
 msgid "Options to control the ebook viewer"
 msgstr "Opcje odpowiadające za kontrolę nad przeglądarką książek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1100
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1101
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
 "Jeśli określone, okno przeglądarki spróbuje pokazać się na wierzchu podczas "
 "startu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1103
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1104
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
 "Jeśli określone, okno przeglądarki spróbuje otworzyć się na pełnym ekranie "
 "podczas startu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1108
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1109
 msgid "Print javascript alert and console messages to the console"
 msgstr "Wyświetlaj uwagi javascriptu i wiadomości konsolowe w konsoli"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1110
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1111
 msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
@@ -19315,7 +19315,7 @@ msgstr ""
 "Miejsce w którym wskazana książka ma być otwarta. Jest to pozycja widoczna w "
 "górnym lewym rogu przeglądarki."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1117
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1118
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -21280,18 +21280,18 @@ msgstr "odzyskane preferencje "
 msgid "creating custom column "
 msgstr "tworzenie kolumny użytkownika "
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3669
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3670
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Przenoszenie starej bazy danych do biblioteki książek w %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3698
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3699
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "Kopiowanie <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3715
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3716
 msgid "Compacting database"
 msgstr "Kompaktowanie bazy danych"
 
