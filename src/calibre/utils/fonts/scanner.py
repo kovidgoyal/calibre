@@ -25,7 +25,7 @@ def font_dirs():
         winutil, err = plugins['winutil']
         if err:
             raise RuntimeError('Failed to load winutil: %s'%err)
-        return winutil.special_folder_path(winutil.CSIDL_FONTS)
+        return [winutil.special_folder_path(winutil.CSIDL_FONTS)]
     if isosx:
         return [
                 '/Library/Fonts',
