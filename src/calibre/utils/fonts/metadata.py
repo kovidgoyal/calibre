@@ -111,4 +111,9 @@ class FontMetadata(object):
             ans[f] = getattr(self.characteristics, f)
         return ans
 
-
+if __name__ == '__main__':
+    import sys
+    with open(sys.argv[-1], 'rb') as f:
+        fm = FontMetadata(f)
+        import pprint
+        pprint.pprint(fm.to_dict())

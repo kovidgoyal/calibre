@@ -55,6 +55,7 @@ class Scanner(Thread):
         self.font_families = ()
         self.allowed_extensions = allowed_extensions
 
+    # API {{{
     def find_font_families(self):
         self.join()
         return self.font_families
@@ -143,6 +144,7 @@ class Scanner(Thread):
             if f in found:
                 return found[f]
         return None, None
+    # }}}
 
     def reload_cache(self):
         if not hasattr(self, 'cache'):
