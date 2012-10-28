@@ -22,6 +22,7 @@ typedef struct {
     // ensure it is garbage collected before the library object, to prevent
     // segfaults.
     PyObject *library;
+    PyObject *data;
 } Face;
 
 typedef struct {
@@ -40,8 +41,11 @@ Face_dealloc(Face* self)
     }
     self->face = NULL;
 
-    Py_DECREF(self->library);
+    Py_XDECREF(self->library);
     self->library = NULL;
+
+    Py_XDECREF(self->data);
+    self->data = NULL;
 
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -55,8 +59,6 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
     PyObject *ft;
 
     if (!PyArg_ParseTuple(args, "Os#", &ft, &data, &sz)) return -1;
-    self->library = ft;
-    Py_XINCREF(ft);
 
     Py_BEGIN_ALLOW_THREADS;
     error = FT_New_Memory_Face( ( (FreeType*)ft )->library,
@@ -70,6 +72,10 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
             PyErr_Format(FreeTypeError, "Failed to initialize the Font with error: 0x%x", error);
         return -1;
     }
+    self->library = ft;
+    Py_XINCREF(ft);
+
+    self->data = PySequence_GetItem(args, 1);
     return 0;
 }
 
