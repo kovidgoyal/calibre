@@ -114,7 +114,7 @@ class MTP_DEVICE(BASE):
             except:
                 prints('Failed to load existing driveinfo.calibre file, with error:')
                 traceback.print_exc()
-                dinfo = None
+                dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
             dinfo['device_store_uuid'] = unicode(uuid.uuid4())
         if dinfo.get('device_name', None) is None:
