@@ -141,10 +141,10 @@ fontconfig_files_for_family(PyObject *self, PyObject *args) {
     FcPattern *pat, *tp;
     FcObjectSet *oset;
     FcFontSet *fs;
-    FcValue file, weight, fullname, style, slant, family2;
-    PyObject *ans, *temp, *t;
+    FcValue file, weight, fullname, style, slant, family2, width;
+    PyObject *ans, *temp;
 
-    if (!PyArg_ParseTuple(args, "s", &family))
+    if (!PyArg_ParseTuple(args, "es", "UTF-8", &family))
 		return NULL;
 
     ans = PyList_New(0);
@@ -154,6 +154,7 @@ fontconfig_files_for_family(PyObject *self, PyObject *args) {
 
     pat = FcPatternBuild(0, FC_FAMILY, FcTypeString, family, (char *) 0);
     if (pat == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
+    PyMem_Free(family); family = NULL;
 
     oset = FcObjectSetCreate();
     if (oset == NULL)  { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
@@ -161,8 +162,9 @@ fontconfig_files_for_family(PyObject *self, PyObject *args) {
     if (!FcObjectSetAdd(oset, FC_STYLE)) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
     if (!FcObjectSetAdd(oset, FC_SLANT)) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
     if (!FcObjectSetAdd(oset, FC_WEIGHT)) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
+    if (!FcObjectSetAdd(oset, FC_WIDTH)) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
     if (!FcObjectSetAdd(oset, FC_FAMILY)) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
-    if (!FcObjectSetAdd(oset, "fullname")) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
+    if (!FcObjectSetAdd(oset, FC_FULLNAME)) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
 
     fs = FcFontList(FcConfigGetCurrent(), pat, oset);
     if (fs == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); } 
@@ -174,30 +176,21 @@ fontconfig_files_for_family(PyObject *self, PyObject *args) {
         if (FcPatternGet(tp, FC_FILE, 0, &file) != FcResultMatch) continue;
         if (FcPatternGet(tp, FC_STYLE, 0, &style) != FcResultMatch) continue;
         if (FcPatternGet(tp, FC_WEIGHT, 0, &weight) != FcResultMatch) continue;
+        if (FcPatternGet(tp, FC_WIDTH, 0, &width) != FcResultMatch) continue;
         if (FcPatternGet(tp, FC_SLANT, 0, &slant) != FcResultMatch) continue;
         if (FcPatternGet(tp, FC_FAMILY, 0, &family2) != FcResultMatch) continue;
-        if (FcPatternGet(tp, "fullname", 0, &fullname) != FcResultMatch) continue;
+        if (FcPatternGet(tp, FC_FULLNAME, 0, &fullname) != FcResultMatch) continue;
 
-        temp = PyTuple_New(6);
-        if(temp == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        t = PyBytes_FromString((char *)fullname.u.s);
-        if(t == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        PyTuple_SET_ITEM(temp, 0, t);
-        t = PyBytes_FromString((char *)file.u.s);
-        if(t == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        PyTuple_SET_ITEM(temp, 1, t);
-        t = PyBytes_FromString((char *)style.u.s);
-        if(t == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        PyTuple_SET_ITEM(temp, 2, t);
-        t = PyBytes_FromString((char *)family2.u.s);
-        if(t == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        PyTuple_SET_ITEM(temp, 3, t);
-        t = PyInt_FromLong((long)weight.u.i);
-        if(t == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        PyTuple_SET_ITEM(temp, 4, t);
-        t = PyInt_FromLong((long)slant.u.i);
-        if(t == NULL) { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
-        PyTuple_SET_ITEM(temp, 5, t);
+        temp = Py_BuildValue("{s:s, s:s, s:s, s:s, s:l, s:l, s:l}",
+                "fullname", (char*)fullname.u.s,
+                "path", (char*)file.u.s,
+                "style", (char*)style.u.s,
+                "family", (char*)family2.u.s,
+                "weight", (long)weight.u.i,
+                "slant", (long)slant.u.i,
+                "width", (long)width.u.i
+        );
+        if (temp == NULL) { fontconfig_cleanup_find(pat, oset, fs); return NULL; }
         if (PyList_Append(ans, temp) != 0)
             { fontconfig_cleanup_find(pat, oset, fs); return PyErr_NoMemory(); }
     }
@@ -343,5 +336,39 @@ initfontconfig(void) {
             "Find fonts."
     );
     if (m == NULL) return;
+
+    PyModule_AddIntMacro(m, FC_WEIGHT_THIN);
+    PyModule_AddIntMacro(m, FC_WEIGHT_EXTRALIGHT);
+    PyModule_AddIntMacro(m, FC_WEIGHT_ULTRALIGHT);
+    PyModule_AddIntMacro(m, FC_WEIGHT_LIGHT);
+    PyModule_AddIntMacro(m, FC_WEIGHT_BOOK);
+    PyModule_AddIntMacro(m, FC_WEIGHT_REGULAR);
+    PyModule_AddIntMacro(m, FC_WEIGHT_NORMAL);
+    PyModule_AddIntMacro(m, FC_WEIGHT_MEDIUM);
+    PyModule_AddIntMacro(m, FC_WEIGHT_DEMIBOLD);
+    PyModule_AddIntMacro(m, FC_WEIGHT_SEMIBOLD);
+    PyModule_AddIntMacro(m, FC_WEIGHT_BOLD);
+    PyModule_AddIntMacro(m, FC_WEIGHT_EXTRABOLD);
+    PyModule_AddIntMacro(m, FC_WEIGHT_ULTRABOLD);
+    PyModule_AddIntMacro(m, FC_WEIGHT_BLACK);
+    PyModule_AddIntMacro(m, FC_WEIGHT_HEAVY);
+    PyModule_AddIntMacro(m, FC_WEIGHT_EXTRABLACK);
+    PyModule_AddIntMacro(m, FC_WEIGHT_ULTRABLACK);
+
+    PyModule_AddIntMacro(m, FC_SLANT_ROMAN);
+    PyModule_AddIntMacro(m, FC_SLANT_ITALIC);
+    PyModule_AddIntMacro(m, FC_SLANT_OBLIQUE);
+
+    PyModule_AddIntMacro(m, FC_WIDTH_ULTRACONDENSED);
+    PyModule_AddIntMacro(m, FC_WIDTH_EXTRACONDENSED);
+    PyModule_AddIntMacro(m, FC_WIDTH_CONDENSED);
+    PyModule_AddIntMacro(m, FC_WIDTH_SEMICONDENSED);
+    PyModule_AddIntMacro(m, FC_WIDTH_NORMAL);
+    PyModule_AddIntMacro(m, FC_WIDTH_SEMIEXPANDED);
+    PyModule_AddIntMacro(m, FC_WIDTH_EXPANDED);
+    PyModule_AddIntMacro(m, FC_WIDTH_EXTRAEXPANDED);
+    PyModule_AddIntMacro(m, FC_WIDTH_ULTRAEXPANDED);
+
+#
 }
 

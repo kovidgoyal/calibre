@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from calibre.constants import plugins, islinux, isbsd, isosx
+from calibre.constants import plugins, islinux, isbsd, isosx, preferred_encoding
 
 _fc, _fc_err = plugins['fontconfig']
 
@@ -26,6 +26,33 @@ class FontConfig(Thread):
         Thread.__init__(self)
         self.daemon = True
         self.failed = False
+        self.css_weight_map = {
+            _fc.FC_WEIGHT_THIN : u'100',
+            _fc.FC_WEIGHT_EXTRALIGHT : u'200', _fc.FC_WEIGHT_ULTRALIGHT : u'200',
+            _fc.FC_WEIGHT_LIGHT : u'300',
+            _fc.FC_WEIGHT_BOOK : u'normal', _fc.FC_WEIGHT_BOOK : u'normal', _fc.FC_WEIGHT_REGULAR : u'normal',
+            _fc.FC_WEIGHT_MEDIUM : u'500',
+            _fc.FC_WEIGHT_DEMIBOLD : u'600', _fc.FC_WEIGHT_SEMIBOLD : u'600',
+            _fc.FC_WEIGHT_BOLD : u'bold',
+            _fc.FC_WEIGHT_EXTRABOLD : u'800', _fc.FC_WEIGHT_ULTRABOLD : u'800',
+            _fc.FC_WEIGHT_HEAVY : u'900', _fc.FC_WEIGHT_BLACK : u'900', _fc.FC_WEIGHT_EXTRABLACK : u'900', _fc.FC_WEIGHT_ULTRABLACK : u'900'
+        }
+        self.css_slant_map = {
+            _fc.FC_SLANT_ROMAN : u'normal',
+            _fc.FC_SLANT_ITALIC : u'italic',
+            _fc.FC_SLANT_OBLIQUE : u'oblique'
+        }
+        self.css_stretch_map = {
+                _fc.FC_WIDTH_ULTRACONDENSED: u'ultra-condensed',
+                _fc.FC_WIDTH_EXTRACONDENSED : u'extra-condensed',
+                _fc.FC_WIDTH_CONDENSED: u'condensed',
+                _fc.FC_WIDTH_SEMICONDENSED: u'semi-condensed',
+                _fc.FC_WIDTH_NORMAL: u'normal',
+                _fc.FC_WIDTH_SEMIEXPANDED: u'semi-expanded',
+                _fc.FC_WIDTH_EXPANDED: u'expanded',
+                _fc.FC_WIDTH_EXTRAEXPANDED: u'extra-expanded',
+                _fc.FC_WIDTH_ULTRAEXPANDED: u'ultra-expanded',
+        }
 
     def run(self):
         config = None
@@ -83,12 +110,13 @@ class FontConfig(Thread):
         `('normal', 'bold', 'italic', 'bi', 'light', 'li')`
         '''
         self.wait()
-        if isinstance(family, unicode):
-            family = family.encode('utf-8')
+        if not isinstance(family, unicode):
+            family = family.decode(preferred_encoding)
         fonts = {}
-        ofamily = str(family).decode('utf-8')
-        for fullname, path, style, nfamily, weight, slant in \
-            _fc.files_for_family(str(family)):
+        for entry in _fc.files_for_family(family):
+            slant, weight = entry['slant'], entry['weight']
+            fullname, path = entry['fullname'], entry['path']
+            nfamily = entry['family']
             style = (slant, weight)
             if normalize:
                 italic = slant > 0
@@ -104,13 +132,48 @@ class FontConfig(Thread):
             except UnicodeDecodeError:
                 continue
             if style in fonts:
-                if nfamily.lower().strip() == ofamily.lower().strip() \
+                if nfamily.lower().strip() == family.lower().strip() \
                 and 'Condensed' not in fullname and 'ExtraLight' not in fullname:
                     fonts[style] = (path, fullname)
             else:
                 fonts[style] = (path, fullname)
 
         return fonts
+
+    def faces_for_family(self, family):
+        '''
+        Return all the faces in a font family in a manner suitable for CSS 3.
+        '''
+        self.wait()
+        if not isinstance(family, unicode):
+            family = family.decode(preferred_encoding)
+        seen = set()
+        for entry in _fc.files_for_family(family):
+            slant, weight = entry['slant'], entry['weight']
+            fullname, path = entry['fullname'], entry['path']
+            nfamily, width = entry['family'], entry['width']
+            fingerprint = (slant, weight, width, nfamily)
+            if fingerprint in seen:
+                # Fontconfig returns the same font multiple times if it is
+                # present in multiple locations
+                continue
+            seen.add(fingerprint)
+
+            try:
+                nfamily = nfamily.decode('UTF-8')
+                fullname = fullname.decode('utf-8')
+                path = path.decode('utf-8')
+            except UnicodeDecodeError:
+                continue
+
+            face = {
+                    'font-weight': self.css_weight_map[weight],
+                    'font-style': self.css_slant_map[slant],
+                    'font-stretch': self.css_stretch_map[width],
+                    'font-family': nfamily,
+                    'fullname': fullname, 'path':path
+                    }
+            yield face
 
     def match(self, name, all=False, verbose=False):
         '''
@@ -162,7 +225,7 @@ else:
 def test():
     from pprint import pprint;
     pprint(fontconfig.find_font_families())
-    pprint(fontconfig.files_for_family('liberation serif'))
+    pprint(tuple(fontconfig.faces_for_family('liberation serif')))
     m = 'liberation serif'
     pprint(fontconfig.match(m+':slant=italic:weight=bold', verbose=True))
 
