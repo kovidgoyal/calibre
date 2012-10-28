@@ -110,8 +110,54 @@ class FontFamilyDelegate(QStyledItemDelegate):
                 r.setLeft(r.left() + w)
             painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, sample)
 
-class Typefaces(QWidget):
-    pass
+class Typefaces(QLabel):
+
+    def __init__(self, parent=None):
+        QLabel.__init__(self, parent)
+        self.setMinimumWidth(400)
+        self.base_msg = '<h3>'+_('Choose a font family')+'</h3>'
+        self.setText(self.base_msg)
+        self.setWordWrap(True)
+
+    def show_family(self, family, faces):
+        if not family:
+            self.setText(self.base_msg)
+            return
+        msg = '''
+        <h3>%s</h3>
+        <dl style="font-size: smaller">
+        {0}
+        </dl>
+        '''%(_('Available faces for %s')%family)
+        entries = []
+        for font in faces:
+            sf = (font['wws_subfamily_name'] or font['preferred_subfamily_name']
+                or font['subfamily_name'])
+            entries.append('''
+            <dt><b>{sf}</b></dt>
+            <dd>font-stretch: <i>{width}</i> font-weight: <i>{weight}</i> font-style:
+            <i>{style}</i></dd>
+
+            '''.format(sf=sf, width=font['font-stretch'],
+                    weight=font['font-weight'], style=font['font-style']))
+        msg = msg.format('\n\n'.join(entries))
+        self.setText(msg)
+
+class FontsView(QListView):
+
+    changed = pyqtSignal()
+
+    def __init__(self, parent):
+        QListView.__init__(self, parent)
+        self.setSelectionMode(self.SingleSelection)
+        self.setAlternatingRowColors(True)
+        self.d = FontFamilyDelegate(self)
+        self.setItemDelegate(self.d)
+
+    def currentChanged(self, current, previous):
+        self.changed.emit()
+        QListView.currentChanged(self, current, previous)
+
 
 class FontFamilyDialog(QDialog):
 
@@ -120,6 +166,7 @@ class FontFamilyDialog(QDialog):
         self.setWindowTitle(_('Choose font family'))
         self.setWindowIcon(QIcon(I('font.png')))
         from calibre.utils.fonts.scanner import font_scanner
+        self.font_scanner = font_scanner
         try:
             self.families = list(font_scanner.find_font_families())
         except:
@@ -131,11 +178,9 @@ class FontFamilyDialog(QDialog):
 
         self.l = l = QGridLayout()
         self.setLayout(l)
-        self.view = QListView(self)
+        self.view = FontsView(self)
         self.m = QStringListModel(self.families)
         self.view.setModel(self.m)
-        self.d = FontFamilyDelegate(self)
-        self.view.setItemDelegate(self.d)
         self.view.setCurrentIndex(self.m.index(0))
         if current_family:
             for i, val in enumerate(self.families):
@@ -143,28 +188,33 @@ class FontFamilyDialog(QDialog):
                     self.view.setCurrentIndex(self.m.index(i))
                     break
         self.view.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
-        self.view.setSelectionMode(self.view.SingleSelection)
-        self.view.setAlternatingRowColors(True)
-
+        self.view.changed.connect(self.current_changed,
+                type=Qt.QueuedConnection)
+        self.faces = Typefaces(self)
         self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.ml = QLabel(_('Choose a font family from the list below:'))
 
-        self.faces = Typefaces(self)
 
         l.addWidget(self.ml, 0, 0, 1, 2)
         l.addWidget(self.view, 1, 0, 1, 1)
         l.addWidget(self.faces, 1, 1, 1, 1)
         l.addWidget(self.bb, 2, 0, 1, 2)
+        l.setAlignment(self.faces, Qt.AlignTop)
 
-        self.resize(600, 500)
+        self.resize(800, 600)
 
     @property
     def font_family(self):
         idx = self.view.currentIndex().row()
         if idx == 0: return None
         return self.families[idx]
+
+    def current_changed(self):
+        fam = self.font_family
+        self.faces.show_family(fam, self.font_scanner.fonts_for_family(fam)
+                if fam else None)
 
 class FontFamilyChooser(QWidget):
 
