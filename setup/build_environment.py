@@ -87,8 +87,6 @@ ft_libs = []
 ft_inc_dirs = []
 jpg_libs = []
 jpg_lib_dirs = []
-fc_inc = '/usr/include/fontconfig'
-fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
 chmlib_inc_dirs = chmlib_lib_dirs = []
@@ -107,8 +105,6 @@ if iswindows:
         'source', 'i18n')]
     icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
     sqlite_inc_dirs = [sw_inc_dir]
-    fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
-    fc_lib = sw_lib_dir
     chmlib_inc_dirs = consolidate('CHMLIB_INC_DIR', os.path.join(prefix,
         'build', 'chmlib-0.40', 'src'))
     chmlib_lib_dirs = consolidate('CHMLIB_LIB_DIR', os.path.join(prefix,
@@ -131,8 +127,6 @@ if iswindows:
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
-    fc_inc = '/sw/include/fontconfig'
-    fc_lib = '/sw/lib'
     podofo_inc = '/sw/podofo'
     podofo_lib = '/sw/lib'
     magick_inc_dirs = consolidate('MAGICK_INC',
@@ -165,13 +159,6 @@ else:
     ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
     ft_libs = pkgconfig_libs('freetype2', '', '')
 
-
-fc_inc = os.environ.get('FC_INC_DIR', fc_inc)
-fc_lib = os.environ.get('FC_LIB_DIR', fc_lib)
-fc_error = None if os.path.exists(os.path.join(fc_inc, 'fontconfig.h')) else \
-    ('fontconfig header files not found on your system. '
-            'Try setting the FC_INC_DIR and FC_LIB_DIR environment '
-            'variables.')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],

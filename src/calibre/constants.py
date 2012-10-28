@@ -83,7 +83,6 @@ class Plugins(collections.Mapping):
                 'magick',
                 'podofo',
                 'cPalmdoc',
-                'fontconfig',
                 'progress_indicator',
                 'chmlib',
                 'chm_extra',

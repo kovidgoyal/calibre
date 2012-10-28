@@ -15,8 +15,6 @@ from setup import __version__ as VERSION, __appname__ as APPNAME, basenames, \
 LICENSE = open('LICENSE', 'rb').read()
 MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
 ENV = dict(
-        FC_CONFIG_DIR='@executable_path/../Resources/fonts',
-        FC_CONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
         MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config',
         MAGICK_CODER_MODULE_PATH=MAGICK_HOME+'/modules-Q16/coders',
         MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filter',
@@ -180,7 +178,7 @@ class Py2App(object):
             self.add_poppler()
             self.add_libjpeg()
             self.add_libpng()
-            self.add_fontconfig()
+            self.add_freetype()
             self.add_imagemagick()
             self.add_misc_libraries()
 
@@ -397,28 +395,11 @@ class Py2App(object):
 
 
     @flush
-    def add_fontconfig(self):
-        info('\nAdding fontconfig')
-        for x in ('fontconfig.1', 'freetype.6', 'expat.1'):
+    def add_freetype(self):
+        info('\nAdding freetype')
+        for x in ('freetype.6', 'expat.1'):
             src = os.path.join(SW, 'lib', 'lib'+x+'.dylib')
             self.install_dylib(src)
-        dst = os.path.join(self.resources_dir, 'fonts')
-        if os.path.exists(dst):
-            shutil.rmtree(dst)
-        src = os.path.join(SW, 'etc', 'fonts')
-        shutil.copytree(src, dst, symlinks=False)
-        fc = os.path.join(dst, 'fonts.conf')
-        raw = open(fc, 'rb').read()
-        raw = raw.replace('<dir>/usr/share/fonts</dir>', '''\
-        <dir>/Library/Fonts</dir>
-        <dir>/Network/Library/Fonts</dir>
-        <dir>/System/Library/Fonts</dir>
-        <dir>/usr/X11R6/lib/X11/fonts</dir>
-        <dir>/usr/share/fonts</dir>
-        <dir>/var/root/Library/Fonts</dir>
-        <dir>/usr/share/fonts</dir>
-        ''')
-        open(fc, 'wb').write(raw)
 
     @flush
     def add_imagemagick(self):

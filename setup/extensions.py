@@ -13,7 +13,7 @@ from multiprocessing import cpu_count
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows
-from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
+from setup.build_environment import (chmlib_inc_dirs,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
@@ -121,13 +121,6 @@ extensions = [
         inc_dirs = ft_inc_dirs,
         libraries=ft_libs,
         lib_dirs=ft_lib_dirs),
-
-    Extension('fontconfig',
-        ['calibre/utils/fonts/fontconfig.c'],
-        inc_dirs = [fc_inc],
-        libraries=['fontconfig'],
-        lib_dirs=[fc_lib],
-        error=fc_error),
 
     Extension('woff',
         ['calibre/utils/fonts/woff/main.c',
@@ -304,9 +297,6 @@ class Build(Command):
            CXX     - C++ Compiler, defaults to g++
            CFLAGS  - Extra compiler flags
            LDFLAGS - Extra linker flags
-
-           FC_INC_DIR - fontconfig header files
-           FC_LIB_DIR - fontconfig library
 
            POPPLER_INC_DIR - poppler header files
            POPPLER_LIB_DIR - poppler-qt4 library
