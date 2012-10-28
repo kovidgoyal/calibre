@@ -121,7 +121,7 @@ class FontFamilyDialog(QDialog):
         self.setWindowIcon(QIcon(I('font.png')))
         from calibre.utils.fonts.scanner import font_scanner
         try:
-            self.families = font_scanner.find_font_families()
+            self.families = list(font_scanner.find_font_families())
         except:
             self.families = []
             print ('WARNING: Could not load fonts')
