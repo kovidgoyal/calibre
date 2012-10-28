@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-26 05:12+0000\n"
-"PO-Revision-Date: 2012-10-21 14:25+0000\n"
+"PO-Revision-Date: 2012-10-27 12:43+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-27 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-10-28 04:40+0000\n"
 "X-Generator: Launchpad (build 16194)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3788,6 +3788,12 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Incrusta la família de tipus de lletra al llibre. Especifica la lletra "
+"«base» que s'utilitza per al llibre. Si el document d'entrada especifica els "
+"seus tipus de lletra pot substituir aquesta lletra base. Podeu utilitzar "
+"l'opció de la informació del filtre d'estils per suprimir tipus de lletra "
+"del document d'entrada. Tingueu en compte que la incrustació de lletra només "
+"funciona amb alguns formats de sortida, principalment EPUB i AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid ""
@@ -8711,7 +8717,7 @@ msgstr "Alçada de la &línia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr ""
+msgstr "&Incrusta els tipus de lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -9142,6 +9148,7 @@ msgstr "Obre un llibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
 msgstr ""
+"Feu clic al botó «Obre» per obrir un llibre per utilitzar-lo com a proba."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -13563,7 +13570,7 @@ msgstr "Expressió regular (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Tria el tipus de lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13583,15 +13590,15 @@ msgstr "Cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Trieu un tipus de lletra la la llista següent:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Tria el &tipus de lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:196
 msgid "Clear the font family"
-msgstr ""
+msgstr "Elimina el tipus de lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -14311,7 +14318,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "No s'ha pogut obrir «%s». L'està utilitzant un altre programa?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -15020,6 +15027,10 @@ msgid ""
 " If it is, a message will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Si s'estableix fa que el calibre comprovi si un fitxer\n"
+" que s'està afegint automàticament ja està a la biblioteca.\n"
+" Si hi és, un missatge emergent us pregunarà si voleu\n"
+" afegir-lo igualment."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Check for &duplicates when auto-adding files"
@@ -21160,6 +21171,23 @@ msgid ""
 "that a new OPF has been createdsince the column was added). You will see the "
 "JSON for the\"display\" for the new column in the OPF."
 msgstr ""
+"Un diccionari d'opcions per personalitzar com s'interpretaran les dades de "
+"la columna. És una cadena JSON. Per a columnes d'enumeració utilitzeu --"
+"display=\"{\\\"enum_values\\\":[\\\"val1\\\", \\\"val2\\\"]}\"\n"
+"Hi ha moltes opcions que poden estar amb la variable «display». Les opcions "
+"per tipus de columna són:\n"
+"composite: composite_template, composite_sort, make_category,contains_html, "
+"use_decorations\n"
+"datetime: date_format\n"
+"enumeration: enum_values, enum_colors, use_decorations\n"
+"int, float: number_format\n"
+"text: is_names, use_decorations\n"
+"\n"
+"La millor manera de trobar combinacions vàlides és crear una columna "
+"personalitzada del tipus adequat a la interfície gràfica i mirar la còpia de "
+"seguretat OPF per a un llibre (assegureu-vos que es crea un nou OPF després "
+"de crear la columna). Veureu la cadena JSON per a «display» de la nova "
+"columna al fitxer OPF."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:721
 msgid "You must specify label, name and datatype"
@@ -22231,7 +22259,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:284
 msgid "File is open in another process"
-msgstr ""
+msgstr "El fitxer està obert en un altre procés"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
