@@ -36,15 +36,19 @@ def get_table(raw, name):
             return table, table_index, table_offset, table_checksum
     return None, None, None, None
 
-def get_font_characteristics(raw):
+def get_font_characteristics(raw, raw_is_table=False):
     '''
-    Return (weight, is_italic, is_bold, is_regular, fs_type, panose). These
+    Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
+    is_oblique, is_wws). These
     values are taken from the OS/2 table of the font. See
     http://www.microsoft.com/typography/otspec/os2.htm for details
     '''
-    os2_table = get_table(raw, 'os/2')[0]
-    if os2_table is None:
-        raise UnsupportedFont('Not a supported font, has no OS/2 table')
+    if raw_is_table:
+        os2_table = raw
+    else:
+        os2_table = get_table(raw, 'os/2')[0]
+        if os2_table is None:
+            raise UnsupportedFont('Not a supported font, has no OS/2 table')
 
     common_fields = b'>Hh3H11h'
     (version, char_width, weight, width, fs_type, subscript_x_size,
@@ -65,10 +69,12 @@ def get_font_characteristics(raw):
     offset += 4
     selection, = struct.unpack_from(b'>H', os2_table, offset)
 
-    is_italic = (selection & 0b1) != 0
-    is_bold = (selection & 0b100000) != 0
-    is_regular = (selection & 0b1000000) != 0
-    return weight, is_italic, is_bold, is_regular, fs_type, panose
+    is_italic = (selection & (1 << 0)) != 0
+    is_bold = (selection & (1 << 5)) != 0
+    is_regular = (selection & (1 << 6)) != 0
+    is_wws = (selection & (1 << 8)) != 0
+    is_oblique = (selection & (1 << 9)) != 0
+    return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
 def panose_to_css_generic_family(panose):
     proportion = panose[3]
@@ -142,10 +148,13 @@ def decode_name_record(recs):
 
     return None
 
-def get_font_names(raw):
-    table = get_table(raw, 'name')[0]
-    if table is None:
-        raise UnsupportedFont('Not a supported font, has no name table')
+def _get_font_names(raw, raw_is_table=False):
+    if raw_is_table:
+        table = raw
+    else:
+        table = get_table(raw, 'name')[0]
+        if table is None:
+            raise UnsupportedFont('Not a supported font, has no name table')
     table_type, count, string_offset = struct.unpack_from(b'>3H', table)
 
     records = defaultdict(list)
@@ -161,11 +170,31 @@ def get_font_names(raw):
         records[name_id].append((platform_id, encoding_id, language_id,
             src))
 
+    return records
+
+def get_font_names(raw, raw_is_table=False):
+    records = _get_font_names(raw, raw_is_table)
     family_name = decode_name_record(records[1])
     subfamily_name = decode_name_record(records[2])
     full_name = decode_name_record(records[4])
 
     return family_name, subfamily_name, full_name
+
+def get_font_names2(raw, raw_is_table=False):
+    records = _get_font_names(raw, raw_is_table)
+
+    family_name = decode_name_record(records[1])
+    subfamily_name = decode_name_record(records[2])
+    full_name = decode_name_record(records[4])
+
+    preferred_family_name = decode_name_record(records[16])
+    preferred_subfamily_name = decode_name_record(records[17])
+
+    wws_family_name = decode_name_record(records[21])
+    wws_subfamily_name = decode_name_record(records[22])
+
+    return (family_name, subfamily_name, full_name, preferred_family_name,
+            preferred_subfamily_name, wws_family_name, wws_subfamily_name)
 
 def checksum_of_block(raw):
     extra = 4 - len(raw)%4
@@ -249,11 +278,11 @@ def get_font_for_text(text, candidate_font_data=None):
         except FreeTypeError:
             ok = True
     if not ok:
-        from calibre.utils.fonts import fontconfig
-        family, faces = fontconfig.find_font_for_text(text)
-        if family is not None:
-            f = faces.get('bold', faces['normal'])
-            candidate_font_data = f[2]
+        from calibre.utils.fonts.scanner import font_scanner
+        family, faces = font_scanner.find_font_for_text(text)
+        if faces:
+            with lopen(faces[0]['path'], 'rb') as f:
+                candidate_font_data = f.read()
     return candidate_font_data
 
 def test():

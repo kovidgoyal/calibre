@@ -13,9 +13,6 @@ from PyQt4.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
         QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
         QHBoxLayout, QLabel, QModelIndex)
 
-from calibre.gui2 import error_dialog
-from calibre.utils.icu import sort_key
-
 def writing_system_for_font(font):
     has_latin = True
     systems = QFontDatabase().writingSystems(font.family())
@@ -122,19 +119,14 @@ class FontFamilyDialog(QDialog):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose font family'))
         self.setWindowIcon(QIcon(I('font.png')))
-        from calibre.utils.fonts import fontconfig
+        from calibre.utils.fonts.scanner import font_scanner
         try:
-            self.families = fontconfig.find_font_families()
+            self.families = font_scanner.find_font_families()
         except:
             self.families = []
             print ('WARNING: Could not load fonts')
             import traceback
             traceback.print_exc()
-        # Restrict to Qt families as we need the font to be available in
-        # QFontDatabase
-        qt_families = set([unicode(x) for x in QFontDatabase().families()])
-        self.families = list(qt_families.intersection(set(self.families)))
-        self.families.sort(key=sort_key)
         self.families.insert(0, _('None'))
 
         self.l = l = QGridLayout()
@@ -173,20 +165,6 @@ class FontFamilyDialog(QDialog):
         idx = self.view.currentIndex().row()
         if idx == 0: return None
         return self.families[idx]
-
-    def accept(self):
-        ff = self.font_family
-        if ff:
-            from calibre.utils.fonts import fontconfig
-            faces = fontconfig.fonts_for_family(ff) or {}
-            faces = frozenset(faces.iterkeys())
-            if 'normal' not in faces:
-                error_dialog(self, _('Not a useable font'),
-                    _('The %s font family does not have a Regular typeface, so it'
-                        ' cannot be used. It has only the "%s" face(s).')%(
-                            ff, ', '.join(faces)), show=True)
-                return
-        QDialog.accept(self)
 
 class FontFamilyChooser(QWidget):
 

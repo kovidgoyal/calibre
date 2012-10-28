@@ -690,29 +690,6 @@ def remove_bracketed_text(src,
             buf.append(char)
     return u''.join(buf)
 
-def load_builtin_fonts():
-    # On linux these are loaded by fontconfig which means that
-    # they are available to Qt as well, since Qt uses fontconfig
-    from calibre.utils.fonts import fontconfig
-    fontconfig
-
-    families = {u'Liberation Serif', u'Liberation Sans', u'Liberation Mono'}
-
-    if iswindows or isosx:
-        import glob
-        from PyQt4.Qt import QFontDatabase
-        families = set()
-        for f in glob.glob(P('fonts/liberation/*.ttf')):
-            with open(f, 'rb') as s:
-                # Windows requires font files to be executable for them to be
-                # loaded successfully, so we use the in memory loader
-                fid = QFontDatabase.addApplicationFontFromData(s.read())
-            if fid > -1:
-                families |= set(map(unicode,
-                    QFontDatabase.applicationFontFamilies(fid)))
-
-    return families
-
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython
     ipython(user_ns=user_ns)

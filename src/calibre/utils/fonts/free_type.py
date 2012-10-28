@@ -83,11 +83,11 @@ def test():
         raise RuntimeError('Incorrectly claiming that text is supported')
 
 def test_find_font():
-    from calibre.utils.fonts import fontconfig
+    from calibre.utils.fonts.scanner import font_scanner
     abcd = '诶比西迪'
-    family = fontconfig.find_font_for_text(abcd)[0]
+    family = font_scanner.find_font_for_text(abcd)[0]
     print ('Family for Chinese text:', family)
-    family = fontconfig.find_font_for_text(abcd)[0]
+    family = font_scanner.find_font_for_text(abcd)[0]
     abcd = 'لوحة المفاتيح العربية'
     print ('Family for Arabic text:', family)
 

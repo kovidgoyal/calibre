@@ -11,7 +11,7 @@ from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, QRegExp, QSize,
         QSplitter, QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu,
         QStringListModel, QCompleter, QStringList, QTimer, QRect,
-        QFontDatabase, QGraphicsView, QByteArray)
+        QGraphicsView, QByteArray)
 
 from calibre.constants import iswindows
 from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
@@ -352,17 +352,14 @@ class FontFamilyModel(QAbstractListModel): # {{{
 
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
-        from calibre.utils.fonts import fontconfig
+        from calibre.utils.fonts.scanner import font_scanner
         try:
-            self.families = fontconfig.find_font_families()
+            self.families = font_scanner.find_font_families()
         except:
             self.families = []
             print 'WARNING: Could not load fonts'
             traceback.print_exc()
         # Restrict to Qt families as Qt tends to crash
-        qt_families = set([unicode(x) for x in QFontDatabase().families()])
-        self.families = list(qt_families.intersection(set(self.families)))
-        self.families.sort()
         self.families[:0] = [_('None')]
         self.font = QFont('Arial' if iswindows else 'sansserif')
 
