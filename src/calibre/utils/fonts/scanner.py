@@ -13,7 +13,7 @@ from threading import Thread
 
 from calibre import walk, prints, as_unicode
 from calibre.constants import config_dir, iswindows, isosx, plugins, DEBUG
-from calibre.utils.fonts.metadata import FontMetadata
+from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.fonts.utils import panose_to_css_generic_family
 from calibre.utils.icu import sort_key
 
@@ -221,6 +221,7 @@ class Scanner(Thread):
     def build_families(self):
         families = defaultdict(list)
         for f in self.cached_fonts.itervalues():
+            if not f: continue
             lf = icu_lower(f['font-family'] or '')
             if lf:
                 families[lf].append(f)
@@ -266,10 +267,14 @@ class Scanner(Thread):
 
     def read_font_metadata(self, path, fileid):
         with lopen(path, 'rb') as f:
-            fm = FontMetadata(f)
-            data = fm.to_dict()
-            data['path'] = path
-            self.cached_fonts[fileid] = data
+            try:
+                fm = FontMetadata(f)
+            except UnsupportedFont:
+                self.cached_fonts[fileid] = {}
+            else:
+                data = fm.to_dict()
+                data['path'] = path
+                self.cached_fonts[fileid] = data
 
     def dump_fonts(self):
         self.join()
