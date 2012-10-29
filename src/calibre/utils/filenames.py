@@ -307,7 +307,7 @@ class WindowsAtomicFolderMove(object):
                     ' operation was started'%path)
         try:
             win32file.CreateHardLink(dest, path)
-            if not os.path.exists(dest):
+            if os.path.getsize(dest) != os.path.getsize(path):
                 raise Exception('This apparently can happen on network shares. Sigh.')
             return
         except:
@@ -348,7 +348,7 @@ def hardlink_file(src, dest):
     if iswindows:
         import win32file
         win32file.CreateHardLink(dest, src)
-        if not os.path.exists(dest):
+        if os.path.getsize(dest) != os.path.getsize(src):
             raise Exception('This apparently can happen on network shares. Sigh.')
         return
     os.link(src, dest)
