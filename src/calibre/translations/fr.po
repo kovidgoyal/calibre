@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-26 05:12+0000\n"
-"PO-Revision-Date: 2012-10-25 06:36+0000\n"
-"Last-Translator: Franck <Unknown>\n"
+"PO-Revision-Date: 2012-10-28 13:56+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-27 04:42+0000\n"
+"X-Launchpad-Export-Date: 2012-10-29 04:58+0000\n"
 "X-Generator: Launchpad (build 16194)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -13773,7 +13773,7 @@ msgstr "Choisir la &famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:196
 msgid "Clear the font family"
-msgstr ""
+msgstr "Supprimer la famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296

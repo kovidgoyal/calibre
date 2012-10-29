@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-26 05:12+0000\n"
-"PO-Revision-Date: 2012-10-27 16:58+0000\n"
+"PO-Revision-Date: 2012-10-28 16:21+0000\n"
 "Last-Translator: viktorc <dinalt@email.cz>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-10-28 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-10-29 04:59+0000\n"
 "X-Generator: Launchpad (build 16194)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -350,7 +350,7 @@ msgstr "Upraviť metadata kníh vo vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Read books in your calibre library"
-msgstr "Čítať knihy vo vašej Calibre knižnici"
+msgstr "Prečítané knihy vo vašej knižnici Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Download news from the internet in ebook form"
@@ -4230,10 +4230,10 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
-"Cesta k súboru obsahujúcom vyhľadanie a nahradenie regulárnych výrazov. "
-"Súbor musí obsahovať striedajúce sa riadky regulárnych výrazov nasledované "
-"nahradzujúcim vzorom (môže byť prázdny riadok). Regulárne výrazy musia byť v "
-"python-ovom regex syntaxe a súbor musí byť kódovaný v UTF-8."
+"Cesta k súboru obsahujúcom regulárne výrazy hľadania a nahradenia. Súbor "
+"musí obsahovať striedajúce sa riadky regulárnych výrazov nasledované "
+"nahradzujúcim vzorom (môže byť prázdny riadok). Regulárne výrazy musia byť "
+"podľa syntaxu pythonu a súbor musí byť kódovaný v UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:767
 msgid "Could not find an ebook inside the archive"
@@ -6824,6 +6824,26 @@ msgid ""
 "            library.</li>\n"
 "            </ol>"
 msgstr ""
+"            <h2>O vylepšení knihy</h2>\n"
+"            <p>Vylepšenie knihy Vám umožňuje  detailne doladiť\n"
+"            vzhľad e-booku drobnými zmenami vnútorných nastavení.\n"
+"            Pred použitím Vylepšenia knihy by ste mali niečo málo\n"
+"            vedieť o technológiách HTML a CSS, ktoré sú v e-bookoch\n"
+"            použité. Postupujte nasledovne:</p>\n"
+"            <br>\n"
+"            <ol>\n"
+"            <li>Kliknite na \"Rozbaliť knihu\": Tým \"rozbalíte\" knihu na "
+"jej \n"
+"            jednotlivé vnútorné komponenty.<br></li>\n"
+"            <li>Na úpravu jednotlivých súborov Vaším obľúbeným \n"
+"            editorom, kliknite na ne pravým tlačidlom myši a vyberte\n"
+"            \"Otvoriť v...\".<br></li>\n"
+"            <li>Keď s vylepšovaním skončíte: <b>zatvorte okno prehliadača\n"
+"            súborov a okná editorov ktoré ste použili na vylepšenia</b>.\n"
+"            Následne kliknite na tlačidlo \"Znovuvytvoriť knihu\", aby sa "
+"kniha\n"
+"            aktualizovala v knižnici Calibre.</li>\n"
+"            </ol>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
@@ -6843,7 +6863,7 @@ msgstr "&Zrušiť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "Znovu&vytvoriť knihu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
@@ -6901,7 +6921,7 @@ msgstr "Znovuvytváram, prosím čakajte..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:289
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
-msgstr ""
+msgstr "Urobiť drobné zmeny vo formátoch kníh ePub, HTMLZ, alebo AZW3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:290
 msgid "T"
@@ -7497,65 +7517,65 @@ msgstr "Katalógy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
-msgstr ""
+msgstr "Prečítaná kniha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:105
 msgid "Wishlist item"
-msgstr ""
+msgstr "Položka zoznamu želaní"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:795
 msgid "any date"
-msgstr ""
+msgstr "nejaký dátum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:793
 msgid "any value"
-msgstr ""
+msgstr "nejaká hodnota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:791
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:793
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:795
 msgid "unspecified"
-msgstr ""
+msgstr "neuvedené"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:185
 msgid "No genres will be excluded"
-msgstr ""
+msgstr "Žiadne žánre nebudú vyňaté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:194
 #, python-format
 msgid "regex error: %s"
-msgstr ""
+msgstr "chyba regulárneho výrazu: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:203
 msgid "All genres will be excluded"
-msgstr ""
+msgstr "Všetky žánre budú vyňaté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:639
 #, python-format
 msgid "Are you sure you want to delete '%s'?"
-msgstr ""
+msgstr "Ste si istý, že chcete odstrániť '%s'?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:641
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
-msgstr ""
+msgstr "Ste si istý, že chcete odstrániť pravidlá #%(first)d-%(last)d?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:642
 msgid "Delete Rule"
-msgstr ""
+msgstr "Odstrániť pravidlo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:791
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:601
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4665
 msgid "False"
-msgstr ""
+msgstr "Nepravda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:791
 msgid "True"
-msgstr ""
+msgstr "Pravda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:816
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:907
@@ -7569,20 +7589,20 @@ msgstr "Názov"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:817
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:909
 msgid "Field"
-msgstr ""
+msgstr "Pole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:818
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:910
 msgid "Value"
-msgstr ""
+msgstr "Hodnota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:908
 msgid "Prefix"
-msgstr ""
+msgstr "Titul pred"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:266
 msgid "Enabled sections will be included in the generated catalog."
-msgstr ""
+msgstr "Povolené sekcie budú zahrnuté do generovaného katalógu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:267
 msgid "Included sections"
@@ -7590,23 +7610,23 @@ msgstr "Zahrnuté sekcie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:268
 msgid "&Authors"
-msgstr ""
+msgstr "&Autori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:269
 msgid "&Titles"
-msgstr ""
+msgstr "&Tituly"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:270
 msgid "&Series"
-msgstr ""
+msgstr "&Série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:271
 msgid "&Genres"
-msgstr ""
+msgstr "Žá&nre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:272
 msgid "&Recently Added"
-msgstr ""
+msgstr "&Naposledy pridané"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:273
 msgid "&Descriptions"
@@ -7620,13 +7640,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:275
 msgid "Prefixes"
-msgstr ""
+msgstr "Prefixy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:276
 msgid ""
 "Books matching any of the exclusion rules will be excluded from the "
 "generated catalog. "
 msgstr ""
+"Knihy vyhovujúce pravidlám pre vyňatie nebudú zahrnuté do generovaného "
+"katalógu. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:277
 msgid "Excluded books"
@@ -7639,6 +7661,10 @@ msgid ""
 "The default pattern \\[.+\\]|\\+ excludes tags of the form [tag], e.g., "
 "[Test book], and '+', the default tag for a read book."
 msgstr ""
+"Regulárny výraz popisujúci žánre, ktoré nemajú byť zaradené do generovaného "
+"katalógu. Žánre sú odvodené od značiek priradených k Vaším knihám.\n"
+"Štandardná maska \\[.+\\]|\\+ vyníma značky v tvare [značka], napr. "
+"[Testovacia kniha], a '+', štandardná značka pre čítanú knihu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:280
 msgid "Excluded genres"
@@ -7646,19 +7672,19 @@ msgstr "Vynechané žánre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:281
 msgid "Tags to &exclude (regex):"
-msgstr ""
+msgstr "&Vyňať značky (regulárny výraz):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:282
 msgid "Reset to default"
-msgstr ""
+msgstr "Obnoviť na východzie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:284
 msgid "Results of regex:"
-msgstr ""
+msgstr "Výsledky regulárneho výrazu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:285
 msgid "Tags that will be excluded as genres"
-msgstr ""
+msgstr "Značky, ktoré budú vyňaté z žánrov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:286
 msgid "Other options"
@@ -7669,10 +7695,12 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata."
 msgstr ""
+"Užívateľské pole obsahujúce doplnkový obsah, ktorý sa má pripojiť k "
+"metadátam Komentáre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:288
 msgid "Merge additional content before Comments metadata."
-msgstr ""
+msgstr "Pripojiť doplnkový obsah pred metadáta Komentáre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:289
 msgid "&Before"
@@ -7680,7 +7708,7 @@ msgstr "&Pred"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:290
 msgid "Merge additional content after Comments metadata."
-msgstr ""
+msgstr "Pripojiť doplnkový obsah za metadáta Komentáre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:291
 msgid "&After"
@@ -7693,11 +7721,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Include &Separator"
-msgstr ""
+msgstr "Vložiť &oddeľovač"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "&Merge with Comments:"
-msgstr ""
+msgstr "&Zlúčiť s komentármi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "Catalog cover:"
@@ -7705,11 +7733,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Generate new cover"
-msgstr ""
+msgstr "Generovať novú obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Use existing cover"
-msgstr ""
+msgstr "Použiť existujúcu obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "E&xtra Description note:"
@@ -7890,11 +7918,11 @@ msgstr "Vytvoriť odkaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:215
 msgid "Enter &URL:"
-msgstr ""
+msgstr "Zadajte &URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:216
 msgid "Enter name (optional):"
-msgstr ""
+msgstr "Zadajte názov (voliteľné):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:577
 msgid "Normal view"
@@ -7906,7 +7934,7 @@ msgstr "HTML zdroj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "Výstup AZW3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:84
@@ -8322,7 +8350,7 @@ msgstr "Spôsob spracovania s triedami v CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
-msgstr ""
+msgstr "Použiť &názov knihy pre názov HTML súboru vo vnútri archívu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -8498,7 +8526,7 @@ msgstr "Výška &riadka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr "&Pripojiť triedu fontov:"
+msgstr "&Pripojiť písmo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -8703,6 +8731,8 @@ msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
 msgstr ""
+"Nekonvertovať všetky obrázky do &JPEG (môže spôsobiť, že staršie prehliadače "
+"ich nezobrazia)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:87
 msgid "Kindle options"
@@ -8710,7 +8740,7 @@ msgstr "Voľby Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:88
 msgid "MOBI file &type:"
-msgstr ""
+msgstr "&Typ súboru MOBI:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:89
 msgid "Personal Doc tag:"
@@ -8722,6 +8752,9 @@ msgid ""
 "both MOBI filetypes. If you wish to use the new format on your device, "
 "convert to AZW3 instead of MOBI."
 msgstr ""
+"<b>UPOZORNENIE:</b> Mnohé zariadenia Kindle majú problém so zobrazením "
+"nového, alebo oboch typov súborov MOBI. Ak si želáte použiť vo Vašom "
+"zariadení nový formát, skonvertujte ho na AZW3, namiesto MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -8752,7 +8785,7 @@ msgstr "V&ľavo:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "Bez okraja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -8782,7 +8815,7 @@ msgstr "&Formát:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:95
 msgid "&Inline TOC"
-msgstr ""
+msgstr "&Vložený obsah"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:49
@@ -8843,7 +8876,7 @@ msgstr "Š&tandardné písmo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:109
 msgid "Default font si&ze:"
-msgstr ""
+msgstr "Štandardná &veľkosť písma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:112
@@ -8904,7 +8937,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
 msgid "Failed to generate preview"
-msgstr ""
+msgstr "Vytvorenie náhľadu zlyhalo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:191
 msgid "Open book"
@@ -8977,37 +9010,39 @@ msgstr "Regulárny výraz pre &hľadanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "Nahradzovaný text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "Regulárny výraz hľadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Načítať definičný súbor Calibre pre hľadanie-náhradu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:122
 msgid "Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Definičný súbor Calibre pre hľadanie-náhradu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:113
 msgid "Failed to read"
-msgstr ""
+msgstr "Nepodarilo sa prečítať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:114
 #, python-format
 msgid "Failed to load patterns from %s, click Show details to learn more."
 msgstr ""
+"Zlyhalo načítanie vzorov z %s. Viac sa dozviete po kliknutí na Zobraziť "
+"podrobnosti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:120
 msgid "Save Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Uložiť definičný súbor Calibre pre hľadanie-náhradu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:196
 msgid "Unused Search & Replace definition"
-msgstr ""
+msgstr "Nepoužitá definícia Hľadať a Nahradiť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:197
 msgid ""
@@ -9015,6 +9050,8 @@ msgid ""
 "of definitions. Do you wish to continue with the conversion (the definition "
 "will not be used)?"
 msgstr ""
+"Upravovaná definícia pre hľadanie / náhradu nebola doplnená do zoznamu "
+"definícií. Želáte si pokračovať v konverzii (táto definícia sa nepoužije)?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:110
@@ -9032,10 +9069,12 @@ msgid ""
 "The list of search/replace definitions that will be applied to this "
 "conversion."
 msgstr ""
+"Zoznam definícií pre hľadanie / náhradu, ktorý bude použitý pri tejto "
+"konverzii."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:146
 msgid "Search/Replace Definition Edit"
-msgstr ""
+msgstr "Úprava definície hľadať/nahradiť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:147
 msgid "&Replacement Text"
@@ -9044,15 +9083,15 @@ msgstr "&Nahradiť za"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid ""
 "Add the current expression to the list of expressions that will be applied"
-msgstr ""
+msgstr "Pridať aktuálny výraz do zoznamu výrazov ktoré sa použijú"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 msgid "&Add"
-msgstr ""
+msgstr "&Pridať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Edit the currently selected expression"
-msgstr ""
+msgstr "Upraviť aktuálne vybraný výraz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
@@ -9061,7 +9100,7 @@ msgstr "&Zmeniť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Remove the currently selected expression"
-msgstr ""
+msgstr "Odstrániť aktuálne vybraný výraz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:871
@@ -9070,16 +9109,16 @@ msgstr "&Odstrániť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid "Load a list of expressions from a previously saved file"
-msgstr ""
+msgstr "Načítať zoznam výrazov z predtým uloženého súboru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:433
 msgid "&Load"
-msgstr ""
+msgstr "&Načítať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:156
 msgid "Save this list of expressions so that you can re-use it easily"
-msgstr ""
+msgstr "Uložiť zoznam výrazov pre jednoduchšie opakované použitie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:188
@@ -9090,11 +9129,11 @@ msgstr "&Uložiť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "Posunúť výraz hore."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "Posunúť výraz dolu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -9105,6 +9144,12 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p>Hľadať a nahradiť využíva <i>regulárne výrazy</i>. S regulárnymi výrazmi "
+"sa môžete oboznámiť v <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">príručke regulárnych výrazov</a>. Kliknutím na "
+"tlačidlo sprievodcu Vám umožní otestovať Váš regulárny výraz v aktoálnom "
+"vstupnom dokumente. Ak ste s výrazom spokojní, pridajte ho do zoznamu "
+"výrazov tlačidlom Pridať."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:184
 msgid "Convert"
@@ -9664,12 +9709,12 @@ msgstr "Chyba komunikácie so zariadením"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:860
 #, python-format
 msgid "Manage the %s?"
-msgstr ""
+msgstr "Spravovať %s?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 #, python-format
 msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
-msgstr ""
+msgstr "Bol detekovaný <b>%s</b>. Želáte si, aby ho Calibre spravovala?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:884
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1460
@@ -9698,7 +9743,7 @@ msgstr "Konfigurovať %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
 #, python-format
 msgid "Restart calibre for the changes to %s to be applied."
-msgstr ""
+msgstr "Aby sa zmeny %s prejavili, treba Calibre reštartovať."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:981
 msgid "Error talking to device"
@@ -9731,7 +9776,7 @@ msgstr "Žiadne zariadenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1140
 msgid "No device connected"
-msgstr ""
+msgstr "Žiadne zariadenie nie je pripojené"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1156
 #, python-format
@@ -9802,7 +9847,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1540
 msgid "Incorrect destination"
-msgstr ""
+msgstr "Nesprávny cieľ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:142
 msgid "Unknown formats"
@@ -9860,21 +9905,23 @@ msgstr "Uložiť &šablónu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:57
 msgid "No formats selected"
-msgstr ""
+msgstr "Nie sú vybrané žiadne formáty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:58
 msgid "You must choose at least one format to send to the device"
-msgstr ""
+msgstr "Musíte zvoliť aspoň jeden formát, ktorý chcete poslať do zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:86
 msgid ""
 "<b>Save &template</b> to control the filename and\n"
 "        location of files sent to the device:"
 msgstr ""
+"<b>Uložiť šab&lónu</b> na určujúcu názov súboru a\n"
+"        umiestnenia súborov posielaných do zariadenia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
-msgstr ""
+msgstr "Editor šab&lón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -9888,30 +9935,34 @@ msgid ""
 "A <b>list of &folders</b> on the device to\n"
 "        which to send ebooks. The first one that exists will be used:"
 msgstr ""
+"A <b>zoznam &priečinkov</b> v zariadení do\n"
+"        ktorých posielať e-booky. Použije sa prvý existujúci:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
 msgid "Browse for a folder on the device"
-msgstr ""
+msgstr "Vybrať priečinok v zariadení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:167
 msgid ""
 "Select the devices to be <b>ignored</b>. calibre <b>will not</b>\n"
 "            connect to devices with a checkmark next to their names."
 msgstr ""
+"Výber zariadení, ktoré sa majú <b>ignorovať</b>. Calibre sa\n"
+"            k označeným zariadeniam <b>nebude</b> pripájať."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
 msgid "Send the %s format to the folder:"
-msgstr ""
+msgstr "Odoslať formát %s do priečinka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:220
 msgid "Folder on the device"
-msgstr ""
+msgstr "Priečinok v zariadení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:228
 msgid "&Remove rule"
-msgstr ""
+msgstr "Odst&rániť pravidlo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
@@ -9924,41 +9975,48 @@ msgid ""
 "over\n"
 "            the folders specified above."
 msgstr ""
+"Môžete vytvoriť pravidlá, ktoré budú ovplyvňovať kam do zariadenia\n"
+"            sa e-booky určitého formátu budú posielať. Tieto majú prednosť\n"
+"            pred priečinkami zadanými vyššie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
-msgstr ""
+msgstr "Pridať &nové pravidlo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:338
 #, python-format
 msgid "The <b>%s</b> device has no serial number, it cannot be configured"
-msgstr ""
+msgstr "Zariadenie <b>%s</b> nemá sériové číslo a nemôže byť nastavované"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:343
 msgid ""
 "<b>No MTP device connected.</b><p> You can only configure the MTP device "
 "plugin when a device is connected."
 msgstr ""
+"<b>Nie je pripojené žiadne MTP zariadenie.</b><p> Modul MTP zariadenia "
+"môžete nastavovať len ak je zariadenie pripojené."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:350
 msgid ""
 "If you want to un-ignore a previously ignored MTP device, use the \"Ignored "
 "devices\" tab."
 msgstr ""
+"Ak chcete aby sa MTP zariadenie, ktoré bolo doteraz ignorované, prestalo "
+"ignorovať, použite záložku \"Ignorované zariadenia\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
 msgid "Choose the formats to send to the %s"
-msgstr ""
+msgstr "Vyberte formáty na posielanie do %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:373
 #, python-format
 msgid "&Ignore the %s in calibre"
-msgstr ""
+msgstr "&Ignorovať %s v Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Show device information"
-msgstr ""
+msgstr "Zobraziť informácie o zariadení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
@@ -9971,11 +10029,11 @@ msgstr "Kopírovať do schránky"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:419
 #, python-format
 msgid "The %s will be ignored in calibre"
-msgstr ""
+msgstr "%s bude v Calibre ignorované"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:91
 msgid "Choose folder on device"
-msgstr ""
+msgstr "Vyberte priečinok v zariadení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10055,11 +10113,11 @@ msgstr "Moje knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:190
 msgid "No help available"
-msgstr ""
+msgstr "Nápoveda nie je dispozícii"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:191
 msgid "No help available for this output format."
-msgstr ""
+msgstr "Pre tento výstupný formát nie je nápoveda k dispozícii"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:331
@@ -10360,12 +10418,15 @@ msgid ""
 "You should not create a library inside the Calibre folder as this folder is "
 "automatically deleted during upgrades."
 msgstr ""
+"V priečinku Calibre by ste nemali vytvárať knižnicu, pretože tento priečinok "
+"sa pri aktualizáciách automaticky vymazáva."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:78
 #, python-format
 msgid ""
 "You can only create libraries inside %s at the top level, not in sub-folders"
 msgstr ""
+"Knižnice môžete vytvárať len v najvyššej úrovni %s, nie v jeho podpriečinkoch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 msgid "No existing library found"
@@ -10842,7 +10903,7 @@ msgstr "Zobraziť protokol"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr ""
+msgstr "Skryť zostávajúcich %d chybových správ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Title/Author"
@@ -11012,7 +11073,7 @@ msgstr "Názov hľadania/náhrady:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1052
 msgid "You must provide a name."
-msgstr ""
+msgstr "Musíte poskytnúť meno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1057
 msgid ""
@@ -12388,7 +12449,7 @@ msgstr "&Názov/Autor/Séria ..."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:38
 #, python-format
 msgid "There are %(count)d book(s) with the %(fmt)s format"
-msgstr ""
+msgstr "Existuje %(count)d kníh vo formáte %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:55
 msgid "Choose formats"
@@ -12400,6 +12461,9 @@ msgid ""
 "example, if you run calibre on a laptop, use that laptop in an airport, and "
 "want to connect your smart device to calibre, you should use a password."
 msgstr ""
+"Ak beží Calibre v sieti, ktorá nie je bezpečná, použite heslo. Napr. ak "
+"bežíte Calibre na notebooku, ktorý používate na letisku a chcete sa k nemu "
+"pripojiť svojím smart zariadením, mali by ste použiť heslo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:51
 msgid ""
@@ -12407,6 +12471,9 @@ msgid ""
 "interface when calibre starts. You should not do this if you are using a "
 "network that is not secure and you are not setting a password."
 msgstr ""
+"Označte túto voľbu ak chcete aby Calibre automaticky po štarte spúšťalo "
+"rozhranie pre smart zariadenia. Ak používate nezabezpečenú sieť a nemáte "
+"nastavené heslo, nemali by ste to robiť."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:57
 msgid ""
@@ -12414,12 +12481,17 @@ msgid ""
 "will not need to do this. However, if your device consistently fails to "
 "connect to calibre, try checking this box and entering a number."
 msgstr ""
+"Označte túto voľbu, ak chcete aby Calibre použila pevný sieťový port. "
+"Obvykle to nemusíte robiť. Ak sa však Vaše zariadenie opakovane nemôže ku "
+"Calibre pripojoť, skúste túto voľbu označiť a zadajte číslo portu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:63
 msgid ""
 "Try 9090. If calibre says that it fails to connect to the port, try another "
 "number. You can use any number between 8,000 and 32,000."
 msgstr ""
+"Vyskúšajte 9090. Ak Calibre oznámi, že sa k tomuto portu nemôže pripojiť, "
+"skúste iné číslo. Môžete použiť akékoľvek číslo medzi 8.000 and 32.000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:69
 msgid ""
@@ -12430,36 +12502,41 @@ msgid ""
 "computer's control panel to get a complete list of your computer's network "
 "interfaces and IP addresses."
 msgstr ""
+"Toto sú IP adresy tohoto počítača. Ak sa rozhodnete, že sa má Vaše "
+"zariadenie pripájať cez pevnú IP adresu, mala by to byť jedna z nich. Je "
+"nepravdepodobné, ale možné, že správna IP adresa v zozname nie je. V takom "
+"prípade budete musieť otvoriť ovládacie panely počítača, kde nájdete úplný "
+"zoznam jeho sieťových rozhraní a IP adries."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:129
 msgid "Invalid port number"
-msgstr ""
+msgstr "Neplatné číslo portu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:119
 msgid "You must provide a port number."
-msgstr ""
+msgstr "Musíte zadať číslo portu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:130
 msgid "The port must be a number between 8000 and 32000."
-msgstr ""
+msgstr "Číslo portu musí byť medzi 8000 a 32000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:390
 msgid "Problem starting the wireless device"
-msgstr ""
+msgstr "Pri spustení bezdrôtového zariadenia sa vyskytol problém"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:391
 #, python-format
 msgid "The wireless device driver did not start. It said \"%s\""
-msgstr ""
+msgstr "Ovládač bezdrôtového zariadenia sa nespustil. Vypísal \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:86
 msgid "Smart device control"
-msgstr ""
+msgstr "Ovládanie smart zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:87
 msgid ""
@@ -12470,38 +12547,44 @@ msgid ""
 "virus manager asking you if it is OK for calibre to connect to the network. "
 "<b>Please answer yes</b>. If you do not, wireless connections will not work."
 msgstr ""
+"<p>Spustiť pripojenia bezdrôtového zariadenia. V súčasnosti používané len\n"
+"       aplikáciou <a href=\"http://www.multipie.co.uk/calibre-"
+"companion/\">Calibre Companion</a>.\n"
+"       <p>Môžu sa zobraziť dotazy firewallu, alebo antivíru Vášho počítača, "
+"či je v poriadku, aby sa Calibre pripojila k sieti. <b>Odpovedzte prosím "
+"áno</b>. V opačnom prípade nebudú bezdrôtové priopjenia fungovať."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Calibre IP addresses:"
-msgstr ""
+msgstr "IP adresy Calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:91
 msgid "Possibe IP addresses:"
-msgstr ""
+msgstr "Možné IP adresy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:92
 msgid "Optional &password:"
-msgstr ""
+msgstr "Voliteľné &heslo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:93
 msgid "Optional password for security"
-msgstr ""
+msgstr "Voliteľné bezpečnostné heslo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:95
 msgid "Optional &fixed port:"
-msgstr ""
+msgstr "Voliteľný &pevný port:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:96
 msgid "Optional port number"
-msgstr ""
+msgstr "Voliteľné číslo portu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:97
 msgid "&Use a fixed port"
-msgstr ""
+msgstr "Po&užiť pevný port"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:98
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "Po štarte Calibre &automaticky povoliť pripojenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -12672,19 +12755,19 @@ msgstr "Bolo"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
 msgid "Find"
-msgstr ""
+msgstr "Nájsť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:167
 msgid "You must enter some text to search for"
-msgstr ""
+msgstr "Musíte zadať nejaký hľadaný text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 msgid "No tag found"
-msgstr ""
+msgstr "Značka nebola nájdená"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:74
 msgid "Search for an item in the Tag column"
-msgstr ""
+msgstr "Hľadať položku v stĺpci značka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:112
@@ -13181,7 +13264,7 @@ msgstr "Regulárny výraz (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Vyberte písmo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13201,15 +13284,15 @@ msgstr "Žiadne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Vyberte písmo zo zoznamu nižšie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Vyberte &písmo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:196
 msgid "Clear the font family"
-msgstr ""
+msgstr "Vymažte písmo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -13721,13 +13804,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:75
 msgid "Path too long"
-msgstr ""
+msgstr "Cesta je príliš dlhá"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:76
 #, python-format
 msgid ""
 "Path to Calibre Portable (%s) too long. Must be less than 59 characters."
 msgstr ""
+"Cesta ku Calibre Portable (%s) je príliš dlhá. Musí byť kratšia ako 59 "
+"znakov."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:777
@@ -13838,15 +13923,15 @@ msgstr "%s je už spustený."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:370
 msgid "No running calibre found"
-msgstr ""
+msgstr "Nebolo nájdené bežiace Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:374
 msgid "Shutdown command sent, waiting for shutdown..."
-msgstr ""
+msgstr "Odoslaný príkaz na ukončenie, čakám na ukončenie..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:379
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "Ukončenie bežiacej inštancie Calibre zlyhalo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -13918,7 +14003,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "Nemôžem otvoriť \"%s\". Používa ho iný program?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -14189,7 +14274,7 @@ msgstr "(Zlyhala obálka)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr ""
+msgstr "Spracované %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:124
@@ -14266,11 +14351,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:162
 msgid "Clear series"
-msgstr ""
+msgstr "Vyčistiť série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear Ids"
-msgstr ""
+msgstr "Vyčistiť Id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid ""
@@ -14616,6 +14701,10 @@ msgid ""
 " If it is, a message will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Ak je voľba nastavená spôsobí, že Calibre bude pri\n"
+" automatickom pridávaní kontrolovať, či už súbor\n"
+" v knižnici Calibre nie je. Ak je, zobrazí sa otázka,\n"
+" či ho má napriek tomu pridať."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Check for &duplicates when auto-adding files"
@@ -14640,6 +14729,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "Ignore files with the following extensions when automatically adding "
 msgstr ""
+"Pri automatickom pridávaní ignorovať súbory s nasledujúcimi príponami "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "Folder to auto-add files from"
@@ -14652,6 +14742,7 @@ msgstr "Vyhľadajte priečinok"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:159
 msgid "Automatically &convert added files to the current output format"
 msgstr ""
+"Pridávané súbory automaticky &konvertovať do aktuálneho výstupného formátu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:160
 msgid "&Automatic Adding"
@@ -14670,7 +14761,7 @@ msgstr "Nízka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Veľmi nízka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
@@ -14868,6 +14959,9 @@ msgid ""
 "eng for English. You can also use the full language name, in which case "
 "calibre will try to automatically convert it to the language code."
 msgstr ""
+"Zadajte 3-znakový ISO kód jazyka, napr. fra pre Francúzštinu, deu pre "
+"Nemčinu, alebo eng pre Angličtinu. Môžete použiť aj plný názov jazyka a v "
+"takom prípade sa ho Calibre automaticky pokúsi skonvertovať na kód jazyka."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:225
 msgid "Enter a number"
@@ -14916,7 +15010,7 @@ msgstr "Podmienku môžete vypnúť vymazaním všetkých jej polí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:338
 msgid "Sample Text"
-msgstr ""
+msgstr "Vzorka textu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:380
 msgid "Invalid condition"
@@ -15465,7 +15559,7 @@ msgstr "Farby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr ""
+msgstr "Získavam ladiace informácie, prosím čakajte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -15474,7 +15568,7 @@ msgstr "&Kopírovať do schránky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:43
 msgid "Device already detected"
-msgstr ""
+msgstr "Zariadenie už bolo detekované"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:44
 #, python-format
@@ -15482,16 +15576,20 @@ msgid ""
 "A device (%s) is already detected by calibre. If you wish to debug the "
 "detection of another device, first disconnect this device."
 msgstr ""
+"Zadiadenie (%s) už bolo detekované programom Calibre. Ak chcete ladiť "
+"detekciu iného zariadenia, najprv odpojte toto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
-msgstr ""
+msgstr "Ladenie zlyhalo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:58
 msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
 msgstr ""
+"Spustenie ladenia detekcie zariadenia zlyhalo. Pre viac informácií kliknite "
+"na Zobraziť podrobnosti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -15595,6 +15693,8 @@ msgid ""
 "The list of devices that you have asked calibre to ignore. Uncheck a device "
 "to have calibre stop ignoring it."
 msgstr ""
+"Zoznam zariadení, ktoré ste chceli, aby Calibre ignorovalo. Odznačte "
+"zariadenie, ktoré sa má prestať ignorovať."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -15606,11 +15706,11 @@ msgstr "Široké"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Štýl Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "Predvolené nastavenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:140
 msgid "Off"
@@ -15714,11 +15814,11 @@ msgstr "Zmeniť &písmo (vyžaduje reštart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:251
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "Š&týl užívateľského rozhrania (vyžaduje reštart):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:252
 msgid "Show &tooltips in the book list"
-msgstr ""
+msgstr "Zobraziť &tooltipy v zozname kníh"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:253
 msgid "Main Interface"
@@ -15768,7 +15868,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid "Show &cover in the book details panel"
-msgstr ""
+msgstr "Zobraziť &obálku v paneli podrobností knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:267
 msgid ""
@@ -15849,7 +15949,7 @@ msgstr "Kategórie s &hiererchickými položkami:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:290
 msgid "Use &alternating row colors in the Tag Browser"
-msgstr ""
+msgstr "Použiť &striedavú farbu riadkov v Prehliadači značiek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:292
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -15905,6 +16005,8 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
 msgstr ""
+"Zmeny, ktoré ste vykonali vyžadujú okamžitý reštart Calibre. Dovtedy "
+"nebudete môcť nastavovať žiadne ďalšie predvoľby."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -16059,7 +16161,7 @@ msgstr "Uprednostniť &menej značiek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
-msgstr ""
+msgstr "Použite dátum \"prvého vydania\" (z worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -16067,6 +16169,9 @@ msgid ""
 "This refers to CPU intensive tasks like  conversion. Lower this number if "
 "you want calibre to use less CPU."
 msgstr ""
+"Maximálny počet úloh, ktoré budú bežať na pozadí súčasne. Toto platí pre "
+"úlohy náročné na CPU, medzi ktoré patrí napr. konverzia. Ak chcete, aby "
+"Calibre využívala menej CPU, toto číslo znížte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "No proxies used"
@@ -16194,7 +16299,7 @@ msgstr "Zariadenie {0} nepodporuje formát {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "Zariadenie {0} podporuje len formáť(y) {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -16299,6 +16404,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"Tento modul bol zakázaný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid "Search for plugin"
@@ -16383,7 +16491,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
-msgstr ""
+msgstr "Konštantná šablóna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:67
 msgid ""
@@ -16487,6 +16595,29 @@ msgid ""
 "check for duplicates, to find which column contains a particular item, or to "
 "have hierarchical categories (categories that contain categories)."
 msgstr ""
+"<b>Združené vyhľadávacie termíny</b> sú názvy vyhľadávania, ktoré umožňujú "
+"dotazy na automatické prehľadávanie viac ako jedného poľa. Napr. ak "
+"vytvoríte združený vyhľadávací termín <code>všetkysérie</code> s hodnotou "
+"<code>series, #myseries, #myseries2</code>, potom dotaz "
+"<code>všetkysérie:adhoc</code> nájde 'adhoc' v ktoromkoľvek z polí "
+"<code>series</code>, <code>#myseries</code>, a <code>#myseries2</code>.<p> "
+"Názov združeného vyhľadávacieho termínu zadajte do vyskakovacieho zoznamu, "
+"zoznam polí do zapíšte do poľa hodnota a stlačte tlačidlo Uložiť. "
+"<p>Upozornenie: Názvy vyhľadávacích termínov sú upravené na malé písmená; "
+"<code>MojeHľadanie</code> a <code>mojehľadanie</code> označujú rovnaký "
+"termín.<p>Vaše združené vyhľadávacie termíny si môžete nechať zobraziť ako "
+"užívateľské kategórie v Prehliadači značiek. Stačí pridať názvy združených "
+"vyhľadávacích termínov do poľa Vytvoriť užívateľské kategórie z. Môžete "
+"pridať viacero termínov oddelených čiarkami. Nové užívateľské kategórie budú "
+"automaticky zaplnené všetkými položkami z polí začlenených do združeného "
+"vyhľadávacieho termínu.<p>Automatické užívateľské polia umožňujú jednoducho "
+"vidieť všetky položky z polí obsiahnutých v združenom vyhľadávacom termíne. "
+"Pomocou vyššie spomenutého príkladu <code>všetkysérie</code>, bude "
+"automaticky generovaná užívateľská kategória obsahovať všetky série, "
+"spomenuté v <code>series</code>, <code>#myseries</code>, a "
+"<code>#myseries2</code>. To môže byť užitočné pri hľadaní duplikátov, "
+"hľadaní ktoré pole obsahuje príslušnú položku, alebo mať hierarchické "
+"kategórie (kategórie obsahujúce kategórie)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
@@ -16505,7 +16636,7 @@ msgstr "Nájsť ktorékoľvek"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:176
 msgid "Grouped Search Terms"
-msgstr ""
+msgstr "Združené vyhľadávacie termíny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:140
 msgid "The search term cannot be blank"
@@ -16514,6 +16645,7 @@ msgstr "Hľadaný výraz nemôže byť prázdny"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:150
 msgid "That name is already used for a column or grouped search term"
 msgstr ""
+"Tento názov už bol použitý pre pole, alebo združený vyhľadávací termín"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:154
 msgid "That name is already used for user category"
@@ -16525,7 +16657,7 @@ msgstr "Pole hodnoty nemôže byť prázdne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:173
 msgid "The empty grouped search term cannot be deleted"
-msgstr ""
+msgstr "Prázdny združený vyhľadávací termín nemôže byť odstránený"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:168
 msgid "Search as you &type"
@@ -16615,6 +16747,8 @@ msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
 msgstr ""
+"Zadajte názvy združených vyhľadávacích termínov,\n"
+"ktoré chcete zobraziť ako užívateľské kategórie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:192
 msgid ""
@@ -16630,7 +16764,7 @@ msgstr "Vymazať &históriu hľadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:194
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "Čo porovnávať pri hľadaní podobných kníh"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:195
 msgid ""
@@ -16641,22 +16775,27 @@ msgid ""
 "         By changing the lookup name to a grouped search term you can\n"
 "         search multiple columns at once.</p>"
 msgstr ""
+"<p>Ak hľadáte podobné knihy pravým kliknutím na knihu a vybraním\n"
+"         \"Podobné knihy...\", Calibre vytvorí vyhľadávanie pomocou\n"
+"         vyhľadávacích názvov stĺpcov zvolených nižšie.\n"
+"         Zmenou vyhľadávacieho názvu na združený vyhľadávací termín\n"
+"         môžete prehľadávať viacero stĺpcov naraz.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
-msgstr ""
+msgstr "Podobní autori: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:201
 msgid "Similar series: "
-msgstr ""
+msgstr "Podobné série: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:202
 msgid "Similar tags: "
-msgstr ""
+msgstr "Podobné značky: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:203
 msgid "Similar publishers: "
-msgstr ""
+msgstr "Podobní vydavatelia: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -17736,7 +17875,7 @@ msgstr "%p%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:307
 msgid "The grouped search term name is \"{0}\""
-msgstr ""
+msgstr "Názov združeného vyhľadávacieho termínu je \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:766
 msgid ""
@@ -17900,7 +18039,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Upraviť prehliadač značiek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -19729,6 +19868,10 @@ msgid ""
 "'+', the default tag for read books.\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Regulárny výraz popisujúci značky, ktoré budú odstránené z žánrov.\n"
+"Štandardne: '%default' odstráni značky v zátvorkách, napr. '[Projekt "
+"Gutenberg]', a '+', štandardnú značku pre čítané knihy.\n"
+"Platí pre: výstupné formáty AZW3, ePub a MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:66
 msgid ""
@@ -19867,7 +20010,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:282
 msgid "Check 'Excluded genres' regex in E-book options.\n"
-msgstr ""
+msgstr "Označte regulárny výraz 'Vynechať žánre' z volieb e-booku.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:284
 msgid "No books available to catalog"

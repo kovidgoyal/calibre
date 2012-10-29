@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-10-27 12:46+0000\n"
+"PO-Revision-Date: 2012-10-28 09:28+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-28 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-10-29 04:59+0000\n"
 "X-Generator: Launchpad (build 16194)\n"
 "Language: ca\n"
 
@@ -10540,23 +10540,23 @@ msgstr "Jamamadí"
 
 #. name for jab
 msgid "Hyam"
-msgstr ""
+msgstr "Ham"
 
 #. name for jac
 msgid "Popti'"
-msgstr ""
+msgstr "Jacaltec"
 
 #. name for jad
 msgid "Jahanka"
-msgstr ""
+msgstr "Jahanka"
 
 #. name for jae
 msgid "Yabem"
-msgstr ""
+msgstr "Yabem"
 
 #. name for jaf
 msgid "Jara"
-msgstr ""
+msgstr "Jara"
 
 #. name for jah
 msgid "Jah Hut"
@@ -10660,23 +10660,23 @@ msgstr "Jad"
 
 #. name for jdg
 msgid "Jadgali"
-msgstr ""
+msgstr "Jadgali"
 
 #. name for jdt
 msgid "Judeo-Tat"
-msgstr ""
+msgstr "Judeotat"
 
 #. name for jeb
 msgid "Jebero"
-msgstr ""
+msgstr "Jebero"
 
 #. name for jee
 msgid "Jerung"
-msgstr ""
+msgstr "Jerung"
 
 #. name for jeg
 msgid "Jeng"
-msgstr ""
+msgstr "Jeng"
 
 #. name for jeh
 msgid "Jeh"
