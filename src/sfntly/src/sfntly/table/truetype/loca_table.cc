@@ -47,6 +47,17 @@ int32_t LocaTable::NumLocas() {
   return num_glyphs_ + 1;
 }
 
+// Changed by Kovid: The following two methods must not have inline
+// definitions, otherwise they give incorrect results when compiled with gcc
+// and -fPIC, leading to corrupted font generation.
+int32_t LocaTable::num_glyphs() {
+    return num_glyphs_;
+}
+
+int32_t LocaTable::format_version() {
+    return format_version_;
+}
+
 int32_t LocaTable::Loca(int32_t index) {
   if (index > num_glyphs_) {
 #if !defined (SFNTLY_NO_EXCEPTION)
@@ -100,6 +111,13 @@ LocaTable::Builder::Builder(Header* header, ReadableFontData* data)
 }
 
 LocaTable::Builder::~Builder() {}
+
+// Changed by Kovid: The following two methods must not have inline
+// definitions, otherwise they give incorrect results when compiled with gcc
+// and -fPIC, leading to corrupted font generation.
+int32_t LocaTable::Builder::format_version() { return format_version_; }
+
+void LocaTable::Builder::set_format_version(int32_t value) { format_version_ = value; }
 
 CALLER_ATTACH
 LocaTable::Builder* LocaTable::Builder::CreateBuilder(Header* header,

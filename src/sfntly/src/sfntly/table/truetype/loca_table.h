@@ -51,8 +51,8 @@ class LocaTable : public Table, public RefCounted<LocaTable> {
     // Get the format version that will be used when the loca table is
     // generated.
     // @return the loca table format version
-    int32_t format_version() { return format_version_; }
-    void set_format_version(int32_t value) { format_version_ = value; }
+    int32_t format_version();
+    void set_format_version(int32_t value);
 
     // Gets the List of locas for loca table builder. These may be manipulated
     // in any way by the caller and the changes will be reflected in the final
@@ -140,8 +140,8 @@ class LocaTable : public Table, public RefCounted<LocaTable> {
 
   virtual ~LocaTable();
 
-  int32_t format_version() { return format_version_; }
-  int32_t num_glyphs() { return num_glyphs_; }
+  int32_t format_version();
+  int32_t num_glyphs();
 
   // Return the offset for the given glyph id. Valid glyph ids are from 0 to the
   // one less than the number of glyphs. The zero entry is the special entry for
