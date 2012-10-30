@@ -12,7 +12,8 @@ from collections import defaultdict
 from threading import Thread
 
 from calibre import walk, prints, as_unicode
-from calibre.constants import config_dir, iswindows, isosx, plugins, DEBUG
+from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
+        isworker)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.fonts.utils import panose_to_css_generic_family
 from calibre.utils.icu import sort_key
@@ -150,7 +151,8 @@ class Scanner(Thread):
         if not hasattr(self, 'cache'):
             from calibre.utils.config import JSONConfig
             self.cache = JSONConfig('fonts/scanner_cache')
-        self.cache.refresh()
+        else:
+            self.cache.refresh()
         if self.cache.get('version', None) != self.CACHE_VERSION:
             self.cache.clear()
         self.cached_fonts = self.cache.get('fonts', {})
@@ -162,6 +164,10 @@ class Scanner(Thread):
         self.reload_cache()
         num = 0
         for folder in self.folders:
+            if isworker:
+                # Dont scan font files in worker processes, use whatever is
+                # cached.
+                continue
             if not os.path.isdir(folder):
                 continue
             try:
