@@ -46,6 +46,7 @@ class SfntlyBuilderMixin(object):
             self.sfntly_cflags += [
                     '-D_UNICODE', '-DUNICODE',
             ] + shlex.split('/W4 /WX /Gm- /Gy /GR-')
+            self.cflags += ['-DWIN32']
         else:
             # Possibly add -fno-inline (slower, but more robust)
             self.sfntly_cflags += [
@@ -63,7 +64,10 @@ class SfntlyBuilderMixin(object):
             cflags.remove('/Ox')
         if '-O3' in cflags:
             cflags.remove('-O3')
-        cflags.insert(0, '/O2' if iswindows else '-O2')
+        if '/W3' in cflags:
+            cflags.remove('/W3')
+        if '-ggdb' not in cflags:
+            cflags.insert(0, '/O2' if iswindows else '-O2')
 
         groups = []
         all_headers = set()
@@ -71,7 +75,7 @@ class SfntlyBuilderMixin(object):
         src_dir = self.absolutize([os.path.join('sfntly', 'src')])[0]
         inc_dirs = [src_dir]
         self.inc_dirs += inc_dirs
-        inc_flags = builder.inc_dirs_to_cflags(inc_dirs)
+        inc_flags = builder.inc_dirs_to_cflags(self.inc_dirs)
         for loc in ('', 'port', 'data', 'math', 'table', 'table/bitmap',
                 'table/core', 'table/truetype'):
             path = os.path.join(src_dir, 'sfntly', *loc.split('/'))

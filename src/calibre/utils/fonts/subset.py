@@ -10,6 +10,12 @@ __docformat__ = 'restructuredtext en'
 from future_builtins import map
 
 class NoGlyphs(ValueError):
+    'Raised when the font has no glyphs for the specified characters'
+    pass
+
+class UnsupportedFont(ValueError):
+    'Raised when the font is not supported for subsetting '
+    '(usually an OTF font with PostScript outlines).'
     pass
 
 def load_sfntly():
@@ -19,7 +25,7 @@ def load_sfntly():
         raise RuntimeError('Failed to load sfntly: %s'%err)
     return sfntly
 
-def subset(font_data, individual_chars, ranges):
+def subset(font_data, individual_chars, ranges=()):
     if font_data[:4] not in {b'\x00\x01\x00\x00', b'OTTO', b'true', b'typ1'}:
         raise ValueError('Not a supported font file. sfnt_version not recognized: %r'%
                 font_data[:4])
@@ -37,6 +43,8 @@ def subset(font_data, individual_chars, ranges):
     except sfntly.NoGlyphs:
         raise NoGlyphs('No glyphs were found in this font for the'
                 ' specified characters. Subsetting is pointless')
+    except sfntly.UnsupportedFont as e:
+        raise UnsupportedFont(type('')(e))
 
 def option_parser():
     import textwrap
@@ -98,6 +106,31 @@ def test():
     sf, old_stats, new_stats = subset(raw, set(('a', 'b', 'c')), ())
     if len(sf) > 0.3 * len(raw):
         raise Exception('Subsetting failed')
+
+def all():
+    from calibre.utils.fonts.scanner import font_scanner
+    failed = []
+    for family in font_scanner.find_font_families():
+        for font in font_scanner.fonts_for_family(family):
+            raw = font_scanner.get_font_data(font)
+            print ('Subsetting', font['full_name'])
+            try:
+                sf, old_stats, new_stats = subset(raw, set(('a', 'b', 'c')), ())
+            except (NoGlyphs, UnsupportedFont) as e:
+                continue
+            except Exception as e:
+                print ('Failed!')
+                failed.append((font['full_name'], font['path'], unicode(e)))
+            else:
+                print ('Reduced to:', '%.1f'%(
+                        sum(new_stats.itervalues())/sum(old_stats.itervalues())
+                        * 100), '%')
+    if failed:
+        print ('\n\nFailures:')
+        for name, path, err in failed:
+            print (name, path, err)
+            print()
+
 
 def main(args):
     import sys, time
