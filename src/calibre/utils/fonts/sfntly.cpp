@@ -114,7 +114,7 @@ FontSourcedInfoBuilder::~FontSourcedInfoBuilder() { }
 
 CALLER_ATTACH FontInfo* FontSourcedInfoBuilder::GetFontInfo() {
     if (!cmap_) {
-        PyErr_SetString(Error, "This font has no cmap table!");
+        PyErr_SetString(UnsupportedFont, "This font has no format 4 cmap table (usually symbol or asian fonts), subsetting is not supported");
         return NULL;
     }
     CharacterMap* chars_to_glyph_ids = new CharacterMap;
@@ -513,6 +513,11 @@ do_subset(const char *data, Py_ssize_t sz, Ptr<CharacterPredicate> &predicate) {
     font = fonts[0];
     if (font->num_tables() == 0) {
         PyErr_SetString(Error, "Loaded font has 0 tables.");
+        return NULL;
+    }
+    Ptr<CMapTable> cmap_table = down_cast<CMapTable*>(font->GetTable(Tag::cmap));
+    if (!cmap_table) {
+        PyErr_SetString(Error, "Loaded font has no cmap table.");
         return NULL;
     }
     Ptr<PredicateSubsetter> subsetter = new PredicateSubsetter(font, predicate);

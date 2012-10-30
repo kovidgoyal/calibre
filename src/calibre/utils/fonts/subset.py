@@ -110,13 +110,18 @@ def test():
 def all():
     from calibre.utils.fonts.scanner import font_scanner
     failed = []
+    unsupported = []
     for family in font_scanner.find_font_families():
         for font in font_scanner.fonts_for_family(family):
             raw = font_scanner.get_font_data(font)
-            print ('Subsetting', font['full_name'])
+            print ('Subsetting', font['full_name'], end='\t')
             try:
                 sf, old_stats, new_stats = subset(raw, set(('a', 'b', 'c')), ())
-            except (NoGlyphs, UnsupportedFont) as e:
+            except NoGlyphs:
+                continue
+            except UnsupportedFont as e:
+                unsupported.append((font['full_name'], font['path'], unicode(e)))
+                print ('Unsupported!')
                 continue
             except Exception as e:
                 print ('Failed!')
@@ -125,6 +130,11 @@ def all():
                 print ('Reduced to:', '%.1f'%(
                         sum(new_stats.itervalues())/sum(old_stats.itervalues())
                         * 100), '%')
+    if unsupported:
+        print ('\n\nUnsupported:')
+        for name, path, err in unsupported:
+            print (name, path, err)
+            print()
     if failed:
         print ('\n\nFailures:')
         for name, path, err in failed:
