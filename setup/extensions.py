@@ -19,6 +19,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
         zlib_libs, zlib_lib_dirs, zlib_inc_dirs)
+from setup.sfntly import SfntlyBuilderMixin
 MT
 isunix = islinux or isosx or isbsd
 
@@ -48,6 +49,9 @@ class Extension(object):
         self.optional = kwargs.get('optional', False)
         self.needs_ddk = kwargs.get('needs_ddk', False)
 
+    def preflight(self, obj_dir, compiler, linker, builder, cflags, ldflags):
+        pass
+
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
 
@@ -59,8 +63,25 @@ if isosx:
     icu_libs = ['icucore']
     icu_cflags = ['-DU_DISABLE_RENAMING'] # Needed to use system libicucore.dylib
 
+class SfntlyExtension(Extension, SfntlyBuilderMixin):
+
+    def __init__(self, *args, **kwargs):
+        Extension.__init__(self, *args, **kwargs)
+        SfntlyBuilderMixin.__init__(self)
+
+    def preflight(self, *args, **kwargs):
+        self(*args, **kwargs)
 
 extensions = [
+
+    SfntlyExtension('sfntly',
+            ['calibre/utils/fonts/sfntly.cpp'],
+            headers= ['calibre/utils/fonts/sfntly.h'],
+            libraries=icu_libs,
+            lib_dirs=icu_lib_dirs,
+            inc_dirs=icu_inc_dirs,
+            cflags=icu_cflags
+        ),
 
     Extension('speedup',
         ['calibre/utils/speedup.c'],
@@ -363,8 +384,9 @@ class Build(Command):
         compiler = cxx if ext.needs_cxx else cc
         linker = msvc.linker if iswindows else compiler
         objects = []
-        einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         obj_dir = self.j(self.obj_dir, ext.name)
+        ext.preflight(obj_dir, compiler, linker, self, cflags, ldflags)
+        einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         if ext.needs_ddk:
             ddk_flags = ['-I'+x for x in win_ddk]
             cflags.extend(ddk_flags)
@@ -385,7 +407,7 @@ class Build(Command):
         dest = self.dest(ext)
         elib = self.lib_dirs_to_ldflags(ext.lib_dirs)
         xlib = self.libraries_to_ldflags(ext.libraries)
-        if self.newer(dest, objects):
+        if self.newer(dest, objects+ext.extra_objs):
             print 'Linking', ext.name
             cmd = [linker]
             if iswindows:
