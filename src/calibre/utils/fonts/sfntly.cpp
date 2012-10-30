@@ -18,6 +18,7 @@
 
 static PyObject *Error = NULL;
 static PyObject *NoGlyphs = NULL;
+static PyObject *UnsupportedFont = NULL;
 
 // Predicates {{{
 CompositePredicate::CompositePredicate(IntegerSet &chars, IntegerList &ranges) : 
@@ -112,11 +113,15 @@ FontSourcedInfoBuilder::FontSourcedInfoBuilder(Font* font,
 FontSourcedInfoBuilder::~FontSourcedInfoBuilder() { }
 
 CALLER_ATTACH FontInfo* FontSourcedInfoBuilder::GetFontInfo() {
+    if (!cmap_) {
+        PyErr_SetString(Error, "This font has no cmap table!");
+        return NULL;
+    }
     CharacterMap* chars_to_glyph_ids = new CharacterMap;
     bool success = GetCharacterMap(chars_to_glyph_ids);
     if (!success) {
         delete chars_to_glyph_ids;
-        PyErr_SetString(Error, "Error creating character map.\n");
+        if (!PyErr_Occurred()) PyErr_SetString(Error, "Error creating character map.\n");
         return NULL;
     }
     GlyphIdSet* resolved_glyph_ids = new GlyphIdSet;
@@ -124,7 +129,7 @@ CALLER_ATTACH FontInfo* FontSourcedInfoBuilder::GetFontInfo() {
     if (!success) {
         delete chars_to_glyph_ids;
         delete resolved_glyph_ids;
-        PyErr_SetString(Error, "Error resolving composite glyphs.\n");
+        if (!PyErr_Occurred()) PyErr_SetString(Error, "Error resolving composite glyphs.\n");
         return NULL;
     }
     Ptr<FontInfo> font_info = new FontInfo;
@@ -178,6 +183,10 @@ bool FontSourcedInfoBuilder::ResolveCompositeGlyphs(CharacterMap* chars_to_glyph
     // As long as there are unresolved glyph ids.
     while (!unresolved_glyph_ids->empty()) {
         // Get the corresponding glyph.
+        if (!loca_table_) {
+            PyErr_SetString(UnsupportedFont, "This font does not have a loca table. Subsetting is not supported for fonts without loca tables (usually OTF fonts with PostScript (CFF) outlines).");
+            return false;
+        }
         int32_t glyph_id = *(unresolved_glyph_ids->begin());
         unresolved_glyph_ids->erase(unresolved_glyph_ids->begin());
         if (glyph_id < 0 || glyph_id > loca_table_->num_glyphs()) {
@@ -189,6 +198,10 @@ bool FontSourcedInfoBuilder::ResolveCompositeGlyphs(CharacterMap* chars_to_glyph
         }
         int32_t offset = loca_table_->GlyphOffset(glyph_id);
         GlyphPtr glyph;
+        if (!glyph_table_) {
+            PyErr_SetString(UnsupportedFont, "This font does not have a glyf table. Subsetting is not supported for fonts without glyf tables (usually OTF fonts with PostScript (CFF) outlines).");
+            return false;
+        }
         glyph.Attach(glyph_table_->GetGlyph(offset, length));
         if (glyph == NULL) {
             continue;
@@ -449,7 +462,7 @@ CALLER_ATTACH Font* PredicateSubsetter::Subset() {
     Ptr<FontInfo> font_info;
     font_info.Attach(info_builder->GetFontInfo());
     if (!font_info) {
-        PyErr_SetString(Error, "Could not create font info");
+        if (!PyErr_Occurred()) PyErr_SetString(Error, "Could not create font info");
         return NULL;
     }
 
@@ -600,6 +613,10 @@ initsfntly(void) {
     NoGlyphs = PyErr_NewException((char*)"sfntly.NoGlyphs", NULL, NULL);
     if (NoGlyphs == NULL) return;
     PyModule_AddObject(m, "NoGlyphs", NoGlyphs);
+
+    UnsupportedFont = PyErr_NewException((char*)"sfntly.UnsupportedFont", NULL, NULL);
+    if (UnsupportedFont == NULL) return;
+    PyModule_AddObject(m, "UnsupportedFont", UnsupportedFont);
 } 
 
 
