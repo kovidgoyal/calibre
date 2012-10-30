@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-26 05:12+0000\n"
-"PO-Revision-Date: 2012-10-28 13:56+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2012-10-29 20:09+0000\n"
+"Last-Translator: Arnaud <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-10-29 04:58+0000\n"
-"X-Generator: Launchpad (build 16194)\n"
+"X-Launchpad-Export-Date: 2012-10-30 04:43+0000\n"
+"X-Generator: Launchpad (build 16206)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -7126,6 +7126,29 @@ msgid ""
 "            library.</li>\n"
 "            </ol>"
 msgstr ""
+"            <h2>A propos de Tweak Book</h2>\n"
+"            <p>Tweak Book vous permet d'ajuster finement l'apparence d'un "
+"livre numérique en\n"
+"            faisant de légères modifications dans sa structure. Pour "
+"utiliser Tweak Book,\n"
+"            yous devez avoir des connaissances en HTML etCSS, technologies "
+"utilisées dans\n"
+"            les livres numériques. Veuillez suivre ces étapes:</p>\n"
+"            <br>\n"
+"            <ol>\n"
+"            <li>Cliquer sur \"Explode Book\": Ceci va \"séparer\" les "
+"différents \n"
+"            composants interne du livre..<br></li>\n"
+"            <li>Faire un click droit sur un des fichiers et sélectionner "
+"\"Ouvrir avec...\" pour\n"
+"            l'éditer dans votre éditeur de texte favori.<br></li>\n"
+"            <li>Quand vous en avez fini avec vos modifications: <b>fermer "
+"l'explorateur de fichiers             \n"
+"            et l'éditeur ayant été utilisé pour faire vos modifications</b>. "
+"Cliquer alors sur le bouton\n"
+"            \"Rebuild Book\" pour mettre à jour le livre dans la librairie "
+"calibre.</li>\n"
+"            </ol>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
@@ -14543,7 +14566,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:503
 msgid "&Number:"
-msgstr "&Nombre:"
+msgstr "&Numéro :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:603
 #, python-format
@@ -15215,6 +15238,11 @@ msgid ""
 " If it is, a message will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Quand cette option est sélectionnée et qu'un fichier \n"
+"a été automatiquement ajouté,  Calibre vérifie \n"
+"préalablement si ce fichier existe déjà dans la librairie calibre.\n"
+"Si c'est le cas, un message vous demandera si vous souhaitez \n"
+"tout de même l'ajouter."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Check for &duplicates when auto-adding files"
@@ -15768,7 +15796,7 @@ msgstr "Le nom des gens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
 msgid "Number"
-msgstr "Nombre"
+msgstr "Numéro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
 msgid "Text"
@@ -16693,7 +16721,7 @@ msgstr "Echanger les noms des auteurs de PR. NOM à NOM, PR."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:134
 msgid "Max. number of &tags to download:"
-msgstr "Nombre max. d’étiquettes à télécharger:"
+msgstr "Nombre max. d’étiquettes à télécharger :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:135
 msgid "Max. &time to wait after first match is found:"
@@ -21166,7 +21194,7 @@ msgstr "Définir les séries du(es) livre(s) ajouté(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:328
 msgid "Set the series number of the added book(s)"
-msgstr "Assigne le numéro de la série des livres ajoutés"
+msgstr "Assigne le numéro de la série de(s) livre(s) ajoutés"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:363
 msgid "You must specify at least one file to add"

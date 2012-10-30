@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-26 05:12+0000\n"
-"PO-Revision-Date: 2012-09-19 22:56+0000\n"
+"PO-Revision-Date: 2012-10-29 14:23+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-10-27 04:38+0000\n"
-"X-Generator: Launchpad (build 16194)\n"
+"X-Launchpad-Export-Date: 2012-10-30 04:43+0000\n"
+"X-Generator: Launchpad (build 16206)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -649,7 +649,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "Kontuan hartu ez diren gailuak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
@@ -897,7 +897,7 @@ msgstr "Profil hau Amazon Kindle DX-arentzat zuzendua dago."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Profil hau honerako: the Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1595,7 +1595,7 @@ msgstr "<b>Kokapena %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Komunikatu honekin: the Kindle 2/3/4/Touch/PaperWhite eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1827,6 +1827,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1211
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
 msgstr ""
+"\" Kobo Touch inprimaki firmwarea\"-ren V2.0.0 bertsioak liburu-apalategiak "
+"onartzen ditu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1213
 msgid "Specify a tags type column for automatic management"
