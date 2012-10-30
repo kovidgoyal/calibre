@@ -45,9 +45,9 @@ class SfntlyBuilderMixin(object):
         if iswindows:
             self.sfntly_cflags += [
                     '-D_UNICODE', '-DUNICODE',
-            ] + shlex.split('/Zi /nologo /W4 /WX /O2 /Ob2 /Oy /GF /Gm- /MT /GS /Gy '
-            '/fp:precise /Zc:wchar_t /Zc:forScope /GR-')
+            ] + shlex.split('/W4 /WX /Gm- /Gy /GR-')
         else:
+            # Possibly add -fno-inline (slower, but more robust)
             self.sfntly_cflags += [
                     '-Werror',
                     '-fno-exceptions',
@@ -59,6 +59,11 @@ class SfntlyBuilderMixin(object):
 
     def __call__(self, obj_dir, compiler, linker, builder, cflags, ldflags):
         self.sfntly_build_dir = os.path.join(obj_dir, 'sfntly')
+        if '/Ox' in cflags:
+            cflags.remove('/Ox')
+        if '-O3' in cflags:
+            cflags.remove('-O3')
+        cflags.insert(0, '/O2' if iswindows else '-O2')
 
         groups = []
         all_headers = set()

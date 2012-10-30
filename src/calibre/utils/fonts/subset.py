@@ -93,6 +93,11 @@ def test_mem():
     for i in xrange(3): gc.collect()
     print ('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
 
+def test():
+    raw = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
+    sf, old_stats, new_stats = subset(raw, set(('a', 'b', 'c')), ())
+    if len(sf) > 0.3 * len(raw):
+        raise Exception('Subsetting failed')
 
 def main(args):
     import sys, time
