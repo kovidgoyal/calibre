@@ -20,6 +20,9 @@ def load_sfntly():
     return sfntly
 
 def subset(font_data, individual_chars, ranges):
+    if font_data[:4] not in {b'\x00\x01\x00\x00', b'OTTO', b'true', b'typ1'}:
+        raise ValueError('Not a supported font file. sfnt_version not recognized: %r'%
+                font_data[:4])
     individual = tuple(sorted(map(ord, individual_chars)))
     cranges = []
     for s, e in ranges:
