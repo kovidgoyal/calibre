@@ -674,7 +674,20 @@ If you still cannot get the installer to work and you are on windows, you can us
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Your antivirus program is wrong. Antivirus programs use heuristics, patterns of code that "looks suspicuous" to detect viruses. It's rather like racial profiling. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
+The first thing to check is that you are downloading |app| from the official
+website: `<http://calibre-ebook.com/download>`_. |app| is a very popular program
+and unscrupulous people try to setup websites offering it for download to fool
+the unwary.
+
+If you have the official download and your antivirus program is still claiming
+|app| is a virus, then, your antivirus program is wrong. Antivirus programs use
+heuristics, patterns of code that "look suspicious" to detect viruses. It's
+rather like racial profiling. |app| is a completely open source product. You
+can actually browse the source code yourself (or hire someone to do it for you)
+to verify that it is not a virus. Please report the false identification to
+whatever company you buy your antivirus software from. If the antivirus program
+is preventing you from downloading/installing |app|, disable it temporarily,
+install |app| and then re-enable it.
 
 How do I backup |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
