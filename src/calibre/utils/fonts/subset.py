@@ -76,6 +76,21 @@ def print_stats(old_stats, new_stats):
                 '%10s'%nsz, '  ', '%5.1f %%'%np, suffix)
     prints('='*80)
 
+def test_mem():
+    load_sfntly()
+    from calibre.utils.mem import memory
+    import gc
+    gc.collect()
+    start_mem = memory()
+    raw = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
+    calls = 1000
+    for i in xrange(calls):
+        subset(raw, (), (('a', 'z'),))
+    del raw
+    for i in xrange(3): gc.collect()
+    print ('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
+
+
 def main(args):
     import sys, time
     from calibre import prints

@@ -497,7 +497,7 @@ do_subset(const char *data, Py_ssize_t sz, Ptr<CharacterPredicate> &predicate) {
         return NULL;
     }
 
-    font = fonts[0].Detach();
+    font = fonts[0];
     if (font->num_tables() == 0) {
         PyErr_SetString(Error, "Loaded font has 0 tables.");
         return NULL;
