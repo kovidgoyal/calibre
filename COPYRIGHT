@@ -28,6 +28,12 @@ License: LGPL-2.1+
  The full text of the LGPL is distributed as in
  /usr/share/common-licenses/LGPL-2.1 on Debian systems.
 
+Files: src/calibre/utils/fonts/woff/*
+Copyright: Jonathan Kew?
+License: LGPL-2.1
+ The full text of the LGPL is distributed as in
+ /usr/share/common-licenses/LGPL-2.1 on Debian systems.
+
 Files: src/calibre/ebooks/hyphenate.py
 Copyright: Copyright (C) 1990, 2004, 2005 Gerard D.C. Kuiken.
 License: other
@@ -37,6 +43,12 @@ License: other
 
 Files: src/calibre/ebooks/readability/*
 Copyright: Unknown
+License: Apache 2.0
+  The full text of the Apache 2.0 license is available at:
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Files: src/sfntly/*
+Copyright: Google Inc.
 License: Apache 2.0
   The full text of the Apache 2.0 license is available at:
   http://www.apache.org/licenses/LICENSE-2.0
