@@ -54,6 +54,17 @@ bool Font::HasTable(int32_t tag) {
   return (result != end);
 }
 
+// Changed by Kovid: these four methods cannot be inlined, if they are they
+// return incorrect values when compiled with -fPIC
+int32_t Font::sfnt_version() { return sfnt_version_; }
+
+ByteVector* Font::digest() { return &digest_; }
+
+int64_t Font::checksum() { return checksum_; }
+
+int32_t Font::num_tables() { return (int32_t)tables_.size(); }
+
+
 Table* Font::GetTable(int32_t tag) {
   if (!HasTable(tag)) {
     return NULL;

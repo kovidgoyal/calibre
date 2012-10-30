@@ -232,17 +232,17 @@ class Font : public RefCounted<Font> {
   virtual ~Font();
 
   // Gets the sfnt version set in the sfnt wrapper of the font.
-  int32_t sfnt_version() { return sfnt_version_; }
+  int32_t sfnt_version();
 
   // Gets a copy of the fonts digest that was created when the font was read. If
   // no digest was set at creation time then the return result will be null.
-  ByteVector* digest() { return &digest_; }
+  ByteVector* digest();
 
   // Get the checksum for this font.
-  int64_t checksum() { return checksum_; }
+  int64_t checksum();
 
   // Get the number of tables in this font.
-  int32_t num_tables() { return (int32_t)tables_.size(); }
+  int32_t num_tables();
 
   // Whether the font has a particular table.
   bool HasTable(int32_t tag);
