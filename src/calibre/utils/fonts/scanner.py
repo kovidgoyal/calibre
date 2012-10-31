@@ -271,6 +271,10 @@ class Scanner(Thread):
             self.cache['version'] = self.CACHE_VERSION
             self.cache['fonts'] = self.cached_fonts
 
+    def force_rescan(self):
+        self.cached_fonts = {}
+        self.write_cache()
+
     def read_font_metadata(self, path, fileid):
         with lopen(path, 'rb') as f:
             try:
@@ -300,6 +304,11 @@ class Scanner(Thread):
 
 font_scanner = Scanner()
 font_scanner.start()
+
+def force_rescan():
+    font_scanner.join()
+    font_scanner.force_rescan()
+    font_scanner.run()
 
 if __name__ == '__main__':
     font_scanner.dump_fonts()

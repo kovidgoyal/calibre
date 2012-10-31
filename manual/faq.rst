@@ -557,6 +557,27 @@ There can be two reasons why |app| is showing a empty list of books:
 
   * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
 
+I am getting errors with my calibre library on a networked drive/NAS?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Do not put your calibre library on a networked drive**.
+
+A filesystem is a complex beast. Most network filesystems lack various
+filesystem features that |app| uses. Some dont support file locking, some dont
+support hardlinking, some are just flaky. Additionally, |app| is a single user
+application, if you accidentally run two copies of |app| on the same networked
+library, bad things will happen. Finally, different OSes impose different
+limitations on filesystems, so if you share your networked drive across OSes,
+once again, bad things *will happen*.
+
+Consider using the |app| Content Server to make your books available on other
+computers. Run |app| on a single computer and access it via the Content Server
+or a Remote Desktop solution.
+
+If you must share the actual library, use a file syncing tool like
+DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
+these tools there is danger of data corruption/loss, so only do this if you are
+willing to live with that risk.
 
 Content From The Web
 ---------------------
