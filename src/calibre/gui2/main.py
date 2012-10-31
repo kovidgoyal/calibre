@@ -95,7 +95,7 @@ def init_qt(args):
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
     override = 'calibre-gui' if islinux else None
-    app = Application(args, override_program_name=override)
+    app = Application(args, override_program_name=override, scan_for_fonts=True)
     actions = tuple(Main.create_application_menubar())
     app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions

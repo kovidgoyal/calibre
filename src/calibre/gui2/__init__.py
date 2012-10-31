@@ -764,7 +764,7 @@ qt_app = None
 class Application(QApplication):
 
     def __init__(self, args, force_calibre_style=False,
-            override_program_name=None):
+            override_program_name=None, scan_for_fonts=False):
         self.file_event_hook = None
         if override_program_name:
             args = [override_program_name] + args[1:]
@@ -780,7 +780,7 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-        self.load_builtin_fonts()
+        self.load_builtin_fonts(scan_for_fonts=scan_for_fonts)
         self.setup_styles(force_calibre_style)
 
     if DEBUG:
@@ -793,11 +793,12 @@ class Application(QApplication):
                 self.redirect_notify = True
                 return ret
 
-    def load_builtin_fonts(self):
+    def load_builtin_fonts(self, scan_for_fonts=False):
         global _rating_font
-        from calibre.utils.fonts.scanner import font_scanner
-        # Start scanning the users computer for fonts
-        font_scanner
+        if scan_for_fonts:
+            from calibre.utils.fonts.scanner import font_scanner
+            # Start scanning the users computer for fonts
+            font_scanner
 
         # Load the builtin fonts and any fonts added to calibre by the user to
         # Qt
