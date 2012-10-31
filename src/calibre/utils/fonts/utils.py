@@ -14,6 +14,11 @@ from collections import defaultdict
 class UnsupportedFont(ValueError):
     pass
 
+def get_printable_characters(text):
+    import unicodedata
+    return u''.join(x for x in unicodedata.normalize('NFC', text)
+            if unicodedata.category(x)[0] not in {'C', 'Z', 'M'})
+
 def is_truetype_font(raw):
     sfnt_version = raw[:4]
     return (sfnt_version in {b'\x00\x01\x00\x00', b'OTTO'}, sfnt_version)
@@ -267,16 +272,87 @@ def remove_embed_restriction(raw):
     verify_checksums(raw)
     return raw
 
+def get_bmp_glyph_ids(table, bmp, codes):
+    length, language, segcount = struct.unpack_from(b'>3H', table, bmp+2)
+    array_len = segcount //2
+    offset = bmp + 7*2
+    array_sz = 2*array_len
+    array = b'>%dH'%array_len
+    end_count = struct.unpack_from(array, table, offset)
+    offset += array_sz + 2
+    start_count = struct.unpack_from(array, table, offset)
+    offset += array_sz
+    id_delta = struct.unpack_from(array.replace(b'H', b'h'), table, offset)
+    offset += array_sz
+    range_offset = struct.unpack_from(array, table, offset)
+    if length + bmp < offset + array_sz:
+        raise ValueError('cmap subtable length is too small')
+    glyph_id_len = (length + bmp - (offset + array_sz))//2
+    glyph_id_map = struct.unpack_from(b'>%dH'%glyph_id_len, table, offset +
+            array_sz)
+
+    for code in codes:
+        found = False
+        for i, ec in enumerate(end_count):
+            if ec >= code:
+                sc = start_count[i]
+                if sc <= code:
+                    found = True
+                    ro = range_offset[i]
+                    if ro == 0:
+                        glyph_id = id_delta[i] + code
+                    else:
+                        idx = ro//2 + (code - sc) + i - array_len
+                        glyph_id = glyph_id_map[idx]
+                        if glyph_id != 0:
+                            glyph_id += id_delta[i]
+                    yield glyph_id % 0x1000
+                    break
+        if not found:
+            yield 0
+
+def get_glyph_ids(raw, text, raw_is_table=False):
+    if not isinstance(text, unicode):
+        raise TypeError('%r is not a unicode object'%text)
+    if raw_is_table:
+        table = raw
+    else:
+        table = get_table(raw, 'cmap')[0]
+        if table is None:
+            raise UnsupportedFont('Not a supported font, has no cmap table')
+    version, num_tables = struct.unpack_from(b'>HH', table)
+    bmp_table = None
+    for i in xrange(num_tables):
+        platform_id, encoding_id, offset = struct.unpack_from(b'>HHL', table,
+                4 + (i*8))
+        if platform_id == 3 and encoding_id == 1:
+            table_format = struct.unpack_from(b'>H', table, offset)[0]
+            if table_format == 4:
+                bmp_table = offset
+                break
+    if bmp_table is None:
+        raise UnsupportedFont('Not a supported font, has no format 4 cmap table')
+
+    for glyph_id in get_bmp_glyph_ids(table, bmp_table, map(ord, text)):
+        yield glyph_id
+
+def supports_text(raw, text, has_only_printable_chars=False):
+    if not isinstance(text, unicode):
+        raise TypeError('%r is not a unicode object'%text)
+    if not has_only_printable_chars:
+        text = get_printable_characters(text)
+    try:
+        for glyph_id in get_glyph_ids(raw, text):
+            if glyph_id == 0:
+                return False
+    except:
+        return False
+    return True
+
 def get_font_for_text(text, candidate_font_data=None):
     ok = False
     if candidate_font_data is not None:
-        from calibre.utils.fonts.free_type import FreeType, FreeTypeError
-        ft = FreeType()
-        try:
-            font = ft.load_font(candidate_font_data)
-            ok = font.supports_text(text)
-        except FreeTypeError:
-            ok = True
+        ok = supports_text(candidate_font_data, text)
     if not ok:
         from calibre.utils.fonts.scanner import font_scanner
         family, faces = font_scanner.find_font_for_text(text)
@@ -285,7 +361,40 @@ def get_font_for_text(text, candidate_font_data=None):
                 candidate_font_data = f.read()
     return candidate_font_data
 
+def test_glyph_ids():
+    from calibre.utils.fonts.free_type import FreeType
+    data = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
+    ft = FreeType()
+    font = ft.load_font(data)
+    text = u'诶йab'
+    ft_glyphs = tuple(font.glyph_ids(text))
+    glyphs = tuple(get_glyph_ids(data, text))
+    if ft_glyphs != glyphs:
+        raise Exception('My code and FreeType differ on the glyph ids')
+
+def test_supports_text():
+    data = P('fonts/calibreSymbols.otf', data=True)
+    if not supports_text(data, '.\u2605★'):
+        raise RuntimeError('Incorrectly returning that text is not supported')
+    if supports_text(data, 'abc'):
+        raise RuntimeError('Incorrectly claiming that text is supported')
+
+def test_find_font():
+    from calibre.utils.fonts.scanner import font_scanner
+    abcd = '诶比西迪'
+    family = font_scanner.find_font_for_text(abcd)[0]
+    print ('Family for Chinese text:', family)
+    family = font_scanner.find_font_for_text(abcd)[0]
+    abcd = 'لوحة المفاتيح العربية'
+    print ('Family for Arabic text:', family)
+
+
 def test():
+    test_glyph_ids()
+    test_supports_text()
+    test_find_font()
+
+def main():
     import sys, os
     for f in sys.argv[1:]:
         print (os.path.basename(f))
@@ -299,5 +408,5 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()
 

@@ -15,7 +15,6 @@ from calibre import walk, prints, as_unicode
 from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
         isworker)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
-from calibre.utils.fonts.utils import panose_to_css_generic_family
 from calibre.utils.icu import sort_key
 
 class NoFonts(ValueError):
@@ -117,17 +116,17 @@ class Scanner(Thread):
 
         :return: (family name, faces) or None, None
         '''
-        from calibre.utils.fonts.free_type import FreeType, get_printable_characters
-        ft = FreeType()
-        found = {}
+        from calibre.utils.fonts.utils import (supports_text,
+                panose_to_css_generic_family, get_printable_characters)
         if not isinstance(text, unicode):
             raise TypeError(u'%r is not unicode'%text)
         text = get_printable_characters(text)
+        found = {}
 
         def filter_faces(font):
             try:
-                ftface = ft.load_font(self.get_font_data(font))
-                return ftface.supports_text(text, has_non_printable_chars=False)
+                raw = self.get_font_data(font)
+                return supports_text(raw, text)
             except:
                 pass
             return False

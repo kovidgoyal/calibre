@@ -115,6 +115,14 @@ supports_text(Face *self, PyObject *args) {
     return ret;
 }
 
+static PyObject*
+glyph_id(Face *self, PyObject *args) {
+    unsigned long code;
+
+    if (!PyArg_ParseTuple(args, "k", &code)) return NULL;
+    return Py_BuildValue("k", (unsigned long)FT_Get_Char_Index(self->face, (FT_ULong)code));
+}
+
 static PyGetSetDef Face_getsetters[] = {
     {(char *)"family_name", 
      (getter)family_name, NULL,
@@ -132,6 +140,10 @@ static PyGetSetDef Face_getsetters[] = {
 static PyMethodDef Face_methods[] = {
     {"supports_text", (PyCFunction)supports_text, METH_VARARGS,
      "supports_text(sequence of unicode character codes) -> Return True iff this font has glyphs for all the specified characters."
+    },
+
+    {"glyph_id", (PyCFunction)glyph_id, METH_VARARGS,
+     "glyph_id(character code) -> Returns the glyph id for the specified character code."
     },
 
     {NULL}  /* Sentinel */
