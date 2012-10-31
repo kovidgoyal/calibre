@@ -122,11 +122,11 @@ def test():
     test_freetype()
     test_sfntly()
     test_sqlite()
-    test_qt()
     test_imaging()
     test_unrar()
     test_icu()
     test_woff()
+    test_qt()
     if iswindows:
         test_win32()
         test_winutil()
