@@ -764,7 +764,7 @@ qt_app = None
 class Application(QApplication):
 
     def __init__(self, args, force_calibre_style=False,
-            override_program_name=None, scan_for_fonts=False):
+            override_program_name=None):
         self.file_event_hook = None
         if override_program_name:
             args = [override_program_name] + args[1:]
@@ -780,7 +780,6 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-        self.load_builtin_fonts(scan_for_fonts=scan_for_fonts)
         self.setup_styles(force_calibre_style)
 
     if DEBUG:
