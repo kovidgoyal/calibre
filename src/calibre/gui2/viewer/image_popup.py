@@ -105,6 +105,14 @@ class ImageView(QDialog):
         gprefs['viewer_image_popup_geometry'] = bytearray(self.saveGeometry())
         return QDialog.done(self, e)
 
+    def wheelEvent(self, event):
+        if event.delta() < -14:
+            self.zoom_out()
+            event.accept()
+        elif event.delta() > 14:
+            event.accept()
+            self.zoom_in()
+
 class ImagePopup(object):
 
     def __init__(self, parent):
@@ -126,3 +134,12 @@ class ImagePopup(object):
             if not d.isVisible():
                 self.dialogs.remove(d)
 
+if __name__ == '__main__':
+    import sys
+    app = QApplication([])
+    p = QPixmap()
+    p.load(sys.argv[-1])
+    u = QUrl.fromLocalFile(sys.argv[-1])
+    d = ImageView(None, p, u)
+    d()
+    app.exec_()
