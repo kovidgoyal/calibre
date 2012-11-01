@@ -276,27 +276,6 @@ cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.exp lib/
 cp -r build/kdewin32-msvc-0.3.9/include/msvc/ include/
 cp build/kdewin32-msvc-0.3.9/include/*.h include/
 
-fontconfig
----------------
-
-Get it from http://www.winkde.org/pub/kde/ports/win32/repository/win32libs/
-mkdir build
-Remove subdirectory test from the bottom of CMakeLists.txt
-run cmake
-
-Set build type to release and project config to dll
-Right click on the fontconfig project and select properties. Add sw/include/msvc to the include paths
-Build only fontconfig
-
-cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.dll bin
-cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.lib lib
-cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.exp lib
-cp -r build/fontconfig-msvc-2.4.2-3/fontconfig/ include/
-
-Also install the etc files from the font-config-bin archive from kde win32libs
-It contains correct fonts.conf etc.
-
-
 poppler
 -------------
 

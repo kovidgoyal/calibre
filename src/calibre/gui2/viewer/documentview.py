@@ -485,7 +485,7 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
         self.image_popup = ImagePopup(self)
-        self.view_image_action = QAction(_('View &image...'), self)
+        self.view_image_action = QAction(QIcon(I('view-image.png')), _('View &image...'), self)
         self.view_image_action.triggered.connect(self.image_popup)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)

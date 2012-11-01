@@ -37,13 +37,10 @@ def test_freetype():
     test()
     print ('FreeType OK!')
 
-def test_fontconfig():
-    from calibre.utils.fonts import fontconfig
-    families = fontconfig.find_font_families()
-    num = len(families)
-    if num < 10:
-        raise RuntimeError('Fontconfig found only %d font families'%num)
-    print ('Fontconfig OK! (%d families)'%num)
+def test_sfntly():
+    from calibre.utils.fonts.subset import test
+    test()
+    print ('sfntly OK!')
 
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
@@ -123,13 +120,13 @@ def test():
     test_plugins()
     test_lxml()
     test_freetype()
-    test_fontconfig()
+    test_sfntly()
     test_sqlite()
-    test_qt()
     test_imaging()
     test_unrar()
     test_icu()
     test_woff()
+    test_qt()
     if iswindows:
         test_win32()
         test_winutil()

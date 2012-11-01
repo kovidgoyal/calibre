@@ -1137,6 +1137,7 @@ def main(args=sys.argv):
     if pid <= 0:
         override = 'calibre-ebook-viewer' if islinux else None
         app = Application(args, override_program_name=override)
+        app.load_builtin_fonts()
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)

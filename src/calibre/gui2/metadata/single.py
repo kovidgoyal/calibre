@@ -322,6 +322,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                         ' program?')%fname, det_msg=traceback.format_exc(),
                         show=True)
                 return
+            raise
         if mi is None:
             return
         cdata = None
@@ -444,11 +445,12 @@ class MetadataSingleDialogBase(ResizableDialog):
             except (IOError, OSError) as err:
                 if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
                     import traceback
-                    fname = err.filename if err.filename else 'file'
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
                     error_dialog(self, _('Permission denied'),
-                            _('Could not open %s. Is it being used by another'
-                            ' program?')%fname, det_msg=traceback.format_exc(),
-                            show=True)
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=p+traceback.format_exc(), show=True)
                     return False
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):

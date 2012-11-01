@@ -36,6 +36,7 @@ isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
+isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
 
 try:
     preferred_encoding = locale.getpreferredencoding()
@@ -83,7 +84,6 @@ class Plugins(collections.Mapping):
                 'magick',
                 'podofo',
                 'cPalmdoc',
-                'fontconfig',
                 'progress_indicator',
                 'chmlib',
                 'chm_extra',
@@ -91,6 +91,7 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'freetype',
                 'woff',
+                'sfntly',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])

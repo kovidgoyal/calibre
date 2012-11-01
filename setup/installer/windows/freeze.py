@@ -281,8 +281,6 @@ class Win32Freeze(Command, WixMixIn):
         for x in ('zlib1.dll', 'libxml2.dll'):
             shutil.copy2(self.j(bindir, x+'.manifest'), self.dll_dir)
 
-        shutil.copytree(os.path.join(SW, 'etc', 'fonts'),
-						os.path.join(self.base, 'fontconfig'))
         # Copy ImageMagick
         for pat in ('*.dll', '*.xml'):
             for f in glob.glob(self.j(IMAGEMAGICK, pat)):
