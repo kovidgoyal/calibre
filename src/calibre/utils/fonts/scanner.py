@@ -161,12 +161,17 @@ class Scanner(Thread):
 
     def do_scan(self):
         self.reload_cache()
-        num = 0
+
+        if isworker:
+            # Dont scan font files in worker processes, use whatever is
+            # cached. Font files typically dont change frequently enough to
+            # justify a rescan in a worker process.
+            self.build_families()
+            return
+
+        cached_fonts = self.cached_fonts.copy()
+        self.cached_fonts.clear()
         for folder in self.folders:
-            if isworker:
-                # Dont scan font files in worker processes, use whatever is
-                # cached.
-                continue
             if not os.path.isdir(folder):
                 continue
             try:
@@ -186,7 +191,10 @@ class Scanner(Thread):
                 except EnvironmentError:
                     continue
                 fileid = '{0}||{1}:{2}'.format(candidate, s.st_size, s.st_mtime)
-                if fileid in self.cached_fonts:
+                if fileid in cached_fonts:
+                    # Use previously cached metadata, since the file size and
+                    # last modified timestamp have not changed.
+                    self.cached_fonts[fileid] = cached_fonts[fileid]
                     continue
                 try:
                     self.read_font_metadata(candidate, fileid)
@@ -195,12 +203,11 @@ class Scanner(Thread):
                         prints('Failed to read metadata from font file:',
                                 candidate, as_unicode(e))
                     continue
-                num += 1
-                if num >= 10:
-                    num = 0
-                    self.write_cache()
-        if num > 0:
+
+        if frozenset(cached_fonts) != frozenset(self.cached_fonts):
+            # Write out the cache only if some font files have changed
             self.write_cache()
+
         self.build_families()
 
     def font_priority(self, font):
