@@ -9,14 +9,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-04-18 13:08+0000\n"
-"Last-Translator: Asier Iturralde Sarasola <Unknown>\n"
+"PO-Revision-Date: 2012-10-29 14:16+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Euskara <itzulpena@comtropos.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-19 04:36+0000\n"
-"X-Generator: Launchpad (build 15108)\n"
+"X-Launchpad-Export-Date: 2012-10-30 04:44+0000\n"
+"X-Generator: Launchpad (build 16206)\n"
 "Language: eu\n"
 
 #. name for aaa
@@ -73,7 +73,7 @@ msgstr "Anambé"
 
 #. name for aao
 msgid "Arabic; Algerian Saharan"
-msgstr ""
+msgstr "Arabiera, Aljeriako Saharakoa"
 
 #. name for aap
 msgid "Arára; Pará"
@@ -181,31 +181,32 @@ msgstr "Abazera"
 
 #. name for abr
 msgid "Abron"
-msgstr ""
+msgstr "Abron; (bono hizkuntza, Ghana)"
 
 #. name for abs
 msgid "Malay; Ambonese"
-msgstr ""
+msgstr "Malaysiera; (\"ambonese\" hizkuntza)"
 
 #. name for abt
 msgid "Ambulas"
-msgstr ""
+msgstr "Ambulas hizkuntza"
 
 #. name for abu
 msgid "Abure"
 msgstr ""
+"Abure hizkuntza (edo abonwa; edo akaplass)  (Niger, Kongo, Boli-kosta)"
 
 #. name for abv
 msgid "Arabic; Baharna"
-msgstr ""
+msgstr "Arabiera; baharna"
 
 #. name for abw
 msgid "Pal"
-msgstr ""
+msgstr "Pal hizkuntza (Papua)"
 
 #. name for abx
 msgid "Inabaknon"
-msgstr ""
+msgstr "Inabaknon hizkuntza (edo abaknon, Filipina uharteak)"
 
 #. name for aby
 msgid "Aneme Wake"

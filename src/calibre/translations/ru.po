@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-24 04:12+0000\n"
-"PO-Revision-Date: 2012-10-21 09:03+0000\n"
+"POT-Creation-Date: 2012-10-26 05:12+0000\n"
+"PO-Revision-Date: 2012-10-26 18:30+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-10-25 05:27+0000\n"
-"X-Generator: Launchpad (build 16179)\n"
+"X-Launchpad-Export-Date: 2012-10-27 04:51+0000\n"
+"X-Generator: Launchpad (build 16194)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -180,12 +180,12 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:586
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:594
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:605
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2273
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2427
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2857
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3504
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3506
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3643
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2274
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2428
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2858
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3505
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3507
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3644
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:247
@@ -987,26 +987,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:668
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1061
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1062
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:887
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:910
 msgid "Yes"
 msgstr "Да"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1216
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1217
 msgid "Main"
 msgstr "Основная"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1218
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1219
 msgid "Card A"
 msgstr "Карта 1"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1220
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1221
 msgid "Card B"
 msgstr "Карта 2"
 
@@ -1216,14 +1216,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1199
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:371
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:384
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3361
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3362
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
 msgstr "Новости"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2770
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3317
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3335
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3318
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3336
 msgid "Catalog"
 msgstr "Каталог"
 
@@ -1278,10 +1278,10 @@ msgstr "Bambook"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:128
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:131
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:348
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1307
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1311
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1315
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1635
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1319
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1323
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1642
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:155
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:147
@@ -2850,7 +2850,7 @@ msgstr "Не обрабатывать изображения"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:63
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr "Не преобразовать изображение в градации серого (черный и белый)"
+msgstr "Не преобразовывать изображение в оттенки серого (чёрный и белый)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:65
 msgid ""
@@ -3736,6 +3736,12 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Вставить указанное семейство шрифтов в книгу. Указывается \"основной\" шрифт "
+"использованный в книге. Если исходный документ имеет указание шрифта, то он "
+"будет перезаписан этой настройкой. Вы можете использовать настройку фильтра "
+"стилей для удаления шрифта из исходного документа. Помните, что вставка "
+"шрифта работает только с некоторыми выходными форматами, в основном EPUB и "
+"AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid ""
@@ -6662,7 +6668,7 @@ msgstr "Сохранить на диск в одну директорию тол
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:38
 msgid "Save single format to disk..."
-msgstr "Сохранить единый формат диска..."
+msgstr "Сохранить на диск один из форматов ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:81
@@ -6675,7 +6681,7 @@ msgstr "Выберите формат для сохранения на диск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:84
 msgid "Choose destination directory"
-msgstr "Выберете директорию получателя"
+msgstr "Выберите папку назначения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:92
 msgid ""
@@ -8618,7 +8624,7 @@ msgstr "&Размер строки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:237
 msgid "&Embed font family:"
-msgstr ""
+msgstr "Вставить семейство шрифтов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:238
 msgid "&Disable font size rescaling"
@@ -9045,7 +9051,7 @@ msgstr "Открыть книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
-msgstr ""
+msgstr "Нажмите ниже кнопку Открыть, что бы открыть книгу для проверки."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -13394,7 +13400,7 @@ msgstr "Регулярное выражение (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:122
 msgid "Choose font family"
-msgstr ""
+msgstr "Выберите семейство шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13414,11 +13420,15 @@ msgstr "Ничего"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:159
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Выберите семейство шрифтов из списка ниже:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:187
 msgid "Choose &font family"
-msgstr ""
+msgstr "Выберите семейство шрифтов"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:196
+msgid "Clear the font family"
+msgstr "Очистить шрифт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -14134,7 +14144,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:273
 #, python-format
 msgid "Could not open \"%s\". Is it being used by another program?"
-msgstr ""
+msgstr "Не могу открыть \"%s\". Возможно используется другой программой."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:306
 msgid ""
@@ -14832,13 +14842,13 @@ msgstr "Добавление"
 msgid ""
 "If set, this option will causes calibre to check if a file\n"
 " being auto-added is already in the calibre library.\n"
-" If it is, a meesage will pop up asking you whether\n"
+" If it is, a message will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
-"Если включено, то calibre будет проверять\n"
-" добавляемые файлы на наличие в библиотеке.\n"
-" Если файлы уже имеются, то появится сообщение\n"
-" о том желаете ли вы всё равно добавить файлы."
+"Если установлена эта опция, то при автоматическом добавлении\n"
+" calibre будет проверять наличие добавляемых книг в библиотеке.\n"
+" Если похожая книга будет найдена, то появится окно с вопросом\n"
+" о необходимости сохранения."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Check for &duplicates when auto-adding files"
@@ -18657,7 +18667,7 @@ msgid "Options to customize the ebook viewer"
 msgstr "Параметры для настройки просмотра книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:30
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1106
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1107
 msgid "Remember last used window size"
 msgstr "Запомнить последний использованный размер окна"
 
@@ -19282,35 +19292,35 @@ msgstr "Управление закладками"
 msgid "Loading ebook..."
 msgstr "Загружается электронная книга..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:977
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
 msgid "Could not open ebook"
 msgstr "Не могу открыть электронную книгу"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:978
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:979
 msgid "Unknown error"
 msgstr "Неизвестная ошибка"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1093
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1094
 msgid "Options to control the ebook viewer"
 msgstr "Настройки управления просмотром книг"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1100
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1101
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
 "Если указано, окно вьювера будт пытаться всплыть наверх при открытии."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1103
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1104
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
 "Если указано, окне просмотра будет открыто во весь экран при запуске."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1108
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1109
 msgid "Print javascript alert and console messages to the console"
 msgstr "Выводить предупреждения javascript и консольные сообщения в консоли"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1110
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1111
 msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
@@ -19318,7 +19328,7 @@ msgstr ""
 "Позиция на которой открыта определённая книга. Позиция отображается в "
 "верхнем левом углу просмотрщика."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1117
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1118
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -20886,6 +20896,22 @@ msgid ""
 "that a new OPF has been createdsince the column was added). You will see the "
 "JSON for the\"display\" for the new column in the OPF."
 msgstr ""
+"Словарь настроек для указания того, как данные в этой колонке будут "
+"интерпретированы. Это JSON строка. Для столбцов с перечислением используйте -"
+"-display=\"{\\\"enum_values\\\":[\\\"val1\\\", \\\"val2\\\"]}\"\n"
+"Есть много настроек которые могуть быть использованы в переменной "
+"отображения. Настройки по типам столбцов следующие:\n"
+"composite: composite_template, composite_sort, make_category,contains_html, "
+"use_decorations\n"
+"datetime: date_format\n"
+"enumeration: enum_values, enum_colors, use_decorations\n"
+"int, float: number_format\n"
+"text: is_names, use_decorations\n"
+"\n"
+"Лучший способ найти правильное сочетание - это создать столбец "
+"соответствующего типа в интерфейсе и посмотреть на резервную копию OPF для "
+"книги (убедитесь что новый OPF был создан после добавления столбца). Вы "
+"увидете JSON для \"отображения\" для нового столбца в OPF."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:721
 msgid "You must specify label, name and datatype"
@@ -21296,17 +21322,17 @@ msgstr "восстановлены настройки "
 msgid "creating custom column "
 msgstr "создание пользовательских столбцов "
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3669
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3670
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>Миграция старой базы данных в %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3698
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3699
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "Копирование <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3715
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3716
 msgid "Compacting database"
 msgstr "Сжатие базы данных"
 
@@ -21942,7 +21968,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:284
 msgid "File is open in another process"
-msgstr ""
+msgstr "Файл открыт другим процессом"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -24023,53 +24049,75 @@ msgid ""
 "sony_collection_name_template='{category:||: }{value}'"
 msgstr ""
 "Укажите правила переименования для коллекций sony. Эта настройка применима "
-"только тогда, когда управление метаданными установлено в автоматический "
-"режим. Коллекции на Sony именуются в зависимости от того, какие поля "
-"выбраны: стандартные или пользовательские. Коллекция образованная из "
-"стандартного поля именуется по его значению. Например, если стандартный "
-"столбец 'серии' содержит значение 'Darkover', то название коллекции будет "
-"'Darkover'. Коллекция образованная из пользователького поля будет иметь имя "
-"поля добавленного к значению. Например, если столбец пользовательских серий "
+"только тогда, \n"
+"когда управление метаданными установлено в автоматический режим. Коллекции "
+"на Sony \n"
+"именуются в зависимости от того, какие поля выбраны: стандартные или "
+"пользовательские.\n"
+"Коллекция образованная из стандартного поля именуется по его значению. "
+"Например, если \n"
+"стандартный столбец 'серии' содержит значение 'Darkover', то название "
+"коллекции \n"
+"будет 'Darkover'. Коллекция образованная из пользователького поля будет "
+"иметь \n"
+"имя поля добавленного к значению. Например, если столбец пользовательских "
+"серий \n"
 "называется 'My Series' и содержит название 'Darkover', то коллекция будет по "
-"умолчанию названа 'Darkover (My Series)'. Для этой справки, значение "
-"называется 'Darkover' и категория называется 'My Series'. Если две книги "
-"имеют поля которые дают одинаковые имена для коллекции, то обе книги будут в "
-"этой коллекции. \n"
+"умолчанию \n"
+"названа 'Darkover (My Series)'. Для этой справки, значение называется "
+"'Darkover' и категория \n"
+"называется 'My Series'. Если две книги имеют поля которые дают одинаковые "
+"имена для \n"
+"коллекции, то обе книги будут в этой коллекции. \n"
 "Установка этих настроек позволит вам указать для стандартной или "
-"пользовательской папки как именовать коллекции. Вы можете использовать это "
-"для добавления описания к стандартному полю, например 'Foo (Tag)' вместо "
-"'Foo'. Вы так же можете использовать это что бы заставить несколько полей "
-"оказаться в одной коллекции. Например, вы можете заставить значения в "
-"'series', '#my_series_1' и '#my_series_2' оказаться в коллекциях названных "
-"'some_value (Series)', объединив этим все поля в один набор коллекций.\n"
+"пользовательской папки \n"
+"как именовать коллекции. Вы можете использовать это для добавления описания "
+"к \n"
+"стандартному полю, например 'Foo (Tag)' вместо 'Foo'. Вы так же можете "
+"использовать это \n"
+"что бы заставить несколько полей оказаться в одной коллекции. Например, вы "
+"можете заставить \n"
+"значения в 'series', '#my_series_1' и '#my_series_2' оказаться в коллекциях "
+"\n"
+"названных 'some_value (Series)', объединив этим все поля в один набор "
+"коллекций.\n"
 "Имеются две возможные настройки. Первая определяет имя категории для "
-"использования в поле метаданных. Вторая - это шаблон, используемый для "
-"определения того, как значение и категория объединяются для создания имени "
-"коллекции. Синтаксис первой настройки, sony_collection_renaming_rules, "
-"следующий:\n"
+"использования \n"
+"в поле метаданных. Вторая - это шаблон, используемый для определения того, \n"
+"как значение и категория объединяются для создания имени коллекции. "
+"Синтаксис \n"
+"первой настройки, sony_collection_renaming_rules, следующий:\n"
 "{'field_lookup_name':'category_name_to_use', 'lookup_name':'name', ...}\n"
 "Вторая настройка, sony_collection_name_template - шаблон. Он использует тот "
-"же язык шаблонов, что и в связях метаданных и сохранении шаблонов. Доступно "
-"два поля: {category} и {value} (категория и значение). Поле {value} никогда "
-"не пусто. Поле {category} может быть пустым. По умолчанию, вначале идёт "
-"значение, затем категория в скобках, которые не должны быть пустыми: "
-"'{value} {category:|(|)}'\n"
+"же \n"
+"язык шаблонов, что и в связях метаданных и сохранении шаблонов. Доступно два "
+"\n"
+"поля: {category} и {value} (категория и значение). Поле {value} никогда не "
+"пусто. \n"
+"Поле {category} может быть пустым. По умолчанию, вначале идёт значение, "
+"затем \n"
+"категория в скобках, которые не должны быть пустыми: '{value} "
+"{category:|(|)}'\n"
 "Примеры: Первые три примера предпологают что вторая настройка не менялась.\n"
 "1: Я хочу что бы три серии столбцов были объединены в одной группе "
-"коллекций. Поисковые имена столбцов 'series', '#series_1' и '#series_2'. Я "
-"хочу что бы в скобках было пусто. Значение для использования в настройке "
-"должно выглядеть так: sony_collection_renaming_rules={'series':'', "
-"'#series_1':'', '#series_2':''}\n"
+"коллекций. \n"
+"Поисковые имена столбцов 'series', '#series_1' и '#series_2'. Я хочу что бы "
+"в скобках \n"
+"было пусто. Значение для использования в настройке должно выглядеть так: \n"
+"sony_collection_renaming_rules={'series':'', '#series_1':'', "
+"'#series_2':''}\n"
 "2: Я хочу, что бы слово '(Series)' появлялось в коллекциях созданных из "
-"серий и слово '(Tag)' появлялось в коллекциях от тэгов. Настройка будет "
-"такой: sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
+"серий \n"
+"и слово '(Tag)' появлялось в коллекциях от тэгов. Настройка будет такой: \n"
+"sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
 "3: Я хочу, что бы 'series' и '#myseries' были объединены и в имени коллекции "
-"было '(Series)'. Правило переименования такое: "
+"\n"
+"было '(Series)'. Правило переименования такое: \n"
 "sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}\n"
-"4: То же что и в примере 2, но вместо имеющегося имени категории в скобках и "
-"добавления к значению, я хочу добавить и разделить через двоеточие, как в "
-"сериях: Darkover. Я должен изменить шаблон используемый для форматирования "
-"имени категории\n"
+"4: То же что и в примере 2, но вместо имеющегося имени категории в скобках \n"
+"и добавления к значению, я хочу добавить и разделить через двоеточие, \n"
+"как в сериях: Darkover. Я должен изменить шаблон используемый для \n"
+"форматирования имени категории\n"
 "В результате две настройки будут следующими:\n"
 "sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
 "sony_collection_name_template='{category:||: }{value}'"
@@ -24244,10 +24292,11 @@ msgid ""
 "default font (Liberation Serif) does not contain glyphs for the language of\n"
 "the books in your library."
 msgstr ""
-"Полный путь к файлам шрифтов .ttf для использования в названии, авторе и "
-"нижнем поле при создании обложки по умолчанию или титульного изображения. "
-"Полезно если шрифт по умолчанию (Liberation Serif) не содержит символов "
-"подходящих для книг в вашей библиотеке."
+"Полный путь к файлам шрифтов .ttf для использования в названии, \n"
+"авторе и нижнем поле при создании обложки по умолчанию или титульного \n"
+"изображения. Полезно если шрифт по умолчанию (Liberation Serif) не содержит "
+"\n"
+"символов подходящих для книг в вашей библиотеке."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:387
 msgid "Control behavior of the book list"
