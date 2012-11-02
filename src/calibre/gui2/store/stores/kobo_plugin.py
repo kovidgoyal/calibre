@@ -24,29 +24,28 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class KoboStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-       pub_id = 'sHa5EXvYOwA'
-       # Use Kovid's affiliate id 30% of the time.
-       if random.randint(1, 10) in (1, 2, 3):
-           pub_id = '0dsO3kDu/AU'
+        pub_id = 'sHa5EXvYOwA'
+        # Use Kovid's affiliate id 30% of the time.
+        if random.randint(1, 10) in (1, 2, 3):
+            pub_id = '0dsO3kDu/AU'
 
-       murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&offerid=268429.4&type=3&subid=0' % pub_id
+        murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&offerid=268429.4&type=3&subid=0' % pub_id
 
-       if detail_item:
-           purl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=268429.1&type=10&tmpid=9310&RD_PARM1=%s' % urllib.quote_plus(pub_id, detail_item)
-           url = purl
-       else:
-           purl = None
-           url = murl
+        if detail_item:
+            purl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=268429.1&type=10&tmpid=9310&RD_PARM1=%s' % urllib.quote_plus(pub_id, detail_item) url = purl
+        else:
+            purl = None
+            url = murl
 
-       print(url)
+        print(url)
 
-       if external or self.config.get('open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
-            d.setWindowTitle(self.name)
-            d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+             d.setWindowTitle(self.name)
+             d.set_tags(self.config.get('tags', ''))
+             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.kobobooks.com/search/search.html?q=' + urllib2.quote(query)
