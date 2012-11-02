@@ -341,6 +341,11 @@ class WindowsAtomicFolderMove(object):
     def delete_originals(self):
         import win32file
         for path in self.handle_map.iterkeys():
+            try:
+                # Ensure the file is not read-only
+                win32file.SetFileAttributes(path, win32file.FILE_ATTRIBUTE_NORMAL)
+            except:
+                pass
             win32file.DeleteFile(path)
         self.close_handles()
 
