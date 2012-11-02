@@ -24,20 +24,23 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class KoboStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        m_url = 'http://www.dpbolvw.net/'
-        h_click = 'click-4879827-10762497'
-        d_click = 'click-4879827-10772898'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            h_click = 'click-4913808-10762497'
-            d_click = 'click-4913808-10772898'
+       pub_id = 'sHa5EXvYOwA'
+       # Use Kovid's affiliate id 30% of the time.
+       if random.randint(1, 10) in (1, 2, 3):
+           pub_id = '0dsO3kDu/AU'
 
-        url = m_url + h_click
-        detail_url = None
-        if detail_item:
-            detail_url = m_url + d_click + detail_item
+       murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&offerid=268429.4&type=3&subid=0' % pub_id
 
-        if external or self.config.get('open_external', False):
+       if detail_item:
+           purl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=268429.1&type=10&tmpid=9310&RD_PARM1=%s' % urllib.quote_plus(pub_id, detail_item)
+           url = purl
+       else:
+           purl = None
+           url = murl
+
+       print(url)
+
+       if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
@@ -78,7 +81,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = '?url=http://www.kobobooks.com/' + id.strip()
+                s.detail_item = 'http://www.kobobooks.com/' + id.strip()
                 s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
                 s.formats = 'EPUB'
 
