@@ -1440,8 +1440,9 @@ class KOBOTOUCH(KOBO):
                         debug_print('KoboTouch:update_booklist - the authors=', bl[idx].authors)
                         debug_print('KoboTouch:update_booklist - application_id=', bl[idx].application_id)
                     bl_cache[lpath] = None
-                    if bl[idx].title_sort is not None:
-                        bl[idx].title = bl[idx].title_sort
+                  # removed to allow recognizing of ePub with an UUID inside
+                  # if bl[idx].title_sort is not None:
+                  #     bl[idx].title = bl[idx].title_sort
                     if ImageID is not None:
                         imagename = self.imagefilename_from_imageID(ImageID)
                         if imagename is not None:
