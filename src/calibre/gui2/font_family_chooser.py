@@ -7,11 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os, shutil
+
 from PyQt4.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
         QStyledItemDelegate, QSize, QStyle, QStringListModel, pyqtSignal,
         QDialog, QVBoxLayout, QApplication, QFontComboBox, QPushButton,
         QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
         QHBoxLayout, QLabel, QModelIndex)
+
+from calibre.constants import config_dir
+from calibre.gui2 import choose_files, error_dialog, info_dialog
 
 def writing_system_for_font(font):
     has_latin = True
@@ -167,19 +172,12 @@ class FontFamilyDialog(QDialog):
         self.setWindowIcon(QIcon(I('font.png')))
         from calibre.utils.fonts.scanner import font_scanner
         self.font_scanner = font_scanner
-        try:
-            self.families = list(font_scanner.find_font_families())
-        except:
-            self.families = []
-            print ('WARNING: Could not load fonts')
-            import traceback
-            traceback.print_exc()
-        self.families.insert(0, _('None'))
 
+        self.m = QStringListModel(self)
+        self.build_font_list()
         self.l = l = QGridLayout()
         self.setLayout(l)
         self.view = FontsView(self)
-        self.m = QStringListModel(self.families)
         self.view.setModel(self.m)
         self.view.setCurrentIndex(self.m.index(0))
         if current_family:
@@ -194,8 +192,11 @@ class FontFamilyDialog(QDialog):
         self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
+        self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'),
+                self.bb.ActionRole)
+        afb.setIcon(QIcon(I('plus.png')))
+        afb.clicked.connect(self.add_fonts)
         self.ml = QLabel(_('Choose a font family from the list below:'))
-
 
         l.addWidget(self.ml, 0, 0, 1, 2)
         l.addWidget(self.view, 1, 0, 1, 1)
@@ -204,6 +205,54 @@ class FontFamilyDialog(QDialog):
         l.setAlignment(self.faces, Qt.AlignTop)
 
         self.resize(800, 600)
+
+    def build_font_list(self):
+        try:
+            self.families = list(self.font_scanner.find_font_families())
+        except:
+            self.families = []
+            print ('WARNING: Could not load fonts')
+            import traceback
+            traceback.print_exc()
+        self.families.insert(0, _('None'))
+        self.m.setStringList(self.families)
+
+    def add_fonts(self):
+        from calibre.utils.fonts.metadata import FontMetadata
+        files = choose_files(self, 'add fonts to calibre',
+                _('Select font files'), filters=[(_('TrueType/OpenType Fonts'),
+                    ['ttf', 'otf'])], all_files=False)
+        if not files: return
+        families = set()
+        for f in files:
+            try:
+                with open(f, 'rb') as stream:
+                    fm = FontMetadata(stream)
+            except:
+                import traceback
+                error_dialog(self, _('Corrupt font'),
+                        _('Failed to read metadata from the font file: %s')%
+                        f, det_msg=traceback.format_exc(), show=True)
+                return
+            families.add(fm.font_family)
+        families = sorted(families)
+
+        dest = os.path.join(config_dir, 'fonts')
+        for f in files:
+            shutil.copyfile(f, os.path.join(dest, os.path.basename(f)))
+        self.font_scanner.do_scan()
+        self.build_font_list()
+        self.m.reset()
+        self.view.setCurrentIndex(self.m.index(0))
+        if families:
+            for i, val in enumerate(self.families):
+                if icu_lower(val) == icu_lower(families[0]):
+                    self.view.setCurrentIndex(self.m.index(i))
+                    break
+
+        info_dialog(self, _('Added fonts'),
+                _('Added font families: %s')%(
+                    ', '.join(families)), show=True)
 
     @property
     def font_family(self):
