@@ -25,14 +25,14 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         plain_url = 'http://www.empik.com/ebooki'
-        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + plain_url + ')'
+        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,23c7f,,,?u=(' + plain_url + ')'
         detail_url = None
 
         if detail_item:
-            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + detail_item + ')'
+            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,23c7f,,,?u=(' + detail_item + ')'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
