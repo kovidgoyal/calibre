@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-10-28 09:28+0000\n"
+"PO-Revision-Date: 2012-11-01 13:11+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-29 04:59+0000\n"
-"X-Generator: Launchpad (build 16194)\n"
+"X-Launchpad-Export-Date: 2012-11-02 05:08+0000\n"
+"X-Generator: Launchpad (build 16218)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -10024,7 +10024,7 @@ msgstr "Ifugao; Mayoyao"
 
 #. name for ify
 msgid "Kallahan; Keley-I"
-msgstr "Kallahan; Keley-I"
+msgstr "Kallahan; Keley"
 
 #. name for igb
 msgid "Ebira"
@@ -10680,7 +10680,7 @@ msgstr "Jeng"
 
 #. name for jeh
 msgid "Jeh"
-msgstr ""
+msgstr "Jeh"
 
 #. name for jei
 msgid "Yei"
@@ -10688,7 +10688,7 @@ msgstr ""
 
 #. name for jek
 msgid "Jeri Kuo"
-msgstr ""
+msgstr "Jeri"
 
 #. name for jel
 msgid "Yelmek"
@@ -10700,7 +10700,7 @@ msgstr ""
 
 #. name for jer
 msgid "Jere"
-msgstr ""
+msgstr "Jere"
 
 #. name for jet
 msgid "Manem"
@@ -10708,7 +10708,7 @@ msgstr ""
 
 #. name for jeu
 msgid "Jonkor Bourmataguil"
-msgstr ""
+msgstr "Jonkor"
 
 #. name for jgb
 msgid "Ngbee"
@@ -10716,7 +10716,7 @@ msgstr ""
 
 #. name for jge
 msgid "Judeo-Georgian"
-msgstr ""
+msgstr "Judeogeorgià"
 
 #. name for jgo
 msgid "Ngomba"
@@ -10724,7 +10724,7 @@ msgstr ""
 
 #. name for jhi
 msgid "Jehai"
-msgstr ""
+msgstr "Jehai"
 
 #. name for jhs
 msgid "Jhankot Sign Language"
@@ -10732,11 +10732,11 @@ msgstr "Llenguatge de signes Jhankot"
 
 #. name for jia
 msgid "Jina"
-msgstr ""
+msgstr "Jina"
 
 #. name for jib
 msgid "Jibu"
-msgstr ""
+msgstr "Jibu"
 
 #. name for jic
 msgid "Tol"
@@ -10748,7 +10748,7 @@ msgstr ""
 
 #. name for jie
 msgid "Jilbe"
-msgstr ""
+msgstr "Jilbe"
 
 #. name for jig
 msgid "Djingili"
@@ -10760,19 +10760,19 @@ msgstr ""
 
 #. name for jii
 msgid "Jiiddu"
-msgstr ""
+msgstr "Jiddu"
 
 #. name for jil
 msgid "Jilim"
-msgstr ""
+msgstr "Jilim"
 
 #. name for jim
 msgid "Jimi (Cameroon)"
-msgstr ""
+msgstr "Jimi (Camerun)"
 
 #. name for jio
 msgid "Jiamao"
-msgstr ""
+msgstr "Jiamao"
 
 #. name for jiq
 msgid "Guanyinqiao"
@@ -10780,11 +10780,11 @@ msgstr ""
 
 #. name for jit
 msgid "Jita"
-msgstr ""
+msgstr "Jita"
 
 #. name for jiu
 msgid "Jinuo; Youle"
-msgstr ""
+msgstr "Jinuo; Youle"
 
 #. name for jiv
 msgid "Shuar"
@@ -10792,11 +10792,11 @@ msgstr ""
 
 #. name for jiy
 msgid "Jinuo; Buyuan"
-msgstr ""
+msgstr "Jinuo; Buyuan"
 
 #. name for jko
 msgid "Kubo"
-msgstr ""
+msgstr "Kubo"
 
 #. name for jku
 msgid "Labir"
@@ -10828,11 +10828,11 @@ msgstr ""
 
 #. name for jmi
 msgid "Jimi (Nigeria)"
-msgstr ""
+msgstr "Jimi (Nigèria)"
 
 #. name for jml
 msgid "Jumli"
-msgstr ""
+msgstr "Jumleli"
 
 #. name for jmn
 msgid "Naga; Makuri"
@@ -10840,7 +10840,7 @@ msgstr ""
 
 #. name for jmr
 msgid "Kamara"
-msgstr ""
+msgstr "Kamara"
 
 #. name for jms
 msgid "Mashi (Nigeria)"
@@ -10852,11 +10852,11 @@ msgstr ""
 
 #. name for jna
 msgid "Jangshung"
-msgstr ""
+msgstr "Jangshung"
 
 #. name for jnd
 msgid "Jandavra"
-msgstr ""
+msgstr "Jandavra"
 
 #. name for jng
 msgid "Yangman"
@@ -10864,7 +10864,7 @@ msgstr ""
 
 #. name for jni
 msgid "Janji"
-msgstr ""
+msgstr "Janji"
 
 #. name for jnj
 msgid "Yemsa"
@@ -10876,11 +10876,11 @@ msgstr ""
 
 #. name for jns
 msgid "Jaunsari"
-msgstr ""
+msgstr "Jaunsari"
 
 #. name for job
 msgid "Joba"
-msgstr ""
+msgstr "Joba"
 
 #. name for jod
 msgid "Wojenaka"
@@ -10888,7 +10888,7 @@ msgstr ""
 
 #. name for jor
 msgid "Jorá"
-msgstr ""
+msgstr "Jorà"
 
 #. name for jos
 msgid "Jordanian Sign Language"
@@ -10896,7 +10896,7 @@ msgstr "Llenguatge de signes jordà"
 
 #. name for jow
 msgid "Jowulu"
-msgstr ""
+msgstr "Jowulu"
 
 #. name for jpa
 msgid "Aramaic; Jewish Palestinian"
@@ -10908,15 +10908,15 @@ msgstr "Japonès"
 
 #. name for jpr
 msgid "Judeo-Persian"
-msgstr ""
+msgstr "Judeopersa"
 
 #. name for jqr
 msgid "Jaqaru"
-msgstr ""
+msgstr "Jaqaru"
 
 #. name for jra
 msgid "Jarai"
-msgstr ""
+msgstr "Jarai"
 
 #. name for jrb
 msgid "Judeo-Arabic"
@@ -10924,15 +10924,15 @@ msgstr "Judeo-àrab"
 
 #. name for jrr
 msgid "Jiru"
-msgstr ""
+msgstr "Jiru"
 
 #. name for jrt
 msgid "Jorto"
-msgstr ""
+msgstr "Jorto"
 
 #. name for jru
 msgid "Japrería"
-msgstr ""
+msgstr "Japreria"
 
 #. name for jsl
 msgid "Japanese Sign Language"
@@ -10940,7 +10940,7 @@ msgstr "Llenguatge de signes japonès"
 
 #. name for jua
 msgid "Júma"
-msgstr ""
+msgstr "Juma"
 
 #. name for jub
 msgid "Wannu"
@@ -10948,7 +10948,7 @@ msgstr ""
 
 #. name for juc
 msgid "Jurchen"
-msgstr ""
+msgstr "Jurchen"
 
 #. name for jud
 msgid "Worodougou"
@@ -10964,19 +10964,19 @@ msgstr ""
 
 #. name for jul
 msgid "Jirel"
-msgstr ""
+msgstr "Jirel"
 
 #. name for jum
 msgid "Jumjum"
-msgstr ""
+msgstr "Jumjum"
 
 #. name for jun
 msgid "Juang"
-msgstr ""
+msgstr "Juang"
 
 #. name for juo
 msgid "Jiba"
-msgstr ""
+msgstr "Kona"
 
 #. name for jup
 msgid "Hupdë"
@@ -10984,7 +10984,7 @@ msgstr ""
 
 #. name for jur
 msgid "Jurúna"
-msgstr ""
+msgstr "Juruna"
 
 #. name for jus
 msgid "Jumla Sign Language"
@@ -10992,11 +10992,11 @@ msgstr "Llenguatge de signes Jumla"
 
 #. name for jut
 msgid "Jutish"
-msgstr ""
+msgstr "Jutish"
 
 #. name for juu
 msgid "Ju"
-msgstr ""
+msgstr "Ju"
 
 #. name for juw
 msgid "Wãpha"
@@ -11004,11 +11004,11 @@ msgstr ""
 
 #. name for juy
 msgid "Juray"
-msgstr ""
+msgstr "Juray"
 
 #. name for jvd
 msgid "Javindo"
-msgstr ""
+msgstr "Javindo"
 
 #. name for jvn
 msgid "Javanese; Caribbean"
@@ -11016,11 +11016,11 @@ msgstr "Javanès; Carib"
 
 #. name for jwi
 msgid "Jwira-Pepesa"
-msgstr ""
+msgstr "Jwira-Pepesa"
 
 #. name for jya
 msgid "Jiarong"
-msgstr ""
+msgstr "Jiarong"
 
 #. name for jye
 msgid "Arabic; Judeo-Yemeni"
@@ -11028,27 +11028,27 @@ msgstr "Àrab; judeoiemení"
 
 #. name for jyy
 msgid "Jaya"
-msgstr ""
+msgstr "Jaya"
 
 #. name for kaa
 msgid "Kara-Kalpak"
-msgstr ""
+msgstr "Karakalpak"
 
 #. name for kab
 msgid "Kabyle"
-msgstr ""
+msgstr "Cabilenc"
 
 #. name for kac
 msgid "Kachin"
-msgstr ""
+msgstr "Jinghpaw"
 
 #. name for kad
 msgid "Kadara"
-msgstr ""
+msgstr "Kadara"
 
 #. name for kae
 msgid "Ketangalan"
-msgstr ""
+msgstr "Ketangalan"
 
 #. name for kaf
 msgid "Katso"
@@ -11056,15 +11056,15 @@ msgstr ""
 
 #. name for kag
 msgid "Kajaman"
-msgstr ""
+msgstr "Kajaman"
 
 #. name for kah
 msgid "Kara (Central African Republic)"
-msgstr ""
+msgstr "Kara (República Centrafricana)"
 
 #. name for kai
 msgid "Karekare"
-msgstr ""
+msgstr "Karekare"
 
 #. name for kaj
 msgid "Jju"
@@ -11072,15 +11072,15 @@ msgstr ""
 
 #. name for kak
 msgid "Kallahan; Kayapa"
-msgstr ""
+msgstr "Kallahan; Kayapa"
 
 #. name for kal
 msgid "Kalaallisut"
-msgstr ""
+msgstr "Grenlandès"
 
 #. name for kam
 msgid "Kamba (Kenya)"
-msgstr ""
+msgstr "Kamba (Kenya)"
 
 #. name for kan
 msgid "Kannada"
@@ -11108,23 +11108,23 @@ msgstr "georgià"
 
 #. name for kau
 msgid "Kanuri"
-msgstr ""
+msgstr "Kanuri"
 
 #. name for kav
 msgid "Katukína"
-msgstr ""
+msgstr "Katukina"
 
 #. name for kaw
 msgid "Kawi"
-msgstr ""
+msgstr "Kawi"
 
 #. name for kax
 msgid "Kao"
-msgstr ""
+msgstr "Kao"
 
 #. name for kay
 msgid "Kamayurá"
-msgstr ""
+msgstr "Kamayurà"
 
 #. name for kaz
 msgid "Kazakh"
@@ -11132,27 +11132,27 @@ msgstr "kazakh"
 
 #. name for kba
 msgid "Kalarko"
-msgstr ""
+msgstr "Kalarko"
 
 #. name for kbb
 msgid "Kaxuiâna"
-msgstr ""
+msgstr "Warikyana"
 
 #. name for kbc
 msgid "Kadiwéu"
-msgstr ""
+msgstr "Kadiweu"
 
 #. name for kbd
 msgid "Kabardian"
-msgstr ""
+msgstr "Kabardí"
 
 #. name for kbe
 msgid "Kanju"
-msgstr ""
+msgstr "Kanju"
 
 #. name for kbf
 msgid "Kakauhua"
-msgstr ""
+msgstr "Kakauhua"
 
 #. name for kbg
 msgid "Khamba"
@@ -25520,7 +25520,7 @@ msgstr ""
 
 #. name for tne
 msgid "Kallahan; Tinoc"
-msgstr ""
+msgstr "Kallahan; Tinoc"
 
 #. name for tng
 msgid "Tobanga"
