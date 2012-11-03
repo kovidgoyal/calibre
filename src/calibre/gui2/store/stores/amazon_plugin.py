@@ -127,35 +127,14 @@ class AmazonKindleStore(StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read().decode('latin-1', 'replace'))
-            
-            # Amazon has two results pages.
-            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
-            # Horizontal grid of books. Search "Paolo Bacigalupi"
-            if is_shot:
-                data_xpath = '//div[contains(@class, "result")]'
-                format_xpath = './/div[@class="productTitle"]//text()'
-                asin_xpath = './/div[@class="productTitle"]//a'
-                cover_xpath = './/div[@class="productTitle"]//img/@src'
-                title_xpath = './/div[@class="productTitle"]/a//text()'
-                price_xpath = './/div[@class="newPrice"]/span/text()'
-            # Vertical list of books.
-            else:
-                # New style list. Search "Paolo Bacigalupi"
-                if doc.xpath('boolean(//div[@class="image"])'):
-                    data_xpath = '//div[contains(@class, "results")]//div[contains(@class, "result")]'
-                    format_xpath = './/span[@class="binding"]//text()'
-                    asin_xpath = './/div[@class="image"]/a[1]'
-                    cover_xpath = './/img[@class="productImage"]/@src'
-                    title_xpath = './/a[@class="title"]/text()'
-                    price_xpath = './/span[contains(@class, "price")]/text()'
-                # Old style list. Search "martin"
-                else:
-                    data_xpath = '//div[contains(@class, "result")]'
-                    format_xpath = './/span[@class="format"]//text()'
-                    asin_xpath = './/div[@class="productImage"]/a[1]'
-                    cover_xpath = './/div[@class="productImage"]//img/@src'
-                    title_xpath = './/div[@class="productTitle"]/a/text()'
-                    price_xpath = './/div[@class="newPrice"]//span//text()'
+
+            data_xpath = '//div[contains(@class, "prod")]'
+            format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
+            asin_xpath = './/div[@class="image"]/a[1]'
+            cover_xpath = './/img[@class="productImage"]/@src'
+            title_xpath = './/h3[@class="newaps"]/a//text()'
+            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
+            price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
             
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
@@ -186,13 +165,13 @@ class AmazonKindleStore(StorePlugin):
                 cover_url = ''.join(data.xpath(cover_xpath))
 
                 title = ''.join(data.xpath(title_xpath))
+                author = ''.join(data.xpath(author_xpath))
+                try:
+                    author = author.split('by ', 1)[1].split(" (")[0]
+                except:
+                    pass
+
                 price = ''.join(data.xpath(price_xpath))
-                
-                if is_shot:
-                    author = format.split(' by ')[-1]
-                else:
-                    author = ''.join(data.xpath('.//span[@class="ptBrand"]/text()'))
-                    author = author.split('by ')[-1]
                 
                 counter -= 1
     
