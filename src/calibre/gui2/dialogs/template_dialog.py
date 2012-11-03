@@ -225,7 +225,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.mi.series_index = 3
             self.mi.rating = 4.0
             self.mi.tags = [_('Tag 1'), _('Tag 2')]
-            self.mi.language = ['eng']
+            self.mi.languages = ['eng']
 
         # Remove help icon on title bar
         icon = self.windowIcon()
