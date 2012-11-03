@@ -659,6 +659,9 @@ There are three possible things I know of, that can cause this:
 
     * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
 
+    * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
+      the blacklist of programs inside RoboForm to fix this.
+
     * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
 
 
