@@ -13,7 +13,7 @@ from PyQt4.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
         QStyledItemDelegate, QSize, QStyle, QStringListModel, pyqtSignal,
         QDialog, QVBoxLayout, QApplication, QFontComboBox, QPushButton,
         QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
-        QHBoxLayout, QLabel, QModelIndex)
+        QHBoxLayout, QLabel, QModelIndex, QLineEdit)
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog, info_dialog
@@ -197,14 +197,55 @@ class FontFamilyDialog(QDialog):
         afb.setIcon(QIcon(I('plus.png')))
         afb.clicked.connect(self.add_fonts)
         self.ml = QLabel(_('Choose a font family from the list below:'))
+        self.search = QLineEdit(self)
+        self.search.setPlaceholderText(_('Search'))
+        self.search.returnPressed.connect(self.find)
+        self.nb = QToolButton(self)
+        self.nb.setIcon(QIcon(I('arrow-down.png')))
+        self.nb.setToolTip(_('Find Next'))
+        self.pb = QToolButton(self)
+        self.pb.setIcon(QIcon(I('arrow-up.png')))
+        self.pb.setToolTip(_('Find Previous'))
+        self.nb.clicked.connect(self.find_next)
+        self.pb.clicked.connect(self.find_previous)
 
-        l.addWidget(self.ml, 0, 0, 1, 2)
-        l.addWidget(self.view, 1, 0, 1, 1)
-        l.addWidget(self.faces, 1, 1, 1, 1)
-        l.addWidget(self.bb, 2, 0, 1, 2)
+        l.addWidget(self.ml, 0, 0, 1, 4)
+        l.addWidget(self.search, 1, 0, 1, 1)
+        l.addWidget(self.nb, 1, 1, 1, 1)
+        l.addWidget(self.pb, 1, 2, 1, 1)
+        l.addWidget(self.view, 2, 0, 1, 3)
+        l.addWidget(self.faces, 1, 3, 2, 1)
+        l.addWidget(self.bb, 3, 0, 1, 4)
         l.setAlignment(self.faces, Qt.AlignTop)
 
         self.resize(800, 600)
+
+    def set_current(self, i):
+        self.view.setCurrentIndex(self.m.index(i))
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Return:
+            return
+        return QDialog.keyPressEvent(self, e)
+
+    def find(self, backwards=False):
+        i = self.view.currentIndex().row()
+        if i < 0: i = 0
+        q = icu_lower(unicode(self.search.text())).strip()
+        if not q: return
+        r = (xrange(i-1, -1, -1) if backwards else xrange(i+1,
+            len(self.families)))
+        for j in r:
+            f = self.families[j]
+            if q in icu_lower(f):
+                self.set_current(j)
+                return
+
+    def find_next(self):
+        self.find()
+
+    def find_previous(self):
+        self.find(backwards=True)
 
     def build_font_list(self):
         try:
