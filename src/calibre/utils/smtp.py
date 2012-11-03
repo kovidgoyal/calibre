@@ -259,6 +259,7 @@ def config(defaults=None):
     c.add_opt('from_')
     c.add_opt('accounts', default={})
     c.add_opt('subjects', default={})
+    c.add_opt('aliases', default={})
     c.add_opt('relay_host')
     c.add_opt('relay_port', default=25)
     c.add_opt('relay_username')

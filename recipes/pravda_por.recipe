@@ -1,0 +1,51 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+port.pravda.ru
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Pravda_port(BasicNewsRecipe):
+    title                 = u'Pravda em português'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Russia and rest of the world'
+    publisher             = 'PRAVDA.Ru'
+    category              = 'news, politics, Russia'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'pt'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://port.pravda.ru/pix/logo.gif'
+    extra_css             = """
+                               body{font-family: Arial,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_attributes=['lang', 'style']
+    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+
+
+    feeds = [
+              (u'Mundo'      , u'http://port.pravda.ru/mundo/export-articles.xml'            )
+             ,(u'Russia'     , u'http://port.pravda.ru/russa/export-articles.xml'            )
+             ,(u'Sociedade'  , u'http://port.pravda.ru/sociedade/export-articles.xml'        )
+             ,(u'Cultura'    , u'http://port.pravda.ru/sociedade/cultura/export-articles.xml')
+             ,(u'Ciencia'    , u'http://port.pravda.ru/science/export-articles.xml'          )
+             ,(u'Desporto'   , u'http://port.pravda.ru/desporto/export-articles.xml'         )
+             ,(u'CPLP'       , u'http://port.pravda.ru/cplp/export-articles.xml'             )
+            ]
+
+    def print_version(self, url):
+        return url + '?mode=print'
