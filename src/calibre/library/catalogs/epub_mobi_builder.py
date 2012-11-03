@@ -582,7 +582,10 @@ class CatalogBuilder(object):
             if rule['field'].lower() == 'tags':
                 if rule['pattern'].lower() in map(unicode.lower,record['tags']):
                     if self.opts.verbose:
-                        _log_prefix_rule_match_info(rule, record, rule['pattern'])
+                        self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
+                               (rule['prefix'],record['title'],
+                                record['authors'][0], rule['name'],
+                                rule['pattern']))
                     return rule['prefix']
 
             # Regex match for custom field
