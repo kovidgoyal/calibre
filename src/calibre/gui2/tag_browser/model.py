@@ -415,10 +415,10 @@ class TagsModel(QAbstractItemModel): # {{{
                     if not tag.sort:
                         c = ' '
                     else:
-                        c = tag.sort
+                        c = icu_upper(tag.sort)
                     ordnum, ordlen = collation_order(c)
                     if last_ordnum != ordnum:
-                        last_c = icu_upper(c[0:ordlen])
+                        last_c = c[0:ordlen]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
             top_level_component = 'z' + data[key][0].original_name

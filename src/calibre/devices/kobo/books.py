@@ -20,7 +20,7 @@ class Book(Book_):
     def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,
                  thumbnail_name=None, size=0, other=None):
 #        debug_print('Book::__init__ - title=', title)
-        show_debug = title is not None and title.lower().find("magic kingdom") >= 0
+        show_debug = title is not None and title.lower().find("xxxxx") >= 0
         if show_debug:
             debug_print("Book::__init__ - title=", title, 'authors=', authors)
             debug_print("Book::__init__ - other=", other)
@@ -31,8 +31,8 @@ class Book(Book_):
 
         if authors is not None and len(authors) > 0:
             self.authors_from_string(authors)
-        if self.author_sort is None or self.author_sort == "Unknown":
-            self.author_sort = author_to_author_sort(self.authors)
+            if self.author_sort is None or self.author_sort == "Unknown":
+                self.author_sort = author_to_author_sort(authors)
 
         self.mime = mime
 
@@ -58,7 +58,8 @@ class Book(Book_):
                                 self.datetime = time.gmtime()
 
         self.contentID = None
-        self.current_collections = []
+        self.current_shelves    = []
+        self.kobo_collections   = []
 
         if thumbnail_name is not None:
             self.thumbnail = ImageWrapper(thumbnail_name)
@@ -99,6 +100,10 @@ class KTCollectionsBookList(CollectionsBookList):
             lpath = getattr(book, 'lpath', None)
             if lpath is None:
                 continue
+            # If the book is not in the current library, we don't want to use the metadtaa for the collections
+            if book.application_id is None:
+#                debug_print("KTCollectionsBookList:get_collections - Book not in current library")
+                continue
             # Decide how we will build the collections. The default: leave the
             # book in all existing collections. Do not add any new ones.
             attrs = ['device_collections']
@@ -115,7 +120,8 @@ class KTCollectionsBookList(CollectionsBookList):
             elif prefs['manage_device_metadata'] == 'on_connect':
                 # For existing books, modify the collections only if the user
                 # specified 'on_connect'
-                attrs += collection_attributes
+                attrs = collection_attributes
+                book.device_collections = []
             if show_debug:
                 debug_print("KTCollectionsBookList:get_collections - attrs=", attrs)
 

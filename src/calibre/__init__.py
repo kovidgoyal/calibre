@@ -329,6 +329,7 @@ def get_parsed_proxy(typ='http', debug=True):
                     ans['port'] = int(ans['port'])
             except:
                 if debug:
+                    import traceback
                     traceback.print_exc()
             else:
                 if debug:
@@ -688,29 +689,6 @@ def remove_bracketed_text(src,
         elif sum(counts.itervalues()) < 1:
             buf.append(char)
     return u''.join(buf)
-
-if isosx:
-    import glob, shutil
-    fdir = os.path.expanduser('~/.fonts')
-    try:
-        if not os.path.exists(fdir):
-            os.makedirs(fdir)
-        if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
-            base = P('fonts/liberation/*.ttf')
-            for f in glob.glob(base):
-                shutil.copy2(f, fdir)
-    except:
-        import traceback
-        traceback.print_exc()
-
-def load_builtin_fonts():
-    import glob
-    from PyQt4.Qt import QFontDatabase
-    base = P('fonts/liberation/*.ttf')
-    for f in glob.glob(base):
-        QFontDatabase.addApplicationFont(f)
-    return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
-
 
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython

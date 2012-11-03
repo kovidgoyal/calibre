@@ -69,8 +69,8 @@ If you have a hand edited TOC in the input document, you can use the TOC detecti
 
 Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
 
-The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/etc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is caused by a bug in the Amazon software. You can work around it by going
 to Preferences->Output Options->MOBI output and setting the "Enable sharing
@@ -284,8 +284,8 @@ Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Cal
 
 This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
 
-How do I use |app| with my Android phone/tablet?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use |app| with my Android phone/tablet or Kindle Fire HD?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are two ways that you can connect your Android device to calibre. Using a USB cable -- or wirelessly, over the air.
 The first step to using an Android device is installing an ebook reading
@@ -435,7 +435,7 @@ any |app| developers will ever feel motivated enough to support it. There is how
 that allows you to create collections on your Kindle from the |app| metadata. It is available
 `from here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
 
-.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY Readers.
+.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY or Kobo Readers.
 
 I am getting an error when I try to use |app| with my Kobo Touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -557,6 +557,27 @@ There can be two reasons why |app| is showing a empty list of books:
 
   * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
 
+I am getting errors with my calibre library on a networked drive/NAS?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Do not put your calibre library on a networked drive**.
+
+A filesystem is a complex beast. Most network filesystems lack various
+filesystem features that |app| uses. Some dont support file locking, some dont
+support hardlinking, some are just flaky. Additionally, |app| is a single user
+application, if you accidentally run two copies of |app| on the same networked
+library, bad things will happen. Finally, different OSes impose different
+limitations on filesystems, so if you share your networked drive across OSes,
+once again, bad things *will happen*.
+
+Consider using the |app| Content Server to make your books available on other
+computers. Run |app| on a single computer and access it via the Content Server
+or a Remote Desktop solution.
+
+If you must share the actual library, use a file syncing tool like
+DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
+these tools there is danger of data corruption/loss, so only do this if you are
+willing to live with that risk.
 
 Content From The Web
 ---------------------
@@ -638,6 +659,9 @@ There are three possible things I know of, that can cause this:
 
     * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
 
+    * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
+      the blacklist of programs inside RoboForm to fix this.
+
     * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
 
 
@@ -674,7 +698,20 @@ If you still cannot get the installer to work and you are on windows, you can us
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Your antivirus program is wrong. Antivirus programs use heuristics, patterns of code that "looks suspicuous" to detect viruses. It's rather like racial profiling. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
+The first thing to check is that you are downloading |app| from the official
+website: `<http://calibre-ebook.com/download>`_. |app| is a very popular program
+and unscrupulous people try to setup websites offering it for download to fool
+the unwary.
+
+If you have the official download and your antivirus program is still claiming
+|app| is a virus, then, your antivirus program is wrong. Antivirus programs use
+heuristics, patterns of code that "look suspicious" to detect viruses. It's
+rather like racial profiling. |app| is a completely open source product. You
+can actually browse the source code yourself (or hire someone to do it for you)
+to verify that it is not a virus. Please report the false identification to
+whatever company you buy your antivirus software from. If the antivirus program
+is preventing you from downloading/installing |app|, disable it temporarily,
+install |app| and then re-enable it.
 
 How do I backup |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -549,7 +549,7 @@ def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.c
 
 def create_fetcher(options, image_map={}, log=None):
     if log is None:
-        log = Log()
+        log = Log(level=Log.DEBUG) if options.verbose else Log()
     return RecursiveFetcher(options, log, image_map={})
 
 def main(args=sys.argv):

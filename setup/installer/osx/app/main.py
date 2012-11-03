@@ -15,8 +15,8 @@ from setup import __version__ as VERSION, __appname__ as APPNAME, basenames, \
 LICENSE = open('LICENSE', 'rb').read()
 MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
 ENV = dict(
-        FC_CONFIG_DIR='@executable_path/../Resources/fonts',
-        FC_CONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
+        FONTCONFIG_PATH='@executable_path/../Resources/fonts',
+        FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
         MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config',
         MAGICK_CODER_MODULE_PATH=MAGICK_HOME+'/modules-Q16/coders',
         MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filter',
@@ -379,7 +379,7 @@ class Py2App(object):
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.27.dylib',):
+        for x in ('libpoppler.28.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
@@ -411,7 +411,6 @@ class Py2App(object):
         raw = open(fc, 'rb').read()
         raw = raw.replace('<dir>/usr/share/fonts</dir>', '''\
         <dir>/Library/Fonts</dir>
-        <dir>/Network/Library/Fonts</dir>
         <dir>/System/Library/Fonts</dir>
         <dir>/usr/X11R6/lib/X11/fonts</dir>
         <dir>/usr/share/fonts</dir>

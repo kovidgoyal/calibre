@@ -963,7 +963,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.iterator.__exit__()
         self.iterator = EbookIterator(pathtoebook)
         self.open_progress_indicator(_('Loading ebook...'))
-        worker = Worker(target=self.iterator.__enter__)
+        worker = Worker(target=partial(self.iterator.__enter__,
+            extract_embedded_fonts_for_qt=True))
         worker.start()
         while worker.isAlive():
             worker.join(0.1)
@@ -1136,6 +1137,7 @@ def main(args=sys.argv):
     if pid <= 0:
         override = 'calibre-ebook-viewer' if islinux else None
         app = Application(args, override_program_name=override)
+        app.load_builtin_fonts()
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)

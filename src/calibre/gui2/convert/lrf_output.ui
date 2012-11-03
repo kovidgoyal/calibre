@@ -205,7 +205,7 @@
  <customwidgets>
   <customwidget>
    <class>FontFamilyChooser</class>
-   <extends>QComboBox</extends>
+   <extends>QWidget</extends>
    <header>calibre/gui2/font_family_chooser.h</header>
   </customwidget>
  </customwidgets>

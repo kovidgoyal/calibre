@@ -23,6 +23,7 @@ TEMPLATE = '''
   a {{ text-decoration: none }}
   a:hover {{ color: red }}
   {extra_css}
+  {embed_css}
   </style>
 </head>
 <body id="calibre_generated_inline_toc">
@@ -64,8 +65,16 @@ class TOCAdder(object):
 
         self.log('\tGenerating in-line ToC')
 
+        embed_css = ''
+        s = getattr(oeb, 'store_embed_font_rules', None)
+        if getattr(s, 'body_font_family', None):
+            css = [x.cssText for x in s.rules] + [
+                    'body { font-family: %s }'%s.body_font_family]
+            embed_css = '\n\n'.join(css)
+
         root = etree.fromstring(TEMPLATE.format(xhtmlns=XHTML_NS,
-            title=self.title, extra_css=(opts.extra_css or '')))
+            title=self.title, embed_css=embed_css,
+            extra_css=(opts.extra_css or '')))
         parent = XPath('//h:ul')(root)[0]
         parent.text = '\n\t'
         for child in self.oeb.toc:

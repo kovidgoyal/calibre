@@ -191,10 +191,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.content_server = None
         self.spare_servers = []
         self.must_restart_before_config = False
-        # Initialize fontconfig in a separate thread as this can be a lengthy
-        # process if run for the first time on this machine
-        from calibre.utils.fonts import fontconfig
-        self.fc = fontconfig
         self.listener = Listener(listener)
         self.check_messages_timer = QTimer()
         self.connect(self.check_messages_timer, SIGNAL('timeout()'),

@@ -16,7 +16,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
-from calibre import prints, load_builtin_fonts
+from calibre import prints
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
@@ -86,7 +86,6 @@ class Document(QWebPage): # {{{
         settings = self.settings()
 
         # Fonts
-        load_builtin_fonts()
         self.all_viewer_plugins = tuple(all_viewer_plugins())
         for pl in self.all_viewer_plugins:
             pl.load_fonts()
@@ -486,7 +485,7 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
         self.image_popup = ImagePopup(self)
-        self.view_image_action = QAction(_('View &image...'), self)
+        self.view_image_action = QAction(QIcon(I('view-image.png')), _('View &image...'), self)
         self.view_image_action.triggered.connect(self.image_popup)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)

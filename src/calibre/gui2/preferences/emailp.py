@@ -19,12 +19,14 @@ from calibre.utils.smtp import config as smtp_prefs
 
 class EmailAccounts(QAbstractTableModel): # {{{
 
-    def __init__(self, accounts, subjects):
+    def __init__(self, accounts, subjects, aliases={}):
         QAbstractTableModel.__init__(self)
         self.accounts = accounts
         self.subjects = subjects
+        self.aliases = aliases
         self.account_order = sorted(self.accounts.keys())
-        self.headers  = map(QVariant, [_('Email'), _('Formats'), _('Subject'), _('Auto send')])
+        self.headers  = map(QVariant, [_('Email'), _('Formats'), _('Subject'),
+            _('Auto send'), _('Alias')])
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = QVariant(self.default_font)
@@ -36,7 +38,9 @@ class EmailAccounts(QAbstractTableModel): # {{{
                '{author_sort} can be used here.'),
              '<p>'+_('If checked, downloaded news will be automatically '
                      'mailed <br>to this email address '
-                     '(provided it is in one of the listed formats).')])))
+                     '(provided it is in one of the listed formats).'),
+             _('Friendly name to use for this email address')
+             ])))
 
     def rowCount(self, *args):
         return len(self.account_order)
@@ -67,6 +71,8 @@ class EmailAccounts(QAbstractTableModel): # {{{
                 return QVariant(self.accounts[account][0])
             if col == 2:
                 return QVariant(self.subjects.get(account, ''))
+            if col == 4:
+                return QVariant(self.aliases.get(account, ''))
         if role == Qt.FontRole and self.accounts[account][2]:
             return self.default_font
         if role == Qt.CheckStateRole and col == 3:
@@ -88,6 +94,11 @@ class EmailAccounts(QAbstractTableModel): # {{{
             self.accounts[account][1] ^= True
         elif col == 2:
             self.subjects[account] = unicode(value.toString())
+        elif col == 4:
+            self.aliases.pop(account, None)
+            aval = unicode(value.toString()).strip()
+            if aval:
+                self.aliases[account] = aval
         elif col == 1:
             self.accounts[account][0] = unicode(value.toString()).upper()
         elif col == 0:
@@ -156,7 +167,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_email_widget.initialize(self.preferred_to_address)
         self.send_email_widget.changed_signal.connect(self.changed_signal.emit)
         opts = self.send_email_widget.smtp_opts
-        self._email_accounts = EmailAccounts(opts.accounts, opts.subjects)
+        self._email_accounts = EmailAccounts(opts.accounts, opts.subjects,
+                opts.aliases)
         self._email_accounts.dataChanged.connect(lambda x,y:
                 self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
@@ -184,6 +196,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             raise AbortCommit('abort')
         self.proxy['accounts'] =  self._email_accounts.accounts
         self.proxy['subjects'] = self._email_accounts.subjects
+        self.proxy['aliases'] = self._email_accounts.aliases
 
         return ConfigWidgetBase.commit(self)
 

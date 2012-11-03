@@ -787,12 +787,10 @@ application/x-font-framemaker
 application/x-font-ghostscript				gsf
 application/x-font-libgrx
 application/x-font-linux-psf				psf
-application/x-font-otf				otf
 application/x-font-pcf				pcf
 application/x-font-snf				snf
 application/x-font-speedo
 application/x-font-sunos-news
-application/x-font-ttf				ttc ttf
 application/x-font-type1				afm pfa pfb pfm
 application/x-font-vfont
 application/x-freemind				mm
@@ -1368,8 +1366,6 @@ text/fb2+xml                               fb2
 text/x-sony-bbeb+xml                       lrs
 application/x-sony-bbeb                    lrf lrx
 application/adobe-page-template+xml        xpgt
-application/x-font-opentype                otf
-application/x-font-truetype                ttf
 application/x-mobipocket-ebook             mobi prc azw
 application/x-topaz-ebook                  tpz azw1
 application/x-mobipocket-subscription      pobi
@@ -1381,3 +1377,7 @@ application/x-cb7                          cb7
 application/x-koboreader-ebook             kobo
 image/wmf                                  wmf
 application/ereader                        pdb
+# See http://idpf.org/epub/30/spec/epub30-publications.html#sec-core-media-types
+application/vnd.ms-opentype                otf
+application/font-woff                      woff
+application/x-font-truetype                ttf

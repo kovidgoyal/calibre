@@ -19,6 +19,8 @@ Run an embedded python interpreter.
 ''')
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
+    parser.add_option('-f', '--subset-font', default=False,
+            action='store_true', help='Subset the specified font')
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
@@ -207,6 +209,11 @@ def main(args=sys.argv):
         g['__name__'] = '__main__'
         g['__file__'] = ef
         execfile(ef, g)
+        return
+
+    if len(args) > 1 and args[1] in ('-f', '--subset-font'):
+        from calibre.utils.fonts.subset import main
+        main(['subset-font']+args[2:])
         return
 
     opts, args = option_parser().parse_args(args)
