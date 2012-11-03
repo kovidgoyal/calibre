@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-02 04:31+0000\n"
-"PO-Revision-Date: 2012-10-26 08:14+0000\n"
+"PO-Revision-Date: 2012-11-03 01:20+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-02 04:56+0000\n"
+"X-Launchpad-Export-Date: 2012-11-03 04:50+0000\n"
 "X-Generator: Launchpad (build 16218)\n"
 "Language: it\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
@@ -13036,11 +13036,11 @@ msgstr "Ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 1"
-msgstr ""
+msgstr "Tag 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 2"
-msgstr ""
+msgstr "Tag 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:269
 msgid "Template language tutorial"
@@ -13538,7 +13538,7 @@ msgstr "Espressione regolare (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:123
 msgid "Choose a font family"
-msgstr ""
+msgstr "Scegli una famiglia di caratteri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
@@ -13551,7 +13551,7 @@ msgstr "Scegli la famiglia di caratteri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
-msgstr ""
+msgstr "A&ggiungi caratteri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
@@ -13575,11 +13575,11 @@ msgstr "Nessuno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "Select font files"
-msgstr ""
+msgstr "Seleziona file di caratteri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "TrueType/OpenType Fonts"
-msgstr ""
+msgstr "Caratteri TrueType/OpenType"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:233
 msgid "Corrupt font"
@@ -13592,12 +13592,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:253
 msgid "Added fonts"
-msgstr ""
+msgstr "Caratteri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:254
 #, python-format
 msgid "Added font families: %s"
-msgstr ""
+msgstr "Famiglie di caratteri aggiunte: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:279
 msgid "Choose &font family"
@@ -15955,7 +15955,7 @@ msgstr "Soggetto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -15986,7 +15986,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:42
 msgid "Friendly name to use for this email address"
-msgstr ""
+msgstr "Nome amichevole utilizzato per questo indirizzo email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:128
 msgid "new email address"
@@ -19230,7 +19230,7 @@ msgstr "&Salva come"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "&Ruota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"
@@ -21997,7 +21997,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:289
 msgid "File is open in another process"
-msgstr ""
+msgstr "Il file è aperto in un altro processo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
@@ -24103,7 +24103,3 @@ msgstr ""
 "uno prima di premere Invio. La tecnica preferita dipenderà dallo stato dei "
 "metadati\n"
 "della tua biblioteca e dal tuo stile personale di modifica."
-
-#, python-format
-#~ msgid "Could not open \"%s\". Is it being used by another program?"
-#~ msgstr "Impossibile aprire \"%s\". È utilizzato da un altro programma?"

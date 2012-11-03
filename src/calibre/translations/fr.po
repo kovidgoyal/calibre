@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-02 04:31+0000\n"
-"PO-Revision-Date: 2012-11-01 21:10+0000\n"
+"PO-Revision-Date: 2012-11-02 08:13+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-11-02 04:53+0000\n"
+"X-Launchpad-Export-Date: 2012-11-03 04:46+0000\n"
 "X-Generator: Launchpad (build 16218)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -3850,7 +3850,7 @@ msgid ""
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
 "Inclus la famille de polices spécifiée dans le livre. Ceci précise la police "
-"de \"base\" utilisée pour le livre. Si le document d'entrée spécifie ces "
+"de \"base\" utilisée pour le livre. Si le document d'entrée spécifie ses "
 "propres polices, elles peuvent primer sur la police de \"base\". Vous pouvez "
 "utilisez l'option de filtre de style pour enlever les polices du document "
 "d'entrée. Notez que l'inclusion de polices fonctionne seulement avec "
@@ -13280,11 +13280,11 @@ msgstr "Triage Auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 1"
-msgstr ""
+msgstr "Étiquette 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 2"
-msgstr ""
+msgstr "Étiquette 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:269
 msgid "Template language tutorial"
@@ -13784,12 +13784,12 @@ msgstr "Expression rationnelle (?P<published>) (publié)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:123
 msgid "Choose a font family"
-msgstr ""
+msgstr "Choisir une famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
 msgid "Available faces for %s"
-msgstr ""
+msgstr "Faces disponibles pour %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:171
 msgid "Choose font family"
@@ -13797,7 +13797,7 @@ msgstr "Choisir la famille de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
-msgstr ""
+msgstr "Ajouter les &polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
@@ -13821,29 +13821,29 @@ msgstr "Aucun"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "Select font files"
-msgstr ""
+msgstr "Choisir les fichiers de polices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "TrueType/OpenType Fonts"
-msgstr ""
+msgstr "Polices TrueType/OpenType"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:233
 msgid "Corrupt font"
-msgstr ""
+msgstr "Police corrompue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:234
 #, python-format
 msgid "Failed to read metadata from the font file: %s"
-msgstr ""
+msgstr "Échec de la lecture des métadonnées du fichier de police : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:253
 msgid "Added fonts"
-msgstr ""
+msgstr "Polices ajoutées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:254
 #, python-format
 msgid "Added font families: %s"
-msgstr ""
+msgstr "Familles de polices ajoutées : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:279
 msgid "Choose &font family"
@@ -16292,7 +16292,7 @@ msgstr "Sujet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -16325,7 +16325,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:42
 msgid "Friendly name to use for this email address"
-msgstr ""
+msgstr "Pseudonyme à utiliser pour cette adresse Email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:128
 msgid "new email address"
@@ -19686,7 +19686,7 @@ msgstr "Enregi&strer sous"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "&Rotation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"
@@ -25260,7 +25260,3 @@ msgstr ""
 "dépendra\n"
 "de l'état des métadonnées dans votre bibliothèque et de votre style "
 "d'édition personnel."
-
-#, python-format
-#~ msgid "Could not open \"%s\". Is it being used by another program?"
-#~ msgstr "Impossible d'ouvrir \"%s\". Est-il utilisé par un autre programme?"

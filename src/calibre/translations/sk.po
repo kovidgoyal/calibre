@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-11-02 05:02+0000\n"
+"X-Launchpad-Export-Date: 2012-11-03 04:56+0000\n"
 "X-Generator: Launchpad (build 16218)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -24136,7 +24136,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#, python-format
-#~ msgid "Could not open \"%s\". Is it being used by another program?"
-#~ msgstr "Nemôžem otvoriť \"%s\". Používa ho iný program?"
