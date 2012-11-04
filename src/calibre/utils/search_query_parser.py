@@ -212,7 +212,10 @@ class SearchQueryParser(object):
     # another search.
     def _parse(self, query, candidates=None):
         self.recurse_level += 1
-        res = self._parser.parseString(query)[0]
+        try:
+            res = self._parser.parseString(query)[0]
+        except RuntimeError:
+            raise ParseException('Failed to parse query, recursion limit reached: %r'%query)
         if candidates is None:
             candidates = self.universal_set()
         t = self.evaluate(res, candidates)
