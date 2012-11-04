@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-02 04:31+0000\n"
-"PO-Revision-Date: 2012-10-26 18:30+0000\n"
+"PO-Revision-Date: 2012-11-03 07:15+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-03 04:55+0000\n"
+"X-Launchpad-Export-Date: 2012-11-04 04:54+0000\n"
 "X-Generator: Launchpad (build 16218)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -12918,11 +12918,11 @@ msgstr "Сортировочное имя автора"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 1"
-msgstr ""
+msgstr "Тэг 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 2"
-msgstr ""
+msgstr "Тэг 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:269
 msgid "Template language tutorial"
@@ -13416,12 +13416,12 @@ msgstr "Регулярное выражение (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:123
 msgid "Choose a font family"
-msgstr ""
+msgstr "Выберите семейство шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
 msgid "Available faces for %s"
-msgstr ""
+msgstr "Доступные отображения для %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:171
 msgid "Choose font family"
@@ -13429,7 +13429,7 @@ msgstr "Выберите семейство шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
-msgstr ""
+msgstr "Добавить шрифты"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
@@ -13453,29 +13453,29 @@ msgstr "Ничего"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "Select font files"
-msgstr ""
+msgstr "Выбрать файлы шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "TrueType/OpenType Fonts"
-msgstr ""
+msgstr "Шрифты TrueType/OpenType"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:233
 msgid "Corrupt font"
-msgstr ""
+msgstr "Повреждённый шрифт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:234
 #, python-format
 msgid "Failed to read metadata from the font file: %s"
-msgstr ""
+msgstr "Не удалось прочитать метаданные из файла шрифта: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:253
 msgid "Added fonts"
-msgstr ""
+msgstr "Добавленные шрифты"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:254
 #, python-format
 msgid "Added font families: %s"
-msgstr ""
+msgstr "Добавленные семейства шрифтов: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:279
 msgid "Choose &font family"
@@ -15871,7 +15871,7 @@ msgstr "Тема"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "Название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -15904,7 +15904,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:42
 msgid "Friendly name to use for this email address"
-msgstr ""
+msgstr "Удобное имя для этого адреса электронной почты"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:128
 msgid "new email address"
@@ -16038,7 +16038,7 @@ msgstr "Изменить &шрифт (необходим перезапуск)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:251
 msgid "User interface &style (needs restart):"
-msgstr "Интерфейс &стиль (требуется перезагрузка):"
+msgstr "Стиль интерфейса (после перезапуска):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:252
 msgid "Show &tooltips in the book list"
@@ -19151,7 +19151,7 @@ msgstr "&Сохранить как"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "&Вращать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"

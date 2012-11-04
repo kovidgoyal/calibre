@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-11-02 21:16+0000\n"
+"PO-Revision-Date: 2012-11-03 11:13+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-11-03 05:03+0000\n"
+"X-Launchpad-Export-Date: 2012-11-04 04:55+0000\n"
 "X-Generator: Launchpad (build 16218)\n"
 "Language: ca\n"
 
@@ -11476,39 +11476,39 @@ msgstr "Kekchi"
 
 #. name for kel
 msgid "Kela (Democratic Republic of Congo)"
-msgstr ""
+msgstr "Kela (República Democràtica del Congo)"
 
 #. name for kem
 msgid "Kemak"
-msgstr ""
+msgstr "Kemak"
 
 #. name for ken
 msgid "Kenyang"
-msgstr ""
+msgstr "Kenyang"
 
 #. name for keo
 msgid "Kakwa"
-msgstr ""
+msgstr "Kakwa"
 
 #. name for kep
 msgid "Kaikadi"
-msgstr ""
+msgstr "Kaikadi"
 
 #. name for keq
 msgid "Kamar"
-msgstr ""
+msgstr "Kamar"
 
 #. name for ker
 msgid "Kera"
-msgstr ""
+msgstr "Kera"
 
 #. name for kes
 msgid "Kugbo"
-msgstr ""
+msgstr "Kugbo"
 
 #. name for ket
 msgid "Ket"
-msgstr ""
+msgstr "Ket"
 
 #. name for keu
 msgid "Akebu"
@@ -11516,95 +11516,95 @@ msgstr ""
 
 #. name for kev
 msgid "Kanikkaran"
-msgstr ""
+msgstr "Kanikkaran"
 
 #. name for kew
 msgid "Kewa; West"
-msgstr ""
+msgstr "Kewa; Occidental"
 
 #. name for kex
 msgid "Kukna"
-msgstr ""
+msgstr "Kukna"
 
 #. name for key
 msgid "Kupia"
-msgstr ""
+msgstr "Kupia"
 
 #. name for kez
 msgid "Kukele"
-msgstr ""
+msgstr "Kukele"
 
 #. name for kfa
 msgid "Kodava"
-msgstr ""
+msgstr "Kodagu"
 
 #. name for kfb
 msgid "Kolami; Northwestern"
-msgstr ""
+msgstr "Kolami; Septentrional"
 
 #. name for kfc
 msgid "Konda-Dora"
-msgstr ""
+msgstr "Konda-Dora"
 
 #. name for kfd
 msgid "Koraga; Korra"
-msgstr ""
+msgstr "Koraga; Korra"
 
 #. name for kfe
 msgid "Kota (India)"
-msgstr ""
+msgstr "Kota (Índia)"
 
 #. name for kff
 msgid "Koya"
-msgstr ""
+msgstr "Koya"
 
 #. name for kfg
 msgid "Kudiya"
-msgstr ""
+msgstr "Kudiya"
 
 #. name for kfh
 msgid "Kurichiya"
-msgstr ""
+msgstr "Kurichiya"
 
 #. name for kfi
 msgid "Kurumba; Kannada"
-msgstr ""
+msgstr "Kurumba; Kannada"
 
 #. name for kfj
 msgid "Kemiehua"
-msgstr ""
+msgstr "Kemiehua"
 
 #. name for kfk
 msgid "Kinnauri"
-msgstr ""
+msgstr "Kinnauri"
 
 #. name for kfl
 msgid "Kung"
-msgstr ""
+msgstr "Kung (Camerun)"
 
 #. name for kfm
 msgid "Khunsari"
-msgstr ""
+msgstr "Khunsari"
 
 #. name for kfn
 msgid "Kuk"
-msgstr ""
+msgstr "Kuk"
 
 #. name for kfo
 msgid "Koro (Côte d'Ivoire)"
-msgstr ""
+msgstr "Jula; Koro"
 
 #. name for kfp
 msgid "Korwa"
-msgstr ""
+msgstr "Korwa"
 
 #. name for kfq
 msgid "Korku"
-msgstr ""
+msgstr "Korku"
 
 #. name for kfr
 msgid "Kachchi"
-msgstr ""
+msgstr "Kachchi"
 
 #. name for kfs
 msgid "Bilaspuri"
@@ -11612,15 +11612,15 @@ msgstr ""
 
 #. name for kft
 msgid "Kanjari"
-msgstr ""
+msgstr "Kanjari"
 
 #. name for kfu
 msgid "Katkari"
-msgstr ""
+msgstr "Katkari"
 
 #. name for kfv
 msgid "Kurmukar"
-msgstr ""
+msgstr "Kurmukar"
 
 #. name for kfw
 msgid "Naga; Kharam"
@@ -11632,7 +11632,7 @@ msgstr ""
 
 #. name for kfy
 msgid "Kumaoni"
-msgstr ""
+msgstr "Kumauni"
 
 #. name for kfz
 msgid "Koromfé"
@@ -12016,7 +12016,7 @@ msgstr ""
 
 #. name for kjs
 msgid "Kewa; East"
-msgstr ""
+msgstr "Kewa; Oriental"
 
 #. name for kjt
 msgid "Karen; Phrae Pwo"
@@ -12556,7 +12556,7 @@ msgstr ""
 
 #. name for kpb
 msgid "Kurumba; Mullu"
-msgstr ""
+msgstr "Kurumba; Mullu"
 
 #. name for kpc
 msgid "Curripaco"
@@ -18364,7 +18364,7 @@ msgstr ""
 
 #. name for nit
 msgid "Kolami; Southeastern"
-msgstr ""
+msgstr "Kolami; Meridional"
 
 #. name for niu
 msgid "Niuean"
@@ -20752,7 +20752,7 @@ msgstr ""
 
 #. name for pkr
 msgid "Kurumba; Attapady"
-msgstr ""
+msgstr "Kurumba; Attapady"
 
 #. name for pks
 msgid "Pakistan Sign Language"
@@ -27220,7 +27220,7 @@ msgstr ""
 
 #. name for vmd
 msgid "Koraga; Mudu"
-msgstr ""
+msgstr "Koraga; Mudu"
 
 #. name for vme
 msgid "Masela; East"
@@ -29132,11 +29132,11 @@ msgstr ""
 
 #. name for xua
 msgid "Kurumba; Alu"
-msgstr ""
+msgstr "Kurumba; Alu"
 
 #. name for xub
 msgid "Kurumba; Betta"
-msgstr ""
+msgstr "Kurumba; Betta"
 
 #. name for xug
 msgid "Kunigami"
@@ -29144,7 +29144,7 @@ msgstr ""
 
 #. name for xuj
 msgid "Kurumba; Jennu"
-msgstr ""
+msgstr "Kurumba; Jennu"
 
 #. name for xum
 msgid "Umbrian"
