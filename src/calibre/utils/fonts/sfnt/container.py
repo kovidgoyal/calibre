@@ -14,9 +14,7 @@ from io import BytesIO
 from calibre.utils.fonts.utils import (get_tables, checksum_of_block,
         verify_checksums)
 from calibre.utils.fonts.sfnt import align_block
-
-class UnsupportedFont(ValueError):
-    pass
+from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 class UnknownTable(object):
 
