@@ -35,3 +35,4 @@ nbproject/
 .settings/
 *.DS_Store
 calibre_plugins/
+./src/calibre/gui2/catalog/catalog_csv_xml.ui.autosave
