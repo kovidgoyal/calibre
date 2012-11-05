@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import Qt, QStackedWidget, QMenu, \
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont
+        QSize, QSizePolicy, QStatusBar, QTimer, QLabel, QFont
 
 from calibre.utils.config import prefs
 from calibre.constants import (isosx, __appname__, preferred_encoding,
@@ -274,7 +274,7 @@ class LayoutMixin(object): # {{{
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:
-            self.library_view.set_current_row(0)
+            QTimer.singleShot(1, self.library_view.set_current_row)
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)

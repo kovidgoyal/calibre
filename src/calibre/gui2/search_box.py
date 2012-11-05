@@ -128,7 +128,7 @@ class SearchBox2(QComboBox): # {{{
     def clear(self, emit_search=True):
         self.normalize_state()
         self.setEditText('')
-        if emit_search:
+        if self.in_a_search() and emit_search:
             self.search.emit('')
         self._in_a_search = False
         self.cleared.emit()
@@ -159,7 +159,6 @@ class SearchBox2(QComboBox): # {{{
         self.normalize_state()
         if self._in_a_search:
             self.changed.emit()
-            self._in_a_search = False
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
             self.focus_to_library.emit()
@@ -424,6 +423,7 @@ class SearchBoxMixin(object): # {{{
         self.tags_view.clear()
         self.saved_search.clear()
         self.set_number_of_books_shown()
+        self.focus_to_library()
 
     def search_box_changed(self):
         self.saved_search.clear()
@@ -440,6 +440,8 @@ class SearchBoxMixin(object): # {{{
 
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
+        if not self.current_view().get_selected_ids():
+            self.current_view().set_current_row()
 
     # }}}
 

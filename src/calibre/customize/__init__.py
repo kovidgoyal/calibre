@@ -308,6 +308,10 @@ class FileTypePlugin(Plugin): # {{{
     #: to the database
     on_import      = False
 
+    #: If True, this plugin is run after books are added
+    #: to the database
+    on_postimport  = False
+
     #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
@@ -336,7 +340,14 @@ class FileTypePlugin(Plugin): # {{{
         '''
         # Default implementation does nothing
         return path_to_ebook
+        
+    def postimport(self, id):
+        '''
+        Run post import.
 
+        :param id: Library id of the added book.
+        '''
+        
 # }}}
 
 class MetadataReaderPlugin(Plugin): # {{{

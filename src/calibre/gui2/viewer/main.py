@@ -230,7 +230,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_reference_mode.setCheckable(True)
         self.action_reference_mode.triggered[bool].connect(self.view.reference_mode)
         self.action_metadata.triggered[bool].connect(self.metadata.setVisible)
-        self.action_table_of_contents.toggled[bool].connect(self.set_toc_visible)
+        self.action_table_of_contents.toggled[bool].connect(self.toggle_toc)
         self.action_copy.triggered[bool].connect(self.copy)
         self.action_font_size_larger.triggered.connect(self.font_size_larger)
         self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
@@ -240,7 +240,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_find_next.triggered.connect(self.find_next)
         self.action_find_previous.triggered.connect(self.find_previous)
         self.action_full_screen.triggered[bool].connect(self.toggle_fullscreen)
-        self.action_full_screen.setShortcuts([Qt.Key_F11, Qt.CTRL+Qt.SHIFT+Qt.Key_F])
+        self.action_full_screen.setShortcut(Qt.CTRL+Qt.SHIFT+Qt.Key_F)
         self.action_full_screen.setToolTip(_('Toggle full screen (%s)') %
                 _(' or ').join([unicode(x.toString(x.NativeText)) for x in
                     self.action_full_screen.shortcuts()]))
@@ -274,35 +274,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
         self.action_full_screen.setCheckable(True)
-        self.full_screen_label = QLabel('''
-                <center>
-                <h1>%s</h1>
-                <h3>%s</h3>
-                <h3>%s</h3>
-                <h3>%s</h3>
-                </center>
-                '''%(_('Full screen mode'),
-                    _('Right click to show controls'),
-                    _('Tap in the left or right page margin to turn pages'),
-                    _('Press Esc to quit')),
-                    self)
-        self.full_screen_label.setVisible(False)
-        self.full_screen_label.setStyleSheet('''
-        QLabel {
-            text-align: center;
-            background-color: white;
-            color: black;
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 20px;
-        }
-        ''')
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
+        self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.addAction(self.toggle_toolbar_action)
-        self.full_screen_label_anim = QPropertyAnimation(
-                self.full_screen_label, 'size')
         self.clock_label = QLabel('99:99', self)
         self.clock_label.setVisible(False)
         self.clock_label.setFocusPolicy(Qt.NoFocus)
@@ -324,11 +300,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
-        self.esc_full_screen_action = a = QAction(self)
-        self.addAction(a)
-        a.setShortcut(Qt.Key_Escape)
-        a.setEnabled(False)
-        a.triggered.connect(self.action_full_screen.trigger)
 
         self.print_menu = QMenu()
         self.print_menu.addAction(QIcon(I('print-preview.png')), _('Print Preview'))
@@ -374,8 +345,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.pending_restore = True
             self.load_path(self.view.last_loaded_path)
 
-    def set_toc_visible(self, yes):
-        self.toc.setVisible(yes)
+    def toggle_toc(self):
+        if self.toc.isVisible():
+            self.toc.setVisible(False)
+            self.action_table_of_contents.setChecked(False)
+        else:
+            self.toc.setVisible(True)
+            self.action_table_of_contents.setChecked(True)
 
     def clear_recent_history(self, *args):
         vprefs.set('viewer_open_history', [])
@@ -397,9 +373,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 count += 1
 
     def shutdown(self):
-        if self.isFullScreen():
-            self.action_full_screen.trigger()
-            return False
         self.save_state()
         return True
 
@@ -421,7 +394,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def save_state(self):
         state = bytearray(self.saveState(self.STATE_VERSION))
         vprefs['viewer_toolbar_state'] = state
-        vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
+        if not self.isFullScreen():
+            vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
         if self.current_book_has_toc:
             vprefs.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
         if self.toc.isVisible():
@@ -429,6 +403,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 bytearray(self.splitter.saveState()))
         vprefs['multiplier'] = self.view.multiplier
         vprefs['in_paged_mode'] = not self.action_toggle_paged_mode.isChecked()
+        vprefs['fullscreen'] = self.isFullScreen()
 
     def restore_state(self):
         state = vprefs.get('viewer_toolbar_state', None)
@@ -449,6 +424,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             True))
         self.toggle_paged_mode(self.action_toggle_paged_mode.isChecked(),
                 at_start=True)
+        fullscreen = vprefs.get('fullscreen', None)
+        if fullscreen:
+            self.showFullScreen()
 
     def lookup(self, word):
         self.dictionary_view.setHtml('<html><body><p>'+ \
@@ -468,7 +446,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         from calibre.gui2.viewer.documentview import config
         c = config().parse()
         return c.remember_current_page
-
+        
+    def get_dont_show_cover_opt(self):
+        from calibre.gui2.viewer.documentview import config
+        c = config().parse()
+        return c.dont_show_cover
+        
     def print_book(self):
         p = Printing(self.iterator, self)
         p.start_print()
@@ -477,7 +460,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         p = Printing(self.iterator, self)
         p.start_preview()
 
-    def toggle_fullscreen(self, x):
+    def toggle_fullscreen(self):
         if self.isFullScreen():
             self.showNormal()
         else:
@@ -485,9 +468,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def showFullScreen(self):
         self.view.document.page_position.save()
+        self.view.document.switch_to_fullscreen_mode()
         self.window_mode_changed = 'fullscreen'
+        self.was_maximized = super(EbookViewer, self).isMaximized()
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
+        self.action_full_screen.setChecked(True)
         if not self.view.document.fullscreen_scrollbar:
             self.vertical_scrollbar.setVisible(False)
             self.frame.layout().setSpacing(0)
@@ -499,26 +485,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.frame.setFrameStyle(self.frame.NoFrame|self.frame.Plain)
 
         super(EbookViewer, self).showFullScreen()
-
-    def show_full_screen_label(self):
-        f = self.full_screen_label
-        self.esc_full_screen_action.setEnabled(True)
-        f.setVisible(True)
-        height = 200
-        width = int(0.7*self.view.width())
-        f.resize(width, height)
-        f.move((self.view.width() - width)//2, (self.view.height()-height)//2)
-        a = self.full_screen_label_anim
-        a.setDuration(500)
-        a.setStartValue(QSize(width, 0))
-        a.setEndValue(QSize(width, height))
-        a.start()
-        QTimer.singleShot(3500, self.full_screen_label.hide)
-        self.view.document.switch_to_fullscreen_mode()
-        if self.view.document.fullscreen_clock:
-            self.show_clock()
-        if self.view.document.fullscreen_pos:
-            self.show_pos_label()
 
     def show_clock(self):
         self.clock_label.setVisible(True)
@@ -559,6 +525,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def showNormal(self):
         self.view.document.page_position.save()
+        self.view.document.switch_to_window_mode()
         self.clock_label.setVisible(False)
         self.pos_label.setVisible(False)
         self.frame.setFrameStyle(self.original_frame_style)
@@ -566,23 +533,23 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.clock_timer.stop()
         self.vertical_scrollbar.setVisible(True)
         self.window_mode_changed = 'normal'
-        self.esc_full_screen_action.setEnabled(False)
+        self.action_full_screen.setChecked(False)
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
-        self.full_screen_label.setVisible(False)
         if hasattr(self, '_original_frame_margins'):
             om = self._original_frame_margins
             self.centralwidget.layout().setContentsMargins(om[0])
             self.frame.layout().setContentsMargins(om[1])
-        super(EbookViewer, self).showNormal()
+        if self.was_maximized:
+            super(EbookViewer, self).showMaximized()
+        else:
+            super(EbookViewer, self).showNormal()
 
     def handle_window_mode_toggle(self):
         if self.window_mode_changed:
             fs = self.window_mode_changed == 'fullscreen'
             self.window_mode_changed = None
-            if fs:
-                self.show_full_screen_label()
-            else:
+            if not fs:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()
             self.scrolled(self.view.scroll_fraction)
@@ -634,7 +601,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.selected_text:
             QApplication.clipboard().setText(self.selected_text)
 
-    def back(self, x):
+    def back(self):
         pos = self.history.back(self.pos.value())
         if pos is not None:
             self.goto_page(pos)
@@ -643,7 +610,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         num = self.pos.value()
         self.goto_page(num)
 
-    def forward(self, x):
+    def forward(self):
         pos = self.history.forward()
         if pos is not None:
             self.goto_page(pos)
@@ -657,6 +624,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def goto_page(self, new_page, loaded_check=True):
         if self.current_page is not None or not loaded_check:
             for page in self.iterator.spine:
+                # print "goto_page", new_page, page.start_page, page.max_page
                 if new_page >= page.start_page and new_page <= page.max_page:
                     try:
                         frac = float(new_page-page.start_page)/(page.pages-1)
@@ -681,20 +649,21 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def font_size_larger(self):
         self.view.magnify_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def font_size_smaller(self):
         self.view.shrink_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
+    def font_size_restore(self):
+        self.view.restore_font_size()
+        
     def magnification_changed(self, val):
         tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
         self.action_font_size_larger.setToolTip(
                 tt %dict(which=_('larger'), mag=val))
         self.action_font_size_smaller.setToolTip(
                 tt %dict(which=_('smaller'), mag=val))
+        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
+        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def find(self, text, repeat=False, backwards=False):
         if not text:
@@ -961,7 +930,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__()
-        self.iterator = EbookIterator(pathtoebook)
+        self.iterator = EbookIterator(pathtoebook, self.get_dont_show_cover_opt())
         self.open_progress_indicator(_('Loading ebook...'))
         worker = Worker(target=partial(self.iterator.__enter__,
             extract_embedded_fonts_for_qt=True))

@@ -16,6 +16,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
+from calibre.gui2 import open_url
 from calibre import prints
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
@@ -478,7 +479,12 @@ class DocumentView(QWebView): # {{{
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
-                d.OpenImageInNewWindow, d.OpenLink, d.Reload]))
+                d.OpenImageInNewWindow, d.OpenLink, d.Reload, d.InspectElement, d.Copy]))
+                
+        self.search_online_action = QAction(QIcon(I('search.png')), _(''), self)
+        self.search_online_action.setShortcut(Qt.CTRL+Qt.Key_E)
+        self.search_online_action.triggered.connect(self.search_online)
+        self.addAction(self.search_online_action)
         self.dictionary_action = QAction(QIcon(I('dictionary.png')),
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
@@ -523,6 +529,44 @@ class DocumentView(QWebView): # {{{
         self.goto_location_action.setMenu(self.goto_location_menu)
         self.grabGesture(Qt.SwipeGesture)
 
+        self.toc_action = QAction(_('Table of contents'), self)
+        self.toc_action.setCheckable(True)
+        self.toc_action.triggered.connect(self.toggle_toc)
+        
+        self.back_action = QAction(_('&Back'), self)
+        self.back_action.triggered.connect(self.back)
+        self.back_action.setShortcut(Qt.Key_Backspace)
+        self.addAction(self.back_action)
+        self.forward_action = QAction(_('&Forward'), self)
+        self.forward_action.triggered.connect(self.forward)
+        
+        self.magnify_fonts_action = QAction(_('Larger font'), self)
+        self.magnify_fonts_action.triggered.connect(self.font_size_larger)
+        self.restore_fonts_action = QAction(_('Normal font size'), self)
+        self.restore_fonts_action.setCheckable(True)
+        self.restore_fonts_action.triggered.connect(self.font_size_restore)
+        self.shrink_fonts_action = QAction(_('Smaller font'), self)
+        self.shrink_fonts_action.triggered.connect(self.font_size_smaller)
+
+        self.fullscreen_action = QAction(_('Full screen'), self)
+        self.fullscreen_action.triggered.connect(self.toggle_fullscreen)
+        self.fullscreen_action.setCheckable(True)
+        self.fullscreen_action.setShortcut(Qt.Key_F11)
+        self.addAction(self.fullscreen_action)
+
+        self.quit_action = QAction(_('Exit'), self)
+        self.quit_action.triggered.connect(self.quit_toggle)
+        self.quit_action.setShortcut(Qt.Key_Escape)
+        self.addAction(self.quit_action)
+        
+    def back(self, *args):
+        if self.manager is not None:
+            self.manager.back()
+
+    def forward(self, *args):
+        if self.manager is not None:
+            self.manager.forward()
+            
     def goto_next_section(self, *args):
         if self.manager is not None:
             self.manager.goto_next_section()
@@ -538,6 +582,30 @@ class DocumentView(QWebView): # {{{
     def goto_document_end(self, *args):
         if self.manager is not None:
             self.manager.goto_end()
+
+    def font_size_larger(self, *args):
+        if self.manager is not None:
+            self.manager.font_size_larger()
+
+    def font_size_smaller(self, *args):
+        if self.manager is not None:
+            self.manager.font_size_smaller()
+            
+    def font_size_restore(self, *args):
+        if self.manager is not None:
+            self.manager.font_size_restore()
+            
+    def toggle_toc(self, *args):
+        if self.manager is not None:
+            self.manager.toggle_toc()
+            
+    def toggle_fullscreen(self, *args):
+        if self.manager is not None:
+            self.manager.toggle_fullscreen()
+
+    def quit_toggle(self, *args):
+        if self.manager is not None:
+            self.manager.quit()
 
     @property
     def copy_action(self):
@@ -579,6 +647,17 @@ class DocumentView(QWebView): # {{{
         if self.manager is not None:
             self.manager.selection_changed(unicode(self.document.selectedText()))
 
+    def _selectedText(self):
+        t = self.selectedText().trimmed()
+        if not t:
+            return ""
+        if t.size() > 40:
+            t.truncate(40)
+            t = t  + "..."
+        t = t.replace('&', '&&')
+        t = "S&earch Google for '" + t + "'"
+        return unicode(t)
+            
     def contextMenuEvent(self, ev):
         mf = self.document.mainFrame()
         r = mf.hitTestContent(ev.pos())
@@ -588,17 +667,52 @@ class DocumentView(QWebView): # {{{
         menu = self.document.createStandardContextMenu()
         for action in self.unimplemented_actions:
             menu.removeAction(action)
-        text = unicode(self.selectedText())
-        if text:
-            menu.insertAction(list(menu.actions())[0], self.dictionary_action)
-            menu.insertAction(list(menu.actions())[0], self.search_action)
+
         if not img.isNull():
             menu.addAction(self.view_image_action)
-        menu.addSeparator()
-        menu.addAction(self.goto_location_action)
-        if self.document.in_fullscreen_mode and self.manager is not None:
+            
+        text = self._selectedText()
+        if text and img.isNull():
+            copyAction = self.pageAction(self.document.Copy)
+            copyAction.setText("&Copy")
+            menu.addAction(copyAction)
+            self.search_online_action.setText(text)
+            menu.addAction(self.search_online_action)
+            menu.addAction(self.dictionary_action)
+            menu.addAction(self.search_action)
+        
+        if not text and img.isNull():    
             menu.addSeparator()
-            menu.addAction(self.manager.toggle_toolbar_action)
+            menu.addAction(self.back_action)
+            menu.addAction(self.forward_action)
+            menu.addAction(self.goto_location_action)
+                
+            menu.addSeparator()
+            self.toc_action.setChecked(self.manager.toc.isVisible())
+            menu.addAction(self.toc_action)
+                
+            menu.addSeparator()
+            menu.addAction(self.magnify_fonts_action)            
+            self.restore_fonts_action.setChecked(self.multiplier == 1)
+            menu.addAction(self.restore_fonts_action)
+            menu.addAction(self.shrink_fonts_action)
+        
+        menu.addSeparator()
+        inspectAction = self.pageAction(self.document.InspectElement)
+        inspectAction.setText("I&nspect element")
+        menu.addAction(inspectAction)
+        
+        if not text and img.isNull():
+            menu.addSeparator()
+            if self.document.in_fullscreen_mode and self.manager is not None:
+                self.manager.toggle_toolbar_action.setChecked(self.manager.tool_bar.isVisible())
+                menu.addAction(self.manager.toggle_toolbar_action)
+            self.fullscreen_action.setChecked(self.manager.isFullScreen())
+            menu.addAction(self.fullscreen_action)
+            
+            menu.addSeparator()
+            menu.addAction(self.quit_action)
+        
         menu.exec_(ev.globalPos())
 
     def lookup(self, *args):
@@ -612,6 +726,12 @@ class DocumentView(QWebView): # {{{
             t = unicode(self.selectedText()).strip()
             if t:
                 self.manager.search.set_search_string(t)
+
+    def search_online(self):
+        t = unicode(self.selectedText()).strip()
+        if t:
+            url = 'https://www.google.com/search?q=' + QUrl().toPercentEncoding(t)
+            open_url(QUrl.fromEncoded(url))
 
     def set_manager(self, manager):
         self.manager = manager
@@ -990,6 +1110,11 @@ class DocumentView(QWebView): # {{{
                 self.multiplier -= amount
         return self.document.scroll_fraction
 
+    def restore_font_size(self):
+        with self.document.page_position:
+            self.multiplier = 1
+        return self.document.scroll_fraction
+        
     def changeEvent(self, event):
         if event.type() == event.EnabledChange:
             self.update()

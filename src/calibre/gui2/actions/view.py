@@ -267,7 +267,6 @@ class ViewAction(InterfaceAction):
 
     def _view_books(self, rows):
         if not rows or len(rows) == 0:
-            self._launch_viewer()
             return
 
         if not self._view_check(len(rows)):

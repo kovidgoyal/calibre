@@ -28,7 +28,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
 from calibre.ptempfile import (PersistentTemporaryFile,
         base_dir, SpooledTemporaryFile)
-from calibre.customize.ui import run_plugins_on_import
+from calibre.customize.ui import run_plugins_on_import, postimport_plugins
 from calibre import isbytestring
 from calibre.utils.filenames import (ascii_filename, samefile,
         WindowsAtomicFolderMove, hardlink_file)
@@ -1534,6 +1534,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
+        postimport_plugins(id, format)
         return True
 
     def save_original_format(self, book_id, fmt, notify=True):

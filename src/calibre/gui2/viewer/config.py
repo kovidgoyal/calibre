@@ -41,6 +41,8 @@ def config(defaults=None):
             help=_('Default language for hyphenation rules'))
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
+    c.add_opt('dont_show_cover', default=False,
+            help=_('Don\'t show the cover.'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
     c.add_opt('line_scrolling_stops_on_pagebreaks', default=False,
@@ -177,6 +179,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def load_options(self, opts):
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
+        self.opt_dont_show_cover.setChecked(opts.dont_show_cover)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
         fms = opts.font_magnification_step
@@ -267,6 +270,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('max_fs_width', int(self.max_fs_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
+        c.set('dont_show_cover', self.opt_dont_show_cover.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
         c.set('font_magnification_step',

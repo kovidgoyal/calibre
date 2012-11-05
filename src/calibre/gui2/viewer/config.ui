@@ -605,6 +605,13 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_dont_show_cover">
+             <property name="text">
+              <string>Don't show the c&amp;over (needs restart)</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>

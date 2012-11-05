@@ -99,6 +99,7 @@ class DBAdder(QObject): # {{{
     def __init__(self, parent, db, ids, nmap):
         QObject.__init__(self, parent)
 
+        self.parent = parent
         self.db, self.ids, self.nmap = db, dict(**ids), dict(**nmap)
         self.critical = {}
         self.number_of_books_added = 0
@@ -232,6 +233,11 @@ class DBAdder(QObject): # {{{
             with open(path, 'rb') as f:
                 self.db.add_format(id, fmt, f, index_is_id=True,
                         notify=False, replace=replace)
+                if gprefs['auto_add_auto_convert']:
+                    of = prefs['output_format']
+                    if not of == fmt.lower():
+                        gui = self.parent._parent
+                        gui.iactions['Convert Books'].auto_convert([id], None, of)
 
 # }}}
 
