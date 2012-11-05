@@ -7,22 +7,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from math import log
 from struct import pack, calcsize
 from io import BytesIO
 
 from calibre.utils.fonts.utils import (get_tables, checksum_of_block,
         verify_checksums)
-from calibre.utils.fonts.sfnt import align_block
+from calibre.utils.fonts.sfnt import align_block, UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
-class UnknownTable(object):
-
-    def __init__(self, raw):
-        self.raw = raw
-
-    def __call__(self):
-        return self.raw
+from calibre.utils.fonts.sfnt.head import HeadTable
+from calibre.utils.fonts.sfnt.maxp import MaxpTable
+from calibre.utils.fonts.sfnt.loca import LocaTable
 
 class Sfnt(object):
 
@@ -37,7 +32,22 @@ class Sfnt(object):
         self.tables = {}
         for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
             self.tables[table_tag] = {
+                    b'head' : HeadTable,
+                    b'maxp' : MaxpTable,
+                    b'loca' : LocaTable,
                     }.get(table_tag, UnknownTable)(table)
+
+    def __getitem__(self, key):
+        return self.tables[key]
+
+    def __contains__(self, key):
+        return key in self.tables
+
+    def __delitem__(self, key):
+        del self.tables[key]
+
+    def pop(self, key, default=None):
+        return self.tables.pop(key, default)
 
     def __call__(self):
         stream = BytesIO()
@@ -49,7 +59,7 @@ class Sfnt(object):
 
         # Write header
         num_tables = len(self.tables)
-        ln2 = int(log(num_tables, 2))
+        ln2 = max_power_of_two(num_tables)
         srange = (2**ln2) * 16
         spack(b'>4s4H',
             self.sfnt_version, num_tables, srange, ln2, num_tables * 16 - srange)
