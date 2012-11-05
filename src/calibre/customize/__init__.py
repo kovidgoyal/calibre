@@ -341,11 +341,12 @@ class FileTypePlugin(Plugin): # {{{
         # Default implementation does nothing
         return path_to_ebook
         
-    def postimport(self, id):
+    def postimport(self, id, db):
         '''
         Run post import.
 
         :param id: Library id of the added book.
+		:param db: Library db.
         '''
         
 # }}}

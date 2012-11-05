@@ -68,12 +68,36 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="3">
+       <item row="2" column="0">
         <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
          <property name="text">
           <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
          </property>
         </widget>
+       </item>
+       <item row="2" column="1" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_manual_add_auto_convert">
+           <property name="text">
+            <string>Automatically &amp;convert added files to the current output format</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_add_formats_to_existing">

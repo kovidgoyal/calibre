@@ -93,6 +93,7 @@ gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['manual_add_auto_convert'] = False
 gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True

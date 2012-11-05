@@ -402,6 +402,20 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_fullscreen_message">
+             <property name="text">
+              <string>Show fullscreen &amp;message</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_fullscreen_save_state">
+             <property name="text">
+              <string>Save fullscreen state</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_6">

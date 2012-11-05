@@ -756,8 +756,7 @@ class BooksView(QTableView): # {{{
 
     def keyPressEvent(self,  event):
         if event.key() == Qt.Key_Return:
-            selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
-            self.display_parent.iactions['View']._view_books(selected_rows)
+            self.display_parent.iactions['View'].view_book(True)
         else:
             return super(BooksView, self).keyPressEvent(event)
 

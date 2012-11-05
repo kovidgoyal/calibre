@@ -61,6 +61,10 @@ def config(defaults=None):
             help=_('Show reading position in fullscreen mode.'))
     c.add_opt('fullscreen_scrollbar', default=True, action='store_false',
             help=_('Show the scrollbar in fullscreen mode.'))
+    c.add_opt('fullscreen_message', default=True,
+            help=_('Show information message when enabling fullscreen.'))
+    c.add_opt('fullscreen_save_state', default=False,
+            help=_('Save the fullscreen state.'))
     c.add_opt('cols_per_screen', default=1)
     c.add_opt('use_book_margins', default=False, action='store_true')
     c.add_opt('top_margin', default=20)
@@ -210,6 +214,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_fullscreen_clock.setChecked(opts.fullscreen_clock)
         self.opt_fullscreen_scrollbar.setChecked(opts.fullscreen_scrollbar)
         self.opt_fullscreen_pos.setChecked(opts.fullscreen_pos)
+        self.opt_fullscreen_message.setChecked(opts.fullscreen_message)
+        self.opt_fullscreen_save_state.setChecked(opts.fullscreen_save_state)
         self.opt_cols_per_screen.setValue(opts.cols_per_screen)
         self.opt_override_book_margins.setChecked(not opts.use_book_margins)
         for x in ('top', 'bottom', 'side'):
@@ -283,6 +289,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('fullscreen_clock', self.opt_fullscreen_clock.isChecked())
         c.set('fullscreen_pos', self.opt_fullscreen_pos.isChecked())
         c.set('fullscreen_scrollbar', self.opt_fullscreen_scrollbar.isChecked())
+        c.set('fullscreen_message', self.opt_fullscreen_message.isChecked())
+        c.set('fullscreen_save_state', self.opt_fullscreen_save_state.isChecked())
         c.set('cols_per_screen', int(self.opt_cols_per_screen.value()))
         c.set('use_book_margins', not
                 self.opt_override_book_margins.isChecked())

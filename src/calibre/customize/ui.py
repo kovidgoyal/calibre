@@ -172,6 +172,8 @@ run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                                                occasion='postprocess')
                         
 def postimport_plugins(id, format):
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db
     customization = config['plugin_customization']
     format = format.lower()
     for plugin in _on_postimport.get(format, []):
@@ -180,7 +182,7 @@ def postimport_plugins(id, format):
         plugin.site_customization = customization.get(plugin.name, '')
         with plugin:
             try:
-                plugin.postimport(id)
+                plugin.postimport(id, db)
             except:
                 print 'Running file type plugin %s failed with traceback:'%plugin.name
                 traceback.print_exc()

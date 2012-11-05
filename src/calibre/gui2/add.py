@@ -233,7 +233,7 @@ class DBAdder(QObject): # {{{
             with open(path, 'rb') as f:
                 self.db.add_format(id, fmt, f, index_is_id=True,
                         notify=False, replace=replace)
-                if gprefs['auto_add_auto_convert']:
+                if gprefs['manual_add_auto_convert']:
                     of = prefs['output_format']
                     if not of == fmt.lower():
                         gui = self.parent._parent

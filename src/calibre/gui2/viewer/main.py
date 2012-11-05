@@ -274,11 +274,36 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
         self.action_full_screen.setCheckable(True)
+        self.full_screen_label = QLabel('''
+                <center>
+                <h1>%s</h1>
+                <h3>%s</h3>
+                <h3>%s</h3>
+                <h3>%s</h3>
+                </center>
+                '''%(_('Full screen mode'),
+                    _('Right click to show controls'),
+                    _('Tap in the left or right page margin to turn pages'),
+                    _('Press Esc to quit')),
+                    self)
+        self.full_screen_label.setVisible(False)
+        self.full_screen_label.setStyleSheet('''
+        QLabel {
+            text-align: center;
+            background-color: white;
+            color: black;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 20px;
+        }
+        ''')
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.addAction(self.toggle_toolbar_action)
+        self.full_screen_label_anim = QPropertyAnimation(
+                self.full_screen_label, 'size')
         self.clock_label = QLabel('99:99', self)
         self.clock_label.setVisible(False)
         self.clock_label.setFocusPolicy(Qt.NoFocus)
@@ -300,7 +325,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
-
+        
         self.print_menu = QMenu()
         self.print_menu.addAction(QIcon(I('print-preview.png')), _('Print Preview'))
         self.action_print.setMenu(self.print_menu)
@@ -425,7 +450,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toggle_paged_mode(self.action_toggle_paged_mode.isChecked(),
                 at_start=True)
         fullscreen = vprefs.get('fullscreen', None)
-        if fullscreen:
+        if fullscreen and self.view.document.fullscreen_save_state:
             self.showFullScreen()
 
     def lookup(self, word):
@@ -486,6 +511,25 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
         super(EbookViewer, self).showFullScreen()
 
+    def show_full_screen_label(self):
+        f = self.full_screen_label
+        f.setVisible(True)
+        height = 200
+        width = int(0.7*self.view.width())
+        f.resize(width, height)
+        f.move((self.view.width() - width)//2, (self.view.height()-height)//2)
+        a = self.full_screen_label_anim
+        a.setDuration(500)
+        a.setStartValue(QSize(width, 0))
+        a.setEndValue(QSize(width, height))
+        a.start()
+        QTimer.singleShot(3500, self.full_screen_label.hide)
+        self.view.document.switch_to_fullscreen_mode()
+        if self.view.document.fullscreen_clock:
+            self.show_clock()
+        if self.view.document.fullscreen_pos:
+            self.show_pos_label()
+
     def show_clock(self):
         self.clock_label.setVisible(True)
         self.clock_label.setText(QTime(22, 33,
@@ -536,6 +580,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_full_screen.setChecked(False)
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
+        self.full_screen_label.setVisible(False)
         if hasattr(self, '_original_frame_margins'):
             om = self._original_frame_margins
             self.centralwidget.layout().setContentsMargins(om[0])
@@ -549,7 +594,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.window_mode_changed:
             fs = self.window_mode_changed == 'fullscreen'
             self.window_mode_changed = None
-            if not fs:
+            if fs:
+                if self.view.document.fullscreen_message:
+                    self.show_full_screen_label()
+            else:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()
             self.scrolled(self.view.scroll_fraction)
