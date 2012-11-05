@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-02 04:31+0000\n"
-"PO-Revision-Date: 2012-10-26 04:33+0000\n"
+"PO-Revision-Date: 2012-11-04 19:19+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-03 04:45+0000\n"
-"X-Generator: Launchpad (build 16218)\n"
+"X-Launchpad-Export-Date: 2012-11-05 04:39+0000\n"
+"X-Generator: Launchpad (build 16232)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -13016,11 +13016,11 @@ msgstr "Sorteerauteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 1"
-msgstr ""
+msgstr "Label 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 2"
-msgstr ""
+msgstr "Label 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:269
 msgid "Template language tutorial"
@@ -13522,12 +13522,12 @@ msgstr "Regexp (?<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:123
 msgid "Choose a font family"
-msgstr ""
+msgstr "Kies een lettertype family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
 msgid "Available faces for %s"
-msgstr ""
+msgstr "Beschikbare formaten voor lettertype %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:171
 msgid "Choose font family"
@@ -13535,7 +13535,7 @@ msgstr "Kies lettertype familie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
-msgstr ""
+msgstr "&Lettertypes toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
@@ -13559,29 +13559,29 @@ msgstr "Geen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "Select font files"
-msgstr ""
+msgstr "Selecteer lettertype bestanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "TrueType/OpenType Fonts"
-msgstr ""
+msgstr "TrueType/OpenType lettertype"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:233
 msgid "Corrupt font"
-msgstr ""
+msgstr "Beschadigd lettertype"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:234
 #, python-format
 msgid "Failed to read metadata from the font file: %s"
-msgstr ""
+msgstr "Fout bij het lezen van de metadata van lettertype-bestand: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:253
 msgid "Added fonts"
-msgstr ""
+msgstr "Toegevoegde lettertypes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:254
 #, python-format
 msgid "Added font families: %s"
-msgstr ""
+msgstr "Toegevoegde lettertype families: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:279
 msgid "Choose &font family"
@@ -13589,7 +13589,7 @@ msgstr "Kies &lettertype familie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:288
 msgid "Clear the font family"
-msgstr ""
+msgstr "Wis de lettertype family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:296
@@ -15971,7 +15971,7 @@ msgstr "Onderwerp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -16002,7 +16002,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:42
 msgid "Friendly name to use for this email address"
-msgstr ""
+msgstr "Gebruiksvriendelijke naam te gebruiken voor dit e-mail adres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:128
 msgid "new email address"
@@ -19265,7 +19265,7 @@ msgstr "Opslaan &als"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "&Draaien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"
