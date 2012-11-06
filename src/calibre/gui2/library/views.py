@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, itertools, operator
 from functools import partial
 from future_builtins import map
+from collections import OrderedDict
 
 from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
@@ -510,6 +511,7 @@ class BooksView(QTableView): # {{{
             except:
                 # Ignore invalid tweak values as users seem to often get them
                 # wrong
+                print('Ignoring invalid sort_columns_at_startup tweak, with error:')
                 import traceback
                 traceback.print_exc()
             old_state['sort_history'] = sh
@@ -793,6 +795,17 @@ class BooksView(QTableView): # {{{
                 sm = self.selectionModel()
                 sm.select(index, sm.ClearAndSelect|sm.Rows)
 
+    def ids_to_rows(self, ids):
+        row_map = OrderedDict()
+        ids = frozenset(ids)
+        m = self.model()
+        for row in xrange(m.rowCount(QModelIndex())):
+            if len(row_map) >= len(ids): break
+            c = m.id(row)
+            if c in ids:
+                row_map[c] = row
+        return row_map
+
     def select_rows(self, identifiers, using_ids=True, change_current=True,
             scroll=True):
         '''
@@ -854,6 +867,35 @@ class BooksView(QTableView): # {{{
                     self.set_current_row(row, select=False)
                     break
         return property(fget=fget, fset=fset)
+
+    @property
+    def next_id(self):
+        '''
+        Return the id of the 'next' row (i.e. the first unselected row after
+        the current row).
+        '''
+        ci = self.currentIndex()
+        if not ci.isValid():
+            return None
+        selected_rows = frozenset([i.row() for i in self.selectedIndexes() if
+            i.isValid()])
+        column = ci.column()
+
+        for i in xrange(ci.row()+1, self.row_count()):
+            if i in selected_rows: continue
+            try:
+                return self.model().id(self.model().index(i, column))
+            except:
+                pass
+
+        # No unselected rows after the current row, look before
+        for i in xrange(ci.row()-1, -1, -1):
+            if i in selected_rows: continue
+            try:
+                return self.model().id(self.model().index(i, column))
+            except:
+                pass
+        return None
 
     def close(self):
         self._model.close()

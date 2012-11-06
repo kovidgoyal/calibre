@@ -1,0 +1,47 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.iol.co.za/news
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class IOL_za(BasicNewsRecipe):
+    title                 = 'IOL News'
+    __author__            = 'Darko Miletic'
+    description           = "South Africa's Premier Online News Source. Discover the world of IOL, News South Africa, Sport, Business, Financial, World News, Entertainment, Technology, Motoring, Travel, Property, Classifieds and more."
+    publisher             = 'Independent Newspapers (Pty) Limited.'
+    category              = 'news, politics, South Africa'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    auto_cleanup          = False    
+    language              = 'en_ZA'
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://www.iol.co.za/polopoly_fs/iol-news5-1.989381!/image/464471284.png_gen/derivatives/absolute/464471284.png'
+    extra_css             = """ 
+                                body{font-family: Arial,Helvetica,sans-serif }
+                                img{display: block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name=['object','embed','iframe','table','meta','link'])]
+    keep_only_tags = [dict(attrs={'class':['article_headers', 'byline', 'aticle_column']})]
+
+
+    feeds = [
+              (u'News'    , u'http://iol.co.za/cmlink/1.640'                          )
+             ,(u'Business', u'http://www.iol.co.za/cmlink/1.730910'                   )
+             ,(u'Sport'   , u'http://iol.co.za/cmlink/sport-category-rss-1.704'       )
+             ,(u'World'   , u'http://iol.co.za/cmlink/news-world-category-rss-1.653'  )
+             ,(u'Africa'  , u'http://iol.co.za/cmlink/news-africa-category-rss-1.654' )
+            ]

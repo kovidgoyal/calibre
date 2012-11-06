@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>781</width>
-    <height>394</height>
+    <height>439</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <widget class="QStackedWidget" name="stack">
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0" rowspan="7">
+       <item row="0" column="0" rowspan="8">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Metadata sources</string>
@@ -104,21 +104,21 @@
           </item>
           <item row="2" column="0">
            <widget class="QPushButton" name="select_default_button">
+            <property name="toolTip">
+             <string>Restore your own subset of checked fields that you define using the 'Set as default' button</string>
+            </property>
             <property name="text">
              <string>&amp;Select default</string>
-            </property>
-             <property name="toolTip">
-             <string>Restore your own subset of checked fields that you define using the 'Set as default' button</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="QPushButton" name="set_as_default_button">
+            <property name="toolTip">
+             <string>Store the currently checked fields as a default you can restore using the 'Select default' button</string>
+            </property>
             <property name="text">
              <string>&amp;Set as default</string>
-            </property>
-             <property name="toolTip">
-             <string>Store the currently checked fields as a default you can restore using the 'Select default' button</string>
             </property>
            </widget>
           </item>
@@ -139,7 +139,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Max. number of &amp;tags to download:</string>
@@ -149,10 +149,10 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
+       <item row="5" column="2">
         <widget class="QSpinBox" name="opt_max_tags"/>
        </item>
-       <item row="5" column="1">
+       <item row="6" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Max. &amp;time to wait after first match is found:</string>
@@ -162,14 +162,14 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="2">
+       <item row="6" column="2">
         <widget class="QSpinBox" name="opt_wait_after_first_identify_result">
          <property name="suffix">
           <string> secs</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Max. time to wait after first &amp;cover is found:</string>
@@ -179,14 +179,14 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="2">
+       <item row="7" column="2">
         <widget class="QSpinBox" name="opt_wait_after_first_cover_result">
          <property name="suffix">
           <string> secs</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1" colspan="2">
+       <item row="4" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_fewer_tags">
          <property name="toolTip">
           <string>&lt;p&gt;Different metadata sources have different sets of tags for the same book. If this option is checked, then calibre will use the smaller tag sets. These tend to be more like genres, while the larger tag sets tend to describe the books content.
@@ -194,6 +194,13 @@
          </property>
          <property name="text">
           <string>Prefer &amp;fewer tags</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QCheckBox" name="opt_find_first_edition_date">
+         <property name="text">
+          <string>Use published date of &quot;first edition&quot; (from worldcat.org)</string>
          </property>
         </widget>
        </item>

@@ -10,7 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, re, time, json, functools, shutil
+import os, time, json, shutil
 from itertools import cycle
 
 from calibre.constants import numeric_version
@@ -63,7 +63,7 @@ class USBMS(CLI, Device):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
             dinfo['device_store_uuid'] = unicode(uuid.uuid4())
-        if dinfo.get('device_name') is None:
+        if dinfo.get('device_name', None) is None:
             dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name
@@ -166,7 +166,7 @@ class USBMS(CLI, Device):
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
-        for idx,b in enumerate(bl):
+        for idx, b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
         all_formats = self.formats_to_scan_for()
@@ -404,25 +404,8 @@ class USBMS(CLI, Device):
 
     @classmethod
     def build_template_regexp(cls):
-        def replfunc(match, seen=None):
-            v = match.group(1)
-            if v in ['authors', 'author_sort']:
-                v = 'author'
-            if v in ('title', 'series', 'series_index', 'isbn', 'author'):
-                if v not in seen:
-                    seen.add(v)
-                    return '(?P<' + v + '>.+?)'
-            return '(.+?)'
-        s = set()
-        f = functools.partial(replfunc, seen=s)
-        template = None
-        try:
-            template = cls.save_template().rpartition('/')[2]
-            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
-        except:
-            prints(u'Failed to parse template: %r'%template)
-            template = u'{title} - {authors}'
-            return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        from calibre.devices.utils import build_template_regexp
+        return build_template_regexp(cls.save_template())
 
     @classmethod
     def path_to_unicode(cls, path):

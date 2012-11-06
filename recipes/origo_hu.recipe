@@ -1,0 +1,29 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+class AdvancedUserRecipe1348136299(BasicNewsRecipe):
+    title          = u'[origo]'
+    oldest_article = 2
+    language = 'hu'
+    auto_cleanup = True
+
+    __author__ = 'laca'
+    simultaneous_downloads= 1
+    max_articles_per_feed = 50
+
+    feeds          = [(u'Itthon', u'http://origo.hu/contentpartner/rss/itthon/origo.xml'),
+	(u'Nagyvilág', u'http://origo.hu/contentpartner/rss/nagyvilag/origo.xml'),
+	(u'Gazdaság', u'http://origo.hu/contentpartner/rss/uzletinegyed/origo.xml'),
+	(u'Egészség', u'http://static2.origos.hu/contentpartner/rss/egeszseg/origo.xml'),
+	(u'Tudomány', u'http://origo.hu/contentpartner/rss/tudomany/origo.xml'),
+	(u'Techbázis', u'http://origo.hu/contentpartner/rss/techbazis/origo.xml'),
+	(u'Szoftverbázis', u'http://www.szoftverbazis.hu/rss/index.xml'),
+	(u'Sport', u'http://origo.hu/contentpartner/rss/sport/origo.xml'),
+	(u'Szórakozás', u'http://origo.hu/contentpartner/rss/szorakozas/origo.xml'),
+	(u'Időjárás', u'http://static1.origos.hu/contentpartner/rss/idojaras/origo.xml'),
+	(u'Filmklub', u'http://origo.hu/contentpartner/rss/filmklub/origo.xml'),
+	(u'Utazás', u'http://origo.hu/contentpartner/rss/utazas/origo.xml'),
+	(u'Autó', u'http://origo.hu/contentpartner/rss/auto/origo.xml'),
+	(u'Komment.hu', u'http://static5.origos.hu/contentpartner/rss/velemeny/origo.xml'),
+	(u'365.hu', u'http://origo.hu/contentpartner/rss/365/origo.xml'),
+	(u'Quart', u'http://www.quart.hu/contentpartner/rss/quart/origo.xml'),
+	(u'Forma-1', u'http://www.f1hirek.hu/contentpartner/rss/f1hirek/f1hirek.xml')]

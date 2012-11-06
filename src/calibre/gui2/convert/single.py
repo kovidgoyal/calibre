@@ -6,11 +6,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, shutil, importlib
+import cPickle, shutil
 
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
-from calibre.gui2 import ResizableDialog, NONE
+from calibre.gui2 import ResizableDialog, NONE, gprefs
 from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
         load_specifics)
 from calibre.gui2.convert.single_ui import Ui_Dialog
@@ -146,6 +146,9 @@ class Config(ResizableDialog, Ui_Dialog):
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
         self.connect(rb, SIGNAL('clicked()'), self.restore_defaults)
         self.groups.setMouseTracking(True)
+        geom = gprefs.get('convert_single_dialog_geom', None)
+        if geom:
+            self.restoreGeometry(geom)
 
     def restore_defaults(self):
         delete_specifics(self.db, self.book_id)
@@ -187,29 +190,12 @@ class Config(ResizableDialog, Ui_Dialog):
         toc = widget_factory(TOCWidget)
         debug = widget_factory(DebugWidget)
 
-        output_widget = None
-        name = self.plumber.output_plugin.name.lower().replace(' ', '_')
-        try:
-            output_widget = importlib.import_module(
-                    'calibre.gui2.convert.'+name)
-            pw = output_widget.PluginWidget
-            pw.ICON = I('back.png')
-            pw.HELP = _('Options specific to the output format.')
-            output_widget = widget_factory(pw)
-        except ImportError:
-            pass
-        input_widget = None
-        name = self.plumber.input_plugin.name.lower().replace(' ', '_')
-        try:
-            input_widget = importlib.import_module(
-                    'calibre.gui2.convert.'+name)
-            pw = input_widget.PluginWidget
-            pw.ICON = I('forward.png')
-            pw.HELP = _('Options specific to the input format.')
-            input_widget = widget_factory(pw)
-        except ImportError:
-            pass
-
+        output_widget = self.plumber.output_plugin.gui_configuration_widget(
+                self.stack, self.plumber.get_option_by_name,
+                self.plumber.get_option_help, self.db, self.book_id)
+        input_widget = self.plumber.input_plugin.gui_configuration_widget(
+                self.stack, self.plumber.get_option_by_name,
+                self.plumber.get_option_help, self.db, self.book_id)
         while True:
             c = self.stack.currentWidget()
             if not c: break
@@ -279,6 +265,12 @@ class Config(ResizableDialog, Ui_Dialog):
     def reject(self):
         self.break_cycles()
         ResizableDialog.reject(self)
+
+    def done(self, r):
+        if self.isVisible():
+            gprefs['convert_single_dialog_geom'] = \
+                bytearray(self.saveGeometry())
+        return ResizableDialog.done(self, r)
 
     def break_cycles(self):
         for i in range(self.stack.count()):

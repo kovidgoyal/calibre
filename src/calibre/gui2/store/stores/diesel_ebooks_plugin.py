@@ -34,7 +34,10 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
 
         detail_url = None
         if detail_item:
-            detail_url = detail_item + aff_id
+            if '?' in detail_item:
+                detail_url = detail_item + aff_id.replace('?', '&')
+            else:
+                detail_url = detail_item + aff_id
         url = url + aff_id
 
         if external or self.config.get('open_external', False):
@@ -52,9 +55,11 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
+            book_url = f.geturl()
             doc = html.fromstring(f.read())
 
             if doc.xpath('not(boolean(//select[contains(@id, "selection")]))'):
+                # This is the page for an individual book
                 id = ''.join(doc.xpath('//div[@class="price_fat"]//a/@href'))
                 mo = re.search('(?<=id=).+?(?=&)', id)
                 if not mo:
@@ -79,7 +84,7 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = id.strip()
+                s.detail_item = book_url
                 s.formats = formats
                 s.drm = drm
 

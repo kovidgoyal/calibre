@@ -15,7 +15,8 @@ from setup import Command, modules, basenames, functions, __version__, \
 SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
-        '_dbus_glib_bindings.so']
+        '_dbus_glib_bindings.so', 'netifaces.so', '_psutil_posix.so',
+        '_psutil_linux.so', 'psutil', 'cssselect']
 
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')
@@ -23,6 +24,9 @@ MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/bin/pdfinfo',
+                '/usr/lib/libusb-1.0.so.0',
+                '/usr/lib/libmtp.so.9',
+                '/usr/lib/libglib-2.0.so.0',
                 '/usr/bin/pdftoppm',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',
@@ -31,11 +35,11 @@ binary_includes = [
                 '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
-                '/usr/lib/libpodofo.so.0.8.4',
+                '/usr/lib/libpodofo.so.0.9.1',
                 '/lib/libz.so.1',
                 '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',
-                '/usr/lib/libpoppler.so.25',
+                '/usr/lib/libpoppler.so.27',
                 '/usr/lib/libxml2.so.2',
                 '/usr/lib/libopenjpeg.so.2',
                 '/usr/lib/libxslt.so.1',

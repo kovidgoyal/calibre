@@ -64,8 +64,10 @@ class TheWashingtonPost(BasicNewsRecipe):
 
     def get_article_url(self, article):
         link = BasicNewsRecipe.get_article_url(self,article)
+        if article.id.startswith('http'):
+            link = article.id
         if not 'washingtonpost.com' in link:
-           self.log('Skipping adds:', link)
+           self.log('Skipping ads:', link)
            return None
         for it in ['_video.html','_gallery.html','_links.html']:
             if it in link:

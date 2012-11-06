@@ -132,7 +132,8 @@ def add_pipeline_options(parser, plumber):
                   _('Options to control the look and feel of the output'),
                   [
                       'base_font_size', 'disable_font_rescaling',
-                      'font_size_mapping',
+                      'font_size_mapping', 'embed_font_family',
+                      'subset_embedded_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
                       'extra_css', 'filter_css',
@@ -170,7 +171,7 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
-                      'remove_fake_margins',
+                      'remove_fake_margins', 'start_reading_at',
                   ]
                   ),
 

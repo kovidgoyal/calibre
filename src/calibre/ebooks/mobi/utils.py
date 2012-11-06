@@ -481,7 +481,7 @@ def write_font_record(data, obfuscate=True, compress=True):
     if compress:
         flags |= 0b1
         data = zlib.compress(data, 9)
-    if obfuscate:
+    if obfuscate and len(data) >= 1040:
         flags |= 0b10
         xor_key = os.urandom(key_len)
         key = bytearray(xor_key)

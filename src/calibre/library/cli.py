@@ -165,7 +165,7 @@ List the books available in the calibre database.
 
 def command_list(args, dbpath):
     pre = get_parser('')
-    pargs = [x for x in args if x in ('--with-library', '--library-path')
+    pargs = [x for x in args if x.startswith('--with-library') or x.startswith('--library-path')
         or not x.startswith('-')]
     opts = pre.parse_args(sys.argv[:1] + pargs)[0]
     db = get_db(dbpath, opts)
@@ -692,7 +692,22 @@ datatype is one of: {0}
             help=_('A dictionary of options to customize how '
                 'the data in this column will be interpreted. This is a JSON '
                 ' string. For enumeration columns, use '
-                '--display=\'{"enum_values":["val1", "val2"]}\''))
+                '--display="{\\"enum_values\\":[\\"val1\\", \\"val2\\"]}"'
+                '\n'
+                'There are many options that can go into the display variable.'
+                'The options by column type are:\n'
+                'composite: composite_template, composite_sort, make_category,'
+                'contains_html, use_decorations\n'
+                'datetime: date_format\n'
+                'enumeration: enum_values, enum_colors, use_decorations\n'
+                'int, float: number_format\n'
+                'text: is_names, use_decorations\n'
+                '\n'
+                'The best way to find legal combinations is to create a custom'
+                'column of the appropriate type in the GUI then look at the'
+                'backup OPF for a book (ensure that a new OPF has been created'
+                'since the column was added). You will see the JSON for the'
+                '"display" for the new column in the OPF.'))
     return parser
 
 
@@ -719,6 +734,7 @@ def catalog_option_parser(args):
     def add_plugin_parser_options(fmt, parser, log):
 
         # Fetch the extension-specific CLI options from the plugin
+        # library.catalogs.<format>.py
         plugin = plugin_for_catalog_format(fmt)
         for option in plugin.cli_options:
             if option.action:
@@ -798,6 +814,7 @@ def catalog_option_parser(args):
 def command_catalog(args, dbpath):
     parser, plugin, log = catalog_option_parser(args)
     opts, args = parser.parse_args(sys.argv[1:])
+
     if len(args) < 2:
         parser.print_help()
         print

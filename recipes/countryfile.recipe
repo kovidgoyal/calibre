@@ -1,12 +1,13 @@
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'Countryfile.com'
     #cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
     __author__ = 'Dave Asbury'
     description           = 'The official website of Countryfile Magazine'
-    # last updated 15/4/12
+    # last updated 7/10/12
     language = 'en_GB'
     oldest_article = 30
     max_articles_per_feed = 25
@@ -14,16 +15,19 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = True
     #articles_are_obfuscated = True
+    ignore_duplicate_articles = {'title'}
     def get_cover_url(self):
             soup = self.index_to_soup('http://www.countryfile.com/')
-            cov = soup.find(attrs={'class' : 'imagecache imagecache-160px_wide imagecache-linked imagecache-160px_wide_linked'})
-            #print '******** ',cov,' ***'
-            cov2 = str(cov)
-            cov2=cov2[124:-90]
-            #print '******** ',cov2,' ***'
 
+            cov = soup.find(attrs={'width' : '160', 'class' : re.compile('imagecache imagecache-160px_wide')})
+            print '******** ',cov,' ***'
+            cov2 = str(cov)
+            cov2=cov2[10:101]
+            print '******** ',cov2,' ***'
+            #cov2='http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/1b_0.jpg'
             # try to get cover - if can't get known cover
             br = browser()
+
             br.set_handle_redirect(False)
             try:
                 br.open_novisit(cov2)
@@ -40,3 +44,6 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     (u'Country News', u'http://www.countryfile.com/rss/news'),
             (u'Countryside', u'http://www.countryfile.com/rss/countryside'),
             ]
+
+
+

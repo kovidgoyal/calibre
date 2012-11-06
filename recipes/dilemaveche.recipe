@@ -1,71 +1,51 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2011, Silviu Cotoar\u0103'
+'''
+dilemaveche.ro
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class DilemaVeche(BasicNewsRecipe):
-    title          = u'Dilema Veche' # apare vinerea, mai pe dupa-masa,depinde de Luiza cred (care se semneaza ca fiind creatorul fiecarui articol in feed-ul RSS)
-    __author__            = 'song2' # inspirat din scriptul pentru Le Monde. Inspired from the Le Monde script
-    description           = '"Sint vechi, domnule!" (I.L. Caragiale)'
-    publisher             = 'Adevarul Holding'
-    oldest_article        = 7
-    max_articles_per_feed = 200
-    encoding              = 'utf8'
-    language = 'ro'
-    masthead_url = 'http://www.dilemaveche.ro/sites/all/themes/dilema/theme/dilema_two/layouter/dilema_two_homepage/logo.png'
-    publication_type = 'magazine'
-    feeds = [
-                ('Editoriale si opinii - Situatiunea', 'http://www.dilemaveche.ro/taxonomy/term/37/0/feed'),
-                ('Editoriale si opinii - Pe ce lume traim', 'http://www.dilemaveche.ro/taxonomy/term/38/0/feed'),
-                ('Editoriale si opinii - Bordeie si obiceie', 'http://www.dilemaveche.ro/taxonomy/term/44/0/feed'),
-                ('Editoriale si opinii - Talc Show', 'http://www.dilemaveche.ro/taxonomy/term/44/0/feed'),
-                ('Tema saptamanii', 'http://www.dilemaveche.ro/taxonomy/term/19/0/feed'),
-                ('La zi in cultura - Dilema va recomanda', 'http://www.dilemaveche.ro/taxonomy/term/58/0/feed'),
-                ('La zi in cultura - Carte', 'http://www.dilemaveche.ro/taxonomy/term/14/0/feed'),
-                ('La zi in cultura - Film', 'http://www.dilemaveche.ro/taxonomy/term/13/0/feed'),
-                ('La zi in cultura - Muzica', 'http://www.dilemaveche.ro/taxonomy/term/1341/0/feed'),
-                ('La zi in cultura - Arte performative', 'http://www.dilemaveche.ro/taxonomy/term/1342/0/feed'),
-                ('La zi in cultura - Arte vizuale', 'http://www.dilemaveche.ro/taxonomy/term/1512/0/feed'),
-                ('Societate - Ieri cu vedere spre azi', 'http://www.dilemaveche.ro/taxonomy/term/15/0/feed'),
-                ('Societate - Din polul opus', 'http://www.dilemaveche.ro/taxonomy/term/41/0/feed'),
-                ('Societate - Mass comedia', 'http://www.dilemaveche.ro/taxonomy/term/43/0/feed'),
-                ('Societate - La singular si la plural', 'http://www.dilemaveche.ro/taxonomy/term/42/0/feed'),
-                ('Oameni si idei - Educatie', 'http://www.dilemaveche.ro/taxonomy/term/46/0/feed'),
-                ('Oameni si idei - Polemici si dezbateri', 'http://www.dilemaveche.ro/taxonomy/term/48/0/feed'),
-                ('Oameni si idei - Stiinta si tehnologie', 'http://www.dilemaveche.ro/taxonomy/term/46/0/feed'),
-                ('Dileme on-line', 'http://www.dilemaveche.ro/taxonomy/term/005/0/feed')
-                 ]
-    remove_tags_before = dict(name='div',attrs={'class':'spacer_10'})
-    remove_tags = [
-        dict(name='div', attrs={'class':'art_related_left'}),
-        dict(name='div', attrs={'class':'controale'}),
-		dict(name='div', attrs={'class':'simple_overlay'}),
-    ]
-    remove_tags_after = [dict(id='facebookLike')]
-    remove_javascript = True
+    title                 = u'Dilema Veche'
+    __author__            = u'Silviu Cotoar\u0103'
+    description           = 'Sint vechi, domnule! (I.L. Caragiale)'
+    publisher             = u'Adev\u0103rul Holding'
+    oldest_article        = 5
+    language              = 'ro'
+    max_articles_per_feed = 100
     no_stylesheets        = True
-    remove_empty_feeds = True
-    extra_css             = """
-        body{font-family: Georgia,Times,serif }
-        img{margin-bottom: 0.4em; display:block}
-                            """
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup('http://dilemaveche.ro')
-        link_item = soup.find('div',attrs={'class':'box_dr_pdf_picture'})
-        if link_item and link_item.a:
-           cover_url = link_item.a['href']
-        br = BasicNewsRecipe.get_browser()
-        try:
-            br.open(cover_url)
-        except: #daca nu gaseste pdf-ul
-            self.log("\nPDF indisponibil")
-            link_item = soup.find('div',attrs={'class':'box_dr_pdf_picture'})
-            if link_item and link_item.img:
-                cover_url = link_item.img['src']
-            br = BasicNewsRecipe.get_browser()
-            try:
-                 br.open(cover_url)
-            except: #daca nu gaseste nici imaginea mica mica
-                print('Mama lor de nenorociti! nu este nici pdf nici imagine')
-                cover_url ='http://www.dilemaveche.ro/sites/all/themes/dilema/theme/dilema_two/layouter/dilema_two_homepage/logo.png'
-        return cover_url
-    cover_margins = (10, 15, '#ffffff')
+    use_embedded_content  = False
+    category              = 'Ziare'
+    encoding              = 'utf-8'
+    cover_url             = 'http://dilemaveche.ro/sites/all/themes/dilema/theme/dilema_two/layouter/dilema_two_homepage/logo.png'
 
+    conversion_options = {
+                             'comments'   : description
+                            ,'tags'       : category
+                            ,'language'   : language
+							,'publisher'  : publisher
+                         }
+
+    keep_only_tags = [
+            dict(name='div', attrs={'class':'c_left_column'})
+                     ]
+
+    remove_tags = [
+             dict(name='div', attrs={'id':['adshop_widget_428x60']}) ,
+			 dict(name='div', attrs={'id':['gallery']})			 
+                  ]
+
+    remove_tags_after = [
+              dict(name='div', attrs={'id':['adshop_widget_428x60']})    
+            ]
+
+    feeds          = [
+            (u'Feeds', u'http://dilemaveche.ro/rss.xml')
+                 ]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

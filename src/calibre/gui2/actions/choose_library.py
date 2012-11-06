@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, posixpath
 from functools import partial
 
 from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
@@ -13,7 +13,8 @@ from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QCoreApplication, pyqtSignal)
 
 from calibre import isbytestring, sanitize_file_name_unicode
-from calibre.constants import filesystem_encoding, iswindows
+from calibre.constants import (filesystem_encoding, iswindows,
+        get_portable_base)
 from calibre.utils.config import prefs
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
@@ -25,6 +26,17 @@ class LibraryUsageStats(object): # {{{
     def __init__(self):
         self.stats = {}
         self.read_stats()
+        base = get_portable_base()
+        if base is not None:
+            lp = prefs['library_path']
+            if lp:
+                # Rename the current library. Renaming of other libraries is
+                # handled by the switch function
+                q = os.path.basename(lp)
+                for loc in list(self.stats.iterkeys()):
+                    bn = posixpath.basename(loc)
+                    if bn.lower() == q.lower():
+                        self.rename(loc, lp)
 
     def read_stats(self):
         stats = gprefs.get('library_usage_stats', {})
@@ -417,6 +429,18 @@ class ChooseLibraryAction(InterfaceAction):
         finally:
             self.gui.status_bar.clear_message()
 
+    def look_for_portable_lib(self, db, location):
+        base = get_portable_base()
+        if base is None:
+            return False, None
+        loc = location.replace('/', os.sep)
+        candidate = os.path.join(base, os.path.basename(loc))
+        if db.exists_at(candidate):
+            newloc = candidate.replace(os.sep, '/')
+            self.stats.rename(location, newloc)
+            return True, newloc
+        return False, None
+
     def switch_requested(self, location):
         if not self.change_library_allowed():
             return
@@ -425,6 +449,12 @@ class ChooseLibraryAction(InterfaceAction):
         self.view_state_map[current_lib] = self.preserve_state_on_switch.state
         loc = location.replace('/', os.sep)
         exists = db.exists_at(loc)
+        if not exists:
+            exists, new_location = self.look_for_portable_lib(db, location)
+            if exists:
+                location = new_location
+                loc = location.replace('/', os.sep)
+
         if not exists:
             d = MovedDialog(self.stats, location, self.gui)
             ret = d.exec_()

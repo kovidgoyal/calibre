@@ -15,15 +15,28 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_javascript=True
     no_stylesheets=True
-    remove_tags_before=dict(id='k0')
-    remove_tags_after=dict(id='banP4')
-    remove_tags=[dict(name='div', attrs={'class':'rel_box'}), dict(attrs={'class':['date', 'zdjP', 'zdjM', 'pollCont', 'rel_video', 'brand', 'txt_upl']}), dict(name='div', attrs={'id':'footer'})]
+    ignore_duplicate_articles = {'title', 'url'}
+    keep_only_tags = dict(id=['gazeta_article', 'article'])
+    remove_tags_after = dict(id='gazeta_article_share')
+    remove_tags = [dict(attrs={'class':['artReadMore', 'gazeta_article_related_new', 'txt_upl']}), dict(id=['gazeta_article_likes', 'gazeta_article_tools', 'rel', 'gazeta_article_tags', 'gazeta_article_share', 'gazeta_article_brand', 'gazeta_article_miniatures'])]
+
     feeds          = [(u'Kraj', u'http://rss.feedsportal.com/c/32739/f/530266/index.rss'), (u'\u015awiat', u'http://rss.feedsportal.com/c/32739/f/530270/index.rss'),
 	(u'Wyborcza.biz', u'http://wyborcza.biz/pub/rss/wyborcza_biz_wiadomosci.htm'),
 	(u'Komentarze', u'http://rss.feedsportal.com/c/32739/f/530312/index.rss'),
 	(u'Kultura', u'http://rss.gazeta.pl/pub/rss/gazetawyborcza_kultura.xml'),
-	(u'Nauka', u'http://rss.feedsportal.com/c/32739/f/530269/index.rss'), (u'Opinie', u'http://rss.gazeta.pl/pub/rss/opinie.xml'), (u'Gazeta \u015awi\u0105teczna', u'http://rss.feedsportal.com/c/32739/f/530431/index.rss'), (u'Du\u017cy Format', u'http://rss.feedsportal.com/c/32739/f/530265/index.rss'), (u'Witamy w Polsce', u'http://rss.feedsportal.com/c/32739/f/530476/index.rss'), (u'M\u0119ska Muzyka', u'http://rss.feedsportal.com/c/32739/f/530337/index.rss'), (u'Lata Lec\u0105', u'http://rss.feedsportal.com/c/32739/f/530326/index.rss'), (u'Solidarni z Tybetem', u'http://rss.feedsportal.com/c/32739/f/530461/index.rss'), (u'W pon. - \u017bakowski', u'http://rss.feedsportal.com/c/32739/f/530491/index.rss'), (u'We wt. - Kolenda-Zalewska', u'http://rss.feedsportal.com/c/32739/f/530310/index.rss'), (u'\u015aroda w \u015brod\u0119', u'http://rss.feedsportal.com/c/32739/f/530428/index.rss'), (u'W pi\u0105tek - Olejnik', u'http://rss.feedsportal.com/c/32739/f/530364/index.rss'), (u'Nekrologi', u'http://rss.feedsportal.com/c/32739/f/530358/index.rss')
-                     ]
+	(u'Nauka', u'http://rss.feedsportal.com/c/32739/f/530269/index.rss'), 
+	(u'Opinie', u'http://rss.gazeta.pl/pub/rss/opinie.xml'), 
+	(u'Gazeta \u015awi\u0105teczna', u'http://rss.feedsportal.com/c/32739/f/530431/index.rss'), 
+	#(u'Du\u017cy Format', u'http://rss.feedsportal.com/c/32739/f/530265/index.rss'), 
+	(u'Witamy w Polsce', u'http://rss.feedsportal.com/c/32739/f/530476/index.rss'), 
+	(u'M\u0119ska Muzyka', u'http://rss.feedsportal.com/c/32739/f/530337/index.rss'), 
+	(u'Lata Lec\u0105', u'http://rss.feedsportal.com/c/32739/f/530326/index.rss'), 
+	(u'Solidarni z Tybetem', u'http://rss.feedsportal.com/c/32739/f/530461/index.rss'), 
+	(u'W pon. - \u017bakowski', u'http://rss.feedsportal.com/c/32739/f/530491/index.rss'), 
+	(u'We wt. - Kolenda-Zalewska', u'http://rss.feedsportal.com/c/32739/f/530310/index.rss'), 
+	(u'\u015aroda w \u015brod\u0119', u'http://rss.feedsportal.com/c/32739/f/530428/index.rss'), 
+	(u'W pi\u0105tek - Olejnik', u'http://rss.feedsportal.com/c/32739/f/530364/index.rss')
+          ]
 
     def skip_ad_pages(self, soup):
           tag=soup.find(name='a', attrs={'class':'btn'})

@@ -18,4 +18,6 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
    regexp
    server
    creating_plugins
+   typesetting_math
+   catalogs
 

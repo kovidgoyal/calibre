@@ -16,6 +16,8 @@ class TheTorontoStar(BasicNewsRecipe):
     language              = 'en_CA'
     max_articles_per_feed = 100
     no_stylesheets        = True
+    #auto_cleanup = True
+    #auto_cleanup_keep = '//div[@class="topsContent topsContentActive"]'
     use_embedded_content  = False
     delay                 = 2
     publisher             = 'The Toronto Star'
@@ -28,18 +30,18 @@ class TheTorontoStar(BasicNewsRecipe):
                             ,'publisher'   : publisher
                          }
 
-    keep_only_tags = [dict(name='div', attrs={'class':'ts-article'})]
-    remove_tags_before = dict(name='div',attrs={'id':'ts-article_header'})
+    #keep_only_tags = [dict(name='div', attrs={'class':'ts-article'})]
+    #remove_tags_before = dict(name='div',attrs={'id':'ts-article_header'})
 
     feeds          = [
-                        (u'News'         , u'http://www.thestar.com/rss/82672?'    )
-                       ,(u'Opinion'     ,  u'http://www.thestar.com/rss/82863?'    )
-                       ,(u'Business'     , u'http://www.thestar.com/rss/82796?'    )
-                       ,(u'Sports'       , u'http://www.thestar.com/rss/82758?'    )
-                       ,(u'Entertainment', u'http://www.thestar.com/rss/117741?'    )
-                       ,(u'Living'       , u'http://www.thestar.com/rss/82839?'    )
-                       ,(u'Travel'       , u'http://www.thestar.com/rss/82858?'              )
-                       ,(u'Science'      , u'http://www.thestar.com/rss/82848?')
+                        (u'News'         , u'http://www.thestar.com/rss/?categories=293'    )
+                       ,(u'Opinion'     ,  u'http://www.thestar.com/rss/?categories=303'    )
+                       ,(u'Business'     , u'http://www.thestar.com/rss/?categories=294'    )
+                       ,(u'Sports'       , u'http://www.thestar.com/rss/?categories=295'    )
+                       ,(u'Entertainment', u'http://www.toronto.com/rss?categories=6298'    )
+                       ,(u'Living'       , u'http://www.thestar.com/rss/?categories=297'    )
+                       ,(u'Travel'       , u'http://www.thestar.com/rss/list/1042246?'              )
+                       ,(u'Science'      , u'http://www.thestar.com/rss?categories=6481')
                      ]
 
     def print_version(self, url):
@@ -47,3 +49,4 @@ class TheTorontoStar(BasicNewsRecipe):
         artid = artl.rpartition('/')[2]
         return 'http://www.thestar.com/printarticle/' + artid
 
+ 

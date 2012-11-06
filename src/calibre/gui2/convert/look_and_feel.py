@@ -32,6 +32,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         Widget.__init__(self, parent,
                 ['change_justification', 'extra_css', 'base_font_size',
                     'font_size_mapping', 'line_height', 'minimum_line_height',
+                    'embed_font_family', 'subset_embedded_fonts',
                     'smarten_punctuation', 'unsmarten_punctuation',
                     'disable_font_rescaling', 'insert_blank_line',
                     'remove_paragraph_spacing',

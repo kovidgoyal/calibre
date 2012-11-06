@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 59)
+numeric_version = (0, 9, 5)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -28,13 +28,15 @@ isosx     = 'darwin' in _plat
 isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
 isfreebsd = 'freebsd' in _plat
 isnetbsd = 'netbsd' in _plat
-isbsd = isfreebsd or isnetbsd
+isdragonflybsd = 'dragonfly' in _plat
+isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
+isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
 
 try:
     preferred_encoding = locale.getpreferredencoding()
@@ -56,7 +58,7 @@ else:
             # On linux, unicode arguments to os file functions are coerced to an ascii
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
             # just plain dumb. So issue a warning.
-            print ('WARNING: You do not have the LANG environment variable set. '
+            print ('WARNING: You do not have the LANG environment variable set correctly. '
                     'This will cause problems with non-ascii filenames. '
                     'Set it to something like en_US.UTF-8.\n')
     except:
@@ -82,17 +84,21 @@ class Plugins(collections.Mapping):
                 'magick',
                 'podofo',
                 'cPalmdoc',
-                'fontconfig',
                 'progress_indicator',
                 'chmlib',
                 'chm_extra',
                 'icu',
                 'speedup',
+                'freetype',
+                'woff',
             ]
         if iswindows:
-            plugins.append('winutil')
+            plugins.extend(['winutil', 'wpd', 'winfonts'])
         if isosx:
             plugins.append('usbobserver')
+        if islinux or isosx:
+            plugins.append('libusb')
+            plugins.append('libmtp')
         self.plugins = frozenset(plugins)
 
     def load_plugin(self, name):
@@ -173,6 +179,11 @@ def get_version():
         v += '*'
     return v
 
+def get_portable_base():
+    'Return path to the directory that contains calibre-portable.exe or None'
+    if isportable:
+        return os.path.dirname(os.path.dirname(os.environ['CALIBRE_PORTABLE_BUILD']))
+
 def get_unicode_windows_env_var(name):
     import ctypes
     name = unicode(name)
@@ -212,4 +223,14 @@ def get_windows_temp_path():
     ctypes.windll.kernel32.GetTempPathW(n, buf)
     ans = buf.value
     return ans if ans else None
+
+def get_windows_user_locale_name():
+    import ctypes
+    k32 = ctypes.windll.kernel32
+    n = 200
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    n = k32.GetUserDefaultLocaleName(buf, n)
+    if n == 0:
+        return None
+    return u'_'.join(buf.value.split(u'-')[:2])
 

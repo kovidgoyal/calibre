@@ -26,6 +26,7 @@ msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
 msprefs.defaults['swap_author_names'] = False
 msprefs.defaults['fewer_tags'] = True
+msprefs.defaults['find_first_edition_date'] = False
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
@@ -442,6 +443,12 @@ class Source(Plugin):
         from a known scheme given identifiers.
         '''
         return None
+
+    def get_book_url_name(self, idtype, idval, url):
+        '''
+        Return a human readable name from the return value of get_book_url().
+        '''
+        return self.name
 
     def get_cached_cover_url(self, identifiers):
         '''

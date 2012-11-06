@@ -54,6 +54,16 @@ def guess_all_extensions(*args, **kwargs):
         _init_mimetypes()
     return mimetypes.guess_all_extensions(*args, **kwargs)
 
+
+def guess_extension(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    ext = mimetypes.guess_extension(*args, **kwargs)
+    if not ext and args and args[0] == 'application/x-palmreader':
+        ext = '.pdb'
+    return ext
+
 def get_types_map():
     import mimetypes
     if not _mt_inited:
@@ -201,7 +211,8 @@ def prints(*args, **kwargs):
         try:
             file.write(arg)
         except:
-            file.write(repr(arg))
+            import repr as reprlib
+            file.write(reprlib.repr(arg))
         if i != len(args)-1:
             file.write(bytes(sep))
     file.write(bytes(end))
@@ -318,6 +329,7 @@ def get_parsed_proxy(typ='http', debug=True):
                     ans['port'] = int(ans['port'])
             except:
                 if debug:
+                    import traceback
                     traceback.print_exc()
             else:
                 if debug:
@@ -431,23 +443,6 @@ class CurrentDir(object):
         except:
             # The previous CWD no longer exists
             pass
-
-
-class StreamReadWrapper(object):
-    '''
-    Used primarily with pyPdf to ensure the stream is properly closed.
-    '''
-
-    def __init__(self, stream):
-        for x in ('read', 'seek', 'tell'):
-            setattr(self, x, getattr(stream, x))
-
-    def __exit__(self, *args):
-        for x in ('read', 'seek', 'tell'):
-            setattr(self, x, None)
-
-    def __enter__(self):
-        return self
 
 
 def detect_ncpus():
@@ -663,7 +658,7 @@ def get_download_filename(url, cookie_file=None):
 
     return filename
 
-def human_readable(size):
+def human_readable(size, sep=' '):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"
     for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
@@ -675,7 +670,7 @@ def human_readable(size):
         size = size[:size.find(".")+2]
     if size.endswith('.0'):
         size = size[:-2]
-    return size + " " + suffix
+    return size + sep + suffix
 
 def remove_bracketed_text(src,
         brackets={u'(':u')', u'[':u']', u'{':u'}'}):
@@ -694,20 +689,6 @@ def remove_bracketed_text(src,
         elif sum(counts.itervalues()) < 1:
             buf.append(char)
     return u''.join(buf)
-
-if isosx:
-    import glob, shutil
-    fdir = os.path.expanduser('~/.fonts')
-    try:
-        if not os.path.exists(fdir):
-            os.makedirs(fdir)
-        if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
-            base = P('fonts/liberation/*.ttf')
-            for f in glob.glob(base):
-                shutil.copy2(f, fdir)
-    except:
-        import traceback
-        traceback.print_exc()
 
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython

@@ -152,7 +152,7 @@ class Translations(POT): # {{{
                     subprocess.check_call(['msgfmt', '-o', dest, iso639])
             elif locale not in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc',
                     'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku',
-                    'fr_CA'):
+                    'fr_CA', 'him', 'jv', 'ka', 'fur', 'ber'):
                 self.warn('No ISO 639 translations for locale:', locale)
 
         self.write_stats()

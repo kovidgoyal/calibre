@@ -31,7 +31,7 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'epub', 'fb2', 'djv', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
                    'xps', 'oxps', 'azw4', 'book', 'zbf', 'pobi', 'docx', 'md',
-                   'textile', 'markdown', 'ibook', 'iba', 'azw3']
+                   'textile', 'markdown', 'ibook', 'iba', 'azw3', 'ps']
 
 class HTMLRenderer(object):
 
@@ -163,7 +163,7 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
 
 def check_ebook_format(stream, current_guess):
     ans = current_guess
-    if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1'):
+    if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1', 'azw3'):
         stream.seek(0)
         if stream.read(3) == 'TPZ':
             ans = 'tpz'
@@ -173,23 +173,46 @@ def check_ebook_format(stream, current_guess):
 def normalize(x):
     if isinstance(x, unicode):
         import unicodedata
-        x = unicodedata.normalize('NFKC', x)
+        x = unicodedata.normalize('NFC', x)
     return x
 
 def calibre_cover(title, author_string, series_string=None,
         output_format='jpg', title_size=46, author_size=36, logo_path=None):
+    from calibre.utils.config_base import tweaks
     title = normalize(title)
     author_string = normalize(author_string)
     series_string = normalize(series_string)
     from calibre.utils.magick.draw import create_cover_page, TextLine
-    lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
+    text = title + author_string + (series_string or u'')
+    font_path = tweaks['generate_cover_title_font']
+    if font_path is None:
+        font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+
+    from calibre.utils.fonts.utils import get_font_for_text
+    font = open(font_path, 'rb').read()
+    c = get_font_for_text(text, font)
+    cleanup = False
+    if c is not None and c != font:
+        from calibre.ptempfile import PersistentTemporaryFile
+        pt = PersistentTemporaryFile('.ttf')
+        pt.write(c)
+        pt.close()
+        font_path = pt.name
+        cleanup = True
+
+    lines = [TextLine(title, title_size, font_path=font_path),
+            TextLine(author_string, author_size, font_path=font_path)]
     if series_string:
-        lines.append(TextLine(series_string, author_size))
+        lines.append(TextLine(series_string, author_size, font_path=font_path))
     if logo_path is None:
         logo_path = I('library.png')
-    return create_cover_page(lines, logo_path, output_format='jpg',
+    try:
+        return create_cover_page(lines, logo_path, output_format='jpg',
             texture_opacity=0.3, texture_data=I('cover_texture.png',
                 data=True))
+    finally:
+        if cleanup:
+            os.remove(font_path)
 
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
 
@@ -231,7 +254,6 @@ def unit_convert(value, base, font, dpi):
 
 def generate_masthead(title, output_path=None, width=600, height=60):
     from calibre.ebooks.conversion.config import load_defaults
-    from calibre.utils.fonts import fontconfig
     from calibre.utils.config import tweaks
     fp = tweaks['generate_cover_title_font']
     if not fp:
@@ -241,11 +263,10 @@ def generate_masthead(title, output_path=None, width=600, height=60):
     masthead_font_family = recs.get('masthead_font', 'Default')
 
     if masthead_font_family != 'Default':
-        masthead_font = fontconfig.files_for_family(masthead_font_family)
-        # Assume 'normal' always in dict, else use default
-        # {'normal': (path_to_font, friendly name)}
-        if 'normal' in masthead_font:
-            font_path = masthead_font['normal'][0]
+        from calibre.utils.fonts.scanner import font_scanner
+        faces = font_scanner.fonts_for_family(masthead_font_family)
+        if faces:
+            font_path = faces[0]['path']
 
     if not font_path or not os.access(font_path, os.R_OK):
         font_path = default_font

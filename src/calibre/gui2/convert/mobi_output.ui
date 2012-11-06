@@ -7,87 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>588</width>
-    <height>342</height>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Kindle options</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Personal Doc tag:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="opt_personal_doc"/>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_share_not_sync">
-        <property name="text">
-         <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_mobi_toc_at_start">
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="opt_no_inline_toc">
      <property name="text">
-      <string>Put generated Table of Contents at &amp;start of book instead of end</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_mobi_ignore_margins">
-     <property name="text">
-      <string>Ignore &amp;margins</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_prefer_author_sort">
-     <property name="text">
-      <string>Use author &amp;sort for author</string>
+      <string>Do not add Table of Contents to book</string>
      </property>
     </widget>
    </item>
@@ -104,17 +34,24 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="opt_toc_title"/>
    </item>
-   <item row="6" column="0">
-    <widget class="QCheckBox" name="opt_dont_compress">
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_mobi_toc_at_start">
      <property name="text">
-      <string>Disable compression of the file contents</string>
+      <string>Put generated Table of Contents at &amp;start of book instead of end</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_no_inline_toc">
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="opt_mobi_ignore_margins">
      <property name="text">
-      <string>Do not add Table of Contents to book</string>
+      <string>Ignore &amp;margins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_prefer_author_sort">
+     <property name="text">
+      <string>Use author &amp;sort for author</string>
      </property>
     </widget>
    </item>
@@ -123,6 +60,65 @@
      <property name="text">
       <string>Do not convert all images to &amp;JPEG (may result in images not working in older viewers)</string>
      </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="opt_dont_compress">
+     <property name="text">
+      <string>Disable compression of the file contents</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Kindle options</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>MOBI file &amp;type:</string>
+        </property>
+        <property name="buddy">
+         <cstring>opt_mobi_file_type</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="opt_mobi_file_type"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Personal Doc tag:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="opt_personal_doc"/>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="opt_share_not_sync">
+        <property name="text">
+         <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>&lt;b&gt;WARNING:&lt;/b&gt; Various Kindle devices have trouble displaying the new or both MOBI filetypes. If you wish to use the new format on your device, convert to AZW3 instead of MOBI.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

@@ -21,7 +21,7 @@ from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
     info_dialog, error_dialog, open_url, available_height)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isbsd, isosx, filesystem_encoding
+from calibre.constants import islinux, isbsd, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
@@ -112,6 +112,8 @@ class Metadata(QLabel):
 
 class DoubleSpinBox(QDoubleSpinBox):
 
+    value_changed = pyqtSignal(object, object)
+
     def __init__(self, *args, **kwargs):
         QDoubleSpinBox.__init__(self, *args, **kwargs)
         self.tt = _('Position in book')
@@ -123,6 +125,7 @@ class DoubleSpinBox(QDoubleSpinBox):
         self.setToolTip(self.tt +
                 ' [{0:.0%}]'.format(float(val)/self.maximum()))
         self.blockSignals(False)
+        self.value_changed.emit(self.value(), self.maximum())
 
 class Reference(QLineEdit):
 
@@ -152,6 +155,10 @@ class RecentAction(QAction):
 class EbookViewer(MainWindow, Ui_EbookViewer):
 
     STATE_VERSION = 1
+    FLOW_MODE_TT = _('Switch to paged mode - where the text is broken up '
+            'into pages like a paper book')
+    PAGED_MODE_TT = _('Switch to flow mode - where the text is not broken up '
+            'into pages')
 
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
         MainWindow.__init__(self, None)
@@ -168,6 +175,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_anchor    = None
         self.pending_reference = None
         self.pending_bookmark  = None
+        self.pending_restore   = False
         self.existing_bookmarks= []
         self.selected_text     = None
         self.read_settings()
@@ -180,6 +188,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos.setDecimals(1)
         self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
+        self.pos.value_changed.connect(self.update_pos_label)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
         self.pos.setMinimumWidth(150)
         self.tool_bar2.insertWidget(self.action_find_next, self.pos)
         self.reference = Reference()
@@ -202,9 +213,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
         self.view_resized_timer.setSingleShot(True)
         self.resize_in_progress = False
-        qs = [Qt.CTRL+Qt.Key_Q]
-        if isosx:
-            qs += [Qt.CTRL+Qt.Key_W]
+        qs = [Qt.CTRL+Qt.Key_Q,Qt.CTRL+Qt.Key_W]
         self.action_quit.setShortcuts(qs)
         self.action_quit.triggered.connect(self.quit)
         self.action_focus_search = QAction(self)
@@ -238,8 +247,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_back.triggered[bool].connect(self.back)
         self.action_forward.triggered[bool].connect(self.forward)
         self.action_bookmark.triggered[bool].connect(self.bookmark)
-        self.action_preferences.triggered.connect(lambda :
-                self.view.config(self))
+        self.action_preferences.triggered.connect(self.do_config)
         self.pos.editingFinished.connect(self.goto_page_num)
         self.vertical_scrollbar.valueChanged[int].connect(lambda
                 x:self.goto_page(x/100.))
@@ -252,6 +260,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_bookmark.setMenu(self.bookmarks_menu)
         self.set_bookmarks([])
 
+        self.themes_menu = QMenu()
+        self.action_load_theme.setMenu(self.themes_menu)
+        self.tool_bar.widgetForAction(self.action_load_theme).setPopupMode(QToolButton.InstantPopup)
+        self.load_theme_menu()
 
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
@@ -267,9 +279,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 <h1>%s</h1>
                 <h3>%s</h3>
                 <h3>%s</h3>
+                <h3>%s</h3>
                 </center>
                 '''%(_('Full screen mode'),
                     _('Right click to show controls'),
+                    _('Tap in the left or right page margin to turn pages'),
                     _('Press Esc to quit')),
                     self)
         self.full_screen_label.setVisible(False)
@@ -292,9 +306,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.clock_label = QLabel('99:99', self)
         self.clock_label.setVisible(False)
         self.clock_label.setFocusPolicy(Qt.NoFocus)
-        self.clock_label_style = '''
+        self.info_label_style = '''
             QLabel {
-                text-align: right;
+                text-align: center;
                 border-width: 1px;
                 border-style: solid;
                 border-radius: 8px;
@@ -304,6 +318,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 font-size: larger;
                 padding: 5px;
         }'''
+        self.original_frame_style = self.frame.frameStyle()
+        self.pos_label = QLabel('2000/4000', self)
+        self.pos_label.setVisible(False)
+        self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
         self.esc_full_screen_action = a = QAction(self)
@@ -339,6 +357,22 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.addAction(action)
 
         self.restore_state()
+        self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
+
+    def toggle_paged_mode(self, checked, at_start=False):
+        in_paged_mode = not self.action_toggle_paged_mode.isChecked()
+        self.view.document.in_paged_mode = in_paged_mode
+        self.action_toggle_paged_mode.setToolTip(self.FLOW_MODE_TT if
+                self.action_toggle_paged_mode.isChecked() else
+                self.PAGED_MODE_TT)
+        if at_start: return
+        self.reload()
+
+    def reload(self):
+        if hasattr(self, 'current_index') and self.current_index > -1:
+            self.view.document.page_position.save(overwrite=False)
+            self.pending_restore = True
+            self.load_path(self.view.last_loaded_path)
 
     def set_toc_visible(self, yes):
         self.toc.setVisible(yes)
@@ -394,6 +428,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             vprefs.set('viewer_splitter_state',
                 bytearray(self.splitter.saveState()))
         vprefs['multiplier'] = self.view.multiplier
+        vprefs['in_paged_mode'] = not self.action_toggle_paged_mode.isChecked()
 
     def restore_state(self):
         state = vprefs.get('viewer_toolbar_state', None)
@@ -410,6 +445,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         # specific location, ensure they are visible.
         self.tool_bar.setVisible(True)
         self.tool_bar2.setVisible(True)
+        self.action_toggle_paged_mode.setChecked(not vprefs.get('in_paged_mode',
+            True))
+        self.toggle_paged_mode(self.action_toggle_paged_mode.isChecked(),
+                at_start=True)
 
     def lookup(self, word):
         self.dictionary_view.setHtml('<html><body><p>'+ \
@@ -449,11 +488,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.window_mode_changed = 'fullscreen'
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
+        if not self.view.document.fullscreen_scrollbar:
+            self.vertical_scrollbar.setVisible(False)
+            self.frame.layout().setSpacing(0)
         self._original_frame_margins = (
             self.centralwidget.layout().contentsMargins(),
             self.frame.layout().contentsMargins())
         self.frame.layout().setContentsMargins(0, 0, 0, 0)
         self.centralwidget.layout().setContentsMargins(0, 0, 0, 0)
+        self.frame.setFrameStyle(self.frame.NoFrame|self.frame.Plain)
 
         super(EbookViewer, self).showFullScreen()
 
@@ -470,31 +513,58 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         a.setStartValue(QSize(width, 0))
         a.setEndValue(QSize(width, height))
         a.start()
-        QTimer.singleShot(2750, self.full_screen_label.hide)
+        QTimer.singleShot(3500, self.full_screen_label.hide)
         self.view.document.switch_to_fullscreen_mode()
         if self.view.document.fullscreen_clock:
             self.show_clock()
+        if self.view.document.fullscreen_pos:
+            self.show_pos_label()
 
     def show_clock(self):
         self.clock_label.setVisible(True)
-        self.clock_label.setText('99:99 AA')
+        self.clock_label.setText(QTime(22, 33,
+            33).toString(Qt.SystemLocaleShortDate))
         self.clock_timer.start(1000)
-        self.clock_label.setStyleSheet(self.clock_label_style%
-                tuple(self.view.document.colors()))
+        self.clock_label.setStyleSheet(self.info_label_style%(
+                'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
         self.clock_label.resize(self.clock_label.sizeHint())
         sw = QApplication.desktop().screenGeometry(self.view)
-        self.clock_label.move(sw.width() - self.vertical_scrollbar.width() - 15
+        vswidth = (self.vertical_scrollbar.width() if
+                self.vertical_scrollbar.isVisible() else 0)
+        self.clock_label.move(sw.width() - vswidth - 15
                 - self.clock_label.width(), sw.height() -
                 self.clock_label.height()-10)
         self.update_clock()
 
+    def show_pos_label(self):
+        self.pos_label.setVisible(True)
+        self.pos_label.setStyleSheet(self.info_label_style%(
+                'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
+        sw = QApplication.desktop().screenGeometry(self.view)
+        self.pos_label.move(15, sw.height() - self.pos_label.height()-10)
+        self.update_pos_label()
+
     def update_clock(self):
-        self.clock_label.setText(QTime.currentTime().toString('h:mm a'))
+        self.clock_label.setText(QTime.currentTime().toString(Qt.SystemLocaleShortDate))
+
+    def update_pos_label(self, *args):
+        if self.pos_label.isVisible():
+            try:
+                value, maximum = args
+            except:
+                value, maximum = self.pos.value(), self.pos.maximum()
+            text = '%g/%g'%(value, maximum)
+            self.pos_label.setText(text)
+            self.pos_label.resize(self.pos_label.sizeHint())
 
     def showNormal(self):
         self.view.document.page_position.save()
         self.clock_label.setVisible(False)
+        self.pos_label.setVisible(False)
+        self.frame.setFrameStyle(self.original_frame_style)
+        self.frame.layout().setSpacing(-1)
         self.clock_timer.stop()
+        self.vertical_scrollbar.setVisible(True)
         self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
         self.tool_bar.setVisible(True)
@@ -549,7 +619,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 if not os.path.exists(item.abspath):
                     return error_dialog(self, _('No such location'),
                             _('The location pointed to by this item'
-                                ' does not exist.'), show=True)
+                                ' does not exist.'), det_msg=item.abspath, show=True)
                 url = QUrl.fromLocalFile(item.abspath)
                 if item.fragment:
                     url.setFragment(item.fragment)
@@ -716,6 +786,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.pending_bookmark is not None:
             self.goto_bookmark(self.pending_bookmark)
             self.pending_bookmark = None
+        if self.pending_restore:
+            self.view.document.page_position.restore()
         return self.current_index
 
     def goto_next_section(self):
@@ -813,6 +885,21 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             getattr(self, o).setEnabled(False)
         self.setCursor(Qt.BusyCursor)
 
+    def load_theme_menu(self):
+        from calibre.gui2.viewer.config import load_themes
+        self.themes_menu.clear()
+        for key in load_themes():
+            title = key[len('theme_'):]
+            self.themes_menu.addAction(title, partial(self.load_theme,
+                key))
+
+    def load_theme(self, theme_id):
+        self.view.load_theme(theme_id)
+
+    def do_config(self):
+        self.view.config(self)
+        self.load_theme_menu()
+
     def bookmark(self, *args):
         num = 1
         bm = None
@@ -876,7 +963,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.iterator.__exit__()
         self.iterator = EbookIterator(pathtoebook)
         self.open_progress_indicator(_('Loading ebook...'))
-        worker = Worker(target=self.iterator.__enter__)
+        worker = Worker(target=partial(self.iterator.__enter__,
+            extract_embedded_fonts_for_qt=True))
         worker.start()
         while worker.isAlive():
             worker.join(0.1)
@@ -888,7 +976,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
-                        as_unicode(r), det_msg=worker.traceback, show=True)
+                        as_unicode(r) or _('Unknown error'),
+                        det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf,
@@ -998,6 +1087,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         av = available_height() - 30
         if self.height() > av:
             self.resize(self.width(), av)
+        self.splitter.setCollapsible(0, False)
+        self.splitter.setCollapsible(1, False)
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')
@@ -1046,6 +1137,7 @@ def main(args=sys.argv):
     if pid <= 0:
         override = 'calibre-ebook-viewer' if islinux else None
         app = Application(args, override_program_name=override)
+        app.load_builtin_fonts()
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)

@@ -71,9 +71,27 @@ def icu_sort_key(collator, obj):
     if not obj:
         return _none2
     try:
+        try:
+            return _secondary_collator.sort_key(obj)
+        except AttributeError:
+            return secondary_collator().sort_key(obj)
+    except TypeError:
+        if isinstance(obj, unicode):
+            obj = obj.replace(u'\0', u'')
+        else:
+            obj = obj.replace(b'\0', b'')
         return _secondary_collator.sort_key(obj)
-    except AttributeError:
-        return secondary_collator().sort_key(obj)
+
+def icu_change_case(upper, locale, obj):
+    func = _icu.upper if upper else _icu.lower
+    try:
+        return func(locale, obj)
+    except TypeError:
+        if isinstance(obj, unicode):
+            obj = obj.replace(u'\0', u'')
+        else:
+            obj = obj.replace(b'\0', b'')
+        return func(locale, obj)
 
 def py_find(pattern, source):
     pos = source.find(pattern)
@@ -126,6 +144,12 @@ def icu_contractions(collator):
         _cmap[collator] = ans
     return ans
 
+def icu_collation_order(collator, a):
+    try:
+        return collator.collation_order(a)
+    except TypeError:
+        return collator.collation_order(unicode(a))
+
 load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
@@ -150,10 +174,10 @@ case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
 case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
 
 upper = (lambda s: s.upper()) if _icu_not_ok else \
-    partial(_icu.upper, get_locale())
+    partial(icu_change_case, True, get_locale())
 
 lower = (lambda s: s.lower()) if _icu_not_ok else \
-    partial(_icu.lower, get_locale())
+    partial(icu_change_case, False, get_locale())
 
 title_case = (lambda s: s.title()) if _icu_not_ok else \
     partial(_icu.title, get_locale())
@@ -204,6 +228,14 @@ def primary_startswith(a, b):
         return icu_startswith(_primary_collator, a, b)
     except AttributeError:
         return icu_startswith(primary_collator(), a, b)
+
+def collation_order(a):
+    if _icu_not_ok:
+        return (ord(a[0]), 1) if a else (0, 0)
+    try:
+        return icu_collation_order(_secondary_collator, a)
+    except AttributeError:
+        return icu_collation_order(secondary_collator(), a)
 
 ################################################################################
 

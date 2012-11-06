@@ -678,11 +678,12 @@ class CoversModel(QAbstractListModel): # {{{
         good = []
         pmap = {}
         dcovers = sorted(self.covers[1:], key=self.cover_keygen, reverse=True)
+        cmap = {x:self.covers.index(x) for x in self.covers}
         for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
                 if i > 0:
-                    plugin = self.plugin_for_index(i)
+                    plugin = self.plugin_for_index(cmap[x])
                     pmap[plugin] = len(good) - 1
         self.covers = good
         self.plugin_map = pmap
@@ -931,6 +932,7 @@ class FullFetch(QDialog): # {{{
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         l.addWidget(self.bb)
         self.bb.rejected.connect(self.reject)
+        self.bb.accepted.connect(self.accept)
         self.next_button = self.bb.addButton(_('Next'), self.bb.AcceptRole)
         self.next_button.setDefault(True)
         self.next_button.setEnabled(False)
@@ -978,6 +980,7 @@ class FullFetch(QDialog): # {{{
         self.log('\n\n')
         self.covers_widget.start(book, self.current_cover,
                 self.title, self.authors, caches)
+        self.ok_button.setFocus()
 
     def back_clicked(self):
         self.next_button.setVisible(True)
@@ -988,6 +991,8 @@ class FullFetch(QDialog): # {{{
         self.covers_widget.reset_covers()
 
     def accept(self):
+        if self.stack.currentIndex() == 1:
+            return QDialog.accept(self)
         # Prevent the usual dialog accept mechanisms from working
         pass
 

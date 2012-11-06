@@ -27,6 +27,10 @@ def get_newest_version():
             'win' if iswindows else 'osx' if isosx else 'oth')
     req.add_header('CALIBRE_INSTALL_UUID', prefs['installation_uuid'])
     version = br.open(req).read().strip()
+    try:
+        version = version.decode('utf-8')
+    except UnicodeDecodeError:
+        version = u''
     return version
 
 class CheckForUpdates(QThread):
@@ -71,7 +75,7 @@ class UpdateNotification(QDialog):
         self.logo.setPixmap(QPixmap(I('lt.png')).scaled(100, 100,
             Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
         self.label = QLabel(('<p>'+
-            _('%(app)s has been updated to version <b>%(ver)s</b>. '
+            _('New version <b>%(ver)s</b> of %(app)s is available for download. '
             'See the <a href="http://calibre-ebook.com/whats-new'
             '">new features</a>.'))%dict(
                 app=__appname__, ver=calibre_version))
@@ -175,6 +179,8 @@ class UpdateMixin(object):
                 d = PluginUpdaterDialog(self,
                         initial_filter=FILTER_UPDATE_AVAILABLE)
                 d.exec_()
+                if d.do_restart:
+                    self.quit(restart=True)
 
     def plugin_update_found(self, number_of_updates):
         # Change the plugin icon to indicate there are updates available

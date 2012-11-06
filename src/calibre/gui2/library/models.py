@@ -16,7 +16,7 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, prefs
+from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -871,12 +871,18 @@ class BooksModel(QAbstractTableModel): # {{{
             try:
                 return self._set_data(index, value)
             except (IOError, OSError) as err:
+                import traceback
                 if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
-                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
                     error_dialog(get_gui(), _('Permission denied'),
                             _('Could not change the on disk location of this'
                                 ' book. Is it open in another program?'),
-                            det_msg=traceback.format_exc(), show=True)
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                error_dialog(get_gui(), _('Failed to set data'),
+                        _('Could not set data, click Show Details to see why.'),
+                        det_msg=traceback.format_exc(), show=True)
             except:
                 import traceback
                 traceback.print_exc()
@@ -1152,7 +1158,7 @@ class DeviceBooksModel(BooksModel): # {{{
                      (cname != 'collections' or \
                      (callable(getattr(self.db, 'supports_collections', None)) and \
                       self.db.supports_collections() and \
-                      prefs['manage_device_metadata']=='manual')):
+                      device_prefs['manage_device_metadata']=='manual')):
                 flags |= Qt.ItemIsEditable
         return flags
 
@@ -1193,7 +1199,10 @@ class DeviceBooksModel(BooksModel): # {{{
                     ax = authors_to_string(self.db[x].authors)
                 except:
                     ax = ''
-            return ax
+            try:
+                return sort_key(ax)
+            except:
+                return ax
 
         keygen = {
                 'title': ('title_sorter', lambda x: sort_key(x) if x else ''),
@@ -1365,6 +1374,8 @@ class DeviceBooksModel(BooksModel): # {{{
                 return QVariant(authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size
+                if not isinstance(size, (float, int)):
+                    size = 0
                 return QVariant(human_readable(size))
             elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime
@@ -1444,7 +1455,7 @@ class DeviceBooksModel(BooksModel): # {{{
             self.editable = ['title', 'authors', 'collections']
         else:
             self.editable = []
-        if prefs['manage_device_metadata']=='on_connect':
+        if device_prefs['manage_device_metadata']=='on_connect':
             self.editable = []
 
 # }}}

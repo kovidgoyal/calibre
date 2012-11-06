@@ -73,8 +73,10 @@ class SaveToDiskAction(InterfaceAction):
         self.save_to_disk(False, single_dir=True,
                 single_format=prefs['output_format'])
 
-    def save_to_disk(self, checked, single_dir=False, single_format=None):
-        rows = self.gui.current_view().selectionModel().selectedRows()
+    def save_to_disk(self, checked, single_dir=False, single_format=None,
+            rows=None, write_opf=None, save_cover=None):
+        if rows is None:
+            rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot save to disk'),
                     _('No books selected'), show=True)
@@ -105,6 +107,10 @@ class SaveToDiskAction(InterfaceAction):
                     opts.write_opf = False
                     opts.template = opts.send_template
             opts.single_dir = single_dir
+            if write_opf is not None:
+                opts.write_opf = write_opf
+            if save_cover is not None:
+                opts.save_cover = save_cover
             self._saver = Saver(self.gui, self.gui.library_view.model().db,
                     Dispatcher(self._books_saved), rows, path, opts,
                     spare_server=self.gui.spare_server)
@@ -114,6 +120,13 @@ class SaveToDiskAction(InterfaceAction):
             self.gui.device_manager.save_books(
                     Dispatcher(self.books_saved), paths, path)
 
+    def save_library_format_by_ids(self, book_ids, fmt, single_dir=True):
+        if isinstance(book_ids, int):
+            book_ids = [book_ids]
+        rows = list(self.gui.library_view.ids_to_rows(book_ids).itervalues())
+        rows = [self.gui.library_view.model().index(r, 0) for r in rows]
+        self.save_to_disk(True, single_dir=single_dir, single_format=fmt,
+                rows=rows, write_opf=False, save_cover=False)
 
     def _books_saved(self, path, failures, error):
         self._saver = None

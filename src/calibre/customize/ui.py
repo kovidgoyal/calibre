@@ -8,7 +8,7 @@ from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store)
+                              StoreBase as Store, ViewerPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -447,7 +447,8 @@ def plugin_for_catalog_format(fmt):
 
 # }}}
 
-def device_plugins(include_disabled=False): # {{{
+# Device plugins {{{
+def device_plugins(include_disabled=False):
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
             if include_disabled or not is_disabled(plugin):
@@ -455,6 +456,13 @@ def device_plugins(include_disabled=False): # {{{
                     if getattr(plugin, 'plugin_needs_delayed_initialization',
                             False):
                         plugin.do_delayed_plugin_initialization()
+                    yield plugin
+
+def disabled_device_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, DevicePlugin):
+            if is_disabled(plugin):
+                if platform in plugin.supported_platforms:
                     yield plugin
 # }}}
 
@@ -478,6 +486,13 @@ def metadata_plugins(capabilities):
 def all_metadata_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, Source):
+            yield plugin
+# }}}
+
+# Viewer plugins {{{
+def all_viewer_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, ViewerPlugin):
             yield plugin
 # }}}
 

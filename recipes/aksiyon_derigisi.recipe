@@ -17,18 +17,13 @@ class Aksiyon (BasicNewsRecipe):
     category               = 'news, haberler,TR,gazete'
     language               = 'tr'
     publication_type = 'magazine'
-    #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
-   #keep_only_tags    = [dict(name='font', attrs={'class':['newsDetail','agenda2NewsSpot']}),dict(name='span', attrs={'class':['agenda2Title']}),dict(name='div', attrs={'id':['gallery']})]
-    remove_tags  = [dict(name='img', attrs={'src':[ 'http://medya.aksiyon.com.tr/aksiyon/images/logo/logo.bmp','/aksiyon/images/template/green/baslik0.gif','mobile/home.jpg']}) ]
-
+    auto_cleanup = True
     cover_img_url = 'http://www.aksiyon.com.tr/aksiyon/images/aksiyon/top-page/aksiyon_top_r2_c1.jpg'
     masthead_url = 'http://aksiyon.com.tr/aksiyon/images/aksiyon/top-page/aksiyon_top_r2_c1.jpg'
     remove_empty_feeds= True
-    remove_attributes = ['width','height']
-
     feeds          = [
+                      ( u'KAPAK', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=26'),
                       ( u'ANASAYFA', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=0'),
-                      ( u'KARAKUTU', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=11'),
                       ( u'EKONOMİ', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=35'),
                       ( u'EKOANALİZ', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=284'),
                       ( u'YAZARLAR', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=17'),
@@ -37,17 +32,15 @@ class Aksiyon (BasicNewsRecipe):
                       ( u'ARKA PENCERE', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=27'),
                       ( u'DÜNYA', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=32'),
                       ( u'DOSYALAR', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=34'),
+                      ( u'KARAKUTU', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=11'),
                       ( u'KÜLTÜR & SANAT', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=12'),
-                      ( u'KAPAK', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=26'),
                       ( u'SPOR', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=38'),
                       ( u'BİLİŞİM - TEKNOLOJİ', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=39'),
                       ( u'3. BOYUT', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=172'),
                       ( u'HAYAT BİLGİSİ', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=283'),
                       ( u'İŞ DÜNYASI', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=283'),
-
-
                         ]
 
-    def print_version(self, url):
-     return url.replace('http://www.aksiyon.com.tr/aksiyon/newsDetail_getNewsById.action?load=detay&', 'http://www.aksiyon.com.tr/aksiyon/mobile_detailn.action?')
+    #def print_version(self, url):
+     #return url.replace('http://www.aksiyon.com.tr/aksiyon/newsDetail_getNewsById.action?load=detay&', 'http://www.aksiyon.com.tr/aksiyon/mobile_detailn.action?')
 

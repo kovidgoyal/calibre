@@ -3,18 +3,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, traceback, os
+import re, os
 
 from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
-        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, QRegExp, QSize,
-        QSplitter, QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu,
-        QStringListModel, QCompleter, QStringList, QTimer, QRect,
-        QFontDatabase, QGraphicsView, QByteArray)
+        QVariant, Qt, SIGNAL, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
+        QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
+        QCompleter, QStringList, QTimer, QRect, QGraphicsView, QByteArray)
 
-from calibre.constants import iswindows
-from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
+from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
@@ -346,46 +344,6 @@ class CoverView(QGraphicsView, ImageDropMixin): # {{{
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
 
-# }}}
-
-class FontFamilyModel(QAbstractListModel): # {{{
-
-    def __init__(self, *args):
-        QAbstractListModel.__init__(self, *args)
-        from calibre.utils.fonts import fontconfig
-        try:
-            self.families = fontconfig.find_font_families()
-        except:
-            self.families = []
-            print 'WARNING: Could not load fonts'
-            traceback.print_exc()
-        # Restrict to Qt families as Qt tends to crash
-        qt_families = set([unicode(x) for x in QFontDatabase().families()])
-        self.families = list(qt_families.intersection(set(self.families)))
-        self.families.sort()
-        self.families[:0] = [_('None')]
-        self.font = QFont('Verdana' if iswindows else 'sansserif')
-
-    def rowCount(self, *args):
-        return len(self.families)
-
-    def data(self, index, role):
-        try:
-            family = self.families[index.row()]
-        except:
-            traceback.print_exc()
-            return NONE
-        if role == Qt.DisplayRole:
-            return QVariant(family)
-        if role == Qt.FontRole:
-            # If a user chooses some non standard font as the interface font,
-            # rendering some font names causes Qt to crash, so return what is
-            # hopefully a "safe" font
-            return QVariant(self.font)
-        return NONE
-
-    def index_of(self, family):
-        return self.families.index(family.strip())
 # }}}
 
 # BasicList {{{

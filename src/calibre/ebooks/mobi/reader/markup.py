@@ -42,8 +42,8 @@ def update_internal_links(mobi8_reader):
                             mr.header.codec) + suffix
                     tag = posfid_index_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
-        part = ''.join([x.decode(mr.header.codec) for x in srcpieces])
-        parts.append(part)
+        raw = b''.join(srcpieces)
+        parts.append(raw.decode(mr.header.codec))
 
     # All parts are now unicode and have no internal links
     return parts

@@ -184,7 +184,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_grouped_search_make_user_categories.update_items_cache(terms)
         self.gst_names.blockSignals(True)
         self.gst_names.clear()
-        print (1111, self.gst_names)
         self.gst_names.addItem('', '')
         for t in terms:
             self.gst_names.addItem(t, t)

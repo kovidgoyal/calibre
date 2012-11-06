@@ -16,6 +16,7 @@ from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
 from calibre.utils.icu import sort_key, primary_startswith
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
+from calibre.utils.config import tweaks
 
 class CompleteModel(QAbstractListModel): # {{{
 
@@ -29,6 +30,7 @@ class CompleteModel(QAbstractListModel): # {{{
         items = [x for x in items if x]
         items = tuple(sorted(items, key=sort_key))
         self.all_items = self.current_items = items
+        self.current_prefix = ''
         self.reset()
 
     def set_completion_prefix(self, prefix):
@@ -157,8 +159,8 @@ class Completer(QListView): # {{{
 
         p.setGeometry(pos.x(), pos.y(), w, h)
 
-        if (select_first and not self.currentIndex().isValid() and
-                self.model().rowCount() > 0):
+        if (tweaks['preselect_first_completion'] and select_first and not
+                self.currentIndex().isValid() and self.model().rowCount() > 0):
             self.setCurrentIndex(self.model().index(0))
 
         if not p.isVisible():
@@ -184,17 +186,19 @@ class Completer(QListView): # {{{
                 e.accept()
                 return True
             if key in (Qt.Key_Enter, Qt.Key_Return):
-                if not self.currentIndex().isValid():
-                    self.hide()
-                    e.accept()
-                    return True
-                return False
-            if key in (Qt.Key_End, Qt.Key_Home, Qt.Key_Up, Qt.Key_Down,
-                    Qt.Key_PageUp, Qt.Key_PageDown):
+                # We handle this explicitly because on OS X activated() is
+                # not emitted on pressing Enter.
+                idx = self.currentIndex()
+                if idx.isValid():
+                    self.item_chosen(idx)
+                self.hide()
+                e.accept()
+                return True
+            if key in (Qt.Key_PageUp, Qt.Key_PageDown):
                 # Let the list view handle these keys
                 return False
-            if key in (Qt.Key_Tab, Qt.Key_Backtab):
-                self.next_match(previous=key == Qt.Key_Backtab)
+            if key in (Qt.Key_Up, Qt.Key_Down):
+                self.next_match(previous=key == Qt.Key_Up)
                 e.accept()
                 return True
             # Send to widget
@@ -211,6 +215,8 @@ class Completer(QListView): # {{{
                 self.hide()
                 e.accept()
                 return True
+        elif etype == e.ShortcutOverride:
+            QApplication.sendEvent(widget, e)
         return False
 # }}}
 
@@ -283,7 +289,10 @@ class LineEdit(QLineEdit, LineEditECM):
     def text_edited(self, *args):
         if self.no_popup: return
         self.update_completions()
-        self.complete(select_first=len(unicode(self.text()))>0)
+        select_first = len(self.mcompleter.model().current_prefix) > 0
+        if not select_first:
+            self.mcompleter.setCurrentIndex(QModelIndex())
+        self.complete(select_first=select_first)
 
     def update_completions(self):
         ' Update the list of completions '
@@ -356,9 +365,8 @@ class EditWithComplete(EnComboBox):
 
     def show_initial_value(self, what):
         what = unicode(what) if what else u''
-        le = self.lineEdit()
-        self.setEditText(what)
-        le.selectAll()
+        self.setText(what)
+        self.lineEdit().selectAll()
 
     @dynamic_property
     def all_items(self):
@@ -371,6 +379,9 @@ class EditWithComplete(EnComboBox):
 
     def text(self):
         return unicode(self.lineEdit().text())
+
+    def selectAll(self):
+        self.lineEdit().selectAll()
 
     def setText(self, val):
         le = self.lineEdit()

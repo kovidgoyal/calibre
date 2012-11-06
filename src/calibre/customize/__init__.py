@@ -654,3 +654,44 @@ class StoreBase(Plugin): # {{{
         raise NotImplementedError()
 
 # }}}
+
+class ViewerPlugin(Plugin): # {{{
+
+    '''
+    These plugins are used to add functionality to the calibre viewer.
+    '''
+
+    def load_fonts(self):
+        '''
+        This method is called once at viewer starup. It should load any fonts
+        it wants to make available. For example::
+
+            def load_fonts():
+                from PyQt4.Qt import QFontDatabase
+                font_data = get_resources(['myfont1.ttf', 'myfont2.ttf'])
+                for raw in font_data.itervalues():
+                    QFontDatabase.addApplicationFontFromData(raw)
+        '''
+        pass
+
+    def load_javascript(self, evaljs):
+        '''
+        This method is called every time a new HTML document is loaded in the
+        viewer. Use it to load javascript libraries into the viewer. For
+        example::
+
+            def load_javascript(self, evaljs):
+                js = get_resources('myjavascript.js')
+                evaljs(js)
+        '''
+        pass
+
+    def run_javascript(self, evaljs):
+        '''
+        This method is called every time a document has finished laoding. Use
+        it in the same way as load_javascript().
+        '''
+        pass
+
+# }}}
+

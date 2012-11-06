@@ -871,6 +871,8 @@ class Engine(threading.Thread):
                 from calibre.constants import DEBUG
                 try:
                     rr, wr, er = select.select(rs, [], [], self.timeout)
+                    if globals()['_GLOBAL_DONE']:
+                        continue
                     for socket in rr:
                         try:
                             self.readers[socket].handle_read()
@@ -953,11 +955,16 @@ class Reaper(threading.Thread):
                 return
             if globals()['_GLOBAL_DONE']:
                 return
-            now = currentTimeMillis()
-            for record in self.zeroconf.cache.entries():
-                if record.isExpired(now):
-                    self.zeroconf.updateRecord(now, record)
-                    self.zeroconf.cache.remove(record)
+            try:
+                # can get here in a race condition with shutdown. Swallow the
+                # exception and run around the loop again.
+                now = currentTimeMillis()
+                for record in self.zeroconf.cache.entries():
+                    if record.isExpired(now):
+                        self.zeroconf.updateRecord(now, record)
+                        self.zeroconf.cache.remove(record)
+            except:
+                pass
 
 
 class ServiceBrowser(threading.Thread):
@@ -1418,6 +1425,9 @@ class Zeroconf(object):
             self.send(out)
             i += 1
             nextTime += _UNREGISTER_TIME
+
+    def countRegisteredServices(self):
+        return len(self.services)
 
     def checkService(self, info):
         """Checks the network for a unique service name, modifying the

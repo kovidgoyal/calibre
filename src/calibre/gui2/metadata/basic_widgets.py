@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox,
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
+from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon,
+        QToolButton, QWidget, QLabel, QGridLayout, QApplication,
+        QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
+        QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox,
+        QAction, QCalendarWidget, QDate)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
@@ -90,22 +91,26 @@ class TitleEdit(EnLineEdit):
 
     def commit(self, db, id_):
         title = self.current_val
-        try:
-            if self.COMMIT:
-                getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
-            else:
-                getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
-                        commit=False)
-        except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
-                import traceback
-                fname = err.filename if err.filename else 'file'
-                error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, det_msg=traceback.format_exc(),
-                        show=True)
-                return False
-            raise
+        if title != self.original_val:
+            # Only try to commit if changed. This allow setting of other fields
+            # to work even if some of the book files are opened in windows.
+            try:
+                if self.COMMIT:
+                    getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
+                else:
+                    getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
+                            commit=False)
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
+                    error_dialog(self, _('Permission denied'),
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                raise
         return True
 
     @dynamic_property
@@ -261,19 +266,23 @@ class AuthorsEdit(EditWithComplete):
 
     def commit(self, db, id_):
         authors = self.current_val
-        try:
-            self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
-                allow_case_change=True)
-        except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
-                import traceback
-                fname = err.filename if err.filename else 'file'
-                error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, det_msg=traceback.format_exc(),
-                        show=True)
-                return False
-            raise
+        if authors != self.original_val:
+            # Only try to commit if changed. This allow setting of other fields
+            # to work even if some of the book files are opened in windows.
+            try:
+                self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
+                    allow_case_change=True)
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
+                    error_dialog(self, _('Permission denied'),
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                raise
         return True
 
     @dynamic_property
@@ -1371,7 +1380,15 @@ class PublisherEdit(EditWithComplete): # {{{
 
 # }}}
 
-class DateEdit(QDateTimeEdit): # {{{
+# DateEdit {{{
+
+class CalendarWidget(QCalendarWidget):
+
+    def showEvent(self, ev):
+        if self.selectedDate().year() == UNDEFINED_DATE.year:
+            self.setSelectedDate(QDate.currentDate())
+
+class DateEdit(QDateTimeEdit):
 
     TOOLTIP = ''
     LABEL = _('&Date:')
@@ -1388,6 +1405,9 @@ class DateEdit(QDateTimeEdit): # {{{
             fmt = self.FMT
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
+        self.cw = CalendarWidget(self)
+        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
+        self.setCalendarWidget(self.cw)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.clear_button = QToolButton(parent)

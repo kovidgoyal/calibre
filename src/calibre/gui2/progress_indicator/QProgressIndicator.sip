@@ -8,6 +8,7 @@
 
 %ModuleHeaderCode
 int load_style(QString &path, QString &name);
+bool do_notify(QObject *receiver, QEvent *event);
 %End
 
 class QProgressIndicator : QWidget {
@@ -56,4 +57,6 @@ protected:
 };
 
 int load_style(QString &path, QString &name);
+
+bool do_notify(QObject *receiver, QEvent *event);
 

@@ -15,6 +15,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     max_articles_per_feed = 20
     remove_empty_feeds = True
     remove_javascript     = True
+    ignore_duplicate_articles = {'title'}
 
     preprocess_regexps = [
     (re.compile(r'<!-- Begin tmpl module_competition_offer -->.*?<!-- End tmpl module_competition_offer-->', re.IGNORECASE | re.DOTALL), lambda match: '')]

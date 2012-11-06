@@ -193,6 +193,28 @@ OptionRecommendation(name='line_height',
             )
         ),
 
+OptionRecommendation(name='embed_font_family',
+        recommended_value=None, level=OptionRecommendation.LOW,
+        help=_(
+            'Embed the specified font family into the book. This specifies '
+            'the "base" font used for the book. If the input document '
+            'specifies its own fonts, they may override this base font. '
+            'You can use the filter style information option to remove fonts from the '
+            'input document. Note that font embedding only works '
+            'with some output formats, principally EPUB and AZW3.')
+        ),
+
+OptionRecommendation(name='subset_embedded_fonts',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_(
+            'Subset all embedded fonts. Every embedded font is reduced '
+            'to contain only the glyphs used in this document. This decreases '
+            'the size of the font files. Useful if you are embedding a '
+            'particularly large font with lots of unused glyphs. Note that '
+            'subsetting is only supported for fonts that contain TrueType '
+            'outlines, not Postscript outlines.')
+        ),
+
 OptionRecommendation(name='linearize_tables',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Some badly designed documents use tables to control the '
@@ -304,6 +326,16 @@ OptionRecommendation(name='chapter_mark',
                     'to mark chapters.')
         ),
 
+OptionRecommendation(name='start_reading_at',
+        recommended_value=None, level=OptionRecommendation.LOW,
+        help=_('An XPath expression to detect the location in the document'
+            ' at which to start reading. Some ebook reading programs'
+            ' (most prominently the Kindle) use this location as the'
+            ' position at which to open the book. See the XPath tutorial'
+            ' in the calibre User Manual for further help using this'
+            ' feature.')
+        ),
+
 OptionRecommendation(name='extra_css',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('Either the path to a CSS stylesheet or raw CSS. '
@@ -326,7 +358,7 @@ OptionRecommendation(name='page_breaks_before',
             recommended_value="//*[name()='h1' or name()='h2']",
             level=OptionRecommendation.LOW,
             help=_('An XPath expression. Page breaks are inserted '
-            'before the specified elements.')
+                'before the specified elements. To disable use the expression: /')
         ),
 
 OptionRecommendation(name='remove_fake_margins',
@@ -999,6 +1031,8 @@ OptionRecommendation(name='search_replace',
 
         pr(0., _('Running transforms on ebook...'))
 
+        self.oeb.plumber_output_format = self.output_fmt or ''
+
         from calibre.ebooks.oeb.transforms.guide import Clean
         Clean()(self.oeb, self.opts)
         pr(0.1)
@@ -1089,6 +1123,10 @@ OptionRecommendation(name='search_replace',
         RemoveFakeMargins()(self.oeb, self.log, self.opts)
         RemoveAdobeMargins()(self.oeb, self.log, self.opts)
 
+        if self.opts.subset_embedded_fonts:
+            from calibre.ebooks.oeb.transforms.subset import SubsetFonts
+            SubsetFonts()(self.oeb, self.log, self.opts)
+
         pr(0.9)
         self.flush()
 
@@ -1110,7 +1148,7 @@ OptionRecommendation(name='search_replace',
         self.log.info('Creating %s...'%self.output_plugin.name)
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
         self.output_plugin.report_progress = our
-        our(0., _('Creating')+' %s'%self.output_plugin.name)
+        our(0., _('Running %s plugin')%self.output_plugin.name)
         with self.output_plugin:
             self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)

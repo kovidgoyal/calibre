@@ -11,10 +11,13 @@ from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
+from calibre.utils.config import tweaks
 from calibre.constants import iswindows, isosx
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
-from calibre.gui2 import info_dialog
+from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
+from calibre.gui2 import info_dialog, question_dialog
+from calibre.library.server import server_config as content_server_config
 
 class ShareConnMenu(QMenu): # {{{
 
@@ -24,7 +27,11 @@ class ShareConnMenu(QMenu): # {{{
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
+    control_smartdevice = pyqtSignal()
     dont_add_to = frozenset(['context-menu-device'])
+
+    DEVICE_MSGS = [_('Start wireless device connection'),
+            _('Stop wireless device connection')]
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -56,6 +63,11 @@ class ShareConnMenu(QMenu): # {{{
             _('Start Content Server'))
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
+        self.control_smartdevice_action = \
+            self.addAction(QIcon(I('dot_red.png')),
+            self.DEVICE_MSGS[0])
+        self.control_smartdevice_action.triggered.connect(lambda x:
+                self.control_smartdevice.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -74,10 +86,22 @@ class ShareConnMenu(QMenu): # {{{
                     action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
+        from calibre.utils.mdns import get_external_ip, verify_ipV4_address
         text = _('Start Content Server')
         if running:
-            text = _('Stop Content Server')
+            listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
+                    get_external_ip())
+            try :
+                cs_port = content_server_config().parse().port
+                ip_text = _(' [%(ip)s, port %(port)d]')%dict(ip=listen_on,
+                        port=cs_port)
+            except:
+                ip_text = ' [%s]'%listen_on
+            text = _('Stop Content Server') + ip_text
         self.toggle_server_action.setText(text)
+
+    def hide_smartdevice_menus(self):
+        self.control_smartdevice_action.setVisible(False)
 
     def build_email_entries(self, sync_menu):
         from calibre.gui2.device import DeviceAction
@@ -96,17 +120,19 @@ class ShareConnMenu(QMenu): # {{{
             for account in keys:
                 formats, auto, default = opts.accounts[account]
                 subject = opts.subjects.get(account, '')
+                alias = opts.aliases.get(account, '')
                 dest = 'mail:'+account+';'+formats+';'+subject
                 action1 = DeviceAction(dest, False, False, I('mail.png'),
-                        account)
+                        alias or account)
                 action2 = DeviceAction(dest, True, False, I('mail.png'),
-                        account + ' ' + _('(delete from library)'))
+                        (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
                 map(self.memory.append, (action1, action2))
                 if default:
                     ac = DeviceAction(dest, False, False,
-                            I('mail.png'), _('Email to') + ' ' +account)
+                            I('mail.png'), _('Email to') + ' ' +(alias or
+                                account))
                     self.addAction(ac)
                     self.email_actions.append(ac)
                     ac.a_s.connect(sync_menu.action_triggered)
@@ -122,7 +148,7 @@ class ShareConnMenu(QMenu): # {{{
     def setup_email(self, *args):
         self.config_email.emit()
 
-    def set_state(self, device_connected):
+    def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
         self.connect_to_itunes_action.setEnabled(not device_connected)
         self.connect_to_bambook_action.setEnabled(not device_connected)
@@ -157,6 +183,7 @@ class ConnectShareAction(InterfaceAction):
     def genesis(self):
         self.share_conn_menu = ShareConnMenu(self.gui)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
+        self.share_conn_menu.control_smartdevice.connect(self.control_smartdevice)
         self.share_conn_menu.config_email.connect(partial(
             self.gui.iactions['Preferences'].do_config,
             initial_plugin=('Sharing', 'Email')))
@@ -169,8 +196,8 @@ class ConnectShareAction(InterfaceAction):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
 
-    def set_state(self, device_connected):
-        self.share_conn_menu.set_state(device_connected)
+    def set_state(self, device_connected, device):
+        self.share_conn_menu.set_state(device_connected, device)
 
     def build_email_entries(self):
         m = self.gui.iactions['Send To Device'].qaction.menu()
@@ -199,8 +226,59 @@ class ConnectShareAction(InterfaceAction):
             if not self.stopping_msg.isVisible():
                 self.stopping_msg.exec_()
             return
-
-
         self.gui.content_server = None
         self.stopping_msg.accept()
+
+    def control_smartdevice(self):
+        dm = self.gui.device_manager
+        running = dm.is_running('smartdevice')
+        if running:
+            dm.stop_plugin('smartdevice')
+            if dm.get_option('smartdevice', 'autostart'):
+                if not question_dialog(self.gui, _('Disable autostart'),
+                        _('Do you want wireless device connections to be'
+                            ' started automatically when calibre starts?')):
+                    dm.set_option('smartdevice', 'autostart', False)
+        else:
+            sd_dialog = SmartdeviceDialog(self.gui)
+            sd_dialog.exec_()
+        self.set_smartdevice_action_state()
+
+    def check_smartdevice_menus(self):
+        if not self.gui.device_manager.is_enabled('smartdevice'):
+            self.share_conn_menu.hide_smartdevice_menus()
+
+    def set_smartdevice_action_state(self):
+        from calibre.gui2.dialogs.smartdevice import get_all_ip_addresses
+        dm = self.gui.device_manager
+
+        forced_ip = dm.get_option('smartdevice', 'force_ip_address')
+        if forced_ip:
+            formatted_addresses = forced_ip
+            show_port = True
+        else:
+            all_ips = get_all_ip_addresses()
+            if len(all_ips) > 3:
+                formatted_addresses = _('Many IP addresses. See Start/Stop dialog.')
+                show_port = False
+            else:
+                formatted_addresses = ' or '.join(get_all_ip_addresses())
+                show_port = True
+
+        running = dm.is_running('smartdevice')
+        if not running:
+            text = self.share_conn_menu.DEVICE_MSGS[0]
+        else:
+            use_fixed_port = dm.get_option('smartdevice', 'use_fixed_port')
+            port_number = dm.get_option('smartdevice', 'port_number')
+            if show_port and use_fixed_port:
+                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s, port %s]'%(
+                                            formatted_addresses, port_number)
+            else:
+                text = self.share_conn_menu.DEVICE_MSGS[1] + ' [' + formatted_addresses + ']'
+
+        icon = 'green' if running else 'red'
+        ac = self.share_conn_menu.control_smartdevice_action
+        ac.setIcon(QIcon(I('dot_%s.png'%icon)))
+        ac.setText(text)
 

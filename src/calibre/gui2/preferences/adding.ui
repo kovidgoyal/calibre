@@ -156,7 +156,7 @@ Author matching is exact.</string>
          <property name="toolTip">
           <string>If set, this option will causes calibre to check if a file
  being auto-added is already in the calibre library.
- If it is, a meesage will pop up asking you whether
+ If it is, a message will pop up asking you whether
  you want to add it anyway.</string>
          </property>
          <property name="text">

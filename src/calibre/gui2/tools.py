@@ -11,7 +11,6 @@ import cPickle, os
 
 from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer
 
-from calibre.constants import DEBUG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
 from calibre.gui2.convert.single import NoSupportedInputFormats
@@ -235,6 +234,9 @@ class QueueBulk(QProgressDialog):
 
 def fetch_scheduled_recipe(arg): # {{{
     fmt = prefs['output_format'].lower()
+    # Never use AZW3 for periodicals...
+    if fmt == 'azw3':
+        fmt = 'mobi'
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
     recs = []

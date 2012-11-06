@@ -5,18 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os
+import re, os, json
 
 from lxml import html
+import sip
 
 from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
-    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl,
-    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog,
-    QHBoxLayout, QKeySequence)
+    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog,
+    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox)
 from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre import xml_replace_entities
+from calibre import xml_replace_entities, prepare_string_for_xml
 from calibre.gui2 import open_url
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
@@ -42,6 +43,7 @@ class PageAction(QAction): # {{{
         self.page_action.trigger()
 
     def update_state(self, *args):
+        if sip.isdeleted(self) or sip.isdeleted(self.page_action): return
         if self.isCheckable():
             self.setChecked(self.page_action.isChecked())
         self.setEnabled(self.page_action.isEnabled())
@@ -189,14 +191,36 @@ class EditorWidget(QWebView): # {{{
             self.exec_command('hiliteColor', unicode(col.name()))
 
     def insert_link(self, *args):
-        link, ok = QInputDialog.getText(self, _('Create link'),
-            _('Enter URL'))
-        if not ok:
+        link, name = self.ask_link()
+        if not link:
             return
         url = self.parse_link(unicode(link))
         if url.isValid():
             url = unicode(url.toString())
-            self.exec_command('createLink', url)
+            if name:
+                self.exec_command('insertHTML',
+                        '<a href="%s">%s</a>'%(prepare_string_for_xml(url, True),
+                            prepare_string_for_xml(name)))
+            else:
+                self.exec_command('createLink', url)
+
+    def ask_link(self):
+        d = QDialog(self)
+        d.setWindowTitle(_('Create link'))
+        l = QFormLayout()
+        d.setLayout(l)
+        d.url = QLineEdit(d)
+        d.name = QLineEdit(d)
+        d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        l.addRow(_('Enter &URL:'), d.url)
+        l.addRow(_('Enter name (optional):'), d.name)
+        l.addRow(d.bb)
+        d.bb.accepted.connect(d.accept)
+        d.bb.rejected.connect(d.reject)
+        link, name = None, None
+        if d.exec_() == d.Accepted:
+            link, name = unicode(d.url.text()).strip(), unicode(d.name.text()).strip()
+        return link, name
 
     def parse_link(self, link):
         link = link.strip()
@@ -225,7 +249,8 @@ class EditorWidget(QWebView): # {{{
     def exec_command(self, cmd, arg=None):
         frame = self.page().mainFrame()
         if arg is not None:
-            js = 'document.execCommand("%s", false, "%s");' % (cmd, arg)
+            js = 'document.execCommand("%s", false, %s);' % (cmd,
+                    json.dumps(unicode(arg)))
         else:
             js = 'document.execCommand("%s", false, null);' % cmd
         frame.evaluateJavaScript(js)

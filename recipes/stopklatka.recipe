@@ -1,0 +1,25 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class Stopklatka(BasicNewsRecipe):
+    title          = u'Stopklatka'
+    __author__        = 'fenuks'
+    description   = u'Stopklatka.pl to najdłużej działający polski portal filmowy. Baza filmów, seriali i aktorów, repertuar kin, program tv, wydarzenia ze świata filmu'
+    category       = 'movies'
+    language       = 'pl'
+    oldest_article = 7
+    masthead_url= 'http://img.stopklatka.pl/logo/logo-3.gif'
+    cover_url= 'http://img.stopklatka.pl/logo/logo-3.gif'
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    preprocess_regexps = [(re.compile(ur'Wersja internetowa dostępna jest pod adresem:.*</body>', re.DOTALL), lambda match: '</body>'), (re.compile(ur'</?font.*?>', re.DOTALL), lambda match: '') ]
+    remove_empty_feeds = True
+    remove_tags = [dict(name='img', attrs={'alt':'logo'})]
+    feeds          = [(u'Wydarzenia', u'http://rss.stopklatka.pl/wydarzenia.rss')]
+
+    def print_version(self, url):
+        link_id = re.search(r'wi=(?P<id>\d+)', url)
+        if link_id:
+            return 'http://www.stopklatka.pl/narzedzia/drukuj.asp?typ=wydarzenie&id=' + link_id.group('id')
+        else:
+            return url
+

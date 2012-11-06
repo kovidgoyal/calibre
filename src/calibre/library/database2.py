@@ -11,7 +11,7 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
 from collections import defaultdict
 import threading, random
 from itertools import repeat
-from math import ceil
+from math import ceil, floor
 
 from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -30,8 +30,10 @@ from calibre.ptempfile import (PersistentTemporaryFile,
         base_dir, SpooledTemporaryFile)
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
-from calibre.utils.filenames import ascii_filename
-from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
+from calibre.utils.filenames import (ascii_filename, samefile,
+        WindowsAtomicFolderMove, hardlink_file)
+from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
+        parse_only_date, UNDEFINED_DATE)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
@@ -617,7 +619,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def normpath(self, path):
         path = os.path.abspath(os.path.realpath(path))
         if not self.is_case_sensitive:
-            path = path.lower()
+            path = os.path.normcase(path).lower()
         return path
 
     def set_path(self, index, index_is_id=False):
@@ -641,37 +643,44 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 break
         if path == current_path and not changed:
             return
-
-        tpath = os.path.join(self.library_path, *path.split('/'))
-        if not os.path.exists(tpath):
-            os.makedirs(tpath)
         spath = os.path.join(self.library_path, *current_path.split('/'))
+        tpath = os.path.join(self.library_path, *path.split('/'))
 
-        if current_path and os.path.exists(spath): # Migrate existing files
-            cdata = self.cover(id, index_is_id=True)
-            if cdata is not None:
-                with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
-                    f.write(cdata)
-            for format in formats:
-                with SpooledTemporaryFile(SPOOL_SIZE) as stream:
+        source_ok = current_path and os.path.exists(spath)
+        wam = WindowsAtomicFolderMove(spath) if iswindows and source_ok else None
+        try:
+            if not os.path.exists(tpath):
+                os.makedirs(tpath)
+
+            if source_ok: # Migrate existing files
+                self.copy_cover_to(id, os.path.join(tpath, 'cover.jpg'),
+                        index_is_id=True, windows_atomic_move=wam,
+                        use_hardlink=True)
+                for format in formats:
+                    copy_function = functools.partial(self.copy_format_to, id,
+                            format, index_is_id=True, windows_atomic_move=wam,
+                            use_hardlink=True)
                     try:
-                        self.copy_format_to(id, format, stream, index_is_id=True)
-                        stream.seek(0)
+                        self.add_format(id, format, None, index_is_id=True,
+                            path=tpath, notify=False, copy_function=copy_function)
                     except NoSuchFormat:
                         continue
-                    self.add_format(id, format, stream, index_is_id=True,
-                        path=tpath, notify=False)
-        self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
-        self.dirtied([id], commit=False)
-        self.conn.commit()
-        self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
-        # Delete not needed directories
-        if current_path and os.path.exists(spath):
-            if self.normpath(spath) != self.normpath(tpath):
-                self.rmtree(spath, permanent=True)
-                parent = os.path.dirname(spath)
-                if len(os.listdir(parent)) == 0:
-                    self.rmtree(parent, permanent=True)
+            self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
+            self.dirtied([id], commit=False)
+            self.conn.commit()
+            self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
+            # Delete not needed directories
+            if source_ok:
+                if not samefile(spath, tpath):
+                    if wam is not None:
+                        wam.delete_originals()
+                    self.rmtree(spath, permanent=True)
+                    parent = os.path.dirname(spath)
+                    if len(os.listdir(parent)) == 0:
+                        self.rmtree(parent, permanent=True)
+        finally:
+            if wam is not None:
+                wam.close_handles()
 
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
@@ -1004,6 +1013,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.format_metadata = FormatMetadata(self, idx, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
+        mi.db_approx_formats = formats
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -1096,8 +1106,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         identical_book_ids = set([])
         if mi.authors:
             try:
+                quathors = mi.authors[:10] # Too many authors causes parsing of
+                                           # the search expression to fail
                 query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
-                    mi.authors])
+                    quathors])
+                qauthors = mi.authors[10:]
             except ValueError:
                 return identical_book_ids
             try:
@@ -1105,6 +1118,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except:
                 traceback.print_exc()
                 return identical_book_ids
+            if qauthors and book_ids:
+                matches = set()
+                qauthors = {lower(x) for x in qauthors}
+                for book_id in book_ids:
+                    aut = self.authors(book_id, index_is_id=True)
+                    if aut:
+                        aut = {lower(x.replace('|', ',')) for x in
+                                aut.split(',')}
+                        if aut.issuperset(qauthors):
+                            matches.add(book_id)
+                book_ids = matches
+
             for book_id in book_ids:
                 fbook_title = self.title(book_id, index_is_id=True)
                 fbook_title = fuzzy_title(fbook_title)
@@ -1134,7 +1159,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         `data`: Can be either a QImage, QPixmap, file object or bytestring
         '''
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        base_path = os.path.join(self.library_path, self.path(id,
+            index_is_id=True))
+        if not os.path.exists(base_path):
+            self.set_path(id, index_is_id=True)
+            base_path = os.path.join(self.library_path, self.path(id,
+                index_is_id=True))
+            self.dirtied([id])
+
+        path = os.path.join(base_path, 'cover.jpg')
+
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
@@ -1238,6 +1272,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ans = {}
         if path is not None:
             stat = os.stat(path)
+            ans['path'] = path
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
             self.format_metadata_cache[id_][fmt] = ans
@@ -1314,19 +1349,97 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     return None
                 return fmt_path
 
-    def copy_format_to(self, index, fmt, dest, index_is_id=False):
+    def copy_format_to(self, index, fmt, dest, index_is_id=False,
+            windows_atomic_move=None, use_hardlink=False):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
+        dest can also be a path, in which case the format is copied to it, iff
+        the path is different from the current path (taking case sensitivity
+        into account).
+
+        If use_hardlink is True, a hard link will be created instead of the
+        file being copied. Use with care, because a hard link means that
+        modifying any one file will cause both files to be modified.
+
+        windows_atomic_move is an internally used parameter. You should not use
+        it in any code outside this module.
         '''
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
-        with lopen(path, 'rb') as f:
-            shutil.copyfileobj(f, dest)
-        if hasattr(dest, 'flush'):
-            dest.flush()
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+        else:
+            if hasattr(dest, 'write'):
+                with lopen(path, 'rb') as f:
+                    shutil.copyfileobj(f, dest)
+                if hasattr(dest, 'flush'):
+                    dest.flush()
+            elif dest and not samefile(dest, path):
+                if use_hardlink:
+                    try:
+                        hardlink_file(path, dest)
+                        return
+                    except:
+                        pass
+                with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                    shutil.copyfileobj(f, d)
+
+    def copy_cover_to(self, index, dest, index_is_id=False,
+            windows_atomic_move=None, use_hardlink=False):
+        '''
+        Copy the cover to the file like object ``dest``. Returns False
+        if no cover exists or dest is the same file as the current cover.
+        dest can also be a path in which case the cover is
+        copied to it iff the path is different from the current path (taking
+        case sensitivity into account).
+
+        If use_hardlink is True, a hard link will be created instead of the
+        file being copied. Use with care, because a hard link means that
+        modifying any one file will cause both files to be modified.
+
+        windows_atomic_move is an internally used parameter. You should not use
+        it in any code outside this module.
+        '''
+        id = index if index_is_id else self.id(index)
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if os.access(path, os.R_OK) and dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+                return True
+        else:
+            if os.access(path, os.R_OK):
+                try:
+                    f = lopen(path, 'rb')
+                except (IOError, OSError):
+                    time.sleep(0.2)
+                f = lopen(path, 'rb')
+                with f:
+                    if hasattr(dest, 'write'):
+                        shutil.copyfileobj(f, dest)
+                        if hasattr(dest, 'flush'):
+                            dest.flush()
+                        return True
+                    elif dest and not samefile(dest, path):
+                        if use_hardlink:
+                            try:
+                                hardlink_file(path, dest)
+                                return True
+                            except:
+                                pass
+                        with lopen(dest, 'wb') as d:
+                            shutil.copyfileobj(f, d)
+                        return True
+        return False
 
     def format(self, index, format, index_is_id=False, as_file=False,
             mode='r+b', as_path=False, preserve_filename=False):
@@ -1386,7 +1499,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                index_is_id=index_is_id, path=path, notify=notify)
 
     def add_format(self, index, format, stream, index_is_id=False, path=None,
-            notify=True, replace=True):
+            notify=True, replace=True, copy_function=None):
         id = index if index_is_id else self.id(index)
         if not format: format = ''
         self.format_metadata_cache[id].pop(format.upper(), None)
@@ -1401,14 +1514,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        if not getattr(stream, 'name', False) or \
-                os.path.abspath(dest) != os.path.abspath(stream.name):
-            with lopen(dest, 'wb') as f:
-                shutil.copyfileobj(stream, f)
-        stream.seek(0, 2)
-        size=stream.tell()
+        size = 0
+        if copy_function is not None:
+            copy_function(dest)
+            size = os.path.getsize(dest)
+        else:
+            if (not getattr(stream, 'name', False) or not samefile(dest,
+                stream.name)):
+                with lopen(dest, 'wb') as f:
+                    shutil.copyfileobj(stream, f)
+                    size = f.tell()
+            elif os.path.exists(dest):
+                size = os.path.getsize(dest)
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
+        self.update_last_modified([id], commit=False)
         self.conn.commit()
         self.format_filename_cache[id][format.upper()] = name
         self.refresh_ids([id])
@@ -2063,7 +2183,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return 1.0
         series_indices = [x[0] for x in series_indices]
         if tweaks['series_index_auto_increment'] == 'next':
-            return series_indices[-1] + 1
+            return floor(series_indices[-1]) + 1
         if tweaks['series_index_auto_increment'] == 'first_free':
             for i in range(1, 10000):
                 if i not in series_indices:
@@ -2085,13 +2205,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set(self, row, column, val, allow_case_change=False):
         '''
-        Convenience method for setting the title, authors, publisher or rating
+        Convenience method for setting the title, authors, publisher, tags or
+        rating
         '''
         id = self.data[row][0]
-        col = {'title':1, 'authors':2, 'publisher':3, 'rating':4, 'tags':7}[column]
+        col = self.FIELD_MAP[column]
 
         books_to_refresh = set()
-        self.data.set(row, col, val)
+        set_args = (row, col, val)
         if column == 'authors':
             val = string_to_authors(val)
             books_to_refresh |= self.set_authors(id, val, notify=False,
@@ -2107,6 +2228,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             books_to_refresh |= \
                 self.set_tags(id, [x.strip() for x in val.split(',') if x.strip()],
                     append=False, notify=False, allow_case_change=allow_case_change)
+        self.data.set(*set_args)
         self.data.refresh_ids(self, [id])
         self.set_path(id, True)
         self.notify('metadata', [id])
@@ -2351,7 +2473,25 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)
         self._update_author_in_cache(id, ss, final_authors)
+        self.clean_standard_field('authors', commit=True)
         return books_to_refresh
+
+    def windows_check_if_files_in_use(self, book_id):
+        '''
+        Raises an EACCES IOError if any of the files in the folder of book_id
+        are opened in another program on windows.
+        '''
+        if iswindows:
+            path = self.path(book_id, index_is_id=True)
+            if path:
+                spath = os.path.join(self.library_path, *path.split('/'))
+                wam = None
+                if os.path.exists(spath):
+                    try:
+                        wam = WindowsAtomicFolderMove(spath)
+                    finally:
+                        if wam is not None:
+                            wam.close_handles()
 
     def set_authors(self, id, authors, notify=True, commit=True,
                     allow_case_change=False):
@@ -2361,6 +2501,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         :param authors: A list of authors.
         '''
+        self.windows_check_if_files_in_use(id)
         books_to_refresh = self._set_authors(id, authors,
                                              allow_case_change=allow_case_change)
         self.dirtied(set([id])|books_to_refresh, commit=False)
@@ -2411,6 +2552,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Note that even if commit is False, the db will still be committed to
         because this causes the location of files to change
         '''
+        self.windows_check_if_files_in_use(id)
         if not self._set_title(id, title):
             return
         self.set_path(id, index_is_id=True)
@@ -2462,14 +2604,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.notify('metadata', [id])
 
     def set_pubdate(self, id, dt, notify=True, commit=True):
-        if dt:
-            self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
-            self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
-            self.dirtied([id], commit=False)
-            if commit:
-                self.conn.commit()
-            if notify:
-                self.notify('metadata', [id])
+        if not dt:
+            dt = UNDEFINED_DATE
+        if isinstance(dt, basestring):
+            dt = parse_only_date(dt)
+        self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
+        self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
+        self.dirtied([id], commit=False)
+        if commit:
+            self.conn.commit()
+        if notify:
+            self.notify('metadata', [id])
 
 
     def set_publisher(self, id, publisher, notify=True, commit=True,
@@ -2520,6 +2665,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.commit()
             if notify:
                 self.notify('metadata', [id])
+
+    def get_id_from_uuid(self, uuid):
+        if uuid:
+            return self.conn.get('SELECT id FROM books WHERE uuid=?', (uuid,),
+                                 all=False)
 
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
@@ -3306,7 +3456,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.timestamp is None:
             mi.timestamp = utcnow()
         if mi.pubdate is None:
-            mi.pubdate = utcnow()
+            mi.pubdate = UNDEFINED_DATE
         self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if cover is not None:
             try:
@@ -3348,7 +3498,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if mi.timestamp is None:
                 mi.timestamp = utcnow()
             if mi.pubdate is None:
-                mi.pubdate = utcnow()
+                mi.pubdate = UNDEFINED_DATE
             self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
@@ -3388,7 +3538,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.timestamp is None:
             mi.timestamp = utcnow()
         if mi.pubdate is None:
-            mi.pubdate = utcnow()
+            mi.pubdate = UNDEFINED_DATE
         self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if preserve_uuid and mi.uuid:
             self.set_uuid(id, mi.uuid, commit=False)
@@ -3615,7 +3765,7 @@ books_series_link      feeds
                 if not ext:
                     continue
                 ext = ext[1:].lower()
-                if ext not in BOOK_EXTENSIONS:
+                if ext not in BOOK_EXTENSIONS and ext != 'opf':
                     continue
 
                 key = os.path.splitext(path)[0]

@@ -120,6 +120,8 @@ class ISBNMerge(object):
                             self.log.debug(xw.tb)
                         else:
                             isbns, min_year = xw.isbns, xw.min_year
+                            if not msprefs['find_first_edition_date']:
+                                min_year = None
                 if not isbns:
                     isbns = frozenset([isbn])
                 if isbns in self.pools:
@@ -517,7 +519,7 @@ def urls_from_identifiers(identifiers): # {{{
     for plugin in all_metadata_plugins():
         try:
             id_type, id_val, url = plugin.get_book_url(identifiers)
-            ans.append((plugin.name, id_type, id_val, url))
+            ans.append((plugin.get_book_url_name(id_type, id_val, url), id_type, id_val, url))
         except:
             pass
     isbn = identifiers.get('isbn', None)

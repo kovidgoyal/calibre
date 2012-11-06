@@ -1,0 +1,59 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+from __future__ import unicode_literals
+# based on a recipe by Darko Miletic
+#
+# Cumhuriyet Gazetesi'nin köşe yazıları okuyuculara cumhuriyet.com.tr
+# adresi üzerinden ücretsiz olarak sunulmaktadır.
+# Calibre yazılımıyla kullanılabilen bu reçete Cumhuriyet Gazetesi'nin
+# günlük köşe yazılarını hızlıca derleyip e-okuyucunuzda kolayca okunabilir
+# hale getirir. Yazıların yayınlanma saati sabah olduğu için reçeteyi
+# 7:00-24:00 arasında çizelgelemeniz gerekmektedir.
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Sethi Eksi <sethi.eksi at gmail.com>'
+'''
+cumhuriyet.com.tr
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Cumhuriyet_tr(BasicNewsRecipe):
+    title                 = 'Cumhuriyet - Yazarlar'
+    __author__            = 'Cumhuriyet Gazetesi Yazarları'
+    description           = 'Günlük Cumhuriyet Gazetesi Köşe Yazıları'
+    publisher             = 'Cumhuriyet'
+    category              = 'news, politics, Turkey'
+    oldest_article        = 1
+    max_articles_per_feed = 150
+    no_stylesheets        = True
+    encoding              = 'cp1254'
+    use_embedded_content  = False
+    masthead_url          = 'http://www.cumhuriyet.com.tr/home/cumhuriyet/sablon2000/img/cumlogobeyaz1.gif'
+    language              = 'tr'
+    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                .article_description,body{font-family: Arial,Verdana,Helvetica,sans1,sans-serif}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name=['embed','iframe','object','link','base'])]
+    remove_tags_before = dict(attrs={'class':'c565'})
+    remove_tags_after = dict(attrs={'class':'c565'})
+
+    feeds = [
+               (u'Yazarlar'    , u'http://www.cumhuriyet.com.tr/?kn=5&xl=rss')
+            ]
+
+    def print_version(self, url):
+        articleid = url.rpartition('hn=')[2]
+        return 'http://www.cumhuriyet.com.tr/?hn=' + articleid
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)
+

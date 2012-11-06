@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
 
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name, strftime as _strftime
@@ -13,7 +13,8 @@ from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
-from calibre.ebooks.metadata import authors_to_string, MetaInformation, title_sort
+from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
+    MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
@@ -2427,8 +2428,9 @@ class ITUNES(DriverBase):
 
             if DEBUG:
                 logger().info("  %s %s" % (__appname__, __version__))
-                logger().info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
-                 (self.iTunes.name(), self.iTunes.version(), self.initial_status,
+                logger().info("  [OSX %s, %s %s (%s), driver version %d.%d.%d]" %
+                 (platform.mac_ver()[0],
+                  self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 logger().info("  communicating with iTunes via %s %s using %s binding" % (as_name, as_version, as_binding))
                 logger().info("  calibre_library_path: %s" % self.calibre_library_path)
@@ -3477,6 +3479,7 @@ class Book(Metadata):
     '''
     def __init__(self,title,author):
         Metadata.__init__(self, title, authors=author.split(' & '))
+        self.author_sort = author_to_author_sort(author)
 
     @property
     def title_sorter(self):

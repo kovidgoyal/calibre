@@ -70,7 +70,7 @@ class ArchiveExtract(FileTypePlugin):
         fname = fnames[0]
         ext = os.path.splitext(fname)[1][1:]
         if ext.lower() not in ('lit', 'epub', 'mobi', 'prc', 'rtf', 'pdf',
-                'mp3', 'pdb', 'azw', 'azw1', 'fb2'):
+                'mp3', 'pdb', 'azw', 'azw1', 'azw3', 'fb2'):
             return archive
 
         of = self.temporary_file('_archive_extract.'+ext)

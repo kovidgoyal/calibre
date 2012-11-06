@@ -379,6 +379,10 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
 
     stream.seek(0)
     stream.truncate()
+    # Apparently there exists FB2 reading software that chokes on the use of
+    # single quotes in xml declaration. Sigh. See
+    # http://www.mobileread.com/forums/showthread.php?p=2273184#post2273184
+    stream.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
     stream.write(etree.tostring(root, method='xml', encoding='utf-8',
-        xml_declaration=True))
+        xml_declaration=False))
 

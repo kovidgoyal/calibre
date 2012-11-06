@@ -9,7 +9,7 @@ import sys
 
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
-        QAbstractTextDocumentLayout, QFont, QFontInfo)
+        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -83,6 +83,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
+
 # }}}
 
 class PubDateDelegate(QStyledItemDelegate): # {{{
@@ -103,6 +104,12 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
+
+    def setEditorData(self, editor, index):
+        val = index.data(Qt.EditRole).toDate()
+        if val == UNDEFINED_QDATETIME.date():
+            val = QDate(2000, 1, 1)
+        editor.setDate(val)
 
 # }}}
 
@@ -125,11 +132,14 @@ class TextDelegate(QStyledItemDelegate): # {{{
             editor.set_separator(None)
             complete_items = [i[1] for i in self.auto_complete_function()]
             editor.update_items_cache(complete_items)
-            ct = index.data(Qt.DisplayRole).toString()
-            editor.show_initial_value(ct)
         else:
             editor = EnLineEdit(parent)
         return editor
+
+    def setEditorData(self, editor, index):
+        ct = unicode(index.data(Qt.DisplayRole).toString())
+        editor.setText(ct)
+        editor.selectAll()
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -164,11 +174,14 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
                 all_items = list(self.db.all_custom(
                     label=self.db.field_metadata.key_to_label(col)))
             editor.update_items_cache(all_items)
-            ct = index.data(Qt.DisplayRole).toString()
-            editor.show_initial_value(ct)
         else:
             editor = EnLineEdit(parent)
         return editor
+
+    def setEditorData(self, editor, index):
+        ct = unicode(index.data(Qt.DisplayRole).toString())
+        editor.setText(ct)
+        editor.selectAll()
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -183,9 +196,11 @@ class LanguagesDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         editor = LanguagesEdit(parent=parent)
         editor.init_langs(index.model().db)
-        ct = index.data(Qt.DisplayRole).toString()
-        editor.show_initial_value(ct)
         return editor
+
+    def setEditorData(self, editor, index):
+        ct = unicode(index.data(Qt.DisplayRole).toString())
+        editor.show_initial_value(ct)
 
     def setModelData(self, editor, model, index):
         val = ','.join(editor.lang_codes)
@@ -251,6 +266,14 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
         editor.update_items_cache(complete_items)
         return editor
 
+    def setEditorData(self, editor, index):
+        ct = unicode(index.data(Qt.DisplayRole).toString())
+        editor.setText(ct)
+        editor.selectAll()
+
+    def setModelData(self, editor, model, index):
+        val = editor.text()
+        model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
 class CcNumberDelegate(QStyledItemDelegate): # {{{

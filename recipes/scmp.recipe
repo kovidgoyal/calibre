@@ -39,10 +39,10 @@ class SCMP(BasicNewsRecipe):
         #br.set_debug_responses(True)
         #br.set_debug_redirects(True)
         if self.username is not None and self.password is not None:
-           br.open('http://www.scmp.com/portal/site/SCMP/')
-           br.select_form(name='loginForm')
-           br['Login'   ] = self.username
-           br['Password'] = self.password
+           br.open('http://www.scmp.com/')
+           br.select_form(nr=1)
+           br['name'] = self.username
+           br['pass'] = self.password
            br.submit()
         return br
 

@@ -4,12 +4,12 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, importlib
+import shutil
 
 from PyQt4.Qt import QString, SIGNAL
 
-from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
-    GroupModel
+from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
+    GroupModel, gprefs)
 from calibre.customize.ui import available_output_formats
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -62,6 +62,9 @@ class BulkConfig(Config):
                 'settings.'))
             o.setChecked(False)
 
+        geom = gprefs.get('convert_bulk_dialog_geom', None)
+        if geom:
+            self.restoreGeometry(geom)
 
     def setup_pipeline(self, *args):
         oidx = self.groups.currentIndex().row()
@@ -86,17 +89,9 @@ class BulkConfig(Config):
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
 
-        output_widget = None
-        name = self.plumber.output_plugin.name.lower().replace(' ', '_')
-        try:
-            output_widget = importlib.import_module(
-                    'calibre.gui2.convert.'+name)
-            pw = output_widget.PluginWidget
-            pw.ICON = I('back.png')
-            pw.HELP = _('Options specific to the output format.')
-            output_widget = widget_factory(pw)
-        except ImportError:
-            pass
+        output_widget = self.plumber.output_plugin.gui_configuration_widget(
+                self.stack, self.plumber.get_option_by_name,
+                self.plumber.get_option_help, self.db)
 
         while True:
             c = self.stack.currentWidget()
@@ -146,4 +141,10 @@ class BulkConfig(Config):
             recs.update(x)
         self._recommendations = recs
         ResizableDialog.accept(self)
+
+    def done(self, r):
+        if self.isVisible():
+            gprefs['convert_bulk_dialog_geom'] = \
+                bytearray(self.saveGeometry())
+        return ResizableDialog.done(self, r)
 

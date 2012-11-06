@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Embedded console for debugging.
 '''
 
-import sys, os
+import sys, os, functools
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
@@ -19,6 +19,8 @@ Run an embedded python interpreter.
 ''')
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
+    parser.add_option('-f', '--subset-font', default=False,
+            action='store_true', help='Subset the specified font')
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
@@ -160,26 +162,32 @@ def add_simple_plugin(path_to_plugin):
     os.chdir(odir)
     shutil.rmtree(tdir)
 
-def run_debug_gui(logpath):
-    import time, platform
-    time.sleep(3) # Give previous GUI time to shutdown fully and release locks
-    from calibre.constants import __appname__, __version__, isosx
-    print __appname__, _('Debug log')
-    print __appname__, __version__
-    print platform.platform()
-    print platform.system()
-    print platform.system_alias(platform.system(), platform.release(),
-            platform.version())
-    print 'Python', platform.python_version()
+def print_basic_debug_info(out=None):
+    if out is None: out = sys.stdout
+    out = functools.partial(prints, file=out)
+    import platform
+    from calibre.constants import __appname__, get_version, isportable, isosx
+    out(__appname__, get_version(), 'Portable' if isportable else '')
+    out(platform.platform(), platform.system())
+    out(platform.system_alias(platform.system(), platform.release(),
+            platform.version()))
+    out('Python', platform.python_version())
     try:
         if iswindows:
-            print 'Windows:', platform.win32_ver()
+            out('Windows:', platform.win32_ver())
         elif isosx:
-            print 'OSX:', platform.mac_ver()
+            out('OSX:', platform.mac_ver())
         else:
-            print 'Linux:', platform.linux_distribution()
+            out('Linux:', platform.linux_distribution())
     except:
         pass
+
+def run_debug_gui(logpath):
+    import time
+    time.sleep(3) # Give previous GUI time to shutdown fully and release locks
+    from calibre.constants import __appname__
+    prints(__appname__, _('Debug log'))
+    print_basic_debug_info()
     from calibre.gui2.main import main
     main(['__CALIBRE_GUI_DEBUG__', logpath])
 
@@ -203,9 +211,15 @@ def main(args=sys.argv):
         execfile(ef, g)
         return
 
+    if len(args) > 1 and args[1] in ('-f', '--subset-font'):
+        from calibre.utils.fonts.sfnt.subset import main
+        main(['subset-font']+args[2:])
+        return
+
     opts, args = option_parser().parse_args(args)
     if opts.gui:
         from calibre.gui2.main import main
+        print_basic_debug_info()
         main(['calibre'])
     elif opts.gui_debug is not None:
         run_debug_gui(opts.gui_debug)

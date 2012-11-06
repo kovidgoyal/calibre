@@ -49,9 +49,9 @@ Add books
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
 
-    2. **Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any ebooks found are added to the library. |app| assumes that each directory contains a single book. All ebook files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date.
+    2. **Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any ebooks found are added to the library. |app| assumes that each directory contains a single book. All ebook files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
 
-    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. |app| assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. This action is the inverse of the :ref:`Save to disk <save_to_disk_single>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date.
+    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. |app| assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. 
 
     4. **Add empty book. (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
@@ -103,10 +103,9 @@ The :guilabel:`Convert books` action has three variations, accessed by doing a r
     3. **Create a catalog of the books in your calibre library**: Allows you to generate a complete listing of the books in your library, including all metadata,
        in several formats such as XML, CSV, BiBTeX, EPUB and MOBI. The catalog will contain all the books currently showing in the library view.
        This allows you to use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse,
-       only those books will be added to the catalog. If you generate the catalog in an ebook format such as EPUB or MOBI,
+       only those books will be added to the catalog. If you generate the catalog in an ebook format such as EPUB, MOBI or AZW3,
        the next time you connect your ebook reader the catalog will be automatically sent to the device.
-       For more information on how catalogs work, read the `catalog creation tutorial <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`_
-       at MobileRead.
+       For more information on how catalogs work, read the :ref:`catalog_tut`.
 
 .. _view:
 
@@ -548,7 +547,7 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Toggle jobs list
     * - :kbd:`Alt+Shift+B`
       - Toggle Cover Browser
-    * - :kbd:`Alt+Shift+B`
+    * - :kbd:`Alt+Shift+D`
       - Toggle Book Details panel
     * - :kbd:`Alt+Shift+T`
       - Toggle Tag Browser

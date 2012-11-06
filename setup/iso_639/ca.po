@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-05-03 16:09+0000\n"
-"Last-Translator: Dídac Rios <didac@niorcs.com>\n"
+"PO-Revision-Date: 2012-10-28 09:28+0000\n"
+"Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-05-04 04:47+0000\n"
-"X-Generator: Launchpad (build 15195)\n"
+"X-Launchpad-Export-Date: 2012-10-29 04:59+0000\n"
+"X-Generator: Launchpad (build 16194)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -4744,7 +4744,7 @@ msgstr "Chachi"
 
 #. name for cbj
 msgid "Ede Cabe"
-msgstr "Ede Cabe"
+msgstr "Ede;Cabe"
 
 #. name for cbk
 msgid "Chavacano"
@@ -5612,7 +5612,7 @@ msgstr "Caixubi"
 
 #. name for csc
 msgid "Catalan Sign Language"
-msgstr "Llenguatge de signes català"
+msgstr "Llengua de signes catalana"
 
 #. name for csd
 msgid "Chiangmai Sign Language"
@@ -9936,7 +9936,7 @@ msgstr "Ibani"
 
 #. name for ica
 msgid "Ede Ica"
-msgstr "Ede Ica"
+msgstr "Ede;Ica"
 
 #. name for ich
 msgid "Etkywan"
@@ -9964,7 +9964,7 @@ msgstr "Idon"
 
 #. name for idd
 msgid "Ede Idaca"
-msgstr "Ede Idaca"
+msgstr "Ede;Idaca"
 
 #. name for ide
 msgid "Idere"
@@ -9972,7 +9972,7 @@ msgstr "Idere"
 
 #. name for idi
 msgid "Idi"
-msgstr ""
+msgstr "Idi"
 
 #. name for ido
 msgid "Ido"
@@ -10032,35 +10032,35 @@ msgstr "Ebira"
 
 #. name for ige
 msgid "Igede"
-msgstr ""
+msgstr "Igede"
 
 #. name for igg
 msgid "Igana"
-msgstr ""
+msgstr "Igana"
 
 #. name for igl
 msgid "Igala"
-msgstr ""
+msgstr "Igala"
 
 #. name for igm
 msgid "Kanggape"
-msgstr ""
+msgstr "Igom"
 
 #. name for ign
 msgid "Ignaciano"
-msgstr ""
+msgstr "Ignaciano"
 
 #. name for igo
 msgid "Isebe"
-msgstr ""
+msgstr "Isebe"
 
 #. name for igs
 msgid "Interglossa"
-msgstr ""
+msgstr "Interglossa"
 
 #. name for igw
 msgid "Igwe"
-msgstr ""
+msgstr "Igwe"
 
 #. name for ihb
 msgid "Iha Based Pidgin"
@@ -10068,175 +10068,175 @@ msgstr "Iha; parla mixta"
 
 #. name for ihi
 msgid "Ihievbe"
-msgstr ""
+msgstr "Ihievbe"
 
 #. name for ihp
 msgid "Iha"
-msgstr ""
+msgstr "Iha"
 
 #. name for iii
 msgid "Yi; Sichuan"
-msgstr ""
+msgstr "Yi; Sichuan"
 
 #. name for ijc
 msgid "Izon"
-msgstr ""
+msgstr "Izon"
 
 #. name for ije
 msgid "Biseni"
-msgstr ""
+msgstr "Biseni"
 
 #. name for ijj
 msgid "Ede Ije"
-msgstr ""
+msgstr "Ede;Ije"
 
 #. name for ijn
 msgid "Kalabari"
-msgstr ""
+msgstr "Kalabari"
 
 #. name for ijs
 msgid "Ijo; Southeast"
-msgstr ""
+msgstr "Izon;Ijo"
 
 #. name for ike
 msgid "Inuktitut; Eastern Canadian"
-msgstr ""
+msgstr "Inuktitut; Canadà oriental"
 
 #. name for iki
 msgid "Iko"
-msgstr ""
+msgstr "Iko"
 
 #. name for ikk
 msgid "Ika"
-msgstr ""
+msgstr "Ika"
 
 #. name for ikl
 msgid "Ikulu"
-msgstr ""
+msgstr "Ikulu"
 
 #. name for iko
 msgid "Olulumo-Ikom"
-msgstr ""
+msgstr "Olulumo-Ikom"
 
 #. name for ikp
 msgid "Ikpeshi"
-msgstr ""
+msgstr "Ikpeshi"
 
 #. name for ikt
 msgid "Inuktitut; Western Canadian"
-msgstr ""
+msgstr "Inuktitut; Canadà occidental"
 
 #. name for iku
 msgid "Inuktitut"
-msgstr "inuktitut"
+msgstr "Inuktitut"
 
 #. name for ikv
 msgid "Iku-Gora-Ankwa"
-msgstr ""
+msgstr "Iku"
 
 #. name for ikw
 msgid "Ikwere"
-msgstr ""
+msgstr "Ikwere"
 
 #. name for ikx
 msgid "Ik"
-msgstr ""
+msgstr "Ik"
 
 #. name for ikz
 msgid "Ikizu"
-msgstr ""
+msgstr "Ikizu"
 
 #. name for ila
 msgid "Ile Ape"
-msgstr ""
+msgstr "Ile Ape"
 
 #. name for ilb
 msgid "Ila"
-msgstr ""
+msgstr "Ila"
 
 #. name for ile
 msgid "Interlingue"
-msgstr ""
+msgstr "Interlingue"
 
 #. name for ilg
 msgid "Garig-Ilgar"
-msgstr ""
+msgstr "Garig-Ilgar"
 
 #. name for ili
 msgid "Ili Turki"
-msgstr ""
+msgstr "Ili turc"
 
 #. name for ilk
 msgid "Ilongot"
-msgstr ""
+msgstr "Ilong"
 
 #. name for ill
 msgid "Iranun"
-msgstr ""
+msgstr "Iranun"
 
 #. name for ilo
 msgid "Iloko"
-msgstr ""
+msgstr "Ilocà"
 
 #. name for ils
 msgid "International Sign"
-msgstr ""
+msgstr "Signes internacional"
 
 #. name for ilu
 msgid "Ili'uun"
-msgstr ""
+msgstr "Iliun"
 
 #. name for ilv
 msgid "Ilue"
-msgstr ""
+msgstr "Ilue"
 
 #. name for ilw
 msgid "Talur"
-msgstr ""
+msgstr "Talur"
 
 #. name for ima
 msgid "Malasar; Mala"
-msgstr ""
+msgstr "Malasar; Mala"
 
 #. name for ime
 msgid "Imeraguen"
-msgstr ""
+msgstr "Imeraguen"
 
 #. name for imi
 msgid "Anamgura"
-msgstr ""
+msgstr "Anamgura"
 
 #. name for iml
 msgid "Miluk"
-msgstr ""
+msgstr "Miluk"
 
 #. name for imn
 msgid "Imonda"
-msgstr ""
+msgstr "Imonda"
 
 #. name for imo
 msgid "Imbongu"
-msgstr ""
+msgstr "Imbongu"
 
 #. name for imr
 msgid "Imroing"
-msgstr ""
+msgstr "Imroing"
 
 #. name for ims
 msgid "Marsian"
-msgstr ""
+msgstr "Marsià"
 
 #. name for imy
 msgid "Milyan"
-msgstr ""
+msgstr "Mili"
 
 #. name for ina
 msgid "Interlingua (International Auxiliary Language Association)"
-msgstr ""
+msgstr "Interlingua"
 
 #. name for inb
 msgid "Inga"
-msgstr ""
+msgstr "Inga"
 
 #. name for ind
 msgid "Indonesian"
@@ -10244,15 +10244,15 @@ msgstr "Indonesi"
 
 #. name for ing
 msgid "Degexit'an"
-msgstr ""
+msgstr "Degexitan"
 
 #. name for inh
 msgid "Ingush"
-msgstr ""
+msgstr "Ingúix"
 
 #. name for inj
 msgid "Inga; Jungle"
-msgstr ""
+msgstr "Inga; Jungla"
 
 #. name for inl
 msgid "Indonesian Sign Language"
@@ -10260,19 +10260,19 @@ msgstr "Llenguatge de signes indonesi"
 
 #. name for inm
 msgid "Minaean"
-msgstr ""
+msgstr "Minaeà"
 
 #. name for inn
 msgid "Isinai"
-msgstr ""
+msgstr "Isinai"
 
 #. name for ino
 msgid "Inoke-Yate"
-msgstr ""
+msgstr "Inoke-Yate"
 
 #. name for inp
 msgid "Iñapari"
-msgstr ""
+msgstr "Iñapari"
 
 #. name for ins
 msgid "Indian Sign Language"
@@ -10280,27 +10280,27 @@ msgstr "Llenguatge de signes indi"
 
 #. name for int
 msgid "Intha"
-msgstr ""
+msgstr "Intha"
 
 #. name for inz
 msgid "Ineseño"
-msgstr ""
+msgstr "Ineseño"
 
 #. name for ior
 msgid "Inor"
-msgstr ""
+msgstr "Inor"
 
 #. name for iou
 msgid "Tuma-Irumu"
-msgstr ""
+msgstr "Tuma-Irumu"
 
 #. name for iow
 msgid "Iowa-Oto"
-msgstr ""
+msgstr "Iowa-Oto"
 
 #. name for ipi
 msgid "Ipili"
-msgstr ""
+msgstr "Ipili"
 
 #. name for ipk
 msgid "Inupiaq"
@@ -10308,59 +10308,59 @@ msgstr "inupiak"
 
 #. name for ipo
 msgid "Ipiko"
-msgstr ""
+msgstr "Ipiko"
 
 #. name for iqu
 msgid "Iquito"
-msgstr ""
+msgstr "Iquito"
 
 #. name for ire
 msgid "Iresim"
-msgstr ""
+msgstr "Iresim"
 
 #. name for irh
 msgid "Irarutu"
-msgstr ""
+msgstr "Irarutu"
 
 #. name for iri
 msgid "Irigwe"
-msgstr ""
+msgstr "Irigwe"
 
 #. name for irk
 msgid "Iraqw"
-msgstr ""
+msgstr "Iraqw"
 
 #. name for irn
 msgid "Irántxe"
-msgstr ""
+msgstr "Iranxe"
 
 #. name for irr
 msgid "Ir"
-msgstr ""
+msgstr "Ir"
 
 #. name for iru
 msgid "Irula"
-msgstr ""
+msgstr "Irula"
 
 #. name for irx
 msgid "Kamberau"
-msgstr ""
+msgstr "Kamberau"
 
 #. name for iry
 msgid "Iraya"
-msgstr ""
+msgstr "Iraya"
 
 #. name for isa
 msgid "Isabi"
-msgstr ""
+msgstr "Isabi"
 
 #. name for isc
 msgid "Isconahua"
-msgstr ""
+msgstr "Isconahua"
 
 #. name for isd
 msgid "Isnag"
-msgstr ""
+msgstr "Isneg"
 
 #. name for ise
 msgid "Italian Sign Language"
@@ -10372,15 +10372,15 @@ msgstr "Llenguatge de signes irlandès"
 
 #. name for ish
 msgid "Esan"
-msgstr ""
+msgstr "Esan"
 
 #. name for isi
 msgid "Nkem-Nkum"
-msgstr ""
+msgstr "Nkem-Nkum"
 
 #. name for isk
 msgid "Ishkashimi"
-msgstr ""
+msgstr "Ishkashimi"
 
 #. name for isl
 msgid "Icelandic"
@@ -10388,15 +10388,15 @@ msgstr "Islandès"
 
 #. name for ism
 msgid "Masimasi"
-msgstr ""
+msgstr "Masimasi"
 
 #. name for isn
 msgid "Isanzu"
-msgstr ""
+msgstr "Isanzu"
 
 #. name for iso
 msgid "Isoko"
-msgstr ""
+msgstr "Isoco"
 
 #. name for isr
 msgid "Israeli Sign Language"
@@ -10404,11 +10404,11 @@ msgstr "Llenguatge de signes israelià"
 
 #. name for ist
 msgid "Istriot"
-msgstr ""
+msgstr "Istri"
 
 #. name for isu
 msgid "Isu (Menchum Division)"
-msgstr ""
+msgstr "Isu (Divisió de Menchum)"
 
 #. name for ita
 msgid "Italian"
@@ -10416,15 +10416,15 @@ msgstr "Italià"
 
 #. name for itb
 msgid "Itneg; Binongan"
-msgstr ""
+msgstr "Itneg; Binongan"
 
 #. name for ite
 msgid "Itene"
-msgstr ""
+msgstr "Itene"
 
 #. name for iti
 msgid "Itneg; Inlaod"
-msgstr ""
+msgstr "Itneg; Inlaod"
 
 #. name for itk
 msgid "Judeo-Italian"
@@ -10432,147 +10432,147 @@ msgstr "Judeo-italià"
 
 #. name for itl
 msgid "Itelmen"
-msgstr ""
+msgstr "Itelmen"
 
 #. name for itm
 msgid "Itu Mbon Uzo"
-msgstr ""
+msgstr "Itu Mbon Uzo"
 
 #. name for ito
 msgid "Itonama"
-msgstr ""
+msgstr "Itonama"
 
 #. name for itr
 msgid "Iteri"
-msgstr ""
+msgstr "Iteri"
 
 #. name for its
 msgid "Isekiri"
-msgstr ""
+msgstr "Isekiri"
 
 #. name for itt
 msgid "Itneg; Maeng"
-msgstr ""
+msgstr "Itneg; Maeng"
 
 #. name for itv
 msgid "Itawit"
-msgstr ""
+msgstr "Itawit"
 
 #. name for itw
 msgid "Ito"
-msgstr ""
+msgstr "Ito"
 
 #. name for itx
 msgid "Itik"
-msgstr ""
+msgstr "Itik"
 
 #. name for ity
 msgid "Itneg; Moyadan"
-msgstr ""
+msgstr "Itneg; Moyadan"
 
 #. name for itz
 msgid "Itzá"
-msgstr ""
+msgstr "Itzà"
 
 #. name for ium
 msgid "Mien; Iu"
-msgstr ""
+msgstr "Mien; Iu"
 
 #. name for ivb
 msgid "Ibatan"
-msgstr ""
+msgstr "Ibatan"
 
 #. name for ivv
 msgid "Ivatan"
-msgstr ""
+msgstr "Ivatan"
 
 #. name for iwk
 msgid "I-Wak"
-msgstr ""
+msgstr "Iwaak"
 
 #. name for iwm
 msgid "Iwam"
-msgstr ""
+msgstr "Iwam"
 
 #. name for iwo
 msgid "Iwur"
-msgstr ""
+msgstr "Iwur"
 
 #. name for iws
 msgid "Iwam; Sepik"
-msgstr ""
+msgstr "Iwam; Sepik"
 
 #. name for ixc
 msgid "Ixcatec"
-msgstr ""
+msgstr "Ixcatec"
 
 #. name for ixl
 msgid "Ixil"
-msgstr ""
+msgstr "Ixil"
 
 #. name for iya
 msgid "Iyayu"
-msgstr ""
+msgstr "Iyayu"
 
 #. name for iyo
 msgid "Mesaka"
-msgstr ""
+msgstr "Mesaka"
 
 #. name for iyx
 msgid "Yaka (Congo)"
-msgstr ""
+msgstr "Yaka (Congo)"
 
 #. name for izh
 msgid "Ingrian"
-msgstr ""
+msgstr "Ingri"
 
 #. name for izi
 msgid "Izi-Ezaa-Ikwo-Mgbo"
-msgstr ""
+msgstr "Izi-Ezaa-Ikwo-Mgbo"
 
 #. name for izr
 msgid "Izere"
-msgstr ""
+msgstr "Izere"
 
 #. name for jaa
 msgid "Jamamadí"
-msgstr ""
+msgstr "Jamamadí"
 
 #. name for jab
 msgid "Hyam"
-msgstr ""
+msgstr "Ham"
 
 #. name for jac
 msgid "Popti'"
-msgstr ""
+msgstr "Jacaltec"
 
 #. name for jad
 msgid "Jahanka"
-msgstr ""
+msgstr "Jahanka"
 
 #. name for jae
 msgid "Yabem"
-msgstr ""
+msgstr "Yabem"
 
 #. name for jaf
 msgid "Jara"
-msgstr ""
+msgstr "Jara"
 
 #. name for jah
 msgid "Jah Hut"
-msgstr ""
+msgstr "Jah Hut"
 
 #. name for jaj
 msgid "Zazao"
-msgstr ""
+msgstr "Zazao"
 
 #. name for jak
 msgid "Jakun"
-msgstr ""
+msgstr "Jakun"
 
 #. name for jal
 msgid "Yalahatan"
-msgstr ""
+msgstr "Jalahatan"
 
 #. name for jam
 msgid "Creole English; Jamaican"
@@ -10580,31 +10580,31 @@ msgstr "Anglès crioll; Jamaica"
 
 #. name for jao
 msgid "Yanyuwa"
-msgstr ""
+msgstr "Yanyula"
 
 #. name for jaq
 msgid "Yaqay"
-msgstr ""
+msgstr "Yaqay"
 
 #. name for jar
 msgid "Jarawa (Nigeria)"
-msgstr ""
+msgstr "Jarawa (Nigèria)"
 
 #. name for jas
 msgid "Javanese; New Caledonian"
-msgstr ""
+msgstr "Javanès; Nova Caledònia"
 
 #. name for jat
 msgid "Jakati"
-msgstr ""
+msgstr "Jakati"
 
 #. name for jau
 msgid "Yaur"
-msgstr ""
+msgstr "Yaur"
 
 #. name for jav
 msgid "Javanese"
-msgstr ""
+msgstr "Javanès"
 
 #. name for jax
 msgid "Malay; Jambi"
@@ -10612,11 +10612,11 @@ msgstr "Malai; Jambi"
 
 #. name for jay
 msgid "Yan-nhangu"
-msgstr ""
+msgstr "Jarnango"
 
 #. name for jaz
 msgid "Jawe"
-msgstr ""
+msgstr "Jawe"
 
 #. name for jbe
 msgid "Judeo-Berber"
@@ -10624,27 +10624,27 @@ msgstr "Judeo-berber"
 
 #. name for jbj
 msgid "Arandai"
-msgstr ""
+msgstr "Arandai"
 
 #. name for jbn
 msgid "Nafusi"
-msgstr ""
+msgstr "Djerbi"
 
 #. name for jbo
 msgid "Lojban"
-msgstr ""
+msgstr "Lojban"
 
 #. name for jbr
 msgid "Jofotek-Bromnya"
-msgstr ""
+msgstr "Jofotek-Bromnya"
 
 #. name for jbt
 msgid "Jabutí"
-msgstr ""
+msgstr "Jaboti"
 
 #. name for jbu
 msgid "Jukun Takum"
-msgstr ""
+msgstr "Jukun Takum"
 
 #. name for jcs
 msgid "Jamaican Country Sign Language"
@@ -10652,31 +10652,31 @@ msgstr "Llenguatge de signes del país jamaicà"
 
 #. name for jct
 msgid "Krymchak"
-msgstr ""
+msgstr "Judeocrimeà"
 
 #. name for jda
 msgid "Jad"
-msgstr ""
+msgstr "Jad"
 
 #. name for jdg
 msgid "Jadgali"
-msgstr ""
+msgstr "Jadgali"
 
 #. name for jdt
 msgid "Judeo-Tat"
-msgstr ""
+msgstr "Judeotat"
 
 #. name for jeb
 msgid "Jebero"
-msgstr ""
+msgstr "Jebero"
 
 #. name for jee
 msgid "Jerung"
-msgstr ""
+msgstr "Jerung"
 
 #. name for jeg
 msgid "Jeng"
-msgstr ""
+msgstr "Jeng"
 
 #. name for jeh
 msgid "Jeh"
@@ -11012,7 +11012,7 @@ msgstr ""
 
 #. name for jvn
 msgid "Javanese; Caribbean"
-msgstr ""
+msgstr "Javanès; Carib"
 
 #. name for jwi
 msgid "Jwira-Pepesa"
@@ -18960,7 +18960,7 @@ msgstr ""
 
 #. name for nqk
 msgid "Ede Nago; Kura"
-msgstr ""
+msgstr "Ede;Nago Kura"
 
 #. name for nqm
 msgid "Ndom"
@@ -25172,7 +25172,7 @@ msgstr ""
 
 #. name for tis
 msgid "Itneg; Masadiit"
-msgstr ""
+msgstr "Itneg; Masadiit"
 
 #. name for tit
 msgid "Tinigua"
@@ -27348,7 +27348,7 @@ msgstr "Llenguatge de signes veneçolà"
 
 #. name for vsv
 msgid "Valencian Sign Language"
-msgstr "Llenguatge de signes valencià"
+msgstr "Llengua de signes valenciana"
 
 #. name for vto
 msgid "Vitou"
@@ -29604,7 +29604,7 @@ msgstr ""
 
 #. name for yix
 msgid "Yi; Axi"
-msgstr ""
+msgstr "Yi; Axi"
 
 #. name for yiy
 msgid "Yir Yoront"
@@ -29688,7 +29688,7 @@ msgstr ""
 
 #. name for ylo
 msgid "Yi; Naluo"
-msgstr ""
+msgstr "Yi; Naluo"
 
 #. name for ylr
 msgid "Yalarnnga"
@@ -29764,7 +29764,7 @@ msgstr ""
 
 #. name for ymr
 msgid "Malasar"
-msgstr ""
+msgstr "Malasar"
 
 #. name for yms
 msgid "Mysian"
@@ -30104,7 +30104,7 @@ msgstr ""
 
 #. name for ywq
 msgid "Yi; Wuding-Luquan"
-msgstr ""
+msgstr "Yi; Wuding-luqua"
 
 #. name for ywr
 msgid "Yawuru"

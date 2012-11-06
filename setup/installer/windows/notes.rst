@@ -30,7 +30,7 @@ If there are no windows binaries already compiled for the version of python you 
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto
+    easy_install --always-unzip -U mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto cssselect
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 
@@ -276,27 +276,6 @@ cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.exp lib/
 cp -r build/kdewin32-msvc-0.3.9/include/msvc/ include/
 cp build/kdewin32-msvc-0.3.9/include/*.h include/
 
-fontconfig
----------------
-
-Get it from http://www.winkde.org/pub/kde/ports/win32/repository/win32libs/
-mkdir build
-Remove subdirectory test from the bottom of CMakeLists.txt
-run cmake
-
-Set build type to release and project config to dll
-Right click on the fontconfig project and select properties. Add sw/include/msvc to the include paths
-Build only fontconfig
-
-cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.dll bin
-cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.lib lib
-cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.exp lib
-cp -r build/fontconfig-msvc-2.4.2-3/fontconfig/ include/
-
-Also install the etc files from the font-config-bin archive from kde win32libs
-It contains correct fonts.conf etc.
-
-
 poppler
 -------------
 
@@ -322,24 +301,7 @@ cp build/podofo-*/build/src/Release/podofo.exp lib/
 cp build/podofo-*/build/podofo_config.h include/podofo/
 cp -r build/podofo-*/src/* include/podofo/
 
-You have to use >=0.8.2
-
-The following patch (against -r1269) was required to get it to compile:
-
-
-Index: src/PdfFiltersPrivate.cpp
-===================================================================
---- src/PdfFiltersPrivate.cpp   (revision 1261)
-+++ src/PdfFiltersPrivate.cpp   (working copy)
-@@ -1019,7 +1019,7 @@
- /*
-  * Prepare for input from a memory buffer.
-  */
--GLOBAL(void)
-+void
- jpeg_memory_src (j_decompress_ptr cinfo, const JOCTET * buffer, size_t bufsize)
- {
-     my_src_ptr src;
+You have to use >=0.9.1
 
 
 ImageMagick
@@ -364,6 +326,36 @@ Remove the CORE_xlib, UTIL_Imdisplay and CORE_Magick++ projects.
 
 F7 for build project, you will get one error due to the removal of xlib, ignore
 it.
+
+netifaces
+------------
+
+Download the source tarball from http://alastairs-place.net/projects/netifaces/
+
+Rename netifaces.c to netifaces.cpp and make the same change in setup.py
+
+Run 
+
+python setup.py build
+cp build/lib.win32-2.7/netifaces.pyd /cygdrive/c/Python27/Lib/site-packages/
+
+psutil
+--------
+
+Download the source tarball
+
+Run
+
+Python setup.py build
+cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
+
+easylzma
+----------
+
+Get it from http://lloyd.github.com/easylzma/ (use the trunk version)
+
+Run cmake and build the Visual Studio solution (generates CLI tools and dll and
+static lib automatically)
 
 calibre
 ---------
