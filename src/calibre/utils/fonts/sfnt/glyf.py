@@ -49,7 +49,7 @@ class CompositeGlyph(SimpleGlyph):
         self.is_composite = True
 
         flags = MORE_COMPONENTS
-        offset = 0
+        offset = 10
         while flags & MORE_COMPONENTS:
             flags, glyph_index = unpack_from(b'>HH', raw, offset)
             self.glyph_indices.append(glyph_index)
