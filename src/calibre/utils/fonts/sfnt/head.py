@@ -10,19 +10,21 @@ __docformat__ = 'restructuredtext en'
 from itertools import izip
 from struct import unpack_from, pack
 
-from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty
+from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
 
 class HeadTable(UnknownTable):
 
     created = DateTimeProperty('_created')
     modified = DateTimeProperty('_modified')
+    version_number = FixedProperty('_version_number')
+    font_revision = FixedProperty('_font_revision')
 
     def __init__(self, *args, **kwargs):
         super(HeadTable, self).__init__(*args, **kwargs)
 
         field_types = (
-                'version_number' , 'L',
-                'font_revision'  , 'L',
+                '_version_number' , 'l',
+                '_font_revision'  , 'l',
                 'checksum_adjustment' , 'L',
                 'magic_number' , 'L',
                 'flags' , 'H',

@@ -10,47 +10,38 @@ __docformat__ = 'restructuredtext en'
 from itertools import izip
 from struct import unpack_from, pack
 
-from calibre.utils.fonts.sfnt import UnknownTable
+from calibre.utils.fonts.sfnt import UnknownTable, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 class MaxpTable(UnknownTable):
 
+    version = FixedProperty('_version')
+
     def __init__(self, *args, **kwargs):
         super(MaxpTable, self).__init__(*args, **kwargs)
 
-        self._fmt = b'>LH'
+        self._fmt = b'>lH'
         self._version, self.num_glyphs = unpack_from(self._fmt, self.raw)
         self.fields = ('_version', 'num_glyphs')
 
-        if self._version >= 0x10000:
-            self.version = 0x10000
+        if self.version > 1.0:
+            raise UnsupportedFont('This font has a maxp table with version: %s'
+                    %self.version)
+        if self.version == 1.0:
+            self.fields = ('_version', 'num_glyphs', 'max_points',
+                    'max_contours', 'max_composite_points',
+                    'max_composite_contours', 'max_zones',
+                    'max_twilight_points', 'max_storage', 'max_function_defs',
+                    'max_instruction_defs', 'max_stack_elements',
+                    'max_size_of_instructions', 'max_component_elements',
+                    'max_component_depth')
+            self._fmt = b'>lH' + b'H'*(len(self.fields)-2)
+
             vals = unpack_from(self._fmt, self.raw)
             for f, val in izip(self.fields, vals):
                 setattr(self, f, val)
 
-    @dynamic_property
-    def version(self):
-        def fget(self):
-            return self._version
-        def fset(self, val):
-            if val == 0x5000:
-                self._fmt = b'>LH'
-                self._fields = ('_version', 'num_glyphs')
-            elif val == 0x10000:
-                self.fields = ('_version', 'num_glyphs', 'max_points',
-                        'max_contours', 'max_composite_points',
-                        'max_composite_contours', 'max_zones',
-                        'max_twilight_points', 'max_storage', 'max_function_defs',
-                        'max_instruction_defs', 'max_stack_elements',
-                        'max_size_of_instructions', 'max_component_elements',
-                        'max_component_depth')
-                self._fmt = b'>LH' + b'H'*(len(self.fields)-2)
-            self._version = val
-        return property(fget=fget, fset=fset)
-
     def update(self):
-        if self._version > 0x10000:
-            raise UnsupportedFont('maxp table with version > 0x10000 not modifiable')
         vals = [getattr(self, f) for f in self._fields]
         self.raw = pack(self._fmt, *vals)
 
