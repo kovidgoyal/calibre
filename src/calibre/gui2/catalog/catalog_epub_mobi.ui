@@ -305,7 +305,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
       <string>Other options</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="1">
+      <item row="3" column="1">
        <layout class="QHBoxLayout" name="merge_with_comments_hl">
         <item>
          <widget class="QComboBox" name="merge_source_field">
@@ -372,7 +372,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         </item>
        </layout>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_9">
         <property name="minimumSize">
          <size>
@@ -397,7 +397,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_4">
         <property name="minimumSize">
          <size>
@@ -413,7 +413,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <layout class="QHBoxLayout" name="replace_cover_hl">
         <item>
          <widget class="QRadioButton" name="generate_new_cover">
@@ -447,7 +447,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>E&amp;xtra Description note:</string>
@@ -460,7 +460,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QComboBox" name="header_note_source_field">
@@ -556,6 +556,27 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
           </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Author cross-references:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="cross_references_hl">
+        <item>
+         <widget class="QCheckBox" name="cross_reference_authors">
+          <property name="text">
+           <string>For books with multiple authors, list each author separately</string>
           </property>
          </widget>
         </item>

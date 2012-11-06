@@ -40,6 +40,6 @@ class LondonReviewOfBooks(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.lrb.co.uk/')
         cover_item = soup.find('p',attrs={'class':'cover'})
         if cover_item:
-           cover_url = 'http://www.lrb.co.uk' + cover_item.a.img['src']
+           cover_url = cover_item.a.img['src']
         return cover_url
 
