@@ -144,9 +144,10 @@ class CmapTable(UnknownTable):
             except IndexError:
                 next_offset = len(self.raw)
             table = self.raw[offset:next_offset]
-            fmt = unpack_from(b'>H', table)[0]
-            if platform == 3 and encoding == 1 and fmt == 4:
-                self.bmp_table = table
+            if table:
+                fmt = unpack_from(b'>H', table)[0]
+                if platform == 3 and encoding == 1 and fmt == 4:
+                    self.bmp_table = table
 
     def get_character_map(self, chars):
         '''

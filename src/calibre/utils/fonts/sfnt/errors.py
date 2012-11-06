@@ -10,3 +10,6 @@ __docformat__ = 'restructuredtext en'
 class UnsupportedFont(ValueError):
     pass
 
+class NoGlyphs(ValueError):
+    pass
+

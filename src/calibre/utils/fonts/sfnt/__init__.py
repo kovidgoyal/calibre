@@ -26,6 +26,9 @@ class UnknownTable(object):
     def __call__(self):
         return self.raw
 
+    def __len__(self):
+        return len(self.raw)
+
 class DateTimeProperty(object):
 
     def __init__(self, name):
@@ -46,10 +49,10 @@ class FixedProperty(object):
 
     def __get__(self, obj, type=None):
         val = getattr(obj, self.name)
-        return val * (2**-16)
+        return val / 0x10000
 
     def __set__(self, obj, val):
-        return int(round(val*(2**16)))
+        return int(round(val*(0x10000)))
 
 def max_power_of_two(x):
 	"""
@@ -62,4 +65,10 @@ def max_power_of_two(x):
 		exponent += 1
 	return max(exponent - 1, 0)
 
+def load_font(stream_or_path):
+    raw = stream_or_path
+    if hasattr(raw, 'read'):
+        raw = raw.read()
+    from calibre.utils.fonts.sfnt.container import Sfnt
+    return Sfnt(raw)
 

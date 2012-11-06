@@ -120,6 +120,7 @@ def all():
             try:
                 sf, old_stats, new_stats = subset(raw, set(('a', 'b', 'c')), ())
             except NoGlyphs:
+                print ('No glyphs!')
                 continue
             except UnsupportedFont as e:
                 unsupported.append((font['full_name'], font['path'], unicode(e)))

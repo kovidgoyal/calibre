@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from collections import defaultdict
 
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.utils.fonts.subset import subset, NoGlyphs, UnsupportedFont
+from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
 
 class SubsetFonts(object):
 

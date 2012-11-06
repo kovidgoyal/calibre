@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from struct import pack, calcsize
 from io import BytesIO
+from collections import OrderedDict
 
 from calibre.utils.fonts.utils import (get_tables, checksum_of_block,
         verify_checksums)
@@ -18,6 +19,8 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.sfnt.head import HeadTable
 from calibre.utils.fonts.sfnt.maxp import MaxpTable
 from calibre.utils.fonts.sfnt.loca import LocaTable
+from calibre.utils.fonts.sfnt.glyf import GlyfTable
+from calibre.utils.fonts.sfnt.cmap import CmapTable
 
 class Sfnt(object):
 
@@ -35,6 +38,8 @@ class Sfnt(object):
                     b'head' : HeadTable,
                     b'maxp' : MaxpTable,
                     b'loca' : LocaTable,
+                    b'glyf' : GlyfTable,
+                    b'cmap' : CmapTable,
                     }.get(table_tag, UnknownTable)(table)
 
     def __getitem__(self, key):
@@ -48,6 +53,12 @@ class Sfnt(object):
 
     def pop(self, key, default=None):
         return self.tables.pop(key, default)
+
+    def sizes(self):
+        ans = OrderedDict()
+        for tag in sorted(self.tables):
+            ans[tag] = len(self[tag])
+        return ans
 
     def __call__(self):
         stream = BytesIO()
@@ -68,6 +79,7 @@ class Sfnt(object):
         head_offset = None
         table_data = []
         offset = stream.tell() + ( calcsize(b'>4s3L') * num_tables )
+        sizes = OrderedDict()
         for tag in sorted(self.tables):
             table = self.tables[tag]
             raw = table()
@@ -80,6 +92,7 @@ class Sfnt(object):
             spack(b'>4s3L', tag, checksum, offset, table_len)
             offset += len(raw)
             table_data.append(raw)
+            sizes[tag] = table_len
 
         for x in table_data:
             stream.write(x)
@@ -89,7 +102,7 @@ class Sfnt(object):
         stream.seek(head_offset + 8)
         spack(b'>L', q)
 
-        return stream.getvalue()
+        return stream.getvalue(), sizes
 
 def test_roundtrip(ff=None):
     if ff is None:
@@ -97,7 +110,7 @@ def test_roundtrip(ff=None):
     else:
         with open(ff, 'rb') as f:
             data = f.read()
-    rd = Sfnt(data)()
+    rd = Sfnt(data)()[0]
     verify_checksums(rd)
     if data[:12] != rd[:12]:
         raise ValueError('Roundtripping failed, font header not the same')
