@@ -22,6 +22,8 @@ from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.glyf import GlyfTable
 from calibre.utils.fonts.sfnt.cmap import CmapTable
 
+# OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
+
 class Sfnt(object):
 
     def __init__(self, raw):
