@@ -254,7 +254,6 @@ def unit_convert(value, base, font, dpi):
 
 def generate_masthead(title, output_path=None, width=600, height=60):
     from calibre.ebooks.conversion.config import load_defaults
-    from calibre.utils.fonts import fontconfig
     from calibre.utils.config import tweaks
     fp = tweaks['generate_cover_title_font']
     if not fp:
@@ -264,11 +263,10 @@ def generate_masthead(title, output_path=None, width=600, height=60):
     masthead_font_family = recs.get('masthead_font', 'Default')
 
     if masthead_font_family != 'Default':
-        masthead_font = fontconfig.files_for_family(masthead_font_family)
-        # Assume 'normal' always in dict, else use default
-        # {'normal': (path_to_font, friendly name)}
-        if 'normal' in masthead_font:
-            font_path = masthead_font['normal'][0]
+        from calibre.utils.fonts.scanner import font_scanner
+        faces = font_scanner.fonts_for_family(masthead_font_family)
+        if faces:
+            font_path = faces[0]['path']
 
     if not font_path or not os.access(font_path, os.R_OK):
         font_path = default_font

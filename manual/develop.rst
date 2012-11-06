@@ -72,13 +72,21 @@ After installing Bazaar, you can get the |app| source code with the command::
 
     bzr branch lp:calibre
 
-On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Bazaar\\bzr.exe`. To update a branch
-to the latest code, use the command::
+On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Bazaar\\bzr.exe`. 
+
+To update a branch to the latest code, use the command::
 
     bzr merge
 
-The calibre repository is huge so the branch operation above takes along time (about an hour). If you want to get the code faster, the sourcecode for the latest release is always available as an
-`archive <http://status.calibre-ebook.com/dist/src>`_.
+|app| is a very large project with a very long source control history, so the
+above can take a while (10mins to an hour depending on your internet speed).
+
+If you want to get the code faster, the sourcecode for the latest release is
+always available as an `archive <http://status.calibre-ebook.com/dist/src>`_.
+You can also use bzr to just download the source code, without the history,
+using::
+
+  bzr branch --stacked lp:calibre
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,7 +117,7 @@ Whenever you commit changes to your branch with the command::
     bzr commit -m "Comment describing your change"
 
 Kovid can merge it directly from your branch into the main |app| source tree. You should also keep an eye on the |app|
-`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`. Before making major changes, you should
+`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making major changes, you should
 discuss them in the forum or contact Kovid directly (his email address is all over the source code).
 
 Windows development environment

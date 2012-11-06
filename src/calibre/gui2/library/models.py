@@ -871,12 +871,18 @@ class BooksModel(QAbstractTableModel): # {{{
             try:
                 return self._set_data(index, value)
             except (IOError, OSError) as err:
+                import traceback
                 if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
-                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
                     error_dialog(get_gui(), _('Permission denied'),
                             _('Could not change the on disk location of this'
                                 ' book. Is it open in another program?'),
-                            det_msg=traceback.format_exc(), show=True)
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                error_dialog(get_gui(), _('Failed to set data'),
+                        _('Could not set data, click Show Details to see why.'),
+                        det_msg=traceback.format_exc(), show=True)
             except:
                 import traceback
                 traceback.print_exc()

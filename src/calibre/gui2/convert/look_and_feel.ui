@@ -406,7 +406,14 @@
     </widget>
    </item>
    <item row="6" column="1" colspan="2">
-    <widget class="FontFamilyChooser" name="opt_embed_font_family"/>
+    <widget class="FontFamilyChooser" name="opt_embed_font_family" native="true"/>
+   </item>
+   <item row="6" column="3" colspan="2">
+    <widget class="QCheckBox" name="opt_subset_embedded_fonts">
+     <property name="text">
+      <string>&amp;Subset all embedded fonts</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -418,7 +425,7 @@
   </customwidget>
   <customwidget>
    <class>FontFamilyChooser</class>
-   <extends>QComboBox</extends>
+   <extends>QWidget</extends>
    <header>calibre/gui2/font_family_chooser.h</header>
   </customwidget>
  </customwidgets>

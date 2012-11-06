@@ -19,6 +19,103 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.5
+  date: 2012-11-02
+
+  new features:
+    - title: "Font embedding: Add support for the CSS 3 Fonts module, which means you can embed font families that have more that the usual four faces, with the full set of font-stretch and font-weight variations. Of course, whether the fonts actually show up on a reader will depend on the readers' support for CSS 3."
+
+    - title: "Sharing by email: Allow specifying an 'alias' or friendly name by which to identify each email recipient."
+      tickets: [1069076]
+
+    - title: "Embedding fonts: Allow adding ttf/otf font files to calibre directly to be used for embedding. That way the fonts do not have to be installed system wide. You can add a font to calibre via the 'Add fonts' button in the font chooser dialog for embedding fonts."
+
+    - title: "E-book viewer: Add the ability to rotate images to the popup image viewer."
+      tickets: [1073513]
+
+    - title: "Generate cover: Speedup searching the system for a font that can render special characters"
+
+    - title: "A new custom font scanner to locate all fonts on the system. Faster and less crash prone that fontconfig/freetype"
+
+    - title: "Font family chooser: Show the faces available for a family when clicking on the family"
+ 
+  bug fixes:
+    - title: "Get Books: Fix eHarlequin and Kobo stores."
+      tickets: [1072702]
+
+    - title: "Kobo driver: Fix a bug that could cause the on device book matching to fail in certain circumstances."
+      tickets: [1072437]
+
+    - title: "Kobo driver: When using a SD card do not delete shelves that contain on books on the card (there might be books in the shelf in the main memory)."
+      tickets: [1073792]
+
+    - title: "Workaround for bug in the windows API CreateHardLink function that breaks using calibre libraries on some networked filesystems."
+
+    - title: "Template editor: Use dummy metadata instead of blank/unknown values"
+
+    - title: "Windows: abort setting of title/author if any of the books' files are in use. Results in less surprising behavior than before, when the title/author would be changed, but the on disk location would not."
+
+  improved recipes:
+    - Financial Times UK
+    - Science AAAS
+    - The Atlantic
+
+  new recipes:
+    - title: "Pravda in english, italian and portuguese"
+      author: Darko Miletic
+
+    - title: "Delco Times"
+      author: Krittika Goyal
+
+
+- version: 0.9.4
+  date: 2012-10-26
+
+  new features:
+    - title: "Conversion: Add an option to embed a font family into the book."
+      description: "The embedded font is used as the base font for all text that does not specify its own font family in the input document. Works only with output formats that support font embedding, principally EPUB/AZW3. Option is found under Look & Feel in the conversion dialog. You can ensure that the font is used for all text, regardless of the input document's styles by filtering out font family styles via the Filter Style Information option in the Conversion dialog."
+      type: major
+
+    - title: "When changing the title/author of a book, use hard links instead of copying the books' files, for a large speedup. Only works on filesystems that support hardlinks."
+
+    - title: "Linux installer: Resume interrupted downloads and verify the SHA-512 signature of the downloaded file before installing it."
+ 
+  bug fixes:
+    - title: "Windows: Check if any of the files of a book are in use before changing the title/author, this prevents the creation of duplicate files if one of the files is open in another program"
+
+    - title: "Kobo driver: Fix the ondevice status for some books getting lost."
+      tickets: [1069403]
+
+    - title: "Catalogs: Fix regression that broke use of prefix rules."
+      tickets: [1070086]
+
+    - title: "Tag Browser: Fix sorting incorrect for accented letters"
+      tickets: [1069835]
+
+    - title: "Make the bundled Liberation fonts available on all platforms for embedding"
+
+    - title: "Use mimetype for fonts from the EPUB 3 specification"
+
+    - title: "Get Books: Handle website change that broke the SONY Store plugin"
+
+    - title: "Generate cover: If the default font cannot render characters in the metadata (for example for east asian languages) try to automatically find a font on the system that is capable of rendering the characters"
+
+    - title: "Fix regression that broke certain types of CSS selectors."
+      tickets: [1068937]
+
+    - title: "Use font-weight:bold instead of font-weight:bolder for the <b> and <strong> tags as ADE cant handle bolder when embedded fonts are used"
+
+  improved recipes:
+    - New York Post
+    - PC World
+    - TIME Magazine
+    - Associated Press
+
+  new recipes:
+    - title: Yazihane 
+      author: A Erdogan
+
+
 - version: 0.9.3
   date: 2012-10-19
 

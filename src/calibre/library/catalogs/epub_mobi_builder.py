@@ -569,12 +569,12 @@ class CatalogBuilder(object):
          prefix (str): matched a prefix_rule
          None: no match
         """
-        def _log_prefix_rule_match_info(rule, record, field_contents):
+        def _log_prefix_rule_match_info(rule, record, matched):
             self.opts.log.info("  %s '%s' by %s (%s: '%s' contains '%s')" %
                                (rule['prefix'],record['title'],
                                 record['authors'][0], rule['name'],
                                 self.db.metadata_for_field(rule['field'])['name'],
-                                field_contents))
+                                matched))
 
         # Compare the record to each rule looking for a match
         for rule in self.prefix_rules:
@@ -582,7 +582,10 @@ class CatalogBuilder(object):
             if rule['field'].lower() == 'tags':
                 if rule['pattern'].lower() in map(unicode.lower,record['tags']):
                     if self.opts.verbose:
-                        _log_prefix_rule_match_info(rule, record)
+                        self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
+                               (rule['prefix'],record['title'],
+                                record['authors'][0], rule['name'],
+                                rule['pattern']))
                     return rule['prefix']
 
             # Regex match for custom field
@@ -649,7 +652,6 @@ class CatalogBuilder(object):
 
         cl_list = [None] * len(item_list)
         last_ordnum = 0
-        last_c = u''
 
         for idx, item in enumerate(item_list):
             if key:
@@ -659,9 +661,10 @@ class CatalogBuilder(object):
 
             ordnum, ordlen = collation_order(c)
             if isosx and platform.mac_ver()[0] < '10.8':
+                # Hackhackhackhackhack
                 # icu returns bogus results with curly apostrophes, maybe others under OS X 10.6.x
                 # When we see the magic combo of 0/-1 for ordnum/ordlen, special case the logic
-
+                last_c = u''
                 if ordnum == 0 and ordlen == -1:
                     if icu_upper(c[0]) != last_c:
                         last_c = icu_upper(c[0])
@@ -2757,7 +2760,6 @@ class CatalogBuilder(object):
         """
 
         from calibre.ebooks.conversion.config import load_defaults
-        from calibre.utils.fonts import fontconfig
 
         MI_WIDTH = 600
         MI_HEIGHT = 60
@@ -2767,11 +2769,10 @@ class CatalogBuilder(object):
         masthead_font_family = recs.get('masthead_font', 'Default')
 
         if masthead_font_family != 'Default':
-            masthead_font = fontconfig.files_for_family(masthead_font_family)
-            # Assume 'normal' always in dict, else use default
-            # {'normal': (path_to_font, friendly name)}
-            if 'normal' in masthead_font:
-                font_path = masthead_font['normal'][0]
+            from calibre.utils.fonts.scanner import font_scanner
+            faces = font_scanner.fonts_for_family(masthead_font_family)
+            if faces:
+                font_path = faces[0]['path']
 
         if not font_path or not os.access(font_path, os.R_OK):
             font_path = default_font

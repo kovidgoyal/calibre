@@ -504,7 +504,11 @@ from the value in the box</string>
              <item>
               <widget class="QCheckBox" name="restore_original">
                <property name="toolTip">
-                <string>When doing a same format to same format conversion, for e.g., EPUB to EPUB, calibre saves the original EPUB as ORIGINAL_EPUB. This option tells calibre to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion of a large number of books and something went wrong.</string>
+                <string>When doing a same format to same format conversion, 
+for e.g., EPUB to EPUB, calibre saves the original EPUB
+ as ORIGINAL_EPUB. This option tells calibre to restore
+ the EPUB from ORIGINAL_EPUB. Useful if you did a bulk
+ conversion of a large number of books and something went wrong.</string>
                </property>
                <property name="text">
                 <string>Restore pre conversion &amp;originals, if available</string>

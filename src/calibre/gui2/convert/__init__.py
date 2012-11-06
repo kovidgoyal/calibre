@@ -191,6 +191,8 @@ class Widget(QWidget):
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.editTextChanged.connect(f)
             g.edit.currentIndexChanged.connect(f)
+        elif isinstance(g, FontFamilyChooser):
+            g.family_changed.connect(f)
         else:
             raise Exception('Can\'t connect %s'%type(g))
 

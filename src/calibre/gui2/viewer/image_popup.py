@@ -8,7 +8,8 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
-        QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon, Qt)
+        QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon,
+        Qt, QTransform)
 
 from calibre.gui2 import choose_save_file, gprefs
 
@@ -37,12 +38,15 @@ class ImageView(QDialog):
         self.zi_button = zi = bb.addButton(_('Zoom &in'), bb.ActionRole)
         self.zo_button = zo = bb.addButton(_('Zoom &out'), bb.ActionRole)
         self.save_button = so = bb.addButton(_('&Save as'), bb.ActionRole)
+        self.rotate_button = ro = bb.addButton(_('&Rotate'), bb.ActionRole)
         zi.setIcon(QIcon(I('plus.png')))
         zo.setIcon(QIcon(I('minus.png')))
         so.setIcon(QIcon(I('save.png')))
+        ro.setIcon(QIcon(I('rotate-right.png')))
         zi.clicked.connect(self.zoom_in)
         zo.clicked.connect(self.zoom_out)
         so.clicked.connect(self.save_image)
+        ro.clicked.connect(self.rotate_image)
 
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -76,6 +80,14 @@ class ImageView(QDialog):
                 self.scrollarea.verticalScrollBar()):
             sb.setValue(int(factor*sb.value()) + ((factor - 1) * sb.pageStep()/2))
 
+    def rotate_image(self):
+        pm = self.label.pixmap()
+        t = QTransform()
+        t.rotate(90)
+        pm = pm.transformed(t)
+        self.label.setPixmap(pm)
+        self.label.adjustSize()
+
     def __call__(self):
         geom = self.avail_geom
         self.label.setPixmap(self.current_img)
@@ -92,6 +104,14 @@ class ImageView(QDialog):
     def done(self, e):
         gprefs['viewer_image_popup_geometry'] = bytearray(self.saveGeometry())
         return QDialog.done(self, e)
+
+    def wheelEvent(self, event):
+        if event.delta() < -14:
+            self.zoom_out()
+            event.accept()
+        elif event.delta() > 14:
+            event.accept()
+            self.zoom_in()
 
 class ImagePopup(object):
 
@@ -114,3 +134,12 @@ class ImagePopup(object):
             if not d.isVisible():
                 self.dialogs.remove(d)
 
+if __name__ == '__main__':
+    import sys
+    app = QApplication([])
+    p = QPixmap()
+    p.load(sys.argv[-1])
+    u = QUrl.fromLocalFile(sys.argv[-1])
+    d = ImageView(None, p, u)
+    d()
+    app.exec_()

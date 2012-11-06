@@ -34,24 +34,24 @@ class PRS500_PROFILE(object):
     name = 'prs500'
 
 def find_custom_fonts(options, logger):
-    from calibre.utils.fonts import fontconfig
-    files_for_family = fontconfig.files_for_family
+    from calibre.utils.fonts.scanner import font_scanner
     fonts = {'serif' : None, 'sans' : None, 'mono' : None}
     def family(cmd):
         return cmd.split(',')[-1].strip()
     if options.serif_family:
         f = family(options.serif_family)
-        fonts['serif'] = files_for_family(f)
+        fonts['serif'] = font_scanner.legacy_fonts_for_family(f)
+        print (111111, fonts['serif'])
         if not fonts['serif']:
             logger.warn('Unable to find serif family %s'%f)
     if options.sans_family:
         f = family(options.sans_family)
-        fonts['sans'] = files_for_family(f)
+        fonts['sans'] = font_scanner.legacy_fonts_for_family(f)
         if not fonts['sans']:
             logger.warn('Unable to find sans family %s'%f)
     if options.mono_family:
         f = family(options.mono_family)
-        fonts['mono'] = files_for_family(f)
+        fonts['mono'] = font_scanner.legacy_fonts_for_family(f)
         if not fonts['mono']:
             logger.warn('Unable to find mono family %s'%f)
     return fonts

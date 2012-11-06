@@ -219,7 +219,13 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         if mi:
             self.mi = mi
         else:
-            self.mi = Metadata(None, None)
+            self.mi = Metadata(_('Title'), [_('Author')])
+            self.mi.author_sort = _('Author Sort')
+            self.mi.series = _('Series')
+            self.mi.series_index = 3
+            self.mi.rating = 4.0
+            self.mi.tags = [_('Tag 1'), _('Tag 2')]
+            self.mi.languages = ['eng']
 
         # Remove help icon on title bar
         icon = self.windowIcon()

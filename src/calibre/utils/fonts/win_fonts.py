@@ -19,8 +19,8 @@ class WinFonts(object):
 
     def __init__(self, winfonts):
         self.w = winfonts
-        # Windows thinks the Liberation font files are not valid, so we use
-        # this hack to make them available
+        # Windows requires font files to be executable for them to be loaded,
+        # so instead we use this hack.
         self.app_font_families = {}
 
         for f in ('Serif', 'Sans', 'Mono'):
@@ -121,6 +121,10 @@ class WinFonts(object):
         return ans
 
     def add_system_font(self, path):
+        '''
+        WARNING: The file you are adding must have execute permissions or
+        windows will fail to add it. (ls -l in cygwin to check)
+        '''
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)

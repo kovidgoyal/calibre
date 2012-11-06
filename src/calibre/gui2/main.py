@@ -291,6 +291,7 @@ def run_in_debug_mode(logpath=None):
 
 def run_gui(opts, args, actions, listener, app, gui_debug=None):
     initialize_file_icon_provider()
+    app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()

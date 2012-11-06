@@ -68,10 +68,10 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 title = ''.join(data.xpath('.//h3/a//text()'))
-                authors = data.xpath('.//span[@class="f"]//a//text()')
-                if authors and authors[-1].strip().lower() in ('preview', 'read'):
+                authors = data.xpath('.//div[@class="f"]//a//text()')
+                while authors and authors[-1].strip().lower() in ('preview', 'read', 'more editions'):
                     authors = authors[:-1]
-                else:
+                if not authors:
                     continue
                 author = ', '.join(authors)
 
