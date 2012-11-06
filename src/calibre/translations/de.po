@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-02 04:31+0000\n"
-"PO-Revision-Date: 2012-10-31 14:34+0000\n"
-"Last-Translator: Patrick Haake <Unknown>\n"
+"PO-Revision-Date: 2012-11-05 13:31+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-03 04:47+0000\n"
-"X-Generator: Launchpad (build 16218)\n"
+"X-Launchpad-Export-Date: 2012-11-06 04:48+0000\n"
+"X-Generator: Launchpad (build 16232)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -13683,7 +13683,7 @@ msgstr "Regulärer Ausdruck (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:123
 msgid "Choose a font family"
-msgstr ""
+msgstr "Wählen Sie eine Schriftart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
@@ -13696,7 +13696,7 @@ msgstr "Wähle Schriftfamilie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
-msgstr ""
+msgstr "Schri&ften hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
@@ -13720,15 +13720,15 @@ msgstr "Keine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "Select font files"
-msgstr ""
+msgstr "Schriftartdateien auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:223
 msgid "TrueType/OpenType Fonts"
-msgstr ""
+msgstr "TrueType/OpenType-Schriften"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:233
 msgid "Corrupt font"
-msgstr ""
+msgstr "Defekte Schriftart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:234
 #, python-format
@@ -13737,12 +13737,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:253
 msgid "Added fonts"
-msgstr ""
+msgstr "Hinzugefügte Schriften"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:254
 #, python-format
 msgid "Added font families: %s"
-msgstr ""
+msgstr "Hinzugefügte Schriftarten: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:279
 msgid "Choose &font family"
@@ -16176,7 +16176,7 @@ msgstr "Thema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -19532,7 +19532,7 @@ msgstr "Speichern als"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "D&rehen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"

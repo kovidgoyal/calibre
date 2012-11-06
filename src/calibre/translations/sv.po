@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-02 04:31+0000\n"
-"PO-Revision-Date: 2012-10-14 09:43+0000\n"
-"Last-Translator: Merarom <Unknown>\n"
+"PO-Revision-Date: 2012-11-05 15:26+0000\n"
+"Last-Translator: Alicia Kwiatkowska <ilayde.moonlight@gmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-03 04:57+0000\n"
-"X-Generator: Launchpad (build 16218)\n"
+"X-Launchpad-Export-Date: 2012-11-06 04:49+0000\n"
+"X-Generator: Launchpad (build 16232)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -868,7 +868,7 @@ msgstr "Denna profil är avsedd för Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Denna profil är avsedd för Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1388,7 +1388,7 @@ msgstr "Kommunicera med PocketBook 602/603/902/903 läsaren."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Kommunicera med PocketBook 622-läsare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1673,7 +1673,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:84
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1237
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Visa rekommendationer"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:85
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1238
@@ -1769,7 +1769,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Skapa bokhyllor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid ""
@@ -1889,7 +1889,7 @@ msgstr "Kommunicera med Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Kommunicera med WateQ-läsare"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -1968,7 +1968,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
 msgid "All books removed"
-msgstr ""
+msgstr "Alla böcker togs bort"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
@@ -3431,8 +3431,6 @@ msgid ""
 "Normally extra space at the beginning of lines is retained. With this option "
 "they will be removed."
 msgstr ""
-"Normalt extra utrymme i början av rader bibehålls. Med detta alternativ "
-"kommer de att tas bort."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:51
 msgid "Do not insert a Table of Contents into the output text."
