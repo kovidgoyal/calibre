@@ -11,7 +11,6 @@ let g:syntastic_cpp_include_dirs = [
             \'/usr/include/freetype2',
             \'/usr/include/fontconfig',
             \'src/qtcurve/common', 'src/qtcurve',
-            \'src/sfntly/src', 'src/sfntly/src/sample',
             \'/usr/include/ImageMagick',
             \]
 let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
