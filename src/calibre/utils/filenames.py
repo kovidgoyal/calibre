@@ -309,8 +309,11 @@ class WindowsAtomicFolderMove(object):
                 handle = h
                 break
         if handle is None:
-            raise ValueError(u'The file %r did not exist when this move'
-                    ' operation was started'%path)
+            if os.path.exists(path):
+                raise ValueError(u'The file %r did not exist when this move'
+                        ' operation was started'%path)
+            else:
+                raise ValueError(u'The file %r does not exist'%path)
         try:
             win32file.CreateHardLink(dest, path)
             if os.path.getsize(dest) != os.path.getsize(path):
