@@ -91,7 +91,6 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'freetype',
                 'woff',
-                'sfntly',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
