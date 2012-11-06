@@ -239,10 +239,11 @@ class PluginWidget(QWidget,Ui_Form):
 
     def initialize(self, name, db):
         '''
-
         CheckBoxControls (c_type: check_box):
-            ['generate_titles','generate_series','generate_genres',
-             'generate_recently_added','generate_descriptions','include_hr']
+            ['cross_reference_authors',
+             'generate_titles','generate_series','generate_genres',
+             'generate_recently_added','generate_descriptions',
+             'include_hr']
         ComboBoxControls (c_type: combo_box):
             ['exclude_source_field','header_note_source_field',
              'merge_source_field']

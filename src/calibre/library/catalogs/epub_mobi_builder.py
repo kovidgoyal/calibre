@@ -727,7 +727,8 @@ class CatalogBuilder(object):
 
         books_by_author = list(self.books_to_catalog)
         self.detect_author_sort_mismatches(books_by_author)
-        books_by_author = self.relist_multiple_authors(books_by_author)
+        if self.opts.cross_reference_authors:
+            books_by_author = self.relist_multiple_authors(books_by_author)
 
         #books_by_author = sorted(list(books_by_author), key=self._kf_books_by_author_sorter_author)
 
@@ -4720,16 +4721,9 @@ class CatalogBuilder(object):
          with multiple authors
 
         Return:
-         (list): books_by_author with additional entries for books with
+         (list): books_by_author with additional cloned entries for books with
          multiple authors
         """
-
-        # Scan list looking for entries with len(authors) > 1
-        # Clone multiples, swapping additional author into first place,
-        # computing author_sort to match
-
-        # from calibre.ebooks.metadata import authors_to_string
-        # return authors_to_string(self.authors)
 
         multiple_author_books = []
 
@@ -4749,7 +4743,6 @@ class CatalogBuilder(object):
                     new_book['authors'] = list(cloned_authors)
                     asl =  [author_to_author_sort(auth) for auth in cloned_authors]
                     new_book['author_sort'] = ' & '.join(asl)
-                    #print("'%s' (%s) (%s)" % (new_book['title'], new_book['authors'], new_book['author_sort']))
                     books_by_author.append(new_book)
 
         return books_by_author
