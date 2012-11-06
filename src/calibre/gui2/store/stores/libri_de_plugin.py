@@ -25,7 +25,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://ad.zanox.com/ppc/?18817073C15644254T'
         url_details = ('http://ad.zanox.com/ppc/?18817073C15644254T&ULP=[['
-                       'http://www.libri.de/shop/action/productDetails?artiId={0}]]')
+                       'http://www.ebook.de/shop/action/productDetails?artiId={0}]]')
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -41,33 +41,38 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.libri.de/shop/action/quickSearch?facetNodeId=6'
-               '&mainsearchSubmit=Los!&searchString=' + urllib2.quote(query))
+        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString='
+               + urllib2.quote(query))
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[contains(@class, "item")]'):
+            for data in doc.xpath('//div[contains(@class, "articlecontainer")]'):
                 if counter <= 0:
                     break
 
-                details = data.xpath('./div[@class="beschreibungContainer"]')
+                details = data.xpath('./div[@class="articleinfobox"]')
                 if not details:
                     continue
                 details = details[0]
-                id = ''.join(details.xpath('./div[@class="text"]/a/@name')).strip()
-                if not id:
+                id_ = ''.join(details.xpath('./a/@name')).strip()
+                if not id_:
                     continue
-                cover_url = ''.join(details.xpath('.//div[@class="coverImg"]/a/img/@src'))
-                title = ''.join(details.xpath('./div[@class="text"]/span[@class="titel"]/a/text()')).strip()
-                author = ''.join(details.xpath('./div[@class="text"]/span[@class="author"]/text()')).strip()
+                title = ''.join(details.xpath('.//a[@class="su1_c_l_titel"]/text()')).strip()
+
+                author = ''.join(details.xpath('.//div[@class="author"]/text()')).strip()
+                if author.startswith('von'):
+                    author = author[4:]
+
                 pdf = details.xpath(
-                        'boolean(.//span[@class="format" and contains(text(), "pdf")]/text())')
+                        'boolean(.//span[@class="bindername" and contains(text(), "pdf")]/text())')
                 epub = details.xpath(
-                        'boolean(.//span[@class="format" and contains(text(), "epub")]/text())')
+                        'boolean(.//span[@class="bindername" and contains(text(), "epub")]/text())')
                 mobi = details.xpath(
-                        'boolean(.//span[@class="format" and contains(text(), "mobipocket")]/text())')
+                        'boolean(.//span[@class="bindername" and contains(text(), "mobipocket")]/text())')
+
+                cover_url = ''.join(data.xpath('.//div[@class="coverImg"]/a/img/@src'))
                 price = ''.join(data.xpath('.//span[@class="preis"]/text()')).replace('*', '').strip()
 
                 counter -= 1
@@ -78,7 +83,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.drm = SearchResult.DRM_UNKNOWN
-                s.detail_item = id
+                s.detail_item = id_
                 formats = []
                 if epub:
                     formats.append('ePub')
