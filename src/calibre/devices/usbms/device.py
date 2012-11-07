@@ -901,8 +901,11 @@ class Device(DeviceConfig, DevicePlugin):
             for d in drives:
                 try:
                     winutil.eject_drive(bytes(d)[0])
-                except:
-                    pass
+                except Exception as e:
+                    try:
+                        prints(as_unicode(e))
+                    except:
+                        pass
 
         t = Thread(target=do_it, args=[drives])
         t.daemon = True

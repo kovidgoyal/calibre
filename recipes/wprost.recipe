@@ -3,6 +3,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, matek09, matek09@gmail.com'
 __copyright__ = 'Modified 2011,  Mariusz Wolek <mariusz_dot_wolek @ gmail dot com>'
+__copyright__ = 'Modified 2012,  Artur Stachecki <artur.stachecki@gmail.com>'
+
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
@@ -11,7 +13,7 @@ class Wprost(BasicNewsRecipe):
         EDITION = 0
         FIND_LAST_FULL_ISSUE = True
         EXCLUDE_LOCKED = True
-        ICO_BLOCKED = 'http://www.wprost.pl/G/icons/ico_blocked.gif'
+        ICO_BLOCKED = 'http://www.wprost.pl/G/layout2/ico_blocked.png'
 
         title = u'Wprost'
         __author__ = 'matek09'
@@ -20,6 +22,7 @@ class Wprost(BasicNewsRecipe):
         no_stylesheets = True
         language = 'pl'
         remove_javascript = True
+	recursions = 0	
 
         remove_tags_before = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
         remove_tags_after = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
@@ -35,12 +38,14 @@ class Wprost(BasicNewsRecipe):
         (re.compile(r'\<td\>\<tr\>\<\/table\>'), lambda match: ''),
         (re.compile(r'\<table .*?\>'), lambda match: ''),
         (re.compile(r'\<tr>'), lambda match: ''),
-        (re.compile(r'\<td .*?\>'), lambda match: '')]
+        (re.compile(r'\<td .*?\>'), lambda match: ''),
+	(re.compile(r'\<div id="footer"\>.*?\</footer\>'), lambda match: '')]
 
         remove_tags =[]
         remove_tags.append(dict(name = 'div', attrs = {'class' : 'def element-date'}))
         remove_tags.append(dict(name = 'div', attrs = {'class' : 'def silver'}))
         remove_tags.append(dict(name = 'div', attrs = {'id' : 'content-main-column-right'}))
+
 
         extra_css = '''
                                         .div-header {font-size: x-small; font-weight: bold}
@@ -59,27 +64,26 @@ class Wprost(BasicNewsRecipe):
                 a = 0
                 if self.FIND_LAST_FULL_ISSUE:
                         ico_blocked = soup.findAll('img', attrs={'src' : self.ICO_BLOCKED})
-                        a = ico_blocked[-1].findNext('a', attrs={'title' : re.compile('Zobacz spis tre.ci')})
+                        a = ico_blocked[-1].findNext('a', attrs={'title' : re.compile(r'Spis *', re.IGNORECASE | re.DOTALL)})
                 else:
-                        a = soup.find('a', attrs={'title' : re.compile('Zobacz spis tre.ci')})
+                        a = soup.find('a', attrs={'title' : re.compile(r'Spis *', re.IGNORECASE | re.DOTALL)})
                 self.EDITION = a['href'].replace('/tygodnik/?I=', '')
-                self.cover_url = a.img['src']
-
-
+		self.EDITION_SHORT = a['href'].replace('/tygodnik/?I=15', '')
+		self.cover_url = a.img['src']
 
         def parse_index(self):
                 self.find_last_issue()
                 soup = self.index_to_soup('http://www.wprost.pl/tygodnik/?I=' + self.EDITION)
                 feeds = []
-                for main_block in soup.findAll(attrs={'class':'main-block-s3 s3-head head-red3'}):
+                for main_block in soup.findAll(attrs={'id': 'content-main-column-element-content'}):
                         articles = list(self.find_articles(main_block))
                         if len(articles) > 0:
-                                section = self.tag_to_string(main_block)
+                                section = self.tag_to_string(main_block.find('h3'))
                                 feeds.append((section, articles))
                 return feeds
 
         def find_articles(self, main_block):
-                for a in main_block.findAllNext( attrs={'style':['','padding-top: 15px;']}):
+                for a in main_block.findAll('a'):
                         if a.name in "td":
                                 break
                         if self.EXCLUDE_LOCKED & self.is_blocked(a):
@@ -90,4 +94,5 @@ class Wprost(BasicNewsRecipe):
                                 'date'  : '',
                                 'description' : ''
                                 }
+
 

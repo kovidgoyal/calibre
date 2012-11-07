@@ -35,3 +35,7 @@ nbproject/
 .settings/
 *.DS_Store
 calibre_plugins/
+recipes/.git
+recipes/.gitignore
+recipes/README
+recipes/katalog_egazeciarz.recipe
