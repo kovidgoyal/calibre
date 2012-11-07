@@ -467,11 +467,11 @@ eject_drive_letter(WCHAR DriveLetter) {
 
     DeviceNumber = -1;
 
-    hVolume = CreateFile(szVolumeAccessPath, 0,
+    hVolume = CreateFileW(szVolumeAccessPath, 0,
                         FILE_SHARE_READ | FILE_SHARE_WRITE,
                         NULL, OPEN_EXISTING, 0, NULL);
     if (hVolume == INVALID_HANDLE_VALUE) {
-        PyErr_SetString(PyExc_ValueError, "Invalid handle value for drive letter");
+        PyErr_SetFromWindowsErr(0);
         return FALSE;
     }
 
@@ -529,11 +529,17 @@ eject_drive_letter(WCHAR DriveLetter) {
 
 static PyObject *
 winutil_eject_drive(PyObject *self, PyObject *args) {
-    char DriveLetter;
+    char letter = '0';
+    WCHAR DriveLetter = L'0';
 
-    if (!PyArg_ParseTuple(args, "c", &DriveLetter)) return NULL;
+    if (!PyArg_ParseTuple(args, "c", &letter)) return NULL;
 
-    if (!eject_drive_letter((WCHAR)DriveLetter)) return NULL;
+    if (mbtowc(&DriveLetter, &letter, 1) == -1) {
+        PyErr_SetString(PyExc_ValueError, "Failed to convert drive letter to wchar");
+        return NULL;
+    }
+
+    if (!eject_drive_letter(DriveLetter)) return NULL;
     Py_RETURN_NONE;
 }
 
