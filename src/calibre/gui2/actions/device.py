@@ -120,17 +120,19 @@ class ShareConnMenu(QMenu): # {{{
             for account in keys:
                 formats, auto, default = opts.accounts[account]
                 subject = opts.subjects.get(account, '')
+                alias = opts.aliases.get(account, '')
                 dest = 'mail:'+account+';'+formats+';'+subject
                 action1 = DeviceAction(dest, False, False, I('mail.png'),
-                        account)
+                        alias or account)
                 action2 = DeviceAction(dest, True, False, I('mail.png'),
-                        account + ' ' + _('(delete from library)'))
+                        (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
                 map(self.memory.append, (action1, action2))
                 if default:
                     ac = DeviceAction(dest, False, False,
-                            I('mail.png'), _('Email to') + ' ' +account)
+                            I('mail.png'), _('Email to') + ' ' +(alias or
+                                account))
                     self.addAction(ac)
                     self.email_actions.append(ac)
                     ac.a_s.connect(sync_menu.action_triggered)

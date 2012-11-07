@@ -1,18 +1,19 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys, Queue, threading
+import os, sys, Queue, threading, glob
 from threading import RLock
 from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings, QColor,
-                    QIcon, QApplication, QDialog, QUrl, QFont, QPalette)
+                    QIcon, QApplication, QDialog, QUrl, QFont, QPalette,
+                    QFontDatabase)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import prints, load_builtin_fonts
+from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
         plugins, config_dir, filesystem_encoding, DEBUG)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
@@ -779,7 +780,6 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-        load_builtin_fonts()
         self.setup_styles(force_calibre_style)
 
     if DEBUG:
@@ -791,6 +791,29 @@ class Application(QApplication):
                 ret = QApplication.notify(self, receiver, event)
                 self.redirect_notify = True
                 return ret
+
+    def load_builtin_fonts(self, scan_for_fonts=False):
+        global _rating_font
+        if scan_for_fonts:
+            from calibre.utils.fonts.scanner import font_scanner
+            # Start scanning the users computer for fonts
+            font_scanner
+
+        # Load the builtin fonts and any fonts added to calibre by the user to
+        # Qt
+        for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
+                [P('fonts/calibreSymbols.otf')] + \
+                glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
+            if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
+                with open(ff, 'rb') as s:
+                    # Windows requires font files to be executable for them to be
+                    # loaded successfully, so we use the in memory loader
+                    fid = QFontDatabase.addApplicationFontFromData(s.read())
+                    if fid > -1:
+                        fam = QFontDatabase.applicationFontFamilies(fid)
+                        fam = set(map(unicode, fam))
+                        if u'calibre Symbols' in fam:
+                            _rating_font = u'calibre Symbols'
 
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
@@ -964,22 +987,9 @@ def is_gui_thread():
     global gui_thread
     return gui_thread is QThread.currentThread()
 
-_rating_font = None
+_rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
 def rating_font():
     global _rating_font
-    if _rating_font is None:
-        from PyQt4.Qt import QFontDatabase
-        _rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
-        fontid = QFontDatabase.addApplicationFont(
-                #P('fonts/liberation/LiberationSerif-Regular.ttf')
-                P('fonts/calibreSymbols.otf')
-                )
-        if fontid > -1:
-            try:
-                _rating_font = unicode(list(
-                    QFontDatabase.applicationFontFamilies(fontid))[0])
-            except:
-                pass
     return _rating_font
 
 def find_forms(srcdir):

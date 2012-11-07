@@ -403,7 +403,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
 
         all_locations = OrderedDict(ConfigWidget.LOCATIONS)
-        plugin_action = plugin.load_actual_plugin(self.gui)
+        try:
+            plugin_action = plugin.load_actual_plugin(self.gui)
+        except:
+            # Broken plugin, fails to initialize. Given that, it's probably
+            # already configured, so we can just quit.
+            return
         installed_actions = OrderedDict([
             (key, list(gprefs.get('action-layout-'+key, [])))
             for key in all_locations])

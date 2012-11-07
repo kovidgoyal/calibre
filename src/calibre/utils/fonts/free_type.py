@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import threading, unicodedata
+import threading
 from functools import wraps
 from future_builtins import map
 
@@ -19,10 +19,6 @@ class ThreadingViolation(Exception):
         Exception.__init__(self,
                 'You cannot use the MTP driver from a thread other than the '
                 ' thread in which startup() was called')
-
-def get_printable_characters(text):
-    return u''.join(x for x in unicodedata.normalize('NFC', text)
-            if unicodedata.category(x)[0] not in {'C', 'Z', 'M'})
 
 def same_thread(func):
     @wraps(func)
@@ -55,9 +51,17 @@ class Face(object):
         if not isinstance(text, unicode):
             raise TypeError('%r is not a unicode object'%text)
         if has_non_printable_chars:
+            from calibre.utils.fonts.utils import get_printable_characters
             text = get_printable_characters(text)
         chars = tuple(frozenset(map(ord, text)))
         return self.face.supports_text(chars)
+
+    @same_thread
+    def glyph_ids(self, text):
+        if not isinstance(text, unicode):
+            raise TypeError('%r is not a unicode object'%text)
+        for char in text:
+            yield self.face.glyph_id(ord(char))
 
 class FreeType(object):
 
@@ -73,26 +77,4 @@ class FreeType(object):
     def load_font(self, data):
         return Face(self.ft.load_font(data))
 
-def test():
-    data = P('fonts/calibreSymbols.otf', data=True)
-    ft = FreeType()
-    font = ft.load_font(data)
-    if not font.supports_text('.\u2605★'):
-        raise RuntimeError('Incorrectly returning that text is not supported')
-    if font.supports_text('abc'):
-        raise RuntimeError('Incorrectly claiming that text is supported')
-
-def test_find_font():
-    from calibre.utils.fonts import fontconfig
-    abcd = '诶比西迪'
-    family = fontconfig.find_font_for_text(abcd)[0]
-    print ('Family for Chinese text:', family)
-    family = fontconfig.find_font_for_text(abcd)[0]
-    abcd = 'لوحة المفاتيح العربية'
-    print ('Family for Arabic text:', family)
-
-
-if __name__ == '__main__':
-    test()
-    test_find_font()
 

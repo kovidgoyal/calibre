@@ -292,6 +292,7 @@ class CustomColumns(object):
             if num is not None:
                 data = self.custom_column_num_map[num]
             table,lt = self.custom_table_names(data['num'])
+            self.dirty_books_referencing('#'+data['label'], id, commit=False)
             self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id,))
             self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id,))
             self.conn.commit()

@@ -55,7 +55,6 @@ class FinancialTimes(BasicNewsRecipe):
                        ,dict(name='div' , attrs={'class':'standfirst'})
                        ,dict(name='div' , attrs={'id'   :'storyContent'})
                        ,dict(name='div' , attrs={'class':['ft-story-body','index-detail']})
-                       ,dict(name='div' , attrs={'class':['ft-story-body','index-detail']})
                        ,dict(name='h2'  , attrs={'class':'entry-title'} )
                        ,dict(name='span', attrs={'class':lambda x: x and 'posted-on' in x.split()} )
                        ,dict(name='span', attrs={'class':'author_byline'} )
@@ -91,7 +90,10 @@ class FinancialTimes(BasicNewsRecipe):
             url = rawlink
             if not rawlink.startswith('http://'):
                url = self.PREFIX + rawlink
-            urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
+            try:
+                urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
+            except:
+                continue 
             title = self.tag_to_string(item)
             date = strftime(self.timefmt)
             articles.append({
@@ -175,3 +177,6 @@ class FinancialTimes(BasicNewsRecipe):
         tfile.close()        
         self.temp_files.append(tfile)
         return tfile.name
+
+    def cleanup(self):
+        self.browser.open('https://registration.ft.com/registration/login/logout?location=')

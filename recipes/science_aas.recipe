@@ -27,7 +27,7 @@ class ScienceAAS(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
-            br.select_form(nr=1)
+            br.select_form(nr=0)
             br['username'] = self.username
             br['code'    ] = self.password
             br.submit()

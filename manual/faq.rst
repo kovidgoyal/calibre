@@ -327,9 +327,8 @@ You can browse your |app| collection on your Android device is by using the
 calibre content server, which makes your collection available over the net.
 First perform the following steps in |app|
 
-  * Set the :guilabel:`Preferred Output Format` in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
-  * Set the output profile to Tablet (this will work for phones as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
-  * Convert the books you want to read on your device to EPUB format by selecting them and clicking the Convert button.
+  * Set the :guilabel:`Preferred Output Format` in |app| to EPUB for normal Android devices or MOBI for Kindles (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+  * Convert the books you want to read on your device to EPUB/MOBI format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
 
 Now on your Android device, open the browser and browse to
@@ -557,6 +556,27 @@ There can be two reasons why |app| is showing a empty list of books:
 
   * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
 
+I am getting errors with my calibre library on a networked drive/NAS?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Do not put your calibre library on a networked drive**.
+
+A filesystem is a complex beast. Most network filesystems lack various
+filesystem features that |app| uses. Some dont support file locking, some dont
+support hardlinking, some are just flaky. Additionally, |app| is a single user
+application, if you accidentally run two copies of |app| on the same networked
+library, bad things will happen. Finally, different OSes impose different
+limitations on filesystems, so if you share your networked drive across OSes,
+once again, bad things *will happen*.
+
+Consider using the |app| Content Server to make your books available on other
+computers. Run |app| on a single computer and access it via the Content Server
+or a Remote Desktop solution.
+
+If you must share the actual library, use a file syncing tool like
+DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
+these tools there is danger of data corruption/loss, so only do this if you are
+willing to live with that risk.
 
 Content From The Web
 ---------------------
@@ -638,6 +658,9 @@ There are three possible things I know of, that can cause this:
 
     * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
 
+    * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
+      the blacklist of programs inside RoboForm to fix this.
+
     * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
 
 
@@ -674,7 +697,20 @@ If you still cannot get the installer to work and you are on windows, you can us
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Your antivirus program is wrong. Antivirus programs use heuristics, patterns of code that "looks suspicuous" to detect viruses. It's rather like racial profiling. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
+The first thing to check is that you are downloading |app| from the official
+website: `<http://calibre-ebook.com/download>`_. |app| is a very popular program
+and unscrupulous people try to setup websites offering it for download to fool
+the unwary.
+
+If you have the official download and your antivirus program is still claiming
+|app| is a virus, then, your antivirus program is wrong. Antivirus programs use
+heuristics, patterns of code that "look suspicious" to detect viruses. It's
+rather like racial profiling. |app| is a completely open source product. You
+can actually browse the source code yourself (or hire someone to do it for you)
+to verify that it is not a virus. Please report the false identification to
+whatever company you buy your antivirus software from. If the antivirus program
+is preventing you from downloading/installing |app|, disable it temporarily,
+install |app| and then re-enable it.
 
 How do I backup |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

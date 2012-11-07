@@ -33,7 +33,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 2)
+    version = (2, 0, 3)
 
     dbversion = 0
     fwversion = 0
@@ -653,6 +653,7 @@ class KOBO(USBMS):
 
     @classmethod
     def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
+#        debug_print("KOBO:book_from_path - title=%s"%title)
         from calibre.ebooks.metadata import MetaInformation
 
         if cls.settings().read_metadata or cls.MUST_READ_METADATA:
@@ -1199,7 +1200,7 @@ class KOBOTOUCH(KOBO):
     author = 'David Forrester'
     description = 'Communicate with the Kobo Touch, Glo and Mini firmware. Based on the existing Kobo driver by %s.' % (KOBO.author)
 
-    supported_dbversion = 65
+    supported_dbversion = 70
     min_supported_dbversion = 53
 
     booklist_class = KTCollectionsBookList
@@ -1408,9 +1409,14 @@ class KOBOTOUCH(KOBO):
                             debug_print("KoboTouch:update_booklist - have a deleted book")
                 # Label Previews
                 if accessibility == 6:
-                    playlist_map[lpath].append('Preview')
+                    if isdownloaded == 'false':
+                        playlist_map[lpath].append('Recommendation')
+                    else:
+                        playlist_map[lpath].append('Preview')
                 elif accessibility == 4:
                     playlist_map[lpath].append('Recommendation')
+                
+                kobo_collections = playlist_map[lpath][:]
 
                 if len(bookshelves) > 0:
                     playlist_map[lpath].extend(bookshelves)
@@ -1428,13 +1434,15 @@ class KOBOTOUCH(KOBO):
                         debug_print('KoboTouch:update_booklist - bl[idx].device_collections=', bl[idx].device_collections)
                         debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map)
                         debug_print('KoboTouch:update_booklist - bookshelves=', bookshelves)
+                        debug_print('KoboTouch:update_booklist - kobo_collections=', kobo_collections)
                         debug_print('KoboTouch:update_booklist - series="%s"' % bl[idx].series)
                         debug_print('KoboTouch:update_booklist - the book=', bl[idx])
                         debug_print('KoboTouch:update_booklist - the authors=', bl[idx].authors)
                         debug_print('KoboTouch:update_booklist - application_id=', bl[idx].application_id)
                     bl_cache[lpath] = None
-                    if bl[idx].title_sort is not None:
-                        bl[idx].title = bl[idx].title_sort
+                  # removed to allow recognizing of ePub with an UUID inside
+                  # if bl[idx].title_sort is not None:
+                  #     bl[idx].title = bl[idx].title_sort
                     if ImageID is not None:
                         imagename = self.imagefilename_from_imageID(ImageID)
                         if imagename is not None:
@@ -1454,8 +1462,9 @@ class KOBOTOUCH(KOBO):
 
                     if lpath in playlist_map:
                         bl[idx].device_collections  = playlist_map.get(lpath,[])
+                        bl[idx].current_shelves = bookshelves
+                        bl[idx].kobo_collections = kobo_collections
                         changed = True
-                    bl[idx].current_shelves = bookshelves
 
                     if show_debug:
                         debug_print('KoboTouch:update_booklist - updated bl[idx].device_collections=', bl[idx].device_collections)
@@ -1490,10 +1499,12 @@ class KOBOTOUCH(KOBO):
                         debug_print("    the book:", book)
                         debug_print("    author_sort:'%s'"%book.author_sort)
                         debug_print("    bookshelves:", bookshelves)
+                        debug_print("    kobo_collections:", kobo_collections)
 
                     # print 'Update booklist'
                     book.device_collections  = playlist_map.get(lpath,[])# if lpath in playlist_map else []
                     book.current_shelves = bookshelves
+                    book.kobo_collections = kobo_collections
                     book.contentID = ContentID
 #                    debug_print('KoboTouch:update_booklist - title=', title, 'book.device_collections', book.device_collections)
 
@@ -1630,7 +1641,8 @@ class KOBOTOUCH(KOBO):
         #print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
         #      (len(bl_cache), len(bl), need_sync)
         # Bypassing the KOBO sync_booklists as that does things we don't need to do
-        if need_sync: #self.count_found_in_bl != len(bl) or need_sync:
+        # Also forcing sync to see if this solves issues with updating shelves and matching books.
+        if need_sync or True: #self.count_found_in_bl != len(bl) or need_sync:
             debug_print("KoboTouch:books - about to sync_booklists")
             if oncard == 'cardb':
                 USBMS.sync_booklists(self, (None, None, bl))
@@ -1948,7 +1960,6 @@ class KOBOTOUCH(KOBO):
                     debug_print("Booklists=", booklists)
                 if self.dbversion < 53:
                     self.reset_readstatus(connection, oncard)
-                self.remove_from_bookshelves(connection, oncard)
                 if self.dbversion >= 14:
                     debug_print("No Collections - reseting FavouritesIndex")
                     self.reset_favouritesindex(connection, oncard)
@@ -1961,6 +1972,7 @@ class KOBOTOUCH(KOBO):
                         if book.application_id is not None:
 #                            debug_print("KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s" % book.title)
                             self.remove_book_from_device_bookshelves(connection, book)
+                            book.device_collections.extend(book.kobo_collections)
                 if not prefs['manage_device_metadata'] == 'manual' and delete_empty_shelves:
                     debug_print("KoboTouch:update_device_database_collections - about to clear empty bookshelves")
                     self.delete_empty_bookshelves(connection)
@@ -2096,7 +2108,7 @@ class KOBOTOUCH(KOBO):
     def remove_book_from_device_bookshelves(self, connection, book):
         show_debug = self.is_debugging_title(book.title)# or True
 
-        remove_shelf_list = set(book.current_shelves) - set(book.device_collections)# - set(["Im_Reading", "Read", "Closed"])
+        remove_shelf_list = set(book.current_shelves) - set(book.device_collections)
 
         if show_debug:
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.application_id="%s"'%book.application_id)
@@ -2212,11 +2224,8 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:check_for_bookshelf bookshelf_name="%s"'%bookshelf_name)
         test_query = 'SELECT InternalName, Name, _IsDeleted FROM Shelf WHERE Name = ?'
         test_values = (bookshelf_name, )
-        addquery = 'INSERT INTO "main"."Shelf"'\
-                    ' ("CreationDate","InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced")'\
-                    ' VALUES (?, ?, ?, ?, ?, ?, ?)'
-        add_values = (
-                      time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
+        addquery = 'INSERT INTO "main"."Shelf"'
+        add_values = (time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
                       bookshelf_name,
                       time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
                       bookshelf_name,
@@ -2224,6 +2233,17 @@ class KOBOTOUCH(KOBO):
                       "true",
                       "false",
                       )
+        if self.dbversion < 64:
+            addquery += ' ("CreationDate","InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced")'\
+                        ' VALUES (?, ?, ?, ?, ?, ?, ?)'
+        else:
+            addquery += ' ("CreationDate", "InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced", "Id")'\
+                        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            add_values = add_values +(bookshelf_name,)
+
+        if show_debug:
+            debug_print('KoboTouch:check_for_bookshelf addquery=', addquery)
+            debug_print('KoboTouch:check_for_bookshelf add_values=', add_values)
         updatequery = 'UPDATE Shelf SET _IsDeleted = "false" WHERE Name = ?'
 
         cursor = connection.cursor()

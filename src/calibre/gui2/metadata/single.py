@@ -188,6 +188,10 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.tags_editor_button.setToolTip(_('Open Tag Editor'))
         self.tags_editor_button.setIcon(QIcon(I('chapters.png')))
         self.tags_editor_button.clicked.connect(self.tags_editor)
+        self.clear_tags_button = QToolButton(self)
+        self.clear_tags_button.setToolTip(_('Clear all tags'))
+        self.clear_tags_button.setIcon(QIcon(I('trash.png')))
+        self.clear_tags_button.clicked.connect(self.tags.clear)
         self.basic_metadata_widgets.append(self.tags)
 
         self.identifiers = IdentifiersEdit(self)
@@ -322,6 +326,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                         ' program?')%fname, det_msg=traceback.format_exc(),
                         show=True)
                 return
+            raise
         if mi is None:
             return
         cdata = None
@@ -444,11 +449,12 @@ class MetadataSingleDialogBase(ResizableDialog):
             except (IOError, OSError) as err:
                 if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
                     import traceback
-                    fname = err.filename if err.filename else 'file'
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
                     error_dialog(self, _('Permission denied'),
-                            _('Could not open %s. Is it being used by another'
-                            ' program?')%fname, det_msg=traceback.format_exc(),
-                            show=True)
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=p+traceback.format_exc(), show=True)
                     return False
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
@@ -654,9 +660,10 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
         sto(self.cover.buttons[-1], self.rating)
         create_row2(1, self.rating)
-        sto(self.rating, self.tags)
-        create_row2(2, self.tags, self.tags_editor_button)
-        sto(self.tags_editor_button, self.paste_isbn_button)
+        sto(self.rating, self.tags_editor_button)
+        sto(self.tags_editor_button, self.tags)
+        create_row2(2, self.tags, self.clear_tags_button, front_button=self.tags_editor_button)
+        sto(self.clear_tags_button, self.paste_isbn_button)
         sto(self.paste_isbn_button, self.identifiers)
         create_row2(3, self.identifiers, self.clear_identifiers_button,
                                         front_button=self.paste_isbn_button)
@@ -759,6 +766,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
         tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
+        tl.addWidget(self.tags_editor_button, 6, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -771,7 +779,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         create_row(4, self.series, self.series_index,
                    button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
-        create_row(6, self.tags, self.rating, button=self.tags_editor_button)
+        create_row(6, self.tags, self.rating, button=self.clear_tags_button)
         create_row(7, self.rating, self.pubdate)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
@@ -783,7 +791,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    button=self.clear_identifiers_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
-        sto(self.manage_authors_button, self.paste_isbn_button)
+        sto(self.manage_authors_button, self.tags_editor_button)
+        sto(self.tags_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    13, 1, 1 ,1)
 
@@ -894,6 +903,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
         tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
+        tl.addWidget(self.tags_editor_button, 6, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -906,7 +916,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
         create_row(4, self.series, self.series_index,
                    button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
-        create_row(6, self.tags, self.rating, button=self.tags_editor_button)
+        create_row(6, self.tags, self.rating, button=self.clear_tags_button)
         create_row(7, self.rating, self.pubdate)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
@@ -918,7 +928,8 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    button=self.clear_identifiers_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
-        sto(self.manage_authors_button, self.paste_isbn_button)
+        sto(self.manage_authors_button, self.tags_editor_button)
+        sto(self.tags_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    13, 1, 1 ,1)
 

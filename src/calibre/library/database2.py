@@ -646,12 +646,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         spath = os.path.join(self.library_path, *current_path.split('/'))
         tpath = os.path.join(self.library_path, *path.split('/'))
 
-        wam = WindowsAtomicFolderMove(spath) if iswindows and current_path else None
+        source_ok = current_path and os.path.exists(spath)
+        wam = WindowsAtomicFolderMove(spath) if iswindows and source_ok else None
         try:
             if not os.path.exists(tpath):
                 os.makedirs(tpath)
 
-            if current_path and os.path.exists(spath): # Migrate existing files
+            if source_ok: # Migrate existing files
                 self.copy_cover_to(id, os.path.join(tpath, 'cover.jpg'),
                         index_is_id=True, windows_atomic_move=wam,
                         use_hardlink=True)
@@ -669,7 +670,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.commit()
             self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
             # Delete not needed directories
-            if current_path and os.path.exists(spath):
+            if source_ok:
                 if not samefile(spath, tpath):
                     if wam is not None:
                         wam.delete_originals()
@@ -1432,7 +1433,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         if use_hardlink:
                             try:
                                 hardlink_file(path, dest)
-                                return
+                                return True
                             except:
                                 pass
                         with lopen(dest, 'wb') as d:
@@ -2204,13 +2205,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set(self, row, column, val, allow_case_change=False):
         '''
-        Convenience method for setting the title, authors, publisher or rating
+        Convenience method for setting the title, authors, publisher, tags or
+        rating
         '''
         id = self.data[row][0]
-        col = {'title':1, 'authors':2, 'publisher':3, 'rating':4, 'tags':7}[column]
+        col = self.FIELD_MAP[column]
 
         books_to_refresh = set()
-        self.data.set(row, col, val)
+        set_args = (row, col, val)
         if column == 'authors':
             val = string_to_authors(val)
             books_to_refresh |= self.set_authors(id, val, notify=False,
@@ -2226,6 +2228,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             books_to_refresh |= \
                 self.set_tags(id, [x.strip() for x in val.split(',') if x.strip()],
                     append=False, notify=False, allow_case_change=allow_case_change)
+        self.data.set(*set_args)
         self.data.refresh_ids(self, [id])
         self.set_path(id, True)
         self.notify('metadata', [id])
@@ -2473,6 +2476,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.clean_standard_field('authors', commit=True)
         return books_to_refresh
 
+    def windows_check_if_files_in_use(self, book_id):
+        '''
+        Raises an EACCES IOError if any of the files in the folder of book_id
+        are opened in another program on windows.
+        '''
+        if iswindows:
+            path = self.path(book_id, index_is_id=True)
+            if path:
+                spath = os.path.join(self.library_path, *path.split('/'))
+                wam = None
+                if os.path.exists(spath):
+                    try:
+                        wam = WindowsAtomicFolderMove(spath)
+                    finally:
+                        if wam is not None:
+                            wam.close_handles()
+
     def set_authors(self, id, authors, notify=True, commit=True,
                     allow_case_change=False):
         '''
@@ -2481,6 +2501,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         :param authors: A list of authors.
         '''
+        self.windows_check_if_files_in_use(id)
         books_to_refresh = self._set_authors(id, authors,
                                              allow_case_change=allow_case_change)
         self.dirtied(set([id])|books_to_refresh, commit=False)
@@ -2531,6 +2552,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Note that even if commit is False, the db will still be committed to
         because this causes the location of files to change
         '''
+        self.windows_check_if_files_in_use(id)
         if not self._set_title(id, title):
             return
         self.set_path(id, index_is_id=True)

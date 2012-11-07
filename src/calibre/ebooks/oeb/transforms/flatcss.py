@@ -178,44 +178,40 @@ class CSSFlattener(object):
         body_font_family = None
         if not family:
             return body_font_family, efi
-        from calibre.utils.fonts import fontconfig
-        from calibre.utils.fonts.utils import (get_font_characteristics,
-                panose_to_css_generic_family, get_font_names)
-        faces = fontconfig.fonts_for_family(family)
-        if not faces or not u'normal' in faces:
+        from calibre.utils.fonts.scanner import font_scanner
+        from calibre.utils.fonts.utils import panose_to_css_generic_family
+        faces = font_scanner.fonts_for_family(family)
+        if not faces:
             msg = (u'No embeddable fonts found for family: %r'%self.opts.embed_font_family)
             if failure_critical:
                 raise ValueError(msg)
             self.oeb.log.warn(msg)
             return body_font_family, efi
 
-        for k, v in faces.iteritems():
-            ext, data = v[0::2]
-            weight, is_italic, is_bold, is_regular, fs_type, panose = \
-                get_font_characteristics(data)
-            generic_family = panose_to_css_generic_family(panose)
-            family_name, subfamily_name, full_name = get_font_names(data)
-            if k == u'normal':
-                body_font_family = u"'%s',%s"%(family_name, generic_family)
-                if family_name.lower() != family.lower():
-                    self.oeb.log.warn(u'Failed to find an exact match for font:'
-                            u' %r, using %r instead'%(family, family_name))
-                else:
-                    self.oeb.log(u'Embedding font: %s'%family_name)
-            font = {u'font-family':u'"%s"'%family_name}
-            if is_italic:
-                font[u'font-style'] = u'italic'
-            if is_bold:
-                font[u'font-weight'] = u'bold'
+        for i, font in enumerate(faces):
+            ext = 'otf' if font['is_otf'] else 'ttf'
             fid, href = self.oeb.manifest.generate(id=u'font',
-                href=u'%s.%s'%(ascii_filename(full_name).replace(u' ', u'-'), ext))
+                href=u'%s.%s'%(ascii_filename(font['full_name']).replace(u' ', u'-'), ext))
             item = self.oeb.manifest.add(fid, href,
-                    guess_type(full_name+'.'+ext)[0],
-                    data=data)
+                    guess_type('dummy.'+ext)[0],
+                    data=font_scanner.get_font_data(font))
             item.unload_data_from_memory()
-            font[u'src'] = u'url(%s)'%item.href
+
+            cfont = {
+                    u'font-family':u'"%s"'%font['font-family'],
+                    u'panose-1': u' '.join(map(unicode, font['panose'])),
+                    u'src': u'url(%s)'%item.href,
+            }
+
+            if i == 0:
+                generic_family = panose_to_css_generic_family(font['panose'])
+                body_font_family = u"'%s',%s"%(font['font-family'], generic_family)
+                self.oeb.log(u'Embedding font: %s'%font['font-family'])
+            for k in (u'font-weight', u'font-style', u'font-stretch'):
+                if font[k] != u'normal':
+                    cfont[k] = font[k]
             rule = '@font-face { %s }'%('; '.join(u'%s:%s'%(k, v) for k, v in
-                font.iteritems()))
+                cfont.iteritems()))
             rule = cssutils.parseString(rule)
             efi.append(rule)
 

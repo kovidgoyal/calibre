@@ -208,17 +208,22 @@ def samefile_windows(src, dst):
     if samestring:
         return True
 
+    handles = []
+
     def get_fileid(x):
         if isbytestring(x): x = x.decode(filesystem_encoding)
         try:
             h = win32file.CreateFile(x, 0, 0, None, win32file.OPEN_EXISTING,
                     win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
+            handles.append(h)
             data = win32file.GetFileInformationByHandle(h)
         except (error, EnvironmentError):
             return None
         return (data[4], data[8], data[9])
 
     a, b = get_fileid(src), get_fileid(dst)
+    for h in handles:
+        win32file.CloseHandle(h)
     if a is None and b is None:
         return False
     return a == b
@@ -274,6 +279,12 @@ class WindowsAtomicFolderMove(object):
             f = os.path.normcase(os.path.abspath(os.path.join(path, x)))
             if not os.path.isfile(f): continue
             try:
+                # Ensure the file is not read-only
+                win32file.SetFileAttributes(f, win32file.FILE_ATTRIBUTE_NORMAL)
+            except:
+                pass
+
+            try:
                 h = win32file.CreateFile(f, win32file.GENERIC_READ,
                         win32file.FILE_SHARE_DELETE, None,
                         win32file.OPEN_EXISTING, win32file.FILE_FLAG_SEQUENTIAL_SCAN, 0)
@@ -298,10 +309,15 @@ class WindowsAtomicFolderMove(object):
                 handle = h
                 break
         if handle is None:
-            raise ValueError(u'The file %r did not exist when this move'
-                    ' operation was started'%path)
+            if os.path.exists(path):
+                raise ValueError(u'The file %r did not exist when this move'
+                        ' operation was started'%path)
+            else:
+                raise ValueError(u'The file %r does not exist'%path)
         try:
             win32file.CreateHardLink(dest, path)
+            if os.path.getsize(dest) != os.path.getsize(path):
+                raise Exception('This apparently can happen on network shares. Sigh.')
             return
         except:
             pass
@@ -313,6 +329,17 @@ class WindowsAtomicFolderMove(object):
                 if not raw:
                     break
                 f.write(raw)
+
+    def release_file(self, path):
+        key = None
+        for p, h in self.handle_map.iteritems():
+            if samefile_windows(path, p):
+                key = (p, h)
+                break
+        if key is not None:
+            import win32file
+            win32file.CloseHandle(key[1])
+            self.handle_map.pop(key[0])
 
     def close_handles(self):
         import win32file
@@ -330,6 +357,8 @@ def hardlink_file(src, dest):
     if iswindows:
         import win32file
         win32file.CreateHardLink(dest, src)
+        if os.path.getsize(dest) != os.path.getsize(src):
+            raise Exception('This apparently can happen on network shares. Sigh.')
         return
     os.link(src, dest)
 

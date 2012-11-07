@@ -1394,6 +1394,16 @@ class StoreEKnigiStore(StoreBase):
     formats = ['EPUB', 'PDF', 'HTML']
     affiliate = True
 
+class StoreEmpikStore(StoreBase):
+    name = 'Empik'
+    author = u'Tomasz Długosz'
+    description  = u'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'
+    actual_plugin = 'calibre.gui2.store.stores.empik_plugin:EmpikStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreEscapeMagazineStore(StoreBase):
     name = 'EscapeMagazine'
     author = u'Tomasz Długosz'
@@ -1661,6 +1671,7 @@ plugins += [
     StoreEbooksGratuitsStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
+    StoreEmpikStore,
     StoreEscapeMagazineStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,

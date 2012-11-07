@@ -1,0 +1,26 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HindustanTimes(BasicNewsRecipe):
+    title          = u'Delcoe Times'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    #encoding = 'cp1252'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+
+    feeds          = [
+('News',
+ 'http://www.delcotimes.com/?rss=news'),
+('Sports',
+ 'http://www.delcotimes.com/?rss=sports'),
+('Business',
+ 'http://business-news.thestreet.com/the-delaware-county-daily-times/rss/109393'),
+('Entertainment',
+ 'http://www.delcotimes.com/?rss=entertainment'),
+]
+

@@ -22,6 +22,7 @@ typedef struct {
     // ensure it is garbage collected before the library object, to prevent
     // segfaults.
     PyObject *library;
+    PyObject *data;
 } Face;
 
 typedef struct {
@@ -40,8 +41,11 @@ Face_dealloc(Face* self)
     }
     self->face = NULL;
 
-    Py_DECREF(self->library);
+    Py_XDECREF(self->library);
     self->library = NULL;
+
+    Py_XDECREF(self->data);
+    self->data = NULL;
 
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -55,8 +59,6 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
     PyObject *ft;
 
     if (!PyArg_ParseTuple(args, "Os#", &ft, &data, &sz)) return -1;
-    self->library = ft;
-    Py_XINCREF(ft);
 
     Py_BEGIN_ALLOW_THREADS;
     error = FT_New_Memory_Face( ( (FreeType*)ft )->library,
@@ -70,6 +72,10 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
             PyErr_Format(FreeTypeError, "Failed to initialize the Font with error: 0x%x", error);
         return -1;
     }
+    self->library = ft;
+    Py_XINCREF(ft);
+
+    self->data = PySequence_GetItem(args, 1);
     return 0;
 }
 
@@ -109,6 +115,14 @@ supports_text(Face *self, PyObject *args) {
     return ret;
 }
 
+static PyObject*
+glyph_id(Face *self, PyObject *args) {
+    unsigned long code;
+
+    if (!PyArg_ParseTuple(args, "k", &code)) return NULL;
+    return Py_BuildValue("k", (unsigned long)FT_Get_Char_Index(self->face, (FT_ULong)code));
+}
+
 static PyGetSetDef Face_getsetters[] = {
     {(char *)"family_name", 
      (getter)family_name, NULL,
@@ -126,6 +140,10 @@ static PyGetSetDef Face_getsetters[] = {
 static PyMethodDef Face_methods[] = {
     {"supports_text", (PyCFunction)supports_text, METH_VARARGS,
      "supports_text(sequence of unicode character codes) -> Return True iff this font has glyphs for all the specified characters."
+    },
+
+    {"glyph_id", (PyCFunction)glyph_id, METH_VARARGS,
+     "glyph_id(character code) -> Returns the glyph id for the specified character code."
     },
 
     {NULL}  /* Sentinel */

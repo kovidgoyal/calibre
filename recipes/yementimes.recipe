@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class YemenTimesRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
@@ -13,7 +12,7 @@ class YemenTimesRecipe(BasicNewsRecipe):
     category = u'News, Opinion, Yemen'
     description = u'Award winning weekly from Yemen, promoting press freedom, professional journalism and the defense of human rights.'
 
-    oldest_article = 7
+    oldest_article = 10
     max_articles_per_feed = 100
     use_embedded_content = False
     encoding = 'utf-8'
@@ -21,27 +20,13 @@ class YemenTimesRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     remove_javascript = True
+    auto_cleanup = True
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'ctl00_ContentPlaceHolder1_MAINNEWS0_Panel1',
-                                                      'class': 'DMAIN2'}))
-    remove_attributes = ['style']
 
-    INDEX = 'http://www.yementimes.com/'
-    feeds = []
-    feeds.append((u'Our Viewpoint', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=6&pnm=OUR%20VIEWPOINT'))
-    feeds.append((u'Local News', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=3&pnm=Local%20news'))
-    feeds.append((u'Their News', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=80&pnm=Their%20News'))
-    feeds.append((u'Report', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=8&pnm=report'))
-    feeds.append((u'Health', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=51&pnm=health'))
-    feeds.append((u'Interview', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=77&pnm=interview'))
-    feeds.append((u'Opinion', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=7&pnm=opinion'))
-    feeds.append((u'Business', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=5&pnm=business'))
-    feeds.append((u'Op-Ed', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=81&pnm=Op-Ed'))
-    feeds.append((u'Culture', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=75&pnm=Culture'))
-    feeds.append((u'Readers View', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=4&pnm=Readers%20View'))
-    feeds.append((u'Variety', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=9&pnm=Variety'))
-    feeds.append((u'Education', u'http://www.yementimes.com/DEFAULTSUB.ASPX?pnc=57&pnm=Education'))
+    feeds          = [
+('News',
+ 'http://www.yementimes.com/?tpl=1341'),
+]
 
     extra_css = '''
                 body {font-family:verdana, arial, helvetica, geneva, sans-serif;}
@@ -53,73 +38,4 @@ class YemenTimesRecipe(BasicNewsRecipe):
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
                           'publisher': publisher, 'linearize_tables': True}
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
-        br.set_handle_gzip(True)
 
-        return br
-
-    def parse_index(self):
-        answer = []
-        for feed_title, feed in self.feeds:
-            soup = self.index_to_soup(feed)
-
-            newsbox = soup.find('div', 'newsbox')
-            main = newsbox.findNextSibling('table')
-
-            articles = []
-            for li in main.findAll('li'):
-                title = self.tag_to_string(li.a)
-                url = self.INDEX + li.a['href']
-                articles.append({'title': title, 'date': None, 'url': url, 'description': '<br/>&nbsp;'})
-
-            answer.append((feed_title, articles))
-
-        return answer
-
-    def preprocess_html(self, soup):
-        freshSoup = self.getFreshSoup(soup)
-
-        headline = soup.find('div', attrs = {'id': 'DVMTIT'})
-        if headline:
-            div = headline.findNext('div', attrs = {'id': 'DVTOP'})
-            img = None
-            if div:
-                img = div.find('img')
-
-            headline.name = 'h1'
-            freshSoup.body.append(headline)
-            if img is not None:
-                freshSoup.body.append(img)
-
-        byline = soup.find('div', attrs = {'id': 'DVTIT'})
-        if byline:
-            date_el = byline.find('span')
-            if date_el:
-                pub_date = self.tag_to_string(date_el)
-                date = Tag(soup, 'div', attrs = [('class', 'yemen_date')])
-                date.append(pub_date)
-                date_el.extract()
-
-            raw = '<br/>'.join(['%s' % (part) for part in byline.findAll(text = True)])
-            author = BeautifulSoup('<div class="yemen_byline">' + raw + '</div>')
-
-            if date is not None:
-                freshSoup.body.append(date)
-            freshSoup.body.append(author)
-
-        story = soup.find('div', attrs = {'id': 'DVDET'})
-        if story:
-            for table in story.findAll('table'):
-                if table.find('img'):
-                    table['class'] = 'yemen_caption'
-
-            freshSoup.body.append(story)
-
-        return freshSoup
-
-    def getFreshSoup(self, oldSoup):
-        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
-        if oldSoup.head.title:
-            freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
-        return freshSoup
