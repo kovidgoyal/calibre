@@ -104,8 +104,9 @@ class Dict(Reader):
         self.operators = {op:(name, arg) for op, name, arg, default, conv in
                 table}
 
-    def decompile(self, strings, data):
+    def decompile(self, strings, global_subrs, data):
         self.strings = strings
+        self.global_subrs = global_subrs
         self.stack = []
         index = 0
         while index < len(data):

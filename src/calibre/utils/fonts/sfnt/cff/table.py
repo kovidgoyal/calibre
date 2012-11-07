@@ -42,8 +42,12 @@ class CFF(object):
         self.strings = Strings(raw, offset)
         offset = self.strings.pos
 
+        # Read global subroutines
+        self.global_subrs = GlobalSubrs(raw, offset)
+        offset = self.global_subrs.pos
+
         # Decompile Top Dict
-        self.top_dict.decompile(self.strings, self.top_index[0])
+        self.top_dict.decompile(self.strings, self.global_subrs, self.top_index[0])
         import pprint
         pprint.pprint(self.top_dict)
 
@@ -80,6 +84,9 @@ class Strings(Index):
 
     def __init__(self, raw, offset):
         super(Strings, self).__init__(raw, offset, prepend=cff_standard_strings)
+
+class GlobalSubrs(Index):
+    pass
 
 class CFFTable(UnknownTable):
 
