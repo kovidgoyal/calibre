@@ -327,9 +327,8 @@ You can browse your |app| collection on your Android device is by using the
 calibre content server, which makes your collection available over the net.
 First perform the following steps in |app|
 
-  * Set the :guilabel:`Preferred Output Format` in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
-  * Set the output profile to Tablet (this will work for phones as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
-  * Convert the books you want to read on your device to EPUB format by selecting them and clicking the Convert button.
+  * Set the :guilabel:`Preferred Output Format` in |app| to EPUB for normal Android devices or MOBI for Kindles (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+  * Convert the books you want to read on your device to EPUB/MOBI format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
 
 Now on your Android device, open the browser and browse to
