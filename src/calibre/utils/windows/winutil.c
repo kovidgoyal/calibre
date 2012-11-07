@@ -534,8 +534,8 @@ winutil_eject_drive(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "c", &letter)) return NULL;
 
-    if (mbtowc(&DriveLetter, &letter, 1) == -1) {
-        PyErr_SetString(PyExc_ValueError, "Failed to convert drive letter to wchar");
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, &letter, 1, &DriveLetter, 1) == 0) {
+        PyErr_SetFromWindowsErr(0);
         return NULL;
     }
 
