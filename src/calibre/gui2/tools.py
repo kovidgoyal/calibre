@@ -196,6 +196,8 @@ class QueueBulk(QProgressDialog):
                 dtitle = unicode(mi.title)
             except:
                 dtitle = repr(mi.title)
+            if len(dtitle) > 50:
+                dtitle = dtitle[:50].rpartition(' ')[0]+'...'
             self.setLabelText(_('Queueing ')+dtitle)
             desc = _('Convert book %(num)d of %(tot)d (%(title)s)') % dict(
                     num=self.i, tot=len(self.book_ids), title=dtitle)
