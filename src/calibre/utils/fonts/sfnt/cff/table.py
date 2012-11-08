@@ -44,12 +44,14 @@ class CFF(object):
         offset = self.strings.pos
 
         # Read global subroutines
-        self.global_subrs = GlobalSubrs(raw, offset)
+        self.global_subrs = Subrs(raw, offset)
         offset = self.global_subrs.pos
 
         # Decompile Top Dict
         self.top_dict.decompile(self.strings, self.global_subrs, self.top_index[0])
         self.is_CID = 'ROS' in self.top_dict
+        if self.is_CID:
+            raise UnsupportedFont('Subsetting of CID keyed fonts is not supported')
 
         # Read CharStrings (Glyph definitions)
         try:
@@ -64,13 +66,16 @@ class CFF(object):
         self.num_glyphs = len(self.char_strings)
 
         # Read Private Dict
-        self.private_dict = None
+        self.private_dict = self.private_subrs = None
         pd = self.top_dict.safe_get('Private')
         if pd:
             size, offset = pd
             self.private_dict = PrivateDict()
             self.private_dict.decompile(self.strings, self.global_subrs,
                     raw[offset:offset+size])
+            if 'Subrs' in self.private_dict:
+                self.private_subrs = Subrs(raw, offset +
+                        self.private_dict['Subrs'])
 
         # Read charset (Glyph names)
         self.charset = Charset(raw, self.top_dict.safe_get('charset'),
@@ -263,7 +268,7 @@ class Charset(list):
             return self[glyph_id]
         return self.STANDARD_CHARSETS[self.standard_charset][glyph_id].encode('ascii')
 
-class GlobalSubrs(Index):
+class Subrs(Index):
     pass
 
 class CharStringsIndex(Index):
