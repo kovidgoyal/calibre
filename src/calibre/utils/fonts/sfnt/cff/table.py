@@ -268,6 +268,12 @@ class Charset(list):
             return self[glyph_id]
         return self.STANDARD_CHARSETS[self.standard_charset][glyph_id].encode('ascii')
 
+    def safe_lookup(self, glyph_id):
+        try:
+            return self.lookup(glyph_id)
+        except (KeyError, IndexError, ValueError):
+            return None
+
 class Subrs(Index):
     pass
 
@@ -278,6 +284,23 @@ class CFFTable(UnknownTable):
 
     def decompile(self):
         self.cff = CFF(self.raw)
+
+    def subset(self, character_map):
+        from calibre.utils.fonts.sfnt.cff.writer import Subset
+        # Map codes from the cmap table to glyph names, this will be used to
+        # reconstruct character_map for the subset font
+        charset_map = {code:self.cff.charset.safe_lookup(glyph_id) for code,
+                glyph_id in character_map.iteritems()}
+        charset = set(charset_map.itervalues())
+        charset.discard(None)
+        s = Subset(self.cff, charset)
+
+        # Rebuild character_map with the glyph ids from the subset font
+        character_map.clear()
+        for code, charname in charset_map:
+            glyph_id = s.charname_map.get(charname, None)
+            if glyph_id:
+                character_map[code] = glyph_id
 
 # cff_standard_strings {{{
 # The 391 Standard Strings as used in the CFF format.

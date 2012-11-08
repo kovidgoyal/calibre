@@ -69,6 +69,7 @@ def subset_truetype(sfnt, character_map):
 def subset_postscript(sfnt, character_map):
     cff = sfnt[b'CFF ']
     cff.decompile()
+    cff.subset(character_map)
     raise Exception('TODO: Implement CFF subsetting')
 
 def subset(raw, individual_chars, ranges=()):
