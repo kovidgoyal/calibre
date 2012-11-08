@@ -297,7 +297,7 @@ class CFFTable(UnknownTable):
 
         # Rebuild character_map with the glyph ids from the subset font
         character_map.clear()
-        for code, charname in charset_map:
+        for code, charname in charset_map.iteritems():
             glyph_id = s.charname_map.get(charname, None)
             if glyph_id:
                 character_map[code] = glyph_id
