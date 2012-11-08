@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+__author__ = 'MrStefan <mrstefaan@gmail.com>'
+
+'''
+www.rushisaband.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class rushisaband(BasicNewsRecipe):
+    title = u'Rushisaband'
+    __author__ = 'MrStefan <mrstefaan@gmail.com>'
+    language = 'en'
+    description =u'A blog devoted to the band RUSH and its members, Neil Peart, Geddy Lee and Alex Lifeson'
+    remove_empty_feeds= True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'h4'))
+    keep_only_tags.append(dict(name = 'h5'))
+    keep_only_tags.append(dict(name = 'p'))
+    
+    feeds = [(u'Rush is a Band', u'http://feeds2.feedburner.com/rushisaband/blog')]

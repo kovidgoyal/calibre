@@ -1,0 +1,49 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+
+class SATKurier(BasicNewsRecipe):
+    title = u'SATKurier.pl'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    description = u'Największy i najstarszy serwis poświęcony\
+                  telewizji cyfrowej, przygotowywany przez wydawcę\
+                  miesięcznika SAT Kurier. Bieżące wydarzenia\
+                  z rynku mediów i nowych technologii.'
+    oldest_article = 7
+    masthead_url = 'http://satkurier.pl/img/header_sk_logo.gif'
+    max_articles_per_feed = 100
+    simultaneous_downloads = 5
+    remove_javascript = True
+    no_stylesheets = True
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name='div', attrs={'id': ['single_news', 'content']}))
+
+    remove_tags = []
+    remove_tags.append(dict(attrs={'id': ['news_info', 'comments']}))
+    remove_tags.append(dict(attrs={'href': '#czytaj'}))
+    remove_tags.append(dict(attrs={'align': 'center'}))
+    remove_tags.append(dict(attrs={'class': ['date', 'category', 'right mini-add-comment', 'socialLinks', 'commentlist']}))
+
+    remove_tags_after = [(dict(id='entry'))]
+
+    feeds = [(u'Najnowsze wiadomości', u'http://feeds.feedburner.com/satkurierpl?format=xml'),
+             (u'Sport w telewizji', u'http://feeds.feedburner.com/satkurier/sport?format=xml'),
+             (u'Blog', u'http://feeds.feedburner.com/satkurier/blog?format=xml')]
+
+    def preprocess_html(self, soup):
+        image = soup.find(attrs={'id': 'news_mini_photo'})
+        if image:
+            image.extract()
+            header = soup.find('h1')
+            header.replaceWith(header.prettify() + image.prettify())
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        return soup

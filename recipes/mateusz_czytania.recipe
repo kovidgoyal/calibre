@@ -1,0 +1,37 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__author__ = 'teepel <teepel44@gmail.com>'
+
+'''
+http://www.mateusz.pl/czytania
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class czytania_mateusz(BasicNewsRecipe):
+    title          = u'Czytania na ka\u017cdy dzie\u0144'
+    __author__ = 'teepel <teepel44@gmail.com>'
+    description    = u'Codzienne czytania z jednego z najstarszych polskich serwisów katolickich.'
+    language = 'pl'
+    INDEX='http://www.mateusz.pl/czytania'
+    oldest_article = 1
+    remove_empty_feeds= True
+    no_stylesheets=True
+    auto_cleanup = True
+    remove_javascript = True
+    simultaneous_downloads = 2
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Czytania', u'http://mateusz.pl/rss/czytania/')]
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'p', attrs = {'class' : 'top'}))
+
+    #thanks t3d
+    def get_article_url(self, article):
+        link = article.get('link')
+        if 'kmt.pl' not in link:
+            return link
