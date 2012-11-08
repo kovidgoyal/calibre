@@ -28,17 +28,6 @@ cff_dict_operand_encoding[255] = "reserved"
 real_nibbles = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '.', 'E', 'E-', None, '-']
 
-class SimpleConverter(object):
-
-    def read(self, parent, value):
-        return value
-
-    def write(self, parent, value):
-        return value
-
-class TODO(SimpleConverter):
-    pass
-
 class Reader(dict):
 
     def read_byte(self, b0, data, index):
@@ -89,20 +78,13 @@ class Dict(Reader):
 
     def __init__(self):
         Reader.__init__(self)
-        table = self.TABLE[:]
-        for i in xrange(len(table)):
-            op, name, arg, default, conv = table[i]
-            if conv is not None:
-                continue
-            if arg in ("delta", "array", 'number', 'SID'):
-                conv = SimpleConverter()
-            else:
-                raise Exception('Should not happen')
-            table[i] = op, name, arg, default, conv
 
+        self.operators = {op:(name, arg) for op, name, arg, default in
+                self.TABLE}
+        self.defaults = {name:default for op, name, arg, default in self.TABLE}
 
-        self.operators = {op:(name, arg) for op, name, arg, default, conv in
-                table}
+    def safe_get(self, name):
+        return self.get(name, self.defaults[name])
 
     def decompile(self, strings, global_subrs, data):
         self.strings = strings
@@ -162,40 +144,66 @@ class Dict(Reader):
 class TopDict(Dict):
 
     TABLE = [
-	#opcode     name                  argument type   default    converter
-	((12, 30), 'ROS',        ('SID','SID','number'), None,      SimpleConverter()),
-	((12, 20), 'SyntheticBase',      'number',       None,      None),
-	(0,        'version',            'SID',          None,      None),
-	(1,        'Notice',             'SID',          None,      None),
-	((12, 0),  'Copyright',          'SID',          None,      None),
-	(2,        'FullName',           'SID',          None,      None),
-	((12, 38), 'FontName',           'SID',          None,      None),
-	(3,        'FamilyName',         'SID',          None,      None),
-	(4,        'Weight',             'SID',          None,      None),
-	((12, 1),  'isFixedPitch',       'number',       0,         None),
-	((12, 2),  'ItalicAngle',        'number',       0,         None),
-	((12, 3),  'UnderlinePosition',  'number',       None,      None),
-	((12, 4),  'UnderlineThickness', 'number',       50,        None),
-	((12, 5),  'PaintType',          'number',       0,         None),
-	((12, 6),  'CharstringType',     'number',       2,         None),
-	((12, 7),  'FontMatrix',         'array',  [0.001,0,0,0.001,0,0],  None),
-	(13,       'UniqueID',           'number',       None,      None),
-	(5,        'FontBBox',           'array',  [0,0,0,0],       None),
-	((12, 8),  'StrokeWidth',        'number',       0,         None),
-	(14,       'XUID',               'array',        None,      None),
-	((12, 21), 'PostScript',         'SID',          None,      None),
-	((12, 22), 'BaseFontName',       'SID',          None,      None),
-	((12, 23), 'BaseFontBlend',      'delta',        None,      None),
-	((12, 31), 'CIDFontVersion',     'number',       0,         None),
-	((12, 32), 'CIDFontRevision',    'number',       0,         None),
-	((12, 33), 'CIDFontType',        'number',       0,         None),
-	((12, 34), 'CIDCount',           'number',       8720,      None),
-	(15,       'charset',            'number',       0,         TODO()),
-	((12, 35), 'UIDBase',            'number',       None,      None),
-	(16,       'Encoding',           'number',       0,         TODO()),
-	(18,       'Private',       ('number','number'), None,      TODO()),
-	((12, 37), 'FDSelect',           'number',       None,      TODO()),
-	((12, 36), 'FDArray',            'number',       None,      TODO()),
-	(17,       'CharStrings',        'number',       None,      TODO()),
+	#opcode     name                  argument type   default
+	((12, 30), 'ROS',        ('SID','SID','number'), None,      ),
+	((12, 20), 'SyntheticBase',      'number',       None,      ),
+	(0,        'version',            'SID',          None,      ),
+	(1,        'Notice',             'SID',          None,      ),
+	((12, 0),  'Copyright',          'SID',          None,      ),
+	(2,        'FullName',           'SID',          None,      ),
+	((12, 38), 'FontName',           'SID',          None,      ),
+	(3,        'FamilyName',         'SID',          None,      ),
+	(4,        'Weight',             'SID',          None,      ),
+	((12, 1),  'isFixedPitch',       'number',       0,         ),
+	((12, 2),  'ItalicAngle',        'number',       0,         ),
+	((12, 3),  'UnderlinePosition',  'number',       None,      ),
+	((12, 4),  'UnderlineThickness', 'number',       50,        ),
+	((12, 5),  'PaintType',          'number',       0,         ),
+	((12, 6),  'CharstringType',     'number',       2,         ),
+	((12, 7),  'FontMatrix',         'array',  [0.001,0,0,0.001,0,0],  ),
+	(13,       'UniqueID',           'number',       None,      ),
+	(5,        'FontBBox',           'array',  [0,0,0,0],       ),
+	((12, 8),  'StrokeWidth',        'number',       0,         ),
+	(14,       'XUID',               'array',        None,      ),
+	((12, 21), 'PostScript',         'SID',          None,      ),
+	((12, 22), 'BaseFontName',       'SID',          None,      ),
+	((12, 23), 'BaseFontBlend',      'delta',        None,      ),
+	((12, 31), 'CIDFontVersion',     'number',       0,         ),
+	((12, 32), 'CIDFontRevision',    'number',       0,         ),
+	((12, 33), 'CIDFontType',        'number',       0,         ),
+	((12, 34), 'CIDCount',           'number',       8720,      ),
+	(15,       'charset',            'number',       0,         ),
+	((12, 35), 'UIDBase',            'number',       None,      ),
+	(16,       'Encoding',           'number',       0,         ),
+	(18,       'Private',       ('number','number'), None,      ),
+	((12, 37), 'FDSelect',           'number',       None,      ),
+	((12, 36), 'FDArray',            'number',       None,      ),
+	(17,       'CharStrings',        'number',       None,      ),
+    ]
+
+class PrivateDict(Dict):
+
+    TABLE = [
+#	opcode     name                  argument type   default
+	(6,        'BlueValues',         'delta',        None,      ),
+	(7,        'OtherBlues',         'delta',        None,      ),
+	(8,        'FamilyBlues',        'delta',        None,      ),
+	(9,        'FamilyOtherBlues',   'delta',        None,      ),
+	((12, 9),  'BlueScale',          'number',       0.039625,  ),
+	((12, 10), 'BlueShift',          'number',       7,         ),
+	((12, 11), 'BlueFuzz',           'number',       1,         ),
+	(10,       'StdHW',              'number',       None,      ),
+	(11,       'StdVW',              'number',       None,      ),
+	((12, 12), 'StemSnapH',          'delta',        None,      ),
+	((12, 13), 'StemSnapV',          'delta',        None,      ),
+	((12, 14), 'ForceBold',          'number',       0,         ),
+	((12, 15), 'ForceBoldThreshold', 'number',       None,      ),  # deprecated
+	((12, 16), 'lenIV',              'number',       None,      ),  # deprecated
+	((12, 17), 'LanguageGroup',      'number',       0,         ),
+	((12, 18), 'ExpansionFactor',    'number',       0.06,      ),
+	((12, 19), 'initialRandomSeed',  'number',       0,         ),
+	(20,       'defaultWidthX',      'number',       0,         ),
+	(21,       'nominalWidthX',      'number',       0,         ),
+	(19,       'Subrs',              'number',       None,      ),
     ]
 
