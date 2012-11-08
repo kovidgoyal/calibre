@@ -83,7 +83,9 @@ class NOOK(USBMS):
 class NOOK_COLOR(NOOK):
     description    = _('Communicate with the Nook Color, TSR and Tablet eBook readers.')
 
-    PRODUCT_ID  = [0x002, 0x003, 0x004]
+    PRODUCT_ID  = [0x002, 0x003, 0x004,
+            # Nook HD+
+            0x005]
     BCD         = [0x216]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
