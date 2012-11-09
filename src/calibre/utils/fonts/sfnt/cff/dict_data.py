@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import unpack
+from struct import unpack, pack
 
 t1_operand_encoding = [None] * 256
 t1_operand_encoding[0:32] = (32) * ["do_operator"]
@@ -27,8 +27,9 @@ cff_dict_operand_encoding[255] = "reserved"
 
 real_nibbles = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '.', 'E', 'E-', None, '-']
+real_nibbles_map = {x:i for i, x in enumerate(real_nibbles)}
 
-class Reader(dict):
+class ByteCode(dict):
 
     def read_byte(self, b0, data, index):
         return b0 - 139, index
@@ -71,13 +72,62 @@ class Reader(dict):
             number = number + real_nibbles[nibble1]
         return float(number), index
 
-class Dict(Reader):
+    def write_float(self, f, encoding='ignored'):
+        s = type(u'')(f).upper()
+        if s[:2] == "0.":
+            s = s[1:]
+        elif s[:3] == "-0.":
+            s = "-" + s[2:]
+        nibbles = []
+        while s:
+            c = s[0]
+            s = s[1:]
+            if c == "E" and s[:1] == "-":
+                s = s[1:]
+                c = "E-"
+            nibbles.append(real_nibbles_map[c])
+        nibbles.append(0xf)
+        if len(nibbles) % 2:
+            nibbles.append(0xf)
+        d = bytearray([30])
+        for i in xrange(0, len(nibbles), 2):
+            d.append(nibbles[i] << 4 | nibbles[i+1])
+        return bytes(d)
+
+    def write_int(self, value, encoding="cff"):
+        four_byte_op = {'cff':29, 't1':255}.get(encoding, None)
+
+		if -107 <= value <= 107:
+			code = bytes(bytearray([value + 139]))
+		elif 108 <= value <= 1131:
+			value = value - 108
+			code = bytes(bytearray([(value >> 8) + 247, (value & 0xFF)]))
+		elif -1131 <= value <= -108:
+			value = -value - 108
+			code = bytes(bytearray([(value >> 8) + 251, (value & 0xFF)]))
+		elif four_byte_op is None:
+			# T2 only supports 2 byte ints
+            code = bytes(bytearray([28])) + pack(b">h", value)
+		else:
+			code = bytes(bytearray([four_byte_op])) + pack(b">l", value)
+		return code
+
+    def write_offset(self, value):
+        return bytes(bytearray([29])) + pack(b">l", value)
+
+    def write_number(self, value, encoding="cff"):
+        f = self.write_float if isinstance(value, float) else self.write_int
+        return f(value, encoding)
+
+class Dict(ByteCode):
 
     operand_encoding = cff_dict_operand_encoding
-    TABLE = []
+    TABLE = ()
+    FILTERED = frozenset()
+    OFFSETS = frozenset()
 
     def __init__(self):
-        Reader.__init__(self)
+        ByteCode.__init__(self)
 
         self.operators = {op:(name, arg) for op, name, arg, default in
                 self.TABLE}
@@ -141,9 +191,53 @@ class Dict(Reader):
         del self.stack[:]
 		return out
 
+    def compile(self, strings):
+        data = []
+        for op, name, arg, default in self.TABLE:
+            if name in self.FILTERED:
+                continue
+            val = self.safe_get(name)
+            opcode = bytes(bytearray(op if isinstance(op, tuple) else [op]))
+            if val != self.defaults[name]:
+                self.encoding_offset = name in self.OFFSETS
+                if isinstance(arg, tuple):
+                    if len(val) != len(arg):
+                        raise ValueError('Invalid argument %s for operator: %s'
+                                %(val, op))
+                    for typ, v in zip(arg, val):
+                        if typ == 'SID':
+                            val = strings(val)
+                        data.append(getattr(self, 'encode_'+typ)(v))
+                else:
+                    if arg == 'SID':
+                        val = strings(val)
+                    data.append(getattr(self, 'encode_'+arg)(val))
+                data.append(opcode)
+        self.raw = b''.join(data)
+        return self.raw
+
+    def encode_number(self, val):
+        if self.encoding_offset:
+            return self.write_offset(val)
+        return self.write_number(val)
+
+    def encode_SID(self, val):
+        return self.write_int(val)
+
+    def encode_array(self, val):
+        return b''.join(map(self.encode_number, val))
+
+	def encode_delta(self, value):
+		out = []
+		last = 0
+		for v in value:
+			out.append(v - last)
+			last = v
+        return self.encode_array(out)
+
 class TopDict(Dict):
 
-    TABLE = [
+    TABLE = (
 	#opcode     name                  argument type   default
 	((12, 30), 'ROS',        ('SID','SID','number'), None,      ),
 	((12, 20), 'SyntheticBase',      'number',       None,      ),
@@ -179,12 +273,18 @@ class TopDict(Dict):
 	((12, 37), 'FDSelect',           'number',       None,      ),
 	((12, 36), 'FDArray',            'number',       None,      ),
 	(17,       'CharStrings',        'number',       None,      ),
-    ]
+    )
+
+    # We will not write these operators out
+    FILTERED = {'ROS', 'SyntheticBase', 'UniqueID', 'XUID',
+            'CIDFontVersion', 'CIDFontRevision', 'CIDFontType', 'CIDCount',
+            'UIDBase', 'Encoding', 'FDSelect', 'FDArray'}
+    OFFSETS = {'charset', 'Encoding', 'CharStrings', 'Private'}
 
 class PrivateDict(Dict):
 
-    TABLE = [
-#	opcode     name                  argument type   default
+    TABLE = (
+    #	opcode     name                  argument type   default
 	(6,        'BlueValues',         'delta',        None,      ),
 	(7,        'OtherBlues',         'delta',        None,      ),
 	(8,        'FamilyBlues',        'delta',        None,      ),
@@ -205,5 +305,7 @@ class PrivateDict(Dict):
 	(20,       'defaultWidthX',      'number',       0,         ),
 	(21,       'nominalWidthX',      'number',       0,         ),
 	(19,       'Subrs',              'number',       None,      ),
-    ]
+    )
+
+    OFFSETS = {'Subrs'}
 
