@@ -76,6 +76,17 @@ def subset(raw, individual_chars, ranges=()):
     for r in ranges:
         chars += list(xrange(ord(r[0]), ord(r[1])+1))
 
+    # Hack pending parsing of the GSUB table, manually add in a few common
+    # ligatures
+    ligatures = {'AE':'Æ', 'ae':'æ', 'OE':'Œ', 'IJ':'Ĳ', 'ij':'ĳ', 'ue':'ᵫ',
+            'ff':'ﬀ', 'fi':'ﬁ', 'fl':'ﬂ', 'ffi':'ﬃ', 'ffl':'ﬄ', 'st':'ﬆ'}
+    all_chars = set(chars)
+    for ichars, lig in ligatures.iteritems():
+        ichars = frozenset(map(ord, ichars))
+        if ichars.issubset(all_chars) and ord(lig) not in all_chars:
+            all_chars.add(ord(lig))
+            chars.append(ord(lig))
+
     sfnt = Sfnt(raw)
     old_sizes = sfnt.sizes()
 
