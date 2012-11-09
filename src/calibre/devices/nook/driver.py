@@ -12,6 +12,7 @@ import os
 
 import cStringIO
 
+from calibre.constants import isosx
 from calibre.devices.usbms.driver import USBMS
 
 class NOOK(USBMS):
@@ -83,9 +84,9 @@ class NOOK(USBMS):
 class NOOK_COLOR(NOOK):
     description    = _('Communicate with the Nook Color, TSR and Tablet eBook readers.')
 
-    PRODUCT_ID  = [0x002, 0x003, 0x004,
-            # Nook HD+
-            0x005]
+    PRODUCT_ID  = [0x002, 0x003, 0x004]
+    if isosx:
+        PRODUCT_ID.append(0x005) # Nook HD+
     BCD         = [0x216]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
