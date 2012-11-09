@@ -96,12 +96,7 @@ def subset(raw, individual_chars, ranges=()):
         subset_truetype(sfnt, character_map)
     elif b'CFF ' in sfnt:
         # PostScript Outlines
-        from calibre.utils.config_base import tweaks
-        if tweaks['subset_cff_table']:
-            subset_postscript(sfnt, character_map)
-        else:
-            raise UnsupportedFont('This font contains PostScript outlines, '
-                'subsetting not supported')
+        subset_postscript(sfnt, character_map)
     else:
         raise UnsupportedFont('This font does not contain TrueType '
                 'or PostScript outlines')

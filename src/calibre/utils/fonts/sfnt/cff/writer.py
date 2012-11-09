@@ -124,10 +124,11 @@ class Subset(object):
         charsets = Charsets(strings)
         charsets.extend(cff.charset[1:]) # .notdef is not included
 
+        endchar_operator = bytes(bytearray([14]))
         for i in xrange(self.cff.num_glyphs):
             cname = self.cff.charset.safe_lookup(i)
             ok = cname in keep_charnames
-            cs = self.cff.char_strings[i] if ok else b''
+            cs = self.cff.char_strings[i] if ok else endchar_operator
             char_strings.append(cs)
             if ok:
                 self.charname_map[cname] = i
