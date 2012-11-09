@@ -107,7 +107,7 @@ class Subset(object):
 
     def __init__(self, cff, keep_charnames):
         self.cff = cff
-        self.keep_charnames = keep_charnames
+        keep_charnames.add(b'.notdef')
 
         header = pack(b'>4B', 1, 0, 4, cff.offset_size)
 
@@ -127,9 +127,9 @@ class Subset(object):
             cname = self.cff.charset.safe_lookup(i)
             if cname in keep_charnames:
                 char_strings.append(self.cff.char_strings[i])
-                self.charname_map[cname] = i
-            if i > 0: # .notdef is not included
-                charsets.append(cname)
+                self.charname_map[cname] = len(self.charname_map)
+                if i > 0: # .notdef is not included
+                    charsets.append(cname)
 
         # Add the strings
         char_strings.compile()

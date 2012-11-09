@@ -210,9 +210,7 @@ OptionRecommendation(name='subset_embedded_fonts',
             'Subset all embedded fonts. Every embedded font is reduced '
             'to contain only the glyphs used in this document. This decreases '
             'the size of the font files. Useful if you are embedding a '
-            'particularly large font with lots of unused glyphs. Note that '
-            'subsetting is only supported for fonts that contain TrueType '
-            'outlines, not Postscript outlines.')
+            'particularly large font with lots of unused glyphs.')
         ),
 
 OptionRecommendation(name='linearize_tables',

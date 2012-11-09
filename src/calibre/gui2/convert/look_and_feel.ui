@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
+    <width>699</width>
     <height>619</height>
    </rect>
   </property>
@@ -411,7 +411,7 @@
    <item row="6" column="3" colspan="2">
     <widget class="QCheckBox" name="opt_subset_embedded_fonts">
      <property name="text">
-      <string>&amp;Subset all embedded fonts</string>
+      <string>&amp;Subset all embedded fonts (Experimental)</string>
      </property>
     </widget>
    </item>
