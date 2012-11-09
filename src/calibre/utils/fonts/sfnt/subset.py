@@ -94,6 +94,17 @@ def subset(raw, individual_chars, ranges=()):
     # font anyway
     sfnt.pop(b'DSIG', None)
 
+    # Remove non core tables as they aren't likely to be used by renderers
+    # anyway
+    core_tables = {b'cmap', b'hhea', b'head', b'hmtx', b'maxp', b'name',
+            b'OS/2', b'post', b'cvt ', b'fpgm', b'glyf', b'loca', b'prep',
+            b'CFF ', b'VORG', b'EBDT', b'EBLC', b'EBSC', b'BASE', b'GSUB',
+            b'GPOS', b'GDEF', b'JSTF', b'gasp', b'hdmx', b'kern', b'LTSH',
+            b'PCLT', b'VDMX', b'vhea', b'vmtx', b'MATH'}
+    for tag in list(sfnt):
+        if tag not in core_tables:
+            del sfnt[tag]
+
     try:
         cmap = sfnt[b'cmap']
     except KeyError:
