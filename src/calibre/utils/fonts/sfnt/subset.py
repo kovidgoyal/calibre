@@ -104,6 +104,16 @@ def subset(raw, individual_chars, ranges=()):
     # Restrict the cmap table to only contain entries for the resolved glyphs
     cmap.set_character_map(character_map)
 
+    if b'kern' in sfnt:
+        try:
+            sfnt[b'kern'].restrict_to_glyphs(frozenset(character_map.itervalues()))
+        except UnsupportedFont as e:
+            print ('Subsetting of kern table failed, ignoring: %s'%e)
+        except Exception as e:
+            print ('Subsetting of kern table failed, ignoring')
+            import traceback
+            traceback.print_exc()
+
     raw, new_sizes = sfnt()
     return raw, old_sizes, new_sizes
 

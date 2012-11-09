@@ -21,6 +21,7 @@ from calibre.utils.fonts.sfnt.maxp import MaxpTable
 from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.glyf import GlyfTable
 from calibre.utils.fonts.sfnt.cmap import CmapTable
+from calibre.utils.fonts.sfnt.kern import KernTable
 from calibre.utils.fonts.sfnt.cff.table import CFFTable
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
@@ -44,6 +45,7 @@ class Sfnt(object):
                     b'glyf' : GlyfTable,
                     b'cmap' : CmapTable,
                     b'CFF ' : CFFTable,
+                    b'kern' : KernTable,
                     }.get(table_tag, UnknownTable)(table)
 
     def __getitem__(self, key):
