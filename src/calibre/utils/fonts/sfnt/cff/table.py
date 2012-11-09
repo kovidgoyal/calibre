@@ -102,7 +102,7 @@ class Index(list):
             offset += 1
             if self.offset_size == 3:
                 offsets = [unpack(b'>L', b'\0' + raw[i:i+3])[0]
-                            for i in xrange(offset, offset+3*(count+2), 3)]
+                            for i in xrange(offset, offset+3*(count+1), 3)]
             else:
                 fmt = {1:'B', 2:'H', 4:'L'}[self.offset_size]
                 fmt = ('>%d%s'%(count+1, fmt)).encode('ascii')
@@ -156,8 +156,8 @@ class Charset(list):
             is_two_byte=False):
         fmt = b'>2H' if is_two_byte else b'>HB'
         sz = calcsize(fmt)
-        count = 0
-        while count < num_glyphs - 1:
+        count = 1
+        while count < num_glyphs:
             first, nleft = unpack_from(fmt, raw, offset)
             offset += sz
             count += nleft + 1
