@@ -122,14 +122,15 @@ class Subset(object):
         char_strings = Index()
         self.charname_map = OrderedDict()
         charsets = Charsets(strings)
+        charsets.extend(cff.charset[1:]) # .notdef is not included
 
         for i in xrange(self.cff.num_glyphs):
             cname = self.cff.charset.safe_lookup(i)
-            if cname in keep_charnames:
-                char_strings.append(self.cff.char_strings[i])
-                self.charname_map[cname] = len(self.charname_map)
-                if i > 0: # .notdef is not included
-                    charsets.append(cname)
+            ok = cname in keep_charnames
+            cs = self.cff.char_strings[i] if ok else b''
+            char_strings.append(cs)
+            if ok:
+                self.charname_map[cname] = i
 
         # Add the strings
         char_strings.compile()
