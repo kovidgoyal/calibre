@@ -186,7 +186,7 @@ class CFFTable(UnknownTable):
     def decompile(self):
         self.cff = CFF(self.raw)
 
-    def subset(self, character_map):
+    def subset(self, character_map, extra_glyphs):
         from calibre.utils.fonts.sfnt.cff.writer import Subset
         # Map codes from the cmap table to glyph names, this will be used to
         # reconstruct character_map for the subset font
@@ -196,6 +196,9 @@ class CFFTable(UnknownTable):
         charset.discard(None)
         if not charset:
             raise NoGlyphs('This font has no glyphs for the specified characters')
+        charset |= {
+            self.cff.charset.safe_lookup(glyph_id) for glyph_id in extra_glyphs}
+        charset.discard(None)
         s = Subset(self.cff, charset)
 
         # Rebuild character_map with the glyph ids from the subset font
