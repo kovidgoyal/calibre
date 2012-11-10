@@ -1,0 +1,141 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import datetime
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag
+
+
+class brewiarz(BasicNewsRecipe):
+    title = u'Brewiarz'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    description = u'Serwis poświęcony Liturgii Godzin (brewiarzowi) - formie codziennej modlitwy Kościoła katolickiego.'
+    masthead_url = 'http://brewiarz.pl/images/logo2.gif'
+    max_articles_per_feed = 100
+    remove_javascript = True
+    no_stylesheets = True
+    publication_type = 'newspaper'
+    next_days = 1 
+
+    def parse_index(self):
+        dec2rom_dict = {"01": "i", "02": "ii", "03": "iii", "04": "iv",
+                        "05": "v", "06": "vi", "07": "vii", "08": "viii",
+                        "09": "ix", "10": "x", "11": "xi", "12": "xii"}
+
+        weekday_dict = {"Sunday": "Niedziela", "Monday": "Poniedziałek", "Tuesday": "Wtorek",
+                        "Wednesday": "Środa", "Thursday": "Czwartek", "Friday": "Piątek", "Saturday": "Sobota"}
+
+        now = datetime.datetime.now()
+
+        feeds = []
+        for i in range(0, self.next_days):
+            url_date = now + datetime.timedelta(days=i)
+            url_date_month = url_date.strftime("%m")
+            url_date_month_roman = dec2rom_dict[url_date_month]
+            url_date_day = url_date.strftime("%d")
+            url_date_year = url_date.strftime("%Y")[2:]
+            url_date_weekday = url_date.strftime("%A")
+            url_date_weekday_pl = weekday_dict[url_date_weekday]
+
+            url = "http://brewiarz.pl/" + url_date_month_roman + "_" + url_date_year + "/" + url_date_day + url_date_month + "/index.php3"
+            articles = self.parse_pages(url)
+            if articles:
+                title = url_date_weekday_pl + " " + url_date_day + "." + url_date_month + "." + url_date_year
+                feeds.append((title, articles))
+            else:
+                sectors = self.get_sectors(url)
+                for subpage in sectors:
+                    title = url_date_weekday_pl + " " + url_date_day + "." + url_date_month + "." + url_date_year + " - " + subpage.string
+                    url = "http://brewiarz.pl/" + url_date_month_roman + "_" + url_date_year + "/" + url_date_day + url_date_month + "/" + subpage['href']
+                    print(url)
+                    articles = self.parse_pages(url)
+                    if articles:
+                        feeds.append((title, articles))
+        return feeds
+
+    def get_sectors(self, url):
+        sectors = []
+        soup = self.index_to_soup(url)
+        sectors_table = soup.find(name='table', attrs={'width': '490'})
+        sector_links = sectors_table.findAll(name='a')
+        for sector_links_modified in sector_links:
+            link_parent_text = sector_links_modified.findParent(name='div').text
+            if link_parent_text:
+                sector_links_modified.text = link_parent_text.text
+            sectors.append(sector_links_modified)
+        return sectors
+
+    def parse_pages(self, url):
+        current_articles = []
+        soup = self.index_to_soup(url)
+        www = soup.find(attrs={'class': 'www'})
+        if www:
+            box_title = www.find(text='Teksty LG')
+            article_box_parent = box_title.findParent('ul')
+            article_box_sibling = article_box_parent.findNextSibling('ul')
+            for li in article_box_sibling.findAll('li'):
+                link = li.find(name='a')
+                ol = link.findNextSibling(name='ol')
+                if ol:
+                    sublinks = ol.findAll(name='a')
+                    for sublink in sublinks:
+                        link_title = self.tag_to_string(link) + " - " + self.tag_to_string(sublink)
+                        link_url_print = re.sub('php3', 'php3?kr=_druk&wr=lg&', sublink['href'])
+                        link_url = url[:-10] + link_url_print
+                        current_articles.append({'title': link_title,
+                                                 'url': link_url, 'description': '', 'date': ''})
+                else:
+                    if link.findParent(name = 'ol'):
+                        continue
+                    else:
+                        link_title = self.tag_to_string(link)
+                        link_url_print = re.sub('php3', 'php3?kr=_druk&wr=lg&', link['href'])
+                        link_url = url[:-10] + link_url_print
+                        current_articles.append({'title': link_title,
+                                                 'url': link_url, 'description': '', 'date': ''})
+            return current_articles
+        else:
+            return None
+
+    def preprocess_html(self, soup):
+        footer = soup.find(name='a', attrs={'href': 'http://brewiarz.pl'})
+        footer_parent = footer.findParent('div')
+        footer_parent.extract()
+
+        header = soup.find(text='http://brewiarz.pl')
+        header_parent = header.findParent('div')
+        header_parent.extract()
+
+        subheader = soup.find(text='Kolor szat:').findParent('div')
+        subheader.extract()
+
+        color = soup.find('b')
+        color.extract()
+
+        cleaned = self.strip_tags(soup)
+
+        div = cleaned.findAll(name='div')
+        div[1].extract()
+        div[2].extract()
+        div[3].extract()
+
+        return cleaned
+
+    def strip_tags(self, soup_dirty):
+        VALID_TAGS = ['p', 'div', 'br', 'b', 'a', 'title', 'head', 'html', 'body']
+
+        for tag in soup_dirty.findAll(True):
+            if tag.name not in VALID_TAGS:
+                for i, x in enumerate(tag.parent.contents):
+                    if x == tag:
+                        break
+                else:
+                    print "Can't find", tag, "in", tag.parent
+                    continue
+                for r in reversed(tag.contents):
+                    tag.parent.insert(i, r)
+                tag.extract()
+
+        return soup_dirty
