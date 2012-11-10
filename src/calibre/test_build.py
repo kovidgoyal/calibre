@@ -37,11 +37,6 @@ def test_freetype():
     test()
     print ('FreeType OK!')
 
-def test_sfntly():
-    from calibre.utils.fonts.subset import test
-    test()
-    print ('sfntly OK!')
-
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
     matches = win_pnp_drives.scanner()
@@ -120,7 +115,6 @@ def test():
     test_plugins()
     test_lxml()
     test_freetype()
-    test_sfntly()
     test_sqlite()
     test_imaging()
     test_unrar()

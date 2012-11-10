@@ -212,7 +212,7 @@ def main(args=sys.argv):
         return
 
     if len(args) > 1 and args[1] in ('-f', '--subset-font'):
-        from calibre.utils.fonts.subset import main
+        from calibre.utils.fonts.sfnt.subset import main
         main(['subset-font']+args[2:])
         return
 

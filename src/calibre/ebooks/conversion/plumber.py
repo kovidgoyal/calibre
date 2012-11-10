@@ -204,6 +204,15 @@ OptionRecommendation(name='embed_font_family',
             'with some output formats, principally EPUB and AZW3.')
         ),
 
+OptionRecommendation(name='subset_embedded_fonts',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_(
+            'Subset all embedded fonts. Every embedded font is reduced '
+            'to contain only the glyphs used in this document. This decreases '
+            'the size of the font files. Useful if you are embedding a '
+            'particularly large font with lots of unused glyphs.')
+        ),
+
 OptionRecommendation(name='linearize_tables',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Some badly designed documents use tables to control the '
@@ -1111,6 +1120,10 @@ OptionRecommendation(name='search_replace',
             RemoveFakeMargins, RemoveAdobeMargins
         RemoveFakeMargins()(self.oeb, self.log, self.opts)
         RemoveAdobeMargins()(self.oeb, self.log, self.opts)
+
+        if self.opts.subset_embedded_fonts:
+            from calibre.ebooks.oeb.transforms.subset import SubsetFonts
+            SubsetFonts()(self.oeb, self.log, self.opts)
 
         pr(0.9)
         self.flush()

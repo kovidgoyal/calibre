@@ -18,6 +18,7 @@ from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugi
                                  remove_plugin, NameConflict)
 from calibre.gui2 import (NONE, error_dialog, info_dialog, choose_files,
         question_dialog, gprefs)
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
@@ -363,6 +364,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if plugin.do_user_config(self.gui):
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
+                if not confirm('<p>' +
+                    _('Are you sure you want to remove the plugin: %s?')%
+                    '<b>{0}</b>'.format(plugin.name),
+                    'confirm_plugin_removal_msg', parent=self):
+                    return
+
                 msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
