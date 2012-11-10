@@ -6,7 +6,6 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     __author__  = 'fenuks'
     __licence__ ='GPL v3'
     category       = 'IT'
-    language       = 'pl'
     masthead_url='http://static.dpcdn.pl/css/Black/Images/header_logo_napis_fullVersion.png'
     cover_url = 'http://userlogos.org/files/logos/Karmody/dobreprogramy_01.png'
     description = u'Aktualności i blogi z dobreprogramy.pl'
