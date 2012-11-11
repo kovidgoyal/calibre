@@ -1,0 +1,103 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__copyright__ = 'teepel <teepel44@gmail.com> based on GW from fenuks'
+
+'''
+krakow.gazeta.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class gw_krakow(BasicNewsRecipe):
+    title          = u'Gazeta.pl Kraków'
+    __author__ = 'teepel <teepel44@gmail.com> based on GW from fenuks'
+    language       = 'pl'
+    description =u'Wiadomości z Krakowa na portalu Gazeta.pl.'
+    category='newspaper'
+    publication_type = 'newspaper'
+    masthead_url='http://bi.gazeta.pl/im/5/8528/m8528105.gif'
+    INDEX='http://krakow.gazeta.pl/'
+    remove_empty_feeds= True
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_likes'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_tools'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'rel'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_share'}))
+    remove_tags.append(dict(name = 'u1', attrs = {'id' : 'articleToolbar'}))
+    remove_tags.append(dict(name = 'li', attrs = {'class' : 'atComments'}))
+    remove_tags.append(dict(name = 'li', attrs = {'class' : 'atLicense'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'banP4'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'article_toolbar'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_tags'}))
+    remove_tags.append(dict(name = 'p', attrs = {'class' : 'txt_upl'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'gazeta_article_related_new'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'gazetaVideoPlayer'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_miniatures'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_buttons'}))
+
+    remove_tags_after = [dict(name = 'div', attrs = {'id' : 'gazeta_article_share'})]
+       
+    feeds          = [(u'Wiadomości', u'http://rss.gazeta.pl/pub/rss/krakow.xml')]
+
+    def skip_ad_pages(self, soup):
+          tag=soup.find(name='a', attrs={'class':'btn'})
+          if tag:
+            new_soup=self.index_to_soup(tag['href'], raw=True)
+            return new_soup
+
+
+    def append_page(self, soup, appendtag):
+        loop=False
+        tag = soup.find('div', attrs={'id':'Str'})
+        if appendtag.find('div', attrs={'id':'Str'}):
+            nexturl=tag.findAll('a')
+            appendtag.find('div', attrs={'id':'Str'}).extract()
+            loop=True
+            if appendtag.find(id='source'):
+                appendtag.find(id='source').extract()
+        while loop:
+            loop=False
+            for link in nexturl:
+                if u'następne' in link.string:
+                    url= self.INDEX + link['href']
+                    soup2 = self.index_to_soup(url)
+                    pagetext = soup2.find(id='artykul')
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                    tag = soup2.find('div', attrs={'id':'Str'})
+                    nexturl=tag.findAll('a')
+                    loop=True
+
+    def gallery_article(self, appendtag):
+        tag=appendtag.find(id='container_gal')
+        if tag:
+            nexturl=appendtag.find(id='gal_btn_next').a['href']
+            appendtag.find(id='gal_navi').extract()
+        while nexturl:
+            soup2=self.index_to_soup(nexturl)
+            pagetext=soup2.find(id='container_gal')
+            nexturl=pagetext.find(id='gal_btn_next')
+            if nexturl:
+                nexturl=nexturl.a['href']
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            rem=appendtag.find(id='gal_navi')
+            if rem:
+                rem.extract()
+
+    def preprocess_html(self, soup):
+         self.append_page(soup, soup.body)
+         if soup.find(id='container_gal'):
+             self.gallery_article(soup.body)
+         return soup
+
