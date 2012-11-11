@@ -721,8 +721,8 @@ You can switch |app| to using a backed up library folder by simply clicking the 
 
 If you want to backup the |app| configuration/plugins, you have to backup the config directory. You can find this config directory via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration directories is not officially supported, but should work in most cases. Just copy the contents of the backup directory into the current configuration directory to restore.
 
-How do I use purchased EPUB books with |app|?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use purchased EPUB books with |app| (or what do I do with .acsm files)?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Most purchased EPUB books have `DRM <http://drmfree.calibre-ebook.com/about#drm>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your ebook reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" ebook. The ebook file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
 
 I am getting a "Permission Denied" error?

@@ -14,26 +14,21 @@ class tvn24(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     no_stylesheets = True
-    keep_only_tags=[	
-#	dict(name='h1', attrs={'class':'size38 mt20 pb20'}),
-	dict(name='div', attrs={'class':'mainContainer'}),
-#	dict(name='p'),
-#	dict(attrs={'class':['size18 mt10 mb15', 'bold topicSize1', 'fromUsers content', 'textArticleDefault']})
+    keep_only_tags=[
+#   dict(name='h1', attrs={'class':'size38 mt20 pb20'}),
+    dict(name='div', attrs={'class':'mainContainer'}),
+#   dict(name='p'),
+#   dict(attrs={'class':['size18 mt10 mb15', 'bold topicSize1', 'fromUsers content', 'textArticleDefault']})
                    ]
     remove_tags=[
-	dict(attrs={'class':['commentsInfo', 'textSize', 'related newsNews align-right', 'box', 'watchMaterial text', 'related galleryGallery align-center', 'advert block-alignment-right', 'userActions', 'socialBookmarks', 'im yourArticle fl', 'dynamicButton addComment fl', 'innerArticleModule onRight cols externalContent', 'thumbsGallery', 'relatedObject customBlockquote align-right', 'lead', 'mainRightColumn', 'articleDateContainer borderGreyBottom', 'socialMediaContainer onRight loaded', 'quizContent', 'twitter', 'facebook', 'googlePlus', 'share', 'voteResult', 'reportTitleBar bgBlue_v4 mb15', 'innerVideoModule center']}),
-	dict(name='article', attrs={'class':['singleArtPhotoCenter', 'singleArtPhotoRight', 'singleArtPhotoLeft']}),
-	dict(name='section', attrs={'id':['forum', 'innerArticle', 'quiz toCenter', 'mb20']}),
-	dict(name='div', attrs={'class':'socialMediaContainer big p20 mb20 borderGrey  loaded'})
-	      ]
+    dict(attrs={'class':['commentsInfo', 'textSize', 'related newsNews align-right', 'box', 'watchMaterial text', 'related galleryGallery align-center', 'advert block-alignment-right', 'userActions', 'socialBookmarks', 'im yourArticle fl', 'dynamicButton addComment fl', 'innerArticleModule onRight cols externalContent', 'thumbsGallery', 'relatedObject customBlockquote align-right', 'lead', 'mainRightColumn', 'articleDateContainer borderGreyBottom', 'socialMediaContainer onRight loaded', 'quizContent', 'twitter', 'facebook', 'googlePlus', 'share', 'voteResult', 'reportTitleBar bgBlue_v4 mb15', 'innerVideoModule center']}),
+    dict(name='article', attrs={'class':['singleArtPhotoCenter', 'singleArtPhotoRight', 'singleArtPhotoLeft']}),
+    dict(name='section', attrs={'id':['forum', 'innerArticle', 'quiz toCenter', 'mb20']}),
+    dict(name='div', attrs={'class':'socialMediaContainer big p20 mb20 borderGrey  loaded'})
+          ]
     remove_tags_after=[dict(name='li', attrs={'class':'share'})]
     feeds          = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'), ]
-		#(u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+        #(u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
 
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):

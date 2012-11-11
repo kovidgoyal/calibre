@@ -777,7 +777,7 @@ class BooksView(QTableView): # {{{
                     self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
-    def set_current_row(self, row, select=True):
+    def set_current_row(self, row=0, select=True):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))

@@ -3,8 +3,7 @@
 __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import datetime
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag
+import datetime, re
 
 
 class brewiarz(BasicNewsRecipe):
@@ -17,7 +16,7 @@ class brewiarz(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     publication_type = 'newspaper'
-    next_days = 1 
+    next_days = 1
 
     def parse_index(self):
         dec2rom_dict = {"01": "i", "02": "ii", "03": "iii", "04": "iv",

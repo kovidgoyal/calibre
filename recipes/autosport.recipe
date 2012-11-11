@@ -8,7 +8,6 @@ www.autosport.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class autosport(BasicNewsRecipe):
     title = u'Autosport'
@@ -27,5 +26,5 @@ class autosport(BasicNewsRecipe):
     keep_only_tags.append(dict(name = 'td', attrs = {'class' : 'news_article_author'}))
     keep_only_tags.append(dict(name = 'td', attrs = {'class' : 'news_article_date'}))
     keep_only_tags.append(dict(name = 'p'))
-	
+
     feeds = [(u'ALL NEWS', u'http://www.autosport.com/rss/allnews.xml')]

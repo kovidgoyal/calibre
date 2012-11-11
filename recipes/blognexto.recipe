@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class blognexto(BasicNewsRecipe):
     title = 'BLOG.NEXTO.pl'

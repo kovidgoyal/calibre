@@ -8,7 +8,6 @@ http://www.mateusz.pl/czytania
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class czytania_mateusz(BasicNewsRecipe):
     title          = u'Czytania na ka\u017cdy dzie\u0144'

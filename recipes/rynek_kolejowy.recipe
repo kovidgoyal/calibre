@@ -8,7 +8,6 @@ rynek-kolejowy.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class rynek_kolejowy(BasicNewsRecipe):
     title          = u'Rynek Kolejowy'
@@ -31,11 +30,11 @@ class rynek_kolejowy(BasicNewsRecipe):
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'no-print'}))
 
     extra_css = '''.wiadomosc_title{ font-size: 1.4em; font-weight: bold; }'''
-       
+
     feeds          = [(u'Wiadomości', u'http://www.rynek-kolejowy.pl/rss/rss.php')]
 
     def print_version(self, url):
         segment = url.split('/')
         urlPart = segment[3]
         return 'http://www.rynek-kolejowy.pl/drukuj.php?id=' + urlPart
-        
+

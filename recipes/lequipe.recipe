@@ -3,7 +3,6 @@
 __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 
 class leequipe(BasicNewsRecipe):
