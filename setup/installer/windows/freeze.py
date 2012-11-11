@@ -14,10 +14,9 @@ from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
 ICU_DIR = r'Q:\icu'
-OPENSSL_DIR = r'Q:\openssl'
-QT_DIR = 'Q:\\Qt\\4.8.2'
+OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
+QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-QTCURVE = r'C:\plugins\styles'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',

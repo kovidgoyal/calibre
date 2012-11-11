@@ -46,14 +46,17 @@ In a cygwin terminal do:
 ssh-host-config -y
 net start sshd
 
-Pass port 22 through Windows firewall. Create .ssh/authorized_keys
+Pass port 22 through Windows firewall. Create ~/.ssh/authorized_keys
 
-Add VS90COMNTOOLS to ~/.bash_profile
+After installing python run::
+    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
+
+To allow you to use the visual studio tools in the cygwin ssh shell.
 
 Basic dependencies
 --------------------
 
-Install cmake, python, WiX
+Install cmake, python, WiX (WiX is used to generate the .msi installer)
 
 You have to 
 
@@ -115,7 +118,7 @@ First install ActiveState Perl if you dont already have perl in windows
 
 Then, get nasm.exe from
 http://www.nasm.us/pub/nasm/releasebuilds/2.05/nasm-2.05-win32.zip and put it
-somewhere on your PATH (I chose C:\Program Files (x86)/Microsoft Visual Studio 9.0/VC/bin/)
+somewhere on your PATH (I chose ~/sw/bin)
 
 Download and untar the openssl tarball, follow the instructions in INSTALL.(W32|W64)
 to install use prefix q:\openssl
@@ -131,13 +134,17 @@ For 64-bit::
     perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
     ms\do_win64a
     nmake -f ms\ntdll.mak
+    nmake -f ms\ntdll.mak test
+    nmake -f ms\ntdll.mak install
 
 Qt
 --------
+Download Qt sourcecode (.zip) from: http://qt-project.org/downloads
+Extract Qt sourcecode to C:\Qt\current
 
-Extract Qt sourcecode to C:\Qt\4.x.x. 
-
-Qt uses its own routine to locate and load "system libraries" including the openssl libraries needed for "Get Books". This means that we have to apply the following patch to have Qt load the openssl libraries bundled with calibre:
+Qt uses its own routine to locate and load "system libraries" including the
+openssl libraries needed for "Get Books". This means that we have to apply the
+following patch to have Qt load the openssl libraries bundled with calibre:
 
 
 --- src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
@@ -156,7 +163,7 @@ Now, run configure and make::
 
 -no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
 
-    configure -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -no-plugin-manifests -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
+    configure -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -no-plugin-manifests -openssl -I $OPENSSL_DIR/include -L $OPENSSL_DIR/lib && nmake
 
 Add the path to the bin folder inside the Qt dir to your system PATH.
 
