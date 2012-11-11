@@ -4,16 +4,58 @@ Notes on setting up the windows development environment
 Overview
 ----------
 
-calibre and all its dependencies are compiled using Visual Studio 2008 express edition (free from MS). All the following instructions must be run in a visual studio command prompt unless otherwise noted.
+calibre and all its dependencies are compiled using Visual Studio 2008 express
+edition (free from MS). All the following instructions must be run in a visual
+studio command prompt unless otherwise noted.
 
-calibre contains build script to automate the building of the calibre installer. These scripts make certain assumptions about where dependencies are installed. Your best best is to setup a VM and replicate the paths mentioned below exactly.
+calibre contains build script to automate the building of the calibre
+installer. These scripts make certain assumptions about where dependencies are
+installed. Your best best is to setup a VM and replicate the paths mentioned
+below exactly.
+
+Microsoft Visual Studio and Windows SDK
+----------------------------------------
+
+You have to use Visual Studio 2008 as that is the version Python 2.x works 
+with.
+
+You need Visual Studio 2008 Express Edition for 32-bit and Professional for 64
+bit. 
+
+1) Install Visual Studio
+2) Install Visual Studio SP1 from http://www.microsoft.com/en-us/download/details.aspx?id=10986
+   (First check if the version of VS 2008 you have is not already SP1)
+3) Install The Windows SDK. You need to install a version that is built for VS
+2008. Get it from here: http://www.microsoft.com/en-us/download/details.aspx?id=3138
+4) If you are building 64bit, edit the properties of the Visual Studio command
+prompt shortcut to pass "amd64" instead of "x86" to the vsvars.bat file so that
+it uses the 64 bit tools.
+
+I've read that it is possible to use the 64-bit compiler that comes with the
+Windows SDK With VS 2008 Express Edition, but I can't be bothered figuring it
+out. Just use the Professional Edition.
+
+Cygwin
+------------
+
+This is needed for automation of the build process, you dont need it otherwise.
+
+Install, vim, rsync, openssh, unzip, wget at a minimum.
+In a cygwin terminal do:
+
+ssh-host-config -y
+net start sshd
+
+Pass port 22 through Windows firewall. Create .ssh/authorized_keys
+
+Add VS90COMNTOOLS to ~/.bash_profile
 
 Basic dependencies
 --------------------
 
-Install cygwin and setup sshd (optional). Used to enable automation of the calibre build VM from linux, not needed if you are building manually.
+Install cmake, python, WiX
 
-Install MS Visual Studio 2008, cmake, python and WiX.
+You have to 
 
 Set CMAKE_PREFIX_PATH environment variable to C:\cygwin\home\kovid\sw
 
@@ -21,10 +63,16 @@ This is where all dependencies will be installed.
 
 Add C:\Python27\Scripts and C:\Python27 to PATH 
 
-Edit mimetypes.py in C:\Python27\Lib and set _winreg = None to prevent reading of mimetypes from the windows registry
+Edit mimetypes.py in C:\Python27\Lib and set _winreg = None to prevent reading
+of mimetypes from the windows registry
 
-Install setuptools from http://pypi.python.org/pypi/setuptools
-If there are no windows binaries already compiled for the version of python you are using then download the source and run the following command in the folder where the source has been unpacked::
+Python packages
+------------------
+
+Install setuptools from http://pypi.python.org/pypi/setuptools If there are no
+windows binaries already compiled for the version of python you are using then
+download the source and run the following command in the folder where the
+source has been unpacked::
 
      python setup.py install
 
@@ -32,10 +80,9 @@ Run the following command to install python dependencies::
 
     easy_install --always-unzip -U mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto cssselect
 
-Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
-
 Install pywin32 and edit win32com\__init__.py setting _frozen = True and
-__gen_path__ to a temp dir (otherwise it tries to set it to a dir in the install tree which leads to permission errors)
+__gen_path__ to a temp dir (otherwise it tries to set it to a dir in the
+install tree which leads to permission errors)
 Note that you should use::
 
     import tempfile
@@ -43,35 +90,47 @@ Note that you should use::
                             tempfile.gettempdir(), "gen_py",
                             "%d.%d" % (sys.version_info[0], sys.version_info[1]))
 
-Use gettempdir instead of the win32 api method as gettempdir returns a temp dir that is guaranteed to actually work.
+Use gettempdir instead of the win32 api method as gettempdir returns a temp dir
+that is guaranteed to actually work.
 
-
-Also edit win32com\client\gencache.py and change the except IOError on line 57 to catch all exceptions.
+Also edit win32com\client\gencache.py and change the except IOError on line 57
+to catch all exceptions.
 
 SQLite
 ---------
 
-Put sqlite3*.h from the sqlite windows amlgamation in ~/sw/include
+Put sqlite3*.h from the sqlite windows amalgamation in ~/sw/include
 
 APSW
 -----
 
 Download source from http://code.google.com/p/apsw/downloads/list and run in visual studio prompt
 
-python setup.py fetch --all build --missing-checksum-ok --enable-all-extensions install test
+python setup.py fetch --all --missing-checksum-ok build --enable-all-extensions install test
 
 OpenSSL
 --------
 
 First install ActiveState Perl if you dont already have perl in windows
-Download and untar the openssl tarball, follow the instructions in INSTALL.W32 (use no-asm)
+
+Then, get nasm.exe from
+http://www.nasm.us/pub/nasm/releasebuilds/2.05/nasm-2.05-win32.zip and put it
+somewhere on your PATH (I chose C:\Program Files (x86)/Microsoft Visual Studio 9.0/VC/bin/)
+
+Download and untar the openssl tarball, follow the instructions in INSTALL.(W32|W64)
 to install use prefix q:\openssl
 
-perl Configure VC-WIN32 no-asm enable-static-engine --prefix=Q:/openssl
-ms\do_ms.bat
-nmake -f ms\ntdll.mak
-nmake -f ms\ntdll.mak test
-nmake -f ms\ntdll.mak install
+For 32-bit::
+    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=Q:/openssl
+    ms\do_ms.bat
+    nmake -f ms\ntdll.mak
+    nmake -f ms\ntdll.mak test
+    nmake -f ms\ntdll.mak install
+
+For 64-bit::
+    perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
+    ms\do_win64a
+    nmake -f ms\ntdll.mak
 
 Qt
 --------
