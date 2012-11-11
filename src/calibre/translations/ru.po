@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-10 02:51+0000\n"
-"PO-Revision-Date: 2012-11-09 18:00+0000\n"
+"PO-Revision-Date: 2012-11-10 14:30+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-10 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-11-11 04:49+0000\n"
 "X-Generator: Launchpad (build 16251)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -3751,6 +3751,10 @@ msgid ""
 "Useful if you are embedding a particularly large font with lots of unused "
 "glyphs."
 msgstr ""
+"Ограничить все вложенные шрифты. Каждый вложенный шрифт будет содержать "
+"только используемые в документе символы. Это уменьшает размер файла шрифтов. "
+"Полезно если вы включаете объёмный шрифт с большим количеством "
+"неиспользуемых символов."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -7863,11 +7867,11 @@ msgstr " дюйм"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:313
 msgid "Author cross-references:"
-msgstr ""
+msgstr "Перекрёстные имена авторов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:314
 msgid "For books with multiple authors, list each author separately"
-msgstr ""
+msgstr "В книгах с несколькими авторами каждый указывается отдельно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -8651,7 +8655,7 @@ msgstr "&Отключить масштабирование шрифта"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:242
 msgid "&Subset all embedded fonts (Experimental)"
-msgstr ""
+msgstr "Ограничить все вложенные шрифты (Эксперементально)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -11376,6 +11380,11 @@ msgid ""
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
 " conversion of a large number of books and something went wrong."
 msgstr ""
+"Когда происходит преобразование из формата в тот же формат, \n"
+"т.е. например из EPUB в EPUB, calibre сохранит исходный EPUB\n"
+" как ORIGINAL_EPUB. Эта настройка говорит calibre восстановить\n"
+" EPUB из ORIGINAL_EPUB. Полезно если вы сделали преобразование\n"
+" большого количества книг и что-то пошло не так."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid "Restore pre conversion &originals, if available"
@@ -13454,11 +13463,11 @@ msgstr "Выберите семейство шрифтов из списка н�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:205
 msgid "Find Next"
-msgstr ""
+msgstr "Найти следующее"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:208
 msgid "Find Previous"
-msgstr ""
+msgstr "Найти предыдущее"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:258
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -14568,7 +14577,7 @@ msgstr "Очистить серии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:192
 msgid "Clear all tags"
-msgstr ""
+msgstr "Очистить все теги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
@@ -16694,7 +16703,7 @@ msgstr "Выберите действующий плагин под <b>%s</b> д
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 #, python-format
 msgid "Are you sure you want to remove the plugin: %s?"
-msgstr ""
+msgstr "Вы уверены что хотите удалить плагин: %s?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:373
 msgid "Plugin <b>{0}</b> successfully removed"
@@ -20174,6 +20183,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Создаёт ссылки в разделе Авторов для книг с несколькими авторами.\n"
+"По умолчанию: '%default\n"
+"Относится к: выходным форматам AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:55
 #, python-format
@@ -20614,6 +20626,9 @@ msgid ""
 "Do not notify the running calibre GUI (if any) that the database has "
 "changed. Use with care, as it can lead to database corruption!"
 msgstr ""
+"Не уведомлять запущеный интерфейс GUI (если есть) что база изменилась. "
+"Испльзуйте с осторожностью, так как это может привести к повреждению базы "
+"данных!"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:149
 msgid ""
@@ -24732,16 +24747,3 @@ msgstr ""
 "использовать окончания, то вы должны будете нажать Tab для выбора перед \n"
 "нажатием Ввода. Какой режим вы предпочитаете будет зависеть от состояния \n"
 "метаданных в библиотеке и вашего личного стиля редактирования."
-
-#~ msgid ""
-#~ "When doing a same format to same format conversion, for e.g., EPUB to EPUB, "
-#~ "calibre saves the original EPUB as ORIGINAL_EPUB. This option tells calibre "
-#~ "to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion "
-#~ "of a large number of books and something went wrong."
-#~ msgstr ""
-#~ "Когда производится конвертация в тот же формат, например EPUB в EPUB, \r\n"
-#~ "calibre сохранит оригинальный EPUB как ORIGINAL_EPUB. Эта опция указывает "
-#~ "\r\n"
-#~ "calibre восстанавливать EPUB из ORIGINAL_EPUB. Это полезно если вы делаете "
-#~ "\r\n"
-#~ "преобразование большого количества книг и что-то пошло не так."
