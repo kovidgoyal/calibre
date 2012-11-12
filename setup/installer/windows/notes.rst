@@ -365,7 +365,7 @@ Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 Test it on the target system with
 
-calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
+calibre-debug -c "from PIL import _imaging, _imagingmath, _imagingft, _imagingcms"
 
 
 kdewin32-msvc

@@ -74,7 +74,8 @@ def test_imaging():
         print ('ImageMagick OK!')
     else:
         raise RuntimeError('ImageMagick choked!')
-    from PIL import Image
+    from PIL import Image, _imaging, _imagingmath, _imagingft, _imagingcms
+    _imaging, _imagingmath, _imagingft, _imagingcms
     i = Image.open(cStringIO.StringIO(data))
     if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
