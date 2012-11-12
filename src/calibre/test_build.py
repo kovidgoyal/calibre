@@ -32,11 +32,6 @@ def test_lxml():
     else:
         raise RuntimeError('lxml failed')
 
-def test_freetype():
-    from calibre.utils.fonts.free_type import test
-    test()
-    print ('FreeType OK!')
-
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
     matches = win_pnp_drives.scanner()
@@ -116,7 +111,6 @@ def test_woff():
 def test():
     test_plugins()
     test_lxml()
-    test_freetype()
     test_sqlite()
     test_imaging()
     test_unrar()
