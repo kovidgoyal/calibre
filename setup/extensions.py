@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, shlex, subprocess, glob, shutil, sys
+import textwrap, os, shlex, subprocess, glob, shutil
 from distutils import sysconfig
 from multiprocessing import cpu_count
 
@@ -18,10 +18,9 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs)
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
 MT
 isunix = islinux or isosx or isbsd
-is64bit = sys.maxsize > 2**32
 
 make = 'make' if isunix else NMAKE
 

@@ -40,11 +40,43 @@ Cygwin
 
 This is needed for automation of the build process, you dont need it otherwise.
 
-Install, vim, rsync, openssh, unzip, wget at a minimum.
-In a cygwin terminal do:
+Install, vim, rsync, openssh, unzip, wget, make at a minimum.
 
-ssh-host-config -y
-net start sshd
+In order to build debug builds (.pdb files and sign files), you have to be able
+to login as the normal user account with ssh. To do this, follow these steps:
+
+    * Setup a password for your user account
+    * Follow the steps here:
+      http://pcsupport.about.com/od/windows7/ht/auto-logon-windows-7.htm or
+      http://pcsupport.about.com/od/windowsxp/ht/auto-logon-xp.htm to allow the
+      machine to bootup without having to enter the password
+    * First clean out any existing cygwin ssh setup with::
+        net stop sshd
+        cygrunsrv -R sshd
+        net user sshd /DELETE
+        net user cyg_server /DELETE (delete any other cygwin users account you
+        can list them with net user)
+        rm -R /etc/ssh*
+        mkpasswd -cl > /etc/passwd
+        mkgroup --local > /etc/group
+    * Assign the necessary rights to the normal user account::
+        editrights.exe -a SeAssignPrimaryTokenPrivilege -u kovid
+        editrights.exe -a SeCreateTokenPrivilege -u kovid
+        editrights.exe -a SeTcbPrivilege -u kovid
+        editrights.exe -a SeServiceLogonRight -u kovid
+    * Run::
+        ssh-host-config
+      And answer (yes) to all questions. If it asks do you want to use a
+      different user name, specify the name of your user account and enter
+      username and password (it asks on Win 7 not on Win XP)
+    * On Windows XP, I also had to run::
+        passwd -R
+      to allow sshd to use my normal user account even with public key
+      authentication. See http://cygwin.com/cygwin-ug-net/ntsec.html for
+      details. On Windows 7 this wasn't necessary for some reason.
+    * Start sshd with::
+        net start sshd
+    * See http://www.kgx.net.nz/2010/03/cygwin-sshd-and-windows-7/ for details
 
 Pass port 22 through Windows firewall. Create ~/.ssh/authorized_keys
 
@@ -172,9 +204,7 @@ SIP
 
 Available from: http://www.riverbankcomputing.co.uk/software/sip/download ::
 
-    python configure.py -p win32-msvc2008
-    nmake
-    nmake install
+    python configure.py -p win32-msvc2008 && nmake && nmake install
 
 PyQt4
 ----------
@@ -184,15 +214,6 @@ Compiling instructions::
     python configure.py -c -j5 -e QtCore -e QtGui -e QtSvg -e QtNetwork -e QtWebKit -e QtXmlPatterns --verbose --confirm-license
     nmake
     nmake install
-
-Python Imaging Library
-------------------------
-
-Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-
-Test it on the target system with
-
-calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 
 ICU
 -------
@@ -217,12 +238,30 @@ Optionally run make check
 Libunrar
 ----------
 
-http://www.rarlab.com/rar/UnRARDLL.exe install and add C:\Program Files\UnrarDLL to PATH
+Get the source from http://www.rarlab.com/rar_add.htm
 
-lxml
+Open UnrarDll.vcproj, change build type to release.
+If building 64 bit change Win32 to x64.
+
+Build the Solution, find the dll in the build subdir. As best as I can tell,
+the vcproj already defines the SILENT preprocessor directive, but you should
+test this.
+
+.. http://www.rarlab.com/rar/UnRARDLL.exe install and add C:\Program Files\UnrarDLL to PATH
+
+TODO: 64-bit check that SILENT is defined and that the ctypes bindings actuall
+work
+
+zlib
 ------
 
-http://pypi.python.org/pypi/lxml
+Build with::
+    nmake -f win32/Makefile.msc
+    nmake -f win32/Makefile.msc test
+
+    cp zlib1.dll* ../../bin
+    cp zlib.lib zdll.* ../../lib
+    cp zconf.h zlib.h ../../include
 
 jpeg-7
 -------
@@ -251,16 +290,6 @@ Change the definitions of GLOBAL and EXTERN in jmorecfg.h to
 cp build/jpeg-7/Release/jpeg.dll bin/
 cp build/jpeg-7/Release/jpeg.lib build/jpeg-7/Release/jpeg.exp
 cp build/jpeg-7/jerror.h build/jpeg-7/jpeglib.h build/jpeg-7/jconfig.h build/jpeg-7/jmorecfg.h include/
-
-zlib
-------
-
-nmake -f win32/Makefile.msc
-nmake -f win32/Makefile.msc test
-
-cp zlib1.dll* ../../bin
-cp zlib.lib zdll.* ../../lib
-cp zconf.h zlib.h ../../include
 
 
 libpng
@@ -301,6 +330,21 @@ cp build/freetype-2.3.9/objs/release_mt/freetype.dll bin/
 Now change configuration back to static for .lib
 cp build/freetype-2.3.9/objs/win32/vc2008/freetype239MT.lib lib/
 cp -rf build/freetype-2.3.9/include/* include/
+
+lxml
+------
+
+http://pypi.python.org/pypi/lxml
+
+
+Python Imaging Library
+------------------------
+
+Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+Test it on the target system with
+
+calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 
 expat
 --------
@@ -417,6 +461,8 @@ cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
 
 easylzma
 ----------
+
+This is only needed to build the portable installer.
 
 Get it from http://lloyd.github.com/easylzma/ (use the trunk version)
 
