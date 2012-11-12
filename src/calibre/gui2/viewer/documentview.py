@@ -204,7 +204,7 @@ class Document(QWebPage): # {{{
     _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
-    def after_load(self):
+    def after_load(self, last_loaded_path=None):
         self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
@@ -213,7 +213,7 @@ class Document(QWebPage): # {{{
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
         if self.in_paged_mode:
-            self.switch_to_paged_mode()
+            self.switch_to_paged_mode(last_loaded_path=last_loaded_path)
         self.read_anchor_positions(use_cache=False)
         evaljs = self.mainFrame().evaluateJavaScript
         for pl in self.all_viewer_plugins:
@@ -240,7 +240,7 @@ class Document(QWebPage): # {{{
             self.anchor_positions = {}
         return {k:tuple(v) for k, v in self.anchor_positions.iteritems()}
 
-    def switch_to_paged_mode(self, onresize=False):
+    def switch_to_paged_mode(self, onresize=False, last_loaded_path=None):
         if onresize and not self.loaded_javascript:
             return
         self.javascript('''
@@ -251,9 +251,12 @@ class Document(QWebPage): # {{{
             self.cols_per_screen, self.top_margin, self.side_margin,
             self.bottom_margin
             ))
-        side_margin = self.javascript('window.paged_display.layout()', typ=int)
+        force_fullscreen_layout = bool(getattr(last_loaded_path,
+                                               'is_single_page', False))
+        f = 'true' if force_fullscreen_layout else 'false'
+        side_margin = self.javascript('window.paged_display.layout(%s)'%f, typ=int)
         # Setup the contents size to ensure that there is a right most margin.
-        # Without this webkit renders the final column with no margin, as the
+        # Without this WebKit renders the final column with no margin, as the
         # columns extend beyond the boundaries (and margin) of body
         mf = self.mainFrame()
         sz = mf.contentsSize()
@@ -730,7 +733,7 @@ class DocumentView(QWebView): # {{{
             return
         self.loading_url = None
         self.document.load_javascript_libraries()
-        self.document.after_load()
+        self.document.after_load(self.last_loaded_path)
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:
