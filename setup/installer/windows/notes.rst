@@ -263,53 +263,37 @@ Build with::
     cp zlib.lib zdll.* ../../lib
     cp zconf.h zlib.h ../../include
 
-jpeg-7
+jpeg-8
 -------
 
-Copy:: 
-    jconfig.vc to jconfig.h, makejsln.vc9 to jpeg.sln,
-    makeasln.vc9 to apps.sln, makejvcp.vc9 to jpeg.vcproj,
-    makecvcp.vc9 to cjpeg.vcproj, makedvcp.vc9 to djpeg.vcproj,
-    maketvcp.vc9 to jpegtran.vcproj, makervcp.vc9 to rdjpgcom.vcproj, and
-    makewvcp.vc9 to wrjpgcom.vcproj.  (Note that the renaming is critical!)
+Get the source code from: http://sourceforge.net/projects/libjpeg-turbo/files/
 
-Load jpeg.sln in Visual Studio
-
-Goto Project->Properties->General Properties and change Configuration Type to dll
-
-Add 
-
-#define USE_WINDOWS_MESSAGEBOX
-
-to jconfig.h (this will cause error messages to show up in a box)
-
-Change the definitions of GLOBAL and EXTERN in jmorecfg.h to
-#define GLOBAL(type)        __declspec(dllexport) type
-#define EXTERN(type)        extern __declspec(dllexport) type
-
-cp build/jpeg-7/Release/jpeg.dll bin/
-cp build/jpeg-7/Release/jpeg.lib build/jpeg-7/Release/jpeg.exp
-cp build/jpeg-7/jerror.h build/jpeg-7/jpeglib.h build/jpeg-7/jconfig.h build/jpeg-7/jmorecfg.h include/
-
+Run::
+    chmod +x cmakescripts/* && cd build 
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 ..
+    nmake
+    cp sharedlib/jpeg8.dll* ~/sw/bin/
+    cp sharedlib/jpeg.lib ~/sw/lib/
+    cp jconfig.h ../jerror.h ../jpeglib.h ../jmorecfg.h ~/sw/include
 
 libpng
 ---------
 
-cp scripts/CMakelists.txt .
-mkdir build
-Run cmake-gui.exe with source directory . and build directory build
-You will have to point to sw/lib/zdll.lib and sw/include for zlib
-Also disable PNG_NO_STDIO and PNG_NO_CONSOLE_IO
+Download the libpng .zip source file from:
+http://www.libpng.org/pub/png/libpng.html
 
-Now open PNG.sln in VS2008
-Set Build type to Release
-
-cp build/libpng-1.2.40/build/Release/libpng12.dll bin/
-cp build/libpng-1.2.40/build/Release/png12.* lib/
-cp build/libpng-1.2.40/png.h build/libpng-1.2.40/pngconf.h include/
+Run::
+    mkdir build && cd build
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin/home/kovid/sw/lib/zdll.lib ..
+    nmake
+    cp libpng*.dll ~/sw/bin/
+    cp libpng*.lib ~/sw/lib/
+    cp pnglibconf.h ../png.h ../pngconf.h ~/sw/include/
 
 freetype
 -----------
+
+Get the .zip source from: http://download.savannah.gnu.org/releases/freetype/
 
 Edit *all copies* of the file ftoption.h and add to generate a .lib
 and a correct dll
@@ -320,16 +304,26 @@ and a correct dll
 
 VS 2008 .sln file is present, open it
 
-Change active build type to release mutithreaded
+    * If you are doing x64 build, click the Win32 dropdown, select
+      Configuration manager->Active solution platform -> New -> x64
 
-Project->Properties->Configuration Properties 
-change configuration type to dll
+    * Change active build type to release mutithreaded
 
-cp build/freetype-2.3.9/objs/release_mt/freetype.dll bin/
+    * Project->Properties->Configuration Properties change configuration type
+      to dll and build solution
 
-Now change configuration back to static for .lib
+cp "`find . -name *.dll`" ~/sw/bin/
+cp "`find . -name freetype.lib`" ~/sw/lib/
+
+Now change configuration back to static for .lib and build solution
+cp "`find . -name freetype*MT.lib`" ~/sw/lib/
+
 cp build/freetype-2.3.9/objs/win32/vc2008/freetype239MT.lib lib/
-cp -rf build/freetype-2.3.9/include/* include/
+cp -rf include/* ~/sw/include/
+
+TODO: Test if this bloody thing actually works on 64 bit (apparently freetype
+assumes sizeof(long) == sizeof(ptr) which is not true in Win64. See for
+example: http://forum.openscenegraph.org/viewtopic.php?t=2880
 
 lxml
 ------
@@ -349,14 +343,19 @@ calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 expat
 --------
 
-Has a VC 6 project file expat.dsw
+Get from: http://sourceforge.net/projects/expat/files/expat/
 
-Set active build to Relase and change build type to dll
+Apparently expat requires stdint.h which VS 2008 does not have. So we get our
+own.
 
-cp build/expat-2.0.1/win32/bin/Release/*.lib lib/
-cp build/expat-2.0.1/win32/bin/Release/*.exp lib/
-cp build/expat-2.0.1/win32/bin/Release/*.dll bin/
-cp build/expat-2.0.1/lib/expat.h build/expat-2.0.1/lib/expat_external.h include/
+Run::
+    cd lib
+    wget http://msinttypes.googlecode.com/svn/trunk/stdint.h
+    mkdir build && cd build
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+    nmake
+    cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/
+    cp ../lib/expat.h ../lib/expat_external.h ~/sw/include
 
 libxml2
 -------------
