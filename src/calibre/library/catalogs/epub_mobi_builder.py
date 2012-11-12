@@ -3905,7 +3905,7 @@ class CatalogBuilder(object):
         mtc = 0
 
         titleTag = Tag(soup, "dc:title")
-        titleTag.insert(0,self.opts.catalog_title)
+        titleTag.insert(0,escape(self.opts.catalog_title))
         metadata.insert(mtc, titleTag)
         mtc += 1
 
