@@ -301,7 +301,7 @@ class LinuxFreeze(Command):
                 export MAGICK_CONFIGURE_PATH=$lib/{1}/config
                 export MAGICK_CODER_MODULE_PATH=$lib/{1}/modules-Q16/coders
                 export MAGICK_CODER_FILTER_PATH=$lib/{1}/modules-Q16/filters
-                $base/bin/{0} "$@"
+                exec $base/bin/{0} "$@"
                 ''')
 
                 dest = self.j(self.obj_dir, bname+'.o')
