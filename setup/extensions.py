@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, shlex, subprocess, glob, shutil
+import textwrap, os, shlex, subprocess, glob, shutil, sys
 from distutils import sysconfig
 from multiprocessing import cpu_count
 
@@ -21,6 +21,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         zlib_libs, zlib_lib_dirs, zlib_inc_dirs)
 MT
 isunix = islinux or isosx or isbsd
+is64bit = sys.maxsize > 2**32
 
 make = 'make' if isunix else NMAKE
 
@@ -278,6 +279,8 @@ if iswindows:
     ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
     #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
     #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
+    if is64bit:
+        cflags.append('/GS-')
 
     for p in win_inc:
         cflags.append('-I'+p)
