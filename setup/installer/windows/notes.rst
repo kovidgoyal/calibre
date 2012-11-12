@@ -325,21 +325,6 @@ TODO: Test if this bloody thing actually works on 64 bit (apparently freetype
 assumes sizeof(long) == sizeof(ptr) which is not true in Win64. See for
 example: http://forum.openscenegraph.org/viewtopic.php?t=2880
 
-lxml
-------
-
-http://pypi.python.org/pypi/lxml
-
-
-Python Imaging Library
-------------------------
-
-Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-
-Test it on the target system with
-
-calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
-
 expat
 --------
 
@@ -366,6 +351,22 @@ nmake /f Makefile.msvc
 nmake /f Makefile.msvc install
 mv lib/libxml2.dll bin/
 cp ./build/libxml2-2.7.5/win32/bin.msvc/*.manifest bin/
+
+lxml
+------
+
+http://pypi.python.org/pypi/lxml
+
+
+Python Imaging Library
+------------------------
+
+Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+Test it on the target system with
+
+calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
+
 
 kdewin32-msvc
 ----------------
