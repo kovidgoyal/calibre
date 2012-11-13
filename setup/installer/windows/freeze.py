@@ -277,8 +277,10 @@ class Win32Freeze(Command, WixMixIn):
                 if not ok: continue
                 dest = self.dll_dir
                 shutil.copy2(f, dest)
-        for x in ('zlib1.dll', 'libxml2.dll'):
-            shutil.copy2(self.j(bindir, x+'.manifest'), self.dll_dir)
+        for x in ('zlib1.dll', 'libxml2.dll', 'libxslt.dll', 'libexslt.dll'):
+            msrc = self.j(bindir, x+'.manifest')
+            if os.path.exists(msrc):
+                shutil.copy2(msrc, self.dll_dir)
 
         # Copy ImageMagick
         for pat in ('*.dll', '*.xml'):

@@ -4,9 +4,10 @@ Notes on setting up the windows development environment
 Overview
 ----------
 
-calibre and all its dependencies are compiled using Visual Studio 2008 express
-edition (free from MS). All the following instructions must be run in a visual
-studio command prompt unless otherwise noted.
+calibre and all its dependencies are compiled using Visual Studio 2008. All the
+following instructions must be run in a visual studio command prompt (the
+various commands use unix notation, so if you want to use them directly, you
+have to setup cygwin).
 
 calibre contains build script to automate the building of the calibre
 installer. These scripts make certain assumptions about where dependencies are
@@ -38,9 +39,18 @@ out. Just use the Professional Edition.
 Cygwin
 ------------
 
-This is needed for automation of the build process, you dont need it otherwise.
+This is needed for automation of the build process, and the ease of use of the
+unix shell (bash).
 
 Install, vim, rsync, openssh, unzip, wget, make at a minimum.
+
+After installing python run::
+    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
+
+To allow you to use the visual studio tools in the cygwin shell.
+
+The following is only needed for automation (setting up ssh access to the
+windows machine).
 
 In order to build debug builds (.pdb files and sign files), you have to be able
 to login as the normal user account with ssh. To do this, follow these steps:
@@ -79,11 +89,6 @@ to login as the normal user account with ssh. To do this, follow these steps:
     * See http://www.kgx.net.nz/2010/03/cygwin-sshd-and-windows-7/ for details
 
 Pass port 22 through Windows firewall. Create ~/.ssh/authorized_keys
-
-After installing python run::
-    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
-
-To allow you to use the visual studio tools in the cygwin ssh shell.
 
 Basic dependencies
 --------------------
@@ -342,15 +347,52 @@ Run::
     cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/
     cp ../lib/expat.h ../lib/expat_external.h ~/sw/include
 
+libiconv
+----------
+
+Run::
+    mkdir vs2008 && cd vs2008
+
+Then follow these instructions:
+http://www.codeproject.com/Articles/302012/How-to-Build-libiconv-with-Microsoft-Visual-Studio
+
+Change the type to Release and config to x64 or Win32 and Build solution and
+then::
+    cp "`find . -name *.dll`" ~/sw/bin/
+    cp "`find . -name *.dll.manifest`" ~/sw/bin/
+    cp "`find . -name *.lib`" ~/sw/lib/iconv.lib
+    cp "`find . -name iconv.h`" ~/sw/include/
+
+Information for using a static version of libiconv is at the link above.
+
 libxml2
 -------------
 
-cd win32
-cscript configure.js include=C:\cygwin\home\kovid\sw\include lib=C:\cygwin\home\sw\lib prefix=C:\cygwin\home\kovid\sw zlib=yes iconv=no
-nmake /f Makefile.msvc
-nmake /f Makefile.msvc install
-mv lib/libxml2.dll bin/
-cp ./build/libxml2-2.7.5/win32/bin.msvc/*.manifest bin/
+Get it from: ftp://xmlsoft.org/libxml2/
+
+Run::
+    cd win32
+    cscript.exe configure.js include=C:/cygwin/home/kovid/sw/include lib=C:/cygwin/home/kovid/sw/lib prefix=C:/cygwin/home/kovid/sw zlib=yes iconv=yes
+    nmake /f Makefile.msvc
+    mkdir -p ~/sw/include/libxml2/libxml
+    cp include/libxml/*.h ~/sw/include/libxml2/libxml/
+    find .  -name '*.dll' -o -name '*.dll.manifest' -exec cp "{}" ~/sw/bin/ \;
+    find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
+
+libxslt
+---------
+
+Get it from: ftp://xmlsoft.org/libxml2/
+
+Run::
+    cd win32
+    cscript.exe configure.js include=C:/cygwin/home/kovid/sw/include include=C:/cygwin/home/kovid/sw/include/libxml2 lib=C:/cygwin/home/kovid/sw/lib prefix=C:/cygwin/home/kovid/sw zlib=yes iconv=yes
+    nmake /f Makefile.msvc
+    mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
+    cp libxslt/*.h ~/sw/include/libxslt/
+    cp libexslt/*.h ~/sw/include/libexslt/
+    find .  -name '*.dll' -o -name '*.dll.manifest' -exec cp "{}" ~/sw/bin/ \;
+    find .  -name lib*xslt.lib -exec cp "{}" ~/sw/lib/ \;
 
 lxml
 ------
