@@ -376,7 +376,7 @@ Run::
     nmake /f Makefile.msvc
     mkdir -p ~/sw/include/libxml2/libxml
     cp include/libxml/*.h ~/sw/include/libxml2/libxml/
-    find .  -name '*.dll' -o -name '*.dll.manifest' -exec cp "{}" ~/sw/bin/ \;
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
     find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
 
 libxslt
@@ -391,14 +391,31 @@ Run::
     mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
     cp libxslt/*.h ~/sw/include/libxslt/
     cp libexslt/*.h ~/sw/include/libexslt/
-    find .  -name '*.dll' -o -name '*.dll.manifest' -exec cp "{}" ~/sw/bin/ \;
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
     find .  -name lib*xslt.lib -exec cp "{}" ~/sw/lib/ \;
 
 lxml
 ------
 
-http://pypi.python.org/pypi/lxml
+Get the source from: http://pypi.python.org/pypi/lxml
 
+Add the following to the top of setupoptions.py::
+    if option == 'cflags':
+        return ['-IC:/cygwin/home/kovid/sw/include/libxml2',
+                '-IC:/cygwin/home/kovid/sw/include']
+    else:
+        return ['-LC:/cygwin/home/kovid/sw/lib'] 
+
+Then, edit src/lxml/includes/etree_defs.h and change the section starting with
+#ifndef LIBXML2_NEW_BUFFER
+to
+#ifdef LIBXML2_NEW_BUFFER
+#  define xmlBufContent(buf) xmlBufferContent(buf)
+#  define xmlBufLength(buf) xmlBufferLength(buf)
+#endif
+
+Run::
+    python setup.py install
 
 Python Imaging Library
 ------------------------
