@@ -48,17 +48,18 @@ class CSV_XML(CatalogPlugin):
                 "Applies to: CSV, XML output formats"))]
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
+        from calibre.library import current_library_name
         from calibre.utils.date import isoformat
         from calibre.utils.html2text import html2text
-        from lxml import etree
         from calibre.utils.logging import default_log as log
+        from lxml import etree
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s(): Generating %s" % (self.name,self.fmt.upper()))
+            log("%s('%s'): Generating %s" % (self.name, current_library_name(), self.fmt.upper()))
             if opts.connected_device['is_device_connected']:
                 log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
@@ -110,6 +111,8 @@ class CSV_XML(CatalogPlugin):
                 for field in fields:
                     if field.startswith('#'):
                         item = db.get_field(entry['id'],field,index_is_id=True)
+                    elif field == 'library_name':
+                        item = current_library_name()
                     elif field == 'title_sort':
                         item = entry['sort']
                     else:
@@ -214,6 +217,9 @@ class CSV_XML(CatalogPlugin):
                     for f in r['formats']:
                         fmt.append(E.format(f.replace(os.sep, '/')))
                     record.append(fmt)
+
+                if 'library_name' in fields:
+                    record.append(E.library_name(current_library_name()))
 
             with open(path_to_output, 'w') as f:
                 f.write(etree.tostring(root, encoding='utf-8',

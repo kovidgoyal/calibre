@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 
 FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
-          'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
+          'cover', 'formats','id', 'isbn', 'library_name','ondevice', 'pubdate', 'publisher',
           'rating', 'series_index', 'series', 'size', 'tags', 'timestamp',
           'uuid', 'languages', 'identifiers']
 
