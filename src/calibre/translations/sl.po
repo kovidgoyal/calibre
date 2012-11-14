@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-10 02:51+0000\n"
-"PO-Revision-Date: 2012-10-15 15:27+0000\n"
+"PO-Revision-Date: 2012-11-13 17:20+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-11-11 04:50+0000\n"
+"X-Launchpad-Export-Date: 2012-11-14 04:40+0000\n"
 "X-Generator: Launchpad (build 16251)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -874,7 +874,7 @@ msgstr "Ta profil je namenjen napravi Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Ta profil je namenjen Amazon Kindle Paperwhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -1571,7 +1571,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:314
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "Ime stolpca po meri za pridobivanje števila strani"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:316
 msgid ""
@@ -1603,7 +1603,7 @@ msgstr "Ustvari značke za samodejno upravljanje"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Prenesi platnice za knjige (novejši bralniki)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
@@ -1745,7 +1745,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Ustvari knjižne police"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid ""
@@ -1755,7 +1755,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Izbriši prazne knjižne police"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
 msgid ""
@@ -1905,7 +1905,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:395
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "Prenos na napravo je zaključen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:416
 #, python-format

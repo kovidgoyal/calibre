@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-10 02:51+0000\n"
-"PO-Revision-Date: 2012-11-08 07:54+0000\n"
-"Last-Translator: Bart Hoste <bart@dezoetjes.be>\n"
+"PO-Revision-Date: 2012-11-13 16:57+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-11 04:39+0000\n"
+"X-Launchpad-Export-Date: 2012-11-14 04:39+0000\n"
 "X-Generator: Launchpad (build 16251)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -7950,11 +7950,11 @@ msgstr " inch (2.54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:313
 msgid "Author cross-references:"
-msgstr ""
+msgstr "Aurheur kruisverwijzingen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:314
 msgid "For books with multiple authors, list each author separately"
-msgstr ""
+msgstr "Voor boeken met meerdere autheurs, toon iedere auteur apart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -8740,7 +8740,7 @@ msgstr "&Deactiveer lettergrootteherschaling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:242
 msgid "&Subset all embedded fonts (Experimental)"
-msgstr ""
+msgstr "&Subset van alle ingevoegde lettertypen (experimenteel)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -13575,11 +13575,11 @@ msgstr "Kies een lettertype familie uit onderstaande lijst:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:205
 msgid "Find Next"
-msgstr ""
+msgstr "Volgende vinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:208
 msgid "Find Previous"
-msgstr ""
+msgstr "Vorige vinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:258
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -14687,7 +14687,7 @@ msgstr "Wis reeksen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:192
 msgid "Clear all tags"
-msgstr ""
+msgstr "Alle labels wissen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid "Clear Ids"
@@ -16810,7 +16810,7 @@ msgstr "Kies een plug-in onder <b>%s</b> om aan te passen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 #, python-format
 msgid "Are you sure you want to remove the plugin: %s?"
-msgstr ""
+msgstr "Weet u zeker dat u de plugin %s wilt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:373
 msgid "Plugin <b>{0}</b> successfully removed"
@@ -20707,6 +20707,9 @@ msgid ""
 "Do not notify the running calibre GUI (if any) that the database has "
 "changed. Use with care, as it can lead to database corruption!"
 msgstr ""
+"Geef geen melding aan de draaiende calibre GUI (indien aanwezig) dat de "
+"database is aangepast. Gebruik dit voorzichtig, aangezien het kan zorgen "
+"voor een beschadigde database!"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:149
 msgid ""
