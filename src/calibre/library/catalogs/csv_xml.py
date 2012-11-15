@@ -56,10 +56,13 @@ class CSV_XML(CatalogPlugin):
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
+        current_library = current_library_name()
+        if getattr(opts, 'library_path', None):
+            current_library = os.path.basename(opts.library_path)
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s('%s'): Generating %s" % (self.name, current_library_name(), self.fmt.upper()))
+            log("%s('%s'): Generating %s" % (self.name, current_library, self.fmt.upper()))
             if opts.connected_device['is_device_connected']:
                 log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
@@ -112,7 +115,7 @@ class CSV_XML(CatalogPlugin):
                     if field.startswith('#'):
                         item = db.get_field(entry['id'],field,index_is_id=True)
                     elif field == 'library_name':
-                        item = current_library_name()
+                        item = current_library
                     elif field == 'title_sort':
                         item = entry['sort']
                     else:
@@ -219,7 +222,7 @@ class CSV_XML(CatalogPlugin):
                     record.append(fmt)
 
                 if 'library_name' in fields:
-                    record.append(E.library_name(current_library_name()))
+                    record.append(E.library_name(current_library))
 
             with open(path_to_output, 'w') as f:
                 f.write(etree.tostring(root, encoding='utf-8',
