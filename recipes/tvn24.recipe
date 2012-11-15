@@ -1,34 +1,50 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.magick import Image
 class tvn24(BasicNewsRecipe):
     title          = u'TVN24'
     oldest_article = 7
     max_articles_per_feed = 100
-    __author__        = 'fenuks'
+    __author__        = 'fenuks, Artur Stachecki'
     description   = u'Sport, Biznes, Gospodarka, Informacje, Wiadomości Zawsze aktualne wiadomości z Polski i ze świata'
     category       = 'news'
     language       = 'pl'
-    #masthead_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
-    cover_url= 'http://www.userlogos.org/files/logos/Struna/TVN24.jpg'
-    extra_css = 'ul {list-style:none;} \
-                 li {list-style:none; float: left; margin: 0 0.15em;} \
-                 h2 {font-size: medium} \
-                 .date60m {float: left; margin: 0 10px 0 5px;}'
+    masthead_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
+    cover_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
+    extra_css= 'ul {list-style: none; padding: 0; margin: 0;} li {float: left;margin: 0 0.15em;}'
     remove_empty_feeds = True
     remove_javascript = True
     no_stylesheets = True
-    use_embedded_content = False
-    ignore_duplicate_articles = {'title', 'url'}
-    keep_only_tags=[dict(name='h1', attrs={'class':['size30 mt10 pb10', 'size38 mt10 pb15']}), dict(name='figure', attrs={'class':'articleMainPhoto articleMainPhotoWide'}), dict(name='article', attrs={'class':['mb20', 'mb20 textArticleDefault']}), dict(name='ul', attrs={'class':'newsItem'})]
-    remove_tags = [dict(name='aside', attrs={'class':['innerArticleModule onRight cols externalContent', 'innerArticleModule center']}), dict(name='div', attrs={'class':['thumbsGallery', 'articleTools', 'article right rd7', 'heading', 'quizContent']}), dict(name='a', attrs={'class':'watchMaterial text'}), dict(name='section', attrs={'class':['quiz toCenter', 'quiz toRight']})]
-
-    feeds          = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'),
-		(u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
+    keep_only_tags=[
+#   dict(name='h1', attrs={'class':'size38 mt20 pb20'}),
+    dict(name='div', attrs={'class':'mainContainer'}),
+#   dict(name='p'),
+#   dict(attrs={'class':['size18 mt10 mb15', 'bold topicSize1', 'fromUsers content', 'textArticleDefault']})
+                   ]
+    remove_tags=[
+    dict(attrs={'class':['commentsInfo', 'textSize', 'related newsNews align-right', 'box', 'watchMaterial text', 'related galleryGallery align-center', 'advert block-alignment-right', 'userActions', 'socialBookmarks', 'im yourArticle fl', 'dynamicButton addComment fl', 'innerArticleModule onRight cols externalContent', 'thumbsGallery', 'relatedObject customBlockquote align-right', 'lead', 'mainRightColumn', 'articleDateContainer borderGreyBottom', 'socialMediaContainer onRight loaded', 'quizContent', 'twitter', 'facebook', 'googlePlus', 'share', 'voteResult', 'reportTitleBar bgBlue_v4 mb15', 'innerVideoModule center']}),
+    dict(name='article', attrs={'class':['singleArtPhotoCenter', 'singleArtPhotoRight', 'singleArtPhotoLeft']}),
+    dict(name='section', attrs={'id':['forum', 'innerArticle', 'quiz toCenter', 'mb20']}),
+    dict(name='div', attrs={'class':'socialMediaContainer big p20 mb20 borderGrey  loaded'})
+          ]
+    remove_tags_after=[dict(name='li', attrs={'class':'share'})]
+    feeds          = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'), ]
+        #(u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        tag = soup.find(name='ul', attrs={'class':'newsItem'})
-        if tag:
-            tag.name='div'
-            tag.li.name='div'
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
+
+    def postprocess_html(self, soup, first):
+        #process all the images
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+            iurl = tag['src']
+            img = Image()
+            img.open(iurl)
+            if img < 0:
+                raise RuntimeError('Out of memory')
+            img.type = "GrayscaleType"
+            img.save(iurl)
         return soup

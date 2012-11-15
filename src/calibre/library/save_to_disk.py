@@ -200,6 +200,11 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating(divide_by=2.0)
+    if mi.identifiers:
+        format_args['identifiers'] = mi.format_field_extended('identifiers')[1]
+    else:
+        format_args['identifiers'] = ''
+
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):

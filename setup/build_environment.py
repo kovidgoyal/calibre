@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess
+import os, socket, struct, subprocess, sys
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
@@ -16,6 +16,7 @@ from setup import isosx, iswindows, islinux
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
+is64bit = sys.maxsize > 2**32
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
 if iswindows:

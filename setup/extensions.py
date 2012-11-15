@@ -18,8 +18,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs)
-from setup.sfntly import SfntlyBuilderMixin
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -63,25 +62,7 @@ if isosx:
     icu_libs = ['icucore']
     icu_cflags = ['-DU_DISABLE_RENAMING'] # Needed to use system libicucore.dylib
 
-class SfntlyExtension(Extension, SfntlyBuilderMixin):
-
-    def __init__(self, *args, **kwargs):
-        Extension.__init__(self, *args, **kwargs)
-        SfntlyBuilderMixin.__init__(self)
-
-    def preflight(self, *args, **kwargs):
-        self(*args, **kwargs)
-
 extensions = [
-
-    SfntlyExtension('sfntly',
-            ['calibre/utils/fonts/sfntly.cpp'],
-            headers= ['calibre/utils/fonts/sfntly.h'],
-            libraries=icu_libs,
-            lib_dirs=icu_lib_dirs,
-            inc_dirs=icu_inc_dirs,
-            cflags=icu_cflags
-        ),
 
     Extension('speedup',
         ['calibre/utils/speedup.c'],
@@ -297,6 +278,8 @@ if iswindows:
     ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
     #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
     #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
+    if is64bit:
+        cflags.append('/GS-')
 
     for p in win_inc:
         cflags.append('-I'+p)

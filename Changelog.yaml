@@ -19,6 +19,110 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.6
+  date: 2012-11-10
+
+  new features:
+    - title: "Experimental support for subsetting fonts"
+      description: "Subsetting a font means reducing the font to contain only the glyphs for the text actually present in the book. This can easily halve the size of the font. calibre can now do this for all embedded fonts during a conversion. Turn it on via the 'Subset all embedded fonts' option under the Look & Feel section of the conversion dialog. calibre can subset both TrueType and OpenType fonts. Note that this code is very new and likely has bugs, so please check the output if you turn on subsetting. The conversion log will have info about the subsetting operations."
+      type: major
+
+    - title: "EPUB Input: Try to workaround EPUBs that have missing or damaged ZIP central directories. calibre should now be able to read/convert such an EPUB file, provided it does not suffer from further corruption."
+
+    - title: "Allow using identifiers in save to disk templates."
+      tickets: [1074623]
+
+    - title: "calibredb: Add an option to not notify the GUI"
+
+    - title: "Catalogs: Fix long tags causing catalog generation to fail on windows. Add the ability to cross-reference authors, i.e. to relist the authors for a book with multiple authors separately."
+      tickets: [1074931]
+
+    - title: "Edit metadata dialog: Add a clear tags button to remove all tags with a single click"
+
+    - title: "Add search to the font family chooser dialog"
+ 
+  bug fixes:
+    - title: "Windows: Fix a long standing bug in the device eject code that for some reason only manifested in 0.9.5."
+      tickets: [1075782]
+
+    - title: "Get Books: Fix Amazon stores, Google Books store and libri.de"
+
+    - title: "Kobo driver: More fixes for on device book matching, and list books as being on device even if the Kobo has not yet indexed them. Also some performance improvements."
+      tickets: [1069617]
+
+    - title: "EPUB Output: Remove duplicate id and name attributes to eliminate pointless noise from the various epub check utilities"
+
+    - title: "Ask for confirmation before removing plugins"
+
+    - title: "Fix bulk convert queueing dialog becoming very long if any of the books have a very long title."
+      tickets: [1076191]
+
+    - title: "Fix deleting custom column tags like data from the Tag browser not updating the last modified timestamp for affected books"
+      tickets: [1075476]
+
+    - title: "When updating a previously broken plugin, do not show an error message because the previous version of the plugin cannot be loaded"
+
+    - title: "Fix regression that broke the Template Editor"
+
+  improved recipes:
+    - Various updated Polish recipes
+    - London Review of Books
+    - Yemen Times
+
+  new recipes:
+    - title: "Various Polish news sources"
+      author: Artur Stachecki
+
+
+- version: 0.9.5
+  date: 2012-11-02
+
+  new features:
+    - title: "Font embedding: Add support for the CSS 3 Fonts module, which means you can embed font families that have more that the usual four faces, with the full set of font-stretch and font-weight variations. Of course, whether the fonts actually show up on a reader will depend on the readers' support for CSS 3."
+
+    - title: "Sharing by email: Allow specifying an 'alias' or friendly name by which to identify each email recipient."
+      tickets: [1069076]
+
+    - title: "Embedding fonts: Allow adding ttf/otf font files to calibre directly to be used for embedding. That way the fonts do not have to be installed system wide. You can add a font to calibre via the 'Add fonts' button in the font chooser dialog for embedding fonts."
+
+    - title: "E-book viewer: Add the ability to rotate images to the popup image viewer."
+      tickets: [1073513]
+
+    - title: "Generate cover: Speedup searching the system for a font that can render special characters"
+
+    - title: "A new custom font scanner to locate all fonts on the system. Faster and less crash prone that fontconfig/freetype"
+
+    - title: "Font family chooser: Show the faces available for a family when clicking on the family"
+ 
+  bug fixes:
+    - title: "Get Books: Fix eHarlequin and Kobo stores."
+      tickets: [1072702]
+
+    - title: "Kobo driver: Fix a bug that could cause the on device book matching to fail in certain circumstances."
+      tickets: [1072437]
+
+    - title: "Kobo driver: When using a SD card do not delete shelves that contain on books on the card (there might be books in the shelf in the main memory)."
+      tickets: [1073792]
+
+    - title: "Workaround for bug in the windows API CreateHardLink function that breaks using calibre libraries on some networked filesystems."
+
+    - title: "Template editor: Use dummy metadata instead of blank/unknown values"
+
+    - title: "Windows: abort setting of title/author if any of the books' files are in use. Results in less surprising behavior than before, when the title/author would be changed, but the on disk location would not."
+
+  improved recipes:
+    - Financial Times UK
+    - Science AAAS
+    - The Atlantic
+
+  new recipes:
+    - title: "Pravda in english, italian and portuguese"
+      author: Darko Miletic
+
+    - title: "Delco Times"
+      author: Krittika Goyal
+
+
 - version: 0.9.4
   date: 2012-10-26
 

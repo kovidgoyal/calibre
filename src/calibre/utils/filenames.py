@@ -279,6 +279,12 @@ class WindowsAtomicFolderMove(object):
             f = os.path.normcase(os.path.abspath(os.path.join(path, x)))
             if not os.path.isfile(f): continue
             try:
+                # Ensure the file is not read-only
+                win32file.SetFileAttributes(f, win32file.FILE_ATTRIBUTE_NORMAL)
+            except:
+                pass
+
+            try:
                 h = win32file.CreateFile(f, win32file.GENERIC_READ,
                         win32file.FILE_SHARE_DELETE, None,
                         win32file.OPEN_EXISTING, win32file.FILE_FLAG_SEQUENTIAL_SCAN, 0)
@@ -303,8 +309,11 @@ class WindowsAtomicFolderMove(object):
                 handle = h
                 break
         if handle is None:
-            raise ValueError(u'The file %r did not exist when this move'
-                    ' operation was started'%path)
+            if os.path.exists(path):
+                raise ValueError(u'The file %r did not exist when this move'
+                        ' operation was started'%path)
+            else:
+                raise ValueError(u'The file %r does not exist'%path)
         try:
             win32file.CreateHardLink(dest, path)
             if os.path.getsize(dest) != os.path.getsize(path):

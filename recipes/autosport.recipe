@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+__author__ = 'MrStefan <mrstefaan@gmail.com>'
+
+'''
+www.autosport.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class autosport(BasicNewsRecipe):
+    title = u'Autosport'
+    __author__ = 'MrStefan <mrstefaan@gmail.com>'
+    language = 'en_GB'
+    description =u'Daily Formula 1 and motorsport news from the leading weekly motor racing magazine. The authority on Formula 1, F1, MotoGP, GP2, Champ Car, Le Mans...'
+    masthead_url='http://cdn.images.autosport.com/asdotcom.gif'
+    remove_empty_feeds= True
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'h1', attrs = {'class' : 'news_headline'}))
+    keep_only_tags.append(dict(name = 'td', attrs = {'class' : 'news_article_author'}))
+    keep_only_tags.append(dict(name = 'td', attrs = {'class' : 'news_article_date'}))
+    keep_only_tags.append(dict(name = 'p'))
+
+    feeds = [(u'ALL NEWS', u'http://www.autosport.com/rss/allnews.xml')]

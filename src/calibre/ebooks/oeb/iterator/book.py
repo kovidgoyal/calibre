@@ -126,6 +126,7 @@ class EbookIterator(BookmarksMixin):
         self.spine = []
         Spiny = partial(SpineItem, read_anchor_map=read_anchor_map,
                 run_char_count=run_char_count)
+        is_comic = plumber.input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
         for i in ordered:
             spath = i.path
             mt = None
@@ -135,6 +136,8 @@ class EbookIterator(BookmarksMixin):
                 mt = guess_type(spath)[0]
             try:
                 self.spine.append(Spiny(spath, mime_type=mt))
+                if is_comic:
+                    self.spine[-1].is_single_page = True
             except:
                 self.log.warn('Missing spine item:', repr(spath))
 

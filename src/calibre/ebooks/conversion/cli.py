@@ -133,6 +133,7 @@ def add_pipeline_options(parser, plumber):
                   [
                       'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping', 'embed_font_family',
+                      'subset_embedded_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
                       'extra_css', 'filter_css',

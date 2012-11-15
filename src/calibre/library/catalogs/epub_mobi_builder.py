@@ -14,11 +14,12 @@ from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, is_date_undefined, now as nowf
-from calibre.utils.filenames import ascii_text
+from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile
@@ -109,6 +110,7 @@ class CatalogBuilder(object):
         self.stylesheet = stylesheet
         self.cache_dir = os.path.join(config_dir, 'caches', 'catalog')
         self.catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
+        self.content_dir = os.path.join(self.catalog_path, "content")
         self.excluded_tags = self.get_excluded_tags()
         self.generate_for_kindle_azw3 = True if (_opts.fmt == 'azw3' and
                                               _opts.output_profile and
@@ -127,12 +129,13 @@ class CatalogBuilder(object):
         self.books_by_title = None
         self.books_by_title_no_series_prefix = None
         self.books_to_catalog = None
-        self.content_dir = os.path.join(self.catalog_path, "content")
         self.current_step = 0.0
         self.error = []
         self.generate_recently_read = False
         self.genres = []
-        self.genre_tags_dict = None
+        self.genre_tags_dict = \
+            self.filter_db_tags(max_len = 245 - len("%s/Genre_.html" % self.content_dir)) \
+            if self.opts.generate_genres else None
         self.html_filelist_1 = []
         self.html_filelist_2 = []
         self.merge_comments_rule = dict(zip(['field','position','hr'],
@@ -505,7 +508,7 @@ class CatalogBuilder(object):
         if not os.path.isdir(images_path):
             os.makedirs(images_path)
 
-    def detect_author_sort_mismatches(self):
+    def detect_author_sort_mismatches(self, books_to_test):
         """ Detect author_sort mismatches.
 
         Sort by author, look for inconsistencies in author_sort among
@@ -513,17 +516,18 @@ class CatalogBuilder(object):
         annoyance for EPUB.
 
         Inputs:
-         self.books_to_catalog (list): list of books to catalog
+         books_by_author (list): list of books to test, possibly unsorted
 
         Output:
-         self.books_by_author (list): sorted by author
+         (none)
 
         Exceptions:
          AuthorSortMismatchException: author_sort mismatch detected
         """
 
-        self.books_by_author = sorted(list(self.books_to_catalog), key=self._kf_books_by_author_sorter_author)
-        authors = [(record['author'], record['author_sort']) for record in self.books_by_author]
+        books_by_author = sorted(list(books_to_test), key=self._kf_books_by_author_sorter_author)
+
+        authors = [(record['author'], record['author_sort']) for record in books_by_author]
         current_author = authors[0]
         for (i,author) in enumerate(authors):
             if author != current_author and i:
@@ -582,7 +586,10 @@ class CatalogBuilder(object):
             if rule['field'].lower() == 'tags':
                 if rule['pattern'].lower() in map(unicode.lower,record['tags']):
                     if self.opts.verbose:
-                        _log_prefix_rule_match_info(rule, record, rule['pattern'])
+                        self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
+                               (rule['prefix'],record['title'],
+                                record['authors'][0], rule['name'],
+                                rule['pattern']))
                     return rule['prefix']
 
             # Regex match for custom field
@@ -698,6 +705,7 @@ class CatalogBuilder(object):
     def fetch_books_by_author(self):
         """ Generate a list of books sorted by author.
 
+        For books with multiple authors, relist book with additional authors.
         Sort the database by author. Report author_sort inconsistencies as warning when
         building EPUB or MOBI, error when building MOBI. Collect a list of unique authors
         to self.authors.
@@ -717,25 +725,30 @@ class CatalogBuilder(object):
 
         self.update_progress_full_step(_("Sorting database"))
 
-        self.detect_author_sort_mismatches()
+        books_by_author = list(self.books_to_catalog)
+        self.detect_author_sort_mismatches(books_by_author)
+        if self.opts.cross_reference_authors:
+            books_by_author = self.relist_multiple_authors(books_by_author)
 
-        # Sort authors using sort_key to normalize accented letters
+        #books_by_author = sorted(list(books_by_author), key=self._kf_books_by_author_sorter_author)
+
         # Determine the longest author_sort length before sorting
-        asl = [i['author_sort'] for i in self.books_by_author]
+        asl = [i['author_sort'] for i in books_by_author]
         las = max(asl, key=len)
-        self.books_by_author = sorted(self.books_to_catalog,
+
+        books_by_author = sorted(books_by_author,
             key=lambda x: sort_key(self._kf_books_by_author_sorter_author_sort(x, len(las))))
 
         if self.DEBUG and self.opts.verbose:
-            tl = [i['title'] for i in self.books_by_author]
+            tl = [i['title'] for i in books_by_author]
             lt = max(tl, key=len)
             fs = '{:<6}{:<%d} {:<%d} {!s}' % (len(lt),len(las))
             print(fs.format('','Title','Author','Series'))
-            for i in self.books_by_author:
+            for i in books_by_author:
                 print(fs.format('', i['title'],i['author_sort'],i['series']))
 
         # Build the unique_authors set from existing data
-        authors = [(record['author'], capitalize(record['author_sort'])) for record in self.books_by_author]
+        authors = [(record['author'], capitalize(record['author_sort'])) for record in books_by_author]
 
         # authors[] contains a list of all book authors, with multiple entries for multiple books by author
         #        authors[]: (([0]:friendly  [1]:sort))
@@ -773,6 +786,7 @@ class CatalogBuilder(object):
                     author[2])).encode('utf-8'))
 
         self.authors = unique_authors
+        self.books_by_author = books_by_author
         return True
 
     def fetch_books_by_title(self):
@@ -860,15 +874,15 @@ class CatalogBuilder(object):
                 this_title['series_index'] = 0.0
 
             this_title['title_sort'] = self.generate_sort_title(this_title['title'])
-            if 'authors' in record:
-                # from calibre.ebooks.metadata import authors_to_string
-                # return authors_to_string(self.authors)
 
+            if 'authors' in record:
                 this_title['authors'] = record['authors']
+                # Synthesize author attribution from authors list
                 if record['authors']:
                     this_title['author'] = " &amp; ".join(record['authors'])
                 else:
-                    this_title['author'] = 'Unknown'
+                    this_title['author'] = _('Unknown')
+                    this_title['authors'] = [this_title['author']]
 
             if 'author_sort' in record and record['author_sort'].strip():
                 this_title['author_sort'] = record['author_sort']
@@ -1090,7 +1104,7 @@ class CatalogBuilder(object):
 
             self.bookmarked_books = bookmarks
 
-    def filter_db_tags(self):
+    def filter_db_tags(self, max_len):
         """ Remove excluded tags from data set, return normalized genre list.
 
         Filter all db tags, removing excluded tags supplied in opts.
@@ -1098,13 +1112,13 @@ class CatalogBuilder(object):
         tags are flattened to alphanumeric ascii_text.
 
         Args:
-         (none)
+         max_len: maximum length of normalized tag to fit within OS constraints
 
         Return:
          genre_tags_dict (dict): dict of filtered, normalized tags in data set
         """
 
-        def _format_tag_list(tags, indent=2, line_break=70, header='Tag list'):
+        def _format_tag_list(tags, indent=1, line_break=70, header='Tag list'):
             def _next_tag(sorted_tags):
                 for (i, tag) in enumerate(sorted_tags):
                     if i < len(tags) - 1:
@@ -1122,6 +1136,31 @@ class CatalogBuilder(object):
                     ans += out_str + '\n'
                     out_str = ' ' * (indent + 1)
             return ans + out_str
+
+        def _normalize_tag(tag, max_len):
+            """ Generate an XHTML-legal anchor string from tag.
+
+            Parse tag for non-ascii, convert to unicode name.
+
+            Args:
+             tags (str): tag name possible containing symbols
+             max_len (int): maximum length of tag
+
+            Return:
+             normalized (str): unicode names substituted for non-ascii chars,
+              clipped to max_len
+            """
+
+            normalized = massaged = re.sub('\s','',ascii_text(tag).lower())
+            if re.search('\W',normalized):
+                normalized = ''
+                for c in massaged:
+                    if re.search('\W',c):
+                        normalized += self.generate_unicode_name(c)
+                    else:
+                        normalized += c
+            shortened = shorten_components_to(max_len, [normalized])[0]
+            return shortened
 
         # Entry point
         normalized_tags = []
@@ -1141,7 +1180,7 @@ class CatalogBuilder(object):
             if tag == ' ':
                 continue
 
-            normalized_tags.append(self.normalize_tag(tag))
+            normalized_tags.append(_normalize_tag(tag, max_len))
             friendly_tags.append(tag)
 
         genre_tags_dict = dict(zip(friendly_tags,normalized_tags))
@@ -1938,8 +1977,6 @@ class CatalogBuilder(object):
 
         self.update_progress_full_step(_("Genres HTML"))
 
-        self.genre_tags_dict = self.filter_db_tags()
-
         # Extract books matching filtered_tags
         genre_list = []
         for friendly_tag in sorted(self.genre_tags_dict, key=sort_key):
@@ -2021,10 +2058,11 @@ class CatalogBuilder(object):
                         books_by_current_author += 1
 
                 # Write the genre book list as an article
-                titles_spanned = self.generate_html_by_genre(genre, True if index==0 else False,
-                                        genre_tag_set[genre],
-                                        "%s/Genre_%s.html" % (self.content_dir,
-                                                            genre))
+                outfile = "%s/Genre_%s.html" % (self.content_dir, genre)
+                titles_spanned = self.generate_html_by_genre(genre,
+                                                             True if index==0 else False,
+                                                             genre_tag_set[genre],
+                                                             outfile)
 
                 tag_file = "content/Genre_%s.html" % genre
                 master_genre_list.append({'tag':genre,
@@ -2546,7 +2584,7 @@ class CatalogBuilder(object):
             for (i, tag) in enumerate(sorted(book.get('tags', []))):
                 aTag = Tag(_soup,'a')
                 if self.opts.generate_genres:
-                    aTag['href'] = "Genre_%s.html" % self.normalize_tag(tag)
+                    aTag['href'] = "Genre_%s.html" % self.genre_tags_dict[tag]
                 aTag.insert(0,escape(NavigableString(tag)))
                 genresTag.insert(gtc, aTag)
                 gtc += 1
@@ -3867,7 +3905,7 @@ class CatalogBuilder(object):
         mtc = 0
 
         titleTag = Tag(soup, "dc:title")
-        titleTag.insert(0,self.opts.catalog_title)
+        titleTag.insert(0,escape(self.opts.catalog_title))
         metadata.insert(mtc, titleTag)
         mtc += 1
 
@@ -4577,6 +4615,8 @@ class CatalogBuilder(object):
                                         index_is_id=True)
             if addendum is None:
                 addendum = ''
+            elif type(addendum) is list:
+                addendum = (', '.join(addendum))
             include_hr = eval(self.merge_comments_rule['hr'])
             if self.merge_comments_rule['position'] == 'before':
                 merged = addendum
@@ -4593,34 +4633,14 @@ class CatalogBuilder(object):
                     merged += '\n'
                 merged += addendum
         else:
-            # Return the custom field contents
+            # Return only the custom field contents
             merged = self.db.get_field(record['id'],
                                         self.merge_comments_rule['field'],
                                         index_is_id=True)
+            if type(merged) is list:
+                merged = (', '.join(merged))
 
         return merged
-
-    def normalize_tag(self, tag):
-        """ Generate an XHTML-legal anchor string from tag.
-
-        Parse tag for non-ascii, convert to unicode name.
-
-        Args:
-         tags (str): tag name possible containing symbols
-
-        Return:
-         normalized (str): unicode names substituted for non-ascii chars
-        """
-
-        normalized = massaged = re.sub('\s','',ascii_text(tag).lower())
-        if re.search('\W',normalized):
-            normalized = ''
-            for c in massaged:
-                if re.search('\W',c):
-                    normalized += self.generate_unicode_name(c)
-                else:
-                    normalized += c
-        return normalized
 
     def process_exclusions(self, data_set):
         """ Filter data_set based on exclusion_rules.
@@ -4693,6 +4713,43 @@ class CatalogBuilder(object):
             return filtered_data_set
         else:
             return data_set
+
+    def relist_multiple_authors(self, books_by_author):
+        """ Create multiple entries for books with multiple authors
+
+        Given a list of books by author, scan list for books with multiple
+        authors. Add a cloned copy of the book per additional author.
+
+        Args:
+         books_by_author (list): book list possibly containing books
+         with multiple authors
+
+        Return:
+         (list): books_by_author with additional cloned entries for books with
+         multiple authors
+        """
+
+        multiple_author_books = []
+
+        # Find the multiple author books
+        for book in books_by_author:
+            if len(book['authors']) > 1:
+                multiple_author_books.append(book)
+
+        for book in multiple_author_books:
+            cloned_authors = list(book['authors'])
+            for x, author in enumerate(book['authors']):
+                if x:
+                    first_author = cloned_authors.pop(0)
+                    cloned_authors.append(first_author)
+                    new_book = deepcopy(book)
+                    new_book['author'] = ' & '.join(cloned_authors)
+                    new_book['authors'] = list(cloned_authors)
+                    asl =  [author_to_author_sort(auth) for auth in cloned_authors]
+                    new_book['author_sort'] = ' & '.join(asl)
+                    books_by_author.append(new_book)
+
+        return books_by_author
 
     def update_progress_full_step(self, description):
         """ Update calibre's job status UI.

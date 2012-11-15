@@ -54,6 +54,8 @@ class Printing(QObject):
             pr.height()/zoomy))
         evaljs = self.mf.evaluateJavaScript
         loop = QEventLoop(self)
+        pagenum = 0
+        from_, to = printer.fromPage(), printer.toPage()
         first = True
 
         for path in self.iterator.spine:
@@ -74,10 +76,12 @@ class Printing(QObject):
             ''')
 
             while True:
-                if not first:
-                    printer.newPage()
-                first = False
-                self.mf.render(painter)
+                pagenum += 1
+                if (pagenum >= from_ and (to == 0 or pagenum <= to)):
+                    if not first:
+                        printer.newPage()
+                    first = False
+                    self.mf.render(painter)
                 nsl = evaljs('paged_display.next_screen_location()').toInt()
                 if not nsl[1] or nsl[0] <= 0: break
                 evaljs('window.scrollTo(%d, 0)'%nsl[0])
