@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-11-14 16:10+0000\n"
+"PO-Revision-Date: 2012-11-16 12:56+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-11-15 04:42+0000\n"
-"X-Generator: Launchpad (build 16265)\n"
+"X-Launchpad-Export-Date: 2012-11-17 04:36+0000\n"
+"X-Generator: Launchpad (build 16278)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -10848,7 +10848,7 @@ msgstr ""
 
 #. name for jmx
 msgid "Mixtec; Western Juxtlahuaca"
-msgstr ""
+msgstr "Mixtec; Western Juxtlahuaca"
 
 #. name for jna
 msgid "Jangshung"
@@ -14972,7 +14972,7 @@ msgstr ""
 
 #. name for lwh
 msgid "Lachi; White"
-msgstr ""
+msgstr "Lachi; Blanc"
 
 #. name for lwl
 msgid "Lawa; Eastern"
@@ -14980,31 +14980,31 @@ msgstr "Lawa; Oriental"
 
 #. name for lwm
 msgid "Laomian"
-msgstr ""
+msgstr "Laomià"
 
 #. name for lwo
 msgid "Luwo"
-msgstr ""
+msgstr "Luwo"
 
 #. name for lwt
 msgid "Lewotobi"
-msgstr ""
+msgstr "Lewotobi"
 
 #. name for lww
 msgid "Lewo"
-msgstr ""
+msgstr "Lewo"
 
 #. name for lya
 msgid "Layakha"
-msgstr ""
+msgstr "Layakha"
 
 #. name for lyg
 msgid "Lyngngam"
-msgstr ""
+msgstr "Lyngngam"
 
 #. name for lyn
 msgid "Luyana"
-msgstr ""
+msgstr "Luyana"
 
 #. name for lzh
 msgid "Chinese; Literary"
@@ -15012,7 +15012,7 @@ msgstr "Xinès; alfabetisme"
 
 #. name for lzl
 msgid "Litzlitz"
-msgstr ""
+msgstr "Litzlitz"
 
 #. name for lzn
 msgid "Naga; Leinong"
@@ -15020,19 +15020,19 @@ msgstr ""
 
 #. name for lzz
 msgid "Laz"
-msgstr ""
+msgstr "Laz"
 
 #. name for maa
 msgid "Mazatec; San Jerónimo Tecóatl"
-msgstr ""
+msgstr "Mazatec; Tecoatl"
 
 #. name for mab
 msgid "Mixtec; Yutanduchi"
-msgstr ""
+msgstr "Mixtec; Yutanduchi"
 
 #. name for mad
 msgid "Madurese"
-msgstr ""
+msgstr "Madurès"
 
 #. name for mae
 msgid "Bo-Rukul"
@@ -15040,23 +15040,23 @@ msgstr ""
 
 #. name for maf
 msgid "Mafa"
-msgstr ""
+msgstr "Mafa"
 
 #. name for mag
 msgid "Magahi"
-msgstr ""
+msgstr "Magahi"
 
 #. name for mah
 msgid "Marshallese"
-msgstr ""
+msgstr "Marshallès"
 
 #. name for mai
 msgid "Maithili"
-msgstr ""
+msgstr "Maithili"
 
 #. name for maj
 msgid "Mazatec; Jalapa De Díaz"
-msgstr ""
+msgstr "Mazatec; Jalapa De Díaz"
 
 #. name for mak
 msgid "Makasar"
@@ -15068,15 +15068,15 @@ msgstr "Malaialam"
 
 #. name for mam
 msgid "Mam"
-msgstr ""
+msgstr "Mam"
 
 #. name for man
 msgid "Mandingo"
-msgstr ""
+msgstr "Manding"
 
 #. name for maq
 msgid "Mazatec; Chiquihuitlán"
-msgstr ""
+msgstr "Mazatec; Chiquihuitlan"
 
 #. name for mar
 msgid "Marathi"
@@ -15084,15 +15084,15 @@ msgstr "marathi"
 
 #. name for mas
 msgid "Masai"
-msgstr ""
+msgstr "Massai"
 
 #. name for mat
 msgid "Matlatzinca; San Francisco"
-msgstr ""
+msgstr "Matlazinca; San Francisco"
 
 #. name for mau
 msgid "Mazatec; Huautla"
-msgstr ""
+msgstr "Mazatec; Huautla"
 
 #. name for mav
 msgid "Sateré-Mawé"
@@ -15100,7 +15100,7 @@ msgstr ""
 
 #. name for maw
 msgid "Mampruli"
-msgstr ""
+msgstr "Mampruli"
 
 #. name for max
 msgid "Malay; North Moluccan"
@@ -15108,7 +15108,7 @@ msgstr "Malai; Molucca septentrional"
 
 #. name for maz
 msgid "Mazahua; Central"
-msgstr ""
+msgstr "Mazahua; Central"
 
 #. name for mba
 msgid "Higaonon"
@@ -15116,19 +15116,19 @@ msgstr ""
 
 #. name for mbb
 msgid "Manobo; Western Bukidnon"
-msgstr ""
+msgstr "Manobo; Bukidnon"
 
 #. name for mbc
 msgid "Macushi"
-msgstr ""
+msgstr "Macushi"
 
 #. name for mbd
 msgid "Manobo; Dibabawon"
-msgstr ""
+msgstr "Manobo; Dibabawon"
 
 #. name for mbe
 msgid "Molale"
-msgstr ""
+msgstr "Molale"
 
 #. name for mbf
 msgid "Malay; Baba"
@@ -15136,11 +15136,11 @@ msgstr "Malai; Baba"
 
 #. name for mbh
 msgid "Mangseng"
-msgstr ""
+msgstr "Mangseng"
 
 #. name for mbi
 msgid "Manobo; Ilianen"
-msgstr ""
+msgstr "Manobo; Ilianen"
 
 #. name for mbj
 msgid "Nadëb"
@@ -15148,11 +15148,11 @@ msgstr ""
 
 #. name for mbk
 msgid "Malol"
-msgstr ""
+msgstr "Malol"
 
 #. name for mbl
 msgid "Maxakalí"
-msgstr ""
+msgstr "Maxacali"
 
 #. name for mbm
 msgid "Ombamba"
@@ -15160,11 +15160,11 @@ msgstr ""
 
 #. name for mbn
 msgid "Macaguán"
-msgstr ""
+msgstr "Macagüane"
 
 #. name for mbo
 msgid "Mbo (Cameroon)"
-msgstr ""
+msgstr "Mbo (Camerun)"
 
 #. name for mbp
 msgid "Malayo"
@@ -15172,7 +15172,7 @@ msgstr "Malayo"
 
 #. name for mbq
 msgid "Maisin"
-msgstr ""
+msgstr "Maisin"
 
 #. name for mbr
 msgid "Nukak Makú"
@@ -15180,43 +15180,43 @@ msgstr ""
 
 #. name for mbs
 msgid "Manobo; Sarangani"
-msgstr ""
+msgstr "Manobo; Sarangani"
 
 #. name for mbt
 msgid "Manobo; Matigsalug"
-msgstr ""
+msgstr "Manobo; Matigsalug"
 
 #. name for mbu
 msgid "Mbula-Bwazza"
-msgstr ""
+msgstr "Mbula-Bwazza"
 
 #. name for mbv
 msgid "Mbulungish"
-msgstr ""
+msgstr "Mbulungish"
 
 #. name for mbw
 msgid "Maring"
-msgstr ""
+msgstr "Maring"
 
 #. name for mbx
 msgid "Mari (East Sepik Province)"
-msgstr ""
+msgstr "Mari (Província de Sepik)"
 
 #. name for mby
 msgid "Memoni"
-msgstr ""
+msgstr "Memoni"
 
 #. name for mbz
 msgid "Mixtec; Amoltepec"
-msgstr ""
+msgstr "Mixtec; Amoltepec"
 
 #. name for mca
 msgid "Maca"
-msgstr ""
+msgstr "Maca"
 
 #. name for mcb
 msgid "Machiguenga"
-msgstr ""
+msgstr "Machiguenga"
 
 #. name for mcc
 msgid "Bitur"
@@ -15228,11 +15228,11 @@ msgstr ""
 
 #. name for mce
 msgid "Mixtec; Itundujia"
-msgstr ""
+msgstr "Mixtec; Itundujia"
 
 #. name for mcf
 msgid "Matsés"
-msgstr ""
+msgstr "Matsé"
 
 #. name for mcg
 msgid "Mapoyo"
@@ -15396,7 +15396,7 @@ msgstr ""
 
 #. name for mdv
 msgid "Mixtec; Santa Lucía Monteverde"
-msgstr ""
+msgstr "Mixtec; Santa Lucía Monteverde"
 
 #. name for mdw
 msgid "Mbosi"
@@ -15444,7 +15444,7 @@ msgstr ""
 
 #. name for meh
 msgid "Mixtec; Southwestern Tlaxiaco"
-msgstr ""
+msgstr "Mixtec; Tlaxiaco meridional"
 
 #. name for mei
 msgid "Midob"
@@ -15828,7 +15828,7 @@ msgstr ""
 
 #. name for mib
 msgid "Mixtec; Atatláhuca"
-msgstr ""
+msgstr "Mixtec; Atatlahuca"
 
 #. name for mic
 msgid "Mi'kmaq"
@@ -15840,7 +15840,7 @@ msgstr ""
 
 #. name for mie
 msgid "Mixtec; Ocotepec"
-msgstr ""
+msgstr "Mixtec; Ocotepec"
 
 #. name for mif
 msgid "Mofu-Gudur"
@@ -15848,15 +15848,15 @@ msgstr ""
 
 #. name for mig
 msgid "Mixtec; San Miguel El Grande"
-msgstr ""
+msgstr "Mixtec; San Miguel Grande"
 
 #. name for mih
 msgid "Mixtec; Chayuco"
-msgstr ""
+msgstr "Mixtec; Chayuco"
 
 #. name for mii
 msgid "Mixtec; Chigmecatitlán"
-msgstr ""
+msgstr "Mixtec; Chigmecatitlan"
 
 #. name for mij
 msgid "Abar"
@@ -15868,11 +15868,11 @@ msgstr ""
 
 #. name for mil
 msgid "Mixtec; Peñoles"
-msgstr ""
+msgstr "Mixtec; Peñoles"
 
 #. name for mim
 msgid "Mixtec; Alacatlatzala"
-msgstr ""
+msgstr "Mixtec; Alacatlatzala"
 
 #. name for min
 msgid "Minangkabau"
@@ -15880,11 +15880,11 @@ msgstr ""
 
 #. name for mio
 msgid "Mixtec; Pinotepa Nacional"
-msgstr ""
+msgstr "Mixtec; Pinotepa"
 
 #. name for mip
 msgid "Mixtec; Apasco-Apoala"
-msgstr ""
+msgstr "Mixtec; Apasco-Apoala"
 
 #. name for miq
 msgid "Mískito"
@@ -15900,11 +15900,11 @@ msgstr ""
 
 #. name for mit
 msgid "Mixtec; Southern Puebla"
-msgstr ""
+msgstr "Mixtec; Puebla meridional"
 
 #. name for miu
 msgid "Mixtec; Cacaloxtepec"
-msgstr ""
+msgstr "Mixtec; Cacaloxtepec"
 
 #. name for miw
 msgid "Akoye"
@@ -15912,19 +15912,19 @@ msgstr ""
 
 #. name for mix
 msgid "Mixtec; Mixtepec"
-msgstr ""
+msgstr "Mixtec; Mixtepec"
 
 #. name for miy
 msgid "Mixtec; Ayutla"
-msgstr ""
+msgstr "Mixtec; Ayutla"
 
 #. name for miz
 msgid "Mixtec; Coatzospan"
-msgstr ""
+msgstr "Mixtec; Coatzospan"
 
 #. name for mjc
 msgid "Mixtec; San Juan Colorado"
-msgstr ""
+msgstr "Mixtec; San Juan Colorado"
 
 #. name for mjd
 msgid "Maidu; Northwest"
@@ -16084,7 +16084,7 @@ msgstr ""
 
 #. name for mks
 msgid "Mixtec; Silacayoapan"
-msgstr ""
+msgstr "Mixtec; Silacayoapan"
 
 #. name for mkt
 msgid "Vamale"
@@ -16104,7 +16104,7 @@ msgstr ""
 
 #. name for mkx
 msgid "Manobo; Kinamiging"
-msgstr ""
+msgstr "Manobo; Kinamiging"
 
 #. name for mky
 msgid "Makian; East"
@@ -16224,7 +16224,7 @@ msgstr ""
 
 #. name for mmc
 msgid "Mazahua; Michoacán"
-msgstr ""
+msgstr "Mazahua; Michoacan"
 
 #. name for mmd
 msgid "Maonan"
@@ -16552,7 +16552,7 @@ msgstr ""
 
 #. name for mpm
 msgid "Mixtec; Yosondúa"
-msgstr ""
+msgstr "Mixtec; Yosondua"
 
 #. name for mpn
 msgid "Mindiri"
@@ -16632,7 +16632,7 @@ msgstr "Malai; Kota Bangun Kutai"
 
 #. name for mqh
 msgid "Mixtec; Tlazoyaltepec"
-msgstr ""
+msgstr "Mixtec; Tlazoyaltepec"
 
 #. name for mqi
 msgid "Mariri"
@@ -16644,7 +16644,7 @@ msgstr ""
 
 #. name for mqk
 msgid "Manobo; Rajah Kabunsuwan"
-msgstr ""
+msgstr "Manobo; Rajah Kabunsuwan"
 
 #. name for mql
 msgid "Mbelime"
@@ -16860,7 +16860,7 @@ msgstr ""
 
 #. name for msm
 msgid "Manobo; Agusan"
-msgstr ""
+msgstr "Manobo; Agusan"
 
 #. name for msn
 msgid "Vurës"
@@ -16912,7 +16912,7 @@ msgstr ""
 
 #. name for mta
 msgid "Manobo; Cotabato"
-msgstr ""
+msgstr "Manobo; Cotabato"
 
 #. name for mtb
 msgid "Anyin Morofo"
@@ -16992,7 +16992,7 @@ msgstr ""
 
 #. name for mtu
 msgid "Mixtec; Tututepec"
-msgstr ""
+msgstr "Mixtec; Tututepec"
 
 #. name for mtv
 msgid "Asaro'o"
@@ -17004,7 +17004,7 @@ msgstr ""
 
 #. name for mtx
 msgid "Mixtec; Tidaá"
-msgstr ""
+msgstr "Mixtec; Tidaà"
 
 #. name for mty
 msgid "Nabi"
@@ -17124,7 +17124,7 @@ msgstr ""
 
 #. name for mvg
 msgid "Mixtec; Yucuañe"
-msgstr ""
+msgstr "Mixtec; Yucuañe"
 
 #. name for mvh
 msgid "Mire"
@@ -17304,11 +17304,11 @@ msgstr ""
 
 #. name for mxa
 msgid "Mixtec; Northwest Oaxaca"
-msgstr ""
+msgstr "Mixtec; Oaxaca nord-occidental"
 
 #. name for mxb
 msgid "Mixtec; Tezoatlán"
-msgstr ""
+msgstr "Mixtec; Tezoatlan"
 
 #. name for mxc
 msgid "Manyika"
@@ -17376,11 +17376,11 @@ msgstr ""
 
 #. name for mxs
 msgid "Mixtec; Huitepec"
-msgstr ""
+msgstr "Mixtec; Huitepec"
 
 #. name for mxt
 msgid "Mixtec; Jamiltepec"
-msgstr ""
+msgstr "Mixtec; Jamiltepec"
 
 #. name for mxu
 msgid "Mada (Cameroon)"
@@ -17388,7 +17388,7 @@ msgstr ""
 
 #. name for mxv
 msgid "Mixtec; Metlatónoc"
-msgstr ""
+msgstr "Mixtec; Metlatonoc"
 
 #. name for mxw
 msgid "Namo"
@@ -17400,7 +17400,7 @@ msgstr ""
 
 #. name for mxy
 msgid "Mixtec; Southeastern Nochixtlán"
-msgstr ""
+msgstr "Mixtec; Nochixtlan sud-oriental"
 
 #. name for mxz
 msgid "Masela; Central"
@@ -17504,7 +17504,7 @@ msgstr ""
 
 #. name for mza
 msgid "Mixtec; Santa María Zacatepec"
-msgstr ""
+msgstr "Mixtec; Santa Maria Zacatepec"
 
 #. name for mzb
 msgid "Tumzabt"
@@ -17532,7 +17532,7 @@ msgstr ""
 
 #. name for mzi
 msgid "Mazatec; Ixcatlán"
-msgstr ""
+msgstr "Mazatec; Ixcatlán"
 
 #. name for mzj
 msgid "Manya"
@@ -19540,7 +19540,7 @@ msgstr ""
 
 #. name for obo
 msgid "Manobo; Obo"
-msgstr ""
+msgstr "Manobo; Obo"
 
 #. name for obr
 msgid "Burmese; Old"
@@ -19572,7 +19572,7 @@ msgstr "Còrnic; antic"
 
 #. name for ocu
 msgid "Matlatzinca; Atzingo"
-msgstr ""
+msgstr "Matlazinca; Atzingo"
 
 #. name for oda
 msgid "Odut"
@@ -27216,7 +27216,7 @@ msgstr ""
 
 #. name for vmc
 msgid "Mixtec; Juxtlahuaca"
-msgstr ""
+msgstr "Mixtec; Juxtlahuaca"
 
 #. name for vmd
 msgid "Koraga; Mudu"
@@ -27244,7 +27244,7 @@ msgstr ""
 
 #. name for vmj
 msgid "Mixtec; Ixtayutla"
-msgstr ""
+msgstr "Mixtec; Ixtayutla"
 
 #. name for vmk
 msgid "Makhuwa-Shirima"
@@ -27256,15 +27256,15 @@ msgstr ""
 
 #. name for vmm
 msgid "Mixtec; Mitlatongo"
-msgstr ""
+msgstr "Mixtec; Mitlatongo"
 
 #. name for vmp
 msgid "Mazatec; Soyaltepec"
-msgstr ""
+msgstr "Mazatec; Soyaltepec"
 
 #. name for vmq
 msgid "Mixtec; Soyaltepec"
-msgstr ""
+msgstr "Mixtec; Soyaltepec"
 
 #. name for vmr
 msgid "Marenje"
@@ -27288,15 +27288,15 @@ msgstr ""
 
 #. name for vmx
 msgid "Mixtec; Tamazola"
-msgstr ""
+msgstr "Mixtec; Tamazola"
 
 #. name for vmy
 msgid "Mazatec; Ayautla"
-msgstr ""
+msgstr "Mazatec; Ayautla"
 
 #. name for vmz
 msgid "Mazatec; Mazatlán"
-msgstr ""
+msgstr "Mazatec; Mazatlan"
 
 #. name for vnk
 msgid "Vano"
@@ -29048,11 +29048,11 @@ msgstr ""
 
 #. name for xta
 msgid "Mixtec; Alcozauca"
-msgstr ""
+msgstr "Mixtec; Alcozauca"
 
 #. name for xtb
 msgid "Mixtec; Chazumba"
-msgstr ""
+msgstr "Mixtec; Chazumba"
 
 #. name for xtc
 msgid "Katcha-Kadugli-Miri"
@@ -29060,7 +29060,7 @@ msgstr ""
 
 #. name for xtd
 msgid "Mixtec; Diuxi-Tilantongo"
-msgstr ""
+msgstr "Mixtec; Diuxi-Tilantongo"
 
 #. name for xte
 msgid "Ketengban"
@@ -29072,23 +29072,23 @@ msgstr ""
 
 #. name for xti
 msgid "Mixtec; Sinicahua"
-msgstr ""
+msgstr "Mixtec; Sinicahua"
 
 #. name for xtj
 msgid "Mixtec; San Juan Teita"
-msgstr ""
+msgstr "Mixtec; San Juan Teita"
 
 #. name for xtl
 msgid "Mixtec; Tijaltepec"
-msgstr ""
+msgstr "Mixtec; Tijaltepec"
 
 #. name for xtm
 msgid "Mixtec; Magdalena Peñasco"
-msgstr ""
+msgstr "Mixtec; Magdalena Peñasco"
 
 #. name for xtn
 msgid "Mixtec; Northern Tlaxiaco"
-msgstr ""
+msgstr "Mixtec; Tlaxiaco septentrional"
 
 #. name for xto
 msgid "Tokharian A"
@@ -29096,7 +29096,7 @@ msgstr ""
 
 #. name for xtp
 msgid "Mixtec; San Miguel Piedras"
-msgstr ""
+msgstr "Mixtec; San Miguel Piedras"
 
 #. name for xtq
 msgid "Tumshuqese"
@@ -29108,15 +29108,15 @@ msgstr ""
 
 #. name for xts
 msgid "Mixtec; Sindihui"
-msgstr ""
+msgstr "Mixtec; Sindihui"
 
 #. name for xtt
 msgid "Mixtec; Tacahua"
-msgstr ""
+msgstr "Mixtec; Tacahua"
 
 #. name for xtu
 msgid "Mixtec; Cuyamecalco"
-msgstr ""
+msgstr "Mixtec; Cuyamecalco"
 
 #. name for xtw
 msgid "Tawandê"
@@ -29124,7 +29124,7 @@ msgstr ""
 
 #. name for xty
 msgid "Mixtec; Yoloxochitl"
-msgstr ""
+msgstr "Mixtec; Yoloxochitl"
 
 #. name for xtz
 msgid "Tasmanian"

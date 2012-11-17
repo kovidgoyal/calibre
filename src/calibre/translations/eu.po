@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-10 02:51+0000\n"
-"PO-Revision-Date: 2012-10-29 14:23+0000\n"
+"PO-Revision-Date: 2012-11-16 23:30+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-11 04:37+0000\n"
-"X-Generator: Launchpad (build 16251)\n"
+"X-Launchpad-Export-Date: 2012-11-17 04:35+0000\n"
+"X-Generator: Launchpad (build 16278)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -657,6 +657,8 @@ msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
 msgstr ""
+"Kontrolatu ea zein gailuk ez ditu calibrek kontuan hartuko ordenagailuari "
+"konektaturik baldin badaude ere."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
@@ -1833,21 +1835,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "Zehaztu etiketa moten zutabe bat kudeaketa automatikorako"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Sortu liburuentzako apalategiak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
+"Sortu liburuentzako apalategiak Kobo Touch gailuan oraindik horrelakorik ez "
+"balego.  V2.0.0 firmware bertsioan edo geroko bertsioetan besterik ez."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Ezabatu hutsik dauden liburu-apalategiak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
 msgid ""
@@ -1857,11 +1861,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Kargatu liburu-azalak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1226
 msgid "Always upload covers"
-msgstr ""
+msgstr "Kargatu beti liburu-azalak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid ""
@@ -1881,7 +1885,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "Akatsen garbiketa-probak egiterakoan erabiliko den izenburua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1250
 msgid ""
@@ -1953,7 +1957,7 @@ msgstr "Komunikatu Ex124G horrekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Komunikatu WayteQ Reader irakurgailuarekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -1971,11 +1975,11 @@ msgstr "Eskuratu gailuaren informazioa."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Fitxategien zerrenda egiten. Denboratxoa beharko."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Irakurtzen liburu-e metadatuak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
 #, python-format
@@ -2043,11 +2047,11 @@ msgstr "Irakurgailu MTP ezezaguna"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Aurkituriko objektua: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "MTP gailuak ez dabiltza Windows XP sistema eragilearekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2062,7 +2066,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "Aurkituriko id-a: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2256,7 +2260,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
 msgid "Wireless Device"
-msgstr ""
+msgstr "Kablerik gabeko gailua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
