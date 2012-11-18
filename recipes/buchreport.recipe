@@ -11,7 +11,7 @@ class Buchreport(BasicNewsRecipe) :
     title         = u'Buchreport'
     timefmt       = ' [%d.%m.%Y]'
     encoding      = 'cp1252'
-    language      = 'de_DE'
+    language      = 'de'
 
 
     extra_css = 'body  { margin-left: 0.00em; margin-right: 0.00em; } \

@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class pravo(BasicNewsRecipe):
     __author__  = 'bubak'
     title      = 'Právo'
-    language = 'cz'
+    language = 'cs'
 
     remove_tags_before = dict(name='div', attrs={'class':'rubrika-ostat'})
     remove_tags_after = dict(name='td', attrs={'class':'rubrika'})
