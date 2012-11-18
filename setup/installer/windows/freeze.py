@@ -13,12 +13,11 @@ from setup import (Command, modules, functions, basenames, __version__,
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
-ICU_DIR = r'Q:\icu'
-OPENSSL_DIR = r'Q:\openssl'
-QT_DIR = 'Q:\\Qt\\4.8.2'
+ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
+OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
+QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-QTCURVE = r'C:\plugins\styles'
-LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
+LIBUNRAR         = os.environ.get('UNRARDLL', 'C:\\Program Files\\UnrarDLL\\unrar.dll')
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
         'VisualMagick', 'bin')
@@ -262,8 +261,8 @@ class Win32Freeze(Command, WixMixIn):
         print
         print 'Adding third party dependencies'
         print '\tAdding unrar'
-        shutil.copyfile(LIBUNRAR,
-                os.path.join(self.dll_dir, os.path.basename(LIBUNRAR)))
+        shutil.copyfile(LIBUNRAR, os.path.join(self.dll_dir,
+                        os.path.basename(LIBUNRAR).replace('64', '')))
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
@@ -278,8 +277,10 @@ class Win32Freeze(Command, WixMixIn):
                 if not ok: continue
                 dest = self.dll_dir
                 shutil.copy2(f, dest)
-        for x in ('zlib1.dll', 'libxml2.dll'):
-            shutil.copy2(self.j(bindir, x+'.manifest'), self.dll_dir)
+        for x in ('zlib1.dll', 'libxml2.dll', 'libxslt.dll', 'libexslt.dll'):
+            msrc = self.j(bindir, x+'.manifest')
+            if os.path.exists(msrc):
+                shutil.copy2(msrc, self.dll_dir)
 
         # Copy ImageMagick
         for pat in ('*.dll', '*.xml'):

@@ -2,7 +2,9 @@ import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class FocusRecipe(BasicNewsRecipe):
+
     __license__ = 'GPL v3'
     __author__ = u'intromatyk <intromatyk@gmail.com>'
     language = 'pl'
@@ -12,10 +14,10 @@ class FocusRecipe(BasicNewsRecipe):
     publisher = u'Gruner + Jahr Polska'
     category = u'News'
     description = u'Newspaper'
-    category='magazine'
-    cover_url=''
-    remove_empty_feeds= True
-    no_stylesheets=True
+    category = 'magazine'
+    cover_url = ''
+    remove_empty_feeds = True
+    no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100000
     recursions = 0
@@ -27,15 +29,15 @@ class FocusRecipe(BasicNewsRecipe):
     simultaneous_downloads = 5
 
     r = re.compile('.*(?P<url>http:\/\/(www.focus.pl)|(rss.feedsportal.com\/c)\/.*\.html?).*')
-    keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'cll'}))
-    
-    remove_tags =[]
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'ulm noprint'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'txb'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'h2'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'txu'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'ulc'}))
+    keep_only_tags = []
+    keep_only_tags.append(dict(name='div', attrs={'id': 'cll'}))
+
+    remove_tags = []
+    remove_tags.append(dict(name='div', attrs={'class': 'ulm noprint'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'txb'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'h2'}))
+    remove_tags.append(dict(name='ul', attrs={'class': 'txu'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'ulc'}))
 
     extra_css = '''
                     body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
@@ -44,18 +46,17 @@ class FocusRecipe(BasicNewsRecipe):
                     p.lead {font-weight: bold; text-align: left;}
                     .authordate {font-size: small; color: #696969;}
                     .fot{font-size: x-small; color: #666666;}
-                    '''    
+                    '''
 
-
-    feeds          = [
-                            ('Nauka', 'http://focus.pl.feedsportal.com/c/32992/f/532693/index.rss'),
-                            ('Historia', 'http://focus.pl.feedsportal.com/c/32992/f/532694/index.rss'),
-                            ('Cywilizacja', 'http://focus.pl.feedsportal.com/c/32992/f/532695/index.rss'),
-                            ('Sport', 'http://focus.pl.feedsportal.com/c/32992/f/532696/index.rss'),
-                            ('Technika', 'http://focus.pl.feedsportal.com/c/32992/f/532697/index.rss'),
-                            ('Przyroda', 'http://focus.pl.feedsportal.com/c/32992/f/532698/index.rss'),
-                            ('Technologie', 'http://focus.pl.feedsportal.com/c/32992/f/532699/index.rss'),                            
-                          ]
+    feeds = [
+        ('Nauka', 'http://www.focus.pl/nauka/rss/'),
+        ('Historia', 'http://www.focus.pl/historia/rss/'),
+        ('Cywilizacja', 'http://www.focus.pl/cywilizacja/rss/'),
+        ('Sport', 'http://www.focus.pl/sport/rss/'),
+        ('Technika', 'http://www.focus.pl/technika/rss/'),
+        ('Przyroda', 'http://www.focus.pl/przyroda/rss/'),
+        ('Technologie', 'http://www.focus.pl/gadzety/rss/')
+    ]
 
     def skip_ad_pages(self, soup):
         if ('advertisement' in soup.find('title').string.lower()):
@@ -65,20 +66,20 @@ class FocusRecipe(BasicNewsRecipe):
             return None
 
     def get_cover_url(self):
-        soup=self.index_to_soup('http://www.focus.pl/magazyn/')
-        tag=soup.find(name='div', attrs={'class':'clr fl'})
+        soup = self.index_to_soup('http://www.focus.pl/magazyn/')
+        tag = soup.find(name='div', attrs={'class': 'clr fl'})
         if tag:
-            self.cover_url='http://www.focus.pl/' + tag.a['href']
+            self.cover_url = 'http://www.focus.pl/' + tag.a['href']
             return getattr(self, 'cover_url', self.cover_url)
 
     def print_version(self, url):
-     if url.count ('focus.pl.feedsportal.com'):
+        if url.count('focus.pl.feedsportal.com'):
             u = url.find('focus0Bpl')
             u = 'http://www.focus.pl/' + url[u + 11:]
             u = u.replace('0C', '/')
             u = u.replace('A', '')
-            u = u.replace ('0E','-')
+            u = u.replace('0E', '-')
             u = u.replace('/nc/1//story01.htm', '/do-druku/1')
-     else:
-            u = url.replace('/nc/1','/do-druku/1')           
-     return u
+        else:
+            u = url.replace('/nc/1', '/do-druku/1')
+        return u

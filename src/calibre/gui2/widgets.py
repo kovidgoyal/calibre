@@ -283,6 +283,7 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         self.setMinimumSize(QSize(150, 200))
         ImageDropMixin.__init__(self)
         self.draw_border = True
+        self.show_size = False
 
     def setPixmap(self, pixmap):
         if not isinstance(pixmap, QPixmap):
@@ -305,6 +306,7 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         if pmap.isNull():
             return
         w, h = pmap.width(), pmap.height()
+        ow, oh = w, h
         cw, ch = self.rect().width(), self.rect().height()
         scaled, nw, nh = fit_image(w, h, cw, ch)
         if scaled:
@@ -317,12 +319,23 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         p.drawPixmap(target, pmap)
-        pen = QPen()
-        pen.setWidth(self.BORDER_WIDTH)
-        p.setPen(pen)
         if self.draw_border:
+            pen = QPen()
+            pen.setWidth(self.BORDER_WIDTH)
+            p.setPen(pen)
             p.drawRect(target)
-        #p.drawRect(self.rect())
+        if self.show_size:
+            sztgt = target.adjusted(0, 0, 0, -4)
+            f = p.font()
+            f.setBold(True)
+            f.setPointSize(12)
+            p.setFont(f)
+            sz = u'\u00a0%d x %d\u00a0'%(ow, oh)
+            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+            szrect = p.boundingRect(sztgt, flags, sz)
+            p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
+            p.setPen(QPen(QColor(255,255,255)))
+            p.drawText(sztgt, flags, sz)
         p.end()
 # }}}
 
