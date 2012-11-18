@@ -153,7 +153,7 @@ class EbookIterator(BookmarksMixin):
                         mime_type='application/xhtml+xml')]
                     self.delete_on_exit.append(cfile)             
             elif self.exclude_cover:
-                self.spine.remove(self.spine[0])
+                self.spine.remove(cover)
 
         if self.opf.path_to_html_toc is not None and \
            self.opf.path_to_html_toc not in self.spine:
