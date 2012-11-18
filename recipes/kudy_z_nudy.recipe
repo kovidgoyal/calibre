@@ -1,0 +1,32 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class kudyznudyRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Kudy z nudy'
+    publisher = u''
+    description = 'kudyznudy.cz'
+    oldest_article = 3
+    max_articles_per_feed = 20
+    use_embedded_content = False
+
+    feeds = [
+            (u'Praha nejnovější', u'http://www.kudyznudy.cz/RSS/Charts.aspx?Type=Newest&Lang=cs-CZ&RegionId=1')
+            ]
+
+
+    #encoding = 'iso-8859-2'
+    language = 'cs'
+    cover_url = 'http://www.kudyznudy.cz/App_Themes/KzN/Images/Containers/Header/HeaderLogoKZN.png'
+    remove_javascript = True
+    no_stylesheets = True
+    extra_css             = """
+                            """
+
+    remove_attributes = []
+    remove_tags_before  = dict(name='div', attrs={'class':['C_WholeContentPadding']})
+    remove_tags_after  = dict(name='div', attrs={'class':['SurroundingsContainer']})
+    remove_tags = [dict(name='div',   attrs={'class':['Details', 'buttons', 'SurroundingsContainer', 'breadcrumb']})]
+
+    keep_only_tags = []
