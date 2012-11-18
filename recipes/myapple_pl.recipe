@@ -1,0 +1,50 @@
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MyAppleRecipe(BasicNewsRecipe):
+    __license__ = 'GPL v3'
+    __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    version = 1
+
+    title = u'MyApple.pl'
+    category = u'News'
+    description = u' Największy w Polsce serwis zajmujący się tematyką związaną z Apple i wszelkimi produktami tej firmy.'
+    cover_url=''
+    remove_empty_feeds= True
+    no_stylesheets=True
+    oldest_article = 7
+    max_articles_per_feed = 100000
+    recursions = 0
+
+    no_stylesheets = True
+    remove_javascript = True
+    simultaneous_downloads = 3
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'article_content'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'article_author_date_comment_container'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'fullwidth'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'cmslinks'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'googleads-468'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'comments'}))
+
+
+    extra_css = '''
+                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
+                    td.contentheading{font-size: large; font-weight: bold;}
+                    '''    
+
+    feeds          = [
+                            ('News', 'feed://myapple.pl/external.php?do=rss&type=newcontent&sectionid=1&days=120&count=10'),
+                          ]
+    
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
