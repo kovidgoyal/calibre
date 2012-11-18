@@ -16,8 +16,6 @@ from calibre.gui2 import NONE, FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
@@ -153,7 +151,7 @@ class Matches(QAbstractItemModel):
         mod_query = query
         # Remove filter identifiers
         # Remove the prefix.
-        for loc in ('all', 'author', 'authors', 'title'):
+        for loc in ('all', 'author', 'author2', 'authors', 'title'):
             query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
@@ -301,11 +299,16 @@ class Matches(QAbstractItemModel):
 
 
 class SearchFilter(SearchQueryParser):
+    CONTAINS_MATCH = 0
+    EQUALS_MATCH   = 1
+    REGEXP_MATCH   = 2
+    IN_MATCH       = 3
 
     USABLE_LOCATIONS = [
         'all',
         'affiliate',
         'author',
+        'author2',
         'authors',
         'cover',
         'download',
@@ -331,6 +334,26 @@ class SearchFilter(SearchQueryParser):
     def universal_set(self):
         return self.srs
 
+    def _match(self, query, value, matchkind):
+        for t in value:
+            try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+                t = icu_lower(t)
+                if matchkind == self.EQUALS_MATCH:
+                    if query == t:
+                        return True
+                elif matchkind == self.REGEXP_MATCH:
+                    if re.search(query, t, re.I|re.UNICODE):
+                        return True
+                elif matchkind == self.CONTAINS_MATCH:
+                    if query in t:
+                        return True
+                elif matchkind == self.IN_MATCH:
+                    if t in query:
+                        return True
+            except re.error:
+                pass
+        return False
+
     def get_matches(self, location, query):
         query = query.strip()
         location = location.lower().strip()
@@ -341,17 +364,17 @@ class SearchFilter(SearchQueryParser):
         elif location == 'formats':
             location = 'format'
 
-        matchkind = CONTAINS_MATCH
+        matchkind = self.CONTAINS_MATCH
         if len(query) > 1:
             if query.startswith('\\'):
                 query = query[1:]
             elif query.startswith('='):
-                matchkind = EQUALS_MATCH
+                matchkind = self.EQUALS_MATCH
                 query = query[1:]
             elif query.startswith('~'):
-                matchkind = REGEXP_MATCH
+                matchkind = self.REGEXP_MATCH
                 query = query[1:]
-        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+        if matchkind != self.REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
@@ -372,6 +395,7 @@ class SearchFilter(SearchQueryParser):
         }
         for x in ('author', 'download', 'format'):
             q[x+'s'] = q[x]
+        q['author2'] = q['author']
         
         # make the price in query the same format as result
         if location == 'price':
@@ -415,16 +439,19 @@ class SearchFilter(SearchQueryParser):
                     ### Can't separate authors because comma is used for name sep and author sep
                     ### Exact match might not get what you want. For that reason, turn author
                     ### exactmatch searches into contains searches.
-                    if locvalue == 'author' and matchkind == EQUALS_MATCH:
-                        m = CONTAINS_MATCH
+                    if locvalue == 'author' and matchkind == self.EQUALS_MATCH:
+                        m = self.CONTAINS_MATCH
                     else:
                         m = matchkind
 
                     if locvalue == 'format':
                         vals = accessor(sr).split(',')
+                    elif locvalue == 'author2':
+                        m = self.IN_MATCH
+                        vals = accessor(sr).replace(',', ' ').split(' ')
                     else:
                         vals = [accessor(sr)]
-                    if _match(query, vals, m):
+                    if self._match(query, vals, m):
                         matches.add(sr)
                         break
                 except ValueError: # Unicode errors
