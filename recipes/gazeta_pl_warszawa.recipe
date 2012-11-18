@@ -8,7 +8,6 @@ warszawa.gazeta.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class gw_wawa(BasicNewsRecipe):
     title          = u'Gazeta.pl Warszawa'
@@ -43,7 +42,7 @@ class gw_wawa(BasicNewsRecipe):
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'gazeta_article_related_new'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'gazetaVideoPlayer'}))
     remove_tags.append(dict(name = 'div', attrs = {'id' : 'gazeta_article_miniatures'}))
-       
+
     feeds          = [(u'Wiadomości', u'http://rss.gazeta.pl/pub/rss/warszawa.xml')]
 
     def skip_ad_pages(self, soup):
