@@ -31,6 +31,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
+        self.search_title.initialize('store_search_search_title')
+        self.search_author.initialize('store_search_search_author')
         self.search_edit.initialize('store_search_search')
 
         # Loads variables that store various settings.
@@ -60,13 +62,22 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
+        # Title
+        self.search_title.setText(query)
+        self.search_title.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.search_title.setMinimumContentsLength(25)
+        # Author
+        self.search_author.setText(query)
+        self.search_author.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.search_author.setMinimumContentsLength(25)
+        # Keyword
         self.search_edit.setText(query)
         self.search_edit.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.search_edit.setMinimumContentsLength(25)
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
-        self.top_layout.addWidget(self.pi)
+        self.top_layout.addWidget(self.pi, 1, 3, Qt.AlignHCenter)
 
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         self.configure.setIcon(QIcon(I('config.png')))
@@ -152,7 +163,14 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.model().clear_results()
 
         # Don't start a search if there is nothing to search for.
-        query = unicode(self.search_edit.text())
+        query = []
+        if self.search_title.text():
+            query.append(u'title:"~%s"' % unicode(self.search_title.text()).replace(" ", ".*"))
+        if self.search_author.text():
+            query.append(u'author:"~%s"' % unicode(self.search_author.text()).replace(" ", ".*"))
+        if self.search_edit.text():
+            query.append(unicode(self.search_edit.text()))
+        query = " ".join(query)
         if not query.strip():
             return
         # Give the query to the results model so it can do
