@@ -146,6 +146,7 @@ class Document(QWebPage): # {{{
         self.fullscreen_scrollbar = opts.fullscreen_scrollbar
         self.fullscreen_pos = opts.fullscreen_pos
         self.start_in_fullscreen = opts.start_in_fullscreen
+        self.show_fullscreen_help = opts.show_fullscreen_help
         self.use_book_margins = opts.use_book_margins
         self.cols_per_screen = opts.cols_per_screen
         self.side_margin = opts.side_margin

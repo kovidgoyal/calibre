@@ -591,7 +591,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             fs = self.window_mode_changed == 'fullscreen'
             self.window_mode_changed = None
             if fs:
-                self.show_full_screen_label()
+                if self.view.document.show_fullscreen_help:
+                    self.show_full_screen_label()
             else:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()
