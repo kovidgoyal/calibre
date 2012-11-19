@@ -263,8 +263,11 @@ def generate_masthead(title, output_path=None, width=600, height=60):
     masthead_font_family = recs.get('masthead_font', 'Default')
 
     if masthead_font_family != 'Default':
-        from calibre.utils.fonts.scanner import font_scanner
-        faces = font_scanner.fonts_for_family(masthead_font_family)
+        from calibre.utils.fonts.scanner import font_scanner, NoFonts
+        try:
+            faces = font_scanner.fonts_for_family(masthead_font_family)
+        except NoFonts:
+            faces = []
         if faces:
             font_path = faces[0]['path']
 

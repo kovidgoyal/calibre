@@ -7,6 +7,7 @@ class AdvancedUserRecipe1332847053(BasicNewsRecipe):
     title          = u'Editoriali'
     __author__      = 'faber1971'
     description = 'Leading articles on Italy by the best Italian editorials'
+    language = 'it'
 
     oldest_article = 1
     max_articles_per_feed = 100

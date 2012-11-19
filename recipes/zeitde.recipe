@@ -16,7 +16,7 @@ class ZeitDe(BasicNewsRecipe):
     category              = 'news, Germany'
     timefmt               = ' [%a, %d %b %Y]'
     publication_type      = 'newspaper'
-    language              = 'de_DE'
+    language              = 'de'
     encoding              = 'UTF-8'
 
     oldest_article        = 7

@@ -1,0 +1,69 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+
+class aktualneRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'aktualne.cz'
+    publisher = u'Centrum holdings'
+    description = 'aktuálně.cz'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Domácí', u'http://aktualne.centrum.cz/feeds/rss/domaci/?photo=0'),
+            (u'Zprávy', u'http://aktualne.centrum.cz/feeds/rss/zpravy/?photo=0'),
+            (u'Praha', u'http://aktualne.centrum.cz/feeds/rss/domaci/regiony/praha/?photo=0'),
+            (u'Ekonomika', u'http://aktualne.centrum.cz/feeds/rss/ekonomika/?photo=0'),
+            (u'Finance', u'http://aktualne.centrum.cz/feeds/rss/finance/?photo=0'),
+            (u'Blogy a názory', u'http://blog.aktualne.centrum.cz/export-all.php')
+            ]
+
+
+    language = 'cs'
+    cover_url = 'http://img.aktualne.centrum.cz/design/akt4/o/l/logo-akt-ciste.png'
+    remove_javascript = True
+    no_stylesheets = True
+
+    remove_attributes = []
+    remove_tags_before  = dict(name='h1', attrs={'class':['titulek-clanku']})
+    filter_regexps = [r'img.aktualne.centrum.cz']
+    remove_tags = [dict(name='div',   attrs={'id':['social-bookmark']}),
+                dict(name='div', attrs={'class':['box1', 'svazane-tagy']}),
+                dict(name='div', attrs={'class':'itemcomment id0'}),
+                dict(name='div', attrs={'class':'hlavicka'}),
+                dict(name='div', attrs={'class':'hlavni-menu'}),
+                dict(name='div', attrs={'class':'top-standard-brand-obal'}),
+                dict(name='div', attrs={'class':'breadcrumb'}),
+                dict(name='div', attrs={'id':'start-standard'}),
+                dict(name='div', attrs={'id':'forum'}),
+                dict(name='span', attrs={'class':'akce'}),
+                dict(name='span', attrs={'class':'odrazka vetsi'}),
+                dict(name='div', attrs={'class':'boxP'}),
+                dict(name='div', attrs={'class':'box2'})]
+    preprocess_regexps = [
+            (re.compile(r'<div class="(contenttitle"|socialni-site|wiki|facebook-promo|facebook-like-button"|meta-akce).*', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+            (re.compile(r'<div class="[^"]*poutak-clanek-trojka".*', re.DOTALL|re.IGNORECASE), lambda match: '</body>')]
+
+    keep_only_tags = []
+
+    visited_urls = {}
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url in self.visited_urls:
+            self.log.debug('Ignoring duplicate: ' + url)
+            return None
+        else:
+            self.visited_urls[url] = True
+            self.log.debug('Accepting: ' + url)
+            return url
+
+    def encoding(self, source):
+        if source.newurl.find('blog.aktualne') >= 0:
+            enc = 'utf-8'
+        else:
+            enc = 'iso-8859-2'
+        self.log.debug('Called encoding ' + enc + " " + str(source.newurl))
+        return source.decode(enc, 'replace')
+

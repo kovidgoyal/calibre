@@ -388,17 +388,31 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="5" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_fullscreen_pos">
              <property name="text">
               <string>Show reading &amp;position in full screen mode</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_fullscreen_scrollbar">
              <property name="text">
               <string>Show &amp;scrollbar in full screen mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_start_in_fullscreen">
+             <property name="text">
+              <string>&amp;Start viewer in full screen mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_show_fullscreen_help">
+             <property name="text">
+              <string>Show &amp;help message when starting full screen mode</string>
              </property>
             </widget>
            </item>

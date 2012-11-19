@@ -308,6 +308,10 @@ class FileTypePlugin(Plugin): # {{{
     #: to the database
     on_import      = False
 
+    #: If True, this plugin is run after books are added
+    #: to the database
+    on_postimport  = False
+
     #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
@@ -336,6 +340,16 @@ class FileTypePlugin(Plugin): # {{{
         '''
         # Default implementation does nothing
         return path_to_ebook
+
+    def postimport(self, book_id, book_format, db):
+        '''
+        Called post import, i.e., after the book file has been added to the database.
+
+        :param book_id: Database id of the added book.
+        :param book_format: The file type of the book that was added.
+		:param db: Library database.
+        '''
+        pass # Default implementation does nothing
 
 # }}}
 
@@ -447,8 +461,8 @@ class CatalogPlugin(Plugin): # {{{
         # Return a list of requested fields, with opts.sort_by first
         all_std_fields = set(
                           ['author_sort','authors','comments','cover','formats',
-                           'id','isbn','ondevice','pubdate','publisher','rating',
-                           'series_index','series','size','tags','timestamp',
+                           'id','isbn','library_name','ondevice','pubdate','publisher',
+                           'rating','series_index','series','size','tags','timestamp',
                            'title_sort','title','uuid','languages','identifiers'])
         all_custom_fields = set(db.custom_field_keys())
         for field in list(all_custom_fields):
@@ -460,6 +474,16 @@ class CatalogPlugin(Plugin): # {{{
         if opts.fields != 'all':
             # Make a list from opts.fields
             requested_fields = set(opts.fields.split(','))
+
+            # Validate requested_fields
+            if requested_fields - all_fields:
+                from calibre.library import current_library_name
+                invalid_fields = sorted(list(requested_fields - all_fields))
+                print("invalid --fields specified: %s" % ', '.join(invalid_fields))
+                print("available fields in '%s': %s" %
+                      (current_library_name(), ', '.join(sorted(list(all_fields)))))
+                raise ValueError("unable to generate catalog with specified fields")
+
             fields = list(all_fields & requested_fields)
         else:
             fields = list(all_fields)

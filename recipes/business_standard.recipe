@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.business-standard.com
 '''
@@ -14,10 +14,12 @@ class BusinessStandard(BasicNewsRecipe):
     max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
+    auto_cleanup           = False
     encoding               = 'cp1252'
     publisher              = 'Business Standard Limited'
     category               = 'news, business, money, india, world'
     language               = 'en_IN'
+    masthead_url           = 'http://feeds.business-standard.com/images/logo_08.jpg'    
 
     conversion_options = {
                              'comments'        : description
@@ -26,7 +28,7 @@ class BusinessStandard(BasicNewsRecipe):
                             ,'publisher'       : publisher
                             ,'linearize_tables': True
                          }
-    keep_only_tags=[dict(attrs={'class':'TableClas'})]
+    #keep_only_tags=[dict(name='td', attrs={'class':'TableClas'})]
     remove_tags = [
                      dict(name=['object','link','script','iframe','base','meta'])
                     ,dict(attrs={'class':'rightDiv2'})
@@ -45,3 +47,8 @@ class BusinessStandard(BasicNewsRecipe):
               ,(u'Management & Mktg'   , u'http://feeds.business-standard.com/rss/7_0.xml'   )
               ,(u'Opinion'             , u'http://feeds.business-standard.com/rss/5_0.xml'   )
             ]
+
+    def print_version(self, url):
+        l, s, tp = url.rpartition('/')
+        t, k, autono = l.rpartition('/')
+        return 'http://www.business-standard.com/india/printpage.php?autono=' + autono + '&tp=' + tp

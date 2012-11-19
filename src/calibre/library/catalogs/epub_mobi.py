@@ -14,6 +14,7 @@ from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks import calibre_cover
+from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import get_lang
@@ -208,8 +209,9 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
-        build_log.append(u"%s(): Generating %s %sin %s environment, locale: '%s'" %
+        build_log.append(u"%s('%s'): Generating %s %sin %s environment, locale: '%s'" %
             (self.name,
+             current_library_name(),
              self.fmt,
              'for %s ' % opts.output_profile if opts.output_profile else '',
              'CLI' if opts.cli_environment else 'GUI',

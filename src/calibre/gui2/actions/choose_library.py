@@ -320,15 +320,23 @@ class ChooseLibraryAction(InterfaceAction):
                     _('Path to library too long. Must be less than'
                     ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
+        if not os.path.exists(loc):
+            error_dialog(self.gui, _('Not found'),
+                    _('Cannot rename as no library was found at %s. '
+                      'Try switching to this library first, then switch back '
+                      'and retry the renaming.')%loc, show=True)
+            return
         try:
             os.rename(loc, newloc)
         except:
             import traceback
+            det_msg = 'Location: %r New Location: %r\n%s'%(loc, newloc,
+                                                        traceback.format_exc())
             error_dialog(self.gui, _('Rename failed'),
                     _('Failed to rename the library at %s. '
                 'The most common cause for this is if one of the files'
                 ' in the library is open in another program.') % loc,
-                    det_msg=traceback.format_exc(), show=True)
+                    det_msg=det_msg, show=True)
             return
         self.stats.rename(location, newloc)
         self.build_menus()

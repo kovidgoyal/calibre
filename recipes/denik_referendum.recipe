@@ -1,0 +1,28 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class denikReferendumRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Den\u00edk Referendum'
+    publisher = u''
+    description = ''
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Deník Referendum', u'http://feeds.feedburner.com/DenikReferendum')
+            ]
+
+
+    #encoding = 'iso-8859-2'
+    language = 'cs'
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = []
+    remove_tags_after  = dict(name='div', attrs={'class':['text']})
+    remove_tags = [dict(name='div', attrs={'class':['box boxLine', 'box noprint', 'box']}),
+          dict(name='h3', attrs={'class':'head alt'})]
+
+    keep_only_tags = [dict(name='div',   attrs={'id':['content']})]

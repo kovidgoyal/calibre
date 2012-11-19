@@ -1,0 +1,38 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+
+class plRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Parlamentn\u00ed Listy'
+    publisher = u''
+    description = ''
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Parlamentní listy.cz', u'http://www.parlamentnilisty.cz/export/rss.aspx')
+            ]
+
+
+    #encoding = 'iso-8859-2'
+    language = 'cs'
+    cover_url = 'http://www.parlamentnilisty.cz/design/listy-logo2.png'
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = []
+    remove_tags = [dict(name='div', attrs={'class':['articledetailboxin','crumbs', 'relatedarticles articledetailbox']}),
+          dict(name='div', attrs={'class':['socialshare-1 noprint', 'socialshare-2 noprint']}),
+          dict(name='div', attrs={'id':'widget'}),
+          dict(name='div', attrs={'class':'article-discussion-box noprint'})]
+    preprocess_regexps = [(re.compile(r'<(span|strong)[^>]*>\s*Ptejte se politik.*', re.DOTALL|re.IGNORECASE), lambda match: '</body>')]
+
+    keep_only_tags = [dict(name='div',   attrs={'class':['article-detail']})]
+
+
+
+
+
+
