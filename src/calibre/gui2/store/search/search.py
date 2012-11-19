@@ -13,7 +13,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
                       QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout,
                       QComboBox)
 
-from calibre.gui2 import JSONConfig, info_dialog
+from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
@@ -31,6 +31,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
+        self.search_title.initialize('store_search_search_title')
+        self.search_author.initialize('store_search_search_author')
         self.search_edit.initialize('store_search_search')
 
         # Loads variables that store various settings.
@@ -60,13 +62,24 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
+        # Title
+        self.search_title.setText(query)
+        self.search_title.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.search_title.setMinimumContentsLength(25)
+        # Author
+        self.search_author.setText(query)
+        self.search_author.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.search_author.setMinimumContentsLength(25)
+        # Keyword
         self.search_edit.setText(query)
         self.search_edit.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.search_edit.setMinimumContentsLength(25)
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
-        self.top_layout.addWidget(self.pi)
+        self.button_layout.takeAt(0)
+        self.button_layout.setAlignment(Qt.AlignCenter)
+        self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignCenter)
 
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         self.configure.setIcon(QIcon(I('config.png')))
@@ -152,8 +165,19 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.model().clear_results()
 
         # Don't start a search if there is nothing to search for.
-        query = unicode(self.search_edit.text())
+        query = []
+        if self.search_title.text():
+            query.append(u'title:"~%s"' % unicode(self.search_title.text()).replace(" ", ".*"))
+        if self.search_author.text():
+            query.append(u'author2:"%s"' % unicode(self.search_author.text()))
+            #query.append(u'author:"~%s"' % unicode(self.search_author.text()).replace(" ", ".*"))
+        if self.search_edit.text():
+            query.append(unicode(self.search_edit.text()))
+        query = " ".join(query)
         if not query.strip():
+            error_dialog(self, _('No query'),
+                        _('You must enter a title, author or keyword to'
+                          ' search for.'), show=True)
             return
         # Give the query to the results model so it can do
         # futher filtering.
@@ -188,7 +212,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('>', '')
         query = query.replace('<', '')
         # Remove the prefix.
-        for loc in ('all', 'author', 'authors', 'title'):
+        for loc in ('all', 'author', 'author2', 'authors', 'title'):
             query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.

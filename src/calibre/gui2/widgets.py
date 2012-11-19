@@ -594,6 +594,9 @@ class HistoryLineEdit(QComboBox): # {{{
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(10)
 
+    def setPlaceholderText(self, txt):
+        return self.lineEdit().setPlaceholderText(txt)
+
     @property
     def store_name(self):
         return 'lineedit_history_'+self._name
