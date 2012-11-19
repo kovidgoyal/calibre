@@ -322,6 +322,10 @@ class MobiMLizer(object):
         istates.append(istate)
         left = 0
         display = style['display']
+        if display == 'table-cell':
+            display = 'inline'
+        elif display.startswith('table'):
+            display = 'block'
         isblock = (not display.startswith('inline') and style['display'] !=
                 'none')
         isblock = isblock and style['float'] == 'none'
