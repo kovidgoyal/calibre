@@ -104,14 +104,17 @@ def is_disabled(plugin):
 # File type plugins {{{
 
 _on_import           = {}
+_on_postimport       = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 
 def reread_filetype_plugins():
     global _on_import
+    global _on_postimport
     global _on_preprocess
     global _on_postprocess
     _on_import           = {}
+    _on_postimport       = {}
     _on_preprocess       = {}
     _on_postprocess      = {}
 
@@ -122,6 +125,10 @@ def reread_filetype_plugins():
                     if not _on_import.has_key(ft):
                         _on_import[ft] = []
                     _on_import[ft].append(plugin)
+                if plugin.on_postimport:
+                    if not _on_postimport.has_key(ft):
+                        _on_postimport[ft] = []
+                    _on_postimport[ft].append(plugin)
                 if plugin.on_preprocess:
                     if not _on_preprocess.has_key(ft):
                         _on_preprocess[ft] = []
@@ -163,6 +170,22 @@ run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
                                                occasion='preprocess')
 run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                                                occasion='postprocess')
+
+def run_plugins_on_postimport(db, book_id, fmt):
+    customization = config['plugin_customization']
+    fmt = fmt.lower()
+    for plugin in _on_postimport.get(fmt, []):
+        if is_disabled(plugin):
+            continue
+        plugin.site_customization = customization.get(plugin.name, '')
+        with plugin:
+            try:
+                plugin.postimport(book_id, fmt, db)
+            except:
+                print ('Running file type plugin %s failed with traceback:'%
+                       plugin.name)
+                traceback.print_exc()
+
 # }}}
 
 # Plugin customization {{{

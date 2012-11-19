@@ -13,7 +13,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
                       QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout,
                       QComboBox)
 
-from calibre.gui2 import JSONConfig, info_dialog
+from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
@@ -77,7 +77,9 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
-        self.top_layout.addWidget(self.pi, 1, 3, Qt.AlignHCenter)
+        self.button_layout.takeAt(0)
+        self.button_layout.setAlignment(Qt.AlignCenter)
+        self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignCenter)
 
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         self.configure.setIcon(QIcon(I('config.png')))
@@ -173,6 +175,9 @@ class SearchDialog(QDialog, Ui_Dialog):
             query.append(unicode(self.search_edit.text()))
         query = " ".join(query)
         if not query.strip():
+            error_dialog(self, _('No query'),
+                        _('You must enter a title, author or keyword to'
+                          ' search for.'), show=True)
             return
         # Give the query to the results model so it can do
         # futher filtering.
