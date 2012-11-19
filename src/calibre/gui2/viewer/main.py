@@ -21,7 +21,7 @@ from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
     info_dialog, error_dialog, open_url, available_height)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isbsd, filesystem_encoding
+from calibre.constants import islinux, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
@@ -160,7 +160,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     PAGED_MODE_TT = _('Switch to flow mode - where the text is not broken up '
             'into pages')
 
-    def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
+    def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None,
+                 start_in_fullscreen=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
         self.view.initialize_view(debug_javascript)
@@ -360,6 +361,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
         self.restore_state()
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
+        if (start_in_fullscreen or self.view.document.start_in_fullscreen):
+            self.action_full_screen.trigger()
 
     def toggle_paged_mode(self, checked, at_start=False):
         in_paged_mode = not self.action_toggle_paged_mode.isChecked()
@@ -399,7 +402,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 count += 1
 
     def shutdown(self):
-        if self.isFullScreen():
+        if self.isFullScreen() and not self.view.document.start_in_fullscreen:
             self.action_full_screen.trigger()
             return False
         self.save_state()
@@ -1134,32 +1137,29 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    pid = os.fork() if False and (islinux or isbsd) else -1
     try:
         open_at = float(opts.open_at)
     except:
         open_at = None
-    if pid <= 0:
-        override = 'calibre-ebook-viewer' if islinux else None
-        app = Application(args, override_program_name=override)
-        app.load_builtin_fonts()
-        app.setWindowIcon(QIcon(I('viewer.png')))
-        QApplication.setOrganizationName(ORG_NAME)
-        QApplication.setApplicationName(APP_UID)
-        main = EbookViewer(args[1] if len(args) > 1 else None,
-                debug_javascript=opts.debug_javascript, open_at=open_at)
-        # This is needed for paged mode. Without it, the first document that is
-        # loaded will have extra blank space at the bottom, as
-        # turn_off_internal_scrollbars does not take effect for the first
-        # rendered document
-        main.view.load_path(P('viewer/blank.html', allow_user_override=False))
+    override = 'calibre-ebook-viewer' if islinux else None
+    app = Application(args, override_program_name=override)
+    app.load_builtin_fonts()
+    app.setWindowIcon(QIcon(I('viewer.png')))
+    QApplication.setOrganizationName(ORG_NAME)
+    QApplication.setApplicationName(APP_UID)
+    main = EbookViewer(args[1] if len(args) > 1 else None,
+            debug_javascript=opts.debug_javascript, open_at=open_at,
+                       start_in_fullscreen=opts.full_screen)
+    # This is needed for paged mode. Without it, the first document that is
+    # loaded will have extra blank space at the bottom, as
+    # turn_off_internal_scrollbars does not take effect for the first
+    # rendered document
+    main.view.load_path(P('viewer/blank.html', allow_user_override=False))
 
-        sys.excepthook = main.unhandled_exception
-        main.show()
-        if opts.raise_window:
-            main.raise_()
-    if opts.full_screen:
-        main.action_full_screen.trigger()
+    sys.excepthook = main.unhandled_exception
+    main.show()
+    if opts.raise_window:
+        main.raise_()
     with main:
         return app.exec_()
     return 0
