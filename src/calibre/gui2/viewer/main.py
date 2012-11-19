@@ -178,6 +178,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_restore   = False
         self.existing_bookmarks= []
         self.selected_text     = None
+        self.was_maximized     = False
         self.read_settings()
         self.dictionary_box.hide()
         self.close_dictionary_view.clicked.connect(lambda
@@ -207,7 +208,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.set_manager(self)
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
-        self.action_quit = QAction(self)
+        self.action_quit = QAction(_('&Quit'), self)
         self.addAction(self.action_quit)
         self.view_resized_timer = QTimer(self)
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
@@ -299,6 +300,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ''')
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
+        self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
@@ -421,7 +423,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def save_state(self):
         state = bytearray(self.saveState(self.STATE_VERSION))
         vprefs['viewer_toolbar_state'] = state
-        vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
+        if not self.isFullScreen():
+            vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
         if self.current_book_has_toc:
             vprefs.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
         if self.toc.isVisible():
@@ -488,6 +491,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.window_mode_changed = 'fullscreen'
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
+        self.was_maximized = self.isMaximized()
         if not self.view.document.fullscreen_scrollbar:
             self.vertical_scrollbar.setVisible(False)
             self.frame.layout().setSpacing(0)
@@ -574,7 +578,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             om = self._original_frame_margins
             self.centralwidget.layout().setContentsMargins(om[0])
             self.frame.layout().setContentsMargins(om[1])
-        super(EbookViewer, self).showNormal()
+        if self.was_maximized:
+            super(EbookViewer, self).showMaximized()
+        else:
+            super(EbookViewer, self).showNormal()
 
     def handle_window_mode_toggle(self):
         if self.window_mode_changed:
@@ -681,13 +688,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def font_size_larger(self):
         self.view.magnify_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def font_size_smaller(self):
         self.view.shrink_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def magnification_changed(self, val):
         tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
@@ -695,6 +698,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 tt %dict(which=_('larger'), mag=val))
         self.action_font_size_smaller.setToolTip(
                 tt %dict(which=_('smaller'), mag=val))
+        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
+        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def find(self, text, repeat=False, backwards=False):
         if not text:

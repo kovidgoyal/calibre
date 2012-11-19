@@ -49,8 +49,9 @@ class EbookIterator(BookmarksMixin):
 
     CHARACTERS_PER_PAGE = 1000
 
-    def __init__(self, pathtoebook, log=None):
+    def __init__(self, pathtoebook, log=None, exclude_cover=False):
         self.log = log or default_log
+        self.exclude_cover = exclude_cover
         pathtoebook = pathtoebook.strip()
         self.pathtoebook = os.path.abspath(pathtoebook)
         self.config = DynamicConfig(name='iterator')
@@ -142,16 +143,23 @@ class EbookIterator(BookmarksMixin):
                 self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
-        if cover and self.ebook_ext in {'lit', 'mobi', 'prc', 'opf', 'fb2',
-                'azw', 'azw3'}:
-            cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
-            rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
-            chtml = (TITLEPAGE%prepare_string_for_xml(rcpath, True)).encode('utf-8')
-            with open(cfile, 'wb') as f:
-                f.write(chtml)
-            self.spine[0:0] = [Spiny(cfile,
-                mime_type='application/xhtml+xml')]
-            self.delete_on_exit.append(cfile)
+        if cover:
+            if not self.exclude_cover and self.ebook_ext in {
+                    'lit', 'mobi', 'prc', 'opf', 'fb2', 'azw', 'azw3'}:
+                cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
+                rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
+                chtml = (TITLEPAGE%prepare_string_for_xml(rcpath, True)).encode('utf-8')
+                with open(cfile, 'wb') as f:
+                    f.write(chtml)
+                self.spine[0:0] = [Spiny(cfile,
+                    mime_type='application/xhtml+xml')]
+                self.delete_on_exit.append(cfile)
+            elif self.exclude_cover and self.ebook_ext == 'epub':
+                try:
+                    if (len(self.spine) > 1 and self.spine.index(cover) == 0):
+                        self.spine = self.spine[1:]
+                except ValueError:
+                    pass
 
         if self.opf.path_to_html_toc is not None and \
            self.opf.path_to_html_toc not in self.spine:

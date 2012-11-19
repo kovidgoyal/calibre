@@ -42,6 +42,7 @@ class DuplicatesAdder(QObject): # {{{
         # here we add all the formats for dupe book record created above
         self.db_adder.add_formats(id, formats)
         self.db_adder.number_of_books_added += 1
+        self.db_adder.auto_convert_books.add(id)
         self.count += 1
         self.added.emit(self.count)
         single_shot(self.add_one)
@@ -107,8 +108,16 @@ class DBAdder(QObject): # {{{
         self.input_queue = Queue()
         self.output_queue = Queue()
         self.merged_books = set([])
+        self.auto_convert_books = set()
 
     def end(self):
+        if (gprefs['manual_add_auto_convert'] and
+                self.auto_convert_books):
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            gui.iactions['Convert Books'].auto_convert_auto_add(
+                self.auto_convert_books)
+
         self.input_queue.put((None, None, None))
 
     def start(self):
@@ -151,7 +160,6 @@ class DBAdder(QObject): # {{{
             if not os.access(fmts[-1], os.R_OK):
                 fmts[-1] = fmt
         return fmts
-
 
     def add(self, id, opf, cover, name):
         formats = self.ids.pop(id)
@@ -219,6 +227,7 @@ class DBAdder(QObject): # {{{
                     self.duplicates.append((mi, cover, orig_formats))
                 else:
                     self.add_formats(id_, formats)
+                    self.auto_convert_books.add(id_)
                     self.number_of_books_added += 1
         else:
             self.names.append(name)

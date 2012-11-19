@@ -308,6 +308,10 @@ class FileTypePlugin(Plugin): # {{{
     #: to the database
     on_import      = False
 
+    #: If True, this plugin is run after books are added
+    #: to the database
+    on_postimport  = False
+
     #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
@@ -336,6 +340,16 @@ class FileTypePlugin(Plugin): # {{{
         '''
         # Default implementation does nothing
         return path_to_ebook
+
+    def postimport(self, book_id, book_format, db):
+        '''
+        Called post import, i.e., after the book file has been added to the database.
+
+        :param book_id: Database id of the added book.
+        :param book_format: The file type of the book that was added.
+		:param db: Library database.
+        '''
+        pass # Default implementation does nothing
 
 # }}}
 
