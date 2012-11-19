@@ -167,10 +167,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Don't start a search if there is nothing to search for.
         query = []
         if self.search_title.text():
-            query.append(u'title:"~%s"' % unicode(self.search_title.text()).replace(" ", ".*"))
+            query.append(u'title2:"~%s"' % unicode(self.search_title.text()).replace('"', ' '))
         if self.search_author.text():
-            query.append(u'author2:"%s"' % unicode(self.search_author.text()))
-            #query.append(u'author:"~%s"' % unicode(self.search_author.text()).replace(" ", ".*"))
+            query.append(u'author2:"%s"' % unicode(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
             query.append(unicode(self.search_edit.text()))
         query = " ".join(query)
@@ -212,7 +211,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('>', '')
         query = query.replace('<', '')
         # Remove the prefix.
-        for loc in ('all', 'author', 'author2', 'authors', 'title'):
+        for loc in ('all', 'author', 'author2', 'authors', 'title', 'title2'):
             query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
