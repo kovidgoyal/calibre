@@ -151,7 +151,7 @@ class Matches(QAbstractItemModel):
         mod_query = query
         # Remove filter identifiers
         # Remove the prefix.
-        for loc in ('all', 'author', 'author2', 'authors', 'title'):
+        for loc in ('all', 'author', 'author2', 'authors', 'title', 'title2'):
             query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
@@ -318,6 +318,7 @@ class SearchFilter(SearchQueryParser):
         'formats',
         'price',
         'title',
+        'title2',
         'store',
     ]
 
@@ -396,6 +397,7 @@ class SearchFilter(SearchQueryParser):
         for x in ('author', 'download', 'format'):
             q[x+'s'] = q[x]
         q['author2'] = q['author']
+        q['title2'] = q['title']
         
         # make the price in query the same format as result
         if location == 'price':
@@ -446,9 +448,9 @@ class SearchFilter(SearchQueryParser):
 
                     if locvalue == 'format':
                         vals = accessor(sr).split(',')
-                    elif locvalue == 'author2':
+                    elif locvalue in ('author2', 'title2'):
                         m = self.IN_MATCH
-                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', query).split(' ')
+                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', accessor(sr)).split(' ')
                     else:
                         vals = [accessor(sr)]
                     if self._match(query, vals, m):
