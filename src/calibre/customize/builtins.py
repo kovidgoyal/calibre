@@ -1566,6 +1566,15 @@ class StorePragmaticBookshelfStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StorePublioStore(StoreBase):
+    name = 'Publio'
+    description = u'Publio.pl to księgarnia internetowa, w której mogą Państwo nabyć e-booki i audiobooki.'
+    actual_plugin = 'calibre.gui2.store.stores.publio_plugin:PublioStore'
+    author = u'Tomasz Długosz'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
 class StoreRW2010Store(StoreBase):
     name = 'RW2010'
     description = u'Polski serwis self-publishingowy. Pliki PDF, EPUB i MOBI. Maksymalna cena utworu nie przekracza u nas 10 złotych!'
@@ -1689,6 +1698,7 @@ plugins += [
     StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
+    StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
     StoreVirtualoStore,
