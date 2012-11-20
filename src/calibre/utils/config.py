@@ -36,7 +36,7 @@ class CustomHelpFormatter(IndentedHelpFormatter):
     def format_heading(self, heading):
         from calibre.utils.terminal import colored
         return "%*s%s:\n" % (self.current_indent, '',
-                                 colored(heading, fg='blue'))
+                                 colored(heading, fg='blue', bold=True))
 
     def format_option(self, option):
         import textwrap
