@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-10 02:51+0000\n"
-"PO-Revision-Date: 2012-11-16 23:30+0000\n"
-"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
+"PO-Revision-Date: 2012-11-19 23:30+0000\n"
+"Last-Translator: Ander Martínez <Unknown>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-18 04:36+0000\n"
-"X-Generator: Launchpad (build 16278)\n"
+"X-Launchpad-Export-Date: 2012-11-20 04:50+0000\n"
+"X-Generator: Launchpad (build 16286)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3124,6 +3124,8 @@ msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
 msgstr ""
+"Gaituz gero aukera honek htmlz artxibo barruko html fitxategiaren izena "
+"liburuaren izenburuarekin bat etorrarazten du."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -22951,7 +22953,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:473
 msgid "Number of recently viewed books to show"
-msgstr ""
+msgstr "Azkenaldian ikusitako liburuen artetik erakusteko kopurua"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid ""
@@ -22962,7 +22964,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:478
 msgid "Change the font size of book details in the interface"
-msgstr ""
+msgstr "Interfazeko liburuen xehetasunen letren tamaina aldatu"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:479
 msgid ""
