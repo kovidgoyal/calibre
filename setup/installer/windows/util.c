@@ -217,19 +217,15 @@ wchar_t* get_app_dirw() {
 
 
 void load_python_dll() {
-    char *app_dir, *fc_dir, *fc_file, *dll_dir, *qt_plugin_dir;
+    char *app_dir, *dll_dir, *qt_plugin_dir;
     size_t l;
 
     app_dir = get_app_dir();
     l = strlen(app_dir)+20;
     dll_dir = (char*) calloc(l, sizeof(char));
-    fc_dir  = (char*) calloc(l, sizeof(char));
-    fc_file = (char*) calloc(l, sizeof(char));
     qt_plugin_dir = (char*) calloc(l, sizeof(char));
-    if (!dll_dir || !qt_plugin_dir || !fc_dir) ExitProcess(_show_error(L"Out of memory", L"", 1));
+    if (!dll_dir || !qt_plugin_dir) ExitProcess(_show_error(L"Out of memory", L"", 1));
     _snprintf_s(dll_dir, l, _TRUNCATE, "%sDLLs", app_dir);
-    _snprintf_s(fc_dir,  l, _TRUNCATE, "%sfontconfig", app_dir);
-    _snprintf_s(fc_file, l, _TRUNCATE, "%s\\fonts.conf", fc_dir);
     _snprintf_s(qt_plugin_dir, l, _TRUNCATE, "%sqt_plugins", app_dir);
     free(app_dir);
 
@@ -237,8 +233,6 @@ void load_python_dll() {
     _putenv_s("MAGICK_CONFIGURE_PATH", dll_dir);
     _putenv_s("MAGICK_CODER_MODULE_PATH", dll_dir);
     _putenv_s("MAGICK_FILTER_MODULE_PATH", dll_dir);
-    _putenv_s("FC_CONFIG_DIR", fc_dir);
-    _putenv_s("FC_CONFIG_FILE", fc_file);
     _putenv_s("QT_PLUGIN_PATH", qt_plugin_dir);
 
     if (!SetDllDirectoryA(dll_dir)) ExitProcess(show_last_error(L"Failed to set DLL directory."));
