@@ -33,21 +33,18 @@ class ANSIStream(Stream):
 
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
-        from calibre.utils.terminfo import TerminalController
-        tc = TerminalController(stream)
         self.color = {
-                      DEBUG: bytes(tc.GREEN),
-                      INFO: bytes(''),
-                      WARN: bytes(tc.YELLOW),
-                      ERROR: bytes(tc.RED)
+                      DEBUG: u'green',
+                      INFO: None,
+                      WARN: u'yellow',
+                      ERROR: u'red',
                       }
-        self.normal = bytes(tc.NORMAL)
 
     def prints(self, level, *args, **kwargs):
-        self.stream.write(self.color[level])
         kwargs['file'] = self.stream
-        self._prints(*args, **kwargs)
-        self.stream.write(self.normal)
+        from calibre.utils.terminal import ColoredStream
+        with ColoredStream(self.stream, self.color[level]):
+            self._prints(*args, **kwargs)
 
     def flush(self):
         self.stream.flush()
