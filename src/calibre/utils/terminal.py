@@ -218,7 +218,53 @@ class ANSIStream(Detect):
         else:
             self.set_console(self.file_handle, WCOLORS['white'])
 
+def windows_terminfo():
+    from ctypes import Structure, byref
+    from ctypes.wintypes import SHORT, WORD
+
+    class COORD(Structure):
+        """struct in wincon.h"""
+        _fields_ = [
+            ('X', SHORT),
+            ('Y', SHORT),
+        ]
+
+    class  SMALL_RECT(Structure):
+        """struct in wincon.h."""
+        _fields_ = [
+            ("Left", SHORT),
+            ("Top", SHORT),
+            ("Right", SHORT),
+            ("Bottom", SHORT),
+        ]
+
+    class CONSOLE_SCREEN_BUFFER_INFO(Structure):
+        """struct in wincon.h."""
+        _fields_ = [
+            ("dwSize", COORD),
+            ("dwCursorPosition", COORD),
+            ("wAttributes", WORD),
+            ("srWindow", SMALL_RECT),
+            ("dwMaximumWindowSize", COORD),
+        ]
+    csbi = CONSOLE_SCREEN_BUFFER_INFO()
+    import msvcrt
+    file_handle = msvcrt.get_osfhandle(sys.stdout.fileno())
+    from ctypes import windll
+    success = windll.kernel32.GetConsoleScreenBufferInfo(file_handle,
+                                                         byref(csbi))
+    if not success:
+        raise Exception('stdout is not a console?')
+    return csbi
+
 def geometry():
+    if iswindows:
+        try:
+
+            ti = windows_terminfo()
+            return (ti.dwSize.X or 80, ti.dwSize.Y or 80)
+        except:
+            return 80, 80
     try:
         import curses
         curses.setupterm()
