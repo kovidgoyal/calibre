@@ -24,7 +24,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class PublioStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        google_analytics = '?utm_source=tdcalibre'
+        google_analytics = '?utm_source=tdcalibre&utm_medium=calibre'
         url = 'http://www.publio.pl/e-booki.html' + google_analytics
 
         if external or self.config.get('open_external', False):
