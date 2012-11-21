@@ -1433,15 +1433,6 @@ class StoreFoylesUKStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
-class StoreGandalfStore(StoreBase):
-    name = 'Gandalf'
-    author = u'Tomasz Długosz'
-    description = u'Księgarnia internetowa Gandalf.'
-    actual_plugin = 'calibre.gui2.store.stores.gandalf_plugin:GandalfStore'
-
-    headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
-
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = u'Google Books'
@@ -1684,7 +1675,6 @@ plugins += [
     StoreEscapeMagazineStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
-    StoreGandalfStore,
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
