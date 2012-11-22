@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010 - 2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.aif.ru
 '''
@@ -19,12 +19,19 @@ class AIF_ru(BasicNewsRecipe):
     encoding              = 'cp1251'
     language              = 'ru'
     publication_type      = 'magazine'
-    extra_css             = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Verdana,Arial,Helvetica,sans1,sans-serif} '
-    keep_only_tags     = [dict(name='div',attrs={'id':'inner'})]
+    masthead_url          = 'http://static3.aif.ru/glossy/index/i/logo.png'
+    extra_css             = """ 
+                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
+                                body{font-family: Verdana,Arial,Helvetica,sans1,sans-serif}
+                                img{display: block}
+                            """
+    keep_only_tags     = [
+                            dict(name='div',attrs={'class':['content-header', 'zoom']})
+                           ,dict(name='div',attrs={'id':'article-text'})
+                         ]
     remove_tags        = [
-                            dict(name=['iframe','object','link','base','input','img'])
-                           ,dict(name='div',attrs={'class':'photo'})
-                           ,dict(name='p',attrs={'class':'resizefont'})
+                            dict(name=['iframe','object','link','base','input','meta'])
+                           ,dict(name='div',attrs={'class':'in-topic'})
                          ]
 
     feeds       = [(u'News', u'http://www.aif.ru/rss/all.php')]

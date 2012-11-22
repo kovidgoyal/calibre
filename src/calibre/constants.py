@@ -14,14 +14,6 @@ Various run time constants.
 
 import sys, locale, codecs, os, importlib, collections
 
-_tc = None
-def terminal_controller():
-    global _tc
-    if _tc is None:
-        from calibre.utils.terminfo import TerminalController
-        _tc = TerminalController(sys.stdout)
-    return _tc
-
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
 isosx     = 'darwin' in _plat
@@ -37,6 +29,8 @@ isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
 isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
+if isworker:
+    os.environ.pop('CALIBRE_FORCE_ANSI', None)
 
 try:
     preferred_encoding = locale.getpreferredencoding()

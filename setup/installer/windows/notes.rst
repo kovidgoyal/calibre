@@ -420,15 +420,31 @@ Run::
 Python Imaging Library
 ------------------------
 
+For 32-bit:
 Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+For 64-bit:
+Download from http://pypi.python.org/pypi/Pillow/
+Edit setup.py setting the ROOT values, like this::
+
+    SW = r'C:\cygwin\home\kovid\sw'
+    JPEG_ROOT = ZLIB_ROOT = FREETYPE_ROOT = (SW+r'\lib', SW+r'\include')
+
+Build and install with::
+    python setup.py build
+    python setup.py install
+
+Note that the lcms module will not be built. PIL requires lcms-1.x but only
+lcms-2.x can be compiled as a 64 bit library.
 
 Test it on the target system with
 
-calibre-debug -c "from PIL import _imaging, _imagingmath, _imagingft, _imagingcms"
-
+calibre-debug -c "from PIL import Image; import _imaging, _imagingmath, _imagingft"
 
 kdewin32-msvc
 ----------------
+
+I dont think this is needed any more, I've left it here just in case I'm wrong.
 
 Get it from http://www.winkde.org/pub/kde/ports/win32/repository/kdesupport/
 mkdir build
@@ -448,29 +464,34 @@ cp build/kdewin32-msvc-0.3.9/include/*.h include/
 poppler
 -------------
 
-In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable qt4, jpeg, png and zlib
+mkdir build
 
-NOTE: poppler must be built as a static library, unless you build the qt4 bindings
+Run the cmake GUI which will find the various dependencies automatically.
+On 64 bit cmake might not let you choose Visual Studio 2008, in whcih case
+leave the source field blank, click configure choose Visual Studio 2008 and
+then enter the source field.
 
-cp build/utils/Release/*.exe ../../bin/
+In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
+jpeg, png and zlib::
 
+    cp build/utils/Release/*.exe ../../bin/
 
 podofo
 ----------
+
+Download from http://podofo.sourceforge.net/download.html
 
 Add the following three lines near the top of CMakeLists.txt
 SET(WANT_LIB64 FALSE)
 SET(PODOFO_BUILD_SHARED TRUE)
 SET(PODOFO_BUILD_STATIC FALSE)
 
-cp build/podofo-*/build/src/Release/podofo.dll bin/
-cp build/podofo-*/build/src/Release/podofo.lib lib/
-cp build/podofo-*/build/src/Release/podofo.exp lib/
-
-cp build/podofo-*/build/podofo_config.h include/podofo/
-cp -r build/podofo-*/src/* include/podofo/
-
-You have to use >=0.9.1
+Run::
+    cp "`find . -name *.dll`" ~/sw/bin/
+    cp "`find . -name *.lib`" ~/sw/lib/
+    mkdir ~/sw/include/podofo
+    cp build/podofo_config.h ~/sw/include/podofo
+    cp -r src/* ~/sw/include/podofo/
 
 
 ImageMagick
@@ -493,7 +514,7 @@ Undefine ProvideDllMain and MAGICKCORE_X11_DELEGATE
 Now open VisualMagick/VisualDynamicMT.sln set to Release
 Remove the CORE_xlib, UTIL_Imdisplay and CORE_Magick++ projects.
 
-F7 for build project, you will get one error due to the removal of xlib, ignore
+F7 for build solution, you will get one error due to the removal of xlib, ignore
 it.
 
 netifaces
@@ -503,10 +524,10 @@ Download the source tarball from http://alastairs-place.net/projects/netifaces/
 
 Rename netifaces.c to netifaces.cpp and make the same change in setup.py
 
-Run 
+Run:: 
+    python setup.py build
+    cp `find build/ -name *.pyd` /cygdrive/c/Python27/Lib/site-packages/
 
-python setup.py build
-cp build/lib.win32-2.7/netifaces.pyd /cygdrive/c/Python27/Lib/site-packages/
 
 psutil
 --------

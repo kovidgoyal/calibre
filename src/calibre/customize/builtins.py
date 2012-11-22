@@ -1716,7 +1716,7 @@ if __name__ == '__main__':
         ret = 0
 
         for x in ('lxml', 'calibre.ebooks.BeautifulSoup', 'uuid',
-            'calibre.utils.terminfo', 'calibre.utils.magick', 'PIL', 'Image',
+            'calibre.utils.terminal', 'calibre.utils.magick', 'PIL', 'Image',
             'sqlite3', 'mechanize', 'httplib', 'xml'):
             if x in sys.modules:
                 ret = 1
