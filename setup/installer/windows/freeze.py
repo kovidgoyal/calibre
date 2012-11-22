@@ -19,8 +19,8 @@ QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUNRAR         = os.environ.get('UNRARDLL', 'C:\\Program Files\\UnrarDLL\\unrar.dll')
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
-        'VisualMagick', 'bin')
+IMAGEMAGICK = os.path.join(SW, 'build',
+                            'ImageMagick-*\\VisualMagick\\bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 LZMA = r'Q:\easylzma\build\easylzma-0.0.8'
 
@@ -283,8 +283,9 @@ class Win32Freeze(Command, WixMixIn):
                 shutil.copy2(msrc, self.dll_dir)
 
         # Copy ImageMagick
+        impath = glob.glob(IMAGEMAGICK)[-1]
         for pat in ('*.dll', '*.xml'):
-            for f in glob.glob(self.j(IMAGEMAGICK, pat)):
+            for f in glob.glob(self.j(impath, pat)):
                 ok = True
                 for ex in ('magick++', 'x11.dll', 'xext.dll'):
                     if ex in f.lower(): ok = False

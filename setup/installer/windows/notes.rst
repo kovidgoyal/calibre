@@ -514,7 +514,7 @@ Undefine ProvideDllMain and MAGICKCORE_X11_DELEGATE
 Now open VisualMagick/VisualDynamicMT.sln set to Release
 Remove the CORE_xlib, UTIL_Imdisplay and CORE_Magick++ projects.
 
-F7 for build project, you will get one error due to the removal of xlib, ignore
+F7 for build solution, you will get one error due to the removal of xlib, ignore
 it.
 
 netifaces
@@ -524,10 +524,10 @@ Download the source tarball from http://alastairs-place.net/projects/netifaces/
 
 Rename netifaces.c to netifaces.cpp and make the same change in setup.py
 
-Run 
+Run:: 
+    python setup.py build
+    cp `find build/ -name *.pyd` /cygdrive/c/Python27/Lib/site-packages/
 
-python setup.py build
-cp build/lib.win32-2.7/netifaces.pyd /cygdrive/c/Python27/Lib/site-packages/
 
 psutil
 --------
