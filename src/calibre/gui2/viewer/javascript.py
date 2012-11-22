@@ -34,11 +34,12 @@ class JavaScriptLoader(object):
             'utils':'ebooks.oeb.display.utils',
             'fs':'ebooks.oeb.display.full_screen',
             'math': 'ebooks.oeb.display.mathjax',
+            'extract': 'ebooks.oeb.display.extract',
         }
 
     ORDER = ('jquery', 'jquery_scrollTo', 'bookmarks', 'referencing', 'images',
             'hyphenation', 'hyphenator', 'utils', 'cfi', 'indexing', 'paged',
-            'fs', 'math')
+            'fs', 'math', 'extract')
 
 
     def __init__(self, dynamic_coffeescript=False):
