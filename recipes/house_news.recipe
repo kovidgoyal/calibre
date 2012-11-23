@@ -1,0 +1,30 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Eddie Lau'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipeHouseNews(BasicNewsRecipe):
+    title          = u'House News \u4e3b\u5834\u65b0\u805e'
+    __author__     = 'Eddie Lau'
+    publisher      = 'House News'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    language = 'zh'
+    encoding = 'utf-8'
+    description = 'http://thehousenews.com'
+    category    = 'Chinese, Blogs, Opinion, News, Hong Kong'
+    masthead_url = 'http://thehousenews.com/static/images/housebeta.jpg'
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} p[class=date] {font-size:50%;} div[class=author] {font-size:75%;} p[class=caption] {font-size:50%;}'
+    feeds          = [(u'Latest', u'http://thehousenews.com/rss/')]
+    keep_only_tags = [dict(name='h1'),
+                      dict(name='div', attrs={'class':['photo']}),
+                      dict(name='p', attrs={'class':'caption'}),
+                      dict(name='div', attrs={'class':'articleTextWrap'}),
+                      dict(name='div', attrs={'class':['author']}),
+                      dict(name='p', attrs={'class':'date'})]
+
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            picdiv = soup.find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,picdiv['src'])
