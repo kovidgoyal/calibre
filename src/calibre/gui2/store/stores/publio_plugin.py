@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2012, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib
 from contextlib import closing
 
@@ -66,7 +65,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url = 'http://www.publio.pl' + cover_url 
+                    s.cover_url = 'http://www.publio.pl' + cover_url
                     s.title = title.strip()
                     s.author = author.strip()
                     s.price = price.strip()

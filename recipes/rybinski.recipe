@@ -6,6 +6,7 @@ __copyright__ = u'2012, Tomasz Dlugosz <tomek3d@gmail.com>'
 rybinski.eu
 '''
 
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class Rybinski(BasicNewsRecipe):
     title          = u'Rybinski.eu - economy of the XXI century'
@@ -15,7 +16,7 @@ class Rybinski(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    
+
     feeds          = [(u'wpisy', u'http://www.rybinski.eu/?feed=rss2&lang=pl')]
 
     keep_only_tags = [dict(name='div', attrs={'class':'post'})]
