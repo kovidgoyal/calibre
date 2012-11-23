@@ -1,0 +1,28 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2012, Tomasz Dlugosz <tomek3d@gmail.com>'
+'''
+rybinski.eu
+'''
+
+
+class Rybinski(BasicNewsRecipe):
+    title          = u'Rybinski.eu - economy of the XXI century'
+    description    = u'Blog ekonomiczny dra hab. Krzysztofa Rybi\u0144skiego'
+    language = 'pl'
+    __author__ = u'Tomasz D\u0142ugosz'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    
+    feeds          = [(u'wpisy', u'http://www.rybinski.eu/?feed=rss2&lang=pl')]
+
+    keep_only_tags = [dict(name='div', attrs={'class':'post'})]
+
+    remove_tags = [
+        dict(name = 'div', attrs = {'class' : 'post-meta-1'}),
+        dict(name = 'div', attrs = {'class' : 'post-meta-2'}),
+        dict(name = 'div', attrs = {'class' : 'post-comments'})
+    ]
+
