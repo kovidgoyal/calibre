@@ -18,14 +18,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-09-04 18:42+0000\n"
-"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2012-11-08 15:28+0000\n"
+"Last-Translator: Elmux <bla.mail@gmx.net>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-09-05 04:37+0000\n"
-"X-Generator: Launchpad (build 15901)\n"
+"X-Launchpad-Export-Date: 2012-11-09 04:39+0000\n"
+"X-Generator: Launchpad (build 16250)\n"
 "Language: de\n"
 
 #. name for aaa
@@ -58,7 +58,7 @@ msgstr "Ambrak"
 
 #. name for aah
 msgid "Arapesh; Abu'"
-msgstr ""
+msgstr "Arapesh;Abu' (Papua-Neuguinea)"
 
 #. name for aai
 msgid "Arifama-Miniafia"
@@ -102,7 +102,7 @@ msgstr "Aasáx"
 
 #. name for aat
 msgid "Albanian; Arvanitika"
-msgstr ""
+msgstr "Albanisch, Arvanitikanisch"
 
 #. name for aau
 msgid "Abau"
