@@ -10,7 +10,7 @@ import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwra
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
-from setup.build_environment import msvc, MT, RC
+from setup.build_environment import msvc, MT, RC, is64bit
 from setup.installer.windows.wix import WixMixIn
 
 ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
@@ -88,8 +88,9 @@ class Win32Freeze(Command, WixMixIn):
         self.archive_lib_dir()
         self.remove_CRT_from_manifests()
         self.create_installer()
-        self.build_portable()
-        self.build_portable_installer()
+        if not is64bit:
+            self.build_portable()
+            self.build_portable_installer()
 
     def remove_CRT_from_manifests(self):
         '''
