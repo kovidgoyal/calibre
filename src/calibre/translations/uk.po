@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-11-22 04:01+0000\n"
-"PO-Revision-Date: 2012-11-10 07:35+0000\n"
+"POT-Creation-Date: 2012-11-23 03:42+0000\n"
+"PO-Revision-Date: 2012-11-22 05:44+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-22 05:03+0000\n"
+"X-Launchpad-Export-Date: 2012-11-23 05:02+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 "Language: uk\n"
 
@@ -5918,7 +5918,7 @@ msgstr "Занадто довгий"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Not found"
-msgstr ""
+msgstr "Не знайдено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 #, python-format
@@ -5926,6 +5926,9 @@ msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
+"Не вдалося перейменувати, оскільки у %s не було знайдено бібліотеки. "
+"Спробуйте спочатку перемкнутися на цю бібліотеку, потім перемкнутися назад і "
+"повторити спробу перейменування."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:335
 msgid "Rename failed"
@@ -14157,12 +14160,12 @@ msgid "LRF Viewer toolbar"
 msgstr "Панель інструментів перегляду LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:538
 msgid "Next Page"
 msgstr "Наступна сторінка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:539
 msgid "Previous Page"
 msgstr "Попередня сторінка"
 
@@ -15125,6 +15128,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
 msgid "Automatically &convert added books to the current output format"
 msgstr ""
+"Автоматично п&еретворювати додані книги на основі поточного формату "
+"виведення даних"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "The Add &Process"
@@ -18294,11 +18299,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:177
 msgid "No query"
-msgstr ""
+msgstr "Без запиту"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:178
 msgid "You must enter a title, author or keyword to search for."
-msgstr ""
+msgstr "Вам слід вказати назву, автора або ключове слово для пошуку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:300
 msgid "Customize get books search"
@@ -18322,19 +18327,19 @@ msgstr "Отримати книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
-msgstr ""
+msgstr "Шукати за назвою"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:173
 msgid "Search by author"
-msgstr ""
+msgstr "Шукати за автором"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:175
 msgid "&Keyword:"
-msgstr ""
+msgstr "&Ключове слово"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr ""
+msgstr "Шукати за будь-де за ключовим словом:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -19145,11 +19150,11 @@ msgstr "Показувати смужку гортання у повноекра
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:63
 msgid "Start viewer in full screen mode"
-msgstr ""
+msgstr "Запуск переглядача у повноекранному режимі"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr ""
+msgstr "Показати довідку щодо користування повноекранним режимом"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:74
 msgid "Font options"
@@ -19316,11 +19321,12 @@ msgstr "Показувати смужку &гортання у повноекр�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "&Запустити переглядач у повноекранному режимі"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "Show &help message when starting full screen mode"
 msgstr ""
+"Показувати &довідкове повідомлення під час переходу у повноекранний режим"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "F&ull  screen options"
@@ -19452,87 +19458,83 @@ msgstr "&Теми"
 msgid "No results found for:"
 msgstr "Нічого не знайдено до:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:501
 msgid "&Lookup in dictionary"
 msgstr "По&шук у словнику"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "View &image..."
 msgstr "Пе&реглянути зображення…"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
-msgstr ""
+msgstr "Переглянути &таблицю…"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
 msgstr "З&найти наступний відповідник"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
 msgstr "Перейти…"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
 msgid "Next Section"
 msgstr "Наступний розділ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:530
 msgid "Previous Section"
 msgstr "Попередній розділ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
 msgid "Document Start"
 msgstr "Початок документа"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:533
 msgid "Document End"
 msgstr "Кінець документа"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
 msgid "Section Start"
 msgstr "Початок розділу"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "Section End"
 msgstr "Кінець розділу"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
-msgstr ""
+msgstr "Звичайний розмір шрифту"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:610
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
-msgstr ""
+msgstr "Ш&укати «%s» за допомогою Google"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
 msgid "Zoom &in"
 msgstr "З&більшити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:29
 msgid "Zoom &out"
 msgstr "З&меншити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:40
 msgid "&Save as"
 msgstr "З&берегти як"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:41
 msgid "&Rotate"
 msgstr "&Обернути"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:67
 msgid "Choose a file to save to"
 msgstr "Виберіть файл, до якого слід зберегти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:100
 #, python-format
 msgid "View Image: %s"
 msgstr "Переглянути зображення: %s"
@@ -19864,6 +19866,18 @@ msgstr "Не вдалося обробити"
 #, python-format
 msgid "Failed to render document %s"
 msgstr "Не вдалося обробити документ %s"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:57
+msgid "View Table"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
+msgid "No table found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
+msgid "No table was found"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"

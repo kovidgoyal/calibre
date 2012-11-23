@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-22 04:01+0000\n"
+"POT-Creation-Date: 2012-11-23 03:42+0000\n"
 "PO-Revision-Date: 2012-11-16 12:55+0000\n"
 "Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-22 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-11-23 04:51+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -14255,12 +14255,12 @@ msgid "LRF Viewer toolbar"
 msgstr "Symbolleiste des LRF-Betrachters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:538
 msgid "Next Page"
 msgstr "Nächste Seite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:539
 msgid "Previous Page"
 msgstr "Vorherige Seite"
 
@@ -19580,87 +19580,83 @@ msgstr "&Themes"
 msgid "No results found for:"
 msgstr "Kein Ergebnis gefunden für:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:501
 msgid "&Lookup in dictionary"
 msgstr "Im Wörterbuch nachsch&lagen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "View &image..."
 msgstr "Betrachte Bild..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
 msgstr "&Suche nach dem nächsten Vorkommen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
 msgstr "Gehe zu..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
 msgid "Next Section"
 msgstr "Nächster Abschnitt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:530
 msgid "Previous Section"
 msgstr "Vorheriger Abschnitt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
 msgid "Document Start"
 msgstr "Beginn des Dokuments"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:533
 msgid "Document End"
 msgstr "Ende des Dokuments"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
 msgid "Section Start"
 msgstr "Beginn des Abschnitts"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "Section End"
 msgstr "Ende des Abschnitts"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:610
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
 msgid "Zoom &in"
 msgstr "Vergrößern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:29
 msgid "Zoom &out"
 msgstr "Verkleinern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:40
 msgid "&Save as"
 msgstr "Speichern als"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:41
 msgid "&Rotate"
 msgstr "D&rehen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:67
 msgid "Choose a file to save to"
 msgstr "Wählen Sie eine Datei zum speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:100
 #, python-format
 msgid "View Image: %s"
 msgstr "Zeige Bild: %s"
@@ -19990,6 +19986,18 @@ msgstr "Darstellen fehlgeschlagen"
 #, python-format
 msgid "Failed to render document %s"
 msgstr "Dokument %s konnte nicht dargestellt werden"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:57
+msgid "View Table"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
+msgid "No table found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
+msgid "No table was found"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"

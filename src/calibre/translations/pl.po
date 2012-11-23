@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-11-22 04:01+0000\n"
-"PO-Revision-Date: 2012-11-17 15:46+0000\n"
+"POT-Creation-Date: 2012-11-23 03:42+0000\n"
+"PO-Revision-Date: 2012-11-22 20:14+0000\n"
 "Last-Translator: Tomasz Długosz <tomek3d@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-22 04:58+0000\n"
+"X-Launchpad-Export-Date: 2012-11-23 04:58+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -3733,6 +3733,10 @@ msgid ""
 "Useful if you are embedding a particularly large font with lots of unused "
 "glyphs."
 msgstr ""
+"Użyj podzbiorów osadzonych fontów. Każdy osadzony font zostanie zredukowany "
+"aby zawierał tylko znaki wykorzystywane w tym dokumencie. Zmniejszy to "
+"rozmiar plików z fontami. Przydatne przy korzystaniu z fontów zawierających "
+"wiele nie wykorzystywanych znaków"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -5821,7 +5825,7 @@ msgstr "Zbyt długie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Not found"
-msgstr ""
+msgstr "Nie odnaleziono"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 #, python-format
@@ -5829,6 +5833,9 @@ msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
+"Nie można zmienić nazwy, ponieważ w %s nie znaleziono biblioteki. Spróbuj "
+"najpierw przełączyć się na tę bibliotekę, a następnie przełącz się spowrotem "
+"i spóbuj zmienić nazwę jeszcze raz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:335
 msgid "Rename failed"
@@ -13975,12 +13982,12 @@ msgid "LRF Viewer toolbar"
 msgstr "Pasek narzędzi przeglądarki LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:538
 msgid "Next Page"
 msgstr "Następna strona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:539
 msgid "Previous Page"
 msgstr "Poprzednia strona"
 
@@ -14928,6 +14935,7 @@ msgstr "Zachowaj datę przy kopiowaniu książek do innej biblioteki."
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
 msgid "Automatically &convert added books to the current output format"
 msgstr ""
+"Automatycznie konwertuj dodawane książki do wybranego formatu docelowego"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "The Add &Process"
@@ -14940,6 +14948,10 @@ msgid ""
 " If it is, a message will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Jeśli wybierzesz tę opcję, calibre będzie sprawdzać,\n"
+"czy automatycznie dodawane pliki nie znajdują się\n"
+"już w bibliotece calibre. Jeśli tak, pojawi się okienko\n"
+"z pytaniem czy dodać je mimo wszystko."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid "Check for &duplicates when auto-adding files"
@@ -15905,7 +15917,7 @@ msgstr "Temat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -15935,7 +15947,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:42
 msgid "Friendly name to use for this email address"
-msgstr ""
+msgstr "Prosta nazwa która będzie identyfikować to konto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:128
 msgid "new email address"
@@ -16557,7 +16569,7 @@ msgstr "Urządzenie {0} nie wspiera formatu {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "Urządzenie {0} wspiera tylko format(y) {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -16699,7 +16711,7 @@ msgstr "Wskaż aktualną wtyczkę pod <b>%s</b> w celu dostosowania"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 #, python-format
 msgid "Are you sure you want to remove the plugin: %s?"
-msgstr ""
+msgstr "Czy na pewno chcesz usunąć plugin %s?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:373
 msgid "Plugin <b>{0}</b> successfully removed"
@@ -18041,11 +18053,11 @@ msgstr "Kupując w tym sklepie wspierasz dewelopera calibre: %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:177
 msgid "No query"
-msgstr ""
+msgstr "Brak zapytania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:178
 msgid "You must enter a title, author or keyword to search for."
-msgstr ""
+msgstr "Musisz wpisać tytuł, autora lub słowo kluczowe które chesz znaleźć."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:300
 msgid "Customize get books search"
@@ -18069,19 +18081,19 @@ msgstr "Zdobądź książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
-msgstr ""
+msgstr "Szukaj tytułu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:173
 msgid "Search by author"
-msgstr ""
+msgstr "Szukaj autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:175
 msgid "&Keyword:"
-msgstr ""
+msgstr "Słowo &kluczowe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr ""
+msgstr "Szukaj dowolnego słowa kluczowego"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -19191,87 +19203,83 @@ msgstr "&Tematy"
 msgid "No results found for:"
 msgstr "Nie znaleziono wyników dla:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:501
 msgid "&Lookup in dictionary"
 msgstr "Sprawdź w słowniku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "View &image..."
 msgstr "Pokaż &obrazek"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
 msgstr "&Szukaj następnego wystąpienia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
 msgstr "Przejdź do..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
 msgid "Next Section"
 msgstr "Następna sekcja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:530
 msgid "Previous Section"
 msgstr "Poprzednia sekcja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
 msgid "Document Start"
 msgstr "Początek dokumentu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:533
 msgid "Document End"
 msgstr "Koniec dokumentu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
 msgid "Section Start"
 msgstr "Początek sekcji"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "Section End"
 msgstr "Koniec sekcji"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:610
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
 msgid "Zoom &in"
 msgstr "Powięsz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:29
 msgid "Zoom &out"
 msgstr "Zmniejsz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:40
 msgid "&Save as"
 msgstr "Zapisz jako"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:41
 msgid "&Rotate"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:67
 msgid "Choose a file to save to"
 msgstr "Wybierz plik do zapisu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:100
 #, python-format
 msgid "View Image: %s"
 msgstr "Pokaż obraz: %s"
@@ -19598,6 +19606,18 @@ msgstr "Utworzenie nie udało się"
 #, python-format
 msgid "Failed to render document %s"
 msgstr "Nie udało się utworzyć dokumentu %s"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:57
+msgid "View Table"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
+msgid "No table found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
+msgid "No table was found"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"
