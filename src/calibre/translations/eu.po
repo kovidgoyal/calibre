@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-23 03:42+0000\n"
-"PO-Revision-Date: 2012-11-19 23:30+0000\n"
+"PO-Revision-Date: 2012-11-23 19:00+0000\n"
 "Last-Translator: Ander Martínez <Unknown>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-11-24 05:28+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 "Language: eu\n"
 
@@ -1094,6 +1094,15 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Calibrek zure Apple iGailua konektatzean antzeman dezan nahi baduzu, "
+"<b>Desgaitu Apple kontrolatzailea</b> klikatu.</p><p>Liburuak iGailura "
+"bidaltzeko, klikatu <b>Desgaitu Apple kontrolatzailea</b>, gero 'Connect to "
+"iTunes' metodoa erabili ezazu, zeina <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>-en, azaltzen den, "
+"<em>Konektatu/Konpartitu</em>|<em>Konektatu iTunes-era</em> menuko sarrera "
+"erabilita.</p><p>Zuzenean iGailuetara konektatzeko Apple kontrolatzailea "
+"gaitzea sostengurik gabeko aukera aurreratua da.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
 msgid "Disable Apple driver"
@@ -1738,6 +1747,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobok gailuan bertan gailuan bertan aholkuak ematen ditu. Kasu batzuetan "
+"hauek fitxategiak dituzte baina beste kasuetan webgunean erosteko bidea "
+"erakusten dute. Gaitu hauek ikusteko/kentzeko."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1242
@@ -1751,6 +1763,10 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo-k firmware-a eta datubase bertsioa tarteka eguneratzen ditu. Aukera "
+"honekin Calibre idazten eta irakurtzen saiatuko da - Kontuz!! Gaitu ezazu "
+"bakarrik fabrikako ezarpenetara itzultzeak ez bazaitu kikiltzen eta "
+"softwarea probatzen lagundu nahi baduzu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:617
 msgid "Kobo database version unsupported - See details"
@@ -1858,6 +1874,8 @@ msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
+"Ezabatu hutsik dauden apalategiak Kobo Touch-etik sinkronizazioa bukatzean. "
+"Hau V2.0.0 eta geroko firmwareentzat da bakarrik."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
 msgid "Upload covers for books"
@@ -1882,6 +1900,11 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.0.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo-k firmware-a eta datubase bertsioa tarteka eguneratzen ditu. Aukera "
+"honekin Calibre idazten eta irakurtzen saiatuko da - Kontuz!! Gaitu ezazu "
+"bakarrik fabrikako ezarpenetara itzultzeak ez bazaitu kikiltzen eta "
+"softwarea probatzen lagundu nahi baduzu. Kontrolatzaile honek V2.0.x "
+"firmware bertsiora arte eta hurrengo DB bertsiora arte sostengatzen du: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid "Title to test when debugging"
@@ -2347,6 +2370,9 @@ msgid ""
 "device does nothing for %d minutes. Unchecking this  box disables this "
 "timeout, so calibre will never automatically disconnect."
 msgstr ""
+"Lauki hau markatzen bada, calibre deskonektatu egingo da konektatutako gailu "
+"batek ez badu ezer egiten %d minututan. Lauki hau desmarkatuta denbora-muga "
+"hori desaktibatzen da eta calibre ez da automatikoki deskonektatuko."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
 msgid "Use this IP address"
@@ -2358,6 +2384,9 @@ msgid ""
 "address. The driver will listen only on the entered address, and this "
 "address will be the one advertized over mDNS (bonjour)."
 msgstr ""
+"Aukera hau erabili kontrolatzailea IP helbide jakin batetik entzunarazteko. "
+"Kontrolatzaileak emandako helbidetik soilik entzungo du, eta mDNS-tik "
+"(bonjour) iragarriko den helbidea izango da hori."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:766
 #, python-format
@@ -2576,6 +2605,9 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Eremu hau Windows-en bakarrik erabiltzen da. Lortu ID hori Hobespenak-"
+">Denetarik->Lortu informazioa aukeraren bidez, erabiltzaileak definitutako "
+"gailua erabiltzeko."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
@@ -2618,6 +2650,8 @@ msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
 msgstr ""
+"Hautatu hurrengo laukia gailuaren memoria nagusia txartel bat bezala ikusten "
+"bada, eta txartela memoria nagusia bezala."
 
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:24
@@ -2627,6 +2661,10 @@ msgid ""
 "device action. Right click on the send to device button and reset the "
 "default action to be \"Send to main memory\"."
 msgstr ""
+"Irakurleak ez dauka %s txartel gordailua. Baliteke zuk lehenetsitako "
+"bidaltzea gailuaren ekintzara aldatu izana. Egin klik saguaren eskuineko "
+"botoiaz gailura bidaltzeko botoiean eta berrezarri berariazko ekintza "
+"\"Bidali memoria nagusira\" aukerara."
 
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:29
 #, python-format
@@ -2748,6 +2786,9 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Eraldatu testu dokumentua eta egituratu ohiko konfigurazioak erabiliz. "
+"Berariaz desgaituta.Erabili %(en)s gaitzeko. Banakako ekintzak desgaitu "
+"daitezke %(dis)s aukeren bitartez."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:20
@@ -2781,6 +2822,9 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
+"Zerrendatu \"builtin\" formula izenak. Ebook bat sortu dezakezu \"builtin\" "
+"formula batetik honen bidez: ebook-convert \"Formula Izena.recipe\" "
+"irteera.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:336
 msgid "Output saved to"
@@ -2887,12 +2931,17 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Zehaztu irudiaren tamaina pixel zabalera x altuera gisara. Normalean, irudi "
+"baten tamaina automatikoki kalkulatzen da irteera fitxategitik, aukera honek "
+"horren gainean idatziko du."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:69
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"CBC bat bihurtzean ez gehitu TOC-aren orri bakoitzarentzat. Kontutan izan "
+"honek bakarrik balio duela TOC-ak sekzio bat baino gehiago daukanean."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:213
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:225
@@ -3015,6 +3064,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"Zehaztu elementuen sekzionatzea. Balio huts batek liburua sekzio bakar "
+"batean bihurtzen du. Fitxategi bat baino gehiago badauzka balio gisa "
+"fitxategi bakoitza sekzio batean sartuko du; erabili aukera hori zure gailua "
+"arazoak edukitzen ari bada. \"Edukien taulako\" balio batek taulako sarrera "
+"horiek titulu bihurtuko ditu eta sekzioak sortu; akats bat gertatzekotan, "
+"doitu egituren detekzioa edota edukien taularen ezarpenak(piztu \"Behartu "
+"automatiko sortutako Eduki taula erabiltzera\")."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:157
 #, python-format
@@ -3057,6 +3113,10 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"Normalean sarrerako gehigarri honek automatikoki sarrerako fitxategi guztiak "
+"fitxategi hierarkia estandar baten gisa berrantolatzen ditu. Erabili aukera "
+"hau egiten ari zarena ondo dakizunean soilik, honen egikaritzapenak hainbat "
+"albo-ondorio kaltegarri eduki baititzake gainontzeko bihurketa prozesuetan."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:21
 msgid "CSS file used for the output instead of the default file"
@@ -3110,6 +3170,10 @@ msgid ""
 "inline: Write the CSS as an inline style attribute.\n"
 "tag: Turn as many CSS styles as possible into HTML tags."
 msgstr ""
+"Zehaztu CSS-ren trataera. Class dago lehenetsita.\n"
+"klasea: Erabili CSS klaseak eta elementuek erreferentzia ditzatela.\n"
+"txertatua: Idatzi CSS-a txertatutako estilo atributu baten gisara.\n"
+"etiketa: Ahal bezainbeste CSS estilo HTML etiketa bihurtzen ditu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_output.py:35
 msgid ""
@@ -3118,6 +3182,10 @@ msgid ""
 "external: Use an external CSS file that is linked in the document.\n"
 "inline: Place the CSS in the head section of the document."
 msgstr ""
+"Nola maneiatu CSSa css-type='class' erabiltzerakoan.\n"
+"Lehenetsia kanpokoa da.\n"
+"kanpokoa: Kanpoko CSS fitxategi bat estekatzen du dokumentuan.\n"
+"txertatua: CSSa dokumentuaren haseran txertatzen du."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_output.py:42
 msgid ""
@@ -3261,6 +3329,8 @@ msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
 msgstr ""
+"MOBI fitxategiaren edukiak zehaztutako direktoriora erauzi. Direktorioa "
+"existizen bada, ezabatu egingo da."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:78
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:294
@@ -3269,6 +3339,9 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Gaitu Kindle-an liburuaren edukia partekatzea Facebook etab. bidez. KONTUZ: "
+"Ezaugarri hau erabiliz gero, irakurketaren azken posizioa ez du "
+"sinkronizatuko hainbat gailutan. Kexak Amazon-i."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:85
 msgid ""
@@ -3278,6 +3351,11 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Defektuz calibre-k irudi guztiak JPEG formatura bihurtzen ditu irteerako "
+"MOBI fitxategian. Hau konpatibilitate haundiagoa lortzeko da, MOBI ikustaile "
+"zaharragoek arazoak bait dituzte beste irudi formatuekin. Aukera honek "
+"calibreri hori ez egiteko esaten dio. Erabilgarria da zure dokumentuak JPEG "
+"haundietan bihurtu daitezkeen GIF/PNG irudi asko baditu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:93
 msgid ""
@@ -3287,6 +3365,11 @@ msgid ""
 "6 and the new KF8 format, or only the new KF8 format. KF8 has more features "
 "than MOBI 6, but only works with newer Kindles."
 msgstr ""
+"Defektuz calibre-k MOBI 6 fitxategi zaharra duten MOBI fitxategiak sortzen "
+"ditu. Formatu hau bateragarria da gailu guztiekin. Hala ere, aukera hau "
+"aldatuta calibre-ri esan diezaiokezu MOBI 6 eta KF8, bi formatuak edo soilik "
+"KF8 formatua sortzeko. KF8 formatuak MOBI6 baino ezaugarri gehiago ditu, "
+"baino Kindle berrietan soilik erabil daiteke."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -3345,6 +3428,8 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"Paperaren tamaina. Tamaina hau gainidatzi egingo da berezko irteera profilik "
+"erabiltzen ez denean. Berezkoa karta formatua da. Aukerak %s dira."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:80
 msgid ""
@@ -3370,24 +3455,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:94
 msgid "The font family used to render serif fonts"
-msgstr ""
+msgstr "Serif letra-tipoak renderitzatzeko letra-tipo faimilia."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "The font family used to render sans-serif fonts"
-msgstr ""
+msgstr "San-serif letra-tipoak renderitzatzeko letra-tipo faimilia."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:104
 msgid "The font family used to render monospaced fonts"
-msgstr ""
+msgstr "Tarte bakarreko letra-tipoak renderitzatzeko letra-tipo faimilia."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid "The default font size"
-msgstr ""
+msgstr "Berezko letra-tipo tamaina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:110
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "Tarte bakarreko testuaren berezko letra-tipo tamaina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -4951,7 +5036,7 @@ msgstr "Overdriveko Content Reservetik metadatuak eta azalak jeisten ditu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:41
 msgid "Download all metadata (slow)"
-msgstr "Metadatu juztiak jaitsi (mantsoa)"
+msgstr "Jaitsi metadatu guztiak (mantsoa)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:42
 msgid "Enable this option to gather all metadata available from Overdrive."
@@ -5436,7 +5521,7 @@ msgstr "Maius+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Liburuen gehitze kontrola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -6053,11 +6138,11 @@ msgstr "Ezabatu hautatutako liburuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:96
 msgid "Remove files of a specific format from selected books.."
-msgstr "Remove files of a specific format from selected books.."
+msgstr "Ezabatu formatu jakin batean aukeratutako liburuak.."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:99
 msgid "Remove all formats from selected books, except..."
-msgstr "Remove all formats from selected books, except..."
+msgstr "Ezabatu hautatutako liburuen formatu guztiak, hauek ezik..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:102
 msgid "Remove all formats from selected books"
@@ -6069,7 +6154,7 @@ msgstr "Ezabatu hautatutako liburuetako azalak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:109
 msgid "Remove matching books from device"
-msgstr "Remove matching books from device"
+msgstr "Ezabatu gailutik iragazkiarekin bat datozen liburuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:134
 msgid "Cannot delete"
@@ -6293,7 +6378,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge book records"
-msgstr "Merge book records"
+msgstr "Bateratu liburuen erregistroak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:59
 msgid "M"
@@ -6910,7 +6995,7 @@ msgstr "Ikusi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:48
 msgid "View specific format"
-msgstr "View specific format"
+msgstr "Ikusi formatu jakin bat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
@@ -7520,7 +7605,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:643
 msgid "Delete Rule"
-msgstr ""
+msgstr "Ezabatu araua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:792
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:608
@@ -9873,7 +9958,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:228
 msgid "&Remove rule"
-msgstr ""
+msgstr "&Ezabatu araua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
@@ -11793,7 +11878,7 @@ msgstr "Gehitu gordetako bilaketa berria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "Berrizendatu uneko bilaketa kutxan dagoenera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -11944,7 +12029,7 @@ msgstr "Gehitu pertsonalizatutako albiste iturri berri bat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Jaitsi programatutako jatorri guztiak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Go"
@@ -12047,7 +12132,7 @@ msgstr " egunak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Jaitsi programatutako jatorri guztiak batera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:232
 msgid "Download &all scheduled"
@@ -14119,6 +14204,8 @@ msgid ""
 "Manage authors. Use to rename authors and correct individual author's sort "
 "values"
 msgstr ""
+"Kudeatu egileak. Erabili egileak berrizendatzeko eta zuzentzeko banakako "
+"egileen ordenatzeko balioak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:162
 msgid "Clear series"
@@ -14710,7 +14797,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:251
 msgid "Create/edit a column coloring rule"
-msgstr ""
+msgstr "Sortu/editatu zutabeak koloreztatzeko araua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:256
 msgid "Create a coloring rule by filling in the boxes below"
@@ -14787,7 +14874,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:519
 msgid "Add Rule"
-msgstr ""
+msgstr "Gehitu araua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:522
 msgid "Remove Rule"
@@ -15446,7 +15533,7 @@ msgstr "Partizioduna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:182
 msgid "Column coloring"
-msgstr ""
+msgstr "Zutabeen koloreztatzea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
@@ -16261,15 +16348,17 @@ msgstr "Bilatu edozein"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:176
 msgid "Grouped Search Terms"
-msgstr ""
+msgstr "Taldekatutako bilaketa terminoak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:140
 msgid "The search term cannot be blank"
-msgstr ""
+msgstr "Bilaketa terminoak ezin du hutsa izan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:150
 msgid "That name is already used for a column or grouped search term"
 msgstr ""
+"Izen hori dagoeneko erabiltzen da zutabe edo taldekatutako bilaketa "
+"terminoren batetan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:154
 msgid "That name is already used for user category"
@@ -16348,7 +16437,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:183
 msgid "Delete the current search term"
-msgstr ""
+msgstr "Ezabatu uneko bilaketa terminoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:185
 msgid ""
@@ -16356,6 +16445,9 @@ msgid ""
 "changing the name then pressing Save. You can change the value\n"
 "of a search term by changing the value box then pressing Save."
 msgstr ""
+"Uneko bilaketa terminoa gorde. Bilaketa termino bat berrizenda\n"
+"dezakezu izena aldatuz eta Gorde sakatuz. Bilaketa termino baten\n"
+"balioa alda dezakezu balio laukia aldatuz eta Gorde sakatuz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:189
 msgid "Make &user categories from:"
@@ -16908,7 +17000,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:348
 msgid "Delete current search"
-msgstr ""
+msgstr "Ezabatu uneko bilaketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:349
 msgid "No search is selected"
@@ -16960,7 +17052,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:488
 msgid "*Current search"
-msgstr ""
+msgstr "*Uneko bilaketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -17403,7 +17495,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:307
 msgid "The grouped search term name is \"{0}\""
-msgstr ""
+msgstr "Taldekatutako bilaketa terminoaren izena \"{0}\" da"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:766
 msgid ""
@@ -17449,7 +17541,7 @@ msgstr "%s bilaketa izen hori dagoeneko erabilia izan da."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:49
 msgid "Manage Authors"
-msgstr ""
+msgstr "Kudeatu egileak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:51
 msgid "Manage Series"
@@ -17608,7 +17700,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:429
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "Kudeatu egileak, etiketak, etab."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:430
 msgid ""
@@ -18812,6 +18904,8 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Aukeratu zure e-book gailua. Gailua ez badago zerrendan, aukeratu \"%s\" "
+"gailua."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:574
 msgid "Moving library..."
