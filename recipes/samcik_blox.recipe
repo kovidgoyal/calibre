@@ -8,7 +8,6 @@ samcik.blox.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class samcik(BasicNewsRecipe):
     title          = u'Maciej Samcik Blog'
