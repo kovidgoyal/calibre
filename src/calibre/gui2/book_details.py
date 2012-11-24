@@ -7,7 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, QIcon,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo, QAction,
-    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu)
+    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu,
+    QPen, QColor)
 from PyQt4.QtWebKit import QWebView
 
 from calibre import fit_image, force_unicode, prepare_string_for_xml
@@ -324,6 +325,17 @@ class CoverView(QWidget): # {{{
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         p.drawPixmap(target, self.pixmap.scaled(target.size(),
             Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        if gprefs['bd_overlay_cover_size']:
+            sztgt = target.adjusted(0, 0, 0, -4)
+            f = p.font()
+            f.setBold(True)
+            p.setFont(f)
+            sz = u'\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
+            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+            szrect = p.boundingRect(sztgt, flags, sz)
+            p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
+            p.setPen(QPen(QColor(255,255,255)))
+            p.drawText(sztgt, flags, sz)
         p.end()
 
     current_pixmap_size = pyqtProperty('QSize',
