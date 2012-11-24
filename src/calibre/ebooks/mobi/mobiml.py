@@ -214,7 +214,11 @@ class MobiMLizer(object):
         if tag in CONTENT_TAGS:
             bstate.inline = para
             pstate = bstate.istate = None
-            etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
+            try:
+                etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
+            except:
+                print 'Invalid subelement:', para, tag, istate.attrib
+                raise
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'
         if istate.ids:
