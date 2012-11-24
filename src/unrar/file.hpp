@@ -78,42 +78,42 @@ class File
     bool Open(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_READ);
     void TOpen(const char *Name,const wchar *NameW=NULL);
     bool WOpen(const char *Name,const wchar *NameW=NULL);
-    bool Create(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_UPDATE|FMF_SHAREREAD);
-    void TCreate(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_UPDATE|FMF_SHAREREAD);
-    bool WCreate(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_UPDATE|FMF_SHAREREAD);
-    bool Close();
-    void Flush();
-    bool Delete();
-    bool Rename(const char *NewName,const wchar *NewNameW=NULL);
-    void Write(const void *Data,size_t Size);
-    int Read(void *Data,size_t Size);
-    int DirectRead(void *Data,size_t Size);
-    void Seek(int64 Offset,int Method);
-    bool RawSeek(int64 Offset,int Method);
-    int64 Tell();
-    void Prealloc(int64 Size);
-    byte GetByte();
-    void PutByte(byte Byte);
-    bool Truncate();
-    void SetOpenFileTime(RarTime *ftm,RarTime *ftc=NULL,RarTime *fta=NULL);
-    void SetCloseFileTime(RarTime *ftm,RarTime *fta=NULL);
-    static void SetCloseFileTimeByName(const char *Name,RarTime *ftm,RarTime *fta);
-    void GetOpenFileTime(RarTime *ft);
-    bool IsOpened() {return(hFile!=BAD_HANDLE);};
-    int64 FileLength();
-    void SetHandleType(FILE_HANDLETYPE Type);
-    FILE_HANDLETYPE GetHandleType() {return(HandleType);};
-    bool IsDevice();
-    void fprintf(const char *fmt,...);
-    static bool RemoveCreated();
-    FileHandle GetHandle() {return(hFile);};
-    void SetIgnoreReadErrors(bool Mode) {IgnoreReadErrors=Mode;};
-    char *GetName() {return(FileName);}
-    int64 Copy(File &Dest,int64 Length=INT64NDF);
-    void SetAllowDelete(bool Allow) {AllowDelete=Allow;}
-    void SetExceptions(bool Allow) {AllowExceptions=Allow;}
+    virtual bool Create(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_UPDATE|FMF_SHAREREAD); // virtual added by Kovid
+    virtual void TCreate(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_UPDATE|FMF_SHAREREAD); // virtual added by Kovid
+    virtual bool WCreate(const char *Name,const wchar *NameW=NULL,uint Mode=FMF_UPDATE|FMF_SHAREREAD); // virtual added by Kovid
+    virtual bool Close(); // virtual added by Kovid
+    virtual void Flush(); // virtual added by Kovid
+    virtual bool Delete(); // virtual added by Kovid
+    virtual bool Rename(const char *NewName,const wchar *NewNameW=NULL); // virtual added by Kovid
+    virtual void Write(const void *Data,size_t Size); // virtual added by Kovid
+    virtual int Read(void *Data,size_t Size); // virtual added by Kovid
+    virtual int DirectRead(void *Data,size_t Size); // virtual added by Kovid
+    virtual void Seek(int64 Offset,int Method); // virtual added by Kovid
+    virtual bool RawSeek(int64 Offset,int Method); // virtual added by Kovid
+    virtual int64 Tell(); // virtual added by Kovid
+    virtual void Prealloc(int64 Size); // virtual added by Kovid
+    virtual byte GetByte(); // virtual added by Kovid
+    virtual void PutByte(byte Byte); // virtual added by Kovid
+    virtual bool Truncate(); // virtual added by Kovid
+    virtual void SetOpenFileTime(RarTime *ftm,RarTime *ftc=NULL,RarTime *fta=NULL); // virtual added by Kovid
+    virtual void SetCloseFileTime(RarTime *ftm,RarTime *fta=NULL); // virtual added by Kovid
+    static void SetCloseFileTimeByName(const char *Name,RarTime *ftm,RarTime *fta); 
+    virtual void GetOpenFileTime(RarTime *ft); // virtual added by Kovid
+    virtual bool IsOpened() {return(hFile!=BAD_HANDLE);}; // virtual added by Kovid
+    virtual int64 FileLength(); // virtual added by Kovid
+    virtual void SetHandleType(FILE_HANDLETYPE Type); // virtual added by Kovid
+    virtual FILE_HANDLETYPE GetHandleType() {return(HandleType);}; // virtual added by Kovid
+    virtual bool IsDevice(); // virtual added by Kovid
+    virtual void fprintf(const char *fmt,...); // virtual added by Kovid
+    static bool RemoveCreated(); 
+    virtual FileHandle GetHandle() {return(hFile);}; // virtual added by Kovid
+    virtual void SetIgnoreReadErrors(bool Mode) {IgnoreReadErrors=Mode;}; // virtual added by Kovid
+    virtual char *GetName() {return(FileName);} // virtual added by Kovid
+    virtual int64 Copy(File &Dest,int64 Length=INT64NDF); // virtual added by Kovid
+    virtual void SetAllowDelete(bool Allow) {AllowDelete=Allow;} // virtual added by Kovid
+    virtual void SetExceptions(bool Allow) {AllowExceptions=Allow;} // virtual added by Kovid
 #ifdef _WIN_ALL
-    void RemoveSequentialFlag() {NoSequentialRead=true;}
+    virtual void RemoveSequentialFlag() {NoSequentialRead=true;} // virtual added by Kovid
 #endif
 };
 
