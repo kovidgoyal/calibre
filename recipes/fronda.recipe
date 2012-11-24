@@ -23,6 +23,7 @@ class Fronda(BasicNewsRecipe):
     extra_css = '''
         h1 {font-size:150%}
         .body {text-align:left;}
+        div.headline {font-weight:bold}
     '''
 
     earliest_date = date.today() - timedelta(days=oldest_article)
