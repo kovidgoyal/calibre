@@ -8,7 +8,6 @@ http://prawica.net
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class prawica_recipe(BasicNewsRecipe):
     title          = u'prawica.net'

@@ -1,4 +1,3 @@
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -36,12 +35,12 @@ class MyAppleRecipe(BasicNewsRecipe):
     extra_css = '''
                     body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
                     td.contentheading{font-size: large; font-weight: bold;}
-                    '''    
+                    '''
 
     feeds          = [
                             ('News', 'feed://myapple.pl/external.php?do=rss&type=newcontent&sectionid=1&days=120&count=10'),
                           ]
-    
+
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
             if alink.string is not None:

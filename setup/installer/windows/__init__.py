@@ -6,12 +6,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess, re
+import os, shutil, subprocess
 
 from setup import Command, __appname__, __version__
 from setup.installer import VMInstaller
-
-SIGNTOOL = r'C:\cygwin\home\kovid\sign.bat'
 
 class Win(Command):
 
@@ -38,11 +36,7 @@ class Win32(VMInstaller):
 
     def sign_msi(self):
         print ('Signing installers ...')
-        raw = open(self.VM).read()
-        vmx = re.search(r'''launch_vmware\(['"](.+?)['"]''', raw).group(1)
-        subprocess.check_call(['vmrun', '-T', 'ws', '-gu', 'kovid', '-gp',
-            "et tu brutus", 'runProgramInGuest', vmx, 'cmd.exe', '/C',
-            r'C:\cygwin\home\kovid\sign.bat'])
+        subprocess.check_call(['ssh', self.VM_NAME, '~/sign.sh'], shell=False)
 
     def download_installer(self):
         installer = self.installer()

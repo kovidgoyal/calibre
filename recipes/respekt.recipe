@@ -1,0 +1,37 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+
+class respektRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Respekt'
+    publisher = u'Respekt'
+    description = 'Respekt'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Všechny články', u'http://respekt.ihned.cz/index.php?p=R00000_rss')
+            ,(u'Blogy', u'http://blog.respekt.ihned.cz/?p=Rb00VR_rss')
+            #,(u'Respekt DJ', u'http://respekt.ihned.cz/index.php?p=R00RDJ_rss')
+            ]
+
+
+    encoding = 'cp1250'
+    language = 'cs'
+    cover_url = 'http://respekt.ihned.cz/img/R/respekt_logo.png'
+    remove_javascript = True
+    no_stylesheets = True
+
+    remove_tags = [dict(name='div',   attrs={'class':['d-tools', 'actions']})]
+    remove_tags_before  = dict(name='div',attrs={'id':['detail']})
+    remove_tags_after  = dict(name='div',attrs={'class':'d-tools'})
+    preprocess_regexps = [(re.compile(r'<div class="paid-zone".*', re.DOTALL|re.IGNORECASE), lambda match: 'Za zbytek článku je nutno platit. </body>'),
+			(re.compile(r'.*<div class="mm-ow">', re.DOTALL|re.IGNORECASE), lambda match: '<body>'),
+			(re.compile(r'<div class="col3">.*', re.DOTALL|re.IGNORECASE), lambda match: '</body>')]
+
+    keep_only_tags = []
+
+
+

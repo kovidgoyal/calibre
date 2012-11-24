@@ -1103,10 +1103,14 @@ OptionRecommendation(name='search_replace',
             from calibre.ebooks.oeb.transforms.unsmarten import UnsmartenPunctuation
             UnsmartenPunctuation()(self.oeb, self.opts)
 
+        mobi_file_type = getattr(self.opts, 'mobi_file_type', 'old')
+        needs_old_markup = (self.output_plugin.file_type == 'lit' or
+                    (self.output_plugin.file_type == 'mobi' and mobi_file_type
+                     == 'old'))
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
-                untable=self.output_plugin.file_type in ('mobi','lit'),
-                unfloat=self.output_plugin.file_type in ('mobi', 'lit'),
+                untable=needs_old_markup,
+                unfloat=needs_old_markup,
                 page_break_on_body=self.output_plugin.file_type in ('mobi',
                     'lit'),
                 specializer=partial(self.output_plugin.specialize_css_for_output,

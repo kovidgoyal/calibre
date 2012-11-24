@@ -14,49 +14,74 @@
    <string>Get Books</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../../resources/images.qrc">
     <normaloff>:/images/store.png</normaloff>:/images/store.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
-   <item>
-    <layout class="QHBoxLayout" name="top_layout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Query:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="adv_search_button">
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="HistoryLineEdit" name="search_edit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="search">
-       <property name="text">
-        <string>Search</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="2">
+    <widget class="HistoryLineEdit" name="search_title">
+     <property name="placeholderText">
+      <string>Search by title</string>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>&amp;Author:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>search_author</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="HistoryLineEdit" name="search_author">
+     <property name="placeholderText">
+      <string>Search by author</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QToolButton" name="adv_search_button">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&amp;Keyword:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>search_edit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="HistoryLineEdit" name="search_edit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="placeholderText">
+      <string>Search by any keyword</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4">
     <widget class="QSplitter" name="store_splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -82,8 +107,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>193</width>
-            <height>127</height>
+            <width>204</width>
+            <height>141</height>
            </rect>
           </property>
          </widget>
@@ -202,7 +227,7 @@
      </widget>
     </widget>
    </item>
-   <item>
+   <item row="4" column="0" colspan="3">
     <layout class="QHBoxLayout" name="bottom_layout">
      <item>
       <widget class="QLabel" name="label_2">
@@ -234,7 +259,47 @@
      <item>
       <widget class="QPushButton" name="close">
        <property name="text">
-        <string>Close</string>
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>&amp;Title:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>search_title</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3" rowspan="3">
+    <layout class="QVBoxLayout" name="button_layout">
+     <item>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="search">
+       <property name="text">
+        <string>&amp;Search</string>
        </property>
       </widget>
      </item>
@@ -255,17 +320,19 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>search_title</tabstop>
+  <tabstop>search_author</tabstop>
+  <tabstop>adv_search_button</tabstop>
   <tabstop>search_edit</tabstop>
   <tabstop>search</tabstop>
-  <tabstop>results_view</tabstop>
   <tabstop>store_list</tabstop>
   <tabstop>select_all_stores</tabstop>
   <tabstop>select_invert_stores</tabstop>
   <tabstop>select_none_stores</tabstop>
+  <tabstop>results_view</tabstop>
   <tabstop>configure</tabstop>
   <tabstop>open_external</tabstop>
   <tabstop>close</tabstop>
-  <tabstop>adv_search_button</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../../resources/images.qrc"/>

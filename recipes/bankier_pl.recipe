@@ -8,7 +8,6 @@ bankier.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class bankier(BasicNewsRecipe):
     title          = u'Bankier.pl'
@@ -33,19 +32,19 @@ class bankier(BasicNewsRecipe):
     remove_tags.append(dict(name = 'img', attrs = {'src' : '/gfx/hd-mid-02.gif'}))
     #remove_tags.append(dict(name = 'a', attrs = {'target' : '_blank'}))
     #remove_tags.append(dict(name = 'br', attrs = {'clear' : 'all'}))
-       
+
     feeds          = [
-	        (u'Wiadomości dnia', u'http://feeds.feedburner.com/bankier-wiadomosci-dnia'),
-	        (u'Finanse osobiste', u'http://feeds.feedburner.com/bankier-finanse-osobiste'),
-	        (u'Firma', u'http://feeds.feedburner.com/bankier-firma'),
-	        (u'Giełda', u'http://feeds.feedburner.com/bankier-gielda'),
-	        (u'Rynek walutowy', u'http://feeds.feedburner.com/bankier-rynek-walutowy'),
-	        (u'Komunikaty ze spółek', u'http://feeds.feedburner.com/bankier-espi'),
-	     ]
+            (u'Wiadomości dnia', u'http://feeds.feedburner.com/bankier-wiadomosci-dnia'),
+            (u'Finanse osobiste', u'http://feeds.feedburner.com/bankier-finanse-osobiste'),
+            (u'Firma', u'http://feeds.feedburner.com/bankier-firma'),
+            (u'Giełda', u'http://feeds.feedburner.com/bankier-gielda'),
+            (u'Rynek walutowy', u'http://feeds.feedburner.com/bankier-rynek-walutowy'),
+            (u'Komunikaty ze spółek', u'http://feeds.feedburner.com/bankier-espi'),
+         ]
     def print_version(self, url):
         segment = url.split('.')
         urlPart = segment[2]
         segments = urlPart.split('-')
         urlPart2 = segments[-1]
         return 'http://www.bankier.pl/wiadomosci/print.html?article_id=' + urlPart2
-    
+

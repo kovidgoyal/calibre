@@ -1,0 +1,30 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ceskenovinyRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'České Noviny'
+    description = 'ceskenoviny.cz'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Domácí', u'http://www.ceskenoviny.cz/sluzby/rss/domov.php')
+            #,(u'Hlavní události', u'http://www.ceskenoviny.cz/sluzby/rss/index.php')
+            #,(u'Přehled zpráv', u'http://www.ceskenoviny.cz/sluzby/rss/zpravy.php')
+            #,(u'Ze světa', u'http://www.ceskenoviny.cz/sluzby/rss/svet.php')
+            #,(u'Kultura', u'http://www.ceskenoviny.cz/sluzby/rss/kultura.php')
+            #,(u'IT', u'http://www.ceskenoviny.cz/sluzby/rss/pocitace.php')
+            ]
+
+
+    language = 'cs'
+    cover_url = 'http://i4.cn.cz/grafika/cn_logo-print.gif'
+    remove_javascript = True
+    no_stylesheets = True
+
+    remove_attributes = []
+    filter_regexps = [r'img.aktualne.centrum.cz']
+
+    keep_only_tags = [dict(name='div', attrs={'id':'clnk'})]

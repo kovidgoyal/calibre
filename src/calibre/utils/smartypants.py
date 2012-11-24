@@ -84,28 +84,28 @@ specify configuration options.
 Numeric values are the easiest way to configure SmartyPants' behavior:
 
 "0"
-	Suppress all transformations. (Do nothing.)
+    Suppress all transformations. (Do nothing.)
 "1"
-	Performs default SmartyPants transformations: quotes (including
-	\`\`backticks'' -style), em-dashes, and ellipses. "``--``" (dash dash)
-	is used to signify an em-dash; there is no support for en-dashes.
+    Performs default SmartyPants transformations: quotes (including
+    \`\`backticks'' -style), em-dashes, and ellipses. "``--``" (dash dash)
+    is used to signify an em-dash; there is no support for en-dashes.
 
 "2"
-	Same as smarty_pants="1", except that it uses the old-school typewriter
-	shorthand for dashes:  "``--``" (dash dash) for en-dashes, "``---``"
-	(dash dash dash)
-	for em-dashes.
+    Same as smarty_pants="1", except that it uses the old-school typewriter
+    shorthand for dashes:  "``--``" (dash dash) for en-dashes, "``---``"
+    (dash dash dash)
+    for em-dashes.
 
 "3"
-	Same as smarty_pants="2", but inverts the shorthand for dashes:
-	"``--``" (dash dash) for em-dashes, and "``---``" (dash dash dash) for
-	en-dashes.
+    Same as smarty_pants="2", but inverts the shorthand for dashes:
+    "``--``" (dash dash) for em-dashes, and "``---``" (dash dash dash) for
+    en-dashes.
 
 "-1"
-	Stupefy mode. Reverses the SmartyPants transformation process, turning
-	the HTML entities produced by SmartyPants into their ASCII equivalents.
-	E.g.  "&#8220;" is turned into a simple double-quote ("), "&#8212;" is
-	turned into two dashes, etc.
+    Stupefy mode. Reverses the SmartyPants transformation process, turning
+    the HTML entities produced by SmartyPants into their ASCII equivalents.
+    E.g.  "&#8220;" is turned into a simple double-quote ("), "&#8212;" is
+    turned into two dashes, etc.
 
 
 The following single-character attribute values can be combined to toggle
@@ -116,41 +116,41 @@ example, to educate normal quotes and em-dashes, but not ellipses or
 ``py['smartypants_attributes'] = "1"``
 
 "q"
-	Educates normal quote characters: (") and (').
+    Educates normal quote characters: (") and (').
 
 "b"
-	Educates \`\`backticks'' -style double quotes.
+    Educates \`\`backticks'' -style double quotes.
 
 "B"
-	Educates \`\`backticks'' -style double quotes and \`single' quotes.
+    Educates \`\`backticks'' -style double quotes and \`single' quotes.
 
 "d"
-	Educates em-dashes.
+    Educates em-dashes.
 
 "D"
-	Educates em-dashes and en-dashes, using old-school typewriter shorthand:
-	(dash dash) for en-dashes, (dash dash dash) for em-dashes.
+    Educates em-dashes and en-dashes, using old-school typewriter shorthand:
+    (dash dash) for en-dashes, (dash dash dash) for em-dashes.
 
 "i"
-	Educates em-dashes and en-dashes, using inverted old-school typewriter
-	shorthand: (dash dash) for em-dashes, (dash dash dash) for en-dashes.
+    Educates em-dashes and en-dashes, using inverted old-school typewriter
+    shorthand: (dash dash) for em-dashes, (dash dash dash) for en-dashes.
 
 "e"
-	Educates ellipses.
+    Educates ellipses.
 
 "w"
-	Translates any instance of ``&quot;`` into a normal double-quote character.
-	This should be of no interest to most people, but of particular interest
-	to anyone who writes their posts using Dreamweaver, as Dreamweaver
-	inexplicably uses this entity to represent a literal double-quote
-	character. SmartyPants only educates normal quotes, not entities (because
-	ordinarily, entities are used for the explicit purpose of representing the
-	specific character they represent). The "w" option must be used in
-	conjunction with one (or both) of the other quote options ("q" or "b").
-	Thus, if you wish to apply all SmartyPants transformations (quotes, en-
-	and em-dashes, and ellipses) and also translate ``&quot;`` entities into
-	regular quotes so SmartyPants can educate them, you should pass the
-	following to the smarty_pants attribute:
+    Translates any instance of ``&quot;`` into a normal double-quote character.
+    This should be of no interest to most people, but of particular interest
+    to anyone who writes their posts using Dreamweaver, as Dreamweaver
+    inexplicably uses this entity to represent a literal double-quote
+    character. SmartyPants only educates normal quotes, not entities (because
+    ordinarily, entities are used for the explicit purpose of representing the
+    specific character they represent). The "w" option must be used in
+    conjunction with one (or both) of the other quote options ("q" or "b").
+    Thus, if you wish to apply all SmartyPants transformations (quotes, en-
+    and em-dashes, and ellipses) and also translate ``&quot;`` entities into
+    regular quotes so SmartyPants can educate them, you should pass the
+    following to the smarty_pants attribute:
 
 The ``smartypants_forbidden_flavours`` list contains pyblosxom flavours for
 which no Smarty Pants rendering will occur.
@@ -229,35 +229,35 @@ Version History
 ===============
 
 1.5_1.6: Fri, 27 Jul 2007 07:06:40 -0400
-	- Fixed bug where blocks of precious unalterable text was instead
-	  interpreted.  Thanks to Le Roux and Dirk van Oosterbosch.
+    - Fixed bug where blocks of precious unalterable text was instead
+      interpreted.  Thanks to Le Roux and Dirk van Oosterbosch.
 
 1.5_1.5: Sat, 13 Aug 2005 15:50:24 -0400
-	- Fix bogus magical quotation when there is no hint that the
-	  user wants it, e.g., in "21st century".  Thanks to Nathan Hamblen.
-	- Be smarter about quotes before terminating numbers in an en-dash'ed
-	  range.
+    - Fix bogus magical quotation when there is no hint that the
+      user wants it, e.g., in "21st century".  Thanks to Nathan Hamblen.
+    - Be smarter about quotes before terminating numbers in an en-dash'ed
+      range.
 
 1.5_1.4: Thu, 10 Feb 2005 20:24:36 -0500
-	- Fix a date-processing bug, as reported by jacob childress.
-	- Begin a test-suite for ensuring correct output.
-	- Removed import of "string", since I didn't really need it.
-	  (This was my first every Python program.  Sue me!)
+    - Fix a date-processing bug, as reported by jacob childress.
+    - Begin a test-suite for ensuring correct output.
+    - Removed import of "string", since I didn't really need it.
+      (This was my first every Python program.  Sue me!)
 
 1.5_1.3: Wed, 15 Sep 2004 18:25:58 -0400
-	- Abort processing if the flavour is in forbidden-list.  Default of
-	  [ "rss" ]   (Idea of Wolfgang SCHNERRING.)
-	- Remove stray virgules from en-dashes.  Patch by Wolfgang SCHNERRING.
+    - Abort processing if the flavour is in forbidden-list.  Default of
+      [ "rss" ]   (Idea of Wolfgang SCHNERRING.)
+    - Remove stray virgules from en-dashes.  Patch by Wolfgang SCHNERRING.
 
 1.5_1.2: Mon, 24 May 2004 08:14:54 -0400
-	- Some single quotes weren't replaced properly.  Diff-tesuji played
-	  by Benjamin GEIGER.
+    - Some single quotes weren't replaced properly.  Diff-tesuji played
+      by Benjamin GEIGER.
 
 1.5_1.1: Sun, 14 Mar 2004 14:38:28 -0500
-	- Support upcoming pyblosxom 0.9 plugin verification feature.
+    - Support upcoming pyblosxom 0.9 plugin verification feature.
 
 1.5_1.0: Tue, 09 Mar 2004 08:08:35 -0500
-	- Initial release
+    - Initial release
 
 Version Information
 -------------------
@@ -300,66 +300,66 @@ Copyright and License
 
 SmartyPants_ license::
 
-	Copyright (c) 2003 John Gruber
-	(http://daringfireball.net/)
-	All rights reserved.
+    Copyright (c) 2003 John Gruber
+    (http://daringfireball.net/)
+    All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without
-	modification, are permitted provided that the following conditions are
-	met:
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
 
-	*   Redistributions of source code must retain the above copyright
-		notice, this list of conditions and the following disclaimer.
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
 
-	*   Redistributions in binary form must reproduce the above copyright
-		notice, this list of conditions and the following disclaimer in
-		the documentation and/or other materials provided with the
-		distribution.
+    *   Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in
+        the documentation and/or other materials provided with the
+        distribution.
 
-	*   Neither the name "SmartyPants" nor the names of its contributors
-		may be used to endorse or promote products derived from this
-		software without specific prior written permission.
+    *   Neither the name "SmartyPants" nor the names of its contributors
+        may be used to endorse or promote products derived from this
+        software without specific prior written permission.
 
-	This software is provided by the copyright holders and contributors "as
-	is" and any express or implied warranties, including, but not limited
-	to, the implied warranties of merchantability and fitness for a
-	particular purpose are disclaimed. In no event shall the copyright
-	owner or contributors be liable for any direct, indirect, incidental,
-	special, exemplary, or consequential damages (including, but not
-	limited to, procurement of substitute goods or services; loss of use,
-	data, or profits; or business interruption) however caused and on any
-	theory of liability, whether in contract, strict liability, or tort
-	(including negligence or otherwise) arising in any way out of the use
-	of this software, even if advised of the possibility of such damage.
+    This software is provided by the copyright holders and contributors "as
+    is" and any express or implied warranties, including, but not limited
+    to, the implied warranties of merchantability and fitness for a
+    particular purpose are disclaimed. In no event shall the copyright
+    owner or contributors be liable for any direct, indirect, incidental,
+    special, exemplary, or consequential damages (including, but not
+    limited to, procurement of substitute goods or services; loss of use,
+    data, or profits; or business interruption) however caused and on any
+    theory of liability, whether in contract, strict liability, or tort
+    (including negligence or otherwise) arising in any way out of the use
+    of this software, even if advised of the possibility of such damage.
 
 
 smartypants.py license::
 
-	smartypants.py is a derivative work of SmartyPants.
+    smartypants.py is a derivative work of SmartyPants.
 
-	Redistribution and use in source and binary forms, with or without
-	modification, are permitted provided that the following conditions are
-	met:
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
 
-	*   Redistributions of source code must retain the above copyright
-		notice, this list of conditions and the following disclaimer.
+    *   Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
 
-	*   Redistributions in binary form must reproduce the above copyright
-		notice, this list of conditions and the following disclaimer in
-		the documentation and/or other materials provided with the
-		distribution.
+    *   Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in
+        the documentation and/or other materials provided with the
+        distribution.
 
-	This software is provided by the copyright holders and contributors "as
-	is" and any express or implied warranties, including, but not limited
-	to, the implied warranties of merchantability and fitness for a
-	particular purpose are disclaimed. In no event shall the copyright
-	owner or contributors be liable for any direct, indirect, incidental,
-	special, exemplary, or consequential damages (including, but not
-	limited to, procurement of substitute goods or services; loss of use,
-	data, or profits; or business interruption) however caused and on any
-	theory of liability, whether in contract, strict liability, or tort
-	(including negligence or otherwise) arising in any way out of the use
-	of this software, even if advised of the possibility of such damage.
+    This software is provided by the copyright holders and contributors "as
+    is" and any express or implied warranties, including, but not limited
+    to, the implied warranties of merchantability and fitness for a
+    particular purpose are disclaimed. In no event shall the copyright
+    owner or contributors be liable for any direct, indirect, incidental,
+    special, exemplary, or consequential damages (including, but not
+    limited to, procurement of substitute goods or services; loss of use,
+    data, or profits; or business interruption) however caused and on any
+    theory of liability, whether in contract, strict liability, or tort
+    (including negligence or otherwise) arising in any way out of the use
+    of this software, even if advised of the possibility of such damage.
 
 
 
@@ -378,544 +378,551 @@ import re
 
 # style added by Kovid
 tags_to_skip_regex = re.compile(r"<(/)?(style|pre|code|kbd|script|math)[^>]*>", re.I)
+self_closing_regex = re.compile(r'/\s*>$')
 
 
 def verify_installation(request):
-	return 1
-	# assert the plugin is functional
+    return 1
+    # assert the plugin is functional
 
 
 def cb_story(args):
-	global default_smartypants_attr
+    global default_smartypants_attr
 
-	try:
-		forbidden_flavours = args["entry"]["smartypants_forbidden_flavours"]
-	except KeyError:
-		forbidden_flavours = [ "rss" ]
+    try:
+        forbidden_flavours = args["entry"]["smartypants_forbidden_flavours"]
+    except KeyError:
+        forbidden_flavours = [ "rss" ]
 
-	try:
-		attributes = args["entry"]["smartypants_attributes"]
-	except KeyError:
-		attributes = default_smartypants_attr
+    try:
+        attributes = args["entry"]["smartypants_attributes"]
+    except KeyError:
+        attributes = default_smartypants_attr
 
-	if attributes is None:
-		attributes = default_smartypants_attr
+    if attributes is None:
+        attributes = default_smartypants_attr
 
-	entryData = args["entry"].getData()
+    entryData = args["entry"].getData()
 
-	try:
-		if args["request"]["flavour"] in forbidden_flavours:
-			return
-	except KeyError:
-		if "&lt;" in args["entry"]["body"][0:15]:  # sniff the stream
-			return  # abort if it looks like escaped HTML.  FIXME
+    try:
+        if args["request"]["flavour"] in forbidden_flavours:
+            return
+    except KeyError:
+        if "&lt;" in args["entry"]["body"][0:15]:  # sniff the stream
+            return  # abort if it looks like escaped HTML.  FIXME
 
-	# FIXME: make these configurable, perhaps?
-	args["entry"]["body"] = smartyPants(entryData, attributes)
-	args["entry"]["title"] = smartyPants(args["entry"]["title"], attributes)
+    # FIXME: make these configurable, perhaps?
+    args["entry"]["body"] = smartyPants(entryData, attributes)
+    args["entry"]["title"] = smartyPants(args["entry"]["title"], attributes)
 
 
 ### interal functions below here
 
 def smartyPants(text, attr=default_smartypants_attr):
-	convert_quot = False  # should we translate &quot; entities into normal quotes?
+    convert_quot = False  # should we translate &quot; entities into normal quotes?
 
-	# Parse attributes:
-	# 0 : do nothing
-	# 1 : set all
-	# 2 : set all, using old school en- and em- dash shortcuts
-	# 3 : set all, using inverted old school en and em- dash shortcuts
-	#
-	# q : quotes
-	# b : backtick quotes (``double'' only)
-	# B : backtick quotes (``double'' and `single')
-	# d : dashes
-	# D : old school dashes
-	# i : inverted old school dashes
-	# e : ellipses
-	# w : convert &quot; entities to " for Dreamweaver users
+    # Parse attributes:
+    # 0 : do nothing
+    # 1 : set all
+    # 2 : set all, using old school en- and em- dash shortcuts
+    # 3 : set all, using inverted old school en and em- dash shortcuts
+    #
+    # q : quotes
+    # b : backtick quotes (``double'' only)
+    # B : backtick quotes (``double'' and `single')
+    # d : dashes
+    # D : old school dashes
+    # i : inverted old school dashes
+    # e : ellipses
+    # w : convert &quot; entities to " for Dreamweaver users
 
-	skipped_tag_stack = []
-	do_dashes = "0"
-	do_backticks = "0"
-	do_quotes = "0"
-	do_ellipses = "0"
-	do_stupefy = "0"
+    skipped_tag_stack = []
+    do_dashes = "0"
+    do_backticks = "0"
+    do_quotes = "0"
+    do_ellipses = "0"
+    do_stupefy = "0"
 
-	if attr == "0":
-		# Do nothing.
-		return text
-	elif attr == "1":
-		do_quotes    = "1"
-		do_backticks = "1"
-		do_dashes    = "1"
-		do_ellipses  = "1"
-	elif attr == "2":
-		# Do everything, turn all options on, use old school dash shorthand.
-		do_quotes    = "1"
-		do_backticks = "1"
-		do_dashes    = "2"
-		do_ellipses  = "1"
-	elif attr == "3":
-		# Do everything, turn all options on, use inverted old school dash shorthand.
-		do_quotes    = "1"
-		do_backticks = "1"
-		do_dashes    = "3"
-		do_ellipses  = "1"
-	elif attr == "-1":
-		# Special "stupefy" mode.
-		do_stupefy   = "1"
-	else:
-		for c in attr:
-			if c == "q": do_quotes = "1"
-			elif c == "b": do_backticks = "1"
-			elif c == "B": do_backticks = "2"
-			elif c == "d": do_dashes = "1"
-			elif c == "D": do_dashes = "2"
-			elif c == "i": do_dashes = "3"
-			elif c == "e": do_ellipses = "1"
-			elif c == "w": convert_quot = "1"
-			else:
-				pass
-				# ignore unknown option
+    if attr == "0":
+        # Do nothing.
+        return text
+    elif attr == "1":
+        do_quotes    = "1"
+        do_backticks = "1"
+        do_dashes    = "1"
+        do_ellipses  = "1"
+    elif attr == "2":
+        # Do everything, turn all options on, use old school dash shorthand.
+        do_quotes    = "1"
+        do_backticks = "1"
+        do_dashes    = "2"
+        do_ellipses  = "1"
+    elif attr == "3":
+        # Do everything, turn all options on, use inverted old school dash shorthand.
+        do_quotes    = "1"
+        do_backticks = "1"
+        do_dashes    = "3"
+        do_ellipses  = "1"
+    elif attr == "-1":
+        # Special "stupefy" mode.
+        do_stupefy   = "1"
+    else:
+        for c in attr:
+            if c == "q": do_quotes = "1"
+            elif c == "b": do_backticks = "1"
+            elif c == "B": do_backticks = "2"
+            elif c == "d": do_dashes = "1"
+            elif c == "D": do_dashes = "2"
+            elif c == "i": do_dashes = "3"
+            elif c == "e": do_ellipses = "1"
+            elif c == "w": convert_quot = "1"
+            else:
+                pass
+                # ignore unknown option
 
-	tokens = _tokenize(text)
-	result = []
-	in_pre = False
+    tokens = _tokenize(text)
+    result = []
+    in_pre = False
 
-	prev_token_last_char = ""
-	# This is a cheat, used to get some context
-	# for one-character tokens that consist of
-	# just a quote char. What we do is remember
-	# the last character of the previous text
-	# token, to use as context to curl single-
-	# character quote tokens correctly.
+    prev_token_last_char = ""
+    # This is a cheat, used to get some context
+    # for one-character tokens that consist of
+    # just a quote char. What we do is remember
+    # the last character of the previous text
+    # token, to use as context to curl single-
+    # character quote tokens correctly.
 
-	for cur_token in tokens:
-		if cur_token[0] == "tag":
-			# Don't mess with quotes inside some tags.  This does not handle self <closing/> tags!
-			result.append(cur_token[1])
-			skip_match = tags_to_skip_regex.match(cur_token[1])
-			if skip_match is not None:
-				if not skip_match.group(1):
-					skipped_tag_stack.append(skip_match.group(2).lower())
-					in_pre = True
-				else:
-					if len(skipped_tag_stack) > 0:
-						if skip_match.group(2).lower() == skipped_tag_stack[-1]:
-							skipped_tag_stack.pop()
-						else:
-							pass
-							# This close doesn't match the open.  This isn't XHTML.  We should barf here.
-					if len(skipped_tag_stack) == 0:
-						in_pre = False
-		else:
-			t = cur_token[1]
-			last_char = t[-1:] # Remember last char of this token before processing.
-			if not in_pre:
-				t = processEscapes(t)
+    for cur_token in tokens:
+        if cur_token[0] == "tag":
+            # Don't mess with quotes inside some tags.  This does not handle self <closing/> tags!
+            result.append(cur_token[1])
+            skip_match = tags_to_skip_regex.match(cur_token[1])
+            if skip_match is not None:
+                is_self_closing = self_closing_regex.search(skip_match.group()) is not None
+                if not is_self_closing:
+                    if not skip_match.group(1):
+                        skipped_tag_stack.append(skip_match.group(2).lower())
+                        in_pre = True
+                    else:
+                        if len(skipped_tag_stack) > 0:
+                            if skip_match.group(2).lower() == skipped_tag_stack[-1]:
+                                skipped_tag_stack.pop()
+                            else:
+                                pass
+                                # This close doesn't match the open.  This isn't XHTML.  We should barf here.
+                        if len(skipped_tag_stack) == 0:
+                            in_pre = False
+        else:
+            t = cur_token[1]
+            last_char = t[-1:] # Remember last char of this token before processing.
+            if not in_pre:
+                t = processEscapes(t)
 
-				if convert_quot != "0":
-					t = re.sub('&quot;', '"', t)
+                if convert_quot != "0":
+                    t = re.sub('&quot;', '"', t)
 
-				if do_dashes != "0":
-					if do_dashes == "1":
-						t = educateDashes(t)
-					if do_dashes == "2":
-						t = educateDashesOldSchool(t)
-					if do_dashes == "3":
-						t = educateDashesOldSchoolInverted(t)
+                if do_dashes != "0":
+                    if do_dashes == "1":
+                        t = educateDashes(t)
+                    if do_dashes == "2":
+                        t = educateDashesOldSchool(t)
+                    if do_dashes == "3":
+                        t = educateDashesOldSchoolInverted(t)
 
-				if do_ellipses != "0":
-					t = educateEllipses(t)
+                if do_ellipses != "0":
+                    t = educateEllipses(t)
 
-				# Note: backticks need to be processed before quotes.
-				if do_backticks != "0":
-					t = educateBackticks(t)
+                # Note: backticks need to be processed before quotes.
+                if do_backticks != "0":
+                    t = educateBackticks(t)
 
-				if do_backticks == "2":
-					t = educateSingleBackticks(t)
+                if do_backticks == "2":
+                    t = educateSingleBackticks(t)
 
-				if do_quotes != "0":
-					if t == "'":
-						# Special case: single-character ' token
-						if re.match("\S", prev_token_last_char):
-							t = "&#8217;"
-						else:
-							t = "&#8216;"
-					elif t == '"':
-						# Special case: single-character " token
-						if re.match("\S", prev_token_last_char):
-							t = "&#8221;"
-						else:
-							t = "&#8220;"
+                if do_quotes != "0":
+                    if t == "'":
+                        # Special case: single-character ' token
+                        if re.match("\S", prev_token_last_char):
+                            t = "&#8217;"
+                        else:
+                            t = "&#8216;"
+                    elif t == '"':
+                        # Special case: single-character " token
+                        if re.match("\S", prev_token_last_char):
+                            t = "&#8221;"
+                        else:
+                            t = "&#8220;"
 
-					else:
-						# Normal case:
-						t = educateQuotes(t)
+                    else:
+                        # Normal case:
+                        t = educateQuotes(t)
 
-				if do_stupefy == "1":
-					t = stupefyEntities(t)
+                if do_stupefy == "1":
+                    t = stupefyEntities(t)
 
-			prev_token_last_char = last_char
-			result.append(t)
+            prev_token_last_char = last_char
+            result.append(t)
 
-	return "".join(result)
+    return "".join(result)
 
 
 def educateQuotes(str):
-	"""
-	Parameter:  String.
+    """
+    Parameter:  String.
 
-	Returns:	The string, with "educated" curly quote HTML entities.
+    Returns:    The string, with "educated" curly quote HTML entities.
 
-	Example input:  "Isn't this fun?"
-	Example output: &#8220;Isn&#8217;t this fun?&#8221;
-	"""
+    Example input:  "Isn't this fun?"
+    Example output: &#8220;Isn&#8217;t this fun?&#8221;
+    """
 
-	punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
+    punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
 
-	# Special case if the very first character is a quote
-	# followed by punctuation at a non-word-break. Close the quotes by brute force:
-	str = re.sub(r"""^'(?=%s\\B)""" % (punct_class,), r"""&#8217;""", str)
-	str = re.sub(r"""^"(?=%s\\B)""" % (punct_class,), r"""&#8221;""", str)
+    # Special case if the very first character is a quote
+    # followed by punctuation at a non-word-break. Close the quotes by brute force:
+    str = re.sub(r"""^'(?=%s\\B)""" % (punct_class,), r"""&#8217;""", str)
+    str = re.sub(r"""^"(?=%s\\B)""" % (punct_class,), r"""&#8221;""", str)
 
-	# Special case for double sets of quotes, e.g.:
-	#   <p>He said, "'Quoted' words in a larger quote."</p>
-	str = re.sub(r""""'(?=\w)""", """&#8220;&#8216;""", str)
-	str = re.sub(r"""'"(?=\w)""", """&#8216;&#8220;""", str)
-	str = re.sub(r'''""(?=\w)''', """&#8220;&#8220;""", str)
-	str = re.sub(r"""''(?=\w)""", """&#8216;&#8216;""", str)
-	str = re.sub(r'''\"\'''',     """&#8221;&#8217;""", str)
-	str = re.sub(r'''\'\"''',     """&#8217;&#8221;""", str)
-	str = re.sub(r'''""''',       """&#8221;&#8221;""", str)
-	str = re.sub(r"""''""",       """&#8217;&#8217;""", str)
+    # Special case for double sets of quotes, e.g.:
+    #   <p>He said, "'Quoted' words in a larger quote."</p>
+    str = re.sub(r""""'(?=\w)""", """&#8220;&#8216;""", str)
+    str = re.sub(r"""'"(?=\w)""", """&#8216;&#8220;""", str)
+    str = re.sub(r'''""(?=\w)''', """&#8220;&#8220;""", str)
+    str = re.sub(r"""''(?=\w)""", """&#8216;&#8216;""", str)
+    str = re.sub(r'''\"\'''',     """&#8221;&#8217;""", str)
+    str = re.sub(r'''\'\"''',     """&#8217;&#8221;""", str)
+    str = re.sub(r'''""''',       """&#8221;&#8221;""", str)
+    str = re.sub(r"""''""",       """&#8217;&#8217;""", str)
 
-	# Special case for Quotes at inside of other entities, e.g.:
-	#   <p>A double quote--"within dashes"--would be nice.</p>
-	str = re.sub(r"""(?<=\W)"(?=\w)""", r"""&#8220;""", str)
-	str = re.sub(r"""(?<=\W)'(?=\w)""", r"""&#8216;""", str)
-	str = re.sub(r"""(?<=\w)"(?=\W)""", r"""&#8221;""", str)
-	str = re.sub(r"""(?<=\w)'(?=\W)""", r"""&#8217;""", str)
+    # Special case for Quotes at inside of other entities, e.g.:
+    #   <p>A double quote--"within dashes"--would be nice.</p>
+    str = re.sub(r"""(?<=\W)"(?=\w)""", r"""&#8220;""", str)
+    str = re.sub(r"""(?<=\W)'(?=\w)""", r"""&#8216;""", str)
+    str = re.sub(r"""(?<=\w)"(?=\W)""", r"""&#8221;""", str)
+    str = re.sub(r"""(?<=\w)'(?=\W)""", r"""&#8217;""", str)
 
     # The following are commented out as smartypants tokenizes text by
     # stripping out html tags. Therefore, there is no guarantee that the
     # start-of-line and end-ol-line regex operators will match anything
     # meaningful
 
-	# Special case for Quotes at end of line with a preceeding space (may change just to end of line)
-	#str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
-	#str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
+    # Special case for Quotes at end of line with a preceeding space (may change just to end of line)
+    #str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
+    #str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
 
-	# Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
-	#str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
-	#str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
+    # Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
+    #str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
+    #str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
 
-	# Special case for decade abbreviations (the '80s):
-	str = re.sub(r"""\b'(?=\d{2}s)""", r"""&#8217;""", str)
+    # Special case for decade abbreviations (the '80s):
+    str = re.sub(r"""\b'(?=\d{2}s)""", r"""&#8217;""", str)
 
-	close_class = r"""[^\ \t\r\n\[\{\(\-]"""
-	dec_dashes = r"""&#8211;|&#8212;"""
+    close_class = r"""[^\ \t\r\n\[\{\(\-]"""
+    dec_dashes = r"""&#8211;|&#8212;"""
 
-	# Get most opening single quotes:
-	opening_single_quotes_regex = re.compile(r"""
-			(
-				\s          |   # a whitespace char, or
-				&nbsp;      |   # a non-breaking space entity, or
-				--          |   # dashes, or
-				&[mn]dash;  |   # named dash entities
-				%s          |   # or decimal entities
-				&\#x201[34];    # or hex
-			)
-			'                 # the quote
-			(?=\w)            # followed by a word character
-			""" % (dec_dashes,), re.VERBOSE)
-	str = opening_single_quotes_regex.sub(r"""\1&#8216;""", str)
+    # Get most opening single quotes:
+    opening_single_quotes_regex = re.compile(r"""
+            (
+                \s          |   # a whitespace char, or
+                &nbsp;      |   # a non-breaking space entity, or
+                --          |   # dashes, or
+                &[mn]dash;  |   # named dash entities
+                %s          |   # or decimal entities
+                &\#x201[34];    # or hex
+            )
+            '                 # the quote
+            (?=\w)            # followed by a word character
+            """ % (dec_dashes,), re.VERBOSE)
+    str = opening_single_quotes_regex.sub(r"""\1&#8216;""", str)
 
-	closing_single_quotes_regex = re.compile(r"""
-			(%s)
-			'
-			(?!\s | s\b | \d)
-			""" % (close_class,), re.VERBOSE)
-	str = closing_single_quotes_regex.sub(r"""\1&#8217;""", str)
+    closing_single_quotes_regex = re.compile(r"""
+            (%s)
+            '
+            (?!\s | s\b | \d)
+            """ % (close_class,), re.VERBOSE)
+    str = closing_single_quotes_regex.sub(r"""\1&#8217;""", str)
 
-	closing_single_quotes_regex = re.compile(r"""
-			(%s)
-			'
-			(\s | s\b)
-			""" % (close_class,), re.VERBOSE)
-	str = closing_single_quotes_regex.sub(r"""\1&#8217;\2""", str)
+    closing_single_quotes_regex = re.compile(r"""
+            (%s)
+            '
+            (\s | s\b)
+            """ % (close_class,), re.VERBOSE)
+    str = closing_single_quotes_regex.sub(r"""\1&#8217;\2""", str)
 
-	# Any remaining single quotes should be opening ones:
-	str = re.sub(r"""'""", r"""&#8216;""", str)
+    # Any remaining single quotes should be opening ones:
+    str = re.sub(r"""'""", r"""&#8216;""", str)
 
-	# Get most opening double quotes:
-	opening_double_quotes_regex = re.compile(r"""
-			(
-				\s          |   # a whitespace char, or
-				&nbsp;      |   # a non-breaking space entity, or
-				--          |   # dashes, or
-				&[mn]dash;  |   # named dash entities
-				%s          |   # or decimal entities
-				&\#x201[34];    # or hex
-			)
-			"                 # the quote
-			(?=\w)            # followed by a word character
-			""" % (dec_dashes,), re.VERBOSE)
-	str = opening_double_quotes_regex.sub(r"""\1&#8220;""", str)
+    # Get most opening double quotes:
+    opening_double_quotes_regex = re.compile(r"""
+            (
+                \s          |   # a whitespace char, or
+                &nbsp;      |   # a non-breaking space entity, or
+                --          |   # dashes, or
+                &[mn]dash;  |   # named dash entities
+                %s          |   # or decimal entities
+                &\#x201[34];    # or hex
+            )
+            "                 # the quote
+            (?=\w)            # followed by a word character
+            """ % (dec_dashes,), re.VERBOSE)
+    str = opening_double_quotes_regex.sub(r"""\1&#8220;""", str)
 
-	# Double closing quotes:
-	closing_double_quotes_regex = re.compile(r"""
-			#(%s)?   # character that indicates the quote should be closing
-			"
-			(?=\s)
-			""" % (close_class,), re.VERBOSE)
-	str = closing_double_quotes_regex.sub(r"""&#8221;""", str)
+    # Double closing quotes:
+    closing_double_quotes_regex = re.compile(r"""
+            #(%s)?   # character that indicates the quote should be closing
+            "
+            (?=\s)
+            """ % (close_class,), re.VERBOSE)
+    str = closing_double_quotes_regex.sub(r"""&#8221;""", str)
 
-	closing_double_quotes_regex = re.compile(r"""
-			(%s)   # character that indicates the quote should be closing
-			"
-			""" % (close_class,), re.VERBOSE)
-	str = closing_double_quotes_regex.sub(r"""\1&#8221;""", str)
+    closing_double_quotes_regex = re.compile(r"""
+            (%s)   # character that indicates the quote should be closing
+            "
+            """ % (close_class,), re.VERBOSE)
+    str = closing_double_quotes_regex.sub(r"""\1&#8221;""", str)
 
-	# Any remaining quotes should be opening ones.
-	str = re.sub(r'"', r"""&#8220;""", str)
+    # Any remaining quotes should be opening ones.
+    str = re.sub(r'"', r"""&#8220;""", str)
 
-	return str
+    return str
 
 
 def educateBackticks(str):
-	"""
-	Parameter:  String.
-	Returns:    The string, with ``backticks'' -style double quotes
-	            translated into HTML curly quote entities.
-	Example input:  ``Isn't this fun?''
-	Example output: &#8220;Isn't this fun?&#8221;
-	"""
+    """
+    Parameter:  String.
+    Returns:    The string, with ``backticks'' -style double quotes
+                translated into HTML curly quote entities.
+    Example input:  ``Isn't this fun?''
+    Example output: &#8220;Isn't this fun?&#8221;
+    """
 
-	str = re.sub(r"""``""", r"""&#8220;""", str)
-	str = re.sub(r"""''""", r"""&#8221;""", str)
-	return str
+    str = re.sub(r"""``""", r"""&#8220;""", str)
+    str = re.sub(r"""''""", r"""&#8221;""", str)
+    return str
 
 
 def educateSingleBackticks(str):
-	"""
-	Parameter:  String.
-	Returns:    The string, with `backticks' -style single quotes
-	            translated into HTML curly quote entities.
+    """
+    Parameter:  String.
+    Returns:    The string, with `backticks' -style single quotes
+                translated into HTML curly quote entities.
 
-	Example input:  `Isn't this fun?'
-	Example output: &#8216;Isn&#8217;t this fun?&#8217;
-	"""
+    Example input:  `Isn't this fun?'
+    Example output: &#8216;Isn&#8217;t this fun?&#8217;
+    """
 
-	str = re.sub(r"""`""", r"""&#8216;""", str)
-	str = re.sub(r"""'""", r"""&#8217;""", str)
-	return str
+    str = re.sub(r"""`""", r"""&#8216;""", str)
+    str = re.sub(r"""'""", r"""&#8217;""", str)
+    return str
 
 
 def educateDashes(str):
-	"""
-	Parameter:  String.
+    """
+    Parameter:  String.
 
-	Returns:    The string, with each instance of "--" translated to
-	            an em-dash HTML entity.
-	"""
+    Returns:    The string, with each instance of "--" translated to
+                an em-dash HTML entity.
+    """
 
-	str = re.sub(r"""---""", r"""&#8211;""", str) # en  (yes, backwards)
-	str = re.sub(r"""--""", r"""&#8212;""", str) # em (yes, backwards)
-	return str
+    str = re.sub(r"""---""", r"""&#8211;""", str) # en  (yes, backwards)
+    str = re.sub(r"""--""", r"""&#8212;""", str) # em (yes, backwards)
+    return str
 
 
 def educateDashesOldSchool(str):
-	"""
-	Parameter:  String.
+    """
+    Parameter:  String.
 
-	Returns:    The string, with each instance of "--" translated to
-	            an en-dash HTML entity, and each "---" translated to
-	            an em-dash HTML entity.
-	"""
+    Returns:    The string, with each instance of "--" translated to
+                an en-dash HTML entity, and each "---" translated to
+                an em-dash HTML entity.
+    """
 
-	str = re.sub(r"""---""", r"""&#8212;""", str)    # em (yes, backwards)
-	str = re.sub(r"""--""", r"""&#8211;""", str)    # en (yes, backwards)
-	return str
+    str = re.sub(r"""---""", r"""&#8212;""", str)    # em (yes, backwards)
+    str = re.sub(r"""--""", r"""&#8211;""", str)    # en (yes, backwards)
+    return str
 
 
 def educateDashesOldSchoolInverted(str):
-	"""
-	Parameter:  String.
+    """
+    Parameter:  String.
 
-	Returns:    The string, with each instance of "--" translated to
-	            an em-dash HTML entity, and each "---" translated to
-	            an en-dash HTML entity. Two reasons why: First, unlike the
-	            en- and em-dash syntax supported by
-	            EducateDashesOldSchool(), it's compatible with existing
-	            entries written before SmartyPants 1.1, back when "--" was
-	            only used for em-dashes.  Second, em-dashes are more
-	            common than en-dashes, and so it sort of makes sense that
-	            the shortcut should be shorter to type. (Thanks to Aaron
-	            Swartz for the idea.)
-	"""
-	str = re.sub(r"""---""", r"""&#8211;""", str)    # em
-	str = re.sub(r"""--""", r"""&#8212;""", str)    # en
-	return str
+    Returns:    The string, with each instance of "--" translated to
+                an em-dash HTML entity, and each "---" translated to
+                an en-dash HTML entity. Two reasons why: First, unlike the
+                en- and em-dash syntax supported by
+                EducateDashesOldSchool(), it's compatible with existing
+                entries written before SmartyPants 1.1, back when "--" was
+                only used for em-dashes.  Second, em-dashes are more
+                common than en-dashes, and so it sort of makes sense that
+                the shortcut should be shorter to type. (Thanks to Aaron
+                Swartz for the idea.)
+    """
+    str = re.sub(r"""---""", r"""&#8211;""", str)    # em
+    str = re.sub(r"""--""", r"""&#8212;""", str)    # en
+    return str
 
 
 
 def educateEllipses(str):
-	"""
-	Parameter:  String.
-	Returns:    The string, with each instance of "..." translated to
-	            an ellipsis HTML entity.
+    """
+    Parameter:  String.
+    Returns:    The string, with each instance of "..." translated to
+                an ellipsis HTML entity.
 
-	Example input:  Huh...?
-	Example output: Huh&#8230;?
-	"""
+    Example input:  Huh...?
+    Example output: Huh&#8230;?
+    """
 
-	str = re.sub(r"""\.\.\.""", r"""&#8230;""", str)
-	str = re.sub(r"""\. \. \.""", r"""&#8230;""", str)
-	return str
+    str = re.sub(r"""\.\.\.""", r"""&#8230;""", str)
+    str = re.sub(r"""\. \. \.""", r"""&#8230;""", str)
+    return str
 
 
 def stupefyEntities(str):
-	"""
-	Parameter:  String.
-	Returns:    The string, with each SmartyPants HTML entity translated to
-	            its ASCII counterpart.
+    """
+    Parameter:  String.
+    Returns:    The string, with each SmartyPants HTML entity translated to
+                its ASCII counterpart.
 
-	Example input:  &#8220;Hello &#8212; world.&#8221;
-	Example output: "Hello -- world."
-	"""
+    Example input:  &#8220;Hello &#8212; world.&#8221;
+    Example output: "Hello -- world."
+    """
 
-	str = re.sub(r"""&#8211;""", r"""-""", str)  # en-dash
-	str = re.sub(r"""&#8212;""", r"""--""", str) # em-dash
+    str = re.sub(r"""&#8211;""", r"""-""", str)  # en-dash
+    str = re.sub(r"""&#8212;""", r"""--""", str) # em-dash
 
-	str = re.sub(r"""&#8216;""", r"""'""", str)  # open single quote
-	str = re.sub(r"""&#8217;""", r"""'""", str)  # close single quote
+    str = re.sub(r"""&#8216;""", r"""'""", str)  # open single quote
+    str = re.sub(r"""&#8217;""", r"""'""", str)  # close single quote
 
-	str = re.sub(r"""&#8220;""", r'''"''', str)  # open double quote
-	str = re.sub(r"""&#8221;""", r'''"''', str)  # close double quote
+    str = re.sub(r"""&#8220;""", r'''"''', str)  # open double quote
+    str = re.sub(r"""&#8221;""", r'''"''', str)  # close double quote
 
-	str = re.sub(r"""&#8230;""", r"""...""", str)# ellipsis
+    str = re.sub(r"""&#8230;""", r"""...""", str)# ellipsis
 
-	return str
+    return str
 
 
 def processEscapes(str):
-	r"""
-	Parameter:  String.
-	Returns:    The string, with after processing the following backslash
-	            escape sequences. This is useful if you want to force a "dumb"
-	            quote or other character to appear.
+    r"""
+    Parameter:  String.
+    Returns:    The string, with after processing the following backslash
+                escape sequences. This is useful if you want to force a "dumb"
+                quote or other character to appear.
 
-	            Escape  Value
-	            ------  -----
-	            \\      &#92;
-	            \"      &#34;
-	            \'      &#39;
-	            \.      &#46;
-	            \-      &#45;
-	            \`      &#96;
-	"""
-	str = re.sub(r"""\\\\""", r"""&#92;""", str)
-	str = re.sub(r'''\\"''', r"""&#34;""", str)
-	str = re.sub(r"""\\'""", r"""&#39;""", str)
-	str = re.sub(r"""\\\.""", r"""&#46;""", str)
-	str = re.sub(r"""\\-""", r"""&#45;""", str)
-	str = re.sub(r"""\\`""", r"""&#96;""", str)
+                Escape  Value
+                ------  -----
+                \\      &#92;
+                \"      &#34;
+                \'      &#39;
+                \.      &#46;
+                \-      &#45;
+                \`      &#96;
+    """
+    str = re.sub(r"""\\\\""", r"""&#92;""", str)
+    str = re.sub(r'''\\"''', r"""&#34;""", str)
+    str = re.sub(r"""\\'""", r"""&#39;""", str)
+    str = re.sub(r"""\\\.""", r"""&#46;""", str)
+    str = re.sub(r"""\\-""", r"""&#45;""", str)
+    str = re.sub(r"""\\`""", r"""&#96;""", str)
 
-	return str
+    return str
 
 
 def _tokenize(str):
-	"""
-	Parameter:  String containing HTML markup.
-	Returns:    Reference to an array of the tokens comprising the input
-	            string. Each token is either a tag (possibly with nested,
-	            tags contained therein, such as <a href="<MTFoo>">, or a
-	            run of text between tags. Each element of the array is a
-	            two-element array; the first is either 'tag' or 'text';
-	            the second is the actual value.
+    """
+    Parameter:  String containing HTML markup.
+    Returns:    Reference to an array of the tokens comprising the input
+                string. Each token is either a tag (possibly with nested,
+                tags contained therein, such as <a href="<MTFoo>">, or a
+                run of text between tags. Each element of the array is a
+                two-element array; the first is either 'tag' or 'text';
+                the second is the actual value.
 
-	Based on the _tokenize() subroutine from Brad Choate's MTRegex plugin.
-	    <http://www.bradchoate.com/past/mtregex.php>
-	"""
+    Based on the _tokenize() subroutine from Brad Choate's MTRegex plugin.
+        <http://www.bradchoate.com/past/mtregex.php>
+    """
 
-	tokens = []
+    tokens = []
 
-	#depth = 6
-	#nested_tags = "|".join(['(?:<(?:[^<>]',] * depth) + (')*>)' * depth)
-	#match = r"""(?: <! ( -- .*? -- \s* )+ > ) |  # comments
-	#		(?: <\? .*? \?> ) |  # directives
-	#		%s  # nested tags       """ % (nested_tags,)
-	tag_soup = re.compile(r"""([^<]*)(<[^>]*>)""")
+    #depth = 6
+    #nested_tags = "|".join(['(?:<(?:[^<>]',] * depth) + (')*>)' * depth)
+    #match = r"""(?: <! ( -- .*? -- \s* )+ > ) |  # comments
+    #       (?: <\? .*? \?> ) |  # directives
+    #       %s  # nested tags       """ % (nested_tags,)
+    tag_soup = re.compile(r"""([^<]*)(<[^>]*>)""")
 
-	token_match = tag_soup.search(str)
+    token_match = tag_soup.search(str)
 
-	previous_end = 0
-	while token_match is not None:
-		if token_match.group(1):
-			tokens.append(['text', token_match.group(1)])
+    previous_end = 0
+    while token_match is not None:
+        if token_match.group(1):
+            tokens.append(['text', token_match.group(1)])
 
-		tokens.append(['tag', token_match.group(2)])
+        tokens.append(['tag', token_match.group(2)])
 
-		previous_end = token_match.end()
-		token_match = tag_soup.search(str, token_match.end())
+        previous_end = token_match.end()
+        token_match = tag_soup.search(str, token_match.end())
 
-	if previous_end < len(str):
-		tokens.append(['text', str[previous_end:]])
+    if previous_end < len(str):
+        tokens.append(['text', str[previous_end:]])
 
-	return tokens
+    return tokens
 
 
 
 if __name__ == "__main__":
 
-	import locale
+    import locale
 
-	try:
-		locale.setlocale(locale.LC_ALL, '')
-	except:
-		pass
+    try:
+        locale.setlocale(locale.LC_ALL, '')
+    except:
+        pass
 
-	from docutils.core import publish_string
-	docstring_html = publish_string(__doc__, writer_name='html')
+    from docutils.core import publish_string
+    docstring_html = publish_string(__doc__, writer_name='html')
 
-	print docstring_html
-
-
-	# Unit test output goes out stderr.  No worries.
-	import unittest
-	sp = smartyPants
-
-	class TestSmartypantsAllAttributes(unittest.TestCase):
-		# the default attribute is "1", which means "all".
-
-		def test_dates(self):
-			self.assertEqual(sp("1440-80's"), "1440-80&#8217;s")
-			self.assertEqual(sp("1440-'80s"), "1440-&#8216;80s")
-			self.assertEqual(sp("1440---'80s"), "1440&#8211;&#8216;80s")
-			self.assertEqual(sp("1960s"), "1960s")  # no effect.
-			self.assertEqual(sp("1960's"), "1960&#8217;s")
-			self.assertEqual(sp("one two '60s"), "one two &#8216;60s")
-			self.assertEqual(sp("'60s"), "&#8216;60s")
-
-		def test_skip_tags(self):
-			self.assertEqual(
-				sp("""<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>"""),
-				   """<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>""")
-			self.assertEqual(
-				sp("""<p>He said &quot;Let's write some code.&quot; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>"""),
-				   """<p>He said &#8220;Let&#8217;s write some code.&#8221; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>""")
+    print docstring_html
 
 
-		def test_ordinal_numbers(self):
-			self.assertEqual(sp("21st century"), "21st century")  # no effect.
-			self.assertEqual(sp("3rd"), "3rd")  # no effect.
+    # Unit test output goes out stderr.  No worries.
+    import unittest
+    sp = smartyPants
 
-		def test_educated_quotes(self):
-			self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
+    class TestSmartypantsAllAttributes(unittest.TestCase):
+        # the default attribute is "1", which means "all".
 
-	unittest.main()
+        def test_dates(self):
+            self.assertEqual(sp("1440-80's"), "1440-80&#8217;s")
+            self.assertEqual(sp("1440-'80s"), "1440-&#8216;80s")
+            self.assertEqual(sp("1440---'80s"), "1440&#8211;&#8216;80s")
+            self.assertEqual(sp("1960s"), "1960s")  # no effect.
+            self.assertEqual(sp("1960's"), "1960&#8217;s")
+            self.assertEqual(sp("one two '60s"), "one two &#8216;60s")
+            self.assertEqual(sp("'60s"), "&#8216;60s")
+
+        def test_skip_tags(self):
+            self.assertEqual(
+                sp("""<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>"""),
+                   """<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>""")
+            self.assertEqual(
+                sp("""<p>He said &quot;Let's write some code.&quot; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>"""),
+                   """<p>He said &#8220;Let&#8217;s write some code.&#8221; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>""")
+
+            self.assertEqual(
+                sp('''<script/><p>It's ok</p>'''),
+                '''<script/><p>It&#8217;s ok</p>''')
+
+
+        def test_ordinal_numbers(self):
+            self.assertEqual(sp("21st century"), "21st century")  # no effect.
+            self.assertEqual(sp("3rd"), "3rd")  # no effect.
+
+        def test_educated_quotes(self):
+            self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
+
+    unittest.main()
 
 
 

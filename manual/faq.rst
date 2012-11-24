@@ -649,20 +649,24 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
-|app| freezes when I click on anything?
+|app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are three possible things I know of, that can cause this:
 
-    * You recently connected an external monitor or TV to your computer. In this case, whenever |app| opens a new window like the edit metadata window or the conversion dialog, it appears on the second monitor where you dont notice it and so you think |app| has frozen. Disconnect your second monitor and restart calibre.
+    * You recently connected an external monitor or TV to your computer. In
+      this case, whenever |app| opens a new window like the edit metadata
+      window or the conversion dialog, it appears on the second monitor where
+      you dont notice it and so you think |app| has frozen. Disconnect your
+      second monitor and restart calibre.
 
-    * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
+    * You are using a Wacom branded mouse. There is an incompatibility between
+      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
+      mouse.
 
     * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
-      the blacklist of programs inside RoboForm to fix this.
-
-    * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
-
+      the blacklist of programs inside RoboForm to fix this. Or uninstall
+      RoboForm.
 
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
