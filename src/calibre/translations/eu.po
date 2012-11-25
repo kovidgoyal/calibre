@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-23 03:42+0000\n"
-"PO-Revision-Date: 2012-11-23 19:00+0000\n"
+"PO-Revision-Date: 2012-11-24 18:16+0000\n"
 "Last-Translator: Ander Martínez <Unknown>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-24 05:28+0000\n"
+"X-Launchpad-Export-Date: 2012-11-25 05:23+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 "Language: eu\n"
 
@@ -15673,7 +15673,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:279
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "&Tolestu hurrengoak baino sarrera gehiagorekin:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:280
 msgid ""
@@ -15701,7 +15701,7 @@ msgstr "Erakutsi &batez besteko balorazioak etiketen arakatzailean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:289
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Sarrera &hierarkikoak dituzten kategoriak:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:290
 msgid "Use &alternating row colors in the Tag Browser"
@@ -15726,6 +15726,7 @@ msgstr ""
 #, python-format
 msgid "You can press the %s keys to toggle full screen mode."
 msgstr ""
+"%s teklak saka ditzazkezu pantaila osoko modua aktibatzeko/desaktibatzeko."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
@@ -17654,7 +17655,7 @@ msgstr "Bila ezazu aurrekoa edo hurrengoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:355
 msgid "Collapse all categories"
-msgstr "Kategoria guztiak murriztu"
+msgstr "Kategoria guztiak tolestu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:379
 msgid "No More Matches.</b><p> Click Find again to go to first match"
@@ -18170,7 +18171,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr ""
+msgstr "Erakutsi pantaila osoko moduko laguntza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:74
 msgid "Font options"
@@ -18328,7 +18329,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "&Hasi ikusgailua pantaila osoko moduan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "Show &help message when starting full screen mode"
@@ -18635,7 +18636,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:286
 msgid "Full screen mode"
-msgstr ""
+msgstr "Pantaila osoko modua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:287
 msgid "Right click to show controls"
