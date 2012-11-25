@@ -17,6 +17,7 @@ class Sciencenews(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    auto_cleanup = True
     timefmt               = ' [%A, %d %B, %Y]'
 
     extra_css = '''
@@ -31,14 +32,14 @@ class Sciencenews(BasicNewsRecipe):
                 .credit{color:#A6A6A6;font-family:helvetica,arial ;font-size: xx-small ;}
                 '''
 
-    keep_only_tags = [ dict(name='div', attrs={'id':'column_action'}) ]
-    remove_tags_after = dict(name='ul', attrs={'id':'content_functions_bottom'})
-    remove_tags = [
-                     dict(name='ul', attrs={'id':'content_functions_bottom'})
-                    ,dict(name='div', attrs={'id':['content_functions_top','breadcrumb_content']})
-                    ,dict(name='img', attrs={'class':'icon'})
-                    ,dict(name='div', attrs={'class': 'embiggen'})
-                  ]
+    #keep_only_tags = [ dict(name='div', attrs={'id':'column_action'}) ]
+    #remove_tags_after = dict(name='ul', attrs={'id':'content_functions_bottom'})
+    #remove_tags = [
+                     #dict(name='ul', attrs={'id':'content_functions_bottom'})
+                    #,dict(name='div', attrs={'id':['content_functions_top','breadcrumb_content']})
+                    #,dict(name='img', attrs={'class':'icon'})
+                    #,dict(name='div', attrs={'class': 'embiggen'})
+                  #]
 
     feeds       = [(u"Science News / News Items", u'http://sciencenews.org/index.php/feed/type/news/name/news.rss/view/feed/name/all.rss')]
 
@@ -53,9 +54,9 @@ class Sciencenews(BasicNewsRecipe):
 
         return cover_url
 
-    def preprocess_html(self, soup):
+    #def preprocess_html(self, soup):
 
-            for tag in soup.findAll(name=['span']):
-                tag.name = 'div'
+            #for tag in soup.findAll(name=['span']):
+                #tag.name = 'div'
 
-            return soup
+            #return soup

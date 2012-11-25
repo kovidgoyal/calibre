@@ -90,6 +90,7 @@ class BooksView(QTableView): # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.row_sizing_done = False
 
         if not tweaks['horizontal_scrolling_per_column']:
             self.setHorizontalScrollMode(self.ScrollPerPixel)
@@ -141,6 +142,8 @@ class BooksView(QTableView): # {{{
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
+        self._model.count_changed_signal.connect(self.do_row_sizing,
+                                                 type=Qt.QueuedConnection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
@@ -521,12 +524,16 @@ class BooksView(QTableView): # {{{
         self.apply_state(old_state, max_sort_levels=max_levels)
         self.column_header.blockSignals(False)
 
-        # Resize all rows to have the correct height
-        if self.model().rowCount(QModelIndex()) > 0:
-            self.resizeRowToContents(0)
-            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+        self.do_row_sizing()
 
         self.was_restored = True
+
+    def do_row_sizing(self):
+        # Resize all rows to have the correct height
+        if not self.row_sizing_done and self.model().rowCount(QModelIndex()) > 0:
+            self.resizeRowToContents(0)
+            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+            self.row_sizing_done = True
 
     def resize_column_to_fit(self, column):
         col = self.column_map.index(column)
@@ -943,6 +950,8 @@ class DeviceBooksView(BooksView): # {{{
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,
                            use_edit_metadata_dialog=False)
+        self._model.resize_rows.connect(self.do_row_sizing,
+                                                 type=Qt.QueuedConnection)
         self.can_add_columns = False
         self.columns_resized = False
         self.resize_on_select = False

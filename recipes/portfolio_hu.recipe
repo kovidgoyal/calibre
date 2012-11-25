@@ -4,7 +4,7 @@ class AdvancedUserRecipe1348063712(BasicNewsRecipe):
     title          = u'Portfolio.hu - English Edition'
     __author__ = 'laca'
     oldest_article = 7
-    language = 'en_HUN'
+    language = 'en_HU'
     masthead_url          = 'http://www.portfolio.hu/img/sit/angolfejlec2010.jpg'
     use_embedded_content  = False
     auto_cleanup = True

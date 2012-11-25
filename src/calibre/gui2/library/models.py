@@ -1057,6 +1057,7 @@ class DeviceBooksModel(BooksModel): # {{{
 
     booklist_dirtied = pyqtSignal()
     upload_collections = pyqtSignal(object)
+    resize_rows = pyqtSignal()
 
     def __init__(self, parent):
         BooksModel.__init__(self, parent)
@@ -1163,6 +1164,11 @@ class DeviceBooksModel(BooksModel): # {{{
         return flags
 
     def search(self, text, reset=True):
+        # This should not be here, but since the DeviceBooksModel does not
+        # implement count_changed and I am too lazy to fix that, this kludge
+        # will have to do
+        self.resize_rows.emit()
+
         if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:

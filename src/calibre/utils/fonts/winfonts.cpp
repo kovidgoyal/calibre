@@ -167,7 +167,7 @@ static PyObject* add_font(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "s#", &data, &sz)) return NULL;
 
-    AddFontMemResourceEx(data, sz, NULL, &num);
+    AddFontMemResourceEx(data, (DWORD)sz, NULL, &num);
 
     return Py_BuildValue("k", num);
 }

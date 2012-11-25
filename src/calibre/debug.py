@@ -15,7 +15,13 @@ def option_parser():
     parser = OptionParser(usage='''\
 %prog [options]
 
-Run an embedded python interpreter.
+Various command line interfaces useful for debugging calibre. With no options,
+this command starts an embedded python interpreter. You can also run the main
+calibre GUI and the calibre viewer in debug mode.
+
+It also contains interfaces to various bits of calibre that do not have
+dedicated command line tools, such as font subsetting, tweaking ebooks and so
+on.
 ''')
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
@@ -37,9 +43,6 @@ Run an embedded python interpreter.
                       help='Run the ebook viewer',)
     parser.add_option('--paths', default=False, action='store_true',
             help='Output the paths necessary to setup the calibre environment')
-    parser.add_option('--migrate', action='store_true', default=False,
-                      help='Migrate old database. Needs two arguments. Path '
-                           'to library1.db and path to new library folder.')
     parser.add_option('--add-simple-plugin', default=None,
             help='Add a simple plugin (i.e. a plugin that consists of only a '
             '.py file), by specifying the path to the py file containing the '
@@ -117,28 +120,6 @@ def reinit_db(dbpath, callback=None, sql_dump=None):
         if os.path.exists(dest):
             os.remove(dest)
     prints('Database successfully re-initialized')
-
-def migrate(old, new):
-    from calibre.utils.config import prefs
-    from calibre.library.database import LibraryDatabase
-    from calibre.library.database2 import LibraryDatabase2
-    from calibre.utils.terminfo import ProgressBar
-    from calibre.constants import terminal_controller
-    class Dummy(ProgressBar):
-        def setLabelText(self, x): pass
-        def setAutoReset(self, y): pass
-        def reset(self): pass
-        def setRange(self, min, max):
-            self.min = min
-            self.max = max
-        def setValue(self, val):
-            self.update(float(val)/getattr(self, 'max', 1))
-
-    db = LibraryDatabase(old)
-    db2 = LibraryDatabase2(new)
-    db2.migrate_old(db, Dummy(terminal_controller(), 'Migrating database...'))
-    prefs['library_path'] = os.path.abspath(new)
-    print 'Database migrated to', os.path.abspath(new)
 
 def debug_device_driver():
     from calibre.devices import debug
@@ -249,11 +230,6 @@ def main(args=sys.argv):
         exec opts.command
     elif opts.debug_device_driver:
         debug_device_driver()
-    elif opts.migrate:
-        if len(args) < 3:
-            print 'You must specify the path to library1.db and the path to the new library folder'
-            return 1
-        migrate(args[1], args[2])
     elif opts.add_simple_plugin is not None:
         add_simple_plugin(opts.add_simple_plugin)
     elif opts.paths:

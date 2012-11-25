@@ -1433,15 +1433,6 @@ class StoreFoylesUKStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
-class StoreGandalfStore(StoreBase):
-    name = 'Gandalf'
-    author = u'Tomasz Długosz'
-    description = u'Księgarnia internetowa Gandalf.'
-    actual_plugin = 'calibre.gui2.store.stores.gandalf_plugin:GandalfStore'
-
-    headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
-
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = u'Google Books'
@@ -1472,7 +1463,7 @@ class StoreKoboStore(StoreBase):
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
     author = u'Tomasz Długosz'
-    description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
+    description = u'Ebooki w formacie EPUB, MOBI i PDF'
     actual_plugin = 'calibre.gui2.store.stores.legimi_plugin:LegimiStore'
 
     headquarters = 'PL'
@@ -1564,6 +1555,15 @@ class StorePragmaticBookshelfStore(StoreBase):
 
     drm_free_only = True
     headquarters = 'US'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
+class StorePublioStore(StoreBase):
+    name = 'Publio'
+    description = u'Publio.pl to księgarnia internetowa, w której mogą Państwo nabyć e-booki i audiobooki.'
+    actual_plugin = 'calibre.gui2.store.stores.publio_plugin:PublioStore'
+    author = u'Tomasz Długosz'
+
+    headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreRW2010Store(StoreBase):
@@ -1675,7 +1675,6 @@ plugins += [
     StoreEscapeMagazineStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
-    StoreGandalfStore,
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
@@ -1689,6 +1688,7 @@ plugins += [
     StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
+    StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
     StoreVirtualoStore,
@@ -1716,7 +1716,7 @@ if __name__ == '__main__':
         ret = 0
 
         for x in ('lxml', 'calibre.ebooks.BeautifulSoup', 'uuid',
-            'calibre.utils.terminfo', 'calibre.utils.magick', 'PIL', 'Image',
+            'calibre.utils.terminal', 'calibre.utils.magick', 'PIL', 'Image',
             'sqlite3', 'mechanize', 'httplib', 'xml'):
             if x in sys.modules:
                 ret = 1

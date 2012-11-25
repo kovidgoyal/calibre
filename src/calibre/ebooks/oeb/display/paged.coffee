@@ -71,7 +71,7 @@ class PagedDisplay
             this.margin_side = margin_side
             this.margin_bottom = margin_bottom
 
-    layout: () ->
+    layout: (is_single_page=false) ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
         bs = document.body.style
@@ -151,6 +151,8 @@ class PagedDisplay
             has_svg = document.getElementsByTagName('svg').length > 0
             only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
             this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
+            if is_single_page
+                this.is_full_screen_layout = true
 
         this.in_paged_mode = true
         this.current_margin_side = sm

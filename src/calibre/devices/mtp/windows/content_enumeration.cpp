@@ -696,7 +696,7 @@ PyObject* wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const
         PyBytes_AsStringAndSize(raw, &buf, &bytes_read);
         if (bytes_read > 0) {
             Py_BEGIN_ALLOW_THREADS;
-            hr = dest->Write(buf, bytes_read, &bytes_written);
+            hr = dest->Write(buf, (ULONG)bytes_read, &bytes_written);
             Py_END_ALLOW_THREADS;
             Py_DECREF(raw);
             if (hr == STG_E_MEDIUMFULL) { PyErr_SetString(WPDError, "Cannot write to device as it is full"); break; }

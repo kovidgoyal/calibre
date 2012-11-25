@@ -28,6 +28,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
         r('preserve_date_on_ctl', gprefs)
+        r('manual_add_auto_convert', gprefs)
         choices = [
                 (_('Ignore duplicate incoming formats'), 'ignore'),
                 (_('Overwrite existing duplicate formats'), 'overwrite'),

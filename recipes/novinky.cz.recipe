@@ -1,0 +1,50 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class novinkyRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'novinky.cz'
+    publisher = u'seznam.cz'
+    description = 'novinky.cz'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Domácí', u'http://www.novinky.cz/rss2/domaci/'),
+            (u'Praha', u'http://www.novinky.cz/rss2/vase-zpravy/praha/'),
+            (u'Ekonomika', u'http://www.novinky.cz/rss2/ekonomika/'),
+            (u'Finance', u'http://www.novinky.cz/rss2/finance/'),
+            ]
+
+
+    #encoding = 'utf-8'
+    language = 'cs'
+    cover_url = 'http://www.novinky.cz/static/images/logo.gif'
+    remove_javascript = True
+    no_stylesheets = True
+
+    remove_tags = [dict(name='div',   attrs={'id':['pictureInnerBox']}),
+        dict(name='div',   attrs={'id':['discussionEntry']}),
+        dict(name='span',   attrs={'id':['mynews-hits', 'mynews-author']}),
+        dict(name='div',   attrs={'class':['related']}),
+        dict(name='div',   attrs={'id':['multimediaInfo']})]
+    remove_tags_before  = dict(name='div',attrs={'class':['articleHeader']})
+    remove_tags_after  = dict(name='div',attrs={'class':'related'})
+
+    keep_only_tags = []
+
+    # This source has identical articles under different links
+    # which are redirected to the common url. I've found
+    # just this API method that has the real URL
+    visited_urls = {}
+    def encoding(self, source):
+        url = source.newurl
+        if url in self.visited_urls:
+            self.log.debug('Ignoring duplicate: ' + url)
+            return None
+        else:
+            self.visited_urls[url] = True
+            self.log.debug('Accepting: ' + url)
+            return source.decode('utf-8', 'replace')
+

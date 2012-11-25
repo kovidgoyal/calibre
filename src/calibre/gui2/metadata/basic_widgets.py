@@ -867,6 +867,7 @@ class Cover(ImageView): # {{{
 
     def __init__(self, parent):
         ImageView.__init__(self, parent)
+        self.show_size = True
         self.dialog = parent
         self._cdata = None
         self.cover_changed.connect(self.set_pixmap_from_data)

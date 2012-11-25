@@ -93,6 +93,7 @@ gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['manual_add_auto_convert'] = False
 gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True
@@ -104,6 +105,7 @@ gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
 gprefs.defaults['bd_show_cover'] = True
+gprefs.defaults['bd_overlay_cover_size'] = False
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models

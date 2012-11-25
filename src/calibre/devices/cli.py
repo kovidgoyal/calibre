@@ -11,7 +11,6 @@ from optparse import OptionParser
 
 from calibre import __version__, __appname__, human_readable
 from calibre.devices.errors import PathError
-from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
@@ -20,8 +19,7 @@ from calibre.utils.config import device_prefs
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 
 class FileFormatter(object):
-    def __init__(self, file, term):
-        self.term = term
+    def __init__(self, file):
         self.is_dir      = file.is_dir
         self.is_readonly = file.is_readonly
         self.size        = file.size
@@ -94,7 +92,7 @@ def info(dev):
     print "Software version:", info[2]
     print "Mime type:       ", info[3]
 
-def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, ll=False, cols=0):
+def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
     def col_split(l, cols): # split list l into columns
         rows = len(l) / cols
         if len(l) % cols:
@@ -126,14 +124,13 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
             for file in files:
                 size = len(str(file.size))
                 if human_readable_size:
-                    file = FileFormatter(file, term)
+                    file = FileFormatter(file)
                     size = len(file.human_readable_size)
                 if size > maxlen: maxlen = size
         for file in files:
-            file = FileFormatter(file, term)
+            file = FileFormatter(file)
             name = file.name if ll else file.isdir_name
             lsoutput.append(name)
-            if color: name = file.name_in_color
             lscoloutput.append(name)
             if ll:
                 size = str(file.size)
@@ -173,10 +170,8 @@ def shutdown_plugins():
             pass
 
 def main():
-    term = TerminalController()
-    cols = term.COLS
-    if not cols: # On windows terminal width is unknown
-        cols = 80
+    from calibre.utils.terminal import geometry
+    cols = geometry()[0]
 
     parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand "+
             "is one of: info, books, df, ls, cp, mkdir, touch, cat, rm, eject, test_file\n\n"+
@@ -260,7 +255,6 @@ def main():
             dev.mkdir(args[0])
         elif command == "ls":
             parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/")
-            parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
             parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.", dest="ll", action="store_true", default=False)
             parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted", dest="recurse", action="store_true", default=False)
             parser.remove_option("-h")
@@ -269,7 +263,7 @@ def main():
             if len(args) != 1:
                 parser.print_help()
                 return 1
-            print ls(dev, args[0], term, color=options.color, recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),
+            print ls(dev, args[0], recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),
         elif command == "info":
             info(dev)
         elif command == "cp":
