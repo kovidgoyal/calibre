@@ -177,9 +177,32 @@ RAR_dealloc(RARArchive* self) {
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static const char* unrar_callback_err = NULL;
+
 static void handle_rar_error(RAR_EXIT errcode) {
-    if (!PyErr_Occurred()) 
-        PyErr_Format(UNRARError, "RAR error code: %d", errcode);
+    if (PyErr_Occurred()) return;
+    if (unrar_callback_err != NULL) {
+        PyErr_SetString(UNRARError, unrar_callback_err);
+        unrar_callback_err = NULL;
+        return;
+    }
+
+    const char *err = "UNKNOWN";
+    switch (errcode) {
+        case RARX_SUCCESS: err = "RARX_SUCCESS"; break;
+        case RARX_WARNING: err = "RARX_WARNING"; break;
+        case RARX_FATAL: err = "RARX_FATAL"; break;
+        case RARX_CRC: err = "RARX_CRC"; break;
+        case RARX_LOCK: err = "RARX_LOCK"; break;
+        case RARX_WRITE: err = "RARX_WRITE"; break;
+        case RARX_OPEN: err = "RARX_OPEN"; break;
+        case RARX_USERERROR: err = "RARX_USERERROR"; break;
+        case RARX_MEMORY: err = "RARX_MEMORY"; break;
+        case RARX_CREATE: err = "RARX_CREATE"; break;
+        case RARX_NOFILES: err = "RARX_NOFILES"; break;
+        case RARX_USERBREAK: err = "RARX_USERBREAK"; break;
+    }
+    PyErr_Format(UNRARError, "RAR error code: %s", err);
 }
 
 static int CALLBACK callback(UINT msg, LPARAM data, LPARAM p1, LPARAM p2) {
@@ -189,6 +212,10 @@ static int CALLBACK callback(UINT msg, LPARAM data, LPARAM p1, LPARAM p2) {
         if (ret == NULL) return -1;
         Py_DECREF(ret);
         return 0;
+    } else if (msg == UCM_NEEDPASSWORD || msg == UCM_NEEDPASSWORDW) {
+        unrar_callback_err = "This archive is password protected.";
+    } else if (msg == UCM_CHANGEVOLUME || msg == UCM_CHANGEVOLUMEW) {
+        unrar_callback_err = "This is an unsupported multi-volume RAR archive.";
     }
     return -1;
 }
