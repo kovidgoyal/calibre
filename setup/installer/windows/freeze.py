@@ -563,9 +563,12 @@ class Win32Freeze(Command, WixMixIn):
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
                     if pyd.endswith('.pyd') and pyd not in {
-                            'sqlite_custom.pyd', 'calibre_style.pyd'}:
+                            'unrar.pyd', 'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
+                        # For some reason unrar.pyd crashes when processing
+                        # password protected RAR files if loaded from inside
+                        # pylib.zip
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
 
