@@ -11,7 +11,7 @@ import os, sys, re
 from io import BytesIO
 
 from calibre import force_unicode
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, isosx
 
 class UNRARError(Exception):
     pass
@@ -246,7 +246,7 @@ def test_basic():
     del s
     for i in xrange(3): gc.collect()
     used = memory() - start
-    if used > 1:
+    if used > 1 and not isosx:
         raise ValueError('Leaked %s MB for %d calls'%(used, num))
     # }}}
 
