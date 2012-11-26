@@ -526,6 +526,8 @@ class ValidateFormatter(TemplateFormatter):
         return self._validation_string
 
     def validate(self, x):
+        from calibre.ebooks.metadata.book.base import Metadata
+        self.book = Metadata('');
         return self.vformat(x, [], {})
 
 validation_formatter = ValidateFormatter()
