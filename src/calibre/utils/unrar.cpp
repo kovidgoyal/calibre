@@ -373,6 +373,10 @@ RAR_process_item(RARArchive *self, PyObject *args) {
     self->file_count++;
     try {
         if (PyObject_IsTrue(extract)) {
+            if ((self->archive->NewLhd.Flags & LHD_PASSWORD) != 0) {
+                PyErr_SetString(UNRARError, "This file is locked with a password.");
+                return NULL;
+            }
             self->DataIO.UnpVolume = false;
             self->DataIO.NextVolumeMissing=false;
             self->DataIO.CurUnpRead=0;
@@ -421,7 +425,7 @@ RAR_process_item(RARArchive *self, PyObject *args) {
                 bool ValidCRC = (self->archive->OldFormat && GET_UINT32(self->DataIO.UnpFileCRC)==GET_UINT32(self->archive->NewLhd.FileCRC)) ||
                     (!self->archive->OldFormat && GET_UINT32(self->DataIO.UnpFileCRC)==GET_UINT32(self->archive->NewLhd.FileCRC^0xffffffff));
                 if (!ValidCRC) {
-                    PyErr_SetString(UNRARError, "Invalid CRC while extracting item");
+                    PyErr_SetString(UNRARError, "Invalid CRC for item");
                     return NULL;
                 }
                 // Comes from ProcessFile in dll.cpp
