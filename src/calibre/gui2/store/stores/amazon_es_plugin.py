@@ -20,3 +20,5 @@ class AmazonESKindleStore(AmazonUKKindleStore):
                           'location=http://www.amazon.es/dp/%(asin)s&tag=%(tag)s'
                           '&linkCode=ur2&camp=3626&creative=24790')
     search_url = 'http://www.amazon.es/s/?url=search-alias%3Ddigital-text&field-keywords='
+
+    author_article = 'de '
