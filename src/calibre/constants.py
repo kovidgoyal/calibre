@@ -85,6 +85,7 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'freetype',
                 'woff',
+                'unrar',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])

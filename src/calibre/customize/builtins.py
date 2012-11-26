@@ -140,7 +140,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
-            from calibre.libunrar import extract_first_alphabetically as extract_first
+            from calibre.utils.unrar import extract_first_alphabetically as extract_first
             extract_first
         else:
             from calibre.libunzip import extract_member

@@ -47,6 +47,13 @@ class Extension(object):
         self.ldflags = kwargs.get('ldflags', [])
         self.optional = kwargs.get('optional', False)
         self.needs_ddk = kwargs.get('needs_ddk', False)
+        of = kwargs.get('optimize_level', None)
+        if of is None:
+            of = '/Ox' if iswindows else '-O3'
+        else:
+            flag = '/O%d' if iswindows else '-O%d'
+            of = flag % of
+        self.cflags.insert(0, of)
 
     def preflight(self, obj_dir, compiler, linker, builder, cflags, ldflags):
         pass
@@ -176,6 +183,24 @@ extensions = [
                 sip_files = ['calibre/gui2/progress_indicator/QProgressIndicator.sip']
                 ),
 
+    Extension('unrar',
+              ['unrar/%s.cpp'%(x.partition('.')[0]) for x in '''
+               rar.o strlist.o strfn.o pathfn.o savepos.o smallfn.o global.o file.o
+               filefn.o filcreat.o archive.o arcread.o unicode.o system.o
+               isnt.o crypt.o crc.o rawread.o encname.o resource.o match.o
+               timefn.o rdwrfn.o consio.o options.o ulinks.o errhnd.o rarvm.o
+               secpassword.o rijndael.o getbits.o sha1.o extinfo.o extract.o
+               volume.o list.o find.o unpack.o cmddata.o filestr.o scantree.o
+               '''.split()] + ['calibre/utils/unrar.cpp'],
+              inc_dirs=['unrar'],
+              cflags = [('/' if iswindows else '-') + x for x in (
+                  'DSILENT', 'DRARDLL', 'DUNRAR')] + (
+                  [] if iswindows else ['-D_FILE_OFFSET_BITS=64',
+                                        '-D_LARGEFILE_SOURCE']),
+              optimize_level=2,
+              libraries=['User32', 'Advapi32', 'kernel32', 'Shell32'] if iswindows else []
+              ),
+
     ]
 
 
@@ -239,7 +264,7 @@ if isunix:
     cxx = os.environ.get('CXX', 'g++')
     cflags = os.environ.get('OVERRIDE_CFLAGS',
         # '-Wall -DNDEBUG -ggdb -fno-strict-aliasing -pipe')
-        '-O3 -Wall -DNDEBUG -fno-strict-aliasing -pipe')
+        '-Wall -DNDEBUG -fno-strict-aliasing -pipe')
     cflags = shlex.split(cflags) + ['-fPIC']
     ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
     ldflags = shlex.split(ldflags)
@@ -274,7 +299,7 @@ if isosx:
 
 if iswindows:
     cc = cxx = msvc.cc
-    cflags = '/c /nologo /Ox /MD /W3 /EHsc /DNDEBUG'.split()
+    cflags = '/c /nologo /MD /W3 /EHsc /DNDEBUG'.split()
     ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
     #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
     #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()

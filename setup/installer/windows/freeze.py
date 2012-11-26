@@ -17,7 +17,6 @@ ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
 QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-LIBUNRAR         = os.environ.get('UNRARDLL', 'C:\\Program Files\\UnrarDLL\\unrar.dll')
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK = os.path.join(SW, 'build',
                             'ImageMagick-*\\VisualMagick\\bin')
@@ -261,9 +260,6 @@ class Win32Freeze(Command, WixMixIn):
 
         print
         print 'Adding third party dependencies'
-        print '\tAdding unrar'
-        shutil.copyfile(LIBUNRAR, os.path.join(self.dll_dir,
-                        os.path.basename(LIBUNRAR).replace('64', '')))
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')

@@ -48,12 +48,13 @@ class ArchiveExtract(FileTypePlugin):
     def run(self, archive):
         is_rar = archive.lower().endswith('.rar')
         if is_rar:
-            from calibre.libunrar import extract_member, names
+            from calibre.utils.unrar import extract_member, names
         else:
             zf = ZipFile(archive, 'r')
 
         if is_rar:
-            fnames = names(archive)
+            with open(archive, 'rb') as rf:
+                fnames = list(names(rf))
         else:
             fnames = zf.namelist()
 
@@ -76,7 +77,8 @@ class ArchiveExtract(FileTypePlugin):
         of = self.temporary_file('_archive_extract.'+ext)
         with closing(of):
             if is_rar:
-                data = extract_member(archive, match=None, name=fname)[1]
+                with open(archive, 'rb') as f:
+                    data = extract_member(f, match=None, name=fname)[1]
                 of.write(data)
             else:
                 of.write(zf.read(fname))
