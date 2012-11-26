@@ -32,7 +32,6 @@ binary_includes = [
                 '/usr/lib/liblcms.so.1',
                 '/usr/lib/liblzma.so.0',
                 '/usr/lib/libexpat.so.1',
-                '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
                 '/usr/lib/libpodofo.so.0.9.1',
@@ -301,7 +300,7 @@ class LinuxFreeze(Command):
                 export MAGICK_CONFIGURE_PATH=$lib/{1}/config
                 export MAGICK_CODER_MODULE_PATH=$lib/{1}/modules-Q16/coders
                 export MAGICK_CODER_FILTER_PATH=$lib/{1}/modules-Q16/filters
-                $base/bin/{0} "$@"
+                exec $base/bin/{0} "$@"
                 ''')
 
                 dest = self.j(self.obj_dir, bname+'.o')

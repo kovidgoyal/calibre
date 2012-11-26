@@ -309,11 +309,38 @@ Manage Authors. You can use the values {author} and
         </layout>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_bd_show_cover">
-         <property name="text">
-          <string>Show &amp;cover in the book details panel</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="opt_bd_show_cover">
+           <property name="text">
+            <string>Show &amp;cover in the book details panel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_bd_overlay_cover_size">
+           <property name="toolTip">
+            <string>Show the size of the book's cover in pixels</string>
+           </property>
+           <property name="text">
+            <string>Show cover &amp;size</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_bd1">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

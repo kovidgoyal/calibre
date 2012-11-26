@@ -150,8 +150,15 @@ class EPUBInput(InputFormatPlugin):
         from calibre import walk
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
-        zf = ZipFile(stream)
-        zf.extractall(os.getcwdu())
+        try:
+            zf = ZipFile(stream)
+            zf.extractall(os.getcwdu())
+        except:
+            log.exception('EPUB appears to be invalid ZIP file, trying a'
+                    ' more forgiving ZIP parser')
+            from calibre.utils.localunzip import extractall
+            stream.seek(0)
+            extractall(stream)
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:

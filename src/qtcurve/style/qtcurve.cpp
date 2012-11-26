@@ -10847,7 +10847,7 @@ void Style::drawBevelGradientReal(const QColor &base, QPainter *p, const QRect &
     QLinearGradient                  g(r.topLeft(), horiz ? r.bottomLeft() : r.topRight());
     GradientStopCont::const_iterator it(grad->stops.begin()),
                                      end(grad->stops.end());
-    int                              numStops(grad->stops.size());
+    size_t                              numStops(grad->stops.size());
 
     for(int i=0; it!=end; ++it, ++i)
     {

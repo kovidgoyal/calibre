@@ -19,6 +19,144 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.7
+  date: 2012-11-23
+
+  new features:
+    - title: "Edit metadata dialog: Show the size of the current book cover in the edit metadata dialog."
+      tickets: [1079781]
+
+    - title: "Get Books: Allow easy searching by title and author in addition to any keyword, to prevent large numbers of spurious matches."
+
+    - title: "An option to automatically convert any added book to the current output format, found under Preferences->Adding books"
+
+    - title: "E-book viewer: Allow viewing tables in a separate popup window by right clicking on the table and selecting 'View table'. Useful for reference books that have lots of large tables."
+      tickets: [1080710]
+
+    - title: "Catalogs: Add the current library name as an available field when generating catalogs in csv/xml format."
+      tickets: [1078422]
+
+    - title: "Enable colored text in the output from the command line tools on windows"
+
+    - title: "E-book viewer: Add an option to hide the help message when entering full screen mode"
+
+    - title: "E-book viewer: Add an option to always start the viewer in full screen mode"
+
+    - title: "E-book viewer: Add many more controls to the context menu, particularly useful in full screen mode"
+
+    - title: "E-book viewer: Allow easy searching of the selected word or phrase in google via the context menu"
+
+    - title: "Add a new type of FileType plugin, postimport, that runs after a book has been added to the database."
+
+    - title: "Get Books: Remove Gandalf store, add Publio store. Update the Legimi store plugin for website changes"
+ 
+  bug fixes:
+    - title: "Conversion: Correctly handle values of left and right for the deprecated align attribute of images, mapping them to the CSS float property instead of to text-align."
+      tickets: [1081094]
+
+    - title: "MOBI Output: When generating joint MOBI6/KF8 files do not set incorrect display CSS values for tables in the KF8 part"
+
+    - title: "Connect to iTunes: Ignore AAC audio files."
+      tickets: [1081096]
+
+    - title: "E-book viewer: Fix restoring from fullscreen not respecting maximized window state"
+
+    - title: "Fix rows in the device books view sometimes being too high"
+
+    - title: "Catalogs: Fixed a problem occurring when merging comments with a custom field whose type is a list."
+
+    - title: "Linux binary: Use exec in the wrapper shell scripts that are used to set env vars and launch calibre utilities."
+      tickets: [1077884]
+
+    - title: "E-book viewer: Fix blank pages after every page when viewing some comic files in paged mode"
+
+    - title: "E-book viewer: When printing, respect the specified page range."
+      tickets: [1074220]
+
+    - title: "Font subsetting: Parse the GSUB table for glyph substitution rules and do not remove any glyphs that could act as substitutes. Keep zero length glyphs like the glyphs for non printable characters when subsetting TrueType outlines."
+
+    - title: "Smarten punctuation: Fix self closing script tags causing smarten punctuation to fail"
+
+
+  improved recipes:
+    - Arguments and facts
+    - Business Standard
+    - The New Yorker
+
+  new recipes:
+    - title: Various Czech and Hungarian news sources 
+      author: bubak
+
+    - title: Various Polish recipes 
+      author: Artur Stachecki
+
+    - title: Buchreport 
+      author: a.peter
+
+    - title: Red Voltaire 
+      author: atordo
+
+    - title: Autosport 
+      author: Mr Stefan 
+
+    - title: House News
+      author: Eddie Lau
+
+- version: 0.9.6
+  date: 2012-11-10
+
+  new features:
+    - title: "Experimental support for subsetting fonts"
+      description: "Subsetting a font means reducing the font to contain only the glyphs for the text actually present in the book. This can easily halve the size of the font. calibre can now do this for all embedded fonts during a conversion. Turn it on via the 'Subset all embedded fonts' option under the Look & Feel section of the conversion dialog. calibre can subset both TrueType and OpenType fonts. Note that this code is very new and likely has bugs, so please check the output if you turn on subsetting. The conversion log will have info about the subsetting operations."
+      type: major
+
+    - title: "EPUB Input: Try to workaround EPUBs that have missing or damaged ZIP central directories. calibre should now be able to read/convert such an EPUB file, provided it does not suffer from further corruption."
+
+    - title: "Allow using identifiers in save to disk templates."
+      tickets: [1074623]
+
+    - title: "calibredb: Add an option to not notify the GUI"
+
+    - title: "Catalogs: Fix long tags causing catalog generation to fail on windows. Add the ability to cross-reference authors, i.e. to relist the authors for a book with multiple authors separately."
+      tickets: [1074931]
+
+    - title: "Edit metadata dialog: Add a clear tags button to remove all tags with a single click"
+
+    - title: "Add search to the font family chooser dialog"
+ 
+  bug fixes:
+    - title: "Windows: Fix a long standing bug in the device eject code that for some reason only manifested in 0.9.5."
+      tickets: [1075782]
+
+    - title: "Get Books: Fix Amazon stores, Google Books store and libri.de"
+
+    - title: "Kobo driver: More fixes for on device book matching, and list books as being on device even if the Kobo has not yet indexed them. Also some performance improvements."
+      tickets: [1069617]
+
+    - title: "EPUB Output: Remove duplicate id and name attributes to eliminate pointless noise from the various epub check utilities"
+
+    - title: "Ask for confirmation before removing plugins"
+
+    - title: "Fix bulk convert queueing dialog becoming very long if any of the books have a very long title."
+      tickets: [1076191]
+
+    - title: "Fix deleting custom column tags like data from the Tag browser not updating the last modified timestamp for affected books"
+      tickets: [1075476]
+
+    - title: "When updating a previously broken plugin, do not show an error message because the previous version of the plugin cannot be loaded"
+
+    - title: "Fix regression that broke the Template Editor"
+
+  improved recipes:
+    - Various updated Polish recipes
+    - London Review of Books
+    - Yemen Times
+
+  new recipes:
+    - title: "Various Polish news sources"
+      author: Artur Stachecki
+
+
 - version: 0.9.5
   date: 2012-11-02
 

@@ -1,0 +1,36 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ihnedRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'iHNed.cz'
+    publisher = u''
+    description = 'ihned.cz'
+    oldest_article = 1
+    max_articles_per_feed = 20
+    use_embedded_content = False
+
+    feeds = [
+            (u'Zprávy', u'http://zpravy.ihned.cz/?m=rss'),
+            (u'Hospodářské noviny', u'http://hn.ihned.cz/?p=500000_rss'),
+            (u'Byznys', u'http://byznys.ihned.cz/?m=rss'),
+            (u'Life', u'http://life.ihned.cz/?m=rss'),
+            (u'Dialog', u'http://dialog.ihned.cz/?m=rss')
+            ]
+
+
+    #encoding = 'iso-8859-2'
+    language = 'cs'
+    cover_url = 'http://rss.ihned.cz/img/0/0_hp09/ihned.cz.gif'
+    remove_javascript = True
+    no_stylesheets = True
+    extra_css             = """
+                            """
+
+    remove_attributes = []
+    remove_tags_before  = dict(name='div', attrs={'id':['heading']})
+    remove_tags_after  = dict(name='div', attrs={'id':['next-authors']})
+    remove_tags = [dict(name='ul',   attrs={'id':['comm']}),
+                dict(name='div',   attrs={'id':['r-big']}),
+                dict(name='div',   attrs={'class':['tools tools-top']})]

@@ -14,6 +14,7 @@ from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks import calibre_cover
+from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import get_lang
@@ -41,6 +42,13 @@ class EPUB_MOBI(CatalogPlugin):
                           help = _('Title of generated catalog used as title in metadata.\n'
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
+                   Option('--cross-reference-authors',
+                          default=False,
+                          dest='cross_reference_authors',
+                          action = 'store_true',
+                          help=_("Create cross-references in Authors section for books with multiple authors.\n"
+                          "Default: '%default'\n"
+                          "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--debug-pipeline',
                            default=None,
                            dest='debug_pipeline',
@@ -58,7 +66,6 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Regex describing tags to exclude as genres.\n"
                           "Default: '%default' excludes bracketed tags, e.g. '[Project Gutenberg]', and '+', the default tag for read books.\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
-
                    Option('--exclusion-rules',
                           default="(('Catalogs','Tags','Catalog'),)",
                           dest='exclusion_rules',
@@ -72,7 +79,6 @@ class EPUB_MOBI(CatalogPlugin):
                           "When multiple rules are defined, all rules will be applied.\n"
                           "Default: \n" + '"' + '%default' + '"' + "\n"
                           "Applies to AZW3, ePub, MOBI output formats")),
-
                    Option('--generate-authors',
                           default=False,
                           dest='generate_authors',
@@ -203,8 +209,9 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
-        build_log.append(u"%s(): Generating %s %sin %s environment, locale: '%s'" %
+        build_log.append(u"%s('%s'): Generating %s %sin %s environment, locale: '%s'" %
             (self.name,
+             current_library_name(),
              self.fmt,
              'for %s ' % opts.output_profile if opts.output_profile else '',
              'CLI' if opts.cli_environment else 'GUI',
@@ -318,8 +325,8 @@ class EPUB_MOBI(CatalogPlugin):
         build_log.append(" opts:")
         for key in keys:
             if key in ['catalog_title','author_clip','connected_kindle','creator',
-                       'description_clip','exclude_book_marker','exclude_genre',
-                       'exclude_tags','exclusion_rules', 'fmt',
+                       'cross_reference_authors','description_clip','exclude_book_marker',
+                       'exclude_genre','exclude_tags','exclusion_rules', 'fmt',
                        'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
@@ -403,8 +410,8 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber
-            plumber = Plumber(os.path.join(catalog.catalog_path,
-                            opts.basename + '.opf'), path_to_output, log, report_progress=notification,
+            plumber = Plumber(os.path.join(catalog.catalog_path, opts.basename + '.opf'),
+                            path_to_output, log, report_progress=notification,
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()

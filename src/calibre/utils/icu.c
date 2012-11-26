@@ -129,7 +129,7 @@ icu_Collator_actual_locale(icu_Collator *self, void *closure) {
 static PyObject *
 icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     char *input;
-    Py_ssize_t sz;
+    int32_t sz;
     UChar *buf;
     uint8_t *buf2;
     PyObject *ans;
@@ -138,7 +138,7 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
   
     if (!PyArg_ParseTuple(args, "es", "UTF-8", &input)) return NULL;
 
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
 
@@ -177,14 +177,14 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     char *a_, *b_;
-    size_t asz, bsz;
+    int32_t asz, bsz;
     UChar *a, *b;
     UErrorCode status = U_ZERO_ERROR;
     UCollationResult res = UCOL_EQUAL;
   
     if (!PyArg_ParseTuple(args, "eses", "UTF-8", &a_, "UTF-8", &b_)) return NULL;
     
-    asz = strlen(a_); bsz = strlen(b_);
+    asz = (int32_t)strlen(a_); bsz = (int32_t)strlen(b_);
 
     a = (UChar*)calloc(asz*4 + 1, sizeof(UChar));
     b = (UChar*)calloc(bsz*4 + 1, sizeof(UChar));
@@ -208,7 +208,7 @@ icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     PyObject *a_, *b_;
-    size_t asz, bsz;
+    int32_t asz, bsz;
     UChar *a, *b;
     wchar_t *aw, *bw;
     UErrorCode status = U_ZERO_ERROR;
@@ -216,7 +216,7 @@ icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     int32_t pos = -1, length = -1;
   
     if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
-    asz = PyUnicode_GetSize(a_); bsz = PyUnicode_GetSize(b_);
+    asz = (int32_t)PyUnicode_GetSize(a_); bsz = (int32_t)PyUnicode_GetSize(b_);
     
     a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
     b = (UChar*)calloc(bsz*4 + 2, sizeof(UChar));
@@ -295,7 +295,7 @@ icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) 
 static PyObject *
 icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     PyObject *a_, *b_;
-    size_t asz, bsz;
+    int32_t asz, bsz;
     int32_t actual_a, actual_b;
     UChar *a, *b;
     wchar_t *aw, *bw;
@@ -303,7 +303,7 @@ icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     int ans = 0;
   
     if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
-    asz = PyUnicode_GetSize(a_); bsz = PyUnicode_GetSize(b_);
+    asz = (int32_t)PyUnicode_GetSize(a_); bsz = (int32_t)PyUnicode_GetSize(b_);
     if (asz < bsz) Py_RETURN_FALSE;
     if (bsz == 0) Py_RETURN_TRUE;
     
@@ -333,7 +333,7 @@ icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 icu_Collator_collation_order(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     PyObject *a_;
-    size_t asz;
+    int32_t asz;
     int32_t actual_a;
     UChar *a;
     wchar_t *aw;
@@ -342,7 +342,7 @@ icu_Collator_collation_order(icu_Collator *self, PyObject *args, PyObject *kwarg
     int order = 0, len = -1;
   
     if (!PyArg_ParseTuple(args, "U", &a_)) return NULL;
-    asz = PyUnicode_GetSize(a_); 
+    asz = (int32_t)PyUnicode_GetSize(a_); 
     
     a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
     aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
@@ -498,7 +498,7 @@ static PyObject *
 icu_upper(PyObject *self, PyObject *args) {
     char *input, *ans, *buf3 = NULL;
     const char *loc;
-    size_t sz;
+    int32_t sz;
     UChar *buf, *buf2;
     PyObject *ret;
     UErrorCode status = U_ZERO_ERROR;
@@ -506,7 +506,7 @@ icu_upper(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
     
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
     buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
@@ -543,7 +543,7 @@ static PyObject *
 icu_lower(PyObject *self, PyObject *args) {
     char *input, *ans, *buf3 = NULL;
     const char *loc;
-    size_t sz;
+    int32_t sz;
     UChar *buf, *buf2;
     PyObject *ret;
     UErrorCode status = U_ZERO_ERROR;
@@ -551,7 +551,7 @@ icu_lower(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
     
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
     buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
@@ -588,7 +588,7 @@ static PyObject *
 icu_title(PyObject *self, PyObject *args) {
     char *input, *ans, *buf3 = NULL;
     const char *loc;
-    size_t sz;
+    int32_t sz;
     UChar *buf, *buf2;
     PyObject *ret;
     UErrorCode status = U_ZERO_ERROR;
@@ -596,7 +596,7 @@ icu_title(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
     
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
     buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));

@@ -10,6 +10,7 @@ from cStringIO import StringIO
 from contextlib import closing
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
+from calibre.utils.localunzip import LocalZipFile
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
@@ -105,10 +106,13 @@ class OCFReader(OCF):
 
 class OCFZipReader(OCFReader):
     def __init__(self, stream, mode='r', root=None):
-        try:
-            self.archive = ZipFile(stream, mode=mode)
-        except BadZipfile:
-            raise EPubException("not a ZIP .epub OCF container")
+        if isinstance(stream, (LocalZipFile, ZipFile)):
+            self.archive = stream
+        else:
+            try:
+                self.archive = ZipFile(stream, mode=mode)
+            except BadZipfile:
+                raise EPubException("not a ZIP .epub OCF container")
         self.root = root
         if self.root is None:
             name = getattr(stream, 'name', False)
@@ -119,7 +123,17 @@ class OCFZipReader(OCFReader):
         super(OCFZipReader, self).__init__()
 
     def open(self, name, mode='r'):
+        if isinstance(self.archive, LocalZipFile):
+            return self.archive.open(name)
         return StringIO(self.archive.read(name))
+
+def get_zip_reader(stream, root=None):
+    try:
+        zf = ZipFile(stream, mode='r')
+    except:
+        stream.seek(0)
+        zf = LocalZipFile(stream)
+    return OCFZipReader(zf, root=root)
 
 class OCFDirReader(OCFReader):
     def __init__(self, path):
@@ -184,7 +198,12 @@ def render_cover(opf, opf_path, zf, reader=None):
 def get_cover(opf, opf_path, stream, reader=None):
     raster_cover = opf.raster_cover
     stream.seek(0)
-    zf = ZipFile(stream)
+    try:
+        zf = ZipFile(stream)
+    except:
+        stream.seek(0)
+        zf = LocalZipFile(stream)
+
     if raster_cover:
         base = posixpath.dirname(opf_path)
         cpath = posixpath.normpath(posixpath.join(base, raster_cover))
@@ -207,7 +226,7 @@ def get_cover(opf, opf_path, stream, reader=None):
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`Metadata` object """
     stream.seek(0)
-    reader = OCFZipReader(stream)
+    reader = get_zip_reader(stream)
     mi = reader.opf.to_book_metadata()
     if extract_cover:
         try:
@@ -232,7 +251,7 @@ def _write_new_cover(new_cdata, cpath):
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.seek(0)
-    reader = OCFZipReader(stream, root=os.getcwdu())
+    reader = get_zip_reader(stream, root=os.getcwdu())
     raster_cover = reader.opf.raster_cover
     mi = MetaInformation(mi)
     new_cdata = None
@@ -283,7 +302,11 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
         reader.opf.timestamp = mi.timestamp
 
     newopf = StringIO(reader.opf.render())
-    safe_replace(stream, reader.container[OPF.MIMETYPE], newopf,
+    if isinstance(reader.archive, LocalZipFile):
+        reader.archive.safe_replace(reader.container[OPF.MIMETYPE], newopf,
+            extra_replacements=replacements)
+    else:
+        safe_replace(stream, reader.container[OPF.MIMETYPE], newopf,
             extra_replacements=replacements)
     try:
         if cpath is not None:

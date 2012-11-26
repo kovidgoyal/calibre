@@ -264,7 +264,7 @@ def extract(path, dir):
     with open(path, 'rb') as f:
         id_ = f.read(3)
     if id_ == b'Rar':
-        from calibre.libunrar import extract as rarextract
+        from calibre.utils.unrar import extract as rarextract
         extractor = rarextract
     elif id_.startswith(b'PK'):
         from calibre.libunzip import extract as zipextract
@@ -276,7 +276,7 @@ def extract(path, dir):
             from calibre.libunzip import extract as zipextract
             extractor = zipextract
         elif ext in ['cbr', 'rar']:
-            from calibre.libunrar import extract as rarextract
+            from calibre.utils.unrar import extract as rarextract
             extractor = rarextract
     if extractor is None:
         raise Exception('Unknown archive type')

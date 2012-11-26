@@ -10,18 +10,16 @@ import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwra
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
-from setup.build_environment import msvc, MT, RC
+from setup.build_environment import msvc, MT, RC, is64bit
 from setup.installer.windows.wix import WixMixIn
 
-ICU_DIR = r'Q:\icu'
-OPENSSL_DIR = r'Q:\openssl'
-QT_DIR = 'Q:\\Qt\\4.8.2'
+ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
+OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
+QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-QTCURVE = r'C:\plugins\styles'
-LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.7.6',
-        'VisualMagick', 'bin')
+IMAGEMAGICK = os.path.join(SW, 'build',
+                            'ImageMagick-*\\VisualMagick\\bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 LZMA = r'Q:\easylzma\build\easylzma-0.0.8'
 
@@ -89,8 +87,9 @@ class Win32Freeze(Command, WixMixIn):
         self.archive_lib_dir()
         self.remove_CRT_from_manifests()
         self.create_installer()
-        self.build_portable()
-        self.build_portable_installer()
+        if not is64bit:
+            self.build_portable()
+            self.build_portable_installer()
 
     def remove_CRT_from_manifests(self):
         '''
@@ -261,9 +260,6 @@ class Win32Freeze(Command, WixMixIn):
 
         print
         print 'Adding third party dependencies'
-        print '\tAdding unrar'
-        shutil.copyfile(LIBUNRAR,
-                os.path.join(self.dll_dir, os.path.basename(LIBUNRAR)))
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
@@ -278,12 +274,15 @@ class Win32Freeze(Command, WixMixIn):
                 if not ok: continue
                 dest = self.dll_dir
                 shutil.copy2(f, dest)
-        for x in ('zlib1.dll', 'libxml2.dll'):
-            shutil.copy2(self.j(bindir, x+'.manifest'), self.dll_dir)
+        for x in ('zlib1.dll', 'libxml2.dll', 'libxslt.dll', 'libexslt.dll'):
+            msrc = self.j(bindir, x+'.manifest')
+            if os.path.exists(msrc):
+                shutil.copy2(msrc, self.dll_dir)
 
         # Copy ImageMagick
+        impath = glob.glob(IMAGEMAGICK)[-1]
         for pat in ('*.dll', '*.xml'):
-            for f in glob.glob(self.j(IMAGEMAGICK, pat)):
+            for f in glob.glob(self.j(impath, pat)):
                 ok = True
                 for ex in ('magick++', 'x11.dll', 'xext.dll'):
                     if ex in f.lower(): ok = False
@@ -564,9 +563,12 @@ class Win32Freeze(Command, WixMixIn):
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
                     if pyd.endswith('.pyd') and pyd not in {
-                            'sqlite_custom.pyd', 'calibre_style.pyd'}:
+                            'unrar.pyd', 'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
+                        # For some reason unrar.pyd crashes when processing
+                        # password protected RAR files if loaded from inside
+                        # pylib.zip
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
 

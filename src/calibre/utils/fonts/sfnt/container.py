@@ -21,6 +21,9 @@ from calibre.utils.fonts.sfnt.maxp import MaxpTable
 from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.glyf import GlyfTable
 from calibre.utils.fonts.sfnt.cmap import CmapTable
+from calibre.utils.fonts.sfnt.kern import KernTable
+from calibre.utils.fonts.sfnt.gsub import GSUBTable
+from calibre.utils.fonts.sfnt.cff.table import CFFTable
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
 
@@ -42,6 +45,9 @@ class Sfnt(object):
                     b'loca' : LocaTable,
                     b'glyf' : GlyfTable,
                     b'cmap' : CmapTable,
+                    b'CFF ' : CFFTable,
+                    b'kern' : KernTable,
+                    b'GSUB' : GSUBTable,
                     }.get(table_tag, UnknownTable)(table)
 
     def __getitem__(self, key):
@@ -53,12 +59,29 @@ class Sfnt(object):
     def __delitem__(self, key):
         del self.tables[key]
 
+    def __iter__(self):
+        '''Iterate over the table tags in order.'''
+        for x in sorted(self.tables.iterkeys()):
+            yield x
+        # Although the optimal order is not alphabetical, the OTF spec says
+        # they should be alphabetical, so we stick with that. See
+        # http://partners.adobe.com/public/developer/opentype/index_recs.html
+        # for optimal order.
+        # keys = list(self.tables.iterkeys())
+        # order = {x:i for i, x in enumerate((b'head', b'hhea', b'maxp', b'OS/2',
+        #     b'hmtx', b'LTSH', b'VDMX', b'hdmx', b'cmap', b'fpgm', b'prep',
+        #     b'cvt ', b'loca', b'glyf', b'CFF ', b'kern', b'name', b'post',
+        #     b'gasp', b'PCLT', b'DSIG'))}
+        # keys.sort(key=lambda x:order.get(x, 1000))
+        # for x in keys:
+        #     yield x
+
     def pop(self, key, default=None):
         return self.tables.pop(key, default)
 
     def sizes(self):
         ans = OrderedDict()
-        for tag in sorted(self.tables):
+        for tag in self:
             ans[tag] = len(self[tag])
         return ans
 
@@ -82,7 +105,7 @@ class Sfnt(object):
         table_data = []
         offset = stream.tell() + ( calcsize(b'>4s3L') * num_tables )
         sizes = OrderedDict()
-        for tag in sorted(self.tables):
+        for tag in self:
             table = self.tables[tag]
             raw = table()
             table_len = len(raw)

@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import author_to_author_sort
 class Book(Book_):
 
     def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,
-                 thumbnail_name=None, size=0, other=None):
+                 thumbnail_name=None, size=None, other=None):
 #        debug_print('Book::__init__ - title=', title)
         show_debug = title is not None and title.lower().find("xxxxx") >= 0
         if show_debug:
@@ -57,7 +57,7 @@ class Book(Book_):
                             except:
                                 self.datetime = time.gmtime()
 
-        self.contentID = None
+        self.contentID          = None
         self.current_shelves    = []
         self.kobo_collections   = []
 
@@ -65,7 +65,8 @@ class Book(Book_):
             self.thumbnail = ImageWrapper(thumbnail_name)
 
         if show_debug:
-            debug_print("Book::__init__ - self=", self)
+            debug_print("Book::__init__ end - self=", self)
+            debug_print("Book::__init__ end - title=", title, 'authors=', authors)
 
 
 class ImageWrapper(object):

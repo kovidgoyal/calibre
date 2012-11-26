@@ -13,7 +13,7 @@ import datetime
 class Newsweek(BasicNewsRecipe):
 
 	# how many issues to go back, 0 means get the most current one
-	BACK_ISSUES = 1
+	BACK_ISSUES = 2
 
 	EDITION = '0'
 	DATE = None

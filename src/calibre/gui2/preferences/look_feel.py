@@ -107,6 +107,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('book_list_tooltips', gprefs)
         r('tag_browser_old_look', gprefs, restart_required=True)
         r('bd_show_cover', gprefs)
+        r('bd_overlay_cover_size', gprefs)
 
         r('cover_flow_queue_length', config, restart_required=True)
 

@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 5)
+numeric_version = (0, 9, 7)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -13,14 +13,6 @@ Various run time constants.
 '''
 
 import sys, locale, codecs, os, importlib, collections
-
-_tc = None
-def terminal_controller():
-    global _tc
-    if _tc is None:
-        from calibre.utils.terminfo import TerminalController
-        _tc = TerminalController(sys.stdout)
-    return _tc
 
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
@@ -36,7 +28,10 @@ isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
+is64bit = sys.maxint > (1 << 32)
 isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
+if isworker:
+    os.environ.pop('CALIBRE_FORCE_ANSI', None)
 
 try:
     preferred_encoding = locale.getpreferredencoding()
@@ -91,6 +86,7 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'freetype',
                 'woff',
+                'unrar',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
@@ -177,6 +173,9 @@ def get_version():
     v = __version__
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
+    if iswindows and is64bit:
+        v += ' [64bit]'
+
     return v
 
 def get_portable_base():
