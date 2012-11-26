@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-23 03:42+0000\n"
-"PO-Revision-Date: 2012-11-23 04:23+0000\n"
+"PO-Revision-Date: 2012-11-25 12:09+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-11-24 05:36+0000\n"
+"X-Launchpad-Export-Date: 2012-11-26 04:38+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1847,7 +1847,7 @@ msgstr "Ex124Gと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "WayteQ リーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -1865,73 +1865,73 @@ msgstr "デバイス情報を取得..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "ファイルのリストを作成中。しばらくおまちください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "ebookの書誌情報を読み込んでいます"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "書誌情報を %s から読み込み中"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:233
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "デバイス上にキャッシュしている書誌情報を更新中"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:235
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "デバイス上の書誌情報を読み込みました。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
 msgid "Transferred %s to device"
-msgstr ""
+msgstr "%s をデバイスに転送しました"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:395
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "デバイスへの転送を終了。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:416
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "%s を追加しました。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
 msgid "Adding complete"
-msgstr ""
+msgstr "追加完了"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:434
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "デバイスから書籍を削除中..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:440
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "%s を削除しました"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:441
 msgid "All books deleted"
-msgstr ""
+msgstr "すべての書籍を削除しました"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "書籍から書誌情報を削除しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:456
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "%s を削除しました"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
 msgid "All books removed"
-msgstr ""
+msgstr "すべての書籍を削除しました"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "不明なMTPデバイスです"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:216
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
@@ -1941,7 +1941,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "MTPデバイスはWindows XPではサポートされていません"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -1949,6 +1949,8 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
+"Windows ポータブル・デバイス・サービスがこのコンピューターにありません。Windows Media Player "
+"11以降をインストールしてリスタートしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
@@ -2119,11 +2121,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
 msgid "Wireless Device"
-msgstr ""
+msgstr "ワイアレス・デバイス"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Smart Device アプリと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:264
 msgid "All by something"
@@ -2131,11 +2133,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:267
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "起動時に通信をイネーブル"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:268
 msgid "Check this box to allow connections when calibre starts"
-msgstr ""
+msgstr "Calibreのスタート時に通信を開始するには、これをチェックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:270
 msgid "Security password"
@@ -2147,7 +2149,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:273
 msgid "Use fixed network port"
-msgstr ""
+msgstr "固定のポートを用いる"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:274
 msgid ""
@@ -2163,7 +2165,7 @@ msgstr "ポート番号 "
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
-msgstr ""
+msgstr "「固定のポートを用いる」をチェックしたときにドライバが使用するポート番号を入力"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:278
 msgid "Print extra debug information"
@@ -2185,7 +2187,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:291
 msgid "Enable the no-activity timeout"
-msgstr ""
+msgstr "活動が無い場合のタイムアウトを設定"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:292
 #, python-format
@@ -2194,6 +2196,8 @@ msgid ""
 "device does nothing for %d minutes. Unchecking this  box disables this "
 "timeout, so calibre will never automatically disconnect."
 msgstr ""
+"このボックスをチェックした場合、%d分間、接続したデバイスが何もしなかった場合、Calibreは自動的に切断します。チェックをはずした場合、このタイムアウ"
+"トは無効になります。なのでCalibreが自動的に切断する事は絶対にありません。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
 msgid "Use this IP address"
