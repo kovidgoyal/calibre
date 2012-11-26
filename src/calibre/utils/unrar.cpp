@@ -377,6 +377,10 @@ RAR_process_item(RARArchive *self, PyObject *args) {
                 PyErr_SetString(UNRARError, "This file is locked with a password.");
                 return NULL;
             }
+            if (self->archive->NewLhd.Flags & LHD_SPLIT_AFTER) {
+                PyErr_SetString(UNRARError, "This file is part of a multivolume RAR archive.");
+                return NULL;
+            }
             self->DataIO.UnpVolume = false;
             self->DataIO.NextVolumeMissing=false;
             self->DataIO.CurUnpRead=0;
