@@ -89,7 +89,7 @@ class SubsetFonts(object):
             except (IndexError, KeyError, AttributeError, TypeError, ValueError):
                 val = None if q in {'src', 'font-family'} else default
             if q in {'font-weight', 'font-stretch', 'font-style'}:
-                val = val.lower() if val else val
+                val = unicode(val).lower() if (val or val == 0) else val
                 if val == 'inherit':
                     val = default
             if q == 'font-weight':

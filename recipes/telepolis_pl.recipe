@@ -1,0 +1,67 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+
+class telepolis(BasicNewsRecipe):
+    title = u'Telepolis.pl'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    description = u'Twój telekomunikacyjny serwis informacyjny.\
+                  Codzienne informacje, testy i artykuły,\
+                  promocje, baza telefonów oraz centrum rozrywki'
+    oldest_article = 7
+    masthead_url = 'http://telepolis.pl/i/telepolis-logo2.gif'
+    max_articles_per_feed = 100
+    simultaneous_downloads = 5
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+
+    remove_tags = []
+    remove_tags.append(dict(attrs={'alt': 'TELEPOLIS.pl'}))
+
+    preprocess_regexps = [(re.compile(r'<: .*? :>'),
+                           lambda match: ''),
+                          (re.compile(r'<b>Zobacz:</b>.*?</a>', re.DOTALL),
+                           lambda match: ''),
+                          (re.compile(r'<-ankieta.*?>'),
+                           lambda match: ''),
+                          (re.compile(r'\(Q\!\)'),
+                           lambda match: ''),
+                          (re.compile(r'\(plik.*?\)'),
+                           lambda match: ''),
+                          (re.compile(r'<br.*?><br.*?>', re.DOTALL),
+                           lambda match: '')
+                          ]
+
+    extra_css = '''.tb { font-weight: bold; font-size: 20px;}'''
+
+    feeds = [
+        (u'Wiadomości', u'http://www.telepolis.pl/rss/news.php'),
+        (u'Artykuły', u'http://www.telepolis.pl/rss/artykuly.php')
+    ]
+
+    def print_version(self, url):
+        if 'news.php' in url:
+            print_url = url.replace('news.php', 'news_print.php')
+        else:
+            print_url = url.replace('artykuly.php', 'art_print.php')
+        return print_url
+
+    def preprocess_html(self, soup):
+        for image in soup.findAll('img'):
+            if 'm.jpg' in image['src']:
+                image_big = image['src']
+                image_big = image_big.replace('m.jpg', '.jpg')
+                image['src'] = image_big
+        logo = soup.find('tr')
+        logo.extract()
+        for tag in soup.findAll('tr'):
+            for strings in ['Wiadomość wydrukowana', 'copyright']:
+                if strings in self.tag_to_string(tag):
+                    tag.extract()
+        return self.adeify_images(soup)

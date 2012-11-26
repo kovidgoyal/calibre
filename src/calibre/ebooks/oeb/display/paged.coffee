@@ -71,7 +71,7 @@ class PagedDisplay
             this.margin_side = margin_side
             this.margin_bottom = margin_bottom
 
-    layout: () ->
+    layout: (is_single_page=false) ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
         bs = document.body.style
@@ -116,6 +116,18 @@ class PagedDisplay
         # above the columns, which causes them to effectively be added to the
         # page margins (the margin collapse algorithm)
         bs.setProperty('-webkit-margin-collapse', 'separate')
+        # Remove any webkit specified default margin from the first child of body
+        # Otherwise, you could end up with an effective negative margin, I dont
+        # understand exactly why, but see:
+        # https://bugs.launchpad.net/calibre/+bug/1082640 for an example
+        c = document.body.firstChild
+        count = 0
+        while c?.nodeType != 1 and count < 20
+            c = c?.nextSibling
+            count += 1
+        if c?.nodeType == 1
+            c.style.setProperty('-webkit-margin-before', '0')
+
 
         bs.setProperty('overflow', 'visible')
         bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
@@ -151,6 +163,8 @@ class PagedDisplay
             has_svg = document.getElementsByTagName('svg').length > 0
             only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
             this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
+            if is_single_page
+                this.is_full_screen_layout = true
 
         this.in_paged_mode = true
         this.current_margin_side = sm

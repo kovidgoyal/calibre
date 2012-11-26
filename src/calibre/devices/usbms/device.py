@@ -14,6 +14,7 @@ device. This class handles device detection.
 import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
+from calibre import prints, as_unicode
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -903,7 +904,7 @@ class Device(DeviceConfig, DevicePlugin):
                     winutil.eject_drive(bytes(d)[0])
                 except Exception as e:
                     try:
-                        prints(as_unicode(e))
+                        prints("Eject failed:", as_unicode(e))
                     except:
                         pass
 

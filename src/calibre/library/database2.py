@@ -28,7 +28,8 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
 from calibre.ptempfile import (PersistentTemporaryFile,
         base_dir, SpooledTemporaryFile)
-from calibre.customize.ui import run_plugins_on_import
+from calibre.customize.ui import (run_plugins_on_import,
+                                  run_plugins_on_postimport)
 from calibre import isbytestring
 from calibre.utils.filenames import (ascii_filename, samefile,
         WindowsAtomicFolderMove, hardlink_file)
@@ -1495,8 +1496,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
         stream = lopen(npath, 'rb')
         format = check_ebook_format(stream, format)
-        return self.add_format(index, format, stream,
+        retval = self.add_format(index, format, stream,
                                index_is_id=index_is_id, path=path, notify=notify)
+        run_plugins_on_postimport(self, id, format)
+        return retval
 
     def add_format(self, index, format, stream, index_is_id=False, path=None,
             notify=True, replace=True, copy_function=None):
@@ -3475,6 +3478,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         formats, metadata = iter(formats), iter(metadata)
         duplicates = []
         ids = []
+        postimport = []
         for path in paths:
             mi = metadata.next()
             self._add_newbook_tag(mi)
@@ -3506,8 +3510,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             format = check_ebook_format(stream, format)
             self.add_format(id, format, stream, index_is_id=True)
             stream.close()
+            postimport.append((id, format))
         self.conn.commit()
         self.data.refresh_ids(self, ids) # Needed to update format list and size
+        for book_id, fmt in postimport:
+            run_plugins_on_postimport(self, book_id, fmt)
         if duplicates:
             paths    = list(duplicate[0] for duplicate in duplicates)
             formats  = list(duplicate[1] for duplicate in duplicates)

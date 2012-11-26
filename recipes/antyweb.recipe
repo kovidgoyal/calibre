@@ -1,0 +1,48 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AntywebRecipe(BasicNewsRecipe):
+    encoding = 'utf-8'
+    __license__ = 'GPL v3'
+    __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    version = 1
+    title = u'Antyweb'
+    category = u'News'
+    description = u'Blog o internecie i nowych technologiach'
+    cover_url=''
+    remove_empty_feeds= True
+    auto_cleanup = False
+    no_stylesheets=True
+    use_embedded_content = False
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_javascript = True
+    simultaneous_downloads = 3
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'h1', attrs = { 'class' : 'mm-article-title'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'mm-article-content'}))
+
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'h2', attrs = {'class' : 'widgettitle'}))
+    remove_tags.append(dict(name = 'img', attrs = {'class' : 'alignleft'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'float: right;margin-left:1em;margin-bottom: 0.5em;padding-bottom: 3px; width: 72px;'}))
+    remove_tags.append(dict(name = 'img', attrs = {'src' : 'http://antyweb.pl/wp-content/uploads/2011/09/HOSTERSI_testy_pasek600x30.gif'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'podwpisowe'}))
+
+
+    extra_css = '''
+                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
+                       '''
+
+    feeds          = [
+                            (u'Artykuly', u'feed://feeds.feedburner.com/Antyweb?format=xml'),
+                     ]
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+	return soup

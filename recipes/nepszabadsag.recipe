@@ -1,0 +1,56 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+'''
+Fetch Népszabadság
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class nepszabadsag(BasicNewsRecipe):
+    title = u'N\u00e9pszabads\u00e1g'
+    description = ''
+    __author__ = 'bubak'
+    use_embedded_content   = False
+    timefmt = ' [%d %b %Y]'
+    oldest_article = 2
+    max_articles_per_feed = 20
+    no_stylesheets = True
+    language = 'hu'
+    #delay = 1
+    #timeout = 10
+    simultaneous_downloads = 5
+
+    #encoding = 'utf-8'
+    remove_javascript = True
+    cover_url = 'http://nol.hu/_design/image/logo_nol_live.jpg'
+
+    feeds = [
+             (u'Belföld', u'http://nol.hu/feed/belfold.rss')
+             #,(u'Külföld', u'http://nol.hu/feed/kulfold.rss')
+             #,(u'Gazdaság', u'http://nol.hu/feed/gazdasag.rss')
+             #,(u'Kultúra', u'http://nol.hu/feed/kult.rss')
+             ]
+
+    extra_css = '''
+    		'''
+
+    remove_attributes = []
+    remove_tags_before  = dict(name='div', attrs={'class':['d-source']})
+    remove_tags_after  = dict(name='div', attrs={'class':['tags']})
+    remove_tags = [dict(name='div',   attrs={'class':['h']}),
+			dict(name='tfoot')]
+
+
+    keep_only_tags = [dict(name='table', attrs={'class':'article-box'})]
+
+    # NS sends an ad page sometimes but not frequently enough, TBD
+    def AAskip_ad_pages(self, soup):
+        if ('advertisement' in soup.find('title').string.lower()):
+            href = soup.find('a').get('href')
+            self.log.debug('Skipping to: ' + href)
+            new = self.browser.open(href).read().decode('utf-8', 'ignore')
+            #ipython(locals())
+            self.log.debug('Finished: ' + href)
+            return new
+        else:
+            return None
+

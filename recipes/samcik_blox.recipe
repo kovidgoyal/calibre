@@ -1,0 +1,26 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__author__ = 'teepel <teepel44@gmail.com>'
+
+'''
+samcik.blox.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class samcik(BasicNewsRecipe):
+    title          = u'Maciej Samcik Blog'
+    __author__ = 'teepel <teepel44@gmail.com>'
+    language       = 'pl'
+    description =u'Blog Macieja Samcika, długoletniego dziennikarza ekonomicznego Gazety Wyborczej . O finansach małych i dużych. Mnóstwo ciekawostek na temat pieniędzy.'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+    simultaneous_downloads = 3
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'table', attrs = {'border' : '0'}))
+      
+    feeds          = [(u'Wpisy', u'http://samcik.blox.pl/rss2')]

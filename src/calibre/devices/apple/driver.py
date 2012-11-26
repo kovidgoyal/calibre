@@ -240,6 +240,7 @@ class ITUNES(DriverBase):
 
     # iTunes enumerations
     Audiobooks = [
+        'AAC audio file',
         'Audible file',
         'MPEG audio file',
         'Protected AAC audio file'

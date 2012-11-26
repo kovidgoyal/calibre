@@ -210,9 +210,7 @@ OptionRecommendation(name='subset_embedded_fonts',
             'Subset all embedded fonts. Every embedded font is reduced '
             'to contain only the glyphs used in this document. This decreases '
             'the size of the font files. Useful if you are embedding a '
-            'particularly large font with lots of unused glyphs. Note that '
-            'subsetting is only supported for fonts that contain TrueType '
-            'outlines, not Postscript outlines.')
+            'particularly large font with lots of unused glyphs.')
         ),
 
 OptionRecommendation(name='linearize_tables',
@@ -1105,10 +1103,14 @@ OptionRecommendation(name='search_replace',
             from calibre.ebooks.oeb.transforms.unsmarten import UnsmartenPunctuation
             UnsmartenPunctuation()(self.oeb, self.opts)
 
+        mobi_file_type = getattr(self.opts, 'mobi_file_type', 'old')
+        needs_old_markup = (self.output_plugin.file_type == 'lit' or
+                    (self.output_plugin.file_type == 'mobi' and mobi_file_type
+                     == 'old'))
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
-                untable=self.output_plugin.file_type in ('mobi','lit'),
-                unfloat=self.output_plugin.file_type in ('mobi', 'lit'),
+                untable=needs_old_markup,
+                unfloat=needs_old_markup,
                 page_break_on_body=self.output_plugin.file_type in ('mobi',
                     'lit'),
                 specializer=partial(self.output_plugin.specialize_css_for_output,

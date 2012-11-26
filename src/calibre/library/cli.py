@@ -23,13 +23,16 @@ FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'formats', 'isbn', 'uuid', 'pubdate', 'cover', 'last_modified',
     'identifiers'])
 
+do_notify = True
 def send_message(msg=''):
+    global do_notify
+    if not do_notify:
+        return
     prints('Notifying calibre of the change')
     from calibre.utils.ipc import RC
-    import time
     t = RC(print_error=False)
     t.start()
-    time.sleep(3)
+    t.join(3)
     if t.done:
         t.conn.send('refreshdb:'+msg)
         t.conn.close()
@@ -42,22 +45,27 @@ def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group(_('GLOBAL OPTIONS'))
     go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
+    go.add_option('--dont-notify-gui', default=False, action='store_true',
+            help=_('Do not notify the running calibre GUI (if any) that the database has'
+                ' changed. Use with care, as it can lead to database corruption!'))
 
     return parser
 
 def get_db(dbpath, options):
+    global do_notify
     if options.library_path is not None:
         dbpath = options.library_path
     if dbpath is None:
         raise ValueError('No saved library path, either run the GUI or use the'
                 ' --with-library option')
     dbpath = os.path.abspath(dbpath)
+    if options.dont_notify_gui:
+        do_notify = False
     return LibraryDatabase2(dbpath)
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, subtitle='Books in the calibre database'):
-    from calibre.constants import terminal_controller as tc
-    terminal_controller = tc()
+    from calibre.utils.terminal import ColoredStream, geometry
     if sort_by:
         db.sort(sort_by, ascending)
     if search_text:
@@ -92,7 +100,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], len(unicode(i[field])))
 
-    screen_width = terminal_controller.COLS if line_width < 0 else line_width
+    screen_width = geometry()[0] if line_width < 0 else line_width
     if not screen_width:
         screen_width = 80
     field_width = screen_width//len(fields)
@@ -111,7 +119,8 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     widths = list(base_widths)
     titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
             widths, title_fields)
-    print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+    with ColoredStream(sys.stdout, fg='green'):
+        print ''.join(titles)
 
     wrappers = map(lambda x: TextWrapper(x-1), widths)
     o = cStringIO.StringIO()
@@ -1279,8 +1288,7 @@ def command_list_categories(args, dbpath):
     fields = ['category', 'tag_name', 'count', 'rating']
 
     def do_list():
-        from calibre.constants import terminal_controller as tc
-        terminal_controller = tc()
+        from calibre.utils.terminal import geometry, ColoredStream
 
         separator = ' '
         widths = list(map(lambda x : 0, fields))
@@ -1288,7 +1296,7 @@ def command_list_categories(args, dbpath):
             for j, field in enumerate(fields):
                 widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
 
-        screen_width = terminal_controller.COLS if opts.width < 0 else opts.width
+        screen_width = geometry()[0]
         if not screen_width:
             screen_width = 80
         field_width = screen_width//len(fields)
@@ -1307,7 +1315,8 @@ def command_list_categories(args, dbpath):
         widths = list(base_widths)
         titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
                 widths, fields)
-        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+        with ColoredStream(sys.stdout, fg='green'):
+            print ''.join(titles)
 
         wrappers = map(lambda x: TextWrapper(x-1), widths)
         o = cStringIO.StringIO()

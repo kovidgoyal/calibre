@@ -3905,7 +3905,7 @@ class CatalogBuilder(object):
         mtc = 0
 
         titleTag = Tag(soup, "dc:title")
-        titleTag.insert(0,self.opts.catalog_title)
+        titleTag.insert(0,escape(self.opts.catalog_title))
         metadata.insert(mtc, titleTag)
         mtc += 1
 
@@ -4615,6 +4615,8 @@ class CatalogBuilder(object):
                                         index_is_id=True)
             if addendum is None:
                 addendum = ''
+            elif type(addendum) is list:
+                addendum = (', '.join(addendum))
             include_hr = eval(self.merge_comments_rule['hr'])
             if self.merge_comments_rule['position'] == 'before':
                 merged = addendum
@@ -4631,10 +4633,12 @@ class CatalogBuilder(object):
                     merged += '\n'
                 merged += addendum
         else:
-            # Return the custom field contents
+            # Return only the custom field contents
             merged = self.db.get_field(record['id'],
                                         self.merge_comments_rule['field'],
                                         index_is_id=True)
+            if type(merged) is list:
+                merged = (', '.join(merged))
 
         return merged
 

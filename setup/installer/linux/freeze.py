@@ -43,7 +43,6 @@ class LinuxFreeze(Command):
                         '/usr/lib/liblcms2.so.2',
                         '/usr/lib/libstlport.so.5.1',
                         '/tmp/calibre-mount-helper',
-                        '/usr/lib/libunrar.so',
                         '/usr/lib/libchm.so.0',
                         '/usr/lib/libsqlite3.so.0',
                         '/usr/lib/libmng.so.1',

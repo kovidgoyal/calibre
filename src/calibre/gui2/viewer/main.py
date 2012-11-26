@@ -21,7 +21,7 @@ from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
     info_dialog, error_dialog, open_url, available_height)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isbsd, filesystem_encoding
+from calibre.constants import islinux, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
@@ -160,7 +160,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     PAGED_MODE_TT = _('Switch to flow mode - where the text is not broken up '
             'into pages')
 
-    def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
+    def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None,
+                 start_in_fullscreen=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
         self.view.initialize_view(debug_javascript)
@@ -178,6 +179,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_restore   = False
         self.existing_bookmarks= []
         self.selected_text     = None
+        self.was_maximized     = False
         self.read_settings()
         self.dictionary_box.hide()
         self.close_dictionary_view.clicked.connect(lambda
@@ -207,7 +209,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.set_manager(self)
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
-        self.action_quit = QAction(self)
+        self.action_quit = QAction(_('&Quit'), self)
         self.addAction(self.action_quit)
         self.view_resized_timer = QTimer(self)
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
@@ -299,6 +301,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ''')
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
+        self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
@@ -358,6 +361,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
         self.restore_state()
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
+        if (start_in_fullscreen or self.view.document.start_in_fullscreen):
+            self.action_full_screen.trigger()
 
     def toggle_paged_mode(self, checked, at_start=False):
         in_paged_mode = not self.action_toggle_paged_mode.isChecked()
@@ -397,7 +402,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 count += 1
 
     def shutdown(self):
-        if self.isFullScreen():
+        if self.isFullScreen() and not self.view.document.start_in_fullscreen:
             self.action_full_screen.trigger()
             return False
         self.save_state()
@@ -421,7 +426,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def save_state(self):
         state = bytearray(self.saveState(self.STATE_VERSION))
         vprefs['viewer_toolbar_state'] = state
-        vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
+        if not self.isFullScreen():
+            vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
         if self.current_book_has_toc:
             vprefs.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
         if self.toc.isVisible():
@@ -488,6 +494,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.window_mode_changed = 'fullscreen'
         self.tool_bar.setVisible(False)
         self.tool_bar2.setVisible(False)
+        self.was_maximized = self.isMaximized()
         if not self.view.document.fullscreen_scrollbar:
             self.vertical_scrollbar.setVisible(False)
             self.frame.layout().setSpacing(0)
@@ -503,17 +510,18 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def show_full_screen_label(self):
         f = self.full_screen_label
         self.esc_full_screen_action.setEnabled(True)
-        f.setVisible(True)
         height = 200
         width = int(0.7*self.view.width())
         f.resize(width, height)
         f.move((self.view.width() - width)//2, (self.view.height()-height)//2)
-        a = self.full_screen_label_anim
-        a.setDuration(500)
-        a.setStartValue(QSize(width, 0))
-        a.setEndValue(QSize(width, height))
-        a.start()
-        QTimer.singleShot(3500, self.full_screen_label.hide)
+        if self.view.document.show_fullscreen_help:
+            f.setVisible(True)
+            a = self.full_screen_label_anim
+            a.setDuration(500)
+            a.setStartValue(QSize(width, 0))
+            a.setEndValue(QSize(width, height))
+            a.start()
+            QTimer.singleShot(3500, self.full_screen_label.hide)
         self.view.document.switch_to_fullscreen_mode()
         if self.view.document.fullscreen_clock:
             self.show_clock()
@@ -574,7 +582,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             om = self._original_frame_margins
             self.centralwidget.layout().setContentsMargins(om[0])
             self.frame.layout().setContentsMargins(om[1])
-        super(EbookViewer, self).showNormal()
+        if self.was_maximized:
+            super(EbookViewer, self).showMaximized()
+        else:
+            super(EbookViewer, self).showNormal()
 
     def handle_window_mode_toggle(self):
         if self.window_mode_changed:
@@ -681,13 +692,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def font_size_larger(self):
         self.view.magnify_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def font_size_smaller(self):
         self.view.shrink_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def magnification_changed(self, val):
         tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
@@ -695,6 +702,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 tt %dict(which=_('larger'), mag=val))
         self.action_font_size_smaller.setToolTip(
                 tt %dict(which=_('smaller'), mag=val))
+        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
+        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
     def find(self, text, repeat=False, backwards=False):
         if not text:
@@ -1129,32 +1138,29 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    pid = os.fork() if False and (islinux or isbsd) else -1
     try:
         open_at = float(opts.open_at)
     except:
         open_at = None
-    if pid <= 0:
-        override = 'calibre-ebook-viewer' if islinux else None
-        app = Application(args, override_program_name=override)
-        app.load_builtin_fonts()
-        app.setWindowIcon(QIcon(I('viewer.png')))
-        QApplication.setOrganizationName(ORG_NAME)
-        QApplication.setApplicationName(APP_UID)
-        main = EbookViewer(args[1] if len(args) > 1 else None,
-                debug_javascript=opts.debug_javascript, open_at=open_at)
-        # This is needed for paged mode. Without it, the first document that is
-        # loaded will have extra blank space at the bottom, as
-        # turn_off_internal_scrollbars does not take effect for the first
-        # rendered document
-        main.view.load_path(P('viewer/blank.html', allow_user_override=False))
+    override = 'calibre-ebook-viewer' if islinux else None
+    app = Application(args, override_program_name=override)
+    app.load_builtin_fonts()
+    app.setWindowIcon(QIcon(I('viewer.png')))
+    QApplication.setOrganizationName(ORG_NAME)
+    QApplication.setApplicationName(APP_UID)
+    main = EbookViewer(args[1] if len(args) > 1 else None,
+            debug_javascript=opts.debug_javascript, open_at=open_at,
+                       start_in_fullscreen=opts.full_screen)
+    # This is needed for paged mode. Without it, the first document that is
+    # loaded will have extra blank space at the bottom, as
+    # turn_off_internal_scrollbars does not take effect for the first
+    # rendered document
+    main.view.load_path(P('viewer/blank.html', allow_user_override=False))
 
-        sys.excepthook = main.unhandled_exception
-        main.show()
-        if opts.raise_window:
-            main.raise_()
-    if opts.full_screen:
-        main.action_full_screen.trigger()
+    sys.excepthook = main.unhandled_exception
+    main.show()
+    if opts.raise_window:
+        main.raise_()
     with main:
         return app.exec_()
     return 0

@@ -12,10 +12,11 @@ from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
         QIcon, pyqtSignature, QAction, QMenu, QString, pyqtSignal,
         QSwipeGesture, QApplication, pyqtSlot)
-from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
+from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
+from calibre.gui2 import open_url
 from calibre import prints
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
@@ -23,6 +24,7 @@ from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog, load_themes
 from calibre.gui2.viewer.image_popup import ImagePopup
+from calibre.gui2.viewer.table_popup import TablePopup
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
 # }}}
@@ -30,6 +32,7 @@ from calibre.constants import isxp, iswindows
 class Document(QWebPage): # {{{
 
     page_turn = pyqtSignal(object)
+    mark_element = pyqtSignal(QWebElement)
 
     def set_font_settings(self, opts):
         settings = self.settings()
@@ -144,6 +147,8 @@ class Document(QWebPage): # {{{
         self.fullscreen_clock = opts.fullscreen_clock
         self.fullscreen_scrollbar = opts.fullscreen_scrollbar
         self.fullscreen_pos = opts.fullscreen_pos
+        self.start_in_fullscreen = opts.start_in_fullscreen
+        self.show_fullscreen_help = opts.show_fullscreen_help
         self.use_book_margins = opts.use_book_margins
         self.cols_per_screen = opts.cols_per_screen
         self.side_margin = opts.side_margin
@@ -179,6 +184,7 @@ class Document(QWebPage): # {{{
             ensure_ascii=False)))
         for pl in self.all_viewer_plugins:
             pl.load_javascript(evaljs)
+        evaljs('py_bridge.mark_element.connect(window.calibre_extract.mark)')
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -204,7 +210,7 @@ class Document(QWebPage): # {{{
     _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
-    def after_load(self):
+    def after_load(self, last_loaded_path=None):
         self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
@@ -213,7 +219,7 @@ class Document(QWebPage): # {{{
         if self.in_fullscreen_mode:
             self.switch_to_fullscreen_mode()
         if self.in_paged_mode:
-            self.switch_to_paged_mode()
+            self.switch_to_paged_mode(last_loaded_path=last_loaded_path)
         self.read_anchor_positions(use_cache=False)
         evaljs = self.mainFrame().evaluateJavaScript
         for pl in self.all_viewer_plugins:
@@ -240,7 +246,7 @@ class Document(QWebPage): # {{{
             self.anchor_positions = {}
         return {k:tuple(v) for k, v in self.anchor_positions.iteritems()}
 
-    def switch_to_paged_mode(self, onresize=False):
+    def switch_to_paged_mode(self, onresize=False, last_loaded_path=None):
         if onresize and not self.loaded_javascript:
             return
         self.javascript('''
@@ -251,9 +257,12 @@ class Document(QWebPage): # {{{
             self.cols_per_screen, self.top_margin, self.side_margin,
             self.bottom_margin
             ))
-        side_margin = self.javascript('window.paged_display.layout()', typ=int)
+        force_fullscreen_layout = bool(getattr(last_loaded_path,
+                                               'is_single_page', False))
+        f = 'true' if force_fullscreen_layout else 'false'
+        side_margin = self.javascript('window.paged_display.layout(%s)'%f, typ=int)
         # Setup the contents size to ensure that there is a right most margin.
-        # Without this webkit renders the final column with no margin, as the
+        # Without this WebKit renders the final column with no margin, as the
         # columns extend beyond the boundaries (and margin) of body
         mf = self.mainFrame()
         sz = mf.contentsSize()
@@ -442,6 +451,10 @@ class Document(QWebPage): # {{{
                 self.height+amount)
         self.setPreferredContentsSize(s)
 
+    def extract_node(self):
+        return unicode(self.mainFrame().evaluateJavaScript(
+            'window.calibre_extract.extract()').toString())
+
 # }}}
 
 class DocumentView(QWebView): # {{{
@@ -478,15 +491,23 @@ class DocumentView(QWebView): # {{{
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
-                d.OpenImageInNewWindow, d.OpenLink, d.Reload]))
+                d.OpenImageInNewWindow, d.OpenLink, d.Reload, d.InspectElement]))
+
+        self.search_online_action = QAction(QIcon(I('search.png')), '', self)
+        self.search_online_action.setShortcut(Qt.CTRL+Qt.Key_E)
+        self.search_online_action.triggered.connect(self.search_online)
+        self.addAction(self.search_online_action)
         self.dictionary_action = QAction(QIcon(I('dictionary.png')),
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
         self.image_popup = ImagePopup(self)
+        self.table_popup = TablePopup(self)
         self.view_image_action = QAction(QIcon(I('view-image.png')), _('View &image...'), self)
         self.view_image_action.triggered.connect(self.image_popup)
+        self.view_table_action = QAction(QIcon(I('view.png')), _('View &table...'), self)
+        self.view_table_action.triggered.connect(self.popup_table)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)
         self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
@@ -522,6 +543,10 @@ class DocumentView(QWebView): # {{{
                 m.addAction(name, a[key], self.shortcuts.get_sequences(key)[0])
         self.goto_location_action.setMenu(self.goto_location_menu)
         self.grabGesture(Qt.SwipeGesture)
+
+        self.restore_fonts_action = QAction(_('Normal font size'), self)
+        self.restore_fonts_action.setCheckable(True)
+        self.restore_fonts_action.triggered.connect(self.restore_font_size)
 
     def goto_next_section(self, *args):
         if self.manager is not None:
@@ -579,26 +604,85 @@ class DocumentView(QWebView): # {{{
         if self.manager is not None:
             self.manager.selection_changed(unicode(self.document.selectedText()))
 
+    def _selectedText(self):
+        t = unicode(self.selectedText()).strip()
+        if not t:
+            return u''
+        if len(t) > 40:
+            t = t[:40] + u'...'
+        t = t.replace(u'&', u'&&')
+        return _("S&earch Google for '%s'")%t
+
+    def popup_table(self):
+        html = self.document.extract_node()
+        self.table_popup(html, QUrl.fromLocalFile(self.last_loaded_path),
+                         self.document.font_magnification_step)
+
     def contextMenuEvent(self, ev):
         mf = self.document.mainFrame()
         r = mf.hitTestContent(ev.pos())
         img = r.pixmap()
+        elem = r.element()
+        if elem.isNull():
+            elem = r.enclosingBlockElement()
+        table = None
+        parent = elem
+        while not parent.isNull():
+            if (unicode(parent.tagName()) == u'table' or
+                unicode(parent.localName()) == u'table'):
+                table = parent
+                break
+            parent = parent.parent()
         self.image_popup.current_img = img
         self.image_popup.current_url = r.imageUrl()
         menu = self.document.createStandardContextMenu()
         for action in self.unimplemented_actions:
             menu.removeAction(action)
-        text = unicode(self.selectedText())
-        if text:
-            menu.insertAction(list(menu.actions())[0], self.dictionary_action)
-            menu.insertAction(list(menu.actions())[0], self.search_action)
+
         if not img.isNull():
             menu.addAction(self.view_image_action)
-        menu.addSeparator()
-        menu.addAction(self.goto_location_action)
-        if self.document.in_fullscreen_mode and self.manager is not None:
+        if table is not None:
+            self.document.mark_element.emit(table)
+            menu.addAction(self.view_table_action)
+
+        text = self._selectedText()
+        if text and img.isNull():
+            self.search_online_action.setText(text)
+            menu.addAction(self.search_online_action)
+            menu.addAction(self.dictionary_action)
+            menu.addAction(self.search_action)
+
+        if not text and img.isNull():
             menu.addSeparator()
-            menu.addAction(self.manager.toggle_toolbar_action)
+            if self.manager.action_back.isEnabled():
+                menu.addAction(self.manager.action_back)
+            if self.manager.action_forward.isEnabled():
+                menu.addAction(self.manager.action_forward)
+            menu.addAction(self.goto_location_action)
+
+            if self.manager is not None:
+                menu.addSeparator()
+                menu.addAction(self.manager.action_table_of_contents)
+
+                menu.addSeparator()
+                menu.addAction(self.manager.action_font_size_larger)
+                self.restore_fonts_action.setChecked(self.multiplier == 1)
+                menu.addAction(self.restore_fonts_action)
+                menu.addAction(self.manager.action_font_size_smaller)
+
+        menu.addSeparator()
+        inspectAction = self.pageAction(self.document.InspectElement)
+        menu.addAction(inspectAction)
+
+        if not text and img.isNull() and self.manager is not None:
+            menu.addSeparator()
+            if self.document.in_fullscreen_mode and self.manager is not None:
+                menu.addAction(self.manager.toggle_toolbar_action)
+            menu.addAction(self.manager.action_full_screen)
+
+            menu.addSeparator()
+            menu.addAction(self.manager.action_quit)
+
         menu.exec_(ev.globalPos())
 
     def lookup(self, *args):
@@ -612,6 +696,12 @@ class DocumentView(QWebView): # {{{
             t = unicode(self.selectedText()).strip()
             if t:
                 self.manager.search.set_search_string(t)
+
+    def search_online(self):
+        t = unicode(self.selectedText()).strip()
+        if t:
+            url = 'https://www.google.com/search?q=' + QUrl().toPercentEncoding(t)
+            open_url(QUrl.fromEncoded(url))
 
     def set_manager(self, manager):
         self.manager = manager
@@ -730,7 +820,7 @@ class DocumentView(QWebView): # {{{
             return
         self.loading_url = None
         self.document.load_javascript_libraries()
-        self.document.after_load()
+        self.document.after_load(self.last_loaded_path)
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:
@@ -988,6 +1078,11 @@ class DocumentView(QWebView): # {{{
         if self.multiplier >= amount:
             with self.document.page_position:
                 self.multiplier -= amount
+        return self.document.scroll_fraction
+
+    def restore_font_size(self):
+        with self.document.page_position:
+            self.multiplier = 1
         return self.document.scroll_fraction
 
     def changeEvent(self, event):

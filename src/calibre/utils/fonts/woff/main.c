@@ -49,7 +49,7 @@ to_woff(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "s#", &sfnt, &sz)) return NULL;
 
-    woff = (char*)woffEncode((uint8_t*)sfnt, sz, 0, 0, &wofflen, &status);
+    woff = (char*)woffEncode((uint8_t*)sfnt, (uint32_t)sz, 0, 0, &wofflen, &status);
 
     if (WOFF_FAILURE(status) || woff == NULL) return woff_err(status);
 
@@ -68,7 +68,7 @@ from_woff(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "s#", &woff, &sz)) return NULL;
 
-    sfnt = (char*)woffDecode((uint8_t*)woff, sz, &sfntlen, &status);
+    sfnt = (char*)woffDecode((uint8_t*)woff, (uint32_t)sz, &sfntlen, &status);
 
     if (WOFF_FAILURE(status) || sfnt == NULL) return woff_err(status);
     ans = Py_BuildValue("s#", sfnt, sfntlen);

@@ -4,7 +4,7 @@ class AdvancedUserRecipe1347997197(BasicNewsRecipe):
     title          = u'XpatLoop.com'
     __author__     = 'laca'
     oldest_article = 7
-    language = 'en_HUN'
+    language = 'en_HU'
     auto_cleanup = True
     masthead_url          = 'http://www.xpatloop.com/images/cms/xs_logo.gif'
     use_embedded_content  = False

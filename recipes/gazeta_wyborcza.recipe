@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Gazeta_Wyborcza(BasicNewsRecipe):
-    title = u'Gazeta Wyborcza'
+    title = u'Gazeta.pl'
     __author__ = 'fenuks, Artur Stachecki'
     language = 'pl'
     description = 'news from gazeta.pl'

@@ -32,11 +32,6 @@ def test_lxml():
     else:
         raise RuntimeError('lxml failed')
 
-def test_freetype():
-    from calibre.utils.fonts.free_type import test
-    test()
-    print ('FreeType OK!')
-
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
     matches = win_pnp_drives.scanner()
@@ -80,15 +75,20 @@ def test_imaging():
     else:
         raise RuntimeError('ImageMagick choked!')
     from PIL import Image
+    try:
+        import _imaging, _imagingmath, _imagingft
+        _imaging, _imagingmath, _imagingft
+    except ImportError:
+        from PIL import _imaging, _imagingmath, _imagingft
+    _imaging, _imagingmath, _imagingft
     i = Image.open(cStringIO.StringIO(data))
     if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
 def test_unrar():
-    from calibre.libunrar import _libunrar
-    if not _libunrar:
-        raise RuntimeError('Failed to load libunrar')
+    from calibre.utils.unrar import test_basic
+    test_basic()
     print ('Unrar OK!')
 
 def test_icu():
@@ -114,7 +114,6 @@ def test_woff():
 def test():
     test_plugins()
     test_lxml()
-    test_freetype()
     test_sqlite()
     test_imaging()
     test_unrar()
