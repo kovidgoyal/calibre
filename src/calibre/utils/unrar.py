@@ -10,16 +10,8 @@ __docformat__ = 'restructuredtext en'
 import os, sys, re
 from io import BytesIO
 
-try:
-    from calibre import force_unicode
-    from calibre.constants import filesystem_encoding
-    filesystem_encoding, force_unicode
-except ImportError:
-    filesystem_encoding = sys.getfilesystemencoding()
-    def force_unicode(x, enc=filesystem_encoding):
-        if isinstance(x, bytes):
-            x = x.decode(enc, 'replace')
-        return x
+from calibre import force_unicode
+from calibre.constants import filesystem_encoding
 
 class UNRARError(Exception):
     pass
@@ -93,12 +85,8 @@ class RARStream(object):
 
 
 def RARFile(stream, get_comment=False):
-    try:
-        from calibre.constants import plugins
-    except ImportError:
-        unrar, err = sys.modules['unrar'], None
-    else:
-        unrar, err = plugins['unrar']
+    from calibre.constants import plugins
+    unrar, err = plugins['unrar']
     if err:
         raise RuntimeError('Failed to load unrar module with error: %s'
                            %err)
