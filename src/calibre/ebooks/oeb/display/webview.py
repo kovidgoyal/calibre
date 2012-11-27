@@ -45,10 +45,9 @@ def load_html(path, view, codec='utf-8', mime_type=None,
 
     html = EntityDeclarationProcessor(html).processed_html
     has_svg = re.search(r'<[:a-zA-Z]*svg', html) is not None
-    self_closing_pat = re.compile(r'<([A-Za-z1-6]+)([^>]*)/\s*>')
+    self_closing_pat = re.compile(r'<\s*([A-Za-z1-6]+)([^>]*)/\s*>')
     html = self_closing_pat.sub(self_closing_sub, html)
 
-    html = re.sub(ur'<\s*title\s*/\s*>', u'', html, flags=re.IGNORECASE)
     loading_url = QUrl.fromLocalFile(path)
     pre_load_callback(loading_url)
 
