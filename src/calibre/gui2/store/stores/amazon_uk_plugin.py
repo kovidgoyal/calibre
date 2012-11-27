@@ -29,6 +29,8 @@ class AmazonUKKindleStore(StorePlugin):
                           'linkCode=ur2&camp=1634&creative=6738')
     search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
 
+    author_article = 'by '
+
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
@@ -88,7 +90,8 @@ class AmazonUKKindleStore(StorePlugin):
                 title = ''.join(data.xpath(title_xpath))
                 author = ''.join(data.xpath(author_xpath))
                 try:
-                    author = author.split('by ', 1)[1].split(" (")[0]
+                    if self.author_article:
+                        author = author.split(self.author_article, 1)[1].split(" (")[0]
                 except:
                     pass
 
