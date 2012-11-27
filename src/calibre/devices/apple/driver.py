@@ -227,7 +227,7 @@ class ITUNES(DriverBase):
     #  0x1297   iPhone 4
     #  0x129a   iPad
     #  0x129f   iPad2 (WiFi)
-    #  0x12a0   iPhone 4S
+    #  0x12a0   iPhone 4S (GSM)
     #  0x12a2   iPad2 (GSM)
     #  0x12a3   iPad2 (CDMA)
     #  0x12a6   iPad3 (GSM)
@@ -1196,10 +1196,25 @@ class ITUNES(DriverBase):
                         logger().error("  Device|Books playlist not found")
 
                 # Add the passed book to the Device|Books playlist
-                added = pl.add(appscript.mactypes.File(fpath),to=pl)
-                if False:
-                    logger().info("  '%s' added to Device|Books" % metadata.title)
-
+                attempts = 2
+                delay = 1.0
+                while attempts:
+                    try:
+                        added = pl.add(appscript.mactypes.File(fpath),to=pl)
+                        if False:
+                            logger().info("  '%s' added to Device|Books" % metadata.title)
+                        break
+                    except:
+                        attempts -= 1
+                        if DEBUG:
+                            logger().warning("  failed to add book, waiting %.1f seconds to try again (attempt #%d)" %
+                                     (delay, (3 - attempts)))
+                        time.sleep(delay)
+                else:
+                    if DEBUG:
+                        logger().error(" failed to add '%s' to Device|Books" % metadata.title)
+                    raise UserFeedback("Unable to add '%s' in direct connect mode" % metadata.title,
+                                        details=None, level=UserFeedback.ERROR)
                 self._wait_for_writable_metadata(added)
                 return added
 
