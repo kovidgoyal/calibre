@@ -625,7 +625,8 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
 	BOOL  iterate = TRUE, ddebug = FALSE;
 	PSP_DEVICE_INTERFACE_DETAIL_DATA interfaceDetailData;
     DWORD i;
-    unsigned int j, length;
+    unsigned int j;
+    size_t length;
     WCHAR volume[BUFSIZE];
     struct tagDrives g_drives[MAX_DRIVES];
     PyObject *volumes, *key, *candidates, *pdebug = Py_False, *temp;
@@ -693,7 +694,8 @@ winutil_get_removable_drives(PyObject *self, PyObject *args) {
 
 static PyObject *
 winutil_get_usb_devices(PyObject *self, PyObject *args) {
-	unsigned int j, buffersize;
+	unsigned int j;
+    size_t buffersize;
 	HDEVINFO hDevInfo;
 	DWORD i; BOOL iterate = TRUE;
     PyObject *devices, *temp = (PyObject *)1;
@@ -827,14 +829,24 @@ winutil_strftime(PyObject *self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, "s|O:strftime", &_fmt, &tup))
 		return NULL;
-    fmtlen = mbstowcs(NULL, _fmt, strlen(_fmt));
+
+    if (mbstowcs_s(&fmtlen, NULL, 0, _fmt, strlen(_fmt)) != 0) {
+        PyErr_SetString(PyExc_ValueError, "Failed to convert fmt to wchar");
+        return NULL;
+    }
     fmt = (wchar_t *)PyMem_Malloc((fmtlen+2)*sizeof(wchar_t));
     if (fmt == NULL) return PyErr_NoMemory();
-    mbstowcs(fmt, _fmt, fmtlen+1);
+    if (mbstowcs_s(&fmtlen, fmt, fmtlen+2, _fmt, strlen(_fmt)) != 0) {
+        PyErr_SetString(PyExc_ValueError, "Failed to convert fmt to wchar");
+        goto end;
+    }
 
 	if (tup == NULL) {
 		time_t tt = time(NULL);
-		buf = *localtime(&tt);
+		if(localtime_s(&buf, &tt) != 0) {
+            PyErr_SetString(PyExc_ValueError, "Failed to get localtime()");
+            goto end;
+        }
 	} else if (!gettmarg(tup, &buf))
 	    goto end;
 

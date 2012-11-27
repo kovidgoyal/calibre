@@ -287,6 +287,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('fullscreen_scrollbar', self.opt_fullscreen_scrollbar.isChecked())
         c.set('show_fullscreen_help', self.opt_show_fullscreen_help.isChecked())
         c.set('cols_per_screen', int(self.opt_cols_per_screen.value()))
+        c.set('start_in_fullscreen', self.opt_start_in_fullscreen.isChecked())
         c.set('use_book_margins', not
                 self.opt_override_book_margins.isChecked())
         c.set('text_color', self.current_text_color)

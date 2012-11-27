@@ -105,6 +105,7 @@ gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
 gprefs.defaults['bd_show_cover'] = True
+gprefs.defaults['bd_overlay_cover_size'] = False
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -465,6 +466,8 @@ class FileIconProvider(QFileIconProvider):
              'gif'     : 'gif',
              'png'     : 'png',
              'bmp'     : 'bmp',
+             'cbz'     : 'cbz',
+             'cbr'     : 'cbr',
              'svg'     : 'svg',
              'html'    : 'html',
              'htmlz'   : 'html',

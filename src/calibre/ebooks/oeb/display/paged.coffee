@@ -116,6 +116,18 @@ class PagedDisplay
         # above the columns, which causes them to effectively be added to the
         # page margins (the margin collapse algorithm)
         bs.setProperty('-webkit-margin-collapse', 'separate')
+        # Remove any webkit specified default margin from the first child of body
+        # Otherwise, you could end up with an effective negative margin, I dont
+        # understand exactly why, but see:
+        # https://bugs.launchpad.net/calibre/+bug/1082640 for an example
+        c = document.body.firstChild
+        count = 0
+        while c?.nodeType != 1 and count < 20
+            c = c?.nextSibling
+            count += 1
+        if c?.nodeType == 1
+            c.style.setProperty('-webkit-margin-before', '0')
+
 
         bs.setProperty('overflow', 'visible')
         bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')

@@ -101,7 +101,7 @@ cpalmdoc_rfind(Byte *data, Py_ssize_t pos, Py_ssize_t chunk_length) {
 static Py_ssize_t
 cpalmdoc_do_compress(buffer *b, char *output) {
     Py_ssize_t i = 0, j, chunk_len, dist;
-    unsigned compound;
+    unsigned int compound;
     Byte c, n;
     bool found;
     char *head;
@@ -119,7 +119,7 @@ cpalmdoc_do_compress(buffer *b, char *output) {
                 dist = i - j;
                 if (j < i && dist <= 2047) {
                     found = true;
-                    compound = (dist << 3) + chunk_len-3;
+                    compound = (unsigned int)((dist << 3) + chunk_len-3);
                     *(output++) = CHAR(0x80 + (compound >> 8 ));
                     *(output++) = CHAR(compound & 0xFF);
                     i += chunk_len;
@@ -148,7 +148,7 @@ cpalmdoc_do_compress(buffer *b, char *output) {
                 temp.data[temp.len++] = c; j++;
             }
             i += temp.len - 1;
-            *(output++) = temp.len;
+            *(output++) = (char)temp.len;
             for (j=0; j < temp.len; j++) *(output++) = (char)temp.data[j];
         }
     }

@@ -12,7 +12,7 @@ from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
         QIcon, pyqtSignature, QAction, QMenu, QString, pyqtSignal,
         QSwipeGesture, QApplication, pyqtSlot)
-from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
+from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
@@ -24,6 +24,7 @@ from calibre.gui2.viewer.javascript import JavaScriptLoader
 from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog, load_themes
 from calibre.gui2.viewer.image_popup import ImagePopup
+from calibre.gui2.viewer.table_popup import TablePopup
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
 # }}}
@@ -31,6 +32,7 @@ from calibre.constants import isxp, iswindows
 class Document(QWebPage): # {{{
 
     page_turn = pyqtSignal(object)
+    mark_element = pyqtSignal(QWebElement)
 
     def set_font_settings(self, opts):
         settings = self.settings()
@@ -182,6 +184,7 @@ class Document(QWebPage): # {{{
             ensure_ascii=False)))
         for pl in self.all_viewer_plugins:
             pl.load_javascript(evaljs)
+        evaljs('py_bridge.mark_element.connect(window.calibre_extract.mark)')
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -448,6 +451,10 @@ class Document(QWebPage): # {{{
                 self.height+amount)
         self.setPreferredContentsSize(s)
 
+    def extract_node(self):
+        return unicode(self.mainFrame().evaluateJavaScript(
+            'window.calibre_extract.extract()').toString())
+
 # }}}
 
 class DocumentView(QWebView): # {{{
@@ -496,8 +503,11 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
         self.image_popup = ImagePopup(self)
+        self.table_popup = TablePopup(self)
         self.view_image_action = QAction(QIcon(I('view-image.png')), _('View &image...'), self)
         self.view_image_action.triggered.connect(self.image_popup)
+        self.view_table_action = QAction(QIcon(I('view.png')), _('View &table...'), self)
+        self.view_table_action.triggered.connect(self.popup_table)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)
         self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
@@ -603,10 +613,26 @@ class DocumentView(QWebView): # {{{
         t = t.replace(u'&', u'&&')
         return _("S&earch Google for '%s'")%t
 
+    def popup_table(self):
+        html = self.document.extract_node()
+        self.table_popup(html, QUrl.fromLocalFile(self.last_loaded_path),
+                         self.document.font_magnification_step)
+
     def contextMenuEvent(self, ev):
         mf = self.document.mainFrame()
         r = mf.hitTestContent(ev.pos())
         img = r.pixmap()
+        elem = r.element()
+        if elem.isNull():
+            elem = r.enclosingBlockElement()
+        table = None
+        parent = elem
+        while not parent.isNull():
+            if (unicode(parent.tagName()) == u'table' or
+                unicode(parent.localName()) == u'table'):
+                table = parent
+                break
+            parent = parent.parent()
         self.image_popup.current_img = img
         self.image_popup.current_url = r.imageUrl()
         menu = self.document.createStandardContextMenu()
@@ -615,6 +641,9 @@ class DocumentView(QWebView): # {{{
 
         if not img.isNull():
             menu.addAction(self.view_image_action)
+        if table is not None:
+            self.document.mark_element.emit(table)
+            menu.addAction(self.view_table_action)
 
         text = self._selectedText()
         if text and img.isNull():

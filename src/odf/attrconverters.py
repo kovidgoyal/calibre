@@ -605,7 +605,7 @@ attrconverters = {
 	((FONS,u'margin-top'), None): cnv_string,
 	((FONS,u'max-height'), None): cnv_string,
 	((FONS,u'max-width'), None): cnv_string,
-	((FONS,u'min-height'), None): cnv_length,
+	((FONS,u'min-height'), None): cnv_lengthorpercent,
 	((FONS,u'min-width'), None): cnv_string,
 	((FONS,u'orphans'), None): cnv_string,
 	((FONS,u'padding-bottom'), None): cnv_string,

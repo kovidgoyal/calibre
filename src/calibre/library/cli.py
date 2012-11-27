@@ -65,8 +65,7 @@ def get_db(dbpath, options):
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, subtitle='Books in the calibre database'):
-    from calibre.constants import terminal_controller as tc
-    terminal_controller = tc()
+    from calibre.utils.terminal import ColoredStream, geometry
     if sort_by:
         db.sort(sort_by, ascending)
     if search_text:
@@ -101,7 +100,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], len(unicode(i[field])))
 
-    screen_width = terminal_controller.COLS if line_width < 0 else line_width
+    screen_width = geometry()[0] if line_width < 0 else line_width
     if not screen_width:
         screen_width = 80
     field_width = screen_width//len(fields)
@@ -120,7 +119,8 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     widths = list(base_widths)
     titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
             widths, title_fields)
-    print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+    with ColoredStream(sys.stdout, fg='green'):
+        print ''.join(titles)
 
     wrappers = map(lambda x: TextWrapper(x-1), widths)
     o = cStringIO.StringIO()
@@ -1288,8 +1288,7 @@ def command_list_categories(args, dbpath):
     fields = ['category', 'tag_name', 'count', 'rating']
 
     def do_list():
-        from calibre.constants import terminal_controller as tc
-        terminal_controller = tc()
+        from calibre.utils.terminal import geometry, ColoredStream
 
         separator = ' '
         widths = list(map(lambda x : 0, fields))
@@ -1297,7 +1296,7 @@ def command_list_categories(args, dbpath):
             for j, field in enumerate(fields):
                 widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
 
-        screen_width = terminal_controller.COLS if opts.width < 0 else opts.width
+        screen_width = geometry()[0]
         if not screen_width:
             screen_width = 80
         field_width = screen_width//len(fields)
@@ -1316,7 +1315,8 @@ def command_list_categories(args, dbpath):
         widths = list(base_widths)
         titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
                 widths, fields)
-        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+        with ColoredStream(sys.stdout, fg='green'):
+            print ''.join(titles)
 
         wrappers = map(lambda x: TextWrapper(x-1), widths)
         o = cStringIO.StringIO()

@@ -17,6 +17,7 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
     gprefs, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.metadata.basic_widgets import CalendarWidget
 from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
@@ -339,6 +340,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
         self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.pubdate_cw = CalendarWidget(self.pubdate)
+        self.pubdate.setCalendarWidget(self.pubdate_cw)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)

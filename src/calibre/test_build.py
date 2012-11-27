@@ -74,17 +74,21 @@ def test_imaging():
         print ('ImageMagick OK!')
     else:
         raise RuntimeError('ImageMagick choked!')
-    from PIL import Image, _imaging, _imagingmath, _imagingft, _imagingcms
-    _imaging, _imagingmath, _imagingft, _imagingcms
+    from PIL import Image
+    try:
+        import _imaging, _imagingmath, _imagingft
+        _imaging, _imagingmath, _imagingft
+    except ImportError:
+        from PIL import _imaging, _imagingmath, _imagingft
+    _imaging, _imagingmath, _imagingft
     i = Image.open(cStringIO.StringIO(data))
     if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
 def test_unrar():
-    from calibre.libunrar import _libunrar
-    if not _libunrar:
-        raise RuntimeError('Failed to load libunrar')
+    from calibre.utils.unrar import test_basic
+    test_basic()
     print ('Unrar OK!')
 
 def test_icu():

@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 6)
+numeric_version = (0, 9, 7)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -13,14 +13,6 @@ Various run time constants.
 '''
 
 import sys, locale, codecs, os, importlib, collections
-
-_tc = None
-def terminal_controller():
-    global _tc
-    if _tc is None:
-        from calibre.utils.terminfo import TerminalController
-        _tc = TerminalController(sys.stdout)
-    return _tc
 
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
@@ -36,7 +28,10 @@ isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
+is64bit = sys.maxint > (1 << 32)
 isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
+if isworker:
+    os.environ.pop('CALIBRE_FORCE_ANSI', None)
 
 try:
     preferred_encoding = locale.getpreferredencoding()
@@ -48,6 +43,19 @@ win32event = importlib.import_module('win32event') if iswindows else None
 winerror   = importlib.import_module('winerror') if iswindows else None
 win32api   = importlib.import_module('win32api') if iswindows else None
 fcntl      = None if iswindows else importlib.import_module('fcntl')
+
+_osx_ver = None
+def get_osx_version():
+    global _osx_ver
+    if _osx_ver is None:
+        import platform
+        from collections import namedtuple
+        OSX = namedtuple('OSX', 'major minor tertiary')
+        try:
+            _osx_ver = OSX(*(map(int, platform.mac_ver()[0].split('.'))))
+        except:
+            _osx_ver = OSX(0, 0, 0)
+    return _osx_ver
 
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
@@ -91,6 +99,7 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'freetype',
                 'woff',
+                'unrar',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
@@ -177,6 +186,9 @@ def get_version():
     v = __version__
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
+    if iswindows and is64bit:
+        v += ' [64bit]'
+
     return v
 
 def get_portable_base():
