@@ -88,7 +88,7 @@ class PluginWidget(QWidget,Ui_Form):
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Catalogs'),
-                               'field':'Tags',
+                               'field':_('Tags'),
                                'pattern':'Catalog'},],
                              ['table_widget'])
 
@@ -97,13 +97,13 @@ class PluginWidget(QWidget,Ui_Form):
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Read book'),
-                               'field':'Tags',
+                               'field':_('Tags'),
                                'pattern':'+',
                                'prefix':u'\u2713'},
                               {'ordinal':1,
                                'enabled':True,
                                'name':_('Wishlist item'),
-                               'field':'Tags',
+                               'field':_('Tags'),
                                'pattern':'Wishlist',
                                'prefix':u'\u00d7'},],
                              ['table_widget','table_widget'])
@@ -127,7 +127,7 @@ class PluginWidget(QWidget,Ui_Form):
             elif 'prefix' in rule and rule['prefix'] is None:
                 continue
             else:
-                if rule['field'] != 'Tags':
+                if rule['field'] != _('Tags'):
                     # Look up custom column friendly name
                     rule['field'] = self.eligible_custom_fields[rule['field']]['field']
                     if rule['pattern'] in [_('any value'),_('any date')]:
@@ -226,7 +226,7 @@ class PluginWidget(QWidget,Ui_Form):
     def fetch_eligible_custom_fields(self):
         self.all_custom_fields = self.db.custom_field_keys()
         custom_fields = {}
-        custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
+        custom_fields[_('Tags')] = {'field':'tag', 'datatype':u'text'}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
             if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
@@ -318,7 +318,7 @@ class PluginWidget(QWidget,Ui_Form):
                     index = getattr(self,c_name).findText(opt_value)
                     if index == -1:
                         if c_name == 'read_source_field':
-                            index = self.read_source_field.findText('Tag')
+                            index = self.read_source_field.findText(_('Tags'))
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
                 getattr(self,c_name).setCurrentIndex(index)
@@ -836,9 +836,10 @@ class GenericRulesTable(QTableWidget):
         # Populate the Pattern field based upon the Source field
 
         source_field = str(combo.currentText())
+
         if source_field == '':
             values = []
-        elif source_field == 'Tags':
+        elif source_field == _('Tags'):
             values = sorted(self.db.all_tags(), key=sort_key)
         else:
             if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:
