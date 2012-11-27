@@ -44,6 +44,19 @@ winerror   = importlib.import_module('winerror') if iswindows else None
 win32api   = importlib.import_module('win32api') if iswindows else None
 fcntl      = None if iswindows else importlib.import_module('fcntl')
 
+_osx_ver = None
+def get_osx_version():
+    global _osx_ver
+    if _osx_ver is None:
+        import platform
+        from collections import namedtuple
+        OSX = namedtuple('OSX', 'major minor tertiary')
+        try:
+            _osx_ver = OSX(*(map(int, platform.mac_ver()[0].split('.'))))
+        except:
+            _osx_ver = OSX(0, 0, 0)
+    return _osx_ver
+
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
 else:
