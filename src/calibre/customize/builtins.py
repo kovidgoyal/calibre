@@ -1565,6 +1565,7 @@ class StorePublioStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreRW2010Store(StoreBase):
     name = 'RW2010'
