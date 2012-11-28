@@ -56,7 +56,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     title2 = ''.join(data.xpath('.//div[@class="desc"]/h5/a/text()'))
                     if title2:
                         title = title + '. ' + title2
-                    author = ', '.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[@class="row"]/a/text()'))
+                    author = ', '.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[@class="row"][1]/a/@title'))
                     price = ''.join(data.xpath('.//div[@class="priceBoxContener "]/div/ins/text()'))
                     if not price:
                         price = ''.join(data.xpath('.//div[@class="priceBoxContener "]/div/text()'))
