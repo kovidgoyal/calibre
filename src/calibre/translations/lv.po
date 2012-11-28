@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-23 03:42+0000\n"
-"PO-Revision-Date: 2012-07-12 09:33+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-11-27 19:22+0000\n"
+"Last-Translator: uGGa <Unknown>\n"
 "Language-Team: Latvian <ivars.arins@dotnet.lv>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-24 05:37+0000\n"
-"X-Generator: Launchpad (build 16293)\n"
+"X-Launchpad-Export-Date: 2012-11-28 04:38+0000\n"
+"X-Generator: Launchpad (build 16309)\n"
 "X-Poedit-Country: LATVIA\n"
 "Language: lv\n"
 "X-Poedit-Language: Latvian\n"
@@ -629,7 +629,7 @@ msgstr "Pārvalda kā calibre lejupielādē e-grāmatu metadatus no tīkla"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "Ignorētās iekārtas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
@@ -1782,7 +1782,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "Izveidot Grāmatplauktus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid ""
@@ -1792,7 +1792,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "Izdzēst Tukšos Grāmatplauktus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
 msgid ""
@@ -1902,7 +1902,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP Iekārta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:31
 msgid "Communicate with MTP devices"
@@ -1920,12 +1920,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Nolasa e-grāmatas metadatus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "Nolasa metadatus no %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:233
 msgid "Updating metadata cache on device"
@@ -1947,7 +1947,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:416
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "Pievienoti %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
 msgid "Adding complete"
