@@ -2,41 +2,70 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe(BasicNewsRecipe):
 
     title          = u'Aachener Nachrichten'
-    __author__  = 'schuster'
-    oldest_article = 1
+    __author__  = 'schuster' #AGE update 2012-11-28
+    oldest_article        = 1
     max_articles_per_feed = 100
-    use_embedded_content   = False
-    language               = 'de'
-    remove_javascript      = True
-    cover_url = 'http://www.an-online.de/einwaage/images/an_logo.png'
-    masthead_url = 'http://www.an-online.de/einwaage/images/an_logo.png'
-    extra_css = '''
-	.fliesstext_detail:{margin-bottom:10%;}
-	.headline_1:{margin-bottom:25%;}
-                    b{font-family:Arial,Helvetica,sans-serif; font-weight:200;font-size:large;}
-                    a{font-family:Arial,Helvetica,sans-serif; font-weight:400;font-size:large;}
-                    ll{font-family:Arial,Helvetica,sans-serif; font-weight:100;font-size:large;}
-                    h4{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    img {min-width:300px; max-width:600px; min-height:300px; max-height:800px}
-                    dd{font-family:Arial,Helvetica,sans-serif;font-size:large;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-	'''
+    no_stylesheets        = True
+    remove_javascript     = True
+    remove_empty_feeds    = True
+    language              = 'de'
 
-
+#    cover_url     = 'http://www.aachener-nachrichten.de/img/logos/an_website_retina.png'
+    masthead_url  = 'http://www.aachener-nachrichten.de/img/logos/an_website_retina.png'
 
     keep_only_tags    = [
-                       dict(name='span', attrs={'class':['fliesstext_detail', 'headline_1', 'autor_detail']}),
-                       dict(id=['header-logo'])
-  ]
+                          dict(name='article', attrs={'class':['single']})
+                        ]
 
-    feeds          = [(u'Euregio', u'http://www.an-online.de/an/rss/Euregio.xml'),
-                          (u'Aachen', u'http://www.an-online.de/an/rss/Aachen.xml'),
-                          (u'Nordkreis', u'http://www.an-online.de/an/rss/Nordkreis.xml'),
-                          (u'Düren', u'http://www.an-online.de/an/rss/Dueren.xml'),
-                          (u'Eiffel', u'http://www.an-online.de/an/rss/Eifel.xml'),
-                          (u'Eschweiler', u'http://www.an-online.de/an/rss/Eschweiler.xml'),
-                          (u'Geilenkirchen', u'http://www.an-online.de/an/rss/Geilenkirchen.xml'),
-                          (u'Heinsberg', u'http://www.an-online.de/an/rss/Heinsberg.xml'),
-                          (u'Jülich', u'http://www.an-online.de/an/rss/Juelich.xml'),
-                          (u'Stolberg', u'http://www.an-online.de/an/rss/Stolberg.xml'),
-                          (u'Ratgebenr', u'http://www.an-online.de/an/rss/Ratgeber.xml')]
+    remove_tags = [
+                    dict(name='div', attrs={'class':["clearfix navi-wrapper"]}),
+                    dict(name='div', attrs={'id':["article_actions"]}),
+                    dict(name='style', attrs={'type':["text/css"]}),
+                    dict(name='aside'),
+                    dict(name='a', attrs={'class':["btn btn-action"]})
+                  ]
+
+    feeds = [
+              (u'Lokales - Euregio', u'http://www.aachener-nachrichten.de/cmlink/euregio-rss-1.357285'),
+              (u'Lokales - Aachen', u'http://www.aachener-nachrichten.de/cmlink/aachen-rss-1.357286'),
+              (u'Lokales - Nordkreis', u'http://www.aachener-nachrichten.de/cmlink/nordkreis-rss-1.358150'),
+              (u'Lokales - Düren', u'http://www.aachener-nachrichten.de/cmlink/dueren-rss-1.358626'),
+              (u'Lokales - Eiffel', u'http://www.aachener-nachrichten.de/cmlink/eifel-rss-1.358978'),
+              (u'Lokales - Eschweiler', u'http://www.aachener-nachrichten.de/cmlink/eschweiler-rss-1.359332'),
+              (u'Lokales - Geilenkirchen', u'http://www.aachener-nachrichten.de/cmlink/geilenkirchen-rss-1.359643'),
+              (u'Lokales - Heinsberg', u'http://www.aachener-nachrichten.de/cmlink/heinsberg-rss-1.359724'),
+              (u'Lokales - Jülich', u'http://www.aachener-nachrichten.de/cmlink/juelich-rss-1.359725'),
+              (u'Lokales - Stolberg', u'http://www.aachener-nachrichten.de/cmlink/stolberg-rss-1.359726'),
+              (u'News - Politik', u'http://www.aachener-nachrichten.de/cmlink/politik-rss-1.359727'),
+              (u'News - Aus aller Welt', u'http://www.aachener-nachrichten.de/cmlink/ausallerwelt-rss-1.453282'),
+              (u'News - Wirtschaft', u'http://www.aachener-nachrichten.de/cmlink/wirtschaft-rss-1.359872'),
+              (u'News - Kultur', u'http://www.aachener-nachrichten.de/cmlink/kultur-rss-1.365018'),
+              (u'News - Kino', u'http://www.aachener-nachrichten.de/cmlink/kino-rss-1.365019'),
+              (u'News - Digital', u'http://www.aachener-nachrichten.de/cmlink/digital-rss-1.365020'),
+              (u'News - Wissenschaft', u'http://www.aachener-nachrichten.de/cmlink/wissenschaft-rss-1.365021'),
+              (u'News - Hochschule', u'http://www.aachener-nachrichten.de/cmlink/hochschule-rss-1.365022'),
+              (u'News - Auto', u'http://www.aachener-nachrichten.de/cmlink/auto-rss-1.365023'),
+              (u'News - Kurioses', u'http://www.aachener-nachrichten.de/cmlink/kurioses-rss-1.365067'),
+              (u'News - Musik', u'http://www.aachener-nachrichten.de/cmlink/musik-rss-1.365305'),
+              (u'News - Tagesthema', u'http://www.aachener-nachrichten.de/cmlink/tagesthema-rss-1.365519'),
+              (u'News - Newsticker', u'http://www.aachener-nachrichten.de/cmlink/newsticker-rss-1.451948'),
+              (u'Sport - Aktuell', u'http://www.aachener-nachrichten.de/cmlink/aktuell-rss-1.366716'),
+              (u'Sport - Fußball', u'http://www.aachener-nachrichten.de/cmlink/fussball-rss-1.367060'),
+              (u'Sport - Bundesliga', u'http://www.aachener-nachrichten.de/cmlink/bundesliga-rss-1.453367'),
+              (u'Sport - Alemannia Aachen', u'http://www.aachener-nachrichten.de/cmlink/alemanniaaachen-rss-1.366057'),
+              (u'Sport - Volleyball', u'http://www.aachener-nachrichten.de/cmlink/volleyball-rss-1.453370'),
+              (u'Sport - Chio', u'http://www.aachener-nachrichten.de/cmlink/chio-rss-1.453371'),
+              (u'Dossier - Kinderuni', u'http://www.aachener-nachrichten.de/cmlink/kinderuni-rss-1.453375'),
+              (u'Dossier - Karlspreis', u'http://www.aachener-nachrichten.de/cmlink/karlspreis-rss-1.453376'),
+              (u'Dossier - Ritterorden', u'http://www.aachener-nachrichten.de/cmlink/ritterorden-rss-1.453377'),
+              (u'Dossier - ZAB-Aachen', u'http://www.aachener-nachrichten.de/cmlink/zabaachen-rss-1.453380'),
+              (u'Dossier - Karneval', u'http://www.aachener-nachrichten.de/cmlink/karneval-rss-1.453384'),
+              (u'Ratgeber - Geld', u'http://www.aachener-nachrichten.de/cmlink/geld-rss-1.453385'),
+              (u'Ratgeber - Recht', u'http://www.aachener-nachrichten.de/cmlink/recht-rss-1.453386'),
+              (u'Ratgeber - Gesundheit', u'http://www.aachener-nachrichten.de/cmlink/gesundheit-rss-1.453387'),
+              (u'Ratgeber - Familie', u'http://www.aachener-nachrichten.de/cmlink/familie-rss-1.453388'),
+              (u'Ratgeber - Livestyle', u'http://www.aachener-nachrichten.de/cmlink/lifestyle-rss-1.453389'),
+              (u'Ratgeber - Reisen', u'http://www.aachener-nachrichten.de/cmlink/reisen-rss-1.453390'),
+              (u'Ratgeber - Bauen und Wohnen', u'http://www.aachener-nachrichten.de/cmlink/bauen-rss-1.453398'),
+              (u'Ratgeber - Bildung und Beruf', u'http://www.aachener-nachrichten.de/cmlink/bildung-rss-1.453400'),
+            ]
