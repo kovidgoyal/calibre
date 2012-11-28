@@ -597,6 +597,8 @@ class Py2App(object):
             else:
                 os.symlink(join('../..', x),
                            join(cc_dir, x))
+        shutil.copytree(join(SW, 'build/notifier.app'), join(
+            self.contents_dir, 'notifier.app'))
 
     @flush
     def copy_site(self):

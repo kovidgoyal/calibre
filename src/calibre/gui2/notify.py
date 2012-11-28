@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.constants import islinux, isosx, get_osx_version, __appname__
+from calibre.constants import islinux, isosx, get_osx_version
 
 class Notifier(object):
 
@@ -107,10 +107,11 @@ class AppleNotifier(Notifier):
         self.ok = False
         import os, sys
         try:
-            self.exe = os.path.join(sys.console_binaries_path, 'notifier')
+            self.exe = os.path.join(sys.console_binaries_path.replace(
+                'console.app', 'notifier.app'), 'Calibre')
             self.ok = os.access(self.exe, os.X_OK)
             import subprocess
-            self.call = subprocess.check_call
+            self.call = subprocess.Popen
         except:
             pass
 
@@ -120,10 +121,10 @@ class AppleNotifier(Notifier):
                 x = x.encode('utf-8')
             return x
 
-        cmd = [self.exe, '-title', __appname__, '-activate',
+        cmd = [self.exe, '-activate',
                'net.kovidgoyal.calibre', '-message', encode(body)]
         if summary:
-            cmd += ['-subtitle', encode(summary)]
+            cmd += ['-title', encode(summary)]
         self.call(cmd)
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
@@ -144,7 +145,7 @@ def get_notifier(systray=None):
             ans = FDONotifier()
             if not ans.ok:
                 ans = None
-    elif False and isosx and get_osx_version() >= (10, 8, 0):
+    elif isosx and get_osx_version() >= (10, 8, 0):
         ans = AppleNotifier()
         if not ans.ok:
             ans = None
