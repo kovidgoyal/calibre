@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-23 03:42+0000\n"
-"PO-Revision-Date: 2012-11-27 19:22+0000\n"
+"PO-Revision-Date: 2012-11-28 08:58+0000\n"
 "Last-Translator: uGGa <Unknown>\n"
 "Language-Team: Latvian <ivars.arins@dotnet.lv>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-28 04:38+0000\n"
-"X-Generator: Launchpad (build 16309)\n"
+"X-Launchpad-Export-Date: 2012-11-29 05:11+0000\n"
+"X-Generator: Launchpad (build 16319)\n"
 "X-Poedit-Country: LATVIA\n"
 "Language: lv\n"
 "X-Poedit-Language: Latvian\n"
@@ -1951,20 +1951,20 @@ msgstr "Pievienoti %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
 msgid "Adding complete"
-msgstr ""
+msgstr "Pievienošana pabeigta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:434
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "Tiek dzēstas grāmatas no jūsu iekārtas..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:440
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "Izdzēstas %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:441
 msgid "All books deleted"
-msgstr ""
+msgstr "Visas grāmatas izdzēstas"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Removing books from metadata"
@@ -1982,7 +1982,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Nezināma MTP iekārta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:216
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
@@ -2000,6 +2000,9 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
+"Uz Jūsu datora nav pieejams Windows portatīvo iekārtu serviss. Jums "
+"jāuzinstalē Windows Media Player 11 vai jaunāks un/vai jānorestartē Jūsu "
+"dators"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
@@ -2075,6 +2078,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
+"Augšupielādēt atsevišķus vāku sīktēlus grāmatām (jaunākajam lasītājiem)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:78
 msgid ""
@@ -2181,7 +2185,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
 msgid "Wireless Device"
-msgstr ""
+msgstr "Bezvadu Ierīce"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
 msgid "Communicate with Smart Device apps"
@@ -2219,7 +2223,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:276
 msgid "Port number: "
-msgstr ""
+msgstr "Ports: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:277
 msgid ""
@@ -2259,7 +2263,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
 msgid "Use this IP address"
-msgstr ""
+msgstr "Lietot šo IP adresi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:297
 msgid ""
