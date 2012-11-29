@@ -108,7 +108,7 @@ class AppleNotifier(Notifier):
         import os, sys
         try:
             self.exe = os.path.join(sys.console_binaries_path.replace(
-                'console.app', 'notifier.app'), 'Calibre')
+                'console.app', 'calibre-notifier.app'), 'Calibre')
             self.ok = os.access(self.exe, os.X_OK)
             import subprocess
             self.call = subprocess.Popen
