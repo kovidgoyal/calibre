@@ -52,13 +52,11 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                         continue
 
                     cover_url = ''.join(data.xpath('.//div[@class="img"]/a/img/@data-original'))
-                    # TODO: fix highlight handling
-                    title = ''.join(data.xpath('.//div[@class="desc"]/h4/a/text()'))
-                    title2 = ''.join(data.xpath('.//div[@class="desc"]/h5/a/text()'))
+                    title = ''.join(data.xpath('.//div[@class="img"]/a/@title'))
+                    title2 = ''.join(data.xpath('.//div[@class="desc"]/h5//text()'))
                     if title2:
                         title = title + '. ' + title2
                     if (''.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[last()]/span/text()')).strip() == "Seria:"):
-                        # TODO: fix highlight handling
                         series = ''.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[last()]/a/@title'))
                         title = title + ' (seria ' + series + ')'
                     author = ', '.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[@class="row"][1]/a/@title'))
