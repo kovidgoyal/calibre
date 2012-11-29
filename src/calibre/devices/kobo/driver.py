@@ -59,7 +59,7 @@ class KOBO(USBMS):
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
-    # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work. 
+    # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work.
     VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo', ''])
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
@@ -1243,7 +1243,7 @@ class KOBOTOUCH(KOBO):
             _('Set Series information') +
             ':::'+_('The book lists on the Kobo devices can display series information. '
                     'This is not read by the device from the sideloaded books. '
-                    'Series information can only be adde to the device after the book has been processed by the device. '
+                    'Series information can only be added to the device after the book has been processed by the device. '
                     'Enable if you wish to set series information.'),
             _('Attempt to support newer firmware') +
             ':::'+_('Kobo routinely updates the firmware and the '
@@ -1299,7 +1299,7 @@ class KOBOTOUCH(KOBO):
                           ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,],   # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
-                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver, home screen 
+                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver, home screen
                           }
     #Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -1308,7 +1308,7 @@ class KOBOTOUCH(KOBO):
 #                          ' - N3_LIBRARY_GRID.parsed':[(149,233),0, 99,],   # Used for library lists
 #                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
-#                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked. 
+#                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
 #                          }
 
     def initialize(self):
@@ -1424,7 +1424,7 @@ class KOBOTOUCH(KOBO):
                         playlist_map[lpath].append('Preview')
                 elif accessibility == 4:
                     playlist_map[lpath].append('Recommendation')
-                
+
                 kobo_collections = playlist_map[lpath][:]
 
                 if len(bookshelves) > 0:
@@ -1608,9 +1608,9 @@ class KOBOTOUCH(KOBO):
                 cursor.execute (query)
             except Exception as e:
                 err = str(e)
-                if not ('___ExpirationStatus' in err 
-                        or 'FavouritesIndex' in err 
-                        or 'Accessibility' in err 
+                if not ('___ExpirationStatus' in err
+                        or 'FavouritesIndex' in err
+                        or 'Accessibility' in err
                         or 'IsDownloaded' in err
                         or 'Series' in err
                         ):
@@ -1937,7 +1937,7 @@ class KOBOTOUCH(KOBO):
                             debug_print('    class=%s'%book.__class__)
                             debug_print('    book.contentID="%s"'%book.contentID)
                             debug_print('    book.application_id="%s"'%book.application_id)
-                        
+
                         if book.application_id is None:
                             continue
 
@@ -1995,7 +1995,7 @@ class KOBOTOUCH(KOBO):
 
             if self.supports_bookshelves() or self.supports_series():
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves and series.")
-                
+
                 self.series_set  = 0
                 books_in_library = 0
                 for book in booklists:
@@ -2156,7 +2156,7 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.device_collections=', book.device_collections)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.current_shelves=', book.current_shelves)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - remove_shelf_list=', remove_shelf_list)
-        
+
         if len(remove_shelf_list) == 0:
             return
 
