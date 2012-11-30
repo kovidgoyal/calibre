@@ -30,7 +30,7 @@
 
     - title: "Catalogs: Allow using custom columns as the source for Genres when generating catalogs"
 
-    - title: "When the user asks calibre to convert a book, show a small animation to make highlight that the convert job has been queued to run in the background"
+    - title: "When the user asks calibre to convert a book, show a small animation to highlight that the convert job has been queued to run in the background"
 
     - title: "Add support for the notification center in OS X 10.8"
 
