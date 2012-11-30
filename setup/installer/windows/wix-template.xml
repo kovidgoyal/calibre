@@ -2,13 +2,13 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi' xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
 >		
 
-		<Product Name='{app}' Id='*' UpgradeCode='{upgrade_code}'
+<Product Name='{app}{x64}' Id='*' UpgradeCode='{upgrade_code}'
 				Language='1033' Codepage='1252' Version='{version}' Manufacturer='Kovid Goyal'>
 				
 				<Package Id='*' Keywords='Installer' Description="{app} Installer"
 						Comments='{app} is a registered trademark of Kovid Goyal' Manufacturer='Kovid Goyal'
 						InstallerVersion='300' Languages='1033' Compressed='yes'
-						SummaryCodepage='1252' />
+                        SummaryCodepage='1252' />
 
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
                 <!-- The following line ensures that DLLs are replaced even if their version is the same as before. This
@@ -33,15 +33,15 @@
 
                <Property Id="APPLICATIONFOLDER">
                   <RegistrySearch Id='calibreInstDir' Type='raw'
-                      Root='HKLM' Key="Software\{app}\Installer" Name="InstallPath" />
+                      Root='HKLM' Key="Software\{app}{x64}\Installer" Name="InstallPath" />
                </Property>
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
-						<Directory Id='ProgramFilesFolder' Name='PFiles'>
+                        <Directory Id='{ProgramFilesFolder}' Name='PFiles'>
 								<Directory Id='APPLICATIONFOLDER' Name='{app}' />
 						</Directory>
                         <Directory Id="ProgramMenuFolder">
-                            <Directory Id="ApplicationProgramsFolder" Name="{app} - E-book Management"/>
+                            <Directory Id="ApplicationProgramsFolder" Name="{app}{x64} - E-book Management"/>
                         </Directory>
                         <Directory Id="DesktopFolder" Name="Desktop"/>
 				</Directory>
@@ -50,24 +50,24 @@
 						{app_components}
                         <Component Id="AddToPath" Guid="*">
                             <Environment Id='UpdatePath' Name='PATH' Action='set' System='yes' Part='last' Value='[APPLICATIONFOLDER]' />
-                            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes"/>
+                            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes"/>
                         </Component>
                         <Component Id="RememberInstallDir" Guid="*">
-                            <RegistryValue Root="HKLM" Key="Software\{app}\Installer" Name="InstallPath" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes"/>
+                            <RegistryValue Root="HKLM" Key="Software\{app}{x64}\Installer" Name="InstallPath" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes"/>
                         </Component>
                 </DirectoryRef>
 
                 <DirectoryRef Id="ApplicationProgramsFolder">
                     <Component Id="StartMenuShortcuts" Guid="*">
-                        <Shortcut Id="s1" Name="{app} - E-book management"
+                        <Shortcut Id="s1" Name="{app}{x64} - E-book management"
                             Description="Manage your e-book collection and download news"
                             Target="[#{exe_map[calibre]}]"
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-                        <Shortcut Id="s2" Name="E-book viewer"
+                         <Shortcut Id="s2" Name="E-book viewer{x64}"
                             Description="Viewer for all the major e-book formats"
                             Target="[#{exe_map[ebook-viewer]}]"
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-                        <Shortcut Id="s3" Name="LRF viewer"
+                         <Shortcut Id="s3" Name="LRF viewer{x64}"
                             Description="Viewer for LRF format e-books"
                             Target="[#{exe_map[lrfviewer]}]"
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
@@ -79,17 +79,17 @@
                             Target="http://calibre-ebook.com/get-involved"/>
 
                         <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-                        <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="start_menu_shortcuts_installed" Type="integer" Value="1" KeyPath="yes"/>
+                        <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="start_menu_shortcuts_installed" Type="integer" Value="1" KeyPath="yes"/>
                     </Component>
                 </DirectoryRef>
 
                 <DirectoryRef Id="DesktopFolder">
                     <Component Id="DesktopShortcut" Guid="*">
-                        <Shortcut Id="ds1" Name="{app} - E-book management"
+                        <Shortcut Id="ds1" Name="{app}{x64} - E-book management"
                             Description="Manage your e-book collection and download news"
                             Target="[#{exe_map[calibre]}]"
                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-                        <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="desktop_shortcut_installed" Type="integer" Value="1" KeyPath="yes"/>
+                        <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="desktop_shortcut_installed" Type="integer" Value="1" KeyPath="yes"/>
                     </Component> 
                 </DirectoryRef>
          
@@ -124,8 +124,8 @@
 				<Property Id="ARPPRODUCTICON" Value="main_icon" />
 
                 <Condition
-                    Message="This application is only supported on Windows XP SP3, or higher.">
-                    <![CDATA[Installed OR (VersionNT >= 501)]]>
+                    Message="This application is only supported on {minverhuman}, or higher.">
+                    <![CDATA[Installed OR (VersionNT >= {minver})]]>
                 </Condition>
                 <InstallExecuteSequence>
                     <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>

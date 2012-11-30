@@ -6,11 +6,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess
+import os, shutil, subprocess, sys
 
 from setup import __appname__, __version__, basenames
+from setup.build_environment import is64bit
 
-WIXP = r'C:\Program Files\Windows Installer XML v3.5'
+if is64bit:
+    WIXP = r'C:\Program Files (x86)\WiX Toolset v3.6'
+    UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
+    MINVERHUMAN = 'Windows Vista'
+else:
+    WIXP = r'C:\Program Files\Windows Installer XML v3.5'
+    UPGRADE_CODE = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1'
+    MINVERHUMAN = 'Windows XP SP3'
+
 CANDLE = WIXP+r'\bin\candle.exe'
 LIGHT = WIXP+r'\bin\light.exe'
 
@@ -27,15 +36,19 @@ class WixMixIn:
 
         components = self.get_components_from_files()
         wxs = template.format(
-                app               = __appname__,
-                version           = __version__,
-                upgrade_code      = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1',
-                compression       = self.opts.msi_compression,
-                app_components    = components,
-                exe_map           = self.smap,
-                main_icon         = self.j(self.src_root, 'icons', 'library.ico'),
-                web_icon          = self.j(self.src_root, 'icons', 'web.ico'),
-                )
+            app                = __appname__,
+            version            = __version__,
+            upgrade_code       = UPGRADE_CODE,
+            ProgramFilesFolder = 'ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
+            x64                = ' 64bit' if is64bit else '',
+            minverhuman        = MINVERHUMAN,
+            minver             = '600' if is64bit else '501',
+            compression        = self.opts.msi_compression,
+            app_components     = components,
+            exe_map            = self.smap,
+            main_icon          = self.j(self.src_root, 'icons', 'library.ico'),
+            web_icon           = self.j(self.src_root, 'icons', 'web.ico'),
+        )
         template = open(self.j(self.d(__file__), 'en-us.xml'),
                 'rb').read()
         enus = template.format(app=__appname__)
@@ -48,14 +61,15 @@ class WixMixIn:
         with open(enusf, 'wb') as f:
             f.write(enus)
         wixobj = self.j(self.installer_dir, __appname__+'.wixobj')
-        cmd = [CANDLE, '-nologo', '-ext', 'WiXUtilExtension', '-o', wixobj, wxsf]
+        arch = 'x64' if is64bit else 'x86'
+        cmd = [CANDLE, '-nologo', '-arch', arch, '-ext', 'WiXUtilExtension', '-o', wixobj, wxsf]
         self.info(*cmd)
         subprocess.check_call(cmd)
         self.installer = self.j(self.src_root, 'dist')
         if not os.path.exists(self.installer):
             os.makedirs(self.installer)
-        self.installer = self.j(self.installer, '%s-%s.msi' % (__appname__,
-            __version__))
+        self.installer = self.j(self.installer, '%s%s-%s.msi' % (__appname__,
+            ('-64bit' if is64bit else ''), __version__))
         license = self.j(self.src_root, 'LICENSE.rtf')
         banner  = self.j(self.src_root, 'icons', 'wix-banner.bmp')
         dialog  = self.j(self.src_root, 'icons', 'wix-dialog.bmp')

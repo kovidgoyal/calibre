@@ -25,6 +25,7 @@ LZMA = r'Q:\easylzma\build\easylzma-0.0.8'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
+machine = 'X64' if is64bit else 'X86'
 
 DESCRIPTIONS = {
         'calibre' : 'The main calibre program',
@@ -132,6 +133,22 @@ class Win32Freeze(Command, WixMixIn):
             # used instead
             shutil.copy2(f, tgt)
 
+    def fix_pyd_bootstraps_in(self, crypto_dir):
+        for dirpath, dirnames, filenames in os.walk(crypto_dir):
+            for f in filenames:
+                name, ext = os.path.splitext(f)
+                if ext == '.pyd':
+                    with open(self.j(dirpath, name+'.py')) as f:
+                        raw = f.read().strip()
+                    if (not raw.startswith('def __bootstrap__') or not
+                            raw.endswith('__bootstrap__()')):
+                        raise Exception('The file %r has non'
+                                ' bootstrap code'%self.j(dirpath, f))
+                    for ext in ('.py', '.pyc', '.pyo'):
+                        x = self.j(dirpath, name+ext)
+                        if os.path.exists(x):
+                            os.remove(x)
+
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
 
@@ -184,23 +201,11 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
         shutil.rmtree(comext)
 
-        # Fix PyCrypto, removing the bootstrap .py modules that load the .pyd
-        # modules, since they do not work when in a zip file
-        for crypto_dir in glob.glob(self.j(sp_dir, 'pycrypto-*', 'Crypto')):
-            for dirpath, dirnames, filenames in os.walk(crypto_dir):
-                for f in filenames:
-                    name, ext = os.path.splitext(f)
-                    if ext == '.pyd':
-                        with open(self.j(dirpath, name+'.py')) as f:
-                            raw = f.read().strip()
-                        if (not raw.startswith('def __bootstrap__') or not
-                                raw.endswith('__bootstrap__()')):
-                            raise Exception('The PyCrypto file %r has non'
-                                    ' bootstrap code'%self.j(dirpath, f))
-                        for ext in ('.py', '.pyc', '.pyo'):
-                            x = self.j(dirpath, name+ext)
-                            if os.path.exists(x):
-                                os.remove(x)
+        # Fix PyCrypto and Pillow, removing the bootstrap .py modules that load
+        # the .pyd modules, since they do not work when in a zip file
+        for crypto_dir in glob.glob(self.j(sp_dir, 'pycrypto-*', 'Crypto')
+                ) + glob.glob(self.j(sp_dir, 'Pillow-*')):
+            self.fix_pyd_bootstraps_in(crypto_dir)
 
         for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
@@ -401,7 +406,7 @@ class Win32Freeze(Command, WixMixIn):
         exe = self.j('dist', 'calibre-portable-installer-%s.exe'%VERSION)
         if self.newer(exe, [obj, xobj]):
             self.info('Linking', exe)
-            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/LIBPATH:'+(LZMA+r'\lib\Release'),
                     '/RELEASE', '/MANIFEST', '/MANIFESTUAC:level="asInvoker" uiAccess="false"',
@@ -458,7 +463,7 @@ class Win32Freeze(Command, WixMixIn):
         exe = self.j(base, 'calibre-portable.exe')
         if self.newer(exe, [obj]):
             self.info('Linking', exe)
-            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/RELEASE',
                     '/ENTRY:wWinMainCRTStartup',
@@ -517,7 +522,7 @@ class Win32Freeze(Command, WixMixIn):
         ver = '.'.join(__version__.split('.')[:2])
         if self.newer(dll, objects):
             cmd = [msvc.linker, '/DLL', '/INCREMENTAL:NO', '/VERSION:'+ver,
-                    '/OUT:'+dll, '/nologo', '/MACHINE:X86'] + objects + \
+                    '/OUT:'+dll, '/nologo', '/MACHINE:'+machine] + objects + \
                 [self.embed_resources(dll),
                 '/LIBPATH:C:/Python%s/libs'%self.py_ver,
                 'python%s.lib'%self.py_ver,
@@ -547,7 +552,7 @@ class Win32Freeze(Command, WixMixIn):
                 lib = dll.replace('.dll', '.lib')
                 if self.newer(exe, [dest, lib, self.rc_template, __file__]):
                     self.info('Linking', bname)
-                    cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+                    cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                             '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
                             '/LIBPATH:C:/Python%s/libs'%self.py_ver, '/RELEASE',
                             '/OUT:'+exe, self.embed_resources(exe),
@@ -581,7 +586,8 @@ class Win32Freeze(Command, WixMixIn):
             sp = self.j(self.lib_dir, 'site-packages')
             # Special handling for PIL and pywin32
             handled = set(['PIL.pth', 'pywin32.pth', 'PIL', 'win32'])
-            self.add_to_zipfile(zf, 'PIL', sp)
+            if not is64bit:
+                self.add_to_zipfile(zf, 'PIL', sp)
             base = self.j(sp, 'win32', 'lib')
             for x in os.listdir(base):
                 if os.path.splitext(x)[1] not in ('.exe',):
@@ -593,16 +599,17 @@ class Win32Freeze(Command, WixMixIn):
                         self.add_to_zipfile(zf, x, base)
 
             handled.add('easy-install.pth')
+            # We dont want the site.py from site-packages
+            handled.add('site.pyo')
+
             for d in self.get_pth_dirs(self.j(sp, 'easy-install.pth')):
                 handled.add(self.b(d))
                 for x in os.listdir(d):
-                    if x == 'EGG-INFO':
+                    if x in {'EGG-INFO', 'site.py', 'site.pyc', 'site.pyo'}:
                         continue
                     self.add_to_zipfile(zf, x, d)
 
             # The rest of site-packages
-            # We dont want the site.py from site-packages
-            handled.add('site.pyo')
             for x in os.listdir(sp):
                 if x in handled or x.endswith('.egg-info'):
                     continue
@@ -622,8 +629,10 @@ class Win32Freeze(Command, WixMixIn):
             line = line.strip()
             if not line or line.startswith('#') or line.startswith('import'):
                 continue
-            candidate = self.j(base, line)
+            candidate = os.path.abspath(self.j(base, line))
             if os.path.exists(candidate):
+                if not os.path.isdir(candidate):
+                    raise ValueError('%s is not a directory'%candidate)
                 yield candidate
 
     def add_to_zipfile(self, zf, name, base, exclude=frozenset()):

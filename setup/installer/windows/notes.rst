@@ -109,10 +109,8 @@ of mimetypes from the windows registry
 Python packages
 ------------------
 
-Install setuptools from http://pypi.python.org/pypi/setuptools If there are no
-windows binaries already compiled for the version of python you are using then
-download the source and run the following command in the folder where the
-source has been unpacked::
+Install setuptools from http://pypi.python.org/pypi/setuptools. Use the source
+tarball. Edit setup.py and set zip_safe=False. Then run::
 
      python setup.py install
 
