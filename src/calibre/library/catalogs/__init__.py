@@ -19,4 +19,5 @@ TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate', '
 
 class AuthorSortMismatchException(Exception): pass
 class EmptyCatalogException(Exception): pass
+class InvalidGenresSourceFieldException(Exception): pass
 

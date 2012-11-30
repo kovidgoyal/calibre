@@ -20,3 +20,5 @@ class AmazonITKindleStore(AmazonUKKindleStore):
                           'location=http://www.amazon.it/dp/%(asin)s&tag=%(tag)s&'
                           'linkCode=ur2&camp=3370&creative=23322')
     search_url = 'http://www.amazon.it/s/?url=search-alias%3Ddigital-text&field-keywords='
+
+    author_article = 'di '

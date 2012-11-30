@@ -19,3 +19,4 @@ class AmazonFRKindleStore(AmazonUKKindleStore):
     store_link_details = 'http://www.amazon.fr/gp/redirect.html?ie=UTF8&location=http://www.amazon.fr/dp/%(asin)s&tag=%(tag)s&linkCode=ur2&camp=1634&creative=6738'
     search_url = 'http://www.amazon.fr/s/?url=search-alias%3Ddigital-text&field-keywords='
 
+    author_article = 'de '

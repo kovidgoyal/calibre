@@ -11,7 +11,7 @@ import re, os
 
 from calibre.ebooks.chardet import strip_encoding_declarations
 
-def update_internal_links(mobi8_reader):
+def update_internal_links(mobi8_reader, log):
     # need to update all links that are internal which
     # are based on positions within the xhtml files **BEFORE**
     # cutting and pasting any pieces into the xhtml text files
@@ -35,11 +35,16 @@ def update_internal_links(mobi8_reader):
                 for m in posfid_index_pattern.finditer(tag):
                     posfid = m.group(1)
                     offset = m.group(2)
-                    filename, idtag = mr.get_id_tag_by_pos_fid(int(posfid, 32),
-                            int(offset, 32))
-                    suffix = (b'#' + idtag) if idtag else b''
-                    replacement = filename.split('/')[-1].encode(
-                            mr.header.codec) + suffix
+                    try:
+                        filename, idtag = mr.get_id_tag_by_pos_fid(
+                            int(posfid, 32), int(offset, 32))
+                    except ValueError:
+                        log.warn('Invalid link, points to nowhere, ignoring')
+                        replacement = b'#'
+                    else:
+                        suffix = (b'#' + idtag) if idtag else b''
+                        replacement = filename.split('/')[-1].encode(
+                                mr.header.codec) + suffix
                     tag = posfid_index_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         raw = b''.join(srcpieces)
@@ -298,7 +303,7 @@ def upshift_markup(parts):
 
 def expand_mobi8_markup(mobi8_reader, resource_map, log):
     # First update all internal links that are based on offsets
-    parts = update_internal_links(mobi8_reader)
+    parts = update_internal_links(mobi8_reader, log)
 
     # Remove pointless markup inserted by kindlegen
     remove_kindlegen_markup(parts)

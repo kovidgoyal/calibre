@@ -56,15 +56,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-11-22 04:01+0000\n"
-"PO-Revision-Date: 2012-11-19 23:00+0000\n"
+"POT-Creation-Date: 2012-11-23 03:42+0000\n"
+"PO-Revision-Date: 2012-11-25 12:44+0000\n"
 "Last-Translator: Herman van der Vaart <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-22 04:49+0000\n"
+"X-Launchpad-Export-Date: 2012-11-26 04:37+0000\n"
 "X-Generator: Launchpad (build 16293)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -5957,7 +5957,7 @@ msgstr "Te lang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Not found"
-msgstr ""
+msgstr "niet gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 #, python-format
@@ -5965,6 +5965,9 @@ msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
+"Kan niet hernoemen aangezien geen bibliotheek gevonden werd op %s. Probeer "
+"eerst om te schakelen naar deze bibliotheek, schakel dan terug en probeer "
+"opnieuw te hernoemen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:335
 msgid "Rename failed"
@@ -14173,12 +14176,12 @@ msgid "LRF Viewer toolbar"
 msgstr "LRF-leesvenster werkbalk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:538
 msgid "Next Page"
 msgstr "Volgende pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:539
 msgid "Previous Page"
 msgstr "Vorige pagina"
 
@@ -15123,6 +15126,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
 msgid "Automatically &convert added books to the current output format"
 msgstr ""
+"&convert automatisch toegevoegde boeken naar het gekozen uitvoer formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "The Add &Process"
@@ -18260,11 +18264,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:177
 msgid "No query"
-msgstr ""
+msgstr "Geen zoekopdracht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:178
 msgid "You must enter a title, author or keyword to search for."
-msgstr ""
+msgstr "je moet een titel, auteur of sleutelwoord ingeven om naar te zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:300
 msgid "Customize get books search"
@@ -18288,19 +18292,19 @@ msgstr "Boeken verkrijgen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
-msgstr ""
+msgstr "Zoeken op titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:173
 msgid "Search by author"
-msgstr ""
+msgstr "Zoeken op auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:175
 msgid "&Keyword:"
-msgstr ""
+msgstr "&Sleutelwoord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr ""
+msgstr "Zoeken op willekeurig sleutelwoord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -19104,11 +19108,11 @@ msgstr "Toon de bladerbalk in volledige-scherm-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:63
 msgid "Start viewer in full screen mode"
-msgstr ""
+msgstr "Start de lezer in volledig scherm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr ""
+msgstr "Toon gebruikershulp in volledig scherm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:74
 msgid "Font options"
@@ -19274,11 +19278,11 @@ msgstr "Toon &bladerbalk in volledig-scherm-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "&Start de lezer in volledig scherm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "Show &help message when starting full screen mode"
-msgstr ""
+msgstr "Toon &help bericht bij starten volledig scherm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "F&ull  screen options"
@@ -19410,87 +19414,83 @@ msgstr "&Thema-gebruik"
 msgid "No results found for:"
 msgstr "Geen resultaten gevonden voor:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:501
 msgid "&Lookup in dictionary"
 msgstr "Woordenboek raadp&legen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "View &image..."
 msgstr "Toon &afbeelding..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
-msgstr ""
+msgstr "Toon &table"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
 msgstr "&Zoek naar volgende voorkomen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
 msgstr "Ga naar…"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
 msgid "Next Section"
 msgstr "Volgende paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:530
 msgid "Previous Section"
 msgstr "Vorige paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
 msgid "Document Start"
 msgstr "Begin van document"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:533
 msgid "Document End"
 msgstr "Einde van document"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
 msgid "Section Start"
 msgstr "Begin van paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "Section End"
 msgstr "Einde van paragraaf"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
-msgstr ""
+msgstr "Normale karaktergrootte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:610
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
-msgstr ""
+msgstr "Zoek in Google naar '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
 msgid "Zoom &in"
 msgstr "&Inzoomen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:29
 msgid "Zoom &out"
 msgstr "&Uitzoomen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:40
 msgid "&Save as"
 msgstr "Opslaan &als"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:41
 msgid "&Rotate"
 msgstr "&Draaien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:67
 msgid "Choose a file to save to"
 msgstr "Kies een bestand om naartoe op te slaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:100
 #, python-format
 msgid "View Image: %s"
 msgstr "Bekijk afbeelding: %s"
@@ -19819,6 +19819,18 @@ msgstr "Weergeven mislukt (render probleem)"
 #, python-format
 msgid "Failed to render document %s"
 msgstr "Weergave document %s mislukt (render probleem)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:57
+msgid "View Table"
+msgstr "Bekijk Tabel"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
+msgid "No table found"
+msgstr "Geen tabel gevonden"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
+msgid "No table was found"
+msgstr "Er werd geen tabel gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"
@@ -22569,6 +22581,14 @@ msgid ""
 "also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used "
 "in the argument to this function when using template program mode."
 msgstr ""
+"eval(template) -- evalueert het sjabloon, geeft lokale variabelen door (die "
+"'assign'ed zijn) in plaats van de metadata van het boek.   Hierdoor kan met "
+"behulp van de sjabloon processor complexe resultaten geconstrueerd worden "
+"van lokale variabelen. Omdat de { en } karakters speciaal zijn, dien je [[ "
+"voor het { karakter en ]] voor het } karakter te gebruiken; deze worden "
+"automatisch omgezet. Merk ook op dat voor- en achtervoegsels (de "
+"`|prefix|suffix` syntaxis) niet gebruikt kunnen worden in het argument voor "
+"deze functie bij gebruik in sjabloon programma mode."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:253
 msgid ""
@@ -22850,6 +22870,12 @@ msgid ""
 "template program mode using the template \"{:'approximate_formats()'}\". "
 "Note that format names are always uppercase, as in EPUB."
 msgstr ""
+"approximate_formats() -- retourneert een door komma's gescheiden lijst van "
+"formaten die op enig moment in verband stonden met het boek. Er is geen "
+"garantie dat deze lijst correct is, maar waarschijnlijk wel. Deze functie "
+"kan worden aangeroepen in sjabloon programma mode gebruik makend van het "
+"sjabloon \"{:'approximate_formats()'}\". Merk op dat formaat namen altijd in "
+"hoofdletters zijn, zoals in EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:620
 msgid ""
@@ -22886,6 +22912,11 @@ msgid ""
 "function to get the path for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_paths() -- retourneert een door komma's gescheiden lijst van door "
+"dubbele punt gescheiden items die het volledige pad naar de formaten van een "
+"boek geven. Je kunt gebruik maken van de select-functie om het pad te "
+"krijgen voor een specifiek formaat. Merk op dat formaat namen altijd in "
+"hoofdletters zijn, zoals in EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:671
 msgid ""
@@ -22947,6 +22978,22 @@ msgid ""
 "\"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
 "returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
+"subitems(val, start_index, end_index) -- Deze functie wordt gebruikt om "
+"lijsten van items zoals genres op te delen. Het interpreteert de waarde als "
+"een door komma's gescheiden lijst met items, waarbij elk item een door "
+"punten gescheiden lijst is. Geeft een nieuwe lijst door eerst alle met "
+"punten gescheiden items  te vinden, vervolgens voor elk item de waarde van "
+"de `start_index` tot `end_index` componenten te extraheren, en dan de "
+"resultaten wederom terug te combineren. De eerste component in een punt "
+"gescheiden lijst heeft een index van nul. Als een index negatief is, dan "
+"telt het vanaf het einde van de lijst. Als speciaal geval wordt een "
+"end_index van nul verondersteld de lengte van de lijst te zijn. Voorbeeld "
+"met gebruik van de basis sjabloon mode en uitgaande van een #genre waarde "
+"van \"A.B.C\": {#genre:subitems(0,1)} retourneert \"A\". "
+"{#genre:subitems(0,2)} retourneert \"A.B\". {#genre:subitems(1,0)} "
+"retourneert \"B.C\". Uitgaande van een  #genre waarde van \"A.B.C, D.E.F\", "
+"{#genre:subitems(0,1)} retourneert \"A, D\". {#genre:subitems(0,2)} "
+"retourneert \"A.B, D.E\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:795
 msgid ""
@@ -23231,6 +23278,11 @@ msgid ""
 "the same output as the above template: program: "
 "finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 msgstr ""
+"finish_formatting(val, fmt, prefix, suffix) -- toepassing van formaat, voor- "
+"en achtervoegsel op een waarde op dezelfde manier als in een sjabloon "
+"zoals`{series_index:05.2f| - |- }`. Bijvoorbeeld, het volgende programma "
+"produceert dezelfde uitvoer als bovenstaand sjabloon: programma: "
+"finish_formatting(field(\"series_index\"), \"05.2f\", \" - \", \" - \")"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -23907,6 +23959,44 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"Het algoritme gebruikt om een serienummer toe te wijzen aan een boek "
+"toegevoegd aan een bestaande reeks.\n"
+"Toegewezen nieuwe serienummers met deze tweak zijn altijd gehele getallen, "
+"tenzij\n"
+"een niet geheel getal constante wordt gespecificeerd.\n"
+"Mogelijke waarden zijn:\n"
+"next - Eerst beschikbare geheel getal groter dan het grootste bestaande "
+"nummer\n"
+"first_free - Eerst beschikbare geheel getal groter dan 0\n"
+"next_free - Eerst beschikbare geheel getal groter dan het kleinste bestaande "
+"nummer\n"
+"last_free - Eerst beschikbare geheel getal kleiner danhet grootste bestaande "
+"nummer\n"
+"Retourneert grootste bestaande +1 indien geen vrij nummer wordt gevonden\n"
+"const - Wijst altijd het nummer 1 toe.\n"
+"no_change - Wijzigt het serienummer niet\n"
+"a number - Wijst dit nummer altijd toe. Het nummer staat niet tussen haken. "
+"Merk op dat\n"
+"0.0 hier gebruikt kan worden.\n"
+"Voorbeelden:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"Zet de use_series_auto_increment_tweak_when_importing tweak op WAAR om\n"
+"bovenvermelde waarden te gebruiken bij importeren/toevoegen van boeken. Als "
+"deze tweak wordt gezet op\n"
+"NIET-WAAR (standaard) wordt het serienummer op 1 gezet tenzij\n"
+"expliciet gezet tijdens de invoer. Indien gezet op WAAR, wordt het\n"
+"serienummer gezet volgens de series_index_auto_increment instelling.\n"
+"Merk op dat de use_series_auto_increment_tweak_when_importing tweak "
+"uitsluitend\n"
+"gebruikt wordt wanneer geen waarde wordt aangeboden tijdens invoer. Wanneer "
+"de reguliere invoer\n"
+"opdracht een waarde voor series_index oplevert, of wanneer je metadata van "
+"boeken\n"
+"leest en de invoer plugin produceert een waarde, dan wordt die waarde\n"
+"gebruikt ongeacht de instelling van de tweak."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid "Add separator after completing an author name"
@@ -24676,6 +24766,19 @@ msgid ""
 "Enter a comma-separated list of custom field lookup names, as in\n"
 "metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
 msgstr ""
+"Regelt de volgorde waarin aangepaste kolommen worden weergegeven in bewerk "
+"metadata individueel\n"
+"en groep. De kolommen in de tweak worden als eerste weergegeven in de \n"
+"opgegeven volgorde. Elke niet opgegeven kolom wordt weergegeven na de "
+"opgegeven kolommen,\n"
+"in alfabetische volgorde. Let wel dat deze tweak niets verandert aan de "
+"grootte van de\n"
+"de bewerking widgets. Het plaatsen van commentaar widgets in deze lijst kan "
+"resulteren in een\n"
+"onregelmatige widget afstand bij gebruik van twee-kolom modus.\n"
+"Voer een door komma's gescheiden lijst in met aangepaste veld zoeknamen, "
+"zoals in\n"
+"metadata_edit_custom_column_order = ['# genre \",\" # mytags', '# etc']"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:428
 msgid "The number of seconds to wait before sending emails"
