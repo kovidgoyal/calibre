@@ -127,12 +127,26 @@
                     Message="This application is only supported on {minverhuman}, or higher.">
                     <![CDATA[Installed OR (VersionNT >= {minver})]]>
                 </Condition>
+                <!-- On 64 bit installers there is a bug in WiX that causes the
+                     WixSetDefaultPerMachineFolder action to incorrectly set
+                     APPLICATIONFOLDER to the x86 value, so we override it. See
+                     http://stackoverflow.com/questions/5479790/wix-how-to-override-c-program-files-x86-on-x64-machine-in-wixui-advanced-s
+                     -->
+                <CustomAction
+                    Id="OverwriteWixSetDefaultPerMachineFolder"
+                    Property="WixPerMachineFolder"
+                    Value="[APPLICATIONFOLDER]"
+                    Execute="immediate"
+                    />
+
                 <InstallExecuteSequence>
                     <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+                    {fix_wix}
                     <RemoveExistingProducts After="InstallFinalize" />
                 </InstallExecuteSequence>
                 <InstallUISequence>
                     <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+                    {fix_wix}
                 </InstallUISequence>
 
                 <UI>

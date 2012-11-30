@@ -43,6 +43,7 @@ class WixMixIn:
             x64                = ' 64bit' if is64bit else '',
             minverhuman        = MINVERHUMAN,
             minver             = '600' if is64bit else '501',
+            fix_wix = '<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
             compression        = self.opts.msi_compression,
             app_components     = components,
             exe_map            = self.smap,
