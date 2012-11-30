@@ -19,6 +19,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.8
+  date: 2012-11-30
+
+  new features:
+    - title: "Add an option to show the cover size in the book details panel on the right. Option is in Preferences->Look & Feel->Book Details"
+
+    - title: "Kobo driver: Add support for firmware 2.2. Also add an option to send series information to the device."
+      description: "The newest Kobo firmware can display series information. Unfortunately, the Kobo does not read this information from the ebook file itself. It has to be sent separately after the Kobo has finished processing the new files. So you might have to connect - send books - disconnect and then re-connect for the series infor to show up. Fixes #1084388 (Add support for series on Kobo devices)"
+
+    - title: "Catalogs: Allow using custom columns as the source for Genres when generating catalogs"
+
+    - title: "When the user asks calibre to convert a book, show a small animation to make highlight that the convert job has been queued to run in the background"
+
+    - title: "Add support for the notification center in OS X 10.8"
+
+    - title: "calibredb: Add an option to specify the cover to use when adding books with calibredb add."
+      tickets: [1083932]
+
+    - title: "EPUB Input: Add support for EPUB files with broken central directory records *and* data descriptors"
+
+    - title: "Comic metadata: Support reading metadata from cbr files. Also read the comments and published date info from the metadata."
+      tickets: [1082340]
+
+    - title: "Speed up processing of RAR and CBR files by avoiding an extra file copy"
+
+    - title: "Add driver for Nexus 10 on linux."
+      tickets: [1082563]
+
+  bug fixes:
+    - title: "KF8 Input: Handle invalid KF8 files with links pointing to non-existent locations and incorrect values in the div table."
+      tickets: [1082669]
+
+    - title: "Viewer: Fix handling of empty self closing tags."
+      tickets: [1083278]
+
+    - title: "Fix use of {formats} in save to disk templates. Fix some formatter functions causing plugboards to not validate."
+
+    - title: "Fix calibre quitting when minimized to system tray and an update available message is shown and then closed."
+      tickets: [1082630]
+
+    - title: "Viewer: Fix vertical margin at the top of the first page of a chapter incorrect in a certain rare circumstance (first child of body being an empty paragraph)."
+      tickets: [1082640]
+
+    - title: "E-book viewer: Fix bug that caused the default language for hyphenation to be ignored for books that do not specify a language"
+
+  improved recipes:
+    - Pro Physik
+    - Aachener Nachrichten
+    - Science News
+
 - version: 0.9.7
   date: 2012-11-23
 
