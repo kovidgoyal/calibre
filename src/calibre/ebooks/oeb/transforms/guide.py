@@ -21,8 +21,13 @@ class Clean(object):
                     'other.ms-thumbimage', 'thumbimagestandard'):
                 if x in self.oeb.guide:
                     href = self.oeb.guide[x].href
-                    item = self.oeb.manifest.hrefs[href]
-                    covers.append([self.oeb.guide[x], len(item.data)])
+                    try:
+                        item = self.oeb.manifest.hrefs[href]
+                    except KeyError:
+                        continue
+                    else:
+                        covers.append([self.oeb.guide[x], len(item.data)])
+
             covers.sort(cmp=lambda x,y:cmp(x[1], y[1]), reverse=True)
             if covers:
                 ref = covers[0][0]

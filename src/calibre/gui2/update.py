@@ -67,6 +67,7 @@ class UpdateNotification(QDialog):
 
     def __init__(self, calibre_version, plugin_updates, parent=None):
         QDialog.__init__(self, parent)
+        self.setAttribute(Qt.WA_QuitOnClose, False)
         self.resize(400, 250)
         self.l = QGridLayout()
         self.setLayout(self.l)

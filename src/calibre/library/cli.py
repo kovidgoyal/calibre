@@ -215,7 +215,7 @@ class DevNull(object):
 NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
-        oauthors, oisbn, otags, oseries, oseries_index):
+        oauthors, oisbn, otags, oseries, oseries_index, ocover):
     orig = sys.stdout
     #sys.stdout = NULL
     try:
@@ -247,6 +247,8 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 if val: setattr(mi, x, val)
             if oseries:
                 mi.series_index = oseries_index
+            if ocover:
+                mi.cover = ocover
 
             formats.append(format)
             metadata.append(mi)
@@ -335,11 +337,12 @@ the directory related options below.
             help=_('Set the series of the added book(s)'))
     parser.add_option('-S', '--series-index', default=1.0, type=float,
             help=_('Set the series number of the added book(s)'))
-
+    parser.add_option('-c', '--cover', default=None,
+            help=_('Path to the cover to use for the added book'))
 
     return parser
 
-def do_add_empty(db, title, authors, isbn, tags, series, series_index):
+def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover):
     from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(None)
     if title is not None:
@@ -352,6 +355,8 @@ def do_add_empty(db, title, authors, isbn, tags, series, series_index):
         mi.tags = tags
     if series:
         mi.series, mi.series_index = series, series_index
+    if cover:
+        mi.cover = cover
     db.import_book(mi, [])
     write_dirtied(db)
     send_message()
@@ -364,7 +369,7 @@ def command_add(args, dbpath):
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     if opts.empty:
         do_add_empty(get_db(dbpath, opts), opts.title, aut, opts.isbn, tags,
-                opts.series, opts.series_index)
+                opts.series, opts.series_index, opts.cover)
         return 0
     if len(args) < 2:
         parser.print_help()
@@ -373,7 +378,7 @@ def command_add(args, dbpath):
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
             opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
-            tags, opts.series, opts.series_index)
+            tags, opts.series, opts.series_index, opts.cover)
     return 0
 
 def do_remove(db, ids):

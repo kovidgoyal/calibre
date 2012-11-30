@@ -22,3 +22,4 @@ class AmazonDEKindleStore(AmazonUKKindleStore):
                           '&tag=%(tag)s&linkCode=ur2&camp=1638&creative=6742')
     search_url = 'http://www.amazon.de/s/?url=search-alias%3Ddigital-text&field-keywords='
 
+    author_article = 'von '

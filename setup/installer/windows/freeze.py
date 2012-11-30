@@ -17,7 +17,6 @@ ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
 QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-LIBUNRAR         = os.environ.get('UNRARDLL', 'C:\\Program Files\\UnrarDLL\\unrar.dll')
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK = os.path.join(SW, 'build',
                             'ImageMagick-*\\VisualMagick\\bin')
@@ -261,9 +260,6 @@ class Win32Freeze(Command, WixMixIn):
 
         print
         print 'Adding third party dependencies'
-        print '\tAdding unrar'
-        shutil.copyfile(LIBUNRAR, os.path.join(self.dll_dir,
-                        os.path.basename(LIBUNRAR).replace('64', '')))
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
@@ -567,9 +563,12 @@ class Win32Freeze(Command, WixMixIn):
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
                     if pyd.endswith('.pyd') and pyd not in {
-                            'sqlite_custom.pyd', 'calibre_style.pyd'}:
+                            'unrar.pyd', 'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
+                        # For some reason unrar.pyd crashes when processing
+                        # password protected RAR files if loaded from inside
+                        # pylib.zip
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
 

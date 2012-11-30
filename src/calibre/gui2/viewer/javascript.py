@@ -80,7 +80,7 @@ class JavaScriptLoader(object):
             evaljs(src)
 
         if not lang:
-            lang = 'en'
+            lang = default_lang or 'en'
 
         def lang_name(l):
             l = l.lower()

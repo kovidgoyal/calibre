@@ -147,8 +147,10 @@ def print_basic_debug_info(out=None):
     if out is None: out = sys.stdout
     out = functools.partial(prints, file=out)
     import platform
-    from calibre.constants import __appname__, get_version, isportable, isosx
-    out(__appname__, get_version(), 'Portable' if isportable else '')
+    from calibre.constants import (__appname__, get_version, isportable, isosx,
+                                   isfrozen)
+    out(__appname__, get_version(), 'Portable' if isportable else '',
+        'isfrozen:', isfrozen)
     out(platform.platform(), platform.system())
     out(platform.system_alias(platform.system(), platform.release(),
             platform.version()))

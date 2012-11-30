@@ -240,23 +240,6 @@ Run make (note that you must have GNU make installed in cygwin)
 
 Optionally run make check
 
-Libunrar
-----------
-
-Get the source from http://www.rarlab.com/rar_add.htm
-
-Open UnrarDll.vcproj, change build type to release.
-If building 64 bit change Win32 to x64.
-
-Build the Solution, find the dll in the build subdir. As best as I can tell,
-the vcproj already defines the SILENT preprocessor directive, but you should
-test this.
-
-.. http://www.rarlab.com/rar/UnRARDLL.exe install and add C:\Program Files\UnrarDLL to PATH
-
-TODO: 64-bit check that SILENT is defined and that the ctypes bindings actuall
-work
-
 zlib
 ------
 
