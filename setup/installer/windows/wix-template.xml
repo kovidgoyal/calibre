@@ -29,9 +29,8 @@
                        Language="1033"
                        Property="NEWPRODUCTFOUND"/>
                </Upgrade>
-               <CustomAction Id="PreventDowngrading" Error="Newer version already installed."/>
+               <CustomAction Id="PreventDowngrading" Error="Newer version of {app} already installed. If you want to downgrade you must uninstall {app} first."/>
 
-               <Property Id="ApplicationFolderName" Value="{appfolder}" />
                <Property Id="APPLICATIONFOLDER">
                   <RegistrySearch Id='calibreInstDir' Type='raw'
                       Root='HKLM' Key="Software\{app}{x64}\Installer" Name="InstallPath" />
@@ -39,6 +38,11 @@
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
                         <Directory Id='{ProgramFilesFolder}' Name='PFiles'>
+                            <!-- The name must be calibre on 32 bit to ensure
+                                 that the component guids dont change compared
+                                 to previous msis. However, on 64 bit it must
+                                 be Calibre2 otherwise by default it will
+                                 install to C:\Program Files\calibre -->
                             <Directory Id='APPLICATIONFOLDER' Name="{appfolder}" />
 						</Directory>
                         <Directory Id="ProgramMenuFolder">
@@ -171,6 +175,7 @@
                 (i.e. per user installs should work) but left this way as I
                 dont want to deal with the complications 
                 -->
+                <Property Id="ApplicationFolderName" Value="Calibre2" />
                 <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
                 <Property Id="ALLUSERS" Value="1" />
                 <WixVariable Id="WixUISupportPerUser" Value="0" />
