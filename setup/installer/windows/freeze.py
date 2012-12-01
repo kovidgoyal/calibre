@@ -504,9 +504,11 @@ class Win32Freeze(Command, WixMixIn):
         finally:
             os.chdir(cwd)
 
-    def build_launchers(self):
+    def build_launchers(self, debug=False):
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
+        dflags = (['/Zi'] if debug else [])
+        dlflags = (['/DEBUG'] if debug else ['/INCREMENTAL:NO'])
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
         sources = [self.j(base, x) for x in ['util.c', 'MemoryModule.c']]
         headers = [self.j(base, x) for x in ['util.h', 'MemoryModule.h']]
@@ -515,14 +517,14 @@ class Win32Freeze(Command, WixMixIn):
         cflags += ['/DPYDLL="python%s.dll"'%self.py_ver, '/IC:/Python%s/include'%self.py_ver]
         for src, obj in zip(sources, objects):
             if not self.newer(obj, headers+[src]): continue
-            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
+            cmd = [msvc.cc] + cflags + dflags + ['/Fo'+obj, '/Tc'+src]
             self.run_builder(cmd)
 
         dll = self.j(self.obj_dir, 'calibre-launcher.dll')
         ver = '.'.join(__version__.split('.')[:2])
         if self.newer(dll, objects):
-            cmd = [msvc.linker, '/DLL', '/INCREMENTAL:NO', '/VERSION:'+ver,
-                    '/OUT:'+dll, '/nologo', '/MACHINE:'+machine] + objects + \
+            cmd = [msvc.linker, '/DLL', '/VERSION:'+ver, '/OUT:'+dll,
+                   '/nologo', '/MACHINE:'+machine] + dlflags + objects + \
                 [self.embed_resources(dll),
                 '/LIBPATH:C:/Python%s/libs'%self.py_ver,
                 'python%s.lib'%self.py_ver,
@@ -546,16 +548,16 @@ class Win32Freeze(Command, WixMixIn):
                 dest = self.j(self.obj_dir, bname+'.obj')
                 if self.newer(dest, [src]+headers):
                     self.info('Compiling', bname)
-                    cmd = [msvc.cc] + xflags + ['/Tc'+src, '/Fo'+dest]
+                    cmd = [msvc.cc] + xflags + dflags + ['/Tc'+src, '/Fo'+dest]
                     self.run_builder(cmd)
                 exe = self.j(self.base, bname+'.exe')
                 lib = dll.replace('.dll', '.lib')
                 if self.newer(exe, [dest, lib, self.rc_template, __file__]):
                     self.info('Linking', bname)
-                    cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
+                    cmd = [msvc.linker] + ['/MACHINE:'+machine,
                             '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
                             '/LIBPATH:C:/Python%s/libs'%self.py_ver, '/RELEASE',
-                            '/OUT:'+exe, self.embed_resources(exe),
+                            '/OUT:'+exe] + dlflags + [self.embed_resources(exe),
                             dest, lib]
                     self.run_builder(cmd)
 
