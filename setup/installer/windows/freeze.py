@@ -575,7 +575,8 @@ class Win32Freeze(Command, WixMixIn):
                         # sqlite_load_extension to work
                         # For some reason unrar.pyd crashes when processing
                         # password protected RAR files if loaded from inside
-                        # pylib.zip
+                        # pylib.zip. Probably because of this bug:
+                        # https://github.com/fancycode/MemoryModule/issues/4
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
 
