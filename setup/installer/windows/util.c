@@ -63,17 +63,6 @@ static void* FindLibrary(char *name, PyObject *callback)
 	return p;
 }
 
-static PyObject *set_find_proc(PyObject *self, PyObject *args)
-{
-	PyObject *callback = NULL;
-	if (!PyArg_ParseTuple(args, "|O:set_find_proc", &callback))
-		return NULL;
-	Py_DECREF((PyObject *)findproc_data);
-	Py_INCREF(callback);
-	findproc_data = (void *)callback;
-    return Py_BuildValue("i", 1);
-}
-
 static PyObject *
 import_module(PyObject *self, PyObject *args)
 {
@@ -92,7 +81,7 @@ import_module(PyObject *self, PyObject *args)
 			      &data, &size,
 			      &initfuncname, &modname, &pathname))
 		return NULL;
-	hmem = MemoryLoadLibrary(pathname, data);
+	hmem = MemoryLoadLibrary(data);
 	if (!hmem) {
 		PyErr_Format(*DLL_ImportError,
 			     "MemoryLoadLibrary() failed loading %s", pathname);
@@ -119,14 +108,14 @@ import_module(PyObject *self, PyObject *args)
 static PyMethodDef methods[] = {
 	{ "import_module", import_module, METH_VARARGS,
 	  "import_module(code, initfunc, dllname[, finder]) -> module" },
-	{ "set_find_proc", set_find_proc, METH_VARARGS },
 	{ NULL, NULL },		/* Sentinel */
 };
 
 // }}}
 
 static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
-    wchar_t *buf, *cbuf;
+    wchar_t *buf;
+    char *cbuf;
     buf = (wchar_t*)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t)*
             (wcslen(msg) + wcslen(preamble) + 80));
 
@@ -372,7 +361,6 @@ void initialize_interpreter(wchar_t *outr, wchar_t *errr,
     }
     PySys_SetObject("argv", argv);
 
-    findproc = FindLibrary;
 	Py_InitModule3("_memimporter", methods, module_doc);
 
 }

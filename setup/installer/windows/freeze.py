@@ -111,7 +111,7 @@ class Win32Freeze(Command, WixMixIn):
             self.info('Removing CRT dependency from manifest of: %s'%bn)
             # Blank out the bytes corresponding to the dependency specification
             nraw = repl_pat.sub(lambda m: b' '*len(m.group()), raw)
-            if len(nraw) != len(raw):
+            if len(nraw) != len(raw) or nraw == raw:
                 raise Exception('Something went wrong with %s'%bn)
             with open(dll, 'wb') as f:
                 f.write(nraw)
@@ -133,12 +133,13 @@ class Win32Freeze(Command, WixMixIn):
             # used instead
             shutil.copy2(f, tgt)
 
-    def fix_pyd_bootstraps_in(self, crypto_dir):
-        for dirpath, dirnames, filenames in os.walk(crypto_dir):
+    def fix_pyd_bootstraps_in(self, folder):
+        for dirpath, dirnames, filenames in os.walk(folder):
             for f in filenames:
                 name, ext = os.path.splitext(f)
-                if ext == '.pyd':
-                    with open(self.j(dirpath, name+'.py')) as f:
+                bpy = self.j(dirpath, name + '.py')
+                if ext == '.pyd' and os.path.exists(bpy):
+                    with open(bpy, 'rb') as f:
                         raw = f.read().strip()
                     if (not raw.startswith('def __bootstrap__') or not
                             raw.endswith('__bootstrap__()')):
@@ -203,9 +204,10 @@ class Win32Freeze(Command, WixMixIn):
 
         # Fix PyCrypto and Pillow, removing the bootstrap .py modules that load
         # the .pyd modules, since they do not work when in a zip file
-        for crypto_dir in glob.glob(self.j(sp_dir, 'pycrypto-*', 'Crypto')
-                ) + glob.glob(self.j(sp_dir, 'Pillow-*')):
-            self.fix_pyd_bootstraps_in(crypto_dir)
+        for folder in os.listdir(sp_dir):
+            folder = self.j(sp_dir, folder)
+            if os.path.isdir(folder):
+                self.fix_pyd_bootstraps_in(folder)
 
         for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
@@ -570,13 +572,18 @@ class Win32Freeze(Command, WixMixIn):
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
                     if pyd.endswith('.pyd') and pyd not in {
-                            'unrar.pyd', 'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
-                        # For some reason unrar.pyd crashes when processing
-                        # password protected RAR files if loaded from inside
-                        # pylib.zip. Probably because of this bug:
-                        # https://github.com/fancycode/MemoryModule/issues/4
+                        'sqlite_custom.pyd',
+                        # calibre_style has to be loaded by Qt therefore it
+                        # must be a file
+                        'calibre_style.pyd',
+                        # Because of https://github.com/fancycode/MemoryModule/issues/4
+                        # any extensions that use C++ exceptions must be loaded
+                        # from files
+                        'unrar.pyd', 'wpd.pyd', 'podofo.pyd',
+                        'progress_indicator.pyd',
+                        }:
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
 
