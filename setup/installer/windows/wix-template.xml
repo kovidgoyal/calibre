@@ -31,6 +31,7 @@
                </Upgrade>
                <CustomAction Id="PreventDowngrading" Error="Newer version already installed."/>
 
+               <Property Id="ApplicationFolderName" Value="{appfolder}" />
                <Property Id="APPLICATIONFOLDER">
                   <RegistrySearch Id='calibreInstDir' Type='raw'
                       Root='HKLM' Key="Software\{app}{x64}\Installer" Name="InstallPath" />
@@ -38,7 +39,7 @@
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
                         <Directory Id='{ProgramFilesFolder}' Name='PFiles'>
-								<Directory Id='APPLICATIONFOLDER' Name='{app}' />
+                            <Directory Id='APPLICATIONFOLDER' Name="{appfolder}" />
 						</Directory>
                         <Directory Id="ProgramMenuFolder">
                             <Directory Id="ApplicationProgramsFolder" Name="{app}{x64} - E-book Management"/>
@@ -122,6 +123,10 @@
 				<!-- Add icon to entry in Add/Remove programs -->
                 <Icon Id="main_icon" SourceFile="{main_icon}"/>
 				<Property Id="ARPPRODUCTICON" Value="main_icon" />
+                <Property Id="ARPURLINFOABOUT" Value="http://calibre-ebook.com" />
+                <Property Id='ARPHELPLINK' Value="http://calibre-ebook.com/help" />
+                <Property Id='ARPURLUPDATEINFO' Value="http://calibre-ebook.com/download_windows" />
+                <SetProperty Id="ARPINSTALLLOCATION" Value="[APPLICATIONFOLDER]" After="CostFinalize" />
 
                 <Condition
                     Message="This application is only supported on {minverhuman}, or higher.">
@@ -166,7 +171,6 @@
                 (i.e. per user installs should work) but left this way as I
                 dont want to deal with the complications 
                 -->
-                <Property Id="ApplicationFolderName" Value="Calibre2" />
                 <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
                 <Property Id="ALLUSERS" Value="1" />
                 <WixVariable Id="WixUISupportPerUser" Value="0" />

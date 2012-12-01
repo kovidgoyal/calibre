@@ -37,6 +37,7 @@ class WixMixIn:
         components = self.get_components_from_files()
         wxs = template.format(
             app                = __appname__,
+            appfolder          = 'Calibre2',
             version            = __version__,
             upgrade_code       = UPGRADE_CODE,
             ProgramFilesFolder = 'ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
@@ -118,7 +119,20 @@ class WixMixIn:
                         (fid, f, x, checksum),
                     '</Component>'
                     ]
-                    components.append(''.join(c))
+                    if x.endswith('.exe'):
+                        # Add the executable to app paths so that users can
+                        # launch it from the run dialog even if it is not on
+                        # the path. See http://msdn.microsoft.com/en-us/library/windows/desktop/ee872121(v=vs.85).aspx
+                        c[-1:-1] = [
+                        ('<RegistryValue Root="HKLM" '
+                         'Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App '
+                         'Paths\%s" Value="[#file_%d]" Type="string" />'%(x, fid)),
+                        ('<RegistryValue Root="HKLM" '
+                         'Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App '
+                         'Paths\{0}" Name="Path" Value="[APPLICATIONFOLDER]" '
+                         'Type="string" />'.format(x)),
+                        ]
+                    components.append('\n'.join(c))
             return components
 
         components = process_dir(os.path.abspath(self.base))
