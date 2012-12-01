@@ -119,17 +119,17 @@ class WixMixIn:
                         (fid, f, x, checksum),
                     '</Component>'
                     ]
-                    if x.endswith('.exe'):
+                    if x.endswith('.exe') and not x.startswith('pdf'):
                         # Add the executable to app paths so that users can
                         # launch it from the run dialog even if it is not on
                         # the path. See http://msdn.microsoft.com/en-us/library/windows/desktop/ee872121(v=vs.85).aspx
                         c[-1:-1] = [
                         ('<RegistryValue Root="HKLM" '
-                         'Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App '
-                         'Paths\%s" Value="[#file_%d]" Type="string" />'%(x, fid)),
+                         r'Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App '
+                         r'Paths\%s" Value="[#file_%d]" Type="string" />'%(x, fid)),
                         ('<RegistryValue Root="HKLM" '
-                         'Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App '
-                         'Paths\{0}" Name="Path" Value="[APPLICATIONFOLDER]" '
+                         r'Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App '
+                         r'Paths\{0}" Name="Path" Value="[APPLICATIONFOLDER]" '
                          'Type="string" />'.format(x)),
                         ]
                     components.append('\n'.join(c))
@@ -141,6 +141,5 @@ class WixMixIn:
             self.smap[x] = 'file_%d'%self.file_id_map[self.a(self.j(self.base, x+'.exe'))]
 
         return '\t\t\t\t'+'\n\t\t\t\t'.join(components)
-
 
 
