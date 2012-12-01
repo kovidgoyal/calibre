@@ -203,7 +203,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     # All flows are now unicode and have links resolved
     return flows
 
-def insert_flows_into_markup(parts, flows, mobi8_reader):
+def insert_flows_into_markup(parts, flows, mobi8_reader, log):
     mr = mobi8_reader
 
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
@@ -219,12 +219,17 @@ def insert_flows_into_markup(parts, flows, mobi8_reader):
             if tag.startswith('<'):
                 for m in flow_pattern.finditer(tag):
                     num = int(m.group(1), 32)
-                    fi = mr.flowinfo[num]
-                    if fi.format == 'inline':
-                        tag = flows[num]
+                    try:
+                        fi = mr.flowinfo[num]
+                    except IndexError:
+                        log.warn('Ignoring invalid flow reference: %s'%m.group())
+                        tag = ''
                     else:
-                        replacement = '"../' + fi.dir + '/' + fi.fname + '"'
-                        tag = flow_pattern.sub(replacement, tag, 1)
+                        if fi.format == 'inline':
+                            tag = flows[num]
+                        else:
+                            replacement = '"../' + fi.dir + '/' + fi.fname + '"'
+                            tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = "".join(srcpieces)
         # store away modified version
@@ -313,7 +318,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     flows = update_flow_links(mobi8_reader, resource_map, log)
 
     # Insert inline flows into the markup
-    insert_flows_into_markup(parts, flows, mobi8_reader)
+    insert_flows_into_markup(parts, flows, mobi8_reader, log)
 
     # Insert raster images into markup
     insert_images_into_markup(parts, resource_map, log)
