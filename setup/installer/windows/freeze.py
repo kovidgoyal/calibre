@@ -374,7 +374,7 @@ class Win32Freeze(Command, WixMixIn):
         if not self.opts.keep_site:
             os.remove(y)
 
-    def run_builder(self, cmd):
+    def run_builder(self, cmd, show_output=False):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         if p.wait() != 0:
@@ -383,6 +383,9 @@ class Win32Freeze(Command, WixMixIn):
             self.info(p.stdout.read())
             self.info(p.stderr.read())
             sys.exit(1)
+        if show_output:
+            self.info(p.stdout.read())
+            self.info(p.stderr.read())
 
     def build_portable_installer(self):
         zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
@@ -520,7 +523,7 @@ class Win32Freeze(Command, WixMixIn):
         for src, obj in zip(sources, objects):
             if not self.newer(obj, headers+[src]): continue
             cmd = [msvc.cc] + cflags + dflags + ['/Fo'+obj, '/Tc'+src]
-            self.run_builder(cmd)
+            self.run_builder(cmd, show_output=True)
 
         dll = self.j(self.obj_dir, 'calibre-launcher.dll')
         ver = '.'.join(__version__.split('.')[:2])
@@ -532,7 +535,7 @@ class Win32Freeze(Command, WixMixIn):
                 'python%s.lib'%self.py_ver,
                 '/delayload:python%s.dll'%self.py_ver]
             self.info('Linking calibre-launcher.dll')
-            self.run_builder(cmd)
+            self.run_builder(cmd, show_output=True)
 
         src = self.j(base, 'main.c')
         shutil.copy2(dll, self.base)
