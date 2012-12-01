@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-23 05:41+0000\n"
+"PO-Revision-Date: 2012-11-30 05:40+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-11-30 05:00+0000\n"
+"X-Launchpad-Export-Date: 2012-12-01 04:52+0000\n"
 "X-Generator: Launchpad (build 16319)\n"
 "Language: uk\n"
 
@@ -1882,10 +1882,13 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo показує дані щодо рекомендацій на пристрої. Іноді ці дані є файлами, "
+"але здебільшого це посилання на сайти, де можна придбати книгу. Позначте, "
+"якщо ви хочете бачити і вилучати ці рекомендації."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "Встановити дані щодо серії"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1894,6 +1897,11 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"У списках книг на пристроях Kobo може бути показано дані щодо серії. Ці дані "
+"не читаються пристроєм з книг, завантажених на нього вами. Дані щодо серії "
+"може бути додано до бази даних пристрою лише після того, як книгу буде "
+"оброблено самим пристроєм. Позначте цей пункт, якщо ви хочете встановлювати "
+"дані щодо серії."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -1903,6 +1911,12 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo постійно оновлює мікрокод та версію бази даних. Якщо ви позначите цей "
+"пункт Calibre намагатиметься уможливити повноцінне читання і запис на "
+"пристрій. Втім, це може призвести до втрати даних. Вмикайте, лише якщо вам "
+"добре знайома процедура відновлення початкового мікрокоду вашого kobo і ви "
+"обізнані з тестування програмного забезпечення. У цьому драйвері передбачено "
+"підтримку мікрокоду версії 2.x.x та бази даних версії аж до "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -7861,7 +7875,7 @@ msgstr "&Жанри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Поле, що містить дані щодо жанру"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7914,7 +7928,7 @@ msgstr "Виключені жанри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Ви&ключені жанри (форм. вираз):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -16379,11 +16393,11 @@ msgstr "Показувати &обкладинку на панелі парам�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Показувати розміри обкладинки книги у пікселях"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Показувати &розміри обкладинки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -20715,6 +20729,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Поле джерела даних для розділу жанру.\n"
+"Типове значення: «%default»\n"
+"Стосується таких форматів виведення даних: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
 #, python-format
@@ -21201,6 +21218,7 @@ msgstr "Встановити номер у серії для доданих кн
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
 msgstr ""
+"Шлях до зображення обкладинки, яке слід використати для доданої книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
@@ -25196,28 +25214,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid ""
-#~ "Redirect console output to a dialog window (both stdout and stderr). Useful "
-#~ "on windows where GUI apps do not have a output streams."
-#~ msgstr ""
-#~ "Переспрямувати виведені до консолі повідомлення до діалогового вікна "
-#~ "(повідомлення stdout і stderr). Корисно у windows, де програми з графічним "
-#~ "інтерфейсом не мають потоків виведення даних."
-
-#~ msgid "Tags to &exclude (regex):"
-#~ msgstr "Мітки для в&иключення (форм. вираз):"
-
-#~ msgid ""
-#~ "Kobo routinely updates the firmware and the database version.  With this "
-#~ "option Calibre will attempt to perform full read-write functionality - Here "
-#~ "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
-#~ "factory defaults and testing software. This driver supports firmware V2.0.x "
-#~ "and DBVersion up to "
-#~ msgstr ""
-#~ "У Kobo постійно оновлюється мікрокод та номер версії бази даних. Якщо буде "
-#~ "позначено цей пункт, Calibre спробує надати у ваше розпорядження повноцінні "
-#~ "можливості з читання і запису (можливі помилки)! Цей пункт слід позначати, "
-#~ "лише якщо ви точно знаєте, як відновити типові налаштування вашого пристрою, "
-#~ "і знайомі з процедурою тестування програмного забезпечення. У цьому драйвері "
-#~ "передбачено підтримку версії мікрокоду 2.0.x та версій бази даних аж до "

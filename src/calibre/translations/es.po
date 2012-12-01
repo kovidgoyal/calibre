@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-23 14:05+0000\n"
+"PO-Revision-Date: 2012-11-30 15:34+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-11-30 04:58+0000\n"
+"X-Launchpad-Export-Date: 2012-12-01 04:51+0000\n"
 "X-Generator: Launchpad (build 16319)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
@@ -1901,10 +1901,13 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo muestra recomendaciones en el dispositivo. En algunos casos incluyen "
+"archivos, pero en otros casos son sólo enlaces a la página web para comprar. "
+"Active esta opción si quiere verlas o borrarlas."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "Establecer información de serie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1913,6 +1916,11 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"La lista de libros en los dispositivos Kobo puede mostrar información de "
+"serie. El dispositivo no lee esta información de los libros cargados "
+"manualmente. La información de serie sólo puede añadirse al dispositivo "
+"después de que éste ha procesado el libro. Active esta opción si quiere "
+"establecer la información de serie."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -1922,6 +1930,11 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo actualiza regularmente el firmware y la versión de base de datos. Con "
+"esta opción calibre intentará realizar actividades completas de lectura y "
+"escritura. ¡Cuidado! Actívelo sólo si está dispuesto a tener que restaurar "
+"el Kobo a la configuración de fábrica y a probar software. Este controlador "
+"soporta el firmware V2.x.x y DBVersion hasta "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -3272,7 +3285,8 @@ msgstr "Desactivar la compresión del archivo."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:59
 msgid "Tag marking book to be filed with Personal Docs"
 msgstr ""
-"Etiqueta que marca el libro par ser clasificado con los documentos personales"
+"Etiqueta que marca el libro para ser clasificado con los documentos "
+"personales"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:63
 msgid ""
@@ -7883,7 +7897,7 @@ msgstr "&Géneros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Campo que contiene información de género"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7936,7 +7950,7 @@ msgstr "Géneros excluidos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Géneros para &excluir (regex)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -16358,11 +16372,11 @@ msgstr "Mostrar &portada en el panel de detalles del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Mostrar el tamaño de la portada del libro en píxeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Mostrar &tamaño de portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -17439,9 +17453,9 @@ msgid ""
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
 "Esta restricción (basada en una búsqueda guardada) hace que el servidor de "
-"contenidos muestre únicamente los libros seleccionados par la búsqueda. Esta "
-"configuración es independiente para cada biblioteca, es decir, puede tener "
-"una restricción distinta para cada biblioteca."
+"contenidos muestre únicamente los libros seleccionados para la búsqueda. "
+"Esta configuración es independiente para cada biblioteca, es decir, puede "
+"tener una restricción distinta para cada biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid ""
@@ -20656,6 +20670,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Campo de origen para la sección de géneros.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida AZW3, ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
 #, python-format
@@ -21144,7 +21161,7 @@ msgstr "Establece el número de la serie de los libros añadidos"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr ""
+msgstr "Ruta de la portada para usar para el libro añadido"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
@@ -22477,7 +22494,7 @@ msgid ""
 "search on very large libraries."
 msgstr ""
 "Los caracteres introducidos en el cuadro de búsqueda encontrarán también las "
-"versiones acentuadas, según el idioma que haya elegido par la interfaz de "
+"versiones acentuadas, según el idioma que haya elegido para la interfaz de "
 "calibre. Por ejemplo, en inglés, al buscar «n» se encontrará tanto «%s» como "
 "«n», pero en español sólo se encontrará «n». Tenga en cuenta que esto hace "
 "las búsquedas mucho más lentas en bibliotecas muy grandes."
@@ -25146,27 +25163,3 @@ msgstr ""
 "Intro. Dependiendo del estado de los metadatos en la biblioteca y del "
 "estilo\n"
 "personal de edición que tenga, preferirá una u otra opción."
-
-#~ msgid ""
-#~ "Redirect console output to a dialog window (both stdout and stderr). Useful "
-#~ "on windows where GUI apps do not have a output streams."
-#~ msgstr ""
-#~ "Redireccionar la salida de consola hacia una ventana de diálogo (tanto "
-#~ "stdout como stderr). Útil en windows, donde las aplicaciones gráficas no "
-#~ "tienen flujos de salida."
-
-#~ msgid "Tags to &exclude (regex):"
-#~ msgstr "&Etiquetas par excluir (regex):"
-
-#~ msgid ""
-#~ "Kobo routinely updates the firmware and the database version.  With this "
-#~ "option Calibre will attempt to perform full read-write functionality - Here "
-#~ "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
-#~ "factory defaults and testing software. This driver supports firmware V2.0.x "
-#~ "and DBVersion up to "
-#~ msgstr ""
-#~ "Kobo actualiza regularmente el firmware y la versión de base de datos. Con "
-#~ "esta opción calibre intentará realizar actividades completas de lectura y "
-#~ "escritura. ¡Cuidado! Actívelo sólo si está dispuesto a tener que restaurar "
-#~ "el Kobo a la configuración de fábrica y a probar software. Este controlador "
-#~ "soporta el firmware V2.0.x y DBVersion hasta "
