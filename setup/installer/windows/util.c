@@ -16,6 +16,7 @@ static char python_dll[] = PYDLL;
 void set_gui_app(char yes) { GUI_APP = yes; }
 char is_gui_app() { return GUI_APP; }
 
+int calibre_show_python_error(const wchar_t *preamble, int code);
 
 // memimporter {{{
 
@@ -131,7 +132,7 @@ static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int co
     else {
         cbuf = (char*) calloc(10+(wcslen(buf)*4), sizeof(char));
         if (cbuf) {
-            if (WideCharToMultiByte(CP_UTF8, 0, buf, -1, cbuf, 10+(wcslen(buf)*4), NULL, NULL) != 0) printf_s(cbuf);
+            if (WideCharToMultiByte(CP_UTF8, 0, buf, -1, cbuf, (int)(10+(wcslen(buf)*4)), NULL, NULL) != 0) printf_s(cbuf);
             free(cbuf);
         }
     }
@@ -154,6 +155,7 @@ int show_last_error_crt(wchar_t *preamble) {
 int show_last_error(wchar_t *preamble) {
     wchar_t *msg = NULL;
     DWORD dw = GetLastError(); 
+    int ret;
 
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -162,10 +164,13 @@ int show_last_error(wchar_t *preamble) {
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        &msg,
-        0, NULL );
+        (LPWSTR)&msg, 
+        0,
+        NULL );
 
-    return _show_error(preamble, msg, (int)dw);
+    ret = _show_error(preamble, msg, (int)dw);
+    if (msg != NULL) LocalFree(msg);
+    return ret;
 }
 
 char* get_app_dir() {
@@ -243,10 +248,10 @@ void setup_stream(const char *name, const char *errors, UINT cp) {
     else if (cp == CP_UTF7) _snprintf_s(buf, 100, _TRUNCATE, "%s", "utf-7");
     else _snprintf_s(buf, 100, _TRUNCATE, "cp%d", cp);
 
-    stream = PySys_GetObject(name);
+    stream = PySys_GetObject((char*)name);
 
-    if (!PyFile_SetEncodingAndErrors(stream, buf, errors)) 
-        ExitProcess(calibre_show_python_error("Failed to set stream encoding", 1));
+    if (!PyFile_SetEncodingAndErrors(stream, buf, (char*)errors)) 
+        ExitProcess(calibre_show_python_error(L"Failed to set stream encoding", 1));
 
     free(buf);
     
