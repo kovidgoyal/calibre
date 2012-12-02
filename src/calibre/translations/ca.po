@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-25 12:08+0000\n"
+"PO-Revision-Date: 2012-12-01 13:10+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-01 04:38+0000\n"
+"X-Launchpad-Export-Date: 2012-12-02 04:35+0000\n"
 "X-Generator: Launchpad (build 16319)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1896,10 +1896,13 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"El Kobo mostra recomanacions al dispositiu. A vegades inclouen fitxers però "
+"d'altres només són enllaços a la pàgina web per comprar. Habiliteu-ho si "
+"voleu veure-les o suprimir-les."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "Estableix la informació de la sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1908,6 +1911,11 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"Les llistes de llibres als dispositius Kobo pot mostrar la informació de la "
+"sèrie. El dispositiu no ho llegeix dels llibres carregats manualment. La "
+"informació de la sèrie només es pot afegir després que el dispositiu hagi "
+"processat el llibre. Habiliteu-ho si voleu establir la informació de la "
+"sèrie."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -1917,6 +1925,12 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"El Kobo actualitza periòdicament el microprogramari i la versió de la base "
+"de dades. Amb aquesta opció el calibre provarà de realitzar funcions "
+"completes de lectura i escriptura. Aneu amb compte! Habiliteu-ho només si us "
+"trobeu a gust restaurant el kobo als paràmetres de fàbrica i provant "
+"programari. Aquest controlador és compatible amb el microprogramari V2.x.x i "
+"DBVersion fins a "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -7862,7 +7876,7 @@ msgstr "&Gèneres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Camp que conté la informació del gènere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7915,7 +7929,7 @@ msgstr "Gèneres exclosos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Gèneres que s'&exclouran (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -16379,11 +16393,11 @@ msgstr "Mostra la &portada al panell de detalls del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Mostra la mida de la portada del llibre en píxels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Mo&stra la mida de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -20706,6 +20720,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Camp font de la secció de gèneres.\n"
+"Per defecte «%default»\n"
+"S'aplica als formats de sortida AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
 #, python-format
@@ -21191,7 +21208,7 @@ msgstr "Estableix el nombre de sèrie del(s) llibre(s) afegit(s)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr ""
+msgstr "Camí a la portada que s'utilitzarà per al llibre afegit"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"

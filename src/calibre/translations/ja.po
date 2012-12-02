@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-25 12:09+0000\n"
+"PO-Revision-Date: 2012-12-01 07:34+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-01 04:44+0000\n"
+"X-Launchpad-Export-Date: 2012-12-02 04:35+0000\n"
 "X-Generator: Launchpad (build 16319)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1640,7 +1640,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "新しいファームウエアのサポートを有効にする"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:89
 msgid ""
@@ -1649,10 +1649,12 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Koboはファームウエアとデーターベースのアップデートを定期的に行います。このオプションではCalibreは、全ての読み書き機能を使用しようとします。注意"
+"！ソフトウエアのテストを行ったり、Koboを工場出荷時にリセットしたりしてもよい場合にのみ有効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:617
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "このKoboデーターベースのヴァージョンはサポートしていません。（詳細を参照）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:618
 msgid ""
@@ -1666,6 +1668,10 @@ msgid ""
 "firmware\" option. Doing so may require you to perform a factory reset of "
 "your Kobo."
 msgstr ""
+"あなたのKoboはアップデートされたファームウエア/データーベースを使用しています。Calibreはアップデートされたファームウエアをサポートしていないの"
+"で、データーベースの破損を避けるため編集を無効にします。この状態でも書籍をCalibreからKoboへ送ることはできますが、書籍の削除やコレクションの編集"
+"はできません。もしKoboを工場出荷時に戻す方法を知っていて実験をしてもいいと思う場合には、Calibreのデバイスアイコンを右クリックして「新しいファー"
+"ムウエアのサポートを有効にする」オプションを有効にしてください。その場合Koboを工場出荷時にリセットする必要があるかもしれません。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:393
@@ -1722,31 +1728,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1214
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr ""
+msgstr "ブックシェルフはKobo TouchのファームウエアV.2.0.0からサポートされます。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "自動編集のためのタグタイプの列を指定してください"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "ブックシェルフを作成"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
-msgstr ""
+msgstr "Kobo Touch上で新しいブックシェルフを作成。（もし存在しなかった場合。）ファームウエアV.2.0.0以降が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "空のブックシェルフを削除"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
-msgstr ""
+msgstr "Kobo Touch上の空のブックシェルフを、同期が終わった時に全て削除します。この機能にはファームウエアV2.0.0以降が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Upload covers for books"
@@ -17183,7 +17189,7 @@ msgstr "これ以上検索結果はありません。</b><p> 検索をもう一�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "タグブラウザ設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
@@ -17208,7 +17214,7 @@ msgstr "タグブラウザー中にあるエントリーのソート順を設定
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "マッチ方法"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
